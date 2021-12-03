@@ -3,9 +3,9 @@ from .models import Professores, Tipo, Atividades, OrdemDeServico
 
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'instituicao', 'coordenador_ceu', 'data_atendimento')
+    list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento')
     list_display_links = ('tipo', 'instituicao')
-    list_filter = ('instituicao', 'coordenador_ceu')
+    list_filter = ('instituicao', 'coordenador')
     list_per_page = 10
 
 
