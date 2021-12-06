@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    {% include 'parciais/_head.html' %}
+</head>
+<body>
+  <div class="box-total ml-0 mr-1">
+    <div class="box-side-bar mr-4">
+      {% block sidebar %}{% endblock %}
+    </div>
+    <div class="box-conteudo">
+      {% block conteudo %}{% endblock %}
+    </div>
+
+  </div>
+</body>
+</html>

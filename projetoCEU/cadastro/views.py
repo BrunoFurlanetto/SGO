@@ -1,5 +1,13 @@
 from django.shortcuts import render
 
 
-def ordem(request):
-    return render(request, 'cadastro/ordem_servico')
+def publico(request):
+    return render(request, 'cadastro/publico.html')
+
+
+def colegio(request):
+    return render(request, 'cadastro/colegio.html')
+
+
+def empresa(request):
+    return render(request, 'cadastro/empresa.html')

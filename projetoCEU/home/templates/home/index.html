@@ -1,17 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt">
-<link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'boxLogin.css' %}">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <div class="card mb-3">
-        <img class="card-img-top" src="" alt="Card image cap">
-    </div>
+    {% include 'parciais/_head.html' %}
 </head>
 
-<body>
+<body bgcolor="yellow">
     <div class="container">
         <div class="box">
             <font size="10" color="#00FA9A"> Tamanho desta fonte:  1</font>
@@ -25,9 +20,10 @@
                 <input type="password" class="form-control">
               </div>
               <br>
-              <button type="submit" class="btn btn-primary">Login</button>
+              <button type="submit" class="btn btn-primary href">Login</button>
             </form>
         </div>
     </div>
 </body>
 </html>
+
