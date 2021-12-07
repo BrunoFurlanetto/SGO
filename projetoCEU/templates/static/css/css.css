@@ -1,39 +1,42 @@
-  body{
-    margin: 1px
-    background-color: #A9A9A9
-  }
-  .box-total {
-    width: 100vw;
-    height: 100vh;
-    background-color: #fff ;
+body{
+    margin: 0px;
+}
+.box-total {
     display: flex;
     flex-direction: row;
-  }
-
-  .box-side-bar {
+}
+.box-side-bar {
     width: 200px;
-    background-color: #1C1C1C;
-    align: center
-  }
-  .box-conteudo {
-    width: 150vh;
+    align: center;
+}
+.box-conteudo {
+    width: 10vh;
     height: 100vh;
-    background-color: #A9A9A9;
-  }
-.body{
-    bgcolor: #A9A9A9
 }
 .container {
     width: 300vh;
     height: 100vh;
-    background-color: #A9A9A9 ;
+    background-color: #11101d
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center
+    align-items: center;
 }
-.box {
+.conteudo-login {
+    justify-content: center;
+    align-items: center;
+}
+.login {
+    justify-content: center;
+    align-items: center;
     width: 400px;
-    height: 600px;
-    background-color: #A9A9A9;
+}
+.barra {
+  border: 0;
+  height: 2px;
+  background-image: linear-gradient(to right, transparent, #CCC, transparent);
+}
+
+.logo-central {
+    margin-top: 6vh;
 }

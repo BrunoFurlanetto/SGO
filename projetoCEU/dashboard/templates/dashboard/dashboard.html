@@ -6,20 +6,8 @@
   {% include 'parciais/_head.html' %}
 </head>
 
-{% block sidebar %}
-  <div class="btn-group dropend">
-    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-      Cadastrar OS
-    </button>
-    <ul class="dropdown-menu dropdown-menu-dark">
-      <li><a class="dropdown-item" href="{% url 'publico' %}">Público</a></li>
-      <li><a class="dropdown-item" href="{% url 'colegio' %}">Colégio</a></li>
-      <li><a class="dropdown-item" href="{% url 'empresa' %}">Empresa</a></li>
-    </ul>
-  </div>
-{% endblock %}
-
 {% block conteudo %}
+
 
 {% endblock %}
 

@@ -1,29 +1,29 @@
+{% extends 'base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt">
 
-<head>
-    {% include 'parciais/_head.html' %}
-</head>
 
-<body bgcolor="yellow">
-    <div class="container">
-        <div class="box">
-            <font size="10" color="#00FA9A"> Tamanho desta fonte:  1</font>
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <center class="conteudo-login">
+        <img class="logo-central" src="{% static 'img/logoceu2.png' %}" alt="Logo" width="160px" height="auto">
+        <div class="login">
             <form>
-              <div class="form-group">
-                <label>Login</label>
-                <input type="email" class="form-control">
-              </div>
-              <div class="form-group">
-                <label>Senha</label>
-                <input type="password" class="form-control">
-              </div>
-              <br>
-              <button type="submit" class="btn btn-primary href">Login</button>
+                <div class="form-group mt-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" class="form-control">
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Login</button>
             </form>
         </div>
-    </div>
-</body>
+    </center>
+{% endblock %}
 </html>
-
