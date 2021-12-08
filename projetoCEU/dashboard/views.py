@@ -1,16 +1,9 @@
-from django.shortcuts import render
-
-from cadastro.models import Professores, Tipo, Atividades
+from django.shortcuts import render, redirect
 
 
 def dashboard(request):
-    professor = Professores.objects.all
-    tipo = Tipo.objects.all
-    atividade = Atividades.objects.all
+    if request.user.is_authenticated:
+        return render(request, 'dashboard/dashboard.html')
+    else:
+        return redirect('login')
 
-    return render(request, 'dashboard/dashboard.html',
-                  {'professor': professor, 'tipo': tipo, 'atividade': atividade})
-
-
-def publico(request):
-    return render(request, 'dashboard/publico.html')

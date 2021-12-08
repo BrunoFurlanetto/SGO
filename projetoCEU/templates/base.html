@@ -11,7 +11,7 @@
         <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
         <span class="logo_name">Fundação CEU</span>
       </div>
-      {% if 'login' not in request.path %}
+      {% if request.user.is_authenticated %}
       <ul class="nav-links">
         <li>
           <a href="{% url 'dashboard' %}">
@@ -118,10 +118,10 @@
               <!--<img src="image/profile.jpg" alt="profileImg">-->
             </div>
             <div class="name-job">
-              <div class="profile_name">Prem Shahi</div>
-              <div class="job">Web Desginer</div>
+              <div class="profile_name">{{ user.first_name }} {{ user.last_name }}</div>
+              <div class="job">{{ user.groups.all.0 }}</div>
             </div>
-            <a href="{% url 'home' %}"><i class='bx bx-log-out' ></i></a>
+            <a href="{% url 'logout' %}"><i class='bx bx-log-out' ></i></a>
           </div>
         </li>
       </ul>
@@ -134,6 +134,7 @@
       </div>
       <div class="conteudo">
         <hr class="barra">
+        {% include 'parciais/_mensagens.html' %}
         {% block conteudo %}{% endblock %}
       </div>
     </section>

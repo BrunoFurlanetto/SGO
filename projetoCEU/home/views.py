@@ -1,5 +1,29 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import auth, messages
+from django.contrib.auth.models import User
 
 
 def index(request):
-    return render(request, 'home/index.html')
+    if request.method != 'POST':
+        return render(request, 'home/index.html')
+
+    email = request.POST.get('email')
+    senha = request.POST.get('senha')
+
+    try:
+        username = User.objects.get(email=email.lower()).username
+        user = auth.authenticate(request, username=username, password=senha)
+        auth.login(request, user)
+        return redirect('dashboard')
+    except:
+        messages.error(request, 'Email ou senha inválidos')
+        return render(request, 'home/index.html')
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('login')
+
+
+
+
