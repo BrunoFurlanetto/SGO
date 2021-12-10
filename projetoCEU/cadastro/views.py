@@ -1,23 +1,26 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from .models import FormularioOrdem, OrdemDeServico, Professores
 
 
 def publico(request):
-    if request.user.is_authenticated:
-        return render(request, 'cadastro/publico.html')
-    else:
+    if not request.user.is_authenticated:
         return redirect('login')
+
+    professores = Professores.objects.all()
+    os = OrdemDeServico.objects.all()
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/publico.html', {'os': os, 'professores': professores})
 
 
 def colegio(request):
-    if request.user.is_authenticated:
-        return render(request, 'cadastro/colegio.html')
-    else:
+    if not request.user.is_authenticated:
         return redirect('login')
 
 
 def empresa(request):
-    if request.user.is_authenticated:
-        return render(request, 'cadastro/empresa.html')
-    else:
+    if not request.user.is_authenticated:
         return redirect('login')
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/empresa.html')

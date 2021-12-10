@@ -1,26 +1,33 @@
 {% extends 'base.html' %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt">
-<head>
-  {% include 'parciais/_head.html' %}
-</head>
 
-{% block sidebar %}
-  <div class="btn-group dropend">
-    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-      Cadastrar OS
-    </button>
-    <ul class="dropdown-menu dropdown-menu-dark">
-      <li><a class="dropdown-item" href="{% url 'publico' %}">Público</a></li>
-      <li><a class="dropdown-item" href="{% url 'colegio' %}">Colégio</a></li>
-      <li><a class="dropdown-item" href="{% url 'empresa' %}">Empresa</a></li>
-    </ul>
-  </div>
-{% endblock %}
+{% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-<h1>Empresa</h1>
+<form>
+	<select id="language" onChange="update()">
+			<option value="pt">Português</option>
+			<option value="en">English</option>
+			<option value="es">Español</option>
+		</select>
+		<input type="text" id="value">
+		<input type="text" id="text">
+
+		<script type="text/javascript">
+			function update() {
+				var select = document.getElementById('language');
+				var option = select.options[select.selectedIndex];
+
+				document.getElementById('value').value = option.value;
+				document.getElementById('text').value = option.text;
+			}
+
+			update();
+		</script>
+</form>
+
+
+
 {% endblock %}
 
-</html>

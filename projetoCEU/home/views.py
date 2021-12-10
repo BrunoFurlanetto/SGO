@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 
 
 def index(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method != 'POST':
         return render(request, 'home/index.html')
 

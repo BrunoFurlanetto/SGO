@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django import forms
 
 
 class Professores(models.Model):
@@ -40,8 +41,9 @@ class OrdemDeServico(models.Model):
     professor_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
                                     related_name='professor_4', blank=True, null=True)
     hora_entrada = models.TimeField()
-    atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
-                                    related_name='atividade_1', default='Atividade 1')
+    atividade_1 = models.JSONField()
+    # atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+    #                                related_name='atividade_1', default='Atividade 1')
     hora_atividade_1 = models.TimeField()
     atividade_2 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_2', blank=True, null=True)
@@ -53,3 +55,9 @@ class OrdemDeServico(models.Model):
                                     related_name='atividade_4', blank=True, null=True)
     hora_atividade_4 = models.TimeField(blank=True, null=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
+
+
+class FormularioOrdem(forms.ModelForm):
+    class Meta:
+        model = OrdemDeServico
+        exclude = ('responsaveis', 'serie', 'coordenador_peraltas')

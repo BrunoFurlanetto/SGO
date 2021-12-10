@@ -1,30 +1,152 @@
 {% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  {% include 'parciais/_head.html' %}
-</head>
-
-{% block sidebar %}
-  <div class="btn-group dropend">
-    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-      Cadastrar OS
-    </button>
-    <ul class="dropdown-menu dropdown-menu-dark">
-      <li><a class="dropdown-item" href="{% url 'publico' %}">Público</a></li>
-      <li><a class="dropdown-item" href="{% url 'colegio' %}">Colégio</a></li>
-      <li><a class="dropdown-item" href="{% url 'empresa' %}">Empresa</a></li>
-    </ul>
-  </div>
-{% endblock %}
+{% include 'parciais/_head.html' %}
 
 {% block conteudo %}
   <div>
     <center>
-      <h2>CADASTRO DE ORDEN DE SERVIÇO PARA PÚBLICO</h2>
+      <h2>CADASTRO DE ORDEM DE SERVIÇO DE PÚBLICO</h2>
     </center>
   </div>
+  <br>
+<!-------------------------------- LINHA 1 ---------------------------->
+  <div class="container">
+    <form>
+      <div class="row">
+        <div class="col-3 my-1 mb-3">
+          <label class="mr-sm-2 sr-only">Coordenador</label>
+          <select id="coordenador" onChange="equipe(this)">
+            <option selected></option>
+              {% for nome in professores %}
+                <option value="{{ nome }}">{{ nome }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-2 my-2">
+          <label>Participantes: </label>
+        </div>
+        <div class="col-2">
+          <input type="number" class="form-control" placeholder="Prévia">
+        </div>
+        <div class="col-3">
+          <input type="number" class="form-control" placeholder="Confirmados">
+        </div>
+      </div>
+<!-------------------------------- LINHA 2 ---------------------------->
+      <div class="row mb-3">
+        <div class="col-3">
+          <center>
+            <label>Data do atendimento</label>
+          </center>
+          <input type="date" class="form-control" id="inputAddress">
+        </div>
+        <div class="col-8">
+          <center>
+            <label>Equipe escalada</label>
+          </center>
+          <center>
+            <div class="col-12 my-2">
+              <label class="mr-sm-2 sr-only">Professor 2: </label>
+              <select class="custom-select mr-sm-2" id="p2" onChange="equipe(this)">
+                <option selected></option>
+                {% for nome in professores %}
+                  <option>{{ nome }}</option>
+                {% endfor %}
+              </select>
+              <label class="mr-sm-2 sr-only">Professor 3: </label>
+              <select class="custom-select mr-sm-2" id="p3" onChange="equipe(this)">
+                <option selected></option>
+                {% for nome in professores %}
+                  <option>{{ nome }}</option>
+                {% endfor %}
+              </select>
+              <label class="mr-sm-2 sr-only">Professor 4: </label>
+              <select class="custom-select mr-sm-2" id="p4" onChange="equipe(this)">
+                <option selected></option>
+                {% for nome in professores %}
+                  <option>{{ nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </center>
+        </div>
+      </div>
+      <hr>
+      <label>ATIVIDADES REALIZADAS NO CEU</label>
+<!-------------------------------- LINHA 3 ---------------------------->
+      <table class="table">
+        <tr>
+          <td>Nome dos professores</td>
+          <td>Horário entrada</td>
+          <td>Horário atividade</td>
+          <td>Atividade Realizada</td>
+        </tr>
+        <tr>
+          <td>
+            <select class="custom-select mr-sm-2" id="pa1">
+              <option selected></option>
+                <option></option>
+            </select>
+            /
+            <select class="custom-select mr-sm-2" id="pa1">
+              <option selected></option>
+                <option>{{ nome }}</option>
+            </select>
+            /
+            <select class="custom-select mr-sm-2" id="pa1">
+              <option selected></option>
+                <option>{{ nome }}</option>
+            </select>
+            /
+            <select class="custom-select mr-sm-2" id="pa1">
+              <option selected></option>
+                <option></option>
+            </select>
+          </td>
+          <td>
+            <input type="time" class="form-control">
+          </td>
+          <td>
+            <input type="time" class="form-control">
+          </td>
+          <td></td>
+        </tr>
+      </table>
+
+      <div class="form-group">
+        <label>Address 2</label>
+        <input type="text" class="form-control" id="teste">
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputCity">City</label>
+          <input type="text" class="form-control" id="inputCity">
+        </div>
+        <div class="form-group col-md-4">
+          <label for="inputState">State</label>
+          <select id="inputState" class="form-control">
+            <option selected>Choose...</option>
+            <option>...</option>
+          </select>
+        </div>
+        <div class="form-group col-md-2">
+          <label for="inputZip">Zip</label>
+          <input type="text" class="form-control" id="inputZip">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="gridCheck">
+          <label class="form-check-label" for="gridCheck">
+            Check me out
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Sign in</button>
+      <script src="{% static 'js/script.js' %}"></script>
+    </form>
+  </div>
+
 {% endblock %}
 
-</html>
+

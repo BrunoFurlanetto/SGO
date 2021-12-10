@@ -1,14 +1,22 @@
-let arrow = document.querySelectorAll(".arrow");
-for (var i = 0; i < arrow.length; i++) {
-    arrow[i].addEventListener("click", (e)=>{
-    let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
-    arrowParent.classList.toggle("showMenu");
-    });
-}
+function equipe(selecao) {
+    var valorSelecao = selecao.value;
+    var professor = document.getElementById('pa1');
+    let option = document.createElement('option');
+    var adciona = true;
+    var j = 2;
 
-let sidebar = document.querySelector(".sidebar");
-let sidebarBtn = document.querySelector(".bx-menu");
-console.log(sidebarBtn);
-sidebarBtn.addEventListener("click", ()=>{
-    sidebar.classList.toggle("close");
-});
+    if (j == professor.length){
+        option.text = valorSelecao;
+        professor.add(option)
+    }else{
+        for (i=2; i < professor.length; i++){
+             if (valorSelecao == professor[i].value){
+                adciona = false
+            };
+        };
+        if (adciona){
+            option.text = valorSelecao;
+            professor.add(option);
+        };
+    };
+};

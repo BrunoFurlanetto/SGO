@@ -10,17 +10,21 @@ body{
     align: center;
 }
 .box-conteudo {
-    width: 10vh;
+    margin-right: 30vh;
+    align-items: center;
+    width: 100vh;
     height: 100vh;
 }
 .container {
     width: 300vh;
-    height: 100vh;
-    background-color: #11101d
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+.publico {
+    display: flex;
+    justify-content: center;
 }
 .conteudo-login {
     justify-content: center;
