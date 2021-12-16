@@ -5,7 +5,7 @@
       {% include 'parciais/_head.html' %}
   </head>
 
-  <body>
+  <body style="background-color: #E4E9F7">
     <div class="sidebar close">
       <div class="logo-details">
         <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
@@ -132,11 +132,12 @@
         <i class='bx bx-menu' ></i>
         <span class="text">Sistema de cadastro de OS</span>
       </div>
+      <hr class="barra">
       <div>
-        <hr class="barra">
         {% include 'parciais/_mensagens.html' %}
         {% block conteudo %}{% endblock %}
       </div>
+      <br><br><br><br>
     </section>
 </body>
 

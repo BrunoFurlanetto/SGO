@@ -10,58 +10,64 @@
   </div>
   <br>
 <!-------------------------------- LINHA 1 ---------------------------->
-  <div class="container">
-    <form>
-      <div class="row">
-        <div class="col-3 my-1 mb-3">
-          <label class="mr-sm-2 sr-only">Coordenador</label>
-          <select id="coordenador" onChange="equipe(this)">
-            <option selected></option>
-              {% for nome in professores %}
-                <option value="{{ nome }}">{{ nome }}</option>
-              {% endfor %}
-          </select>
+  <div class="conteudo-publico">
+    <form action="{% url 'publico' %}" method="POST">
+      {% csrf_token %}
+      <script src="{% static 'js/teste.js' %}"></script>
+      <script src="{% static 'js/jquery.js' %}"></script>
+      <center>
+        <div class="row">
+          <div class="col-4 mb-3">
+            <label class="mr-sm-2 my-4 sr-only">Coordenador</label>
+            <select id="coordenador" onChange="equipe(this)" name="coordenador">
+              <option selected></option>
+                {% for nome in professores %}
+                  <option value="{{ nome }}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-2 my-4">
+            <label>Participantes: </label>
+          </div>
+          <div class="col-2 my-3">
+            <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
+          </div>
+          <div class="col-3 my-3">
+            <input type="number" class="form-control" placeholder="Confirmados"  name="participantes" style="width: 18vh height: 12vh">
+          </div>
         </div>
-        <div class="col-2 my-2">
-          <label>Participantes: </label>
-        </div>
-        <div class="col-2">
-          <input type="number" class="form-control" placeholder="Prévia">
-        </div>
-        <div class="col-3">
-          <input type="number" class="form-control" placeholder="Confirmados">
-        </div>
-      </div>
+      </center>
+
 <!-------------------------------- LINHA 2 ---------------------------->
       <div class="row mb-3">
         <div class="col-3">
           <center>
-            <label>Data do atendimento</label>
+            <label style="width: 25vh">Data do atendimento</label>
           </center>
-          <input type="date" class="form-control" id="inputAddress">
+          <input type="date" class="form-control" name="dataAtendimento" style="width: 25vh">
         </div>
         <div class="col-8">
           <center>
             <label>Equipe escalada</label>
           </center>
           <center>
-            <div class="col-12 my-2">
+            <div class="col-6 my-2" style="width: 80vh">
               <label class="mr-sm-2 sr-only">Professor 2: </label>
-              <select class="custom-select mr-sm-2" id="p2" onChange="equipe(this)">
+              <select class="custom-select mr-sm-2" id="p2" onChange="equipe(this)" style="width: 12vh" name="prf2">
                 <option selected></option>
                 {% for nome in professores %}
                   <option>{{ nome }}</option>
                 {% endfor %}
               </select>
               <label class="mr-sm-2 sr-only">Professor 3: </label>
-              <select class="custom-select mr-sm-2" id="p3" onChange="equipe(this)">
+              <select class="custom-select mr-sm-2" id="p3" onChange="equipe(this)" style="width: 12vh" name="prf3">
                 <option selected></option>
                 {% for nome in professores %}
                   <option>{{ nome }}</option>
                 {% endfor %}
               </select>
               <label class="mr-sm-2 sr-only">Professor 4: </label>
-              <select class="custom-select mr-sm-2" id="p4" onChange="equipe(this)">
+              <select class="custom-select mr-sm-2" id="p4" onChange="equipe(this)" style="width: 12vh" name="prf4">
                 <option selected></option>
                 {% for nome in professores %}
                   <option>{{ nome }}</option>
@@ -72,78 +78,57 @@
         </div>
       </div>
       <hr>
-      <label>ATIVIDADES REALIZADAS NO CEU</label>
 <!-------------------------------- LINHA 3 ---------------------------->
-      <table class="table">
-        <tr>
-          <td>Nome dos professores</td>
-          <td>Horário entrada</td>
-          <td>Horário atividade</td>
-          <td>Atividade Realizada</td>
-        </tr>
-        <tr>
-          <td>
-            <select class="custom-select mr-sm-2" id="pa1">
-              <option selected></option>
-                <option></option>
-            </select>
-            /
-            <select class="custom-select mr-sm-2" id="pa1">
-              <option selected></option>
-                <option>{{ nome }}</option>
-            </select>
-            /
-            <select class="custom-select mr-sm-2" id="pa1">
-              <option selected></option>
-                <option>{{ nome }}</option>
-            </select>
-            /
-            <select class="custom-select mr-sm-2" id="pa1">
-              <option selected></option>
-                <option></option>
-            </select>
-          </td>
-          <td>
-            <input type="time" class="form-control">
-          </td>
-          <td>
-            <input type="time" class="form-control">
-          </td>
-          <td></td>
-        </tr>
+      <table class="table table-sm" style="caption-side: top; border-color: #93989d">
+        <caption>Atividades realizadas no CEU:</caption>
+        <thead>
+          <tr>
+            <th><center>Nome dos professores</center></th>
+            <th>Horário entrada</th>
+            <th>Horário atividade</th>
+            <th>Atividade realizada</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in rangei %}
+          <tr>
+            <td>
+              {% for j in rangej %}
+                <select class="custom-select-d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}" style="width: 10vh">
+                  <option selected></option>
+                </select>
+              {% endfor %}
+            </td>
+            <td>
+              <center>
+                {% if i == 1 %}
+                  <input type="time" class="form-control" style="width: 100px" name="horaEntrada">
+                {% endif %}
+              </center>
+            </td>
+            <td>
+              <center>
+                <input type="time" class="form-control" style="width: 100px" name="horaAtividade">
+              </center>
+            </td>
+            <td>
+              <select class="custom-select mr-sm-2 my-1" style="width: 20vh" name="ativ{{ i }}">
+                <option selected></option>
+                {% for atividade in atividades %}
+                  <option>{{ atividade }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
-
+<!-------------------------------- RELATÓRIO FINAL ---------------------------->
       <div class="form-group">
-        <label>Address 2</label>
-        <input type="text" class="form-control" id="teste">
+        <label>Relatório do dia:</label>
+        <textarea class="form-control mb-3" style="height: 25vh; resise=none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
+        <button type="submit" class="btn btn-primary ml-5">Salvar</button>
       </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputCity">City</label>
-          <input type="text" class="form-control" id="inputCity">
-        </div>
-        <div class="form-group col-md-4">
-          <label for="inputState">State</label>
-          <select id="inputState" class="form-control">
-            <option selected>Choose...</option>
-            <option>...</option>
-          </select>
-        </div>
-        <div class="form-group col-md-2">
-          <label for="inputZip">Zip</label>
-          <input type="text" class="form-control" id="inputZip">
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="gridCheck">
-          <label class="form-check-label" for="gridCheck">
-            Check me out
-          </label>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary">Sign in</button>
-      <script src="{% static 'js/script.js' %}"></script>
     </form>
   </div>
 
