@@ -1,14 +1,45 @@
 {% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  {% include 'parciais/_head.html' %}
-</head>
+{% include 'parciais/_head.html' %}
 
 {% block conteudo %}
 
-
+  <div class="conteudo-dashboard">
+    <table class="table table-sm" style="caption-side: top">
+      <caption><h5>Ordens de Serviço do dia</h5></caption>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Instituição</th>
+          <th>Coordenador</th>
+          <th>Equipe</th>
+          <th>Data de atendimento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for os in ordemDeServico %}
+          <tr>
+            <td>{{ os.tipo }}</td>
+            <td>{{ os.instituicao }}</td>
+            <td>{{ os.coordenador }}</td>
+            <td>
+              {% if os.professor_2 != none %}
+              {{ os.professor_2 }}
+              {% endif %}
+              {% if os.professor_3 != none %}
+              ,
+              {{ os.professor_3 }}
+              {% endif %}
+              {% if os.professor_4 != none %}
+              ,
+              {{ os.professor_4 }}
+              {% endif %}
+            </td>
+            <td>{{ os.data_atendimento }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}
 
-</html>
