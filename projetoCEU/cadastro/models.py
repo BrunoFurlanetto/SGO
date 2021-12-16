@@ -40,7 +40,7 @@ class OrdemDeServico(models.Model):
                                     related_name='professor_3', blank=True, null=True)
     professor_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
                                     related_name='professor_4', blank=True, null=True)
-    hora_entrada = models.TimeField()
+    hora_entrada = models.TimeField(blank=True, null=True)
     atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING, related_name='atividade_1')
     hora_atividade_1 = models.TimeField()
     prf_1_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_1')
