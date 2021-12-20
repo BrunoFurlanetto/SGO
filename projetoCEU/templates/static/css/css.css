@@ -60,3 +60,10 @@
     justify-content: center;
     align-items: center;
 }
+.conteudo-empresa{
+    margin-left: 30vh;
+    margin-right: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

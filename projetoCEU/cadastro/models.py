@@ -28,7 +28,7 @@ class OrdemDeServico(models.Model):
     tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING)
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
-    participantes_confirmados = models.IntegerField(blank=True)
+    participantes_confirmados = models.IntegerField(blank=True, null=True)
     responsaveis = models.IntegerField(blank=True, null=True)
     serie = models.CharField(max_length=100, blank=True)
     coordenador_peraltas = models.CharField(max_length=100, blank=True)
@@ -41,6 +41,8 @@ class OrdemDeServico(models.Model):
     professor_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
                                     related_name='professor_4', blank=True, null=True)
     hora_entrada = models.TimeField(blank=True, null=True)
+
+# ------------------------------------------ CAMPOS DA ATIVIDADE 1 -----------------------------------------
     atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING, related_name='atividade_1')
     hora_atividade_1 = models.TimeField()
     prf_1_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_1')
@@ -50,6 +52,15 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_1',
                                     blank=True, null=True)
+    atividade_1_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_1_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_1_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_1 = models.DurationField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 2 -----------------------------------------
     atividade_2 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_2', blank=True, null=True)
     hora_atividade_2 = models.TimeField(blank=True, null=True)
@@ -61,6 +72,15 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_2',
                                     blank=True, null=True)
+    atividade_2_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_2_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_2_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_2 = models.DurationField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 3 -----------------------------------------
     atividade_3 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_3', blank=True, null=True)
     hora_atividade_3 = models.TimeField(blank=True, null=True)
@@ -72,6 +92,15 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_3',
                                     blank=True, null=True)
+    atividade_3_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_3_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_3_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_3 = models.DurationField(blank=True, null=True)
+
+# ------------------------------------------ CAMPOS DA ATIVIDADE 4 -----------------------------------------
     atividade_4 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_4', blank=True, null=True)
     hora_atividade_4 = models.TimeField(blank=True, null=True)
@@ -83,6 +112,8 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_4',
                                     blank=True, null=True)
+
+# ------------------------------------------ CAMPOS DA ATIVIDADE 5 -----------------------------------------
     atividade_5 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_5', blank=True, null=True)
     hora_atividade_5 = models.TimeField(blank=True, null=True)
@@ -94,6 +125,7 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_5',
                                     blank=True, null=True)
+    horas_totais = models.DurationField(blank=True, null=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
 
 
