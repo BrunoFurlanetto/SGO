@@ -5,10 +5,10 @@
 {% block conteudo %}
 
   <div class="conteudo-dashboard">
-    <table class="table table-sm" style="caption-side: top">
+    <table class="table table-hover" style="caption-side: top">
       <caption><h5>Ordens de Serviço do dia</h5></caption>
       <thead>
-        <tr>
+        <tr class="table-active">
           <th><center>Tipo</center></th>
           <th><center>Instituição</center></th>
           <th>Coordenador</th>
@@ -23,7 +23,9 @@
             <td>{{ os.instituicao }}</td>
             <td>{{ os.coordenador }}</td>
             <td>
+              {{ os.coordenador }}
               {% if os.professor_2 != none %}
+              ,
               {{ os.professor_2 }}
               {% endif %}
               {% if os.professor_3 != none %}

@@ -79,7 +79,7 @@ def publico(request):
             atividade_4 = hora_atividade_4 = prf_1_atv_4 = prf_2_atv_4 = prf_3_atv_4 = prf_4_atv_4 = None
 
         # ------------------------------ TESTES PARA ATIVIDADE 5 -----------------------------------------
-        if request.POST.get('ativ5') == '':
+        if request.POST.get('ativ5') != '':
             atividade_5 = Atividades.objects.get(atividade=request.POST.get('ativ5'))
             hora_atividade_5 = request.POST.get('horaAtividade_5')
             prf_1_atv_5 = Professores.objects.get(nome=request.POST.get('prf1atv5'))

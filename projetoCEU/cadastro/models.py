@@ -125,6 +125,7 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
     prf_4_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_5',
                                     blank=True, null=True)
+
     horas_totais = models.DurationField(blank=True, null=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
 

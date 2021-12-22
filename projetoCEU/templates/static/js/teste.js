@@ -7,5 +7,5 @@ function equipe(selecao) {
         escala.push(valorSelecao)
         $('.custom-select-d').append('<option>' + valorSelecao + '</option>');
     };
-
 };
+
