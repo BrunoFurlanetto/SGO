@@ -54,9 +54,8 @@
     align-items: center;
 }
 .conteudo-dashboard{
-    margin-left: 30vh;
-    margin-right: 30vh;
-    display: flex;
+    margin-left: 25vh;
+    margin-right: 25vh;
     justify-content: center;
     align-items: center;
 }
@@ -66,4 +65,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.tabela-dashboard{
+    height: 60vh;
 }

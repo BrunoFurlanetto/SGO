@@ -5,43 +5,49 @@
 {% block conteudo %}
 
   <div class="conteudo-dashboard">
-    <table class="table table-hover" style="caption-side: top; table-layout:fixed">
-      <caption><h5>Ordens de Serviço do dia {{ data_selecionada }} </h5></caption>
-      <thead>
-        <tr class="table-active">
-          <th><center>Tipo</center></th>
-          <th><center>Instituição</center></th>
-          <th>Coordenador</th>
-          <th><center>Equipe</center></th>
-          <th><center>Data de atendimento</center></th>
-        </tr>
-      </thead>
-      <tbody id="dados">
-        {% for os in ordemDeServico %}
-          <tr>
-            <td>{{ os.tipo }}</td>
-            <td>{{ os.instituicao }}</td>
-            <td>{{ os.coordenador }}</td>
-            <td>
-              {{ os.coordenador }}
-              {% if os.professor_2 != none %}
-              ,
-              {{ os.professor_2 }}
-              {% endif %}
-              {% if os.professor_3 != none %}
-              ,
-              {{ os.professor_3 }}
-              {% endif %}
-              {% if os.professor_4 != none %}
-              ,
-              {{ os.professor_4 }}
-              {% endif %}
-            </td>
-            <td>{{ os.data_atendimento }}</td>
+    <div class="tabela-dashboard">
+      <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top; table-layout:fixed">
+        <caption><h5>Ordens de Serviço do dia {{ data_selecionada }} </h5></caption>
+        <thead>
+          <tr class="table-active">
+            <th width="8%"><center>Tipo</center></th>
+            <th width="40%"><center>Instituição</center></th>
+            <th width="12%"><center>Coordenador</center></th>
+            <th><center>Equipe</center></th>
+            <th width="20%"><center><nobr>Data de atendimento</nobr></center></th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody id="dados">
+          {% for os in ordemDeServico %}
+            <tr>
+              <td>{{ os.tipo }}</td>
+              <td>{{ os.instituicao }}</td>
+              <td>{{ os.coordenador }}</td>
+              <td>
+                {{ os.coordenador }}
+                {% if os.professor_2 != none %}
+                ,
+                {{ os.professor_2 }}
+                {% endif %}
+                {% if os.professor_3 != none %}
+                ,
+                {{ os.professor_3 }}
+                {% endif %}
+                {% if os.professor_4 != none %}
+                ,
+                {{ os.professor_4 }}
+                {% endif %}
+              </td>
+              <td>{{ os.data_atendimento }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <hr>
+    <div class="dados_dashboard">
+
+    </div>
   </div>
 {% endblock %}
 

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 def dashboard(request):
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
-        data_atendimento=request.POST.get('data_selecionada'))
+                                                                data_atendimento=request.POST.get('data_selecionada'))
     tipos = []
     coordenadores = []
     equipe = []
@@ -23,11 +23,6 @@ def dashboard(request):
         equipe.append(campo.professor_2)
         equipe.append(campo.professor_3)
         equipe.append(campo.professor_4)
-
-
-    print(dados)
-
-    print(dados)
 
     if request.user.is_authenticated:
 

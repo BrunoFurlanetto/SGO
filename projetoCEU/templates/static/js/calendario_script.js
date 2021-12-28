@@ -72,7 +72,7 @@ const renderCalendar = () => {
       i === new Date().getDate() &&
       date.getMonth() === new Date().getMonth()
     ) {
-      days += `<div class="today">${i}</div>`;
+      days += `<div class="${i} today">${i}</div>`;
     } else {
       days += `<div class="${i}">${i}</div>`;
     }
@@ -164,10 +164,11 @@ document.querySelector(".days").addEventListener("click", (event) => {
         success: function(response){
             if (response[1] == ']'){
                 $('#dados').empty();
-                $('#dados').append('<tr>')
+                var novaLinha = document.createElement('tr')
+                novaLinha.id = 'dados0'
+                $('#dados').append(novaLinha)
                 var mensagem = "<td colspan='5'>"+'Sem Ordens de Serviço para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
-                $('#dados').append(mensagem)
-                $('#dados').append('</tr>')
+                $('#dados0').append(mensagem)
                 return
             };
             var tipos = [];
@@ -201,22 +202,20 @@ document.querySelector(".days").addEventListener("click", (event) => {
 
             $('#dados').empty();
             for (var key = 0; key < tipos.length; key++){
-                $('#dados').append('<tr>')
+                var novaLinha = document.createElement('tr')
+                novaLinha.id = 'dados' + key
+                $('#dados').append(novaLinha)
                 var tipo = '<td>'+tipos[key]+'</td>';
                 var instituicao = '<td>'+ instituicoes[key] +'</td>';
                 var coordenador = '<td>'+coordenadores[key]+'</td>';
                 var equipe_j = new String();
-                for (var k = 0; k < 3; k++){
-                    equipe_j = coordenadores[key]
-                    if (equipe[key][k] != ' '){
-                        console.log(equipe[key][k])
-                        equipe_j = equipe_j.concat(', ', equipe[key].join(', ').replace(/,(\s+)?$/, ''))
-                    };
+                equipe_j = coordenadores[key]
+                if (equipe[key][0] != ''){
+                    equipe_j = equipe_j.concat(', ', equipe[key].join(', ').replace(/,(\s+)?$/, ''))
                 };
                 equipe_mostrar = '<td>' + equipe_j + '</td>';
                 var data_atendimento = '<td>'+data_selecionada.toLocaleDateString('pt-BR')+'</td>';
-                $('#dados').append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
-                $('#dados').append('</tr>')
+                $('#dados'+key).append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
             }
 
         }
