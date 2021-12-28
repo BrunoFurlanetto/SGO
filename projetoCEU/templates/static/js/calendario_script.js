@@ -1,11 +1,5 @@
 const date = new Date();
 
-const prevLastDay = new Date(
-    date.getFullYear(),
-    date.getMonth() - 1,
-    0
-).getDate();
-
 const renderCalendar = () => {
   date.setDate(1);
 
@@ -101,36 +95,135 @@ document.querySelector(".next").addEventListener("click", () => {
 });
 
 document.querySelector(".days").addEventListener("click", (event) => {
-    /*console.log(date.getMonth() + 1);
-    console.log(date.getFullYear());*/
+    /* Constante necessária para saber o último dia do mês anterior */
+    const prevLastDay = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        0
+    ).getDate();
 
+    /* Tanto a variável quanto o if a seguir são para selecionar a div com o selected antigo */
+    /* e remover para que não fique com duas div's selecionadas */
     var selecionado = document.getElementsByClassName("selected");
 
     if (selecionado.length > 0){
         selecionado[0].classList.remove("selected");
     };
 
+    /* Testes para conseguir adcionar a class 'selected' na div certa, já que tem diferença */
+    /* entre as div's do mês mostrado pelo calendário e as div's do próximo mês e do anterior */
     if (event.target.classList.contains("next-date")){
         var divAntiga = event.target.classList[1];
+        /* Pulando pro próximo mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() + 1);
         renderCalendar();
-        var novaDiv = document.getElementsByClassName(divAntiga)
+        /* Pegando o valor da div antiga pra conseguir selecionar o dia certo na nova div */
+        var novaDiv = document.getElementsByClassName(divAntiga);
+        /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
+        /* Será usada com o BD */
+        var mes_selecionado = date.getMonth();
+        var ano_selecionado = date.getFullYear();
+        var dia_selecionado = event.target.classList[1];
+        var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado)
     }else if (event.target.classList.contains("prev-date")){
         var divAntiga = event.target.classList[1];
+        /* Voltando o mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() - 1);
         renderCalendar();
-        var novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)))
+        /* Fazendo a conta utilizando a div antiga pra poder selecionar a div certa */
+        var novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)));
+        /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
+        /* Será usada com o BD */
+        var mes_selecionado = date.getMonth();
+        var ano_selecionado = date.getFullYear();
+        var dia_selecionado = novaDiv[0].classList;
+        var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     }else{
+        /* Caso que a seleção é dentro do mês que está sendo mostrados */
         var divAntiga = event.target.classList[0];
-        var novaDiv = document.getElementsByClassName(divAntiga)
+        var novaDiv = document.getElementsByClassName(divAntiga);
+        /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
+        /* Será usada com o BD */
+        var mes_selecionado = date.getMonth();
+        var ano_selecionado = date.getFullYear();
+        var dia_selecionado = event.target.classList[0];
+        var data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     };
 
+    /* Adcionando a class 'selected' na posição certa */
     if (novaDiv.length > 1){
         novaDiv[1].classList.add("selected");
     }else{
         novaDiv[0].classList.add("selected");
     };
 
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
+        success: function(response){
+            if (response[1] == ']'){
+                $('#dados').empty();
+                $('#dados').append('<tr>')
+                var mensagem = "<td colspan='5'>"+'Sem Ordens de Serviço para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
+                $('#dados').append(mensagem)
+                $('#dados').append('</tr>')
+                return
+            };
+            var tipos = [];
+            var instituicoes = [];
+            var coordenadores = [];
+            var equipe = [];
+            var dados = response.split('][')
+            var temp = dados[0].split(',')
+
+            for (var j in temp){
+                tipos.push(temp[j].slice(8, -1))
+            };
+            var temp = dados[1].split(',')
+            for (var j in temp){
+                instituicoes.push(temp[j].trim().slice(1, -1))
+            };
+            temp = dados[2].split(',')
+            for (var j in temp){
+                coordenadores.push(temp[j].slice(14, -1).trim())
+            };
+            temp = dados[3].split(',')
+            var temp2 = 0
+            for (var i in tipos){
+                var equipe_i = []
+                for (var j = temp2; j < temp2+3; j++){
+                    equipe_i.push(temp[j].slice(14, -1).replace('>', '').trim())
+            };
+            equipe.push(equipe_i)
+            temp2 += 3
+            };
+
+            $('#dados').empty();
+            for (var key = 0; key < tipos.length; key++){
+                $('#dados').append('<tr>')
+                var tipo = '<td>'+tipos[key]+'</td>';
+                var instituicao = '<td>'+ instituicoes[key] +'</td>';
+                var coordenador = '<td>'+coordenadores[key]+'</td>';
+                var equipe_j = new String();
+                for (var k = 0; k < 3; k++){
+                    equipe_j = coordenadores[key]
+                    if (equipe[key][k] != ' '){
+                        console.log(equipe[key][k])
+                        equipe_j = equipe_j.concat(', ', equipe[key].join(', ').replace(/,(\s+)?$/, ''))
+                    };
+                };
+                equipe_mostrar = '<td>' + equipe_j + '</td>';
+                var data_atendimento = '<td>'+data_selecionada.toLocaleDateString('pt-BR')+'</td>';
+                $('#dados').append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
+                $('#dados').append('</tr>')
+            }
+
+        }
+    });
+
 });
 
 renderCalendar();
+
+

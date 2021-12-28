@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django import forms
+from rest_framework import serializers
 
 
 class Professores(models.Model):
@@ -42,7 +42,7 @@ class OrdemDeServico(models.Model):
                                     related_name='professor_4', blank=True, null=True)
     hora_entrada = models.TimeField(blank=True, null=True)
 
-# ------------------------------------------ CAMPOS DA ATIVIDADE 1 -----------------------------------------
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 1 -----------------------------------------
     atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING, related_name='atividade_1')
     hora_atividade_1 = models.TimeField()
     prf_1_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_1')
@@ -100,7 +100,7 @@ class OrdemDeServico(models.Model):
     atividade_3_saida_3 = models.TimeField(blank=True, null=True)
     soma_horas_3 = models.DurationField(blank=True, null=True)
 
-# ------------------------------------------ CAMPOS DA ATIVIDADE 4 -----------------------------------------
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 4 -----------------------------------------
     atividade_4 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_4', blank=True, null=True)
     hora_atividade_4 = models.TimeField(blank=True, null=True)
@@ -113,7 +113,7 @@ class OrdemDeServico(models.Model):
     prf_4_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_4',
                                     blank=True, null=True)
 
-# ------------------------------------------ CAMPOS DA ATIVIDADE 5 -----------------------------------------
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 5 -----------------------------------------
     atividade_5 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_5', blank=True, null=True)
     hora_atividade_5 = models.TimeField(blank=True, null=True)
@@ -130,7 +130,22 @@ class OrdemDeServico(models.Model):
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
 
 
-class FormularioOrdem(forms.ModelForm):
+class TipoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo
+        fields = ('tipo', )
+
+
+class ProfessorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Professores
+        fields = ('nome', )
+
+
+class OrdemDeServicoSerializer(serializers.ModelSerializer):
+    tipo = TipoSerializer(many=True, read_only=True)
+    professores = ProfessorSerializer(many=True, read_only=True)
+
     class Meta:
         model = OrdemDeServico
-        exclude = ('responsaveis', 'serie', 'coordenador_peraltas')
+        fields = ('tipo', 'coordenador', 'instituicao', 'professor_2', 'professor_3', 'professor_4', 'data_atendimento')

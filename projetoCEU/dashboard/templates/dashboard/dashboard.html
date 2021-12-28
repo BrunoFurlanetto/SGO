@@ -5,8 +5,8 @@
 {% block conteudo %}
 
   <div class="conteudo-dashboard">
-    <table class="table table-hover" style="caption-side: top">
-      <caption><h5>Ordens de Serviço do dia</h5></caption>
+    <table class="table table-hover" style="caption-side: top; table-layout:fixed">
+      <caption><h5>Ordens de Serviço do dia {{ data_selecionada }} </h5></caption>
       <thead>
         <tr class="table-active">
           <th><center>Tipo</center></th>
@@ -16,7 +16,7 @@
           <th><center>Data de atendimento</center></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="dados">
         {% for os in ordemDeServico %}
           <tr>
             <td>{{ os.tipo }}</td>

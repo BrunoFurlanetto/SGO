@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import OrdemDeServico, Professores, Atividades, FormularioOrdem, Tipo
+from .models import OrdemDeServico, Professores, Atividades, Tipo
 import datetime
 
 
@@ -94,7 +94,7 @@ def publico(request):
 
         relatorio = request.POST.get('relatorio')
 
-        os = OrdemDeServico.objects.create(tipo=tipo, coordenador=coordenador,
+        os = OrdemDeServico(tipo=tipo, coordenador=coordenador,
                                            participantes_previa=participantes_previa,
                                            participantes_confirmados=participantes_confirmados,
                                            data_atendimento=data_atendimento,
