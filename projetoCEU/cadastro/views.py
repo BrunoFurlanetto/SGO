@@ -46,9 +46,9 @@ def publico(request):
         prf_2_atv_2 = None if request.POST.get('prf2atv2') == '' else Professores.objects.get(
             nome=request.POST.get('prf2atv2'))
         prf_3_atv_2 = None if request.POST.get('prf3atv2') == '' else Professores.objects.get(
-            nome=request.POST.get('prf3atv1'))
+            nome=request.POST.get('prf3atv2'))
         prf_4_atv_2 = None if request.POST.get('prf4atv2') == '' else Professores.objects.get(
-            nome=request.POST.get('prf4atv1'))
+            nome=request.POST.get('prf4atv2'))
 
         # ------------------------------ TESTES PARA ATIVIDADE 3 -----------------------------------------
         if request.POST.get('ativ3') != '':

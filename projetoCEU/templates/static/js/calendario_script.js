@@ -1,5 +1,20 @@
 const date = new Date();
 
+const months = [
+"Janeiro",
+"Fevereiro",
+"Março",
+"Abril",
+"Maio",
+"Junho",
+"Julho",
+"Agosto",
+"Setembro",
+"Outubro",
+"Novembro",
+"Dezembro",
+];
+
 const renderCalendar = () => {
   date.setDate(1);
 
@@ -94,7 +109,17 @@ document.querySelector(".next").addEventListener("click", () => {
   renderCalendar();
 });
 
+
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+
+
+
 document.querySelector(".days").addEventListener("click", (event) => {
+
     /* Constante necessária para saber o último dia do mês anterior */
     const prevLastDay = new Date(
         date.getFullYear(),
@@ -171,25 +196,32 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 $('#dados0').append(mensagem)
                 return
             };
+            var ids = [];
             var tipos = [];
             var instituicoes = [];
             var coordenadores = [];
             var equipe = [];
             var dados = response.split('][')
-            var temp = dados[0].split(',')
 
+            var temp = dados[0].split(',')
             for (var j in temp){
-                tipos.push(temp[j].slice(8, -1))
+                ids.push(temp[j].slice(1).trim())
             };
-            var temp = dados[1].split(',')
+
+            temp = dados[1].split(',')
+            for (var j in temp){
+                tipos.push(temp[j].slice(7, -1))
+            };
+
+            var temp = dados[2].split(',')
             for (var j in temp){
                 instituicoes.push(temp[j].trim().slice(1, -1))
             };
-            temp = dados[2].split(',')
+            temp = dados[3].split(',')
             for (var j in temp){
                 coordenadores.push(temp[j].slice(14, -1).trim())
             };
-            temp = dados[3].split(',')
+            temp = dados[4].split(',')
             var temp2 = 0
             for (var i in tipos){
                 var equipe_i = []
@@ -202,12 +234,13 @@ document.querySelector(".days").addEventListener("click", (event) => {
 
             $('#dados').empty();
             for (var key = 0; key < tipos.length; key++){
-                var novaLinha = document.createElement('tr')
-                novaLinha.id = 'dados' + key
-                novaLinha.className = 'clickable-row'
-                novaLinha.onclick = '#'
+                var novaLinha = `<tr id='dados${key}' class='clickable-row' data-href="/ordem-de-servico/${ids[key]}"></>`
                 $('#dados').append(novaLinha)
-                var tipo = '<td><a href="{% url "verOrdem" os.id %}">'+tipos[key]+'</a></td>';
+                var script_tag = document.createElement('script')
+                script_tag.text = 'jQuery(document).ready(function($){$(".clickable-row").click(function(){window.location = $(this).data("href");});});'
+                $('#dados').append(script_tag)
+
+                var tipo = '<td>'+tipos[key]+'</td>';
                 var instituicao = '<td>'+ instituicoes[key] +'</td>';
                 var coordenador = '<td>'+coordenadores[key]+'</td>';
                 var equipe_j = new String();
@@ -216,7 +249,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
                     equipe_j = equipe_j.concat(', ', equipe[key].join(', ').replace(/,(\s+)?$/, ''))
                 };
                 equipe_mostrar = '<td>' + equipe_j + '</td>';
-                var data_atendimento = '<td>'+data_selecionada.toLocaleDateString('pt-BR')+'</td>';
+                var data_atendimento = '<td>'+data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
                 $('#dados'+key).append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
             }
         }
@@ -224,5 +257,3 @@ document.querySelector(".days").addEventListener("click", (event) => {
 });
 
 renderCalendar();
-
-
