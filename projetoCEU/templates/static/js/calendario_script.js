@@ -204,8 +204,10 @@ document.querySelector(".days").addEventListener("click", (event) => {
             for (var key = 0; key < tipos.length; key++){
                 var novaLinha = document.createElement('tr')
                 novaLinha.id = 'dados' + key
+                novaLinha.className = 'clickable-row'
+                novaLinha.onclick = '#'
                 $('#dados').append(novaLinha)
-                var tipo = '<td>'+tipos[key]+'</td>';
+                var tipo = '<td><a href="{% url "verOrdem" os.id %}">'+tipos[key]+'</a></td>';
                 var instituicao = '<td>'+ instituicoes[key] +'</td>';
                 var coordenador = '<td>'+coordenadores[key]+'</td>';
                 var equipe_j = new String();
@@ -217,10 +219,8 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 var data_atendimento = '<td>'+data_selecionada.toLocaleDateString('pt-BR')+'</td>';
                 $('#dados'+key).append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
             }
-
         }
     });
-
 });
 
 renderCalendar();

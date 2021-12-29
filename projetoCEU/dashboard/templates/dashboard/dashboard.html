@@ -19,7 +19,7 @@
         </thead>
         <tbody id="dados">
           {% for os in ordemDeServico %}
-            <tr>
+            <tr class='clickable-row' data-href="{% url 'verOrdem' os.id %}">
               <td>{{ os.tipo }}</td>
               <td>{{ os.instituicao }}</td>
               <td>{{ os.coordenador }}</td>

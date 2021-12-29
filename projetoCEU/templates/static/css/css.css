@@ -69,3 +69,15 @@
 .tabela-dashboard{
     height: 60vh;
 }
+.conteudo-ver-ordem{
+    margin-left: 250px;
+    margin-right: 250px;
+    justify-content: center;
+    align-items: center;
+}
+
+.relatorio{
+    height: 200px;
+    background-color: #fff;
+    border-radius: 15px;
+}

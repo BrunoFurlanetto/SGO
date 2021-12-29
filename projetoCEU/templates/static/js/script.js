@@ -12,3 +12,9 @@ console.log(sidebarBtn);
 sidebarBtn.addEventListener("click", ()=>{
     sidebar.classList.toggle("close");
 });
+
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
