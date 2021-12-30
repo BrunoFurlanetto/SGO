@@ -1,5 +1,6 @@
 from django.contrib import admin
 from cadastro.models import Professores, Tipo, Atividades, OrdemDeServico
+from escala.models import Escala
 
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
@@ -12,4 +13,5 @@ class OrdemDeServicoAdmin(admin.ModelAdmin):
 admin.site.register(Professores)
 admin.site.register(Tipo)
 admin.site.register(Atividades)
+admin.site.register(Escala)
 admin.site.register(OrdemDeServico, OrdemDeServicoAdmin)

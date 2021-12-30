@@ -1,18 +1,18 @@
 const date = new Date();
 
 const months = [
-"Janeiro",
-"Fevereiro",
-"Março",
-"Abril",
-"Maio",
-"Junho",
-"Julho",
-"Agosto",
-"Setembro",
-"Outubro",
-"Novembro",
-"Dezembro",
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
 ];
 
 const renderCalendar = () => {

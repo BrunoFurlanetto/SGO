@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'cadastro.apps.CadastroConfig',
     'verOrdem.apps.VerordemConfig',
+    'escala.apps.EscalaConfig',
 ]
 
 MIDDLEWARE = [

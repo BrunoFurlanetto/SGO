@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+    <div class="conteudo-add-escala">
+        <form style="padding: 20px">
+            {% csrf_token %}
+          <div class="row">
+              <div class="form-group col-6">
+                <label>Data</label>
+                <input type="date" class="form-control">
+              </div>
+                <div class="form-group col-md-5">
+                  <label>Coordenador</label>
+                  <select class="form-control col-7" name="coordenador">
+                    <option selected></option>
+                      {% for nome in professores %}
+                        <option>{{ nome }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+          </div>
+            <div class="form-group col-md-3">
+              <label>Coordenador</label>
+              <select class="form-control col-7" name="professor_2">
+                <option selected></option>
+                  {% for nome in professores %}
+                    <option>{{ nome }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Coordenador</label>
+              <select class="form-control col-7" name="professor_3">
+                <option selected></option>
+                  {% for nome in professores %}
+                    <option>{{ nome }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Coordenador</label>
+              <select class="form-control col-7" name="professor_4">
+                <option selected></option>
+                  {% for nome in professores %}
+                    <option>{{ nome }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-md-3 mb-3">
+              <label>Coordenador</label>
+              <select class="form-control col-7" name="professor_5">
+                <option selected></option>
+                  {% for nome in professores %}
+                    <option>{{ nome }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+          <button type="submit" class="btn btn-primary">Salvar escala</button>
+        </form>
+    </div>
+
+{% endblock %}
+

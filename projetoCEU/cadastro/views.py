@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .models import OrdemDeServico, Professores, Atividades, Tipo
 import datetime
@@ -11,10 +12,12 @@ def publico(request):
     atividades = Atividades.objects.all()
     rangei = range(1, 6)
     rangej = range(1, 5)
+    edita_escala = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
 
     if request.method != 'POST':
         return render(request, 'cadastro/publico.html', {'professores': professores, 'rangei': rangei,
-                                                         'rangej': rangej, 'atividades': atividades})
+                                                         'rangej': rangej, 'atividades': atividades,
+                                                         'edita': edita_escala})
     else:
         tipo = Tipo.objects.get(pk=1)
         coordenador = Professores.objects.get(nome=request.POST.get('coordenador'))
@@ -127,10 +130,12 @@ def colegio(request):
     atividades = Atividades.objects.all()
     rangei = range(1, 6)
     rangej = range(1, 5)
+    edita_escala = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
 
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'professores': professores, 'rangei': rangei,
-                                                         'rangej': rangej, 'atividades': atividades})
+                                                         'rangej': rangej, 'atividades': atividades,
+                                                         'edita': edita_escala})
     else:
         tipo = Tipo.objects.get(pk=2)
         instituicao = request.POST.get('instituicao')
@@ -254,12 +259,14 @@ def empresa(request):
     atividades = Atividades.objects.all()
     rangei = range(1, 10)
     rangej = range(1, 3)
+    edita_escala = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
     soma_total_atividade_1 = soma_total_atividade_2 = datetime.timedelta(days=0, hours=0, minutes=0)
     soma_total_atividade_3 = horas_totais = datetime.timedelta(days=0, hours=0, minutes=0)
 
     if request.method != 'POST':
         return render(request, 'cadastro/empresa.html', {'professores': professores, 'rangei': rangei,
-                                                         'rangej': rangej, 'atividades': atividades})
+                                                         'rangej': rangej, 'atividades': atividades,
+                                                         'edita': edita_escala})
     else:
         tipo = Tipo.objects.get(pk=3)
         instituicao = request.POST.get('instituicao')

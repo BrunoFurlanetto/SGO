@@ -81,3 +81,23 @@
     background-color: #fff;
     border-radius: 15px;
 }
+
+.conteudo-escala{
+    width: 1000px;
+    margin-left: 250px;
+    margin-right: 250px;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 10px;
+}
+
+.conteudo-add-escala{
+    width: 500px;
+    margin-left: 250px;
+    margin-right: 250px;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 10px;
+}
