@@ -38,30 +38,30 @@
                     events: [
                         {% for item in escala %}
                               {
-                                  title: "{{ item.coordenador }}",
+                                  title: "1 {{ item.coordenador }}",
                                   start: "{{ item.data | date:'Y-m-d' }}",
                               },
                             {% if item.professor_2 != None %}
                               {
-                                  title: "{{ item.professor_2 }}",
+                                  title: "2 {{ item.professor_2 }}",
                                   start: "{{ item.data | date:'Y-m-d' }}",
                               },
                             {% endif %}
                             {% if item.professor_3 != None %}
                               {
-                                  title: "{{ item.professor_3 }}",
+                                  title: "3 {{ item.professor_3 }}",
                                   start: "{{ item.data | date:'Y-m-d' }}",
                               },
                             {% endif %}
                             {% if item.professor_4 != None %}
                               {
-                                  title: "{{ item.professor_4 }}",
+                                  title: "4 {{ item.professor_4 }}",
                                   start: "{{ item.data | date:'Y-m-d' }}",
                               },
                             {% endif %}
                             {% if item.professor_5 != None %}
                               {
-                                  title: "{{ item.professor_5 }}",
+                                  title: "5 {{ item.professor_5 }}",
                                   start: "{{ item.data | date:'Y-m-d' }}",
                               },
                             {% endif %}
