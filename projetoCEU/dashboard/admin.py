@@ -1,6 +1,7 @@
 from django.contrib import admin
 from cadastro.models import Professores, Tipo, Atividades, OrdemDeServico
 from escala.models import Escala
+from fichaAvaliacao.models import FichaDeAvaliacao
 
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
@@ -10,8 +11,12 @@ class OrdemDeServicoAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
+class FichaDeAvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ('instituicao', )
+
 admin.site.register(Professores)
 admin.site.register(Tipo)
 admin.site.register(Atividades)
 admin.site.register(Escala)
 admin.site.register(OrdemDeServico, OrdemDeServicoAdmin)
+admin.site.register(FichaDeAvaliacao, FichaDeAvaliacaoAdmin)

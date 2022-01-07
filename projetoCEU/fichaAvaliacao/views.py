@@ -26,7 +26,7 @@ def solicitarFichaAvaliacao(request):
 
     instituicoes = []
     for escolas in colegios:
-        if escolas.instituicao.capitalize() not in instituicoes:
+        if escolas.instituicao.capitalize() not in instituicoes and not escolas.solicitado:
             instituicoes.append(escolas.instituicao.capitalize())
 
     equipe = []
@@ -63,11 +63,10 @@ def solicitarFichaAvaliacao(request):
         login = f'Colegio{instituicao[0:i].capitalize()}'
         senha = f'{instituicao[0:i].capitalize()}{datetime.now().year}@'
         email = f'avaliacao_{instituicao[0:i].lower()}@fundacaoceu.com'
-        print(login, senha, email)
 
         user = User.objects.create_user(username=login, email=email,
                                         password=senha, first_name='Colégio',
-                                        last_name=instituicao[0:i])
+                                        last_name=instituicao[0:i],)
         user.save()
-
+        selecao.update(solicitado=True)
         return redirect('dashboard')
