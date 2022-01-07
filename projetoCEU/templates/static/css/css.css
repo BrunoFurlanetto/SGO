@@ -84,8 +84,7 @@
 
 .conteudo-escala{
     width: 1000px;
-    margin-left: 250px;
-    margin-right: 250px;
+    margin: auto;
     height: auto;
     justify-content: center;
     align-items: center;
@@ -94,10 +93,18 @@
 
 .conteudo-add-escala{
     width: 500px;
-    margin-left: 250px;
-    margin-right: 250px;
+    margin: auto;
     height: auto;
     justify-content: center;
     align-items: center;
     box-shadow: 5px 5px 10px;
+}
+
+.conteudo-solicitação{
+    width: 470px;
+    min-height: 550px;
+    height: auto;
+    margin: auto;
+    display: flex;
+    box-shadow: 5px 5px 10px
 }

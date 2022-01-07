@@ -1,3 +1,5 @@
+from time import sleep
+
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .models import OrdemDeServico, Professores, Atividades, Tipo
@@ -248,6 +250,7 @@ def colegio(request):
                                            prf_1_atv_5=prf_1_atv_5, prf_2_atv_5=prf_2_atv_5, prf_3_atv_5=prf_3_atv_5,
                                            prf_4_atv_5=prf_4_atv_5, relatorio=relatorio)
         os.save()
+        sleep(50)
         return redirect('dashboard')
 
 

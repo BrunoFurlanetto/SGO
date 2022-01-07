@@ -148,36 +148,9 @@
       <div class="form-group">
         <label>Relatório do dia:</label>
         <textarea class="form-control mb-3" style="height: 25vh; resise=none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
-        <button id="salvar" class="btn btn-primary ml-5">Salvar</button>
+        <button type="submit" class="btn btn-primary ml-5">Salvar</button>
       </div>
-
-      <script>
-        $("#salvar").click(function(){
-            $("#solicitar").modal('show');
-        });
-      </script>
-
     </form>
-
-    <div id="solicitar" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Solicitar Ficha de avaliação?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Deseja fazer a solicitação de uma ficha de avaliação para os responsáveis do colégio?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" onclick="window.location.href = {% url 'solicitarAvaliacao' %}" class="btn btn-primary">Sim</button>
-            <button type="button" onclick="window.location.href = {% url 'dashboard' %}" class="btn btn-secundary">Não</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
 {% endblock %}

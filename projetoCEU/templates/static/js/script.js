@@ -6,6 +6,14 @@ for (var i = 0; i < arrow.length; i++) {
     });
 }
 
+let arrow_2 = document.querySelectorAll(".arrow-2");
+for (var j = 0; j < arrow_2.length; j++) {
+    arrow_2[j].addEventListener("click", (e)=>{
+    let arrow_2Parent = e.target.parentElement.parentElement;//selecting main parent of arrow
+    arrow_2Parent.classList.toggle("showMenu-2");
+    });
+}
+
 let sidebar = document.querySelector(".sidebar");
 let sidebarBtn = document.querySelector(".bx-menu");
 console.log(sidebarBtn);

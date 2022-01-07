@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+
+
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+    <div class="conteudo-solicitação card">
+        <form id="solicitacao" action="{% url 'solicitarAvaliacao' %}" method="POST" style="padding: 8px">
+            <label><h5>Instituição</h5></label>
+            <select class="form-control mb-3" name="instituicao" style="width: 450px" onChange="solicitar(this)">
+                <option selected></option>
+                {% for instituicao in instituicoes %}
+                    <option>{{ instituicao }}</option>
+                {% endfor %}
+            </select>
+            <div id="informacoes"></div>
+            <script src="{% static 'js/teste.js' %}"></script>
+        </form>
+    </div>
+
+{% endblock %}
+</html>

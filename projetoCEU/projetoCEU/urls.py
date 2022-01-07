@@ -24,5 +24,6 @@ urlpatterns = [
     path('cadastro/', include('cadastro.urls')),
     path('ordem-de-servico/', include('verOrdem.urls')),
     path('escala/', include('escala.urls')),
+    path('ficha-de-avaliacao/', include('fichaAvaliacao.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
