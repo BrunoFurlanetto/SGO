@@ -12,8 +12,11 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    edita_escala = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
-    
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+
+    if ver_icons:
+        return redirect('fichaAvaliacao')
+
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
                                                                 data_atendimento=request.POST.get('data_selecionada'))
@@ -38,6 +41,6 @@ def dashboard(request):
         if request.is_ajax() and request.method == 'POST':
             return HttpResponse(dados)
 
-        return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'edita': edita_escala})
+        return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais})
     else:
         return redirect('login')

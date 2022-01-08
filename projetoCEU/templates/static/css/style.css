@@ -299,6 +299,26 @@
   font-size: 26px;
   font-weight: 600;
 }
+.home-section .home-content-colegio{
+  height: 15vh;
+  display: flex;
+  align-items: center;
+}
+.home-section .home-content-colegio img{
+    padding: 35px;
+    width: 45vh;
+    height: auto;
+}
+.home-section .home-content-colegio .text{
+  color: #11101d;
+  font-size: 35px;
+  margin-right: auto;
+}
+.home-section .home-content-colegio .text{
+  font-size: 6.2vh;
+  font-weight: 200;
+  min-font-size: 25px;
+}
 @media (max-width: 420px) {
   .sidebar.close .nav-links li .sub-menu{
     display: none;

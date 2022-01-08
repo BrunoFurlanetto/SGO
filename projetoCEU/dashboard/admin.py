@@ -5,7 +5,7 @@ from fichaAvaliacao.models import FichaDeAvaliacao
 
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento')
+    list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento', 'solicitado')
     list_display_links = ('tipo', 'instituicao')
     list_filter = ('instituicao', 'coordenador')
     list_per_page = 10

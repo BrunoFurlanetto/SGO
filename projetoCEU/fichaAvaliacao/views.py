@@ -1,18 +1,28 @@
 from datetime import datetime
+from time import sleep
 from unicodedata import normalize
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from cadastro.models import OrdemDeServico, Tipo
+from django.contrib.auth.models import Group
 
 
 def fichaAvaliacao(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html')
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons})
+    else:
+        user = User.objects.get(pk=request.user.id)
+        user.delete()
+        print('Oi')
+        sleep(2)
+        return redirect('logout')
 
 
 @csrf_exempt
@@ -66,7 +76,9 @@ def solicitarFichaAvaliacao(request):
 
         user = User.objects.create_user(username=login, email=email,
                                         password=senha, first_name='Colégio',
-                                        last_name=instituicao[0:i],)
+                                        last_name=instituicao)
+        grupo = Group.objects.get(name='Colégio')
+        grupo.user_set.add(user)
         user.save()
         selecao.update(solicitado=True)
         return redirect('dashboard')

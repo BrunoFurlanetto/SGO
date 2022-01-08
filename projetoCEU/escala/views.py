@@ -11,11 +11,11 @@ def escala(request):
 
     professores = Professores.objects.all()
     escala = Escala.objects.all()
-    edita_escala = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':
         return render(request, 'escala/escala.html', {'professores': professores,
-                                                      'escala': escala, 'edita': edita_escala})
+                                                      'escala': escala, 'ver': ver_icons})
     else:
         data_post = request.POST.get('data_escala')
         data = datetime.strptime(data_post, '%Y-%m-%d').date()
