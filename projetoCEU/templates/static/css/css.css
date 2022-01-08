@@ -106,6 +106,8 @@
     display: flex;
     box-shadow: 5px 5px 10px
 }
+
+/* Parte da avaliação somente para computadores*/
 .conteudo-avaliacao{
     width: 700px;
     margin: auto;
@@ -118,7 +120,7 @@
     background-color: #fff !important;
     max-width: 100%;
     border-width: 0 0 2px;
-    border-color: #000;
+    border-color: #007ec1;
 }
 .conteudo-avaliacao img{
     padding: 10px;
@@ -137,4 +139,38 @@
 .divisao {
     height: 2px !important;
     background-image: linear-gradient(to right, #fcc607, #007ec1, #fcc607);
+}
+
+.justificativa{
+    resize: none;
+    border-color: #007ec1;
+    border-width: 2px;
+}
+.menos-margem{
+    margin-right: -15px;
+}
+.margem{
+    margin-right: 30px;
+}
+.margem-label{
+    margin-right: 22px;
+}
+.justificativa-professores{
+    margin-left: -80px;
+    width: 432px;
+    display: block;
+}
+.justificativa-professores textarea{
+    height: 88%;
+    resize: none;
+    border-color: #007ec1;
+    border-width: 2px;
+}
+.logo-final{
+    margin-top: 25px;
+    margin-left: -110px;
+    width: 200px;
+}
+.logo-final img{
+    width: 330px;
 }

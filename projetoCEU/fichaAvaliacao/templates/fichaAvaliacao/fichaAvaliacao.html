@@ -16,66 +16,288 @@
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
       <script src="{% static 'js/jquery.js' %}"></script>
+
+      <!-- Identificação do colégio e quantidades -->
       <div class="row">
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-7">
           <input type="text" class="form-control only-line" name="instituicao" readonly value="{{ user.last_name }}" >
         </div>
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-5">
           <input type="text" class="form-control only-line" name="cidade" placeholder="Cidade">
         </div>
       </div>
-      <div class="row mt-3">
-        <div class="form-group my-2 col-auto">
+      <div class="row mt-1">
+        <div class="form-group my-3 col-auto menos-margem">
           <label>Nº Alunos:</label>
         </div>
-        <div class="form-group col-md-2">
-          <input type="number" class="form-control" >
+        <div class="form-group col-md-2 margem-label">
+          <input type="number" class="form-control only-line" >
         </div>
-        <div class="form-group my-2 col-auto">
+        <div class="form-group my-3 col-auto menos-margem">
           <label>Nº Educadores:</label>
         </div>
-        <div class="form-group col-md-2">
-          <input type="number" class="form-control" >
+        <div class="form-group col-md-2 margem-label">
+          <input type="number" class="form-control only-line" >
         </div>
-        <div class="form-group my-2 col-auto">
+        <div class="form-group my-3 col-auto menos-margem">
           <label>Série:</label>
         </div>
         <div class="form-group col-md-2" style="width: 154px">
-          <input type="text" class="form-control" >
+          <input type="text" class="form-control only-line" >
         </div>
       </div>
 
+      <!-- Identificação dos avaliadores -->
       <hr class="divisao">
       <h5>Identificação dos avaliadores</h5>
-      <div class="form-group">
-        <label for="inputAddress2">Endereço 2</label>
-        <input type="text" class="form-control" id="inputAddress2" placeholder="Apartamento, hotel, casa, etc.">
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputCity">Cidade</label>
-          <input type="text" class="form-control" id="inputCity">
+      <div class="row mb-2">
+        <div class="form-group col-4">
+          <input type="text" class="form-control only-line" placeholder="Nome">
         </div>
-        <div class="form-group col-md-4">
-          <label for="inputEstado">Estado</label>
-          <select id="inputEstado" class="form-control">
-            <option selected>Escolher...</option>
-            <option>...</option>
+        <div class="form-group col-3">
+          <input type="text" class="form-control only-line" placeholder="Cargo">
+        </div>
+        <div class="form-group col-5">
+          <input type="email" class="form-control only-line" placeholder="Email">
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-4">
+          <input type="text" class="form-control only-line" placeholder="Nome">
+        </div>
+        <div class="form-group col-3">
+          <input type="text" class="form-control only-line" placeholder="Cargo">
+        </div>
+        <div class="form-group col-5">
+          <input type="email" class="form-control only-line" placeholder="Email">
+        </div>
+      </div>
+      <hr class="divisao">
+
+      <!-- Avaliação representante de vendas -->
+      <div class="row mb-1">
+        <div class="form-group my-3 col-auto">
+          <label>Representante de vendas: </label>
+        </div>
+        <div class="form-group col-md-5">
+          <input type="text" class="form-control only-line" >
+        </div>
+        <div class="form-group col-md-3">
+          <select class="form-select only-line" aria-label="Default select example">
+            <option selected>Avaliação</option>
+            {% for item in avaliacoes %}
+              <option>{{ item }}</option>
+            {% endfor %}
           </select>
         </div>
-        <div class="form-group col-md-2">
-          <label for="inputCEP">CEP</label>
-          <input type="text" class="form-control" id="inputCEP">
+      </div>
+      <div>
+          <div class="form-group">
+            <label>Justificativa da avaliação</label>
+            <textarea class="form-control justificativa" style="border-color: #007ec1" rows="2"></textarea>
+          </div>
+      </div>
+      <hr class="divisao">
+
+      <!-- Avaliação atividades -->
+      <h5>Atividades do CEU - Centro de Estudos do Universo</h5>
+      {% for campo in ordem %}
+
+      <!-- Campos das atividades 1 -->
+        <div class="row mb-2">
+          <div class="form-group col-3">
+            <input type="text" class="form-control only-line" value="{{ campo.data_atendimento|date:'d/m/Y' }}" readonly>
+          </div>
+          <div class="form-group col-6">
+            <input type="text" class="form-control only-line" value="{{ campo.atividade_1 }}" readonly>
+          </div>
+          <div class="form-group col-3">
+            <select class="form-select only-line" aria-label="Default select example">
+              <option selected>Avaliação</option>
+              {% for item in avaliacoes %}
+                <option>{{ item }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+      <!-- Campos das atividades 2 -->
+        {% if campo.atividade_2 %}
+          <div class="row mb-2">
+            <div class="form-group col-3">
+              <input type="text" class="form-control only-line" value="{{ campo.data_atendimento|date:'d/m/Y' }}" readonly>
+            </div>
+            <div class="form-group col-6">
+              <input type="text" class="form-control only-line" value="{{ campo.atividade_2 }}" readonly>
+            </div>
+            <div class="form-group col-3">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endif %}
+
+      <!-- Campos das atividades 3 -->
+        {% if campo.atividade_3 %}
+          <div class="row mb-2">
+            <div class="form-group col-3">
+              <input type="text" class="form-control only-line" value="{{ campo.data_atendimento|date:'d/m/Y' }}" readonly>
+            </div>
+            <div class="form-group col-6">
+              <input type="text" class="form-control only-line" value="{{ campo.atividade_3 }}" readonly>
+            </div>
+            <div class="form-group col-3">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endif %}
+
+      <!-- Campos das atividades 4 -->
+        {% if campo.atividade_4 %}
+          <div class="row mb-2">
+            <div class="form-group col-3">
+              <input type="text" class="form-control only-line" value="{{ campo.data_atendimento|date:'d/m/Y' }}" readonly>
+            </div>
+            <div class="form-group col-6">
+              <input type="text" class="form-control only-line" value="{{ campo.atividade_4 }}" readonly>
+            </div>
+            <div class="form-group col-3">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endif %}
+
+      <!-- Campos das atividades 5 -->
+        {% if campo.atividade_5 %}
+          <div class="row mb-2">
+            <div class="form-group col-3">
+              <input type="text" class="form-control only-line" value="{{ campo.data_atendimento|date:'d/m/Y' }}" readonly>
+            </div>
+            <div class="form-group col-6">
+              <input type="text" class="form-control only-line" value="{{ campo.atividade_5 }}" readonly>
+            </div>
+            <div class="form-group col-3">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      <div>
+        <div class="form-group">
+          <label>Justificativa das avaliações</label>
+          <textarea class="form-control justificativa" style="border-color: #007ec1" rows="2"></textarea>
         </div>
       </div>
-      <div class="form-group">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="gridCheck">
-          <label class="form-check-label" for="gridCheck">
-            Clique em mim
-          </label>
+      <hr class="divisao">
+
+      <!-- Avaliação dos professores do CEU -->
+      <h5>Avaliação dos Professores do CEU</h5>
+      <div class="row mb-2">
+        <div class="form-group col-6">
+          {% for professor in professores %}
+        <!-- Campos dos coodenadores -->
+            <div class="row mb-2">
+              <div class="form-group col-4 menos-margem">
+                <input type="text" class="form-control only-line" value="{{ professor }}" readonly>
+              </div>
+              <div class="form-group col-6">
+                <select class="form-select only-line" aria-label="Default select example">
+                  <option selected>Avaliação</option>
+                  {% for item in avaliacoes %}
+                    <option>{{ item }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-group mb-2 col-6 justificativa-professores">
+          <label>Justificativa das avaliações</label>
+          <textarea class="form-control"></textarea>
         </div>
       </div>
+      <hr class="divisao">
+
+    <!-- Avaliações gerais -->
+      <h5>Avaliação Geral</h5>
+      <div>
+          <div class="form-group">
+            <label>O que motivou trazer o seu grupo?</label>
+            <textarea class="form-control justificativa" style="border-color: #007ec1" rows="3"></textarea>
+          </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-8">
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Conteúdo Pedagógico: </label>
+            </div>
+            <div class="form-group col-4">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Limpeza das Instalações:</label>
+            </div>
+            <div class="form-group col-4">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Estado do Jardim:</label>
+            </div>
+            <div class="form-group col-4">
+              <select class="form-select only-line" aria-label="Default select example">
+                <option selected>Avaliação</option>
+                {% for item in avaliacoes %}
+                  <option>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-4 logo-final">
+          <img src="{% static  'img/logoAvalicao.png' %}">
+        </div>
+      </div>
+      <div>
+          <div class="form-group mb-3">
+            <label>Outras observações:</label>
+            <textarea class="form-control justificativa" style="border-color: #007ec1" rows="3"></textarea>
+          </div>
+      </div>
+
       <button type="submit" class="btn btn-primary">Entrar</button>
     </form>
   </div>

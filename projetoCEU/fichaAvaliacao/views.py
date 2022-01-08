@@ -12,17 +12,39 @@ from django.contrib.auth.models import Group
 def fichaAvaliacao(request):
     if not request.user.is_authenticated:
         return redirect('login')
+    elif not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
+        return redirect('dashboard')
+
+    ordem = OrdemDeServico.objects.filter(instituicao__icontains=request.user.last_name)
+    avaliacoes = ['excelente', 'Ótimo', 'Bom', 'Regular', 'Ruim']
+    professores = []
+
+    for item in ordem:
+        if item.coordenador not in professores and not None:
+            professores.append(item.coordenador)
+
+        if item.professor_2 not in professores and not None:
+            professores.append(item.professor_2)
+
+        if item.professor_3 not in professores and not None:
+            professores.append(item.professor_3)
+
+        if item.professor_4 not in professores and not None:
+            professores.append(item.professor_4)
+
+        professores.remove(None)
 
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons})
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'avaliacoes': avaliacoes,
+                                                                      'ordem': ordem, 'professores': professores})
     else:
-        user = User.objects.get(pk=request.user.id)
-        user.delete()
-        print('Oi')
-        sleep(2)
-        return redirect('logout')
+        # user = User.objects.get(pk=request.user.id)
+        # user.delete()
+        # sleep(2)
+        # return redirect('logout')
+        ...
 
 
 @csrf_exempt
