@@ -41,7 +41,11 @@
   height: 1px;
   background-image: linear-gradient(to right, transparent, #CCC, transparent);
 }
-
+.x-fechar-modal{
+    background-color: #fff;
+    border: none;
+    font-size: 20px;
+}
 .logo-central {
     margin-top: 6vh;
 }

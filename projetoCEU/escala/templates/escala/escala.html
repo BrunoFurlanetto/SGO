@@ -76,8 +76,15 @@
     <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-body">
-            <form action="{% url 'escala' %}" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title">Cadastro de escala</h5>
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" >&times;</span>
+            </button>
+          </div>
+          <form action="{% url 'escala' %}" method="POST">
+            <div class="modal-body">
+
                 {% csrf_token %}
               <div class="row">
                   <div class="form-group col-4">
@@ -134,9 +141,11 @@
                   </select>
                 </div>
               </div>
+            </div>
+            <div class="modal-footer">
               <button type="submit" class="btn btn-primary">Salvar escala</button>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
         <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->

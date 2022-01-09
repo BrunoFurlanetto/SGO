@@ -71,6 +71,7 @@ function solicitar(selecao) {
             $('#avisos').append('<li align="justify">' + 'Verifique os dados contidos acima, em caso de informações incorretas, conferir se todas as Ordens de Serviço foram cadastradas corretamente, em caso de erro de preenchimento, favor comunicar o administrativo!' + '</li>')
             $('#avisos').append('<li align="justify">' + 'Com os dados verificado clique em solicitar, assim será gerado um login e senha para ser enviado ao responsável do colégio para que assim faça o preenchimento da Ficha de Avaliação.' + '</li>')
             $('#informacoes').append(`<button id="salvar" class="btn btn-primary ml-5">Salvar</button>`)
+
         }
     });
 };

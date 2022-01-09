@@ -4,7 +4,7 @@ from cadastro.models import Atividades, Professores
 
 class FichaDeAvaliacao(models.Model):
     avaliacoes_choices = (
-        (5, 'excelente'),
+        (5, 'Excelente'),
         (4, 'Ótimo'),
         (3, 'Bom'),
         (2, 'Regular'),

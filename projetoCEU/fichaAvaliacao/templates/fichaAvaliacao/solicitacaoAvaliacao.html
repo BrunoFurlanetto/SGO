@@ -11,7 +11,7 @@
     <div class="conteudo-solicitação card">
         <form id="solicitacao" action="{% url 'solicitarAvaliacao' %}" method="POST" style="padding: 8px">
             <label><h5>Instituição</h5></label>
-            <select class="form-control mb-3" name="instituicao" style="width: 450px" onChange="solicitar(this)">
+            <select class="form-control mb-3" id="instituicao" name="instituicao" style="width: 450px" onChange="solicitar(this)">
                 <option selected></option>
                 {% for instituicao in instituicoes %}
                     <option>{{ instituicao }}</option>
@@ -20,6 +20,43 @@
             <div id="informacoes"></div>
             <script src="{% static 'js/teste.js' %}"></script>
         </form>
+        {% if chamar %}
+        <script>
+            $(window).on('load',function(){
+                $('#mostrar-login').modal('show');
+            });
+        </script>
+        {% endif %}
+    </div>
+
+    <div id="mostrar-login" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Solicitação gerada com sucesso</h5>
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" >&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p align="justify">
+                Os dados gerados para o colégio <b>{{ request.POST.instituicao }}</b> acessar o sistema de avaliação foram:
+            </p>
+            <ul>
+                <li>Email: {{ novo_user.email }}</li>
+                <li>Usuário: {{ novo_user.login }}</li>
+                <li>Senha: {{ novo_user.senha }}</li>
+            </ul>
+            <p align="justify">
+                Eles devem ser encaminhados para o(os) responsáveis do colégio <b>{{ request.POST.instituicao }}</b>
+                ou diretamente para a própria instituição.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href = {% url 'dashboard' %}">Ok</button>
+          </div>
+        </div>
+      </div>
     </div>
 
 {% endblock %}
