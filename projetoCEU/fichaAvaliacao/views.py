@@ -7,7 +7,9 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from cadastro.models import OrdemDeServico, Tipo
 from django.contrib.auth.models import Group
-from fichaAvaliacao.models import FichaDeAvaliacao, FichaDeAvaliacaoForm
+
+from dashboard.views import is_ajax
+from fichaAvaliacao.models import FichaDeAvaliacaoForm
 
 
 def fichaAvaliacao(request):
@@ -72,7 +74,6 @@ def fichaAvaliacao(request):
         # user.delete()
         # sleep(2)
         # return redirect('logout')
-        ...
 
 
 @csrf_exempt
@@ -109,7 +110,7 @@ def solicitarFichaAvaliacao(request):
             atividades.append(campo.atividade_4)
             atividades.append(campo.atividade_5)
 
-    if request.is_ajax() and request.method == 'POST':
+    if is_ajax(request) and request.method == 'POST':
         return HttpResponse(dados)
 
     if request.method != 'POST':

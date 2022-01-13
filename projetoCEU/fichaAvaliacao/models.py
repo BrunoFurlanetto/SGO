@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django import forms
 from django.db import models
+from django.forms import DateInput
+
 from cadastro.models import Atividades, Professores
 
 
@@ -29,7 +31,7 @@ class FichaDeAvaliacao(models.Model):
     justificativa_avaliacao_vendedor = models.TextField(max_length=300)
 
     # --------------------------- Campos para a atividade 1 -------------------------------------
-    data_atividade_1 = models.DateField(default=000-00-00)
+    data_atividade_1 = models.DateField(default=000 - 00 - 00)
     atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     default='', related_name='avaliacao_atividade_1')
     avaliacao_atividade_1 = models.CharField(max_length=10, choices=avaliacoes_choices)
@@ -109,6 +111,7 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
         model = FichaDeAvaliacao
         exclude = ()
         instituicao = forms.CharField()
+        birth_date = forms.DateField()
         widgets = {
             'cidade': forms.TextInput(attrs={'placeholder': 'Cidade'}),
             'nome_educador_1': forms.TextInput(attrs={'placeholder': 'Nome'}),
@@ -124,6 +127,7 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
             'professor_1': forms.TextInput(), 'professor_2': forms.TextInput(),
             'professor_3': forms.TextInput(), 'professor_4': forms.TextInput(),
             'professor_5': forms.TextInput(), 'professor_6': forms.TextInput(),
+            'data_atividade_1': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
     # def __init__(self, *args, **kwargs):

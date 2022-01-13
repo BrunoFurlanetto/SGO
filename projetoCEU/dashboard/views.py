@@ -60,10 +60,14 @@ def dashboard(request):
 
     if request.user.is_authenticated:
 
-        if request.is_ajax() and request.method == 'POST':
+        if is_ajax(request) and request.method == 'POST':
             return HttpResponse(dados)
 
         return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'data': data,
                                                             'escala': escalaDoDia})
     else:
         return redirect('login')
+
+
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'

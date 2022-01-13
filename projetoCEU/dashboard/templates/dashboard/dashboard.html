@@ -18,8 +18,8 @@
           </tr>
         </thead>
         <tbody id="dados">
-          {% if ordemDeServico.tipo == '' %}
-            <td colspan='5'>Sem ordens de serviço para o dia {{ data | date:'d/m/Y'  }}</td>
+          {% if not ordemDeServico.tipo %}
+            <td colspan='5'>Sem ordens de serviço para o dia {{ data | date:'d/m/Y' }}</td>
           {% endif %}
           {% for os in ordemDeServico %}
             <tr class='clickable-row' data-href="{% url 'verOrdem' os.id %}">
