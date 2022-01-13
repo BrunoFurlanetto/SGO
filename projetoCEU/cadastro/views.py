@@ -1,5 +1,4 @@
 from time import sleep
-
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .models import OrdemDeServico, Professores, Atividades, Tipo
