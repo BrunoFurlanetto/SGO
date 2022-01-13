@@ -16,7 +16,10 @@ for (var j = 0; j < arrow_2.length; j++) {
 
 let sidebar = document.querySelector(".sidebar");
 let sidebarBtn = document.querySelector(".bx-menu");
-console.log(sidebarBtn);
 sidebarBtn.addEventListener("click", ()=>{
+    sidebar.classList.toggle("close");
+});
+let sidebarBtn2 = document.querySelector(".bxs-calendar");
+sidebarBtn2.addEventListener("click", ()=>{
     sidebar.classList.toggle("close");
 });

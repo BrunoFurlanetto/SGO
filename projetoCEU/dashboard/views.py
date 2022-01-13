@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from cadastro.models import OrdemDeServico, Tipo
 from django.views.decorators.csrf import csrf_exempt
 
+from escala.models import Escala
+
 
 @csrf_exempt
 def dashboard(request):
@@ -20,6 +22,26 @@ def dashboard(request):
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
                                                                 data_atendimento=request.POST.get('data_selecionada'))
+    escala = Escala.objects.filter(data=datetime.now())
+    escalaDoDia = []
+
+    for professor in escala:
+        if professor.coordenador is not None:
+            escalaDoDia.append(professor.coordenador)
+
+        if professor.professor_2 is not None:
+            escalaDoDia.append(professor.professor_2)
+
+        if professor.professor_3 is not None:
+            escalaDoDia.append(professor.professor_3)
+
+        if professor.professor_4 is not None:
+            escalaDoDia.append(professor.professor_4)
+
+        if professor.professor_5 is not None:
+            escalaDoDia.append(professor.professor_5)
+
+    data = datetime.now()
     ids = []
     tipos = []
     coordenadores = []
@@ -41,6 +63,7 @@ def dashboard(request):
         if request.is_ajax() and request.method == 'POST':
             return HttpResponse(dados)
 
-        return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais})
+        return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'data': data,
+                                                            'escala': escalaDoDia})
     else:
         return redirect('login')

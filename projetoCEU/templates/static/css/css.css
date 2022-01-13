@@ -58,10 +58,32 @@
     align-items: center;
 }
 .conteudo-dashboard{
-    margin-left: 25vh;
-    margin-right: 25vh;
+    margin: auto;
+    width: 1100px;
     justify-content: center;
     align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    padding: 10px;
+}
+.tabela-dashboard{
+    border-left: solid;
+    border-left-height: 10px;
+    border-bottom: solid;
+    border-right: solid;
+    border-width: 2px;
+    border-radius: 15px;
+}
+.tabela-dashboard td {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.escala{
+    text-align: right;
+    margin-top: -35px;
 }
 .conteudo-empresa{
     margin-left: 30vh;
@@ -71,7 +93,7 @@
     align-items: center;
 }
 .tabela-dashboard{
-    height: 60vh;
+    min-height: 500px;
 }
 .conteudo-ver-ordem{
     margin-left: 250px;
@@ -159,17 +181,6 @@
 .margem-label{
     margin-right: 22px;
 }
-.justificativa-professores{
-    margin-left: -80px;
-    width: 432px;
-    display: block;
-}
-.justificativa-professores textarea{
-    height: 88%;
-    resize: none;
-    border-color: #007ec1;
-    border-width: 2px;
-}
 .logo-final{
     margin-top: 25px;
     margin-left: -110px;
@@ -178,3 +189,6 @@
 .logo-final img{
     width: 330px;
 }
+
+
+

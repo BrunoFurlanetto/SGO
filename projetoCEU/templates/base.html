@@ -14,9 +14,6 @@
       {% if request.user.is_authenticated %}
         {% if not ver %}
           <ul class="nav-links">
-            <div class="calendario">
-              {% include 'parciais/_calendario.html' %}
-            </div>
             <li>
               <a href="{% url 'dashboard' %}">
                 <i class='bx bx-grid-alt' ></i>
@@ -67,6 +64,18 @@
             </li>
 
           <li>
+            <a>
+              <i class="bx bxs-calendar"></i>
+            </a>
+            <ul class="sub-menu blank">
+              <li><a class="link_name">Calendário</a></li>
+            </ul>
+          </li>
+          <div class="calendario">
+            {% include 'parciais/_calendario.html' %}
+          </div>
+
+          <li>
             <div class="profile-details">
               <div class="profile-content">
               </div>
@@ -75,10 +84,14 @@
                 <div class="job">{{ user.groups.all.0 }}</div>
               </div>
               <a href="{% url 'logout' %}"><i class='bx bx-log-out' ></i></a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
             </div>
           </li>
         </ul>
       {% endif %}
+
       {% if ver %}
         <ul class="nav-links">
           <li>
@@ -92,7 +105,9 @@
           </li>
         </ul>
       {% endif %}
+
     {% endif %}
+
     </div>
     <section class="home-section">
       {% if not ver %}

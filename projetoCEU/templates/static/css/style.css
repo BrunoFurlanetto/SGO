@@ -19,6 +19,31 @@
 .sidebar.close{
   width: 78px;
 }
+.sidebar .bxs-calendar{
+    transition-delay: 1s;
+    transition: all 0.5s ease;
+    opacity: 0;
+    display: none;
+}
+.sidebar.close .bxs-calendar{
+    transition-delay: 0s;
+    transition: all 1s ease;
+    opacity: 1;
+    display: block;
+}
+.sidebar.calendar{
+    transition: all 1s ease;
+    transition-delay: 1s;
+    display: block;
+}
+.sidebar.close .calendar{
+    transition: all 1s ease;
+    transition-delay: 1s;
+    display:none;
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+}
 .sidebar .logo-details{
   height: 60px;
   width: 100%;
@@ -60,7 +85,7 @@
 .sidebar .nav-links li{
   position: relative;
   list-style: none;
-  transition: all 0.4s ease;
+  transition: all 1s ease;
 }
 .sidebar .nav-links li:hover{
   background: #1d1b31;
@@ -71,7 +96,7 @@
   justify-content: space-between;
 }
 .sidebar.close .nav-links li .iocn-link{
-  display: block
+  display: block;
 }
 .sidebar .nav-links li .iocn-link-2{
   display: flex;
@@ -89,7 +114,7 @@
   color: #fff;
   font-size: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
 }
 .sidebar .nav-links li.showMenu i.arrow{
   transform: rotate(-180deg);
@@ -112,7 +137,7 @@
   font-size: 18px;
   font-weight: 400;
   color: #fff;
-  transition: all 0.4s ease;
+  transition: all 0.5s ease;
 }
 .sidebar.close .nav-links li a .link_name{
   opacity: 0;
@@ -242,18 +267,6 @@
   display: flex;
   align-items: center;
 }
-.sidebar .profile-details img{
-  height: 52px;
-  width: 52px;
-  object-fit: cover;
-  border-radius: 16px;
-  margin: 0 14px 0 12px;
-  background: #1b2131;
-  transition: all 0.5s ease;
-}
-.sidebar.close .profile-details img{
-  padding: 10px;
-}
 .sidebar .profile-details .profile_name,
 .sidebar .profile-details .job{
   color: #fff;
@@ -265,6 +278,10 @@
 .sidebar.close .profile-details .profile_name,
 .sidebar.close .profile-details .job{
   display: none;
+}
+.sidebar.close .profile-details i{
+    display: block;
+    padding: 0px;
 }
 .sidebar .profile-details .job{
   font-size: 12px;
@@ -298,26 +315,6 @@
 .home-section .home-content .text{
   font-size: 26px;
   font-weight: 600;
-}
-.home-section .home-content-colegio{
-  height: 15vh;
-  display: flex;
-  align-items: center;
-}
-.home-section .home-content-colegio img{
-    padding: 35px;
-    width: 45vh;
-    height: auto;
-}
-.home-section .home-content-colegio .text{
-  color: #11101d;
-  font-size: 35px;
-  margin-right: auto;
-}
-.home-section .home-content-colegio .text{
-  font-size: 6.2vh;
-  font-weight: 200;
-  min-font-size: 25px;
 }
 @media (max-width: 420px) {
   .sidebar.close .nav-links li .sub-menu{

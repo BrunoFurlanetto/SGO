@@ -1,14 +1,13 @@
 from datetime import datetime
-from time import sleep
 from unicodedata import normalize
-
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from cadastro.models import OrdemDeServico, Tipo
 from django.contrib.auth.models import Group
+from fichaAvaliacao.models import FichaDeAvaliacao, FichaDeAvaliacaoForm
 
 
 def fichaAvaliacao(request):
@@ -17,31 +16,58 @@ def fichaAvaliacao(request):
     elif not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
         return redirect('dashboard')
 
-    ordem = OrdemDeServico.objects.filter(instituicao__icontains=request.user.last_name)
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+    ordens = OrdemDeServico.objects.order_by('data_atendimento').filter(instituicao__icontains=request.user.last_name)
     avaliacoes = ['Excelente', 'Ótimo', 'Bom', 'Regular', 'Ruim']
     professores = []
+    atividades = []
+    formulario = FichaDeAvaliacaoForm()
 
-    for item in ordem:
-        if item.coordenador not in professores and not None:
-            professores.append(item.coordenador)
+    # -------------- Testes para separar as atividades sem repetição na mesma data ----------------------------
+    for ordem in ordens:
+        if {'atividade': ordem.atividade_1, 'data': ordem.data_atendimento} not in atividades:
+            atividade = {'atividade': ordem.atividade_1, 'data': ordem.data_atendimento}
+            atividades.append(atividade)
 
-        if item.professor_2 not in professores and not None:
-            professores.append(item.professor_2)
+        if ordem.atividade_2 is not None and {'atividade': ordem.atividade_2, 'data': ordem.data_atendimento} \
+                not in atividades:
+            atividade = {'atividade': ordem.atividade_2, 'data': ordem.data_atendimento}
+            atividades.append(atividade)
 
-        if item.professor_3 not in professores and not None:
-            professores.append(item.professor_3)
+        if ordem.atividade_3 is not None and {'atividade': ordem.atividade_3, 'data': ordem.data_atendimento} \
+                not in atividades:
+            atividade = {'atividade': ordem.atividade_3, 'data': ordem.data_atendimento}
+            atividades.append(atividade)
 
-        if item.professor_4 not in professores and not None:
-            professores.append(item.professor_4)
+        if ordem.atividade_4 is not None and {'atividade': ordem.atividade_4, 'data': ordem.data_atendimento} \
+                not in atividades:
+            atividade = {'atividade': ordem.atividade_4, 'data': ordem.data_atendimento}
+            atividades.append(atividade)
 
-        professores.remove(None)
+    # -------------- Testes para popular a lista dos professores que atenderam sem repetição --------------------------
+    for ordem in ordens:
+        if ordem.coordenador not in professores and not None:
+            professores.append(ordem.coordenador)
 
-    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+        if ordem.professor_2 is not None and ordem.professor_2 not in professores:
+            professores.append(ordem.professor_2)
+
+        if ordem.professor_3 is not None and ordem.professor_3 not in professores:
+            professores.append(ordem.professor_3)
+
+        if ordem.professor_4 is not None and ordem.professor_4 not in professores:
+            professores.append(ordem.professor_4)
 
     if request.method != 'POST':
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'avaliacoes': avaliacoes,
-                                                                      'ordem': ordem, 'professores': professores})
+                                                                      'atividades': atividades,
+                                                                      'professores': professores,
+                                                                      'form': formulario})
     else:
+        formulario.save()
+        messages.success(request, 'Ficha de avaliação salva com sucesso!')
+        return redirect('fichaAvaliacao')
+
         # user = User.objects.get(pk=request.user.id)
         # user.delete()
         # sleep(2)
@@ -104,22 +130,25 @@ def solicitarFichaAvaliacao(request):
         email = f'avaliacao_{instituicao[0:i].lower()}@fundacaoceu.com'
 
         try:
-            if instituicao is None:
-                raise 'Houve um erro inesperado e não foi possível terminar a solicitação!'
-            user = User.objects.create_user(username=login, email=email,
-                                            password=senha, first_name='Colégio',
-                                            last_name=request.POST.get("instituicao"))
-            grupo = Group.objects.get(name='Colégio')
-            grupo.user_set.add(user)
-            user.save()
-            selecao.update(solicitado=True)
+            if instituicao == '':
+                messages.error(request, 'Instituição não selecionada!')
+                return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})
+            else:
+                user = User.objects.create_user(username=login, email=email,
+                                                password=senha, first_name='Colégio',
+                                                last_name=request.POST.get("instituicao"))
+                grupo = Group.objects.get(name='Colégio')
+                grupo.user_set.add(user)
+                user.save()
+                selecao.update(solicitado=True)
 
-            novo_user = {'instituicao': request.POST.get('instituicao'), 'login': login, 'senha': senha, 'email': email}
-            chamar = True
+                novo_user = {'instituicao': request.POST.get('instituicao'), 'login': login, 'senha': senha,
+                             'email': email}
+                chamar = True
 
-            return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes,
-                                                                                'chamar': chamar,
-                                                                                "novo_user": novo_user})
+                return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes,
+                                                                                    'chamar': chamar,
+                                                                                    "novo_user": novo_user})
         except:
             messages.error(request, 'Houve um erro inesperado e não foi possível terminar a solicitação!')
             return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})

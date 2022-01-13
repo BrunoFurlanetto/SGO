@@ -194,6 +194,8 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 $('#dados').append(novaLinha)
                 var mensagem = "<td colspan='5'>"+'Sem Ordens de Serviço para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
                 $('#dados0').append(mensagem)
+                $('h5').empty();
+                $('h5').append('Ordens de serviço do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
                 return
             };
             var ids = [];
@@ -251,6 +253,8 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 equipe_mostrar = '<td>' + equipe_j + '</td>';
                 var data_atendimento = '<td>'+data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
                 $('#dados'+key).append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
+                $('h5').empty();
+                $('h5').append('Ordens de serviço do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
             }
         }
     });
