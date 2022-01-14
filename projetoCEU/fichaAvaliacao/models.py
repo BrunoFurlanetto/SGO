@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import django
 from django import forms
 from django.db import models
 from django.forms import DateInput
@@ -9,6 +10,7 @@ from cadastro.models import Atividades, Professores
 
 class FichaDeAvaliacao(models.Model):
     avaliacoes_choices = (
+        ('', ''),
         (5, 'Excelente'),
         (4, 'Ótimo'),
         (3, 'Bom'),
@@ -17,8 +19,8 @@ class FichaDeAvaliacao(models.Model):
 
     instituicao = models.CharField(max_length=400)
     cidade = models.CharField(max_length=300)
-    n_alunos = models.IntegerField(max_length=200, default=0)
-    n_educadores = models.IntegerField(max_length=200, default=0)
+    n_alunos = models.IntegerField(default=0)
+    n_educadores = models.IntegerField(default=0)
     serie = models.CharField(max_length=300)
     nome_educador_1 = models.CharField(max_length=400)
     cargo_educador_1 = models.CharField(max_length=400)
@@ -31,7 +33,7 @@ class FichaDeAvaliacao(models.Model):
     justificativa_avaliacao_vendedor = models.TextField(max_length=300)
 
     # --------------------------- Campos para a atividade 1 -------------------------------------
-    data_atividade_1 = models.DateField(default=000 - 00 - 00)
+    data_atividade_1 = models.DateField(default=django.utils.timezone.now)
     atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     default='', related_name='avaliacao_atividade_1')
     avaliacao_atividade_1 = models.CharField(max_length=10, choices=avaliacoes_choices)
@@ -100,7 +102,7 @@ class FichaDeAvaliacao(models.Model):
     limpeza_instalacoes = models.CharField(max_length=10, choices=avaliacoes_choices)
     estado_jardim = models.CharField(max_length=10, choices=avaliacoes_choices)
     observacoes = models.TextField(max_length=400)
-    data_preenchimento = models.DateField(default=datetime.now())
+    data_preenchimento = models.DateField(default=django.utils.timezone.now)
 
     def __str__(self):
         return self.instituicao
@@ -120,19 +122,19 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
             'nome_educador_2': forms.TextInput(attrs={'placeholder': 'Nome'}),
             'cargo_educador_2': forms.TextInput(attrs={'placeholder': 'Cargo'}),
             'email_educador_2': forms.TextInput(attrs={'placeholder': 'Email'}),
-            'atividade_1': forms.TextInput(), 'atividade_2': forms.TextInput(),
-            'atividade_3': forms.TextInput(), 'atividade_4': forms.TextInput(),
-            'atividade_5': forms.TextInput(), 'atividade_6': forms.TextInput(),
-            'atividade_7': forms.TextInput(), 'atividade_8': forms.TextInput(),
-            'professor_1': forms.TextInput(), 'professor_2': forms.TextInput(),
-            'professor_3': forms.TextInput(), 'professor_4': forms.TextInput(),
-            'professor_5': forms.TextInput(), 'professor_6': forms.TextInput(),
+            # 'atividade_1': forms.TextInput(), 'atividade_2': forms.TextInput(),
+            # 'atividade_3': forms.TextInput(), 'atividade_4': forms.TextInput(),
+            # 'atividade_5': forms.TextInput(), 'atividade_6': forms.TextInput(),
+            # 'atividade_7': forms.TextInput(), 'atividade_8': forms.TextInput(),
+            # 'professor_1': forms.TextInput(), 'professor_2': forms.TextInput(),
+            # 'professor_3': forms.TextInput(), 'professor_4': forms.TextInput(),
+            # 'professor_5': forms.TextInput(), 'professor_6': forms.TextInput(),
             'data_atividade_1': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['instituicao'].disabled = True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['instituicao'].disabled = True
     #     self.fields['atividade_1'].disabled = True
     #     self.fields['data_atividade_1'].disabled = True
     #     self.fields['atividade_2'].disabled = True

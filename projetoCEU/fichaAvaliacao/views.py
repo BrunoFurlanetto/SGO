@@ -30,6 +30,7 @@ def fichaAvaliacao(request):
         if {'atividade': ordem.atividade_1, 'data': ordem.data_atendimento} not in atividades:
             atividade = {'atividade': ordem.atividade_1, 'data': ordem.data_atendimento}
             atividades.append(atividade)
+            print(ordem.data_atendimento)
 
         if ordem.atividade_2 is not None and {'atividade': ordem.atividade_2, 'data': ordem.data_atendimento} \
                 not in atividades:
