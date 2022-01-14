@@ -13,7 +13,7 @@ class OrdemDeServicoAdmin(admin.ModelAdmin):
 
 
 class FichaDeAvaliacaoAdmin(admin.ModelAdmin):
-    list_display = ('instituicao',)
+    list_display = ('data_preenchimento',)
 
 
 admin.site.register(Professores)

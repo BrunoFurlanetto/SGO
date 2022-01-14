@@ -99,26 +99,26 @@ def publico(request):
         relatorio = request.POST.get('relatorio')
 
         os = OrdemDeServico(tipo=tipo, coordenador=coordenador,
-                                           participantes_previa=participantes_previa,
-                                           participantes_confirmados=participantes_confirmados,
-                                           data_atendimento=data_atendimento,
-                                           professor_2=professor_2, professor_3=professor_3, professor_4=professor_4,
-                                           hora_entrada=hora_entrada, atividade_1=atividade_1,
-                                           hora_atividade_1=hora_atividade_1,
-                                           prf_1_atv_1=prf_1_atv_1, prf_2_atv_1=prf_2_atv_1, prf_3_atv_1=prf_3_atv_1,
-                                           prf_4_atv_1=prf_4_atv_1, atividade_2=atividade_2,
-                                           hora_atividade_2=hora_atividade_2,
-                                           prf_1_atv_2=prf_1_atv_2, prf_2_atv_2=prf_2_atv_2, prf_3_atv_2=prf_3_atv_2,
-                                           prf_4_atv_2=prf_4_atv_2, atividade_3=atividade_3,
-                                           hora_atividade_3=hora_atividade_3,
-                                           prf_1_atv_3=prf_1_atv_3, prf_2_atv_3=prf_2_atv_3, prf_3_atv_3=prf_3_atv_3,
-                                           prf_4_atv_3=prf_4_atv_3, atividade_4=atividade_4,
-                                           hora_atividade_4=hora_atividade_4,
-                                           prf_1_atv_4=prf_1_atv_4, prf_2_atv_4=prf_2_atv_4, prf_3_atv_4=prf_3_atv_4,
-                                           prf_4_atv_4=prf_4_atv_4, atividade_5=atividade_5,
-                                           hora_atividade_5=hora_atividade_5,
-                                           prf_1_atv_5=prf_1_atv_5, prf_2_atv_5=prf_2_atv_5, prf_3_atv_5=prf_3_atv_5,
-                                           prf_4_atv_5=prf_4_atv_5, relatorio=relatorio)
+                            participantes_previa=participantes_previa,
+                            participantes_confirmados=participantes_confirmados,
+                            data_atendimento=data_atendimento,
+                            professor_2=professor_2, professor_3=professor_3, professor_4=professor_4,
+                            hora_entrada=hora_entrada, atividade_1=atividade_1,
+                            hora_atividade_1=hora_atividade_1,
+                            prf_1_atv_1=prf_1_atv_1, prf_2_atv_1=prf_2_atv_1, prf_3_atv_1=prf_3_atv_1,
+                            prf_4_atv_1=prf_4_atv_1, atividade_2=atividade_2,
+                            hora_atividade_2=hora_atividade_2,
+                            prf_1_atv_2=prf_1_atv_2, prf_2_atv_2=prf_2_atv_2, prf_3_atv_2=prf_3_atv_2,
+                            prf_4_atv_2=prf_4_atv_2, atividade_3=atividade_3,
+                            hora_atividade_3=hora_atividade_3,
+                            prf_1_atv_3=prf_1_atv_3, prf_2_atv_3=prf_2_atv_3, prf_3_atv_3=prf_3_atv_3,
+                            prf_4_atv_3=prf_4_atv_3, atividade_4=atividade_4,
+                            hora_atividade_4=hora_atividade_4,
+                            prf_1_atv_4=prf_1_atv_4, prf_2_atv_4=prf_2_atv_4, prf_3_atv_4=prf_3_atv_4,
+                            prf_4_atv_4=prf_4_atv_4, atividade_5=atividade_5,
+                            hora_atividade_5=hora_atividade_5,
+                            prf_1_atv_5=prf_1_atv_5, prf_2_atv_5=prf_2_atv_5, prf_3_atv_5=prf_3_atv_5,
+                            prf_4_atv_5=prf_4_atv_5, relatorio=relatorio)
         os.save()
         return redirect('dashboard')
 
@@ -366,7 +366,7 @@ def empresa(request):
             prf_2_atv_3 = None if request.POST.get('prf2atv7') == '' else Professores.objects.get(
                 nome=request.POST.get('prf2atv7'))
 
-        # -------------------------- SÉTIMA ENTRADA DA EMPRESA NO CEU ------------------------------------
+            # -------------------------- SÉTIMA ENTRADA DA EMPRESA NO CEU ------------------------------------
             atividade_3_entrada_1 = datetime.datetime.strptime(request.POST.get('horaEntrada7'), '%H:%M')
             atividade_3_saida_1 = datetime.datetime.strptime(request.POST.get('horaSaida7'), '%H:%M')
             hora_1_atividade_3 = atividade_3_saida_1 - atividade_3_entrada_1

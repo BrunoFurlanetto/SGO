@@ -125,13 +125,13 @@
         <!-- Campos das atividades 2 -->
         {% if forloop.counter == 2 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_2 }}
               <script>
-                $('#id_data_atividade_2').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_2').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_2 }}
               <script>
                 $('#id_atividade_2').val('{{ atividade.atividade }}')
@@ -146,13 +146,13 @@
         <!-- Campos das atividades 3 -->
         {% if forloop.counter == 3 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_3 }}
               <script>
-                $('#id_data_atividade_3').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_3').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_3 }}
               <script>
                 $('#id_atividade_3').val('{{ atividade.atividade }}')
@@ -167,13 +167,13 @@
         <!-- Campos das atividades 3 -->
         {% if forloop.counter == 4 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_4 }}
               <script>
-                $('#id_data_atividade_4').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_4').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_4 }}
               <script>
                 $('#id_atividade_4').val('{{ atividade.atividade }}')
@@ -188,13 +188,13 @@
         <!-- Campos das atividades 5 -->
         {% if forloop.counter == 5 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_5 }}
               <script>
-                $('#id_data_atividade_5').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_5').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_5 }}
               <script>
                 $('#id_atividade_5').val('{{ atividade.atividade }}')
@@ -209,13 +209,13 @@
         <!-- Campos das atividades 6 -->
         {% if forloop.counter == 6 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_6 }}
               <script>
-                $('#id_data_atividade_6').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_6').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_6 }}
               <script>
                 $('#id_atividade_6').val('{{ atividade.atividade }}')
@@ -230,13 +230,13 @@
         <!-- Campos das atividades 7 -->
         {% if forloop.counter == 7 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
               {{ form.data_atividade_7 }}
               <script>
-                $('#id_data_atividade_7').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_7').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividde_7 }}
               <script>
                 $('#id_atividade_7').val('{{ atividade.atividade }}')
@@ -251,13 +251,13 @@
         <!-- Campos das atividades 8 -->
         {% if forloop.counter == 8 %}
           <div class="row mb-2">
-            <div class="form-group col-3">
+            <div class="form-group col-4" style="width: 190px">
                 {{ form.data_atividade_8 }}
               <script>
-                $('#id_data_atividade_8').val('{{ atividade.data|date:'d/m/Y' }}')
+                $('#id_data_atividade_8').val('{{ atividade.data| date:'Y-m-d' }}')
               </script>
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col-5" style="width: 335px">
               {{ form.atividade_8 }}
               <script>
                 $('#id_atividade_8').val('{{ atividade.atividade }}')
@@ -426,7 +426,7 @@
           </div>
       </div>
 
-      <button type="submit" class="btn btn-primary">Entrar</button>
+      <button type="submit" class="btn btn-primary">salvar</button>
     </form>
   </div>
 
