@@ -5,6 +5,37 @@
 {% block conteudo %}
 <!-------------------------------- LINHA 1 ---------------------------->
   <div class="conteudo-avaliacao" style="padding: 10px">
+    <script src="{% static 'js/teste.js' %}"></script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+
+    <div id="aviso" class="modal" tabindex="-1" role="dialog" style="margin-left: auto">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width: 700px">
+          <div class="modal-header">
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" style="float: right">&times;</span>
+            </button>
+            <div class="head">
+              <img src="{% static  'img/logoAvalicao.png' %}">
+              <p>Ficha de Avaliação das atividades</p>
+            </div>
+          </div>
+          <div class="modal-body">
+            <p align="justify">
+                Os dados gerados para o colégio <b>{{ request.POST.instituicao }}</b> acessar o sistema de avaliação foram:
+            </p>
+            <p align="justify">
+                Eles devem ser encaminhados para o(os) responsáveis do colégio <b>{{ request.POST.instituicao }}</b>
+                ou diretamente para a própria instituição.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <div class="head">
       <img src="{% static  'img/logoAvalicao.png' %}">

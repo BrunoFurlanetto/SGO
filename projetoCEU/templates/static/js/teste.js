@@ -75,3 +75,7 @@ function solicitar(selecao) {
         }
     });
 };
+
+$(window).on('load',function(){
+$('#aviso').modal('show')
+})

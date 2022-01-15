@@ -130,52 +130,45 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
             'nome_educador_2': forms.TextInput(attrs={'placeholder': 'Nome'}),
             'cargo_educador_2': forms.TextInput(attrs={'placeholder': 'Cargo'}),
             'email_educador_2': forms.TextInput(attrs={'placeholder': 'Email'}),
-            'atividade_1': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_2': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_3': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_4': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_5': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_6': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_7': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'atividade_8': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_1': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_2': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_3': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_4': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_5': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'professor_6': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'data_atividade_1': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_2': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_3': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_4': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_5': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_6': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_7': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'data_atividade_8': forms.DateTimeInput(attrs={'type': 'date', 'readonly': 'readonly'}),
+             'atividade_1': forms.TextInput(), 'atividade_2': forms.TextInput(),
+            'atividade_3': forms.TextInput(), 'atividade_4': forms.TextInput(),
+            'atividade_5': forms.TextInput(), 'atividade_6': forms.TextInput(),
+            'atividade_7': forms.TextInput(), 'atividade_8': forms.TextInput(),
+            'professor_1': forms.TextInput(), 'professor_2': forms.TextInput(),
+            'professor_3': forms.TextInput(), 'professor_4': forms.TextInput(),
+            'professor_5': forms.TextInput(), 'professor_6': forms.TextInput(),
+            'data_atividade_1': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_2': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_3': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_4': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_5': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_6': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_7': forms.DateTimeInput(attrs={'type': 'date'}),
+            'data_atividade_8': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['instituicao'].disabled = True
-    #     self.fields['atividade_1'].disabled = True
-    #     self.fields['data_atividade_1'].disabled = True
-    #     self.fields['atividade_2'].disabled = True
-    #     self.fields['data_atividade_2'].disabled = True
-    #     self.fields['atividade_3'].disabled = True
-    #     self.fields['data_atividade_3'].disabled = True
-    #     self.fields['atividade_4'].disabled = True
-    #     self.fields['data_atividade_4'].disabled = True
-    #     self.fields['atividade_5'].disabled = True
-    #     self.fields['data_atividade_5'].disabled = True
-    #     self.fields['atividade_6'].disabled = True
-    #     self.fields['data_atividade_6'].disabled = True
-    #     self.fields['atividade_7'].disabled = True
-    #     self.fields['data_atividade_7'].disabled = True
-    #     self.fields['atividade_8'].disabled = True
-    #     self.fields['data_atividade_8'].disabled = True
-    #     self.fields['professor_1'].disabled = True
-    #     self.fields['professor_2'].disabled = True
-    #     self.fields['professor_3'].disabled = True
-    #     self.fields['professor_4'].disabled = True
-    #     self.fields['professor_5'].disabled = True
-    #     self.fields['professor_6'].disabled = True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['instituicao'].disabled = True
+        self.fields['atividade_1'].disabled = True
+        self.fields['data_atividade_1'].disabled = True
+        self.fields['atividade_2'].disabled = True
+        self.fields['data_atividade_2'].disabled = True
+        self.fields['atividade_3'].disabled = True
+        self.fields['data_atividade_3'].disabled = True
+        self.fields['atividade_4'].disabled = True
+        self.fields['data_atividade_4'].disabled = True
+        self.fields['atividade_5'].disabled = True
+        self.fields['data_atividade_5'].disabled = True
+        self.fields['atividade_6'].disabled = True
+        self.fields['data_atividade_6'].disabled = True
+        self.fields['atividade_7'].disabled = True
+        self.fields['data_atividade_7'].disabled = True
+        self.fields['atividade_8'].disabled = True
+        self.fields['data_atividade_8'].disabled = True
+        self.fields['professor_1'].disabled = True
+        self.fields['professor_2'].disabled = True
+        self.fields['professor_3'].disabled = True
+        self.fields['professor_4'].disabled = True
+        self.fields['professor_5'].disabled = True
+        self.fields['professor_6'].disabled = True

@@ -68,7 +68,7 @@ textarea:hover, textarea:focus{
 }
 #id_justificativa_avaliacao_professores{
     width: 400px;
-    height: 90% !important;
+    height: 90%;
     margin-bottom: -50px;
 }
 #id_motivo_trazer_grupo{
@@ -76,4 +76,7 @@ textarea:hover, textarea:focus{
 }
 #id_observacoes{
     width: 100%;
+}
+#id_estado_jardim, #id_limpeza_instalacoes, #id_avaliacao_conteudo_pedagogico{
+    width: 80%
 }
