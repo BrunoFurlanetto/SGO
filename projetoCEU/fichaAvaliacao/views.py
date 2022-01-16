@@ -127,6 +127,10 @@ def fichaAvaliacao(request):
     if formulario.is_valid():
         print(formulario.errors)
         avaliacao.save()
+
+        colegio = OrdemDeServico.objects.filter(instituicao__iexact=request.user.last_name)
+        colegio.update(entregue=True)
+
         messages.success(request, 'Ficha de avaliação salva com sucesso!')
         user = User.objects.get(pk=request.user.id)
         user.delete()

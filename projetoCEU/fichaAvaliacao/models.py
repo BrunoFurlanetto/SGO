@@ -1,9 +1,7 @@
-from datetime import datetime
-
 import django
 from django import forms
 from django.db import models
-from django.forms import DateInput
+from django.utils import timezone
 
 from cadastro.models import Atividades, Professores
 
@@ -114,7 +112,10 @@ class FichaDeAvaliacao(models.Model):
     limpeza_instalacoes = models.CharField(max_length=10, choices=avaliacoes_choices)
     estado_jardim = models.CharField(max_length=10, choices=avaliacoes_choices)
     observacoes = models.TextField(max_length=400, blank=True)
-    data_preenchimento = models.DateField(default=django.utils.timezone.now, blank=True, null=True)
+    data_preenchimento = models.DateField(default=timezone.now, blank=True, null=True)
+
+    def __str__(self):
+        return f'Ficha de avaliação do colégio: {self.instituicao}.'
 
 
 class FichaDeAvaliacaoForm(forms.ModelForm):
@@ -130,7 +131,7 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
             'nome_educador_2': forms.TextInput(attrs={'placeholder': 'Nome'}),
             'cargo_educador_2': forms.TextInput(attrs={'placeholder': 'Cargo'}),
             'email_educador_2': forms.TextInput(attrs={'placeholder': 'Email'}),
-             'atividade_1': forms.TextInput(), 'atividade_2': forms.TextInput(),
+            'atividade_1': forms.TextInput(), 'atividade_2': forms.TextInput(),
             'atividade_3': forms.TextInput(), 'atividade_4': forms.TextInput(),
             'atividade_5': forms.TextInput(), 'atividade_6': forms.TextInput(),
             'atividade_7': forms.TextInput(), 'atividade_8': forms.TextInput(),
@@ -145,6 +146,7 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
             'data_atividade_6': forms.DateTimeInput(attrs={'type': 'date'}),
             'data_atividade_7': forms.DateTimeInput(attrs={'type': 'date'}),
             'data_atividade_8': forms.DateTimeInput(attrs={'type': 'date'}),
+            'justificativa_avaliacao_professores': forms.Textarea(attrs={'rows': 2})
         }
 
     def __init__(self, *args, **kwargs):

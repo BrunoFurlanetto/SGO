@@ -31,11 +31,8 @@ textarea{
     height: 85px;
     resize: none;
 }
-[id*="avaliacao"]{
-    width: 100%;
-}
-[id*="atividade"]{
-    width: 100%;
+[id*="avaliacao"], [id*="atividade"]{
+    width: 100%
 }
 [id*="avaliacao_professor"]{
     width: 100px;
@@ -58,7 +55,8 @@ textarea:hover, textarea:focus{
 #id_serie{
     width: 150px;
 }
-#id_email_educador_1, #id_email_educador_2, #id_nome_vendedor{
+#id_email_educador_1, #id_email_educador_2, #id_nome_vendedor,
+#id_observacoes, #id_motivo_trazer_grupo{
     width: 100%;
 }
 .justificativa-professores{
@@ -68,14 +66,7 @@ textarea:hover, textarea:focus{
 }
 #id_justificativa_avaliacao_professores{
     width: 400px;
-    height: 90%;
-    margin-bottom: -50px;
-}
-#id_motivo_trazer_grupo{
-    width: 100%;
-}
-#id_observacoes{
-    width: 100%;
+    height: 85%;
 }
 #id_estado_jardim, #id_limpeza_instalacoes, #id_avaliacao_conteudo_pedagogico{
     width: 80%

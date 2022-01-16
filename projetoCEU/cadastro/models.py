@@ -127,8 +127,10 @@ class OrdemDeServico(models.Model):
                                     blank=True, null=True)
 
     horas_totais = models.DurationField(blank=True, null=True)
-    solicitado = models.BooleanField(default=False)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
+
+    solicitado = models.BooleanField(default=False)
+    entregue = models.BooleanField(default=False)
 
 
 class TipoSerializer(serializers.ModelSerializer):

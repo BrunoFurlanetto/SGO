@@ -5,15 +5,15 @@ from fichaAvaliacao.models import FichaDeAvaliacao
 
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento', 'solicitado')
-    list_editable = ('solicitado',)
+    list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento', 'solicitado', 'entregue')
+    list_editable = ('solicitado', )
     list_display_links = ('tipo',)
     list_filter = ('instituicao', 'coordenador')
     list_per_page = 10
 
 
 class FichaDeAvaliacaoAdmin(admin.ModelAdmin):
-    list_display = ('data_preenchimento',)
+    list_display = ('instituicao',)
 
 
 admin.site.register(Professores)
