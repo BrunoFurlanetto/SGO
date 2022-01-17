@@ -1,0 +1,73 @@
+input{
+    background-color: #fff;
+    max-width: 100%;
+    border-width: 0 0 2px;
+    border-color: #007ec1;
+    border-radius: 5px;
+    outline: 0;
+    padding: 12px;
+    height: 38px;
+}
+select{
+    background-color: #fff;
+    max-width: 100%;
+    border-width: 0 0 2px;
+    border-color: #007ec1;
+    border-radius: 5px;
+    outline: 0;
+    padding-left: 12px;
+    height: 38px;
+    -webkit-appearance: none;
+}
+textarea{
+    background-color: #fff;
+    max-width: 100%;
+    border-width: 2px;
+    border-color: #007ec1;
+    border-radius: 5px;
+    outline: 0;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 85px;
+    resize: none;
+}
+[id*="avaliacao"], [id*="atividade"]{
+    width: 100%
+}
+[id*="avaliacao_professor"]{
+    width: 100px;
+}
+select:hover, select:focus, input:hover, input:focus,
+textarea:hover, textarea:focus{
+    border-color: #fcc607;
+}
+#id_instituicao{
+    width: 400px;
+    height: 38px;
+    font-weight: 400;
+}
+#id_cidade{
+    width: 300px;
+}
+#id_n_alunos, #id_n_educadores{
+    width: 100px;
+}
+#id_serie{
+    width: 150px;
+}
+#id_email_educador_1, #id_email_educador_2, #id_nome_vendedor,
+#id_observacoes, #id_motivo_trazer_grupo{
+    width: 100%;
+}
+.justificativa-professores{
+    margin-left: -80px;
+    width: 432px;
+    display: block;
+}
+#id_justificativa_avaliacao_professores{
+    width: 400px;
+    height: 85%;
+}
+#id_estado_jardim, #id_limpeza_instalacoes, #id_avaliacao_conteudo_pedagogico{
+    width: 80%
+}

@@ -1,0 +1,154 @@
+from django.db import models
+from django.utils import timezone
+from rest_framework import serializers
+
+
+class Professores(models.Model):
+    nome = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.nome
+
+
+class Tipo(models.Model):
+    tipo = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.tipo
+
+
+class Atividades(models.Model):
+    atividade = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.atividade
+
+
+class OrdemDeServico(models.Model):
+    tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING)
+    instituicao = models.CharField(max_length=255)
+    participantes_previa = models.IntegerField()
+    participantes_confirmados = models.IntegerField(blank=True, null=True)
+    responsaveis = models.IntegerField(blank=True, null=True)
+    serie = models.CharField(max_length=100, blank=True)
+    coordenador_peraltas = models.CharField(max_length=100, blank=True)
+    data_atendimento = models.DateField(default=timezone.now)
+    coordenador = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='coordenador')
+    professor_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
+                                    related_name='professor_2', blank=True, null=True)
+    professor_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
+                                    related_name='professor_3', blank=True, null=True)
+    professor_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
+                                    related_name='professor_4', blank=True, null=True)
+    hora_entrada = models.TimeField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 1 -----------------------------------------
+    atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING, related_name='atividade_1')
+    hora_atividade_1 = models.TimeField()
+    prf_1_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_1')
+    prf_2_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_2_atv_1',
+                                    blank=True, null=True)
+    prf_3_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_3_atv_1',
+                                    blank=True, null=True)
+    prf_4_atv_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_1',
+                                    blank=True, null=True)
+    atividade_1_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_1_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_1_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_1_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_1 = models.DurationField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 2 -----------------------------------------
+    atividade_2 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+                                    related_name='atividade_2', blank=True, null=True)
+    hora_atividade_2 = models.TimeField(blank=True, null=True)
+    prf_1_atv_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_2',
+                                    blank=True, null=True)
+    prf_2_atv_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_2_atv_2',
+                                    blank=True, null=True)
+    prf_3_atv_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_3_atv_2',
+                                    blank=True, null=True)
+    prf_4_atv_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_2',
+                                    blank=True, null=True)
+    atividade_2_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_2_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_2_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_2_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_2 = models.DurationField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 3 -----------------------------------------
+    atividade_3 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+                                    related_name='atividade_3', blank=True, null=True)
+    hora_atividade_3 = models.TimeField(blank=True, null=True)
+    prf_1_atv_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_3',
+                                    blank=True, null=True)
+    prf_2_atv_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_2_atv_3',
+                                    blank=True, null=True)
+    prf_3_atv_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_3_atv_3',
+                                    blank=True, null=True)
+    prf_4_atv_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_3',
+                                    blank=True, null=True)
+    atividade_3_entrada_1 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_1 = models.TimeField(blank=True, null=True)
+    atividade_3_entrada_2 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_2 = models.TimeField(blank=True, null=True)
+    atividade_3_entrada_3 = models.TimeField(blank=True, null=True)
+    atividade_3_saida_3 = models.TimeField(blank=True, null=True)
+    soma_horas_3 = models.DurationField(blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 4 -----------------------------------------
+    atividade_4 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+                                    related_name='atividade_4', blank=True, null=True)
+    hora_atividade_4 = models.TimeField(blank=True, null=True)
+    prf_1_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_4',
+                                    blank=True, null=True)
+    prf_2_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_2_atv_4',
+                                    blank=True, null=True)
+    prf_3_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_3_atv_4',
+                                    blank=True, null=True)
+    prf_4_atv_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_4',
+                                    blank=True, null=True)
+
+    # ------------------------------------------ CAMPOS DA ATIVIDADE 5 -----------------------------------------
+    atividade_5 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+                                    related_name='atividade_5', blank=True, null=True)
+    hora_atividade_5 = models.TimeField(blank=True, null=True)
+    prf_1_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_1_atv_5',
+                                    blank=True, null=True)
+    prf_2_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_2_atv_5',
+                                    blank=True, null=True)
+    prf_3_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_3_atv_5',
+                                    blank=True, null=True)
+    prf_4_atv_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prf_4_atv_5',
+                                    blank=True, null=True)
+
+    horas_totais = models.DurationField(blank=True, null=True)
+    relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
+
+    solicitado = models.BooleanField(default=False)
+    entregue = models.BooleanField(default=False)
+
+
+class TipoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo
+        fields = ('tipo', )
+
+
+class ProfessorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Professores
+        fields = ('nome', )
+
+
+class OrdemDeServicoSerializer(serializers.ModelSerializer):
+    tipo = TipoSerializer(many=True, read_only=True)
+    professores = ProfessorSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrdemDeServico
+        fields = ('tipo', 'coordenador', 'instituicao', 'professor_2', 'professor_3', 'professor_4', 'data_atendimento')

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+
+
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+    <center class="conteudo-login">
+        <img class="logo-central" src="{% static 'img/logoceu2.png' %}" alt="Logo" width="160px" height="auto">
+        <div class="login">
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="form-group mt-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" class="form-control" name="senha">
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </center>
+{% endblock %}
+</html>

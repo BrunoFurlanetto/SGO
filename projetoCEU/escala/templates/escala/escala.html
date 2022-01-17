@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}"> <!-- Styles da bootstrap -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
+
+    <div class="conteudo-escala">
+        <div id="calendar" class="card" style="padding: 10px"></div>
+
+        <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                var calendarUI = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarUI,{
+
+                    headerToolbar: {
+                        left: '',
+                        center: 'title',
+                    },
+                    eventOrderStrict: true,
+                    lang: 'pt-br',
+                    eventLimit: true,
+                    dayMaxEvents: 3,
+
+                    {% if edita %}
+                        navLinks: true,
+
+                        navLinkDayClick: function(date, jsEvent){
+                            $("#ModalCadastro").modal('show');
+                            $("#data").val(date.toLocaleDateString('fr-CA'))
+                        },
+
+                    {% endif %}
+
+                    events: [
+                        {% for item in escala %}
+                              {
+                                  title: "1 {{ item.coordenador }}",
+                                  start: "{{ item.data | date:'Y-m-d' }}",
+                              },
+                            {% if item.professor_2 != None %}
+                              {
+                                  title: "2 {{ item.professor_2 }}",
+                                  start: "{{ item.data | date:'Y-m-d' }}",
+                              },
+                            {% endif %}
+                            {% if item.professor_3 != None %}
+                              {
+                                  title: "3 {{ item.professor_3 }}",
+                                  start: "{{ item.data | date:'Y-m-d' }}",
+                              },
+                            {% endif %}
+                            {% if item.professor_4 != None %}
+                              {
+                                  title: "4 {{ item.professor_4 }}",
+                                  start: "{{ item.data | date:'Y-m-d' }}",
+                              },
+                            {% endif %}
+                            {% if item.professor_5 != None %}
+                              {
+                                  title: "5 {{ item.professor_5 }}",
+                                  start: "{{ item.data | date:'Y-m-d' }}",
+                              },
+                            {% endif %}
+                        {% endfor %}
+                    ]
+                });
+                calendar.render();
+                calendar.setOption('locale', 'pt-br')
+            });
+        </script>
+
+    <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Cadastro de escala</h5>
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" >&times;</span>
+            </button>
+          </div>
+          <form action="{% url 'escala' %}" method="POST">
+            <div class="modal-body">
+
+                {% csrf_token %}
+              <div class="row">
+                  <div class="form-group col-4">
+                    <label>Data</label>
+                    <input type="text" class="form-control" id="data" name="data_escala">
+                  </div>
+                    <div class="form-group col-md-4">
+                      <label>Coordenador</label>
+                      <select class="form-control col-7" name="coordenador">
+                        <option selected></option>
+                          {% for nome in professores %}
+                            <option>{{ nome }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Professor 2</label>
+                  <select class="form-control col-7" name="professor_2">
+                    <option selected></option>
+                      {% for nome in professores %}
+                        <option>{{ nome }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Professor 3</label>
+                  <select class="form-control col-7" name="professor_3">
+                    <option selected></option>
+                      {% for nome in professores %}
+                        <option>{{ nome }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Professor 4</label>
+                  <select class="form-control col-7" name="professor_4">
+                    <option selected></option>
+                      {% for nome in professores %}
+                        <option>{{ nome }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group col-md-4 mb-3">
+                  <label>Professor 5</label>
+                  <select class="form-control col-7" name="professor_5">
+                    <option selected></option>
+                      {% for nome in professores %}
+                        <option>{{ nome }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Salvar escala</button>
+            </div>
+          </form>
+        </div>
+      </div>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
+    </div>
+
+    </div>
+
+
+
+{% endblock %}
+

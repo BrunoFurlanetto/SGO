@@ -1,0 +1,194 @@
+.body{
+    margin: 0px;
+    width: max-width;
+    height: max-height;
+}
+.box-total {
+    display: flex;
+    flex-direction: row;
+}
+.box-side-bar {
+    width: 200px;
+    align: center;
+}
+.box-conteudo {
+    margin-right: 30vh;
+    align-items: center;
+    width: 100vh;
+    height: 100vh;
+}
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.publico {
+    display: flex;
+    justify-content: center;
+}
+.conteudo-login {
+    justify-content: center;
+    align-items: center;
+}
+.login {
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+}
+.barra {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, transparent, #CCC, transparent);
+}
+.x-fechar-modal{
+    background-color: #fff;
+    border: none;
+    font-size: 20px;
+}
+.logo-central {
+    margin-top: 6vh;
+}
+
+.conteudo-publico{
+    margin-left: 30vh;
+    margin-right: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.conteudo-dashboard{
+    margin: auto;
+    width: 1100px;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    padding: 10px;
+}
+.tabela-dashboard{
+    border-left: solid;
+    border-left-height: 10px;
+    border-bottom: solid;
+    border-right: solid;
+    border-width: 2px;
+    border-radius: 15px;
+}
+.tabela-dashboard td {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.escala{
+    text-align: right;
+    margin-top: -35px;
+}
+.conteudo-empresa{
+    margin-left: 30vh;
+    margin-right: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.tabela-dashboard{
+    min-height: 500px;
+}
+.conteudo-ver-ordem{
+    margin-left: 250px;
+    margin-right: 250px;
+    justify-content: center;
+    align-items: center;
+}
+
+.relatorio{
+    height: 200px;
+    background-color: #fff;
+    border-radius: 15px;
+}
+
+.conteudo-escala{
+    width: 1000px;
+    margin: auto;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 10px;
+}
+.conteudo-add-escala{
+    width: 500px;
+    margin: auto;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 10px;
+}
+.conteudo-solicitação{
+    width: 470px;
+    min-height: 550px;
+    height: auto;
+    margin: auto;
+    display: flex;
+    box-shadow: 5px 5px 10px
+}
+
+/* Parte da avaliação somente para computadores*/
+.conteudo-avaliacao{
+    width: 700px;
+    margin: auto;
+    margin-top: 5%;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+}
+.only-line{
+    background-color: #fff !important;
+    max-width: 100%;
+    border-width: 0 0 2px;
+    border-color: #007ec1;
+}
+.conteudo-avaliacao img{
+    padding: 10px;
+    width: 210px;
+}
+.head {
+    display: flex;
+    align-items: center;
+    font-size: 25px;
+    font-weight: 500;
+}
+.head p{
+    margin: auto;
+    color: #007ec1;
+}
+.divisao {
+    height: 2px !important;
+    background-image: linear-gradient(to right, #fcc607, #007ec1, #fcc607);
+}
+
+.justificativa{
+    resize: none;
+    border-color: #007ec1;
+    border-width: 2px;
+}
+.menos-margem{
+    margin-right: -15px;
+}
+.margem{
+    margin-right: 30px;
+}
+.margem-label{
+    margin-right: 22px;
+}
+.logo-final{
+    margin-top: 25px;
+    margin-left: -110px;
+    width: 200px;
+}
+.logo-final img{
+    width: 330px;
+}
+
+
+

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+  <div class="conteudo-dashboard">
+    <div class="tabela-dashboard">
+      <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
+        <caption style="padding-left: 10px"><h5>Ordens de serviço do dia: {{ data | date:'d/m/Y' }} </h5></caption>
+        <thead>
+          <tr class="table-active">
+            <th width="90px"><center>Tipo</center></th>
+            <th width="400px"><center>Instituição</center></th>
+            <th width="120px"><center>Coordenador</center></th>
+            <th width="250px" ><center>Equipe</center></th>
+            <th width="210px"><center><nobr>Data de atendimento</nobr></center></th>
+          </tr>
+        </thead>
+        <tbody id="dados">
+          {% if not ordemDeServico.tipo %}
+            <td colspan='5'>Sem ordens de serviço para o dia {{ data | date:'d/m/Y' }}</td>
+          {% endif %}
+          {% for os in ordemDeServico %}
+            <tr class='clickable-row' data-href="{% url 'verOrdem' os.id %}">
+              <td>{{ os.tipo }}</td>
+              <td>{{ os.instituicao }}</td>
+              <td>{{ os.coordenador }}</td>
+              <td>
+                {{ os.coordenador }}
+                {% if os.professor_2 != none %}
+                ,
+                {{ os.professor_2 }}
+                {% endif %}
+                {% if os.professor_3 != none %}
+                ,
+                {{ os.professor_3 }}
+                {% endif %}
+                {% if os.professor_4 != none %}
+                ,
+                {{ os.professor_4 }}
+                {% endif %}
+              </td>
+              <td>{{ os.data_atendimento }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <hr>
+    <div class="dados_dashboard">
+      <div class="dados-usuario">
+        asdfghfjfgdsafsdgsdfasfd
+      </div>
+      <div class="escala">
+        Escala do dia:
+
+        {% if escala.0 %}
+          1 - {{ escala.0 }}
+        {% else %}
+          Ninguém escalado para hoje!
+        {% endif %}
+
+        {% if escala.1 %}
+          , 2 - {{ escala.1 }}
+        {% endif %}
+
+        {% if escala.2 %}
+          , 3 - {{ escala.2 }}
+        {% endif %}
+
+        {% if escala.3 %}
+          , 4 - {{ escala.3 }}
+        {% endif %}
+
+        {% if escala.r %}
+          , 5 - {{ escala.4 }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

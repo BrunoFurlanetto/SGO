@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+<!-------------------------------- LINHA 1 ---------------------------->
+  <div class="conteudo-avaliacao" style="padding: 10px">
+    <script src="{% static 'js/teste.js' %}"></script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+
+    <div id="aviso" class="modal" tabindex="-1" role="dialog" style="margin-left: auto">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width: 700px">
+          <div class="modal-header">
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" style="float: right">&times;</span>
+            </button>
+            <div class="head">
+              <img src="{% static  'img/logoAvalicao.png' %}">
+              <p>Ficha de Avaliação das atividades</p>
+            </div>
+          </div>
+          <div class="modal-body">
+            <p align="justify">
+                Os dados gerados para o colégio <b>{{ request.POST.instituicao }}</b> acessar o sistema de avaliação foram:
+            </p>
+            <p align="justify">
+                Eles devem ser encaminhados para o(os) responsáveis do colégio <b>{{ request.POST.instituicao }}</b>
+                ou diretamente para a própria instituição.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="head">
+      <img src="{% static  'img/logoAvalicao.png' %}">
+      <p>Ficha de Avaliação das atividades</p>
+    </div>
+    <hr class="divisao">
+
+    <form action="{% url 'fichaAvaliacao' %}" method="POST">
+      {% csrf_token %}
+      <script src="{% static 'js/teste.js' %}"></script>
+      <script src="{% static 'js/jquery.js' %}"></script>
+      <link rel="stylesheet" href="{% static 'css/avaliacao.css' %}">
+
+      <!-- Identificação do colégio e quantidades -->
+      <div class="row">
+        <div class="form-group col-md-7">
+          {{ form.instituicao }}
+          <script>
+            $('#id_instituicao').val('{{ user.last_name }}')
+          </script>
+        </div>
+        <div class="form-group col-md-5">
+          {{ form.cidade }}
+        </div>
+      </div>
+      <div class="row mt-1">
+        <div class="form-group my-3 col-auto menos-margem">
+          <label>Nº Alunos:</label>
+        </div>
+        <div class="form-group col-md-2 margem-label">
+          {{ form.n_alunos }}
+        </div>
+        <div class="form-group my-3 col-auto menos-margem">
+          <label>Nº Educadores:</label>
+        </div>
+        <div class="form-group col-md-2 margem-label">
+          {{ form.n_educadores }}
+        </div>
+        <div class="form-group my-3 col-auto menos-margem">
+          <label>Série:</label>
+        </div>
+        <div class="form-group col-md-2" style="width: 154px">
+          {{ form.serie }}
+        </div>
+      </div>
+
+      <!-- Identificação dos avaliadores -->
+      <hr class="divisao">
+      <h5>Identificação dos avaliadores</h5>
+      <div class="row mb-2">
+        <div class="form-group col-4">
+          {{ form.nome_educador_1 }}
+        </div>
+        <div class="form-group col-3">
+          {{ form.cargo_educador_1 }}
+        </div>
+        <div class="form-group col-5">
+          {{ form.email_educador_1 }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-4">
+          {{ form.nome_educador_2 }}
+        </div>
+        <div class="form-group col-3">
+          {{ form.cargo_educador_2 }}
+        </div>
+        <div class="form-group col-5">
+          {{ form.email_educador_2 }}
+        </div>
+      </div>
+      <hr class="divisao">
+
+      <!-- Avaliação representante de vendas -->
+      <div class="row mb-1">
+        <div class="form-group my-3 col-auto">
+          <label>Representante de vendas: </label>
+        </div>
+        <div class="form-group col-md-5">
+          {{ form.nome_vendedor }}
+        </div>
+        <div class="form-group col-md-3">
+          {{ form.avaliacao_vendedor }}
+        </div>
+      </div>
+      <div>
+          <div class="form-group">
+            <label>Justificativa da avaliação</label>
+            {{ form.justificativa_avaliacao_vendedor }}
+          </div>
+      </div>
+      <hr class="divisao">
+
+      <!-- Avaliação atividades -->
+      <h5>Atividades do CEU - Centro de Estudos do Universo</h5>
+      {% for atividade in atividades %}
+        <!-- Campos das atividades 1 -->
+        {% if forloop.counter == 1 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_1 }}
+              <script>
+                $("#id_data_atividade_1").val('{{ atividade.data| date:'Y-m-d' }}');
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_1 }}
+              <script>
+                $('#id_atividade_1').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_1 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 2 -->
+        {% if forloop.counter == 2 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_2 }}
+              <script>
+                $('#id_data_atividade_2').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_2 }}
+              <script>
+                $('#id_atividade_2').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_2 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 3 -->
+        {% if forloop.counter == 3 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_3 }}
+              <script>
+                $('#id_data_atividade_3').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_3 }}
+              <script>
+                $('#id_atividade_3').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_3 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 3 -->
+        {% if forloop.counter == 4 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_4 }}
+              <script>
+                $('#id_data_atividade_4').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_4 }}
+              <script>
+                $('#id_atividade_4').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_4 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 5 -->
+        {% if forloop.counter == 5 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_5 }}
+              <script>
+                $('#id_data_atividade_5').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_5 }}
+              <script>
+                $('#id_atividade_5').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_5 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 6 -->
+        {% if forloop.counter == 6 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_6 }}
+              <script>
+                $('#id_data_atividade_6').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_6 }}
+              <script>
+                $('#id_atividade_6').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_6 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 7 -->
+        {% if forloop.counter == 7 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+              {{ form.data_atividade_7 }}
+              <script>
+                $('#id_data_atividade_7').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividde_7 }}
+              <script>
+                $('#id_atividade_7').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_7 }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Campos das atividades 8 -->
+        {% if forloop.counter == 8 %}
+          <div class="row mb-2">
+            <div class="form-group col-4" style="width: 190px">
+                {{ form.data_atividade_8 }}
+              <script>
+                $('#id_data_atividade_8').val('{{ atividade.data| date:'Y-m-d' }}')
+              </script>
+            </div>
+            <div class="form-group col-5" style="width: 335px">
+              {{ form.atividade_8 }}
+              <script>
+                $('#id_atividade_8').val('{{ atividade.atividade }}')
+              </script>
+            </div>
+            <div class="form-group col-3">
+              {{ form.avaliacao_atividade_8 }}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div>
+        <div class="form-group">
+          <label>Justificativa das avaliações</label>
+          {{ form.justificativa_avaliacao_atividades }}
+        </div>
+      </div>
+      <hr class="divisao">
+
+      <!-- Avaliação dos professores do CEU -->
+      <h5>Avaliação dos Professores do CEU</h5>
+      <div class="row mb-2">
+        <div class="form-group col-6">
+          {% for professor in professores %}
+            <!- Campos professor 1 -->
+            {% if forloop.counter == 1 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_1 }}
+                  <script>
+                    $('#id_professor_1').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_1 }}
+                </div>
+              </div>
+            {% endif %}
+
+            <!- Campos professor 2 -->
+            {% if forloop.counter == 2 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_2}}
+                  <script>
+                    $('#id_professor_2').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_2 }}
+                </div>
+              </div>
+            {% endif %}
+
+            <!- Campos professor 3 -->
+            {% if forloop.counter == 3 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_3 }}
+                  <script>
+                    $('#id_professor_3').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_3 }}
+                </div>
+              </div>
+            {% endif %}
+            <!- Campos professor 4 -->
+            {% if forloop.counter == 4 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_4 }}
+                  <script>
+                    $('#id_professor_4').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_4 }}
+                </div>
+              </div>
+            {% endif %}
+            <!- Campos professor 5 -->
+            {% if forloop.counter == 5 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_5 }}
+                  <script>
+                    $('#id_professor_5').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_5 }}
+                </div>
+              </div>
+            {% endif %}
+
+            <!- Campos professor 6 -->
+            {% if forloop.counter == 6 %}
+              <div class="row mb-2">
+                <div class="form-group col-6 menos-margem">
+                  {{ form.professor_6 }}
+                  <script>
+                    $('#id_professor_6').val('{{ professor }}')
+                  </script>
+                </div>
+                <div class="form-group col-6">
+                  {{ form.avaliacao_professor_6 }}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+
+        </div>
+        <div class="form-group mb-2 col-6 justificativa-professores">
+          <label>Justificativa das avaliações</label>
+          {{ form.justificativa_avaliacao_professores }}
+        </div>
+      </div>
+      <hr class="divisao">
+
+    <!-- Avaliações gerais -->
+      <h5>Avaliação Geral</h5>
+      <div>
+          <div class="form-group">
+            <label>O que motivou trazer o seu grupo?</label>
+            {{ form.motivo_trazer_grupo }}
+          </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-8">
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Conteúdo Pedagógico: </label>
+            </div>
+            <div class="form-group col-4">
+              {{ form.avaliacao_conteudo_pedagogico }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Limpeza das Instalações:</label>
+            </div>
+            <div class="form-group col-4">
+              {{ form.limpeza_instalacoes }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-auto menos-margem my-3">
+              <label>Estado do Jardim:</label>
+            </div>
+            <div class="form-group col-4">
+              {{ form.estado_jardim }}
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-4 logo-final">
+          <img src="{% static  'img/logoAvalicao.png' %}">
+        </div>
+      </div>
+      <div>
+          <div class="form-group mb-3">
+            <label>Outras observações:</label>
+            {{ form.observacoes }}
+          </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">salvar</button>
+    </form>
+  </div>
+
+{% endblock %}
