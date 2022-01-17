@@ -81,9 +81,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.dados_dashboard{
+    display: block;
+}
 .escala{
+    margin-top: -25px;
     text-align: right;
-    margin-top: -35px;
 }
 .conteudo-empresa{
     margin-left: 30vh;

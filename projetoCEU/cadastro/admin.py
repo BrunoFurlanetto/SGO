@@ -4,9 +4,8 @@ from cadastro.models import OrdemDeServico, Professores, Tipo, Atividades
 
 class OrdemDeServicoAdmin(admin.ModelAdmin):
     list_display = ('tipo', 'instituicao', 'coordenador', 'data_atendimento', 'solicitado', 'entregue')
-    list_editable = ('solicitado', )
     list_display_links = ('tipo',)
-    list_filter = ('instituicao', 'coordenador')
+    list_filter = ('tipo', 'instituicao', 'coordenador')
     list_per_page = 10
 
 
