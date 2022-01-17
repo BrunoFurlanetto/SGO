@@ -23,10 +23,6 @@
     justify-content: center;
     align-items: center;
 }
-.publico {
-    display: flex;
-    justify-content: center;
-}
 .conteudo-login {
     justify-content: center;
     align-items: center;
@@ -50,13 +46,21 @@
     margin-top: 6vh;
 }
 
+/* Estilos do cadastro de público */
 .conteudo-publico{
-    margin-left: 30vh;
-    margin-right: 30vh;
+    background-color: #fff;
+    margin: auto;
+    width: 850px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
+.titulo-publico{
+    margin: 20px;
+}
+/*------------------------------*/
 .conteudo-dashboard{
     margin: auto;
     width: 1100px;
