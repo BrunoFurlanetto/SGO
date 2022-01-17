@@ -1,3 +1,9 @@
 from django.contrib import admin
+from fichaAvaliacao.models import FichaDeAvaliacao
 
-# Register your models here.
+
+class FichaDeAvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ('instituicao',)
+
+
+admin.site.register(FichaDeAvaliacao, FichaDeAvaliacaoAdmin)
