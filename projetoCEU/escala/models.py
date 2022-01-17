@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.db import models
 from cadastro.models import Professores
 

@@ -132,6 +132,9 @@ class OrdemDeServico(models.Model):
     solicitado = models.BooleanField(default=False)
     entregue = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'Ordem de serviço de {self.tipo}'
+
 
 class TipoSerializer(serializers.ModelSerializer):
     class Meta:

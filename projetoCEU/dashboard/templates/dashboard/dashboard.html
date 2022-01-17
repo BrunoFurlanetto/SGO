@@ -50,32 +50,19 @@
     <hr>
     <div class="dados_dashboard">
       <div class="dados-usuario">
-        asdfghfjfgdsafsdgsdfasfd
+        Resumo do mês: {{ n_atividades }} atividades e {{ n_horas }} horas com empresa.
       </div>
       <div class="escala">
         Escala do dia:
 
-        {% if escala.0 %}
-          1 - {{ escala.0 }}
+        {% if escala %}
+          {% for professor in escala %}
+            {{forloop.counter}} - {{ professor }},
+          {% endfor %}
         {% else %}
           Ninguém escalado para hoje!
         {% endif %}
 
-        {% if escala.1 %}
-          , 2 - {{ escala.1 }}
-        {% endif %}
-
-        {% if escala.2 %}
-          , 3 - {{ escala.2 }}
-        {% endif %}
-
-        {% if escala.3 %}
-          , 4 - {{ escala.3 }}
-        {% endif %}
-
-        {% if escala.r %}
-          , 5 - {{ escala.4 }}
-        {% endif %}
       </div>
     </div>
   </div>
