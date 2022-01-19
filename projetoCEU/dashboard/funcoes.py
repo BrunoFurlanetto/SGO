@@ -14,7 +14,6 @@ def contar_atividades(professor_logado, ordens):
             if 'prf' in nome and ordem[nome] is not None:
 
                 if Professores.objects.get(pk=ordem[nome]) == professor_logado:
-                    print(nome, ordem['instituicao'], ordem['data_atendimento'])
                     n_atividades += 1
 
     return n_atividades

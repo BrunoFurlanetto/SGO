@@ -76,6 +76,36 @@ function solicitar(selecao) {
     });
 };
 
-$(window).on('load',function(){
-$('#aviso').modal('show')
-})
+//$(window).on('load',function(){
+//$('#aviso').modal('show')
+//})
+
+function animacao(){
+    var home_section = document.getElementsByClassName('home-section')
+    var formulario = document.getElementsByClassName('conteudo-avaliacao')
+    var conteudo_inicio = document.getElementsByClassName('conteudo-inicio')
+
+    home_section[0].classList.add('animado')
+    formulario[0].classList.remove('hide')
+
+    setTimeout(() => {
+    conteudo_inicio[0].classList.add('hide')
+    },2010);
+
+}
+
+function animacao_final(){
+    var formulario = document.getElementsByClassName('conteudo-avaliacao')
+    var conteudo_final = document.getElementsByClassName('conteudo-final')
+    var home_section = document.getElementsByClassName('home-section')
+
+
+
+    conteudo_final[0].classList.remove('hide')
+    home_section[0].classList.add('animado-2')
+
+    setTimeout(() => {
+    formulario[0].classList.add('hide')
+    },2005);
+
+}

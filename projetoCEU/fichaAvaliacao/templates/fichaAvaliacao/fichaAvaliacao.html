@@ -4,38 +4,31 @@
 
 {% block conteudo %}
 <!-------------------------------- LINHA 1 ---------------------------->
-  <div class="conteudo-avaliacao" style="padding: 10px">
+  <div class="conteudo-inicio">
+    <center>
+      <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
+
+      <hr>
+      <p class="texto-animacao" align="justify">
+         Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
+         quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
+         ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra.
+         Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget
+         tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis
+         pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu
+         vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis
+         luctus, metus
+      </p>
+      <hr>
+      <button onClick="animacao()">
+        <span><h4>Iniciar</h4></span>
+      </button>
+    </center>
+  </div>
+
+  <div class="conteudo-avaliacao hide" style="padding: 10px">
     <script src="{% static 'js/teste.js' %}"></script>
     <script src="{% static 'js/jquery.js' %}"></script>
-
-    <div id="aviso" class="modal" tabindex="-1" role="dialog" style="margin-left: auto">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content" style="width: 700px">
-          <div class="modal-header">
-            <button class="x-fechar-modal" data-bs-dismiss="modal" >
-              <span aria-hidden="false" style="float: right">&times;</span>
-            </button>
-            <div class="head">
-              <img src="{% static  'img/logoAvalicao.png' %}">
-              <p>Ficha de Avaliação das atividades</p>
-            </div>
-          </div>
-          <div class="modal-body">
-            <p align="justify">
-                Os dados gerados para o colégio <b>{{ request.POST.instituicao }}</b> acessar o sistema de avaliação foram:
-            </p>
-            <p align="justify">
-                Eles devem ser encaminhados para o(os) responsáveis do colégio <b>{{ request.POST.instituicao }}</b>
-                ou diretamente para a própria instituição.
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
     <div class="head">
       <img src="{% static  'img/logoAvalicao.png' %}">
@@ -457,8 +450,27 @@
           </div>
       </div>
 
-      <button type="submit" class="btn btn-primary">salvar</button>
+      <button type="submit" class="btn btn-primary" onClick="animacao_final()">salvar</button>
     </form>
+  </div>
+
+  <div class="conteudo-final hide">
+    <center>
+      <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
+
+      <hr>
+      <p class="texto-animacao" align="justify">
+         Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
+         quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
+         ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra.
+         Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget
+         tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis
+         pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu
+         vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis
+         luctus, metus
+      </p>
+      <hr>
+    </center>
   </div>
 
 {% endblock %}

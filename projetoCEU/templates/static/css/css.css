@@ -141,14 +141,6 @@
 }
 
 /* Parte da avaliação somente para computadores*/
-.conteudo-avaliacao{
-    width: 700px;
-    margin: auto;
-    margin-top: 5%;
-    background-color: #fff;
-    box-shadow: 5px 5px 10px;
-    border-radius: 15px;
-}
 .only-line{
     background-color: #fff !important;
     max-width: 100%;
