@@ -41,4 +41,4 @@ def contar_horas(professor_logado, ordens):
                     if Professores.objects.get(pk=ordem[nome]) == professor_logado:
                         n_horas += ordem['soma_horas_3']
 
-    return n_horas
+    return datetime.timedelta()

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+<div>
+    {% load static %}
+
+<form action="{% url 'dashboard' %}" method="POST">
+
+  <div class="container">
+    <div class="calendar-disponibilidade">
+      <div class="month-disponibilidade">
+        <i class="fas fa-angle-left prev-disponibilidade"></i>
+        <div class="date-disponibilidade">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+          <h1></h1>
+          <p></p>
+        </div>
+        <i class="fas fa-angle-right next-disponibilidade"></i>
+      </div>
+      <div class="weekdays-disponibilidade">
+        <div>Dom</div>
+        <div>Seg</div>
+        <div>Ter</div>
+        <div>Qua</div>
+        <div>Qui</div>
+        <div>Sex</div>
+        <div>Sab</div>
+      </div>
+      <div class="days-disponibilidade"></div>
+    </div>
+  </div>
+  <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
+</form>
+</div>
+
+{% endblock %}
+

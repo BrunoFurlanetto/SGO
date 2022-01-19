@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.escala, name='escala'),
+    path('disponibilidade/', views.disponibilidade, name='disponibilidade'),
 ]
