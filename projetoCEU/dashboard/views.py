@@ -11,6 +11,8 @@ from escala.models import Escala
 
 @csrf_exempt
 def dashboard(request):
+
+    # --------------------------- Parte para verificação de autenticação ---------------------------------
     if not request.user.is_authenticated:
         return redirect('login')
 
@@ -18,6 +20,7 @@ def dashboard(request):
 
     if ver_icons:
         return redirect('fichaAvaliacao')
+    # ----------------------------------------------------------------------------------------------------
 
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
@@ -33,26 +36,11 @@ def dashboard(request):
         Q(coordenador=professor_logado) | Q(professor_2=professor_logado)).filter(
         Q(tipo=Tipo.objects.get(tipo='Empresa'))).filter(data_atendimento__month=datetime.now().month).values()
     # --------------------------------------------------------------------------------------
-    escala = Escala.objects.filter(data=datetime.now())
+    escalas = Escala.objects.filter(data=datetime.now())
 
     # ----- Parte para seleção da escala do dia -------
-    escalaDoDia = []
-
-    for professor in escala:
-        if professor.coordenador is not None:
-            escalaDoDia.append(professor.coordenador)
-
-        if professor.professor_2 is not None:
-            escalaDoDia.append(professor.professor_2)
-
-        if professor.professor_3 is not None:
-            escalaDoDia.append(professor.professor_3)
-
-        if professor.professor_4 is not None:
-            escalaDoDia.append(professor.professor_4)
-
-        if professor.professor_5 is not None:
-            escalaDoDia.append(professor.professor_5)
+    for escala in escalas:
+        equipe_escalada = escala.equipe.split(', ')
 
     # ------ Parte dos dados mandados para o ajax, para serem exibidos na tabela -------
     data = datetime.now()
@@ -77,13 +65,9 @@ def dashboard(request):
     n_horas = contar_horas(professor_logado, ordens_usuario_empresa.values())
     # -------------------------------------------------------------------------
 
-    if request.user.is_authenticated:
+    if is_ajax(request) and request.method == 'POST':
+        return HttpResponse(dados)
 
-        if is_ajax(request) and request.method == 'POST':
-            return HttpResponse(dados)
-
-        return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'data': data,
-                                                            'escala': escalaDoDia, 'n_atividades': n_atividade,
-                                                            'n_horas': n_horas})
-    else:
-        return redirect('login')
+    return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'data': data,
+                                                        'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
+                                                        'n_horas': n_horas})

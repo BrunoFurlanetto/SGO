@@ -188,6 +188,14 @@
 .logo-final img{
     width: 330px;
 }
+#id_data{
+    height: 35px;
+    width: 100%;
+    border-radius: 0.25rem;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ced4da;
+}
 
 
 
