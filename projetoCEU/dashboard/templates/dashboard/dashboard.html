@@ -55,9 +55,9 @@
       <div class="escala">
         <b>Escala do dia:</b>
 
-        {% if escala %}
-          {% for professor in escala %}
-            {{forloop.counter}} - {{ professor }},
+        {% if equipe_escalada %}
+          {% for professor in equipe_escalada %}
+            {{ forloop.counter }} - {{ professor }},
           {% endfor %}
         {% else %}
           Ninguém escalado para hoje!
