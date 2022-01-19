@@ -125,17 +125,21 @@ def fichaAvaliacao(request):
             avaliacao.professor_6 = Professores.objects.get(nome=professores[5])
 
     if formulario.is_valid():
-        print(formulario.errors)
-        avaliacao.save()
+        # avaliacao.save()
 
-        colegio = OrdemDeServico.objects.filter(instituicao__iexact=request.user.last_name)
-        colegio.update(entregue=True)
+        # colegio = OrdemDeServico.objects.filter(instituicao__iexact=request.user.last_name)
+        # colegio.update(entregue=True)
 
-        messages.success(request, 'Ficha de avaliação salva com sucesso!')
-        user = User.objects.get(pk=request.user.id)
-        user.delete()
-        sleep(2)
-        return redirect('logout')
+        # messages.success(request, 'Ficha de avaliação salva com sucesso!')
+        # user = User.objects.get(pk=request.user.id)
+        # user.delete()
+        sleep(6)
+        formulario = FichaDeAvaliacaoForm(request.POST)
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'avaliacoes': avaliacoes,
+                                                                      'atividades': atividades,
+                                                                      'professores': professores,
+                                                                      'form': formulario})
+        # return redirect('logout')
     else:
         formulario = FichaDeAvaliacaoForm(request.POST)
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'avaliacoes': avaliacoes,
