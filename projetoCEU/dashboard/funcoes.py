@@ -20,7 +20,7 @@ def contar_atividades(professor_logado, ordens):
 
 
 def contar_horas(professor_logado, ordens):
-    n_horas = datetime.timedelta(days=0, hours=0, minutes=0)
+    n_horas = datetime.timedelta(0, 0, 0)
 
     for ordem in ordens:
         for nome in ordem:
@@ -41,4 +41,4 @@ def contar_horas(professor_logado, ordens):
                     if Professores.objects.get(pk=ordem[nome]) == professor_logado:
                         n_horas += ordem['soma_horas_3']
 
-    return datetime.timedelta()
+    return str(n_horas)
