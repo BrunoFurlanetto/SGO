@@ -4,21 +4,20 @@
 
 {% block conteudo %}
 
-<div>
-    {% load static %}
 
-<form action="{% url 'dashboard' %}" method="POST">
+<div class="conteudo-disponibilidade">
 
-  <div class="container">
+<form>
+  <div>
     <div class="calendar-disponibilidade">
       <div class="month-disponibilidade">
-        <i class="fas fa-angle-left prev-disponibilidade"></i>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+          <i class="fas fa-angle-left prev-disponibilidade"></i>
         <div class="date-disponibilidade">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
           <h1></h1>
           <p></p>
         </div>
-        <i class="fas fa-angle-right next-disponibilidade"></i>
+          <i class="fas fa-angle-right next-disponibilidade"></i>
       </div>
       <div class="weekdays-disponibilidade">
         <div>Dom</div>
@@ -30,11 +29,15 @@
         <div>Sab</div>
       </div>
       <div class="days-disponibilidade"></div>
+      <button class="botao">
+        <span>Enviar datas</span>
+      </button>
     </div>
   </div>
   <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
 </form>
+  <br>
+  <h5>Dias selecionados:</h5>
 </div>
 
 {% endblock %}
-

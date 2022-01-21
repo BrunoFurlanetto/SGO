@@ -50,4 +50,6 @@ def escala(request):
 
 
 def disponibilidade(request):
-    return render(request, 'escala/disponibilidade.html')
+    edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
+
+    return render(request, 'escala/disponibilidade.html', {'edita': edita})

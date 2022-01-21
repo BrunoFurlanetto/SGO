@@ -63,17 +63,19 @@
                   </ul>
             </li>
 
-          <li>
-            <a>
-              <i class="bx bxs-calendar"></i>
-            </a>
-            <ul class="sub-menu blank">
-              <li><a class="link_name">Calendário</a></li>
-            </ul>
-          </li>
-          <div class="calendario">
-            {% include 'parciais/_calendario.html' %}
-          </div>
+          {% if request.path == '/dashboard/' %}
+            <li>
+              <a>
+                <i class="bx bxs-calendar"></i>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name">Calendário</a></li>
+              </ul>
+            </li>
+            <div class="calendario">
+              {% include 'parciais/_calendario.html' %}
+            </div>
+          {% endif %}
 
           <li>
             <div class="profile-details">
@@ -121,7 +123,6 @@
         {% include 'parciais/_mensagens.html' %}
         {% block conteudo %}{% endblock %}
       </div>
-<!--      <br><br><br><br>-->
     </section>
     <script src="{% static 'js/script.js' %}"></script>
   </body>

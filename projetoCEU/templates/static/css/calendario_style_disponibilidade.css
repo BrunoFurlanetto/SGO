@@ -5,64 +5,57 @@
   font-family: "Quicksand", sans-serif;
 }
 
-.container {
-  color: #eee;
-}
-
 .calendar-disponibilidade {
-  width: 250px;
-  height: 250px;
-  background-color: #222227;
+  width: 350px;
+  border-radius: 15px;
+  padding-bottom: 5px;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.4);
 }
 
 .month-disponibilidade {
   width: 100%;
-  height: 50px;
+  height: 70px;
+  border-radius: 15px 15px 0 0;
   background-color: #00659c;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 32px;
   text-align: center;
-  text-shadow: 0 5px 8px rgba(0, 0, 0, 0.5);
+  color: #fff;
 }
-
 .month-disponibilidade i {
-  font-size: 20px;
+  font-size: 25px;
   cursor: pointer;
 }
 
+
 .month-disponibilidade h1 {
-  font-size: 15px;
-  margin-top: 15px;
+  font-size: 25px;
   font-weight: 400;
+  margin-top: 15px;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 1px;
 }
 
-.month-disponibilidade p {
-  font-size: 12px;
-}
-
 .weekdays-disponibilidade {
   width: 100%;
-  height: 15px;
+  height: 25px;
   padding: 0 2px;
   display: flex;
   align-items: center;
 }
 
 .weekdays-disponibilidade div {
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 17px;
+  font-weight: 500;
   letter-spacing: 1px;
-  width: calc(250px / 7);
+  width: calc(350px / 7);
   display: flex;
   justify-content: center;
   align-items: center;
-  text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
 }
 
 .days-disponibilidade {
@@ -73,24 +66,23 @@
 }
 
 .days-disponibilidade div {
-  font-size: 13px;
-  width: calc(240px / 7);
-  height: calc(150px / 5);
+  font-size: 17px;
+  font-weight: 500;
+  width: calc(340px / 7);
+  height: calc(200px / 5);
   display: flex;
   justify-content: center;
   align-items: center;
-  text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
   transition: background-color 0.2s;
 }
 
 .days-disponibilidade div:hover {
-  background-color: #262626;
   border: 1px solid #777;
   cursor: pointer;
 }
 
 .prev-date-disponibilidade, .next-date-disponibilidade {
-  opacity: 0.5;
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -100,4 +92,13 @@
 
 .selected-disponibilidade {
     background-color: #e8c600;
+}
+.botao{
+    font-size: 20px;
+    color: #fff;
+    height: 35px;
+    width: 98%;
+    margin-left: 1%;
+    background-color: #00659c;
+    border-radius: 10px;
 }
