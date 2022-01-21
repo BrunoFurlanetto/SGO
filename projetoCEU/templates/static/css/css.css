@@ -110,7 +110,7 @@
 }
 
 .relatorio{
-    height: 200px;
+    min-height: 200px;
     background-color: #fff;
     border-radius: 15px;
 }

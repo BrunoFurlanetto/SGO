@@ -9,14 +9,14 @@
   color: #eee;
 }
 
-.calendar {
+.calendar-disponibilidade {
   width: 250px;
   height: 250px;
   background-color: #222227;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.4);
 }
 
-.month {
+.month-disponibilidade {
   width: 100%;
   height: 50px;
   background-color: #00659c;
@@ -28,12 +28,12 @@
   text-shadow: 0 5px 8px rgba(0, 0, 0, 0.5);
 }
 
-.month i {
+.month-disponibilidade i {
   font-size: 20px;
   cursor: pointer;
 }
 
-.month h1 {
+.month-disponibilidade h1 {
   font-size: 15px;
   margin-top: 15px;
   font-weight: 400;
@@ -42,11 +42,11 @@
   margin-bottom: 1px;
 }
 
-.month p {
+.month-disponibilidade p {
   font-size: 12px;
 }
 
-.weekdays {
+.weekdays-disponibilidade {
   width: 100%;
   height: 15px;
   padding: 0 2px;
@@ -54,7 +54,7 @@
   align-items: center;
 }
 
-.weekdays div {
+.weekdays-disponibilidade div {
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 1px;
@@ -65,14 +65,14 @@
   text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
 }
 
-.days {
+.days-disponibilidade {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   padding: 3px;
 }
 
-.days div {
+.days-disponibilidade div {
   font-size: 13px;
   width: calc(240px / 7);
   height: calc(150px / 5);
@@ -83,20 +83,21 @@
   transition: background-color 0.2s;
 }
 
-.days div:hover:not(.today) {
+.days-disponibilidade div:hover {
   background-color: #262626;
   border: 1px solid #777;
   cursor: pointer;
 }
 
-.prev-date, .next-date {
+.prev-date-disponibilidade, .next-date-disponibilidade {
   opacity: 0.5;
+  pointer-events: none;
 }
 
-.today {
+.today-disponibilidade {
   background-color: #00659c;
 }
 
-.selected {
+.selected-disponibilidade {
     background-color: #e8c600;
 }

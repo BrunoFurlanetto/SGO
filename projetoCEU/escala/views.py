@@ -47,3 +47,7 @@ def escala(request):
         messages.success(request, f'Escala para o dia {data} com {equipe}, salva com sucesso!')
     finally:
         return redirect('escala')
+
+
+def disponibilidade(request):
+    return render(request, 'escala/disponibilidade.html')
