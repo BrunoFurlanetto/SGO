@@ -1,7 +1,5 @@
 const date_disponibilidade = new Date();
 
-const months_disponibilidade = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
 const renderCalendar_disponibilidade = () => {
     date_disponibilidade.setDate(1);
 
@@ -71,9 +69,9 @@ const renderCalendar_disponibilidade = () => {
             i === new Date().getDate() &&
             date_disponibilidade.getMonth() === new Date().getMonth()
         ) {
-            days_disponibilidade += `<div class="${i} today-disponibilidade">${i}</div>`;
+            days_disponibilidade += `<div id='${i}' class="$day {i} today-disponibilidade">${i}</div>`;
         } else {
-            days_disponibilidade += `<div class="${i}">${i}</div>`;
+            days_disponibilidade += `<div id='${i}' class="day ${i}">${i}</div>`;
         }
     }
 
@@ -108,5 +106,41 @@ document.querySelector(".days-disponibilidade").addEventListener("click", (event
     }
 
 })
+
+function selecionar(){
+    var lastDay_disponibilidade = new Date(
+        date_disponibilidade.getFullYear(),
+        date_disponibilidade.getMonth() + 1,
+        0
+    ).getDate();
+
+    for (let i = 1; i <= lastDay_disponibilidade; i++){
+        var todos_dias = document.getElementById(i)
+        todos_dias.classList.toggle('selected-disponibilidade')
+    }
+};
+
+function enviar(){
+    var dias_selecionados = document.getElementsByClassName('selected-disponibilidade')
+    var mes_selecionado = date_disponibilidade.getMonth();
+    var ano_selecionado = date_disponibilidade.getFullYear();
+    var todas_as_datas_list = []
+    var token = document.getElementById('token')
+
+    for (let i = 0; i < dias_selecionados.length; i++){
+        var datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
+        todas_as_datas_list.push(datas_selecionadas.toLocaleDateString('pt-BR'))
+    }
+
+    var todas_as_datas = todas_as_datas_list.join(', ')
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        cache: false,
+        data: {'datas_disponiveis': todas_as_datas},
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()}
+    });
+};
 
 renderCalendar_disponibilidade();

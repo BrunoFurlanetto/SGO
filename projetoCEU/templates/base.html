@@ -54,13 +54,18 @@
             </li>
 
             <li>
-              <a href="{% url 'escala' %}">
-                  <i class='bx bx-table' ></i>
+              <div class="iocn-link">
+                <a href="#">
+                  <i class='bx bx-archive'></i>
                   <span class="link_name">Escala</span>
-              </a>
-                  <ul class="sub-menu blank">
-                  <li><a class="link_name" href="{% url 'escala' %}">Escala</a></li>
-                  </ul>
+                </a>
+                <i class='bx bxs-chevron-down arrow' ></i>
+              </div>
+              <ul class="sub-menu">
+                <li><a class="link_name">Escala</a></li>
+                <li><a href="{% url 'escala' %}">Visualizar</a></li>
+                <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
+              </ul>
             </li>
 
           {% if request.path == '/dashboard/' %}

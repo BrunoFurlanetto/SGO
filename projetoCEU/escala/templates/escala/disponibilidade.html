@@ -7,7 +7,8 @@
 
 <div class="conteudo-disponibilidade">
 
-<form>
+<form method="POST">
+  {% csrf_token %}
   <div>
     <div class="calendar-disponibilidade">
       <div class="month-disponibilidade">
@@ -28,16 +29,20 @@
         <div>Sex</div>
         <div>Sab</div>
       </div>
-      <div class="days-disponibilidade"></div>
-      <button class="botao">
-        <span>Enviar datas</span>
-      </button>
+      <div class="days-disponibilidade">
+      </div>
+      <div class="botoes">
+        <button type="button" class="botao" onClick="selecionar()">
+          <span>Selecionar todos os dias</span>
+        </button>
+        <button type="submit" onClick="enviar()" class="botao mt-1">
+          <span>Enviar datas disponiveis</span>
+        </button>
+        <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
+      </div>
     </div>
   </div>
-  <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
 </form>
-  <br>
-  <h5>Dias selecionados:</h5>
 </div>
 
 {% endblock %}
