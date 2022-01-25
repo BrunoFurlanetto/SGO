@@ -127,20 +127,22 @@ function enviar(){
     var todas_as_datas_list = []
     var token = document.getElementById('token')
 
-    for (let i = 0; i < dias_selecionados.length; i++){
-        var datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
-        todas_as_datas_list.push(datas_selecionadas.toLocaleDateString('pt-BR'))
-    }
+    console.log(dias_selecionados[0])
 
-    var todas_as_datas = todas_as_datas_list.join(', ')
+    if (dias_selecionados[0]){
+        for (let i = 0; i < dias_selecionados.length; i++){
+            var datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
+            todas_as_datas_list.push(datas_selecionadas.toLocaleDateString('pt-BR'))
+        };
 
-    $.ajax({
-        type: 'POST',
-        url: '',
-        cache: false,
-        data: {'datas_disponiveis': todas_as_datas},
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()}
-    });
+        var todas_as_datas = todas_as_datas_list.join(', ')
+        $('#entrada').val(todas_as_datas)
+        document.getElementById('enviando').click();
+
+    } else {
+        alert('Selecione algum dia disponivel para enviar')
+    };
+
 };
 
 renderCalendar_disponibilidade();

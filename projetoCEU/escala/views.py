@@ -2,9 +2,8 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 from cadastro.models import Professores
-from escala.funcoes import escalar, is_ajax, contar_dias, verificar_mes
+from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias
 from escala.models import Escala, Disponibilidade
 
 
@@ -56,27 +55,43 @@ def disponibilidade(request):
     if request.method != 'POST':
         return render(request, 'escala/disponibilidade.html')
 
-    if is_ajax(request) and request.method == 'POST':
-        n_dias = contar_dias(request.POST.get('datas_disponiveis'))
-        mes_cadastro = verificar_mes(request.POST.get('datas_disponiveis'))
+    professor = Professores.objects.get(nome=request.user.first_name)
 
-        consulta = Disponibilidade.objects.filter(professor=Professores.objects.get(nome=request.user.first_name),
-                                                  mes_referencia=mes_cadastro)
+    dias = verificar_dias(request.POST.get('datas_disponiveis'),
+                          Professores.objects.get(nome=request.user.first_name))
 
-        if len(consulta) != 0:
-            messages.error(request, 'Mês já cadastrado na base de dados')
-            return render(request, 'escala/disponibilidade.html')
+    if dias[0]:
+        n_dias = contar_dias(dias[0])
+        mes_e_ano_cadastro = verificar_mes_e_ano(dias[0])
+    else:
+        n_dias = 0
+        mes_e_ano_cadastro = verificar_mes_e_ano(dias[1])
 
-        try:
-            dias_disponiveis = Disponibilidade(professor=Professores.objects.get(nome=request.user.first_name),
-                                               mes_referencia=mes_cadastro, n_dias=n_dias,
-                                               dias_disponiveis=request.POST.get('datas_disponiveis'))
-            dias_disponiveis.save()
-        except:
-            messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
-            return redirect('dashboard')
+    ja_cadastrado = Disponibilidade.objects.filter(professor=professor, mes=mes_e_ano_cadastro[0],
+                                                   ano=mes_e_ano_cadastro[1])
+
+    try:
+        if ja_cadastrado:
+
+            if dias[0]:
+                for cadastro in ja_cadastrado:
+                    ja_cadastrado.update(dias_disponiveis=cadastro.dias_disponiveis + ', ' + dias[0],
+                                         n_dias=cadastro.n_dias + n_dias)
+
+                    if dias[1]:
+                        messages.warning(request, f'dias {dias[1]} não cadastrados por já estar na base de dados"')
+                    messages.success(request, 'Disponibilidade atualizada com sucesso')
+                    return redirect('dashboard')
+            else:
+                messages.warning(request, 'Todos os dias selecionados já estão salvos na base de dados!')
+                return redirect('dashboard')
+
         else:
+            dias_disponiveis = Disponibilidade(professor=professor, mes=mes_e_ano_cadastro[0],
+                                               ano=mes_e_ano_cadastro[1], n_dias=n_dias, dias_disponiveis=dias[0])
+            dias_disponiveis.save()
             messages.success(request, 'Disponibilidade salva com sucesso')
             return redirect('dashboard')
-
-    return redirect('disponibilidade')
+    except:
+        messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
+        return redirect('dashboard')

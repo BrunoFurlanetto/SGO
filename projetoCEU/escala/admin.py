@@ -7,7 +7,7 @@ class EscalaAdmin(admin.ModelAdmin):
 
 
 class DisponibilidadeAdmin(admin.ModelAdmin):
-    list_display = ('professor', 'mes_referencia', 'n_dias')
+    list_display = ('professor', 'mes', 'ano', 'n_dias')
 
 
 admin.site.register(Escala, EscalaAdmin)
