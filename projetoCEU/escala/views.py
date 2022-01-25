@@ -1,11 +1,11 @@
 from datetime import datetime
-
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from cadastro.models import Professores
-from escala.funcoes import escalar
-from escala.models import Escala
+from escala.funcoes import escalar, is_ajax, contar_dias, verificar_mes
+from escala.models import Escala, Disponibilidade
 
 
 def escala(request):
@@ -50,4 +50,33 @@ def escala(request):
 
 
 def disponibilidade(request):
-    return render(request, 'escala/disponibilidade.html')
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if request.method != 'POST':
+        return render(request, 'escala/disponibilidade.html')
+
+    if is_ajax(request) and request.method == 'POST':
+        n_dias = contar_dias(request.POST.get('datas_disponiveis'))
+        mes_cadastro = verificar_mes(request.POST.get('datas_disponiveis'))
+
+        consulta = Disponibilidade.objects.filter(professor=Professores.objects.get(nome=request.user.first_name),
+                                                  mes_referencia=mes_cadastro)
+
+        if len(consulta) != 0:
+            messages.error(request, 'Mês já cadastrado na base de dados')
+            return render(request, 'escala/disponibilidade.html')
+
+        try:
+            dias_disponiveis = Disponibilidade(professor=Professores.objects.get(nome=request.user.first_name),
+                                               mes_referencia=mes_cadastro, n_dias=n_dias,
+                                               dias_disponiveis=request.POST.get('datas_disponiveis'))
+            dias_disponiveis.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Disponibilidade salva com sucesso')
+            return redirect('dashboard')
+
+    return redirect('disponibilidade')

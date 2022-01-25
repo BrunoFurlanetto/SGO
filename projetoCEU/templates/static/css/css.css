@@ -196,6 +196,8 @@
     border-width: 1px;
     border-color: #ced4da;
 }
-
-
-
+.conteudo-disponibilidade{
+    margin: auto;
+    padding: 30px;
+    width: 500px;
+}

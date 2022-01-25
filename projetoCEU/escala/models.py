@@ -1,5 +1,7 @@
 from django.db import models
 
+from cadastro.models import Professores
+
 
 class Escala(models.Model):
     equipe = models.CharField(max_length=300)
@@ -10,3 +12,13 @@ class Escala(models.Model):
 
     def separar_equipe(self):
         return self.equipe.split(', ')
+
+
+class Disponibilidade(models.Model):
+    professor = models.ForeignKey(Professores, on_delete=models.CASCADE)
+    dias_disponiveis = models.TextField(max_length=500)
+    mes_referencia = models.CharField(max_length=20)
+    n_dias = models.IntegerField()
+
+    def separar_dias(self):
+        return self.dias_disponiveis.split(', ')
