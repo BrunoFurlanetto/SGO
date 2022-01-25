@@ -62,6 +62,7 @@
   justify-content: center;
   align-items: center;
   text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
+  border-bottom: solid #A9A9A9 1px;
 }
 
 .days-disponibilidade {
