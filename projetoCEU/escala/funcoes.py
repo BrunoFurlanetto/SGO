@@ -1,6 +1,4 @@
 import datetime
-from time import sleep
-
 from escala.models import Disponibilidade
 
 
