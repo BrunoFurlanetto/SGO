@@ -39,7 +39,11 @@ def dashboard(request):
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
     mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
-    print(mostrar_aviso_disponibilidade)
+    depois_25 = False
+    if datetime.now().day > 25:
+        depois_25 = True
+
+    print(mostrar_aviso_disponibilidade, depois_25)
 
 
     # ----- Parte para seleção da escala do dia -------
@@ -76,4 +80,5 @@ def dashboard(request):
 
     return render(request, 'dashboard/dashboard.html', {'ordemDeServico': dados_iniciais, 'data': data,
                                                         'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
-                                                        'n_horas': n_horas})
+                                                        'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,
+                                                        'depois_25': depois_25})
