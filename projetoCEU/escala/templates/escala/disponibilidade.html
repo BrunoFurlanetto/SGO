@@ -32,20 +32,26 @@
       <div class="days-disponibilidade">
       </div>
       <div class="botoes">
+        {% if coordenador %}
+          <div class="row mb-1">
+            <div class="my-2" style="width: 80px">
+              <label>Professor</label>
+            </div>
+            <div class="col-5">
+              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
+                <option selected></option>
+                {% for nome in professores %}
+                  <option>{{ nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endif %}
         <button type="button" class="botao" onClick="selecionar()">
           <span>Selecionar todos os dias</span>
         </button>
         <input id="entrada" name="datas_disponiveis" type="hidden">
         {% if coordenador or antes_25 %}
-          {% if coordenador %}
-
-            <select class="form-select mt-2 mb-2" aria-label="Default select example">
-              <option selected>Selecione o Professor</option>
-              {% for professor in professores %}
-                <option value="">{{ professor.nome }}</option>
-              {% endfor %}
-            </select>
-          {% endif %}
           <button type="button" onClick="enviar()" class="botao mt-1">
             <span>Enviar datas disponiveis</span>
           </button>

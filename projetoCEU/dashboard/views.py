@@ -43,10 +43,7 @@ def dashboard(request):
     if datetime.now().day > 25:
         depois_25 = True
 
-    print(mostrar_aviso_disponibilidade, depois_25)
-
-
-    # ----- Parte para seleção da escala do dia -------
+    # ----------- Seleção da escala do dia -------------
     escalas = Escala.objects.filter(data=datetime.now())
 
     for escala in escalas:
