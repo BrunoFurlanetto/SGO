@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -20,6 +20,14 @@ def dashboard(request):
 
     if ver_icons:
         return redirect('fichaAvaliacao')
+
+    hora_login = request.user.last_login
+    diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
+    print(diferenca)
+    diferenca -= timedelta(hours=datetime.now().hour + 3, minutes=datetime.now().minute, seconds=datetime.now().second)
+    print(diferenca)
+    if diferenca < timedelta(days=-1):
+        print('Foi')
     # ----------------------------------------------------------------------------------------------------
 
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())

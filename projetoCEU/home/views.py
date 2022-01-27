@@ -19,7 +19,7 @@ def index(request):
         auth.login(request, user)
         return redirect('dashboard')
     except:
-        messages.error(request, 'Email ou senha inválidos')
+        messages.error(request, 'Email e/ou senha inválidos')
         return render(request, 'home/index.html')
 
 

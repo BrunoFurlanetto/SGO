@@ -1,0 +1,112 @@
+{% load static %}
+
+<div class="sidebar close">
+<div class="logo-details">
+<i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
+<span class="logo_name"><nobr>Fundação CEU</nobr></span>
+</div>
+    {% if request.user.is_authenticated %}
+        {% if not ver %}
+          <ul class="nav-links">
+            <li>
+              <a href="{% url 'dashboard' %}">
+                <i class='bx bx-grid-alt' ></i>
+                <span class="link_name">Dashboard</span>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'dashboard' %}">Dashboard</a></li>
+              </ul>
+            </li>
+
+            <li>
+              <div class="iocn-link">
+                <a href="#">
+                  <i class='bx bx-archive'></i>
+                  <span class="link_name">Cadastrar</span>
+                </a>
+                <i class='bx bxs-chevron-down arrow' ></i>
+              </div>
+              <ul class="sub-menu">
+                <li><a class="link_name">Cadastrar</a></li>
+                <li><a href="{% url 'publico' %}">Público</a></li>
+
+                <li>
+                  <div class="iocn-link-2">
+                    <a href="{% url 'colegio' %}">
+                      <span>Colégio</span>
+                    </a>
+                    <i class='bx bxs-chevron-down arrow-2' ></i>
+                  </div>
+                  <ul class="sub-sub-menu">
+                    <li><a class="link_name">Colégio</a></li>
+                    <li><a href="{% url 'solicitarAvaliacao' %}">Avaliação</a></li>
+                  </ul>
+                </li>
+
+                <li><a href="{% url 'empresa' %}">Empresa</a></li>
+              </ul>
+            </li>
+
+            <li>
+              <div class="iocn-link">
+                <a href="#">
+                  <i class='bx bx-table'></i>
+                  <span class="link_name">Escala</span>
+                </a>
+                <i class='bx bxs-chevron-down arrow' ></i>
+              </div>
+              <ul class="sub-menu">
+                <li><a class="link_name">Escala</a></li>
+                <li><a href="{% url 'escala' %}">Visualizar</a></li>
+                <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
+              </ul>
+            </li>
+
+          {% if request.path == '/dashboard/' %}
+            <li>
+              <a>
+                <i class="bx bxs-calendar"></i>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name">Calendário</a></li>
+              </ul>
+            </li>
+            <div class="calendario">
+              {% include 'parciais/_calendario.html' %}
+            </div>
+          {% endif %}
+
+          <li>
+            <div class="profile-details">
+              <div class="profile-content">
+              </div>
+              <div class="name-job">
+                <div class="profile_name">{{ user.first_name }} {{ user.last_name }}</div>
+                <div class="job">{{ user.groups.all.0 }}</div>
+              </div>
+              <a href="{% url 'logout' %}"><i class='bx bx-log-out' ></i></a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+        {% endif %}
+
+        {% if ver %}
+          <ul class="nav-links">
+            <li>
+              <a href="{% url 'logout' %}">
+                <i class='bx bx-log-out' ></i>
+                <span class="link_name">Logout</span>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        {% endif %}
+
+    {% endif %}
+
+</div>
