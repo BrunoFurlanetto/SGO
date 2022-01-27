@@ -1,5 +1,7 @@
-from cadastro.models import Professores, Tipo
-import datetime
+from django.contrib.auth.models import User
+from cadastro.models import Professores
+from datetime import datetime, timedelta
+from escala.models import Disponibilidade
 
 
 def is_ajax(request):
@@ -20,7 +22,7 @@ def contar_atividades(professor_logado, ordens):
 
 
 def contar_horas(professor_logado, ordens):
-    n_horas = datetime.timedelta()
+    n_horas = timedelta()
 
     for ordem in ordens:
         for nome in ordem:
@@ -46,7 +48,7 @@ def contar_horas(professor_logado, ordens):
 
 def formatar_horas(horas):
 
-    if horas != datetime.timedelta(days=0):
+    if horas != timedelta(days=0):
         h = horas.days * 24 + horas.seconds // 3600
         m = (horas.seconds % 3600) / 60
         return f'{h}h{m:.0f}min'
@@ -54,3 +56,21 @@ def formatar_horas(horas):
         h = horas.seconds // 3600
         m = (horas.seconds % 3600) / 60
         return f'{h}h{m:.0f}min'
+
+
+def teste_aviso(hora_login, usuario, id_usuario):
+    diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
+    diferenca -= timedelta(hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second)
+
+    if datetime.now().month != 12:
+        consulta = Disponibilidade.objects.filter(professor=usuario, mes=datetime.now().month + 1)
+    else:
+        consulta = Disponibilidade.objects.filter(professor=usuario, mes=1, ano=datetime.now().year + 1)
+
+    if 20 < datetime.now().day:
+        if User.objects.filter(pk=id_usuario, groups__name='Professor').exists():
+            if len(consulta) == 0:
+                if diferenca == timedelta(days=0, hours=3):
+                    return True
+
+    return False

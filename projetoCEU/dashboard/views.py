@@ -5,8 +5,8 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from cadastro.models import OrdemDeServico, Professores, Tipo
 from django.views.decorators.csrf import csrf_exempt
-from dashboard.funcoes import contar_atividades, contar_horas, is_ajax
-from escala.models import Escala
+from dashboard.funcoes import contar_atividades, contar_horas, is_ajax, teste_aviso
+from escala.models import Escala, Disponibilidade
 
 
 @csrf_exempt
@@ -20,33 +20,31 @@ def dashboard(request):
 
     if ver_icons:
         return redirect('fichaAvaliacao')
-
-    hora_login = request.user.last_login
-    diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
-    print(diferenca)
-    diferenca -= timedelta(hours=datetime.now().hour + 3, minutes=datetime.now().minute, seconds=datetime.now().second)
-    print(diferenca)
-    if diferenca < timedelta(days=-1):
-        print('Foi')
     # ----------------------------------------------------------------------------------------------------
 
     dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
         data_atendimento=request.POST.get('data_selecionada'))
-    professor_logado = Professores.objects.get(nome=request.user.first_name)
+    usuario_logado = Professores.objects.get(nome=request.user.first_name)
     # ------------------ Ordens para conta de atividades e horas do mês --------------------
     ordens_usuario = OrdemDeServico.objects.filter(
-        Q(coordenador=professor_logado) | Q(professor_2=professor_logado) |
-        Q(professor_3=professor_logado) | Q(professor_4=professor_logado)).filter(
+        Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado) |
+        Q(professor_3=usuario_logado) | Q(professor_4=usuario_logado)).filter(
         Q(tipo=Tipo.objects.get(tipo='Público')) | Q(tipo=Tipo.objects.get(tipo='Colégio'))).filter(
         data_atendimento__month=datetime.now().month).values()
     ordens_usuario_empresa = OrdemDeServico.objects.filter(
-        Q(coordenador=professor_logado) | Q(professor_2=professor_logado)).filter(
+        Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado)).filter(
         Q(tipo=Tipo.objects.get(tipo='Empresa'))).filter(data_atendimento__month=datetime.now().month).values()
     # --------------------------------------------------------------------------------------
-    escalas = Escala.objects.filter(data=datetime.now())
+
+    # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
+    mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
+    print(mostrar_aviso_disponibilidade)
+
 
     # ----- Parte para seleção da escala do dia -------
+    escalas = Escala.objects.filter(data=datetime.now())
+
     for escala in escalas:
         equipe_escalada = escala.equipe.split(', ')
 
@@ -69,8 +67,8 @@ def dashboard(request):
         equipe.append(campo.professor_4)
 
     # ------------------ Parte para chegar no resumo do mês -------------------
-    n_atividade = contar_atividades(professor_logado, ordens_usuario.values())
-    n_horas = contar_horas(professor_logado, ordens_usuario_empresa.values())
+    n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
+    n_horas = contar_horas(usuario_logado, ordens_usuario_empresa.values())
     # -------------------------------------------------------------------------
 
     if is_ajax(request) and request.method == 'POST':
