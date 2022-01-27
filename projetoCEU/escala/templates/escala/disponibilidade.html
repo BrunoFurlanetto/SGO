@@ -36,9 +36,20 @@
           <span>Selecionar todos os dias</span>
         </button>
         <input id="entrada" name="datas_disponiveis" type="hidden">
-        <button type="button" onClick="enviar()" class="botao mt-1">
-          <span>Enviar datas disponiveis</span>
-        </button>
+        {% if coordenador or antes_25 %}
+          {% if coordenador %}
+
+            <select class="form-select mt-2 mb-2" aria-label="Default select example">
+              <option selected>Selecione o Professor</option>
+              {% for professor in professores %}
+                <option value="">{{ professor.nome }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+          <button type="button" onClick="enviar()" class="botao mt-1">
+            <span>Enviar datas disponiveis</span>
+          </button>
+        {% endif %}
         <div hidden>
           <button id="enviando" type="submit">Enviar</button>
         </div>

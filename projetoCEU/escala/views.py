@@ -53,7 +53,11 @@ def disponibilidade(request):
         return redirect('login')
 
     if request.method != 'POST':
-        return render(request, 'escala/disponibilidade.html')
+        antes_25 = True if datetime.now().day < 25 else False
+        coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
+        professores = Professores.objects.all()
+        return render(request, 'escala/disponibilidade.html', {'antes_25': antes_25, 'professores': professores,
+                                                               'coordenador': coordenador})
 
     professor = Professores.objects.get(nome=request.user.first_name)
 

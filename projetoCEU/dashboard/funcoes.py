@@ -67,7 +67,7 @@ def teste_aviso(hora_login, usuario, id_usuario):
     else:
         consulta = Disponibilidade.objects.filter(professor=usuario, mes=1, ano=datetime.now().year + 1)
 
-    if 20 < datetime.now().day:
+    if datetime.now().day > 20:
         if User.objects.filter(pk=id_usuario, groups__name='Professor').exists():
             if len(consulta) == 0:
                 if diferenca == timedelta(days=0, hours=3):
