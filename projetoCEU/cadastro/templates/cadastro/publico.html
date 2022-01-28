@@ -14,39 +14,34 @@
     <form action="{% url 'publico' %}" method="POST">
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
-      <center>
         <div class="row">
           <div class="col-2 mb-3">
             <label>Coordenador</label>
-            <select class="form-control" id="coordenador" onChange="equipe(this)" name="coordenador">
+            <select class="form-select" id="coordenador" onChange="equipe(this)" name="coordenador">
               <option selected></option>
                 {% for nome in professores %}
                   <option value="{{ nome }}">{{ nome }}</option>
                 {% endfor %}
             </select>
           </div>
-        <div style="width: 80%">
-          <label>Participantes: </label>
-          <div class="row">
-            <div style="width: 18%">
-              <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
-            </div>
-            <div style="width: 26%">
-              <input type="number" class="form-control" placeholder="Confirmados"  name="participantes" style="width: 18vh height: 12vh">
+          <div style="width: 35%">
+            <label class="participantes">Participantes: </label>
+            <div class="row">
+              <div style="width: 40%">
+                <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
+              </div>
+              <div style="width: 60%">
+                <input type="number" class="form-control" placeholder="Confirmados"  name="participantes" style="width: 18vh height: 12vh">
+              </div>
             </div>
           </div>
+          <div style="width: 26%">
+            <label>Data do atendimento</label>
+            <input type="date" class="form-control" name="dataAtendimento">
           </div>
         </div>
-      </center>
-
 <!-------------------------------- LINHA 2 ---------------------------->
       <div class="row mb-3">
-        <div class="col-3">
-          <center>
-            <label style="width: 25vh">Data do atendimento</label>
-          </center>
-          <input type="date" class="form-control" name="dataAtendimento" style="width: 25vh">
-        </div>
         <div class="col-8">
           <center>
             <label>Equipe escalada</label>
