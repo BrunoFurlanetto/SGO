@@ -189,7 +189,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 var novaLinha = document.createElement('tr')
                 novaLinha.id = 'dados0'
                 $('#dados').append(novaLinha)
-                var mensagem = "<td colspan='5'>"+'Sem Ordens de Serviço para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
+                var mensagem = "<td colspan='5'>"+'Sem ordens de serviço para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
                 $('#dados0').append(mensagem)
                 $('h5').empty();
                 $('h5').append('Ordens de serviço do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))

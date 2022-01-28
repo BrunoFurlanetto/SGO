@@ -31,22 +31,20 @@ def verificar_dias(dias_enviados, professor):
     ano = datetime.datetime.strptime(dia_referencia, '%d/%m/%Y').year
     dias_ja_cadastrados = []
     dias_a_cadastrar = []
-
-    # nome_meses = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho',
-    #               7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
-
     dias_cadastrados = Disponibilidade.objects.filter(professor=professor, mes=mes, ano=ano)
-    print(mes)
 
     if dias_cadastrados:
         for cadastrado in dias_cadastrados:
+
             lista_dias_cadastrados = cadastrado.dias_disponiveis.split(', ')
+
             for dias in lista_dias:
 
                 if dias in lista_dias_cadastrados:
                     dias_ja_cadastrados.append(dias)
                 else:
                     dias_a_cadastrar.append(dias)
+
     else:
         dias_a_cadastrar.append(dias_enviados)
 
@@ -62,8 +60,5 @@ def verificar_mes_e_ano(dias):
     dia_referencia = dias.split(', ')[0]
     mes = datetime.datetime.strptime(dia_referencia, '%d/%m/%Y').month
     ano = datetime.datetime.strptime(dia_referencia, '%d/%m/%Y').year
-
-    # nome_meses = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho',
-    #               7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
 
     return mes, ano

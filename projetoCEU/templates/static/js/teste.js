@@ -93,19 +93,3 @@ function animacao(){
     },2010);
 
 }
-
-function animacao_final(){
-    var formulario = document.getElementsByClassName('conteudo-avaliacao')
-    var conteudo_final = document.getElementsByClassName('conteudo-final')
-    var home_section = document.getElementsByClassName('home-section')
-
-
-
-    conteudo_final[0].classList.remove('hide')
-    home_section[0].classList.add('animado-2')
-
-    setTimeout(() => {
-    formulario[0].classList.add('hide')
-    },2005);
-
-}

@@ -114,6 +114,23 @@ textarea:hover, textarea:focus{
     border: none;
     color: #fff;
 }
+.agradecimentos{
+    padding: 8%;
+    width: 100%;
+    height: 100vh;
+    background-color: #000;
+    animation: fadeIn 2s;
+}
+.agradecimentos p{
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #fff;
+}
+.agradecimentos hr{
+    width: 700px;
+    color: #fff;
+}
 .conteudo-avaliacao{
     width: 700px;
     margin: auto;

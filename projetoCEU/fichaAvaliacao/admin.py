@@ -3,7 +3,7 @@ from fichaAvaliacao.models import FichaDeAvaliacao
 
 
 class FichaDeAvaliacaoAdmin(admin.ModelAdmin):
-    list_display = ('instituicao',)
+    list_display = ('instituicao', 'data_preenchimento')
 
 
 admin.site.register(FichaDeAvaliacao, FichaDeAvaliacaoAdmin)
