@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'verOrdem.apps.VerordemConfig',
     'escala.apps.EscalaConfig',
     'fichaAvaliacao.apps.FichaavaliacaoConfig',
+    'painelAdm.apps.PaineladmConfig',
 ]
 
 MIDDLEWARE = [
