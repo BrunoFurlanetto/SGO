@@ -5,8 +5,29 @@ function equipe(selecao) {
 
     if (!escala.includes(valorSelecao)){
         escala.push(valorSelecao)
-        $('.custom-select-d').append('<option>' + valorSelecao + '</option>');
+        $('.d').append('<option>' + valorSelecao + '</option>');
     };
+};
+
+var removidos = []
+function retirar(selecao) {
+    var valorSelecao = selecao.value;
+    var opcoes = $('.d')[0]
+
+    console.log(removidos)
+
+    for (let i = 1; i < 5; i++){
+        for (let j = 1; j < opcoes.length + removidos.length; j++){
+            if (valorSelecao == $('.d')[i][j].value){
+                removidos.push(valorSelecao)
+                $('.d')[i][j].remove()
+                break
+            }
+            console.log('Foi')
+            $('.d')[i][j].append('<option>' + professores_disponiveis[i] + '</option>');
+        }
+    }
+
 };
 
 function solicitar(selecao) {

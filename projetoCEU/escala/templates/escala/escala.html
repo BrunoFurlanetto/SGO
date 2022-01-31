@@ -8,7 +8,7 @@
 
     <div class="conteudo-escala">
         <div id="calendar" class="card" style="padding: 10px"></div>
-
+          {% csrf_token %}
         <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
@@ -30,6 +30,21 @@
 
                         navLinkDayClick: function(date, jsEvent){
                             $("#ModalCadastro").modal('show');
+                            $.ajax({
+                              headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                              type: 'POST',
+                              url: '',
+                              data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
+                              success: function(response){
+                                var professores_disponiveis = response.split(', ')
+
+                                for (let i in professores_disponiveis){
+                                  $('.d').append('<option>' + professores_disponiveis[i] + '</option>');
+                                }
+
+                              }
+                            });
+
                             $("#data").val(date.toLocaleDateString('pt-BR'))
                         },
 
@@ -62,60 +77,44 @@
           </div>
           <form action="{% url 'escala' %}" method="POST">
             <div class="modal-body">
-
                 {% csrf_token %}
               <div class="row">
-                  <div class="form-group col-4">
-                    <label>Data</label>
-                    <input type="text" class="form-control" id="data" name="data_escala">
+                <div class="form-group col-4">
+                  <label>Data</label>
+                  <input type="text" class="form-control" id="data" name="data_escala">
+                </div>
+                  <div class="form-group col-md-4">
+                    <label>Coordenador</label>
+                    <select class="form-control d col-7" name="coordenador" onChange="retirar(this)">
+                      <option selected></option>
+                    </select>
                   </div>
-                    <div class="form-group col-md-4">
-                      <label>Coordenador</label>
-                      <select class="form-control col-7" name="coordenador">
-                        <option selected></option>
-                          {% for nome in professores %}
-                            <option>{{ nome }}</option>
-                          {% endfor %}
-                      </select>
-                    </div>
               </div>
               <div class="row">
                 <div class="form-group col-md-4">
                   <label>Professor 2</label>
-                  <select class="form-control col-7" name="professor_2">
+                  <select class="form-control d col-7" name="professor_2" onChange="retirar(this)">
                     <option selected></option>
-                      {% for nome in professores %}
-                        <option>{{ nome }}</option>
-                      {% endfor %}
                   </select>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Professor 3</label>
-                  <select class="form-control col-7" name="professor_3">
+                  <select class="form-control d col-7" name="professor_3" onChange="retirar(this)">
                     <option selected></option>
-                      {% for nome in professores %}
-                        <option>{{ nome }}</option>
-                      {% endfor %}
                   </select>
                 </div>
               </div>
               <div class="row">
                 <div class="form-group col-md-4">
                   <label>Professor 4</label>
-                  <select class="form-control col-7" name="professor_4">
+                  <select class="form-control d col-7" name="professor_4" onChange="retirar(this)">
                     <option selected></option>
-                      {% for nome in professores %}
-                        <option>{{ nome }}</option>
-                      {% endfor %}
                   </select>
                 </div>
                 <div class="form-group col-md-4 mb-3">
                   <label>Professor 5</label>
-                  <select class="form-control col-7" name="professor_5">
+                  <select class="form-control d col-7" name="professor_5" onChange="retirar(this)">
                     <option selected></option>
-                      {% for nome in professores %}
-                        <option>{{ nome }}</option>
-                      {% endfor %}
                   </select>
                 </div>
               </div>
@@ -123,6 +122,7 @@
             <div class="modal-footer">
               <button type="submit" class="btn btn-primary">Salvar escala</button>
             </div>
+            <script src="{% static 'js/teste.js' %}"></script>
           </form>
         </div>
       </div>
