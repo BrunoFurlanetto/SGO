@@ -36,5 +36,13 @@ class Disponibilidade(models.Model):
     ano = models.CharField(max_length=20)
     n_dias = models.IntegerField()
 
-    def separar_dias(self):
-        return self.dias_disponiveis.split(', ')
+    def verificar_dias(self, mes, data):
+        professores_disponiveis = []
+
+        for teste in mes:
+            dias = teste.dias_disponiveis.split(', ')
+
+            if data in dias:
+                professores_disponiveis.append(teste.professor.nome)
+
+        return ', '.join(professores_disponiveis)

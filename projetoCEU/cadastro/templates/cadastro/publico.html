@@ -25,7 +25,7 @@
             </select>
           </div>
           <div style="width: 35%">
-            <label class="participantes">Participantes: </label>
+            <label class="participantes" style="margin-left: 80px">Participantes: </label>
             <div class="row">
               <div style="width: 40%">
                 <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
@@ -41,74 +41,75 @@
           </div>
         </div>
 <!-------------------------------- LINHA 2 ---------------------------->
-      <div class="row mb-3">
-        <div class="col-8">
-          <center>
-            <label>Equipe escalada</label>
-          </center>
-          <center>
-            <div class="col-6 my-2" style="width: 80vh">
-              <label>Professor 2: </label>
-              <select class="custom-select mr-sm-2" id="p2" onChange="equipe(this)" style="width: 12vh" name="prf2">
-                <option selected></option>
-                {% for nome in professores %}
-                  <option>{{ nome }}</option>
-                {% endfor %}
-              </select>
-              <label>Professor 3: </label>
-              <select class="custom-select mr-sm-2" id="p3" onChange="equipe(this)" style="width: 12vh" name="prf3">
-                <option selected></option>
-                {% for nome in professores %}
-                  <option>{{ nome }}</option>
-                {% endfor %}
-              </select>
-              <label>Professor 4: </label>
-              <select class="custom-select mr-sm-2" id="p4" onChange="equipe(this)" style="width: 12vh" name="prf4">
-                <option selected></option>
-                {% for nome in professores %}
-                  <option>{{ nome }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </center>
+      <div class="row">
+        <div style="width: 20%">
+          <label>Professor 2: </label>
+          <select class="form-select" id="p2" onChange="equipe(this)" name="prf2">
+            <option selected></option>
+            {% for nome in professores %}
+              <option>{{ nome }}</option>
+            {% endfor %}
+          </select>
         </div>
-      </div>
+        <div style="width: 20%">
+          <label>Professor 3: </label>
+          <select class="form-select custom-select mr-sm-2" id="p3" onChange="equipe(this)" name="prf3">
+            <option selected></option>
+            {% for nome in professores %}
+              <option>{{ nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="width: 20%">
+          <label>Professor 4: </label>
+          <select class="form-select mr-sm-2" id="p4" onChange="equipe(this)" name="prf4">
+            <option selected></option>
+            {% for nome in professores %}
+              <option>{{ nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        </div>
       <hr>
 <!-------------------------------- LINHA 3 ---------------------------->
-      <table class="table table-sm" style="caption-side: top; border-color: #93989d">
+      <table class="table table-striped table-sm" style="caption-side: top">
         <caption>Atividades realizadas no CEU:</caption>
         <thead>
           <tr>
-            <th><center>Nome dos professores</center></th>
-            <th>Horário entrada</th>
-            <th>Horário atividade</th>
-            <th>Atividade realizada</th>
+            <th style="width: 400px"><center>Nome dos professores</center></th>
+            <th style="width: 100px"><center>Entrada</center></th>
+            <th style="width: 100px"><center>Início</center></th>
+            <th style="width: 150px"><center>Atividade</center></th>
           </tr>
         </thead>
         <tbody>
           {% for i in rangei %}
           <tr>
             <td>
-              {% for j in rangej %}
-                <select class="custom-select-d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}" style="width: 10vh">
-                  <option selected></option>
-                </select>
-              {% endfor %}
+              <div class="row">
+                {% for j in rangej %}
+                  <div style="width: 120px; margin-right: -20px">
+                    <select class="form-control d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
+                      <option selected></option>
+                    </select>
+                  </div>
+                {% endfor %}
+              </div>
             </td>
             <td>
               <center>
                 {% if i == 1 %}
-                  <input type="time" class="form-control" style="width: 100px" name="horaEntrada">
+                  <input type="time" class="form-control my-1" style="width: 100px" name="horaEntrada">
                 {% endif %}
               </center>
             </td>
             <td>
               <center>
-                <input type="time" class="form-control" style="width: 100px" name="horaAtividade_{{ i }}">
+                <input type="time" class="form-control my-1" style="width: 100px" name="horaAtividade_{{ i }}">
               </center>
             </td>
             <td>
-              <select class="custom-select mr-sm-2 my-1" style="width: 20vh" name="ativ{{ i }}">
+              <select class="form-control mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}">
                 <option selected></option>
                 {% for atividade in atividades %}
                   <option>{{ atividade }}</option>
@@ -122,7 +123,7 @@
 <!-------------------------------- RELATÓRIO FINAL ---------------------------->
       <div class="form-group">
         <label>Relatório do dia:</label>
-        <textarea class="form-control mb-3" style="height: 25vh; resise=none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
+        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
         <button type="submit" class="btn btn-primary ml-5">Salvar</button>
       </div>
     </form>
