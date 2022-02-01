@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import OrdemDeServico, Professores, Tipo
 from django.views.decorators.csrf import csrf_exempt
 from dashboard.funcoes import contar_atividades, contar_horas, is_ajax, teste_aviso
-from escala.models import Escala, Disponibilidade
+from escala.models import Escala
 
 
 @csrf_exempt
@@ -26,6 +26,7 @@ def dashboard(request):
     ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
         data_atendimento=request.POST.get('data_selecionada'))
     usuario_logado = Professores.objects.get(nome=request.user.first_name)
+
     # ------------------ Ordens para conta de atividades e horas do mês --------------------
     ordens_usuario = OrdemDeServico.objects.filter(
         Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado) |
@@ -35,7 +36,6 @@ def dashboard(request):
     ordens_usuario_empresa = OrdemDeServico.objects.filter(
         Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado)).filter(
         Q(tipo=Tipo.objects.get(tipo='Empresa'))).filter(data_atendimento__month=datetime.now().month).values()
-    # --------------------------------------------------------------------------------------
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
     mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
@@ -46,8 +46,10 @@ def dashboard(request):
     # ----------- Seleção da escala do dia -------------
     escalas = Escala.objects.filter(data=datetime.now())
 
-    for escala in escalas:
-        equipe_escalada = escala.equipe.split(', ')
+    equipe_escalada = None
+    if len(escalas) > 0:
+        for escala in escalas:
+            equipe_escalada = escala.equipe.split(', ')
 
     # ------ Parte dos dados mandados para o ajax, para serem exibidos na tabela -------
     data = datetime.now()
