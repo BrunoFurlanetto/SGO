@@ -27,7 +27,6 @@
 
                     {% if edita %}
                         navLinks: true,
-
                         navLinkDayClick: function(date, jsEvent){
                             $("#ModalCadastro").modal('show');
                             $.ajax({
@@ -38,6 +37,8 @@
                               success: function(response){
                                 var professores_disponiveis = response.split(', ')
 
+                                $('.d').empty()
+                                $('.d').append(`<option selected></option>`)
                                 for (let i in professores_disponiveis){
                                   $('.d').append('<option>' + professores_disponiveis[i] + '</option>');
                                 }

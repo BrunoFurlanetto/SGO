@@ -13,18 +13,20 @@ var removidos = []
 function retirar(selecao) {
     var valorSelecao = selecao.value;
     var opcoes = $('.d')[0]
+    var remover = true
 
-    console.log(removidos)
-
-    for (let i = 1; i < 5; i++){
+    for (let i = (1 + removidos.length); i < 5; i++){
         for (let j = 1; j < opcoes.length + removidos.length; j++){
             if (valorSelecao == $('.d')[i][j].value){
-                removidos.push(valorSelecao)
+
+                if (remover){
+                    removidos.push(valorSelecao)
+                    remover = false
+                }
+
                 $('.d')[i][j].remove()
                 break
-            }
-            console.log('Foi')
-            $('.d')[i][j].append('<option>' + professores_disponiveis[i] + '</option>');
+            };
         }
     }
 
