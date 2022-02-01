@@ -17,13 +17,15 @@ def escala(request):
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
 
+    # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request) and request.method == 'POST':
         mes = datetime.strptime(request.POST.get('data_selecionada'), '%d/%m/%Y').month
         mes_selecao = Disponibilidade.objects.filter(mes=mes)
         disponibilidade = Disponibilidade()
         professores_disponiveis = disponibilidade.verificar_dias(mes_selecao, request.POST.get('data_selecionada'))
-        print(professores_disponiveis)
+
         return HttpResponse(professores_disponiveis)
+    # ----------------------------------------------------------------------------------------------------
 
     for escala in escalas:
         data = escala.data

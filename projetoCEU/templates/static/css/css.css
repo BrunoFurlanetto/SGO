@@ -61,6 +61,21 @@
     margin: 20px;
 }
 /*------------------------------*/
+/* Estilos do cadastro de colégio */
+.conteudo-colegio{
+    background-color: #fff;
+    margin: auto;
+    width: 850px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-colegio{
+    margin: 20px;
+}
+/*------------------------------*/
 .conteudo-dashboard{
     margin: auto;
     width: 1100px;
