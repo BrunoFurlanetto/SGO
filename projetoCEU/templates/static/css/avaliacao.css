@@ -31,10 +31,10 @@
     height: 85px;
     resize: none;
 }
-[id*="avaliacao"], [id*="atividade"]{
+.conteudo-avaliacao [id*="avaliacao"], .conteudo-avaliacao [id*="atividade"]{
     width: 100%
 }
-[id*="avaliacao_professor"]{
+.conteudo-avaliacao [id*="avaliacao_professor"]{
     width: 100px;
 }
 select:hover, select:focus, input:hover, input:focus,

@@ -104,13 +104,12 @@
     border-radius: 15px;
     padding: 10px;
 }
-.tabela-dashboard{
-    border-left: solid;
-    border-left-height: 10px;
-    border-bottom: solid;
-    border-right: solid;
-    border-width: 2px;
-    border-radius: 15px;
+.tabela-dashboard table{
+    border-radius: 30px !important;
+}
+.tabela-dashboard h5{
+    margin: 10px;
+    opacity: 0.6;
 }
 .tabela-dashboard td {
     max-width: 100px;
@@ -126,7 +125,7 @@
     text-align: right;
 }
 .tabela-dashboard{
-    min-height: 500px;
+    height: 400px;
 }
 .conteudo-ver-ordem{
     margin-left: 250px;
@@ -163,7 +162,8 @@
     height: auto;
     margin: auto;
     display: flex;
-    box-shadow: 5px 5px 10px
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
 }
 
 /* Parte da avaliação somente para computadores*/
