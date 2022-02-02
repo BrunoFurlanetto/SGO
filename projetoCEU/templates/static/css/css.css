@@ -236,3 +236,12 @@
     padding: 30px;
     width: 500px;
 }
+.conteudo-adm{
+    margin: auto;
+    width: 400px;
+    height: 350px;
+}
+.conteudo-adm svg{
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px;
+}
