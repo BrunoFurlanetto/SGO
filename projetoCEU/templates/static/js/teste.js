@@ -116,3 +116,40 @@ function animacao(){
     },2010);
 
 }
+
+
+        google.charts.load('current', {'packages':['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawStuff);
+
+        function drawStuff() {
+
+            var button = document.getElementById('change-chart');
+            var chartDiv = document.getElementById('chart_div');
+
+            var data = google.visualization.arrayToDataTable([
+                ['Professor', 'Atividades', 'Horas c/ empresa'],
+                {% for professor in professores %}
+                    ['{{ professor.nome }}', {{ professor.n_atividades }}, {{ professor.n_horas }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                chart: {
+                    title: 'Resumo do mês escolhido',
+                },
+                series: {
+                    0: { targetaxisIndex: 0 },
+                    1: { targetAxisIndex: 1 }
+                },
+                vAxes: {
+                    0: {title: 'Contagem de atividades e diárias', format: 0},
+                    1: {title: 'Horas', format: 0.00}
+                },
+            };
+
+            function drawMaterialChart() {
+                var materialChart = new google.charts.Bar(chartDiv);
+                materialChart.draw(data, google.charts.Bar.convertOptions(options));
+            }
+            drawMaterialChart();
+        };

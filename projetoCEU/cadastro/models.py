@@ -1,10 +1,10 @@
 from django.db import models
 from django.utils import timezone
-from rest_framework import serializers
 
 
 class Professores(models.Model):
     nome = models.CharField(max_length=20)
+    diarista = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nome
@@ -134,24 +134,3 @@ class OrdemDeServico(models.Model):
 
     def __str__(self):
         return f'Ordem de serviço de {self.tipo}'
-
-
-class TipoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tipo
-        fields = ('tipo', )
-
-
-class ProfessorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Professores
-        fields = ('nome', )
-
-
-class OrdemDeServicoSerializer(serializers.ModelSerializer):
-    tipo = TipoSerializer(many=True, read_only=True)
-    professores = ProfessorSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = OrdemDeServico
-        fields = ('tipo', 'coordenador', 'instituicao', 'professor_2', 'professor_3', 'professor_4', 'data_atendimento')
