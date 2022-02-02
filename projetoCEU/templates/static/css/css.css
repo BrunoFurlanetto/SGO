@@ -236,12 +236,15 @@
     padding: 30px;
     width: 500px;
 }
-.conteudo-adm{
+.conteudo-adm {
+    display: flex;
     margin: auto;
-    width: 400px;
+    width: 900px;
     height: 350px;
-}
-.conteudo-adm svg{
+    padding: 20px;
+    background-color: #fff;
     border-radius: 15px;
     box-shadow: 5px 5px 10px;
+    justify-content: center;
+    align-items: center;
 }
