@@ -5,17 +5,19 @@
 {% block conteudo %}
 
     <div class="conteudo-ver-ordem">
-        <table class="table table-borderless">
-            <thead>
-            <tr>
-                <th colspan="8" style="border-bottom: 1.5pt solid black"><center><h1>{{ ordem.tipo }}: {{ ordem.instituicao }}</h1></center></th>
-            </tr>
-            </thead>
+        <center>
+            {% if ordem.tipo == "Público" %}
+                <h3>{{ ordem.tipo }}</h3>
+            {% else %}
+                <h3>{{ ordem.instituicao }}</h3>
+            {% endif %}
+
+        </center>
             <tr style="border-bottom: 0.5pt solid black">
-                <td width="260px"><nobr><b>Prévia dos participantes:</b> {{ ordem.participantes_previa }}</nobr></td>
-                <td width="10px"></td>
-                <td width="275px"><nobr><b>Participantes confirmados:</b> {{ ordem.participantes_confirmados }}</nobr></td>
-                <td width="10px"></td>
+                <td width="240px"><nobr><b>Prévia dos participantes:</b> {{ ordem.participantes_previa }}</nobr></td>
+                <td width="5px"></td>
+                <td width="255px"><nobr><b>Participantes confirmados:</b> {{ ordem.participantes_confirmados }}</nobr></td>
+                <td width="5px"></td>
 
                 {% if ordem.responsaveis != null %}
                     <td width="180px"><nobr><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr></td>
@@ -55,7 +57,7 @@
                     {% endif %}
                 </nobr></td>
             </tr>
-        </table>
+        </div>
 
         <table class="table table-striped table-bordered " style="caption-side: top; table-layout:fixed">
             <caption><h5>Atividades realizadas no CEU</h5></caption>
@@ -226,6 +228,7 @@
             </table>
             {% endif %}
 
+            <h5>Relatório do dia:</h5>
             <p style="padding: 10px 10px">{{ ordem.relatorio }}</p>
         </div>
     </div>
