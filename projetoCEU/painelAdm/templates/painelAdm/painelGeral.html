@@ -6,10 +6,6 @@
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        {% for professor in professores %}
-            console.log({{ professor.n_horas }})
-        {% endfor %}
-
         google.charts.load('current', {'packages':['corechart', 'bar']});
         google.charts.setOnLoadCallback(drawStuff);
 
@@ -48,7 +44,15 @@
         };
 
     </script>
-    <div class="conteudo-adm" id="chart_div"></div>
+
+    <div class="row painel-geral">
+        <script src="{% static 'js/graficos.js' %}" ></script>
+        <div class="resumo-mes" id="chart_div"></div>
+        <div class="grafico-2" id="donutchart"></div>
+        <div class="grafico-3" id="piechart"></div>
+        <div class="grafico-4" id="curve_chart"></div>
+
+    </div>
 
 
 
