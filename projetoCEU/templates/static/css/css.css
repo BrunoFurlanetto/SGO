@@ -236,11 +236,54 @@
     padding: 30px;
     width: 500px;
 }
-.conteudo-adm {
+.painel-geral {
     display: flex;
     margin: auto;
     width: 900px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+}
+.resumo-mes{
+    display: flex;
     height: 350px;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2%;
+}
+.grafico-2{
+    display: flex;
+    height: 350px;
+    width: 49%;
+    padding: 20px;
+    margin-right: 2%;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px;
+    justify-content: center;
+    align-items: center;
+}
+.grafico-3{
+    display: flex;
+    height: 350px;
+    width: 49%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px;
+    justify-content: center;
+    align-items: center;
+}
+.grafico-4{
+    display: flex;
+    margin-top: 2%;
+    height: 350px;
+    width: 100%;
     padding: 20px;
     background-color: #fff;
     border-radius: 15px;
