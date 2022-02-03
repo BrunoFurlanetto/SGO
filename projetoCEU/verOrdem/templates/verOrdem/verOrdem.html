@@ -1,178 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load pipes %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
 
     <div class="conteudo-ver-ordem">
         <center>
-            {% if ordem.tipo == "Público" %}
+
+            {% if not ordem.instituicao %}
                 <h3>{{ ordem.tipo }}</h3>
             {% else %}
                 <h3>{{ ordem.instituicao }}</h3>
             {% endif %}
 
         </center>
-            <tr style="border-bottom: 0.5pt solid black">
-                <td width="240px"><nobr><b>Prévia dos participantes:</b> {{ ordem.participantes_previa }}</nobr></td>
-                <td width="5px"></td>
-                <td width="255px"><nobr><b>Participantes confirmados:</b> {{ ordem.participantes_confirmados }}</nobr></td>
-                <td width="5px"></td>
-
-                {% if ordem.responsaveis != null %}
-                    <td width="180px"><nobr><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr></td>
-                    <td width="10px"></td>
-                {% else %}
-                    <td width="180px"><nobr><b></b></nobr></td>
-                    <td width="10px"></td>
-                {% endif %}
-
-                {% if ordem.serie != '' %}
-                    <td width="350px"><nobr><b>Serie: </b>{{ ordem.serie }}</nobr></td>
-                {% else %}
-                    <td width="350px"><nobr><b></b></nobr></td>
-                {% endif %}
-            </tr>
-            <tr>
-                {% if ordem.coordenador_peraltas != '' %}
-                    <td colspan="3"><nobr><b>Coordenador Peraltas: </b>{{ ordem.coordenador_peraltas }}</nobr></td>
-                {% else %}
-                    <td colspan="3"><nobr><b></b></nobr></td>
-                {% endif %}
-            </tr>
-            <tr>
-                <td colspan="3"><nobr><b>Data de atendimento: </b>{{ ordem.data_atendimento }}</nobr></td>
-            </tr>
-            <tr style="border-bottom: 1.5pt solid black">
-                <td colspan="2"><nobr><b>Coordenação do dia: </b>{{ ordem.coordenador }}</nobr></td>
-                <td colspan="4"><nobr><b>Equipe Escalada: </b> {{ ordem.coordenador }}
-                    {% if ordem.professor_2 != null %}
-                        , {{ ordem.professor_2 }}
-                    {% endif %}
-                    {% if ordem.professor_3 != null %}
-                        , {{ ordem.professor_3 }}
-                    {% endif %}
-                    {% if ordem.professor_4 != null %}
-                        , {{ ordem.professor_4 }}
-                    {% endif %}
-                </nobr></td>
-            </tr>
+        <hr>
+        <div class="row" >
+            <div style="width: 30%"><nobr><b>Prévia dos participantes:</b> {{ ordem.participantes_previa }}</nobr></div>
+            <div style="width: 30%"><nobr><b>Participantes confirmados:</b> {{ ordem.participantes_confirmados }}</nobr></div>
         </div>
+        <div class="row" >
+            {% if ordem.instituicao %}
+                <nobr style="width: 20%"><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr>
+                <nobr style="width: 15%"><b>Serie: </b>{{ ordem.serie }}</nobr>
+                <nobr style="width: 25%"><b>Coordenador Peraltas: </b>{{ ordem.coordenador_peraltas }}</nobr>
+            {% endif %}
+        </div>
+        <hr>
 
-        <table class="table table-striped table-bordered " style="caption-side: top; table-layout:fixed">
-            <caption><h5>Atividades realizadas no CEU</h5></caption>
+        <div class="row">
+            <nobr style="width: 100"><b>Data de atendimento: </b>{{ ordem.data_atendimento }}</nobr>
+            <nobr style="width: 100%"><b>Coordenação do dia: </b>{{ ordem.coordenador }}</nobr>
+            <nobr style="width: 30%"><b>Equipe escalada: </b>{{ ordem.equipe }}</nobr>
+        </div>
+        <hr>
+        <h5>Atividades realizadas no CEU:</h5>
+        <table class="table table-bordered table-striped">
             <thead>
-                <th><nobr>Nome dos professores</nobr></th>
-                <th><nobr>Horário entrada</nobr></th>
-                <th><nobr>Horário atividade</nobr></th>
-                <th><nobr>Atividade realizada</nobr></th>
+                <td width="35%"><center>Professores</center></td>
+                <td width="12%"><center>Entrada</center></td>
+                <td width="23%"><center>Hora da atividade</center></td>
+                <td width="30%"><center>Atividades</center></td>
             </thead>
             <tbody>
-                <!---------------- Linha 1 ----------------------->
-                <tr>
-                    <td><nobr>
-                        {{ ordem.prf_1_atv_1 }}
-                        {% if ordem.prf_2_atv_1 != null %}
-                            , {{ ordem.prf_2_atv_1 }}
-                        {% endif %}
-                        {% if ordem.prf_3_atv_1 != null %}
-                            , {{ ordem.prf_3_atv_1 }}
-                        {% endif %}
-                        {% if ordem.prf_4_atv_1 != null %}
-                            , {{ ordem.prf_4_atv_1 }}
-                        {% endif %}
-                    </nobr></td>
-
-                    <td>
-                        {% if ordem.hora_entrada != null %}
-                            {{ ordem.hora_entrada }}
-                        {% endif %}
-                    </td>
-                    <td>{{ ordem.hora_atividade_1 }}</td>
-                    <td>{{ ordem.atividade_1 }}</td>
-                </tr>
-                <!------------------ Linha 2 ----------------------->
-                {% if ordem.atividade_2 != null %}
+                {% for i in ordem.n_atividades %}
                     <tr>
-                        <td><nobr>
-                            {{ ordem.prf_1_atv_2 }}
-                            {% if ordem.prf_2_atv_2 != null %}
-                                , {{ ordem.prf_2_atv_2 }}
+                        <td>{{ ordem.profs|index:i }}</td>
+                        {% if ordem.hora_entrada %}
+                            {% if i == 0 %}
+                                <td><center>{{ ordem.hora_entrada }}</center></td>
+                            {% else %}
+                                <td><center></center></td>
                             {% endif %}
-                            {% if ordem.prf_3_atv_2 != null %}
-                                 , {{ ordem.prf_3_atv_2 }}
-                            {% endif %}
-                            {% if ordem.prf_4_atv_2 != null %}
-                                , {{ ordem.prf_4_atv_2 }}
-                            {% endif %}
-                        </nobr></td>
-                        <td></td>
-                        <td>{{ ordem.hora_atividade_2 }}</td>
-                        <td>{{ ordem.atividade_2 }}</td>
+                        {% else %}
+                            <td><center></center></td>
+                        {% endif %}
+                        <td><center>{{ ordem.horas_atividades|index:i }}</center></td>
+                        <td>{{ ordem.atividades|index:i }}</td>
                     </tr>
-                {% endif %}
-                <!---------------- Linha 3 ----------------------->
-                {% if ordem.hora_atividade_3 != null %}
-                    <tr>
-                        <td><nobr>
-                            {{ ordem.prf_1_atv_3 }}
-                            {% if ordem.prf_2_atv_3 != null %}
-                                , {{ ordem.prf_2_atv_3 }}
-                            {% endif %}
-                            {% if ordem.prf_3_atv_3 != null %}
-                                , {{ ordem.prf_3_atv_3 }}
-                            {% endif %}
-                            {% if ordem.prf_4_atv_3 != null %}
-                                , {{ ordem.prf_4_atv_3 }}
-                            {% endif %}
-                        </nobr></td>
-                        <td></td>
-                        <td>{{ ordem.hora_atividade_3 }}</td>
-                        <td>{{ ordem.atividade_3 }}</td>
-                    </tr>
-                {% endif %}
-                <!---------------- Linha 4 ----------------------->
-                {% if ordem.hora_atividade_4 != null %}
-                    <tr>
-                        <td><nobr>
-                            {{ ordem.prf_1_atv_4 }}
-                            {% if ordem.prf_2_atv_4 != null %}
-                                , {{ ordem.prf_2_atv_4 }}
-                            {% endif %}
-                            {% if ordem.prf_3_atv_4 != null %}
-                                , {{ ordem.prf_3_atv_4 }}
-                            {% endif %}
-                            {% if ordem.prf_4_atv_4 != null %}
-                                , {{ ordem.prf_4_atv_4 }}
-                            {% endif %}
-                        </nobr></td>
-                        <td></td>
-                        <td>{{ ordem.hora_atividade_4 }}</td>
-                        <td>{{ ordem.atividade_4 }}</td>
-                    </tr>
-                {% endif %}
-                <!---------------- Linha 5 ----------------------->
-                {% if ordem.hora_atividade_5 != null %}
-                    <tr>
-                        <td><nobr>
-                            {{ ordem.prf_1_atv_5 }}
-                            {% if ordem.prf_2_atv_5 != null %}
-                                , {{ ordem.prf_2_atv_5 }}
-                            {% endif %}
-                            {% if ordem.prf_3_atv_5 != null %}
-                                , {{ ordem.prf_3_atv_5 }}
-                            {% endif %}
-                            {% if ordem.prf_4_atv_5 != null %}
-                                , {{ ordem.prf_4_atv_5 }}
-                            {% endif %}
-                        </nobr></td>
-                        <td></td>
-                        <td>{{ ordem.hora_atividade_5 }}</td>
-                        <td>{{ ordem.atividade_5 }}</td>
-                    </tr>
-                {% endif %}
+                {% endfor %}
             </tbody>
         </table>
+
         <div class="relatorio">
             {% if ordem.atividade_1_entrada_1 != null %}
             <table class="table-borderless table-sm" style="padding: 10px 10px">
