@@ -44,15 +44,18 @@ def publico(request):
             nome=request.POST.get('prf4atv1'))
 
         # ------------------------------ TESTES PARA ATIVIDADE 2 -----------------------------------------
-        atividade_2 = Atividades.objects.get(atividade=request.POST.get('ativ2'))
-        hora_atividade_2 = request.POST.get('horaAtividade_2')
-        prf_1_atv_2 = Professores.objects.get(nome=request.POST.get('prf1atv2'))
-        prf_2_atv_2 = None if request.POST.get('prf2atv2') == '' else Professores.objects.get(
-            nome=request.POST.get('prf2atv2'))
-        prf_3_atv_2 = None if request.POST.get('prf3atv2') == '' else Professores.objects.get(
-            nome=request.POST.get('prf3atv2'))
-        prf_4_atv_2 = None if request.POST.get('prf4atv2') == '' else Professores.objects.get(
-            nome=request.POST.get('prf4atv2'))
+        if request.POST.get('ativ2') != '':
+            atividade_2 = Atividades.objects.get(atividade=request.POST.get('ativ2'))
+            hora_atividade_2 = request.POST.get('horaAtividade_2')
+            prf_1_atv_2 = Professores.objects.get(nome=request.POST.get('prf1atv2'))
+            prf_2_atv_2 = None if request.POST.get('prf2atv2') == '' else Professores.objects.get(
+                nome=request.POST.get('prf2atv2'))
+            prf_3_atv_2 = None if request.POST.get('prf3atv2') == '' else Professores.objects.get(
+                nome=request.POST.get('prf3atv2'))
+            prf_4_atv_2 = None if request.POST.get('prf4atv2') == '' else Professores.objects.get(
+                nome=request.POST.get('prf4atv2'))
+        else:
+            atividade_2 = hora_atividade_2 = prf_1_atv_2 = prf_2_atv_2 = prf_3_atv_2 = prf_4_atv_2 = None
 
         # ------------------------------ TESTES PARA ATIVIDADE 3 -----------------------------------------
         if request.POST.get('ativ3') != '':
@@ -282,6 +285,10 @@ def empresa(request):
         data_atendimento = request.POST.get('dataAtendimento')
         professor_2 = None if request.POST.get('prf2') == '' else Professores.objects.get(
             nome=request.POST.get('prf2'))
+        professor_3 = None if request.POST.get('prf3') == '' else Professores.objects.get(
+            nome=request.POST.get('prf3'))
+        professor_4 = None if request.POST.get('prf4') == '' else Professores.objects.get(
+            nome=request.POST.get('prf4'))
         hora_entrada = None if request.POST.get('horaEntrada') == '' else request.POST.get('horaEntrada')
 
         # ------------------------------ TESTES PARA ATIVIDADE 1 -----------------------------------------
