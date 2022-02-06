@@ -267,7 +267,6 @@
     align-items: center;
 }
 .grafico-2{
-    display: flex;
     height: 49%;
     width: 112%;
     padding: 20px;
@@ -276,10 +275,8 @@
     border-radius: 15px;
     box-shadow: 5px 5px 10px;
     justify-content: center;
-    align-items: center;
 }
 .grafico-3{
-    display: flex;
     height: 49%;
     width: 112%;
     padding: 20px;

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load pipes %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -46,13 +47,49 @@
     </script>
 
     <div class="row painel-geral">
+        {% csrf_token %}
         <script src="{% static 'js/graficos.js' %}" ></script>
         <div class="resumo-mes" id="chart_div"></div>
         <div class="row" style="display: flex; height: 900px">
-            <div class="notas">fsdg</div>
+            <div class="notas"></div>
             <div style="width: 49%">
-                <div class="grafico-2" id="donutchart"></div>
-                <div class="grafico-3" id="piechart"></div>
+
+                <!--------------------------- Gráfico 2 ------------------------------->
+                <div class="grafico-2">
+                    <h5 style="height: 10px; margin-bottom: 30px">Atividades mais realizadas no CEU</h5>
+                    <div class="row">
+                        <div style="width: 50%">
+                            <label>Selecione o ano</label>
+                            <select id="selecaoAno" class="form-select" style="width: 150px" onChange="alterarMes(this)">
+                                {% for ano in anos %}
+                                    <option>{{ ano }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="width: 50%">
+                            <label>Selecione o mês</label>
+                            <select id="selecaoMes" class="form-select" style="width: 150px">
+                                <option selected >{{ mesAnterior }}</option>
+                                {% for mes in meses %}
+                                    <option>{{ mes }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div id="donutchart"></div>
+                </div>
+
+                <div class="grafico-3">
+                    <h5 style="height: 10px; margin-bottom: 30px">Atividades realizadas por professores</h5>
+                    <div class="row">
+                        <div style="width: 100%">
+                            <label>Selecione o professor</label>
+                            <select class="form-select" style="width: 180px">
+                                <option selected ></option>
+                            </select>
+                        </div>
+                    <div id="piechart"> </div>
+                </div>
             </div>
         </div>
 

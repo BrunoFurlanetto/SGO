@@ -65,57 +65,59 @@
 
         <div class="relatorio">
             {% if ordem.atividade_1_entrada_1 != null %}
-            <table class="table-borderless table-sm" style="padding: 10px 10px">
-                <tr>
-                    <td width="568px">A companhamento de empresa para realização das atividades das:</td>
-                    <td height="5px">{{ ordem.atividade_1_entrada_1 }} às {{ ordem.atividade_1_saida_1 }}</td>
-                </tr>
-                <tr>
-                {% if ordem.atividade_1_entrada_2 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_1_entrada_2 }} às {{ ordem.atividade_1_saida_2 }}</td>
-                {% endif %}
-                </tr>
-                {% if ordem.atividade_1_entrada_3 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_1_entrada_3 }} às {{ ordem.atividade_1_saida_3 }}</td>
-                {% endif %}
-                </tr>
-                <tr>
-                {% if ordem.atividade_2_entrada_1 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_2_entrada_1 }} às {{ ordem.atividade_2_saida_1 }}</td>
-                {% endif %}
-                </tr>
-                {% if ordem.atividade_2_entrada_2 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_2_entrada_2 }} às {{ ordem.atividade_2_saida_2 }}</td>
-                {% endif %}
-                </tr>
-                </tr>
-                {% if ordem.atividade_2_entrada_3 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_2_entrada_3 }} às {{ ordem.atividade_2_saida_3 }}</td>
-                {% endif %}
-                </tr>
-                <tr>
-                {% if ordem.atividade_3_entrada_1 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_3_entrada_1 }} às {{ ordem.atividade_3_saida_1 }}</td>
-                {% endif %}
-                </tr>
-                {% if ordem.atividade_3_entrada_2 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_3_entrada_2 }} às {{ ordem.atividade_3_saida_2 }}</td>
-                {% endif %}
-                </tr>
-                </tr>
-                {% if ordem.atividade_3_entrada_3 != null %}
-                    <td></td>
-                    <td>{{ ordem.atividade_3_entrada_3 }} às {{ ordem.atividade_3_saida_3 }}</td>
-                {% endif %}
-                </tr>
-            </table>
+            <div style="border: solid 1px; border-radius: 10px; padding: 10px 10px; margin-bottom: 10px">
+                <table class="table-borderless table-sm" style="padding: 10px 10px">
+                    <tr>
+                        <td width="568px">A companhamento de empresa para realização das atividades das:</td>
+                        <td height="5px">{{ ordem.atividade_1_entrada_1 }} às {{ ordem.atividade_1_saida_1 }}</td>
+                    </tr>
+                    <tr>
+                    {% if ordem.atividade_1_entrada_2 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_1_entrada_2 }} às {{ ordem.atividade_1_saida_2 }}</td>
+                    {% endif %}
+                    </tr>
+                    {% if ordem.atividade_1_entrada_3 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_1_entrada_3 }} às {{ ordem.atividade_1_saida_3 }}</td>
+                    {% endif %}
+                    </tr>
+                    <tr>
+                    {% if ordem.atividade_2_entrada_1 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_2_entrada_1 }} às {{ ordem.atividade_2_saida_1 }}</td>
+                    {% endif %}
+                    </tr>
+                    {% if ordem.atividade_2_entrada_2 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_2_entrada_2 }} às {{ ordem.atividade_2_saida_2 }}</td>
+                    {% endif %}
+                    </tr>
+                    </tr>
+                    {% if ordem.atividade_2_entrada_3 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_2_entrada_3 }} às {{ ordem.atividade_2_saida_3 }}</td>
+                    {% endif %}
+                    </tr>
+                    <tr>
+                    {% if ordem.atividade_3_entrada_1 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_3_entrada_1 }} às {{ ordem.atividade_3_saida_1 }}</td>
+                    {% endif %}
+                    </tr>
+                    {% if ordem.atividade_3_entrada_2 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_3_entrada_2 }} às {{ ordem.atividade_3_saida_2 }}</td>
+                    {% endif %}
+                    </tr>
+                    </tr>
+                    {% if ordem.atividade_3_entrada_3 != null %}
+                        <td></td>
+                        <td>{{ ordem.atividade_3_entrada_3 }} às {{ ordem.atividade_3_saida_3 }}</td>
+                    {% endif %}
+                    </tr>
+                </table>
+            </div>
             {% endif %}
 
             <h5>Relatório do dia:</h5>

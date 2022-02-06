@@ -4,20 +4,42 @@ google.charts.setOnLoadCallback(drawChart);
 google.charts.setOnLoadCallback(drawChart2);
 google.charts.setOnLoadCallback(drawChart3);
 
+var a = 4
+
+function alterarMes(selecao){
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'ano': selecao.value},
+        success: function(response){
+            var meses = response.split(',')
+            $('#selecaoMes').empty()
+            $('#selecaoMes').append('<option selected></option>')
+            for (let i in meses){
+                $('#selecaoMes').append('<option>' + meses[i] + '</option>')
+            }
+        }
+    })
+};
+
 // -------------------------- Gráfico 2 ---------------------------
 function drawChart() {
     var data = google.visualization.arrayToDataTable([
         ['Task', 'Hours per Day'],
-        ['Work',     11],
+        ['a',     a],
         ['Eat',      2],
         ['Commute',  2],
         ['Watch TV', 2],
         ['Sleep',    7]
     ]);
 
+
+
     var options = {
-        chartArea:{left: 20, top: 20, width:'100%',height:'100%'},
-        title: 'Gráfico 2',
+        height: 300,
+        chartArea:{left: 50, top: 50, width:'100%', height: '100%'},
         pieHole: 0.4,
     };
 
@@ -38,13 +60,14 @@ function drawChart2() {
     ]);
 
     var options = {
-        chartArea:{left: 20, top: 20, width:'100%', height:'100%'},
-        title: 'Gráfico 3'
+        height: 300,
+        chartArea:{left: 50, top: 50, width:'100%', height: '100%'},
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('piechart'));
 
-    chart.draw(data, options);
+    chart.draw(data, options)
+
 };
 
 // -------------------------- Gráfico 4 ---------------------------

@@ -5,6 +5,32 @@ from django.db.models import Q
 from cadastro.models import OrdemDeServico, Tipo, Professores
 
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
+def verificar_anos(os):
+    anos = []
+
+    for ordem in os:
+        if not ordem.data_atendimento.year in anos:
+            anos.append(ordem.data_atendimento.year)
+
+    return anos
+
+
+def pegar_mes(ordens):
+    temp = []
+    meses = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho',
+             8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
+
+    for ordem in ordens:
+        if not meses[ordem.data_atendimento.month] in temp:
+            temp.append(meses[ordem.data_atendimento.month])
+
+    return ', '.join(temp)
+
+
 def contar_atividades(professor):
     n_atividades = 0
     ordens = OrdemDeServico.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
