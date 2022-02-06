@@ -1,11 +1,12 @@
 from django.db import models
-from django.forms import forms
+from django import forms
 from django.utils import timezone
 
 
 class Professores(models.Model):
     nome = models.CharField(max_length=20)
     diarista = models.BooleanField(default=False)
+    nota = models.FloatField(default=0.00)
 
     def __str__(self):
         return self.nome
@@ -26,7 +27,7 @@ class Atividades(models.Model):
 
 
 class Locaveis(models.Model):
-    locaveis = models.CharField(max_length=100)
+    estrutura = models.CharField(max_length=100)
 
 
 class OrdemDeServico(models.Model):
@@ -48,57 +49,47 @@ class OrdemDeServico(models.Model):
     hora_entrada = models.TimeField(blank=True, null=True)
 
     # ------------------------------------------ CAMPOS DA ATIVIDADE 1 -----------------------------------------
-    atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING, blank=True, Null=True,
-                                    related_name='atividade_1')
-    hora_atividade_1 = models.TimeField()
-    professores_atividade_1 = models.CharField(max_length=255)
-    locacao_1 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True)
-    horarios_locacao_1 = models.TimeField(blank=True, null=True)
-    professor_locacao_1 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prof_locacao_1',
-                                            blank=True, null=True)
+    atividade_1 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
+                                    related_name='atividade_1', blank=True, null=True)
+    hora_atividade_1 = models.TimeField(blank=True, null=True)
+    professores_atividade_1 = models.CharField(max_length=255, blank=True)
+    locacao_1 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                  related_name='locacao_1')
+    horarios_locacao_1 = models.CharField(max_length=200, blank=True, null=True)
+    professores_locacao_1 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_1 = models.DurationField(blank=True, null=True)
 
     # ------------------------------------------ CAMPOS DA ATIVIDADE 2 -----------------------------------------
     atividade_2 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_2', blank=True, null=True)
     hora_atividade_2 = models.TimeField(blank=True, null=True)
-    professores_atividade_2 = models.CharField(max_length=255)
-    locacao_2 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True)
-    horarios_locacao_2 = models.TimeField(blank=True, null=True)
-    professor_locacao_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prof_locacao_2',
-                                            blank=True, null=True)
+    professores_atividade_2 = models.CharField(max_length=255, blank=True)
+    locacao_2 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='locacao_2')
+    horarios_locacao_2 = models.CharField(max_length=200, blank=True, null=True)
+    professores_locacao_2 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_2 = models.DurationField(blank=True, null=True)
 
     # ------------------------------------------ CAMPOS DA ATIVIDADE 3 -----------------------------------------
     atividade_3 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_3', blank=True, null=True)
     hora_atividade_3 = models.TimeField(blank=True, null=True)
-    professores_atividade_3 = models.CharField(max_length=255)
-    locacao_3 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True)
-    horarios_locacao_3 = models.TimeField(blank=True, null=True)
-    professor_locacao_3 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prof_locacao_3',
-                                            blank=True, null=True)
+    professores_atividade_3 = models.CharField(max_length=255, blank=True)
+    locacao_3 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='locacao_3')
+    horarios_locacao_3 = models.TimeField(max_length=200, blank=True, null=True)
+    professores_locacao_3 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_3 = models.DurationField(blank=True, null=True)
 
     # ------------------------------------------ CAMPOS DA ATIVIDADE 4 -----------------------------------------
     atividade_4 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_4', blank=True, null=True)
     hora_atividade_4 = models.TimeField(blank=True, null=True)
-    professores_atividade_4 = models.CharField(max_length=255)
-    locacao_4 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True)
-    horarios_locacao_4 = models.TimeField(blank=True, null=True)
-    professor_locacao_4 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prof_locacao_4',
-                                            blank=True, null=True)
+    professores_atividade_4 = models.CharField(max_length=255, blank=True)
 
     # ------------------------------------------ CAMPOS DA ATIVIDADE 5 -----------------------------------------
     atividade_5 = models.ForeignKey(Atividades, on_delete=models.DO_NOTHING,
                                     related_name='atividade_5', blank=True, null=True)
     hora_atividade_5 = models.TimeField(blank=True, null=True)
-    professores_atividade_5 = models.CharField(max_length=255)
-    locacao_5 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True)
-    horarios_locacao_5 = models.TimeField(blank=True, null=True)
-    professor_locacao_5 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='prof_locacao_4',
-                                            blank=True, null=True)
+    professores_atividade_5 = models.CharField(max_length=255, blank=True)
 
     # ------------------------------------------ FINALIZAÇÕES --------------------------------------------------
     horas_totais = models.DurationField(blank=True, null=True)
@@ -109,3 +100,30 @@ class OrdemDeServico(models.Model):
     def __str__(self):
         return f'Ordem de serviço de {self.tipo}'
 
+
+class OrdemDeServicoPublico(forms.ModelForm):
+    class Meta:
+        model = OrdemDeServico
+        exclude = ('instituicao', 'responsaveis', 'serie', 'coordenador_peraltas',
+                   'locacao_1', 'horarios_locacao_1', 'professores_locacao_1', 'soma_horas_1',
+                   'locacao_2', 'horarios_locacao_2', 'professores_locacao_2', 'soma_horas_2',
+                   'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
+                   'horas_totais', 'solicitado', 'entregue')
+
+
+class OrdemDeServicoColegio(forms.ModelForm):
+    class Meta:
+        model = OrdemDeServico
+        exclude = ('locacao_1', 'horarios_locacao_1', 'professores_locacao_1', 'soma_horas_1',
+                   'locacao_2', 'horarios_locacao_2', 'professores_locacao_2', 'soma_horas_2',
+                   'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
+                   'horas_totais')
+
+
+class OrdemDeServicoEmpresa(forms.ModelForm):
+    class Meta:
+        model = OrdemDeServico
+        exclude = ('responsaveis', 'serie', 'hora_entrada',
+                   'atividade_4', 'hora_atividade_4', 'professores_atividade_4',
+                   'atividade_5', 'hora_atividade_5', 'professores_atividade_5',
+                   'solicitado', 'entregue')
