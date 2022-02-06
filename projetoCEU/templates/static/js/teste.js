@@ -1,13 +1,22 @@
 var escala = [];
 
+/*
 function equipe(selecao) {
-    var valorSelecao = selecao.value;
 
-    if (!escala.includes(valorSelecao)){
-        escala.push(valorSelecao)
-        $('.d').append('<option>' + valorSelecao + '</option>');
-    };
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_professor': selecao.value},
+        success: function(response){
+            if (!escala.includes(response)){
+                escala.push(response)
+                $('.d').append('<option>' + response + '</option>');
+            };
+        }
+    });
 };
+*/
 
 var removidos = []
 function retirar(selecao) {

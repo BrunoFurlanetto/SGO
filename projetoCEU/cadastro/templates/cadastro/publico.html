@@ -15,59 +15,39 @@
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
         <div class="row">
-          <div class="col-2 mb-3">
+          <div style="width: 20%" class="mb-3">
             <label>Coordenador</label>
-            <select class="form-select" id="coordenador" onChange="equipe(this)" name="coordenador">
-              <option selected></option>
-                {% for nome in professores %}
-                  <option value="{{ nome }}">{{ nome }}</option>
-                {% endfor %}
-            </select>
+            {{ formulario.coordenador }}
           </div>
           <div style="width: 35%">
             <label class="participantes" style="margin-left: 80px">Participantes: </label>
             <div class="row">
               <div style="width: 40%">
-                <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
+                {{ formulario.participantes_previa }}
               </div>
               <div style="width: 60%">
-                <input type="number" class="form-control" placeholder="Confirmados"  name="participantes" style="width: 18vh height: 12vh">
+                {{ formulario.participantes_confirmados }}
               </div>
             </div>
           </div>
           <div style="width: 26%">
             <label>Data do atendimento</label>
-            <input type="date" class="form-control" name="dataAtendimento">
+            {{ formulario.data_atendimento }}
           </div>
         </div>
 <!-------------------------------- LINHA 2 ---------------------------->
       <div class="row">
         <div style="width: 20%">
           <label>Professor 2: </label>
-          <select class="form-select" id="p2" onChange="equipe(this)" name="prf2">
-            <option selected></option>
-            {% for nome in professores %}
-              <option>{{ nome }}</option>
-            {% endfor %}
-          </select>
+          {{ formulario.professor_2 }}
         </div>
         <div style="width: 20%">
           <label>Professor 3: </label>
-          <select class="form-select custom-select mr-sm-2" id="p3" onChange="equipe(this)" name="prf3">
-            <option selected></option>
-            {% for nome in professores %}
-              <option>{{ nome }}</option>
-            {% endfor %}
-          </select>
+          {{ formulario.professor_3 }}
         </div>
         <div style="width: 20%">
           <label>Professor 4: </label>
-          <select class="form-select mr-sm-2" id="p4" onChange="equipe(this)" name="prf4">
-            <option selected></option>
-            {% for nome in professores %}
-              <option>{{ nome }}</option>
-            {% endfor %}
-          </select>
+          {{ formulario.professor_4 }}
         </div>
         </div>
       <hr>
@@ -91,6 +71,9 @@
                   <div style="width: 120px; margin-right: -20px">
                     <select class="form-control d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
                       <option selected></option>
+                      {% for professor in professores %}
+                        <option value="{{ professor.id }}">{{ professor.nome }}</option>
+                      {% endfor %}
                     </select>
                   </div>
                 {% endfor %}
@@ -99,7 +82,7 @@
             <td>
               <center>
                 {% if i == 1 %}
-                  <input type="time" class="form-control my-1" style="width: 100px" name="horaEntrada">
+                  {{ formulario.hora_entrada }}
                 {% endif %}
               </center>
             </td>
@@ -121,9 +104,9 @@
         </tbody>
       </table>
 <!-------------------------------- RELATÓRIO FINAL ---------------------------->
-      <div class="form-group">
+      <div>
         <label>Relatório do dia:</label>
-        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
+        {{ formulario.relatorio }}
         <button type="submit" class="btn btn-primary ml-5">Salvar</button>
       </div>
     </form>
