@@ -1,0 +1,27 @@
+.conteudo-publico input{
+    background-color: #fff;
+    max-width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+.conteudo-publico select{
+    background-color: #fff;
+    width: 100%;
+    border-radius: 5px;
+    border-color: #ced4da;
+    padding-left: 12px;
+    height: 38px;
+ }
+.conteudo-publico textarea{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
+}

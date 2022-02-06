@@ -21,6 +21,7 @@ class Tipo(models.Model):
 
 class Atividades(models.Model):
     atividade = models.CharField(max_length=100)
+    publico = models.BooleanField(default=False)
 
     def __str__(self):
         return self.atividade
@@ -31,14 +32,14 @@ class Locaveis(models.Model):
 
 
 class OrdemDeServico(models.Model):
-    tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING)
+    tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING, blank=True, null=True)
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     responsaveis = models.IntegerField(blank=True, null=True)
     serie = models.CharField(max_length=100, blank=True)
     coordenador_peraltas = models.CharField(max_length=100, blank=True)
-    data_atendimento = models.DateField(default=timezone.now)
+    data_atendimento = models.DateField()
     coordenador = models.ForeignKey(Professores, on_delete=models.DO_NOTHING, related_name='coordenador')
     professor_2 = models.ForeignKey(Professores, on_delete=models.DO_NOTHING,
                                     related_name='professor_2', blank=True, null=True)
@@ -64,7 +65,8 @@ class OrdemDeServico(models.Model):
                                     related_name='atividade_2', blank=True, null=True)
     hora_atividade_2 = models.TimeField(blank=True, null=True)
     professores_atividade_2 = models.CharField(max_length=255, blank=True)
-    locacao_2 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='locacao_2')
+    locacao_2 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                  related_name='locacao_2')
     horarios_locacao_2 = models.CharField(max_length=200, blank=True, null=True)
     professores_locacao_2 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_2 = models.DurationField(blank=True, null=True)
@@ -74,7 +76,8 @@ class OrdemDeServico(models.Model):
                                     related_name='atividade_3', blank=True, null=True)
     hora_atividade_3 = models.TimeField(blank=True, null=True)
     professores_atividade_3 = models.CharField(max_length=255, blank=True)
-    locacao_3 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='locacao_3')
+    locacao_3 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                  related_name='locacao_3')
     horarios_locacao_3 = models.TimeField(max_length=200, blank=True, null=True)
     professores_locacao_3 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_3 = models.DurationField(blank=True, null=True)
@@ -109,6 +112,12 @@ class OrdemDeServicoPublico(forms.ModelForm):
                    'locacao_2', 'horarios_locacao_2', 'professores_locacao_2', 'soma_horas_2',
                    'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
                    'horas_totais', 'solicitado', 'entregue')
+
+        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+                   'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
+                   'hora_entrada': forms.TimeInput(attrs={'type': 'time'}),
+                   }
 
 
 class OrdemDeServicoColegio(forms.ModelForm):

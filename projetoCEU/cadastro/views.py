@@ -1,7 +1,12 @@
 from time import sleep
+
+from django.contrib import messages
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .models import OrdemDeServico, Professores, Atividades, Tipo
+
+from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela
+from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico
 import datetime
 
 
@@ -9,13 +14,41 @@ def publico(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
+    ordem_publico = OrdemDeServicoPublico()
+    atividades = Atividades.objects.filter(publico=True)
+    professores = Professores.objects.all()
+    range_i = range(1, 6)
+    range_j = range(1, 5)
+
     if request.method != 'POST':
-        return render(request, 'cadastro/publico.html')
+        return render(request, 'cadastro/publico.html', {'formulario': ordem_publico, 'rangei': range_i,
+                                                         'rangej': range_j, 'atividades': atividades,
+                                                         'professores': professores})
 
-    # --- TESTES PARA A EXISTÊNCIA DAS ATIVIDADES E JÁ CHAMAR FUNÇÃO PRA JUNTAR OS PROFESSORES
-    # --- DAS ATIVIDADES EXISTÊNTES.
+    if is_ajax(request) and request.method == 'POST':
+        return HttpResponse(Professores.objects.get(id=request.POST.get('id_professor')))
 
-    return redirect('dashboard')
+    ordem_publico = OrdemDeServicoPublico(request.POST)
+    erro_de_preenchimento, mensagem_erro = verificar_tabela(request.POST)
+
+    if not erro_de_preenchimento:
+        os = ordem_publico.save(commit=False)
+        os.tipo = Tipo.objects.get(tipo='Público')
+        analisar_tabela_atividade(os, request.POST)
+        try:
+            os.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Ordem de serviço salva com sucesso!')
+            return redirect('dashboard')
+    else:
+        ordem_publico = OrdemDeServicoPublico(request.POST)
+        messages.error(request, mensagem_erro)
+        return render(request, 'cadastro/publico.html', {'formulario': ordem_publico, 'rangei': range_i,
+                                                         'rangej': range_j, 'atividades': atividades,
+                                                         'professores': professores})
 
 
 def colegio(request):
