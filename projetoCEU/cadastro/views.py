@@ -1,13 +1,11 @@
 from time import sleep
 
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela
-from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico
-import datetime
+from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
+from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio
 
 
 def publico(request):
@@ -55,8 +53,16 @@ def colegio(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
+    ordem_colegio = OrdemDeServicoColegio()
+    atividades = indice_formulario(ordem_colegio, 'atividade_')
+    horas = indice_formulario(ordem_colegio, 'hora')
+    professores = Professores.objects.all()
+    range_j = range(1, 5)
+
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html')
+        return render(request, 'cadastro/colegio.html', {'formulario': ordem_colegio, 'atividades': atividades,
+                                                         'horas': horas, 'professores': professores,
+                                                         'rangej': range_j})
 
     # --- TESTES PARA A EXISTÊNCIA DAS ATIVIDADES E JÁ CHAMAR FUNÇÃO PRA JUNTAR OS PROFESSORES
     # --- DAS ATIVIDADES EXISTÊNTES.

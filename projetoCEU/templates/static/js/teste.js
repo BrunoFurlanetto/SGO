@@ -1,5 +1,11 @@
 var escala = [];
 
+function locacao(){
+    var tabelaLocacao = document.getElementById('locacao')
+    tabelaLocacao.classList.toggle('none')
+};
+
+
 /*
 function equipe(selecao) {
 

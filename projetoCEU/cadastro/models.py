@@ -128,6 +128,18 @@ class OrdemDeServicoColegio(forms.ModelForm):
                    'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
                    'horas_totais')
 
+        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+                   'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
+                   'hora_entrada': forms.TimeInput(attrs={'type': 'time'}),
+                   'hora_atividade_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'hora_atividade_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'hora_atividade_3': forms.TimeInput(attrs={'type': 'time'}),
+                   'hora_atividade_4': forms.TimeInput(attrs={'type': 'time'}),
+                   'hora_atividade_5': forms.TimeInput(attrs={'type': 'time'}),
+
+                   }
+
 
 class OrdemDeServicoEmpresa(forms.ModelForm):
     class Meta:
