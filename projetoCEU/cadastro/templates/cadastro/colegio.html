@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load pipes %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -17,17 +18,17 @@
       <script src="{% static 'js/teste.js' %}"></script>
       <script src="{% static 'js/jquery.js' %}"></script>
       <div class="row">
-        <div class="col-7">
+        <div style="width: 66%">
           <label>Instituição</label>
-          <input type="text" class="form-control" name="instituicao">
+          {{ formulario.instituicao }}
         </div>
-        <div class="col-3">
+        <div style="width: 18%">
           <label>Série</label>
-          <input type="text" class="form-control" name="serie">
+          {{ formulario.instituicao }}
         </div>
-        <div class="col-2">
+        <div style="width: 16%">
           <label>Responsáveis</label>
-          <input type="number" class="form-control" name="responsaveis">
+          {{ formulario.responsaveis }}
         </div>
       </div>
       <hr>
@@ -35,12 +36,7 @@
       <div class="row mb-2">
         <div class="col-3">
           <label>Coordenador</label>
-          <select class="form-select" id="coordenador" onChange="equipe(this)" name="coordenador">
-            <option selected></option>
-              {% for nome in professores %}
-                <option value="{{ nome }}">{{ nome }}</option>
-              {% endfor %}
-          </select>
+          {{ formulario.coordenador }}
         </div>
         <div style="width: 300px">
           <center>
@@ -48,23 +44,24 @@
           </center>
           <div class="row">
             <div style="width: 120px">
-              <input type="number" class="form-control" placeholder="Prévia" name="previaParticipantes">
+              {{ formulario.participantes_previa }}
             </div>
             <div style="width: 170px">
-              <input type="number" class="form-control" placeholder="Confirmados"  name="participantes">
+              {{ formulario.participantes_confirmados }}
             </div>
           </div>
         </div>
         <div style="width: 322px">
           <label>Coordenador peraltas</label>
-          <input type="text" class="form-control" name="coordenadorPeraltas">
+          {{ formulario.coordenador_peraltas }}
         </div>
       </div>
+
 <!-------------------------------- LINHA 2 ---------------------------->
       <div class="row mb-3">
         <div class="col-3">
           <label>Data do atendimento</label>
-          <input type="date" class="form-control" name="dataAtendimento">
+          {{ formulario.data_atendimento }}
         </div>
         <div style="width: 25%">
           <label>Professor 2: </label>
@@ -95,7 +92,7 @@
         </div>
       </div>
       <hr>
-<!-------------------------------- LINHA 3 ---------------------------->
+<!-------------------------------- TABELA ATIVIDADES ---------------------------->
       <table class="table table-striped table-sm" style="caption-side: top">
         <caption>Atividades realizadas no CEU:</caption>
         <thead>
@@ -107,49 +104,110 @@
           </tr>
         </thead>
         <tbody>
-          {% for i in rangei %}
-          <tr>
-            <td>
-              <div class="row">
-                {% for j in rangej %}
-                  <div style="width: 120px; margin-right: -20px">
-                    <select class="form-control d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
-                      <option selected></option>
-                    </select>
-                  </div>
-                {% endfor %}
-              </div>
-            </td>
-            <td>
-              <center>
-                {% if i == 1 %}
-                  <input type="time" class="form-control my-1" style="width: 100px" name="horaEntrada">
-                {% endif %}
-              </center>
-            </td>
-            <td>
-              <center>
-                <input type="time" class="form-control my-1" style="width: 100px" name="horaAtividade_{{ i }}">
-              </center>
-            </td>
-            <td>
-              <select class="form-control mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}">
-                <option selected></option>
-                {% for atividade in atividades %}
-                  <option>{{ atividade }}</option>
-                {% endfor %}
-              </select>
-            </td>
-          </tr>
+          {% for atividade in atividades %}
+            <tr>
+              <td>
+                <div class="row">
+                  {% for i in rangej %}
+                    <div style="width: 120px; margin-right: -20px">
+                      <select class="form-control d mr-sm-2" name="prf{{ j }}atv{{ i }}">
+                        <option selected></option>
+                      {% for professor in professores %}
+                        <option value="{{ professor.id }}">{{ professor.nome }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                <center>
+                  {% if forloop.counter == 1 %}
+                    {{ formulario.hora_entrada }}
+                  {% endif %}
+                </center>
+              </td>
+              <td>
+                <center>
+                  {{ horas|index:forloop.counter0 }}
+                </center>
+              </td>
+              <td>
+                {{ atividade }}
+              </td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>
+
+<!------------------------------------------------------------------------------------->
+      <div class="form-group form-check form-switch mb-3 mt-3">
+        <input type="checkbox" class="form-check-input switch" id="checkLocacao" onChange="locacao()">
+        <label class="form-check-label">Houve locação de espaço?</label>
+      </div>
+<!------------------------------------------------------------------------------------->
+
+      <h5>Atividades ralizadas no CEU</h5>
+      <table id="locacao" class="table table-striped table-sm none" style="caption-side: top">
+        <caption>Atividades realizadas pela empresa:</caption>
+        <thead>
+          <tr>
+            <th style="width: 400px"><center>Nome dos professores</center></th>
+            <th style="width: 100px"><center>Entrada</center></th>
+            <th style="width: 100px"><center>Início</center></th>
+            <th style="width: 150px"><center>Atividade</center></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in rangei %}
+            {% if i < 4 %}
+              <tr>
+                <td>
+                  <div class="row">
+                    {% for j in rangej %}
+                      <div style="width: 120px; margin-right: -20px">
+                        <select class="form-control d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
+                          <option selected></option>
+                        </select>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </td>
+                <td>
+                  <center>
+                    {% if i == 1 %}
+                      <input type="time" class="form-control my-1" style="width: 100px" name="horaEntrada">
+                    {% endif %}
+                  </center>
+                </td>
+                <td>
+                  <center>
+                    <input type="time" class="form-control my-1" style="width: 100px" name="horaAtividade_{{ i }}">
+                  </center>
+                </td>
+                <td>
+                  <select class="form-control mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}">
+                    <option selected></option>
+                    {% for atividade in atividades %}
+                      <option>{{ atividade }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
 <!-------------------------------- RELATÓRIO FINAL ---------------------------->
       <div class="form-group">
         <label>Relatório do dia:</label>
         <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
         <button id="salvar" class="btn btn-primary ml-5">Salvar</button>
+        <script src="{% static 'js/teste.js' %}"></script>
       </div>
+
+
 
       <script>
         $("#salvar").click(function(){

@@ -1,13 +1,13 @@
-.conteudo-publico input{
+.conteudo-publico input, .conteudo-colegio input{
     background-color: #fff;
-    max-width: 100%;
+    width: 100%;
     border: 1px solid #ced4da;
     border-radius: 5px;
     appearance: none;
     padding: 12px;
     height: 38px;
 }
-.conteudo-publico select{
+.conteudo-publico select, .conteudo-colegio select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -24,4 +24,11 @@
     padding-top: 2px;
     height: 150px;
     resize: none;
+}
+.conteudo-colegio .switch{
+    padding: 0px;
+    height: 15px;
+}
+.none{
+    display: none;
 }

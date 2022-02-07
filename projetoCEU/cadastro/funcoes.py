@@ -1,6 +1,32 @@
 from cadastro.models import Atividades, Professores
 
 
+def indice_formulario(formulario, campo, n=5):
+    """
+    :param formulario: Form de model a ser percorrido
+    :param campo: String a ser procurado nos campos do formulário
+    :param n_atividades: número de retornos necessários, para locacao, mandar 3
+    :return: Irá retornar apenas os campos do fomulário que apresentam a palavra
+             enviada no parametro campo.
+    """
+
+    indice = 1
+    campos = []
+
+    for i in formulario.fields:
+        if indice <= n:
+            if campo in i:
+                if 'professores' not in i:
+                    if campo == 'hora':
+                        if 'entrada' not in i:
+                            campos.append(formulario[i])
+                    else:
+                        if 'hora' not in i:
+                            campos.append(formulario[i])
+
+    return campos
+
+
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
@@ -80,7 +106,6 @@ def analisar_tabela_atividade(os, dados):
 
 
 def juntar_professores(dados, atividade=1):
-
     if atividade == 1:
         professores = str(Professores.objects.get(id=dados.get('prf1atv1')))
         for d in dados:
