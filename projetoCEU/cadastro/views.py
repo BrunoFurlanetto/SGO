@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario, juntar_professores, \
-    verificar_atividades
+    verificar_atividades, verificar_locacoes
 from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio
 
 
@@ -67,6 +67,7 @@ def colegio(request):
     os = ordem_colegio.save(commit=False)
     os.tipo = Tipo.objects.get(tipo='Colégio')
     verificar_atividades(request.POST, os)
+    verificar_locacoes(request.POST, os)
     os.save()
     return redirect('dashboard')
 

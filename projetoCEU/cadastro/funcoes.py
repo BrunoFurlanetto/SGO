@@ -50,6 +50,36 @@ def verificar_atividades(dados, os):
         os.professores_atividade_5 = juntar_professores(dados, atividade=5)
 
 
+def verificar_locacoes(dados, os):
+
+    if dados.get('locacao_1') != '':
+        professores = str(Professores.objects.get(id=dados.get('prf1loc1')))
+
+        for d in dados:
+            if 'loc1' in d and dados.get(d) != '' and 'prf1' not in d:
+                professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
+
+        os.professores_locacao_1 = professores
+
+    if dados.get('locacao_2') != '':
+        professores = str(Professores.objects.get(id=dados.get('prf1loc2')))
+
+        for d in dados:
+            if 'loc2' in d and dados.get(d) != '' and 'prf1' not in d:
+                professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
+
+        os.professores_locacao_2 = professores
+
+    if dados.get('locacao_3') != '':
+        professores = str(Professores.objects.get(id=dados.get('prf1loc3')))
+
+        for d in dados:
+            if 'loc3' in d and dados.get(d) != '' and 'prf3' not in d:
+                professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
+
+        os.professores_locacao_3 = professores
+
+
 def verificar_tabela(dados):
     if dados.get('ativ1') == '':
         return True, 'Atividade 1 não preenchida'
