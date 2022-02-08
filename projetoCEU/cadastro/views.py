@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario, juntar_professores, \
-    verificar_atividades, verificar_locacoes
+    verificar_atividades, verificar_locacoes, entradas_e_saidas
 from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio, OrdemDeServicoEmpresa
 
 
@@ -54,13 +54,15 @@ def colegio(request):
     ordem_colegio = OrdemDeServicoColegio()
     atividades, horas = indice_formulario(ordem_colegio, 'atividade_')
     locacoes, exclusao = indice_formulario(ordem_colegio, 'locacao_', n=2)
+    entradas, saidas = entradas_e_saidas(ordem_colegio)
     professores = Professores.objects.all()
     range_j = range(1, 5)
-    range_i = range(1, 4)
+    range_i = range(0, 6)
 
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'formulario': ordem_colegio, 'atividades': atividades,
                                                          'horas': horas, 'professores': professores,
+                                                         'entradas': entradas, 'saidas': saidas,
                                                          'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i})
 
     ordem_colegio = OrdemDeServicoColegio(request.POST)

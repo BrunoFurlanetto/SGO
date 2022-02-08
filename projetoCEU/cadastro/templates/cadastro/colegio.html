@@ -169,16 +169,16 @@
               </td>
 
               {% for i in rangei %}
-                {% if j != 1 %}
+                {% if i == 1 or i == 3 %}
                   <tr>
                 {% endif %}
                   <td>
-                    <input type="time" class="form-control my-1" id="horaEntrada{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaEntrada{{ forloop.counter }}">
+                    {{ entradas|index:i }}
                   </td>
                   <td>
-                    <input type="time" class="form-control my-1" id="horaSaida{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaSaida{{ forloop.counter }}">
+                    {{ saidas|index:i }}
                   </td>
-                {% if j != 1 %}
+                {% if i == 1 or i == 3 %}
                   </tr>
                 {% endif %}
 
