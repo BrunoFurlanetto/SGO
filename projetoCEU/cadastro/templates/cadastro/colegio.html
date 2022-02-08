@@ -152,7 +152,7 @@
                 <div class="row">
                   {% for i in rangej %}
                     <div style="width: 120px; margin-right: -20px">
-                      <select class="form-control d mr-sm-2" id="prf{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="prf{{ forloop.counter }}loc{{ forloop.parentloop.counter }}">
+                      <select class="form-control d mr-sm-2" onchange="verificarProfessor(this)" id="prf{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="prf{{ forloop.counter }}loc{{ forloop.parentloop.counter }}">
                         <option selected></option>
                         {% for professor in professores %}
                           <option value="{{ professor.id }}">{{ professor.nome }}</option>
