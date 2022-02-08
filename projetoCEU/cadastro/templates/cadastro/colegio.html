@@ -173,10 +173,10 @@
                   <tr>
                 {% endif %}
                   <td>
-                    <input type="time" class="form-control my-1" id="horaEntrada{{ forloop.counter }}" name="horaEntrada{{ forloop.counter }}">
+                    <input type="time" class="form-control my-1" id="horaEntrada{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaEntrada{{ forloop.counter }}">
                   </td>
                   <td>
-                    <input type="time" class="form-control my-1" id="horaSaida{{ forloop.counter }}" name="horaSaida{{ forloop.counter }}">
+                    <input type="time" class="form-control my-1" id="horaSaida{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaSaida{{ forloop.counter }}">
                   </td>
                 {% if j != 1 %}
                   </tr>

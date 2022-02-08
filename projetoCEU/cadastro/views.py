@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario, juntar_professores, \
     verificar_atividades, verificar_locacoes
-from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio
+from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio, OrdemDeServicoEmpresa
 
 
 def publico(request):
@@ -37,7 +37,7 @@ def publico(request):
             messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
             return redirect('dashboard')
         else:
-            messages.success(request, 'Ordem de serviço salva com sucesso!')
+            messages.success(request, 'Relatório de atendimento salvo com sucesso!')
             return redirect('dashboard')
     else:
         ordem_publico = OrdemDeServicoPublico(request.POST)
@@ -68,8 +68,14 @@ def colegio(request):
     os.tipo = Tipo.objects.get(tipo='Colégio')
     verificar_atividades(request.POST, os)
     verificar_locacoes(request.POST, os)
-    os.save()
-    return redirect('dashboard')
+    try:
+        os.save()
+    except:
+        messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
+        return redirect('dashboard')
+    else:
+        messages.success(request, 'Relatório de atendimento salvo com sucesso!')
+        return redirect('dashboard')
 
 
 def empresa(request):
@@ -79,10 +85,30 @@ def empresa(request):
     if request.method != 'POST':
         return render(request, 'cadastro/empresa.html')
 
-    # --- TESTES PARA EXISTÊNCIA DE ALGUMA ATIVIDADE E JÁ CHAMAR FUNÇÃO PRA JUNTAR OS PROFESSORES
-    # --- DAS ATIVIDADES EXISTÊNTES.
+    ordem_empresa = OrdemDeServicoEmpresa()
+    atividades, horas = indice_formulario(ordem_empresa, 'atividade_')
+    locacoes, exclusao = indice_formulario(ordem_empresa, 'locacao_', n=3)
+    professores = Professores.objects.all()
+    range_j = range(1, 5)
+    range_i = range(1, 4)
 
-    # --- PRIMEIRA ENTRADA E SAIDA DA EMPRESA NO CEU, PEGAR HORÁRIOS DE ENTRADAS E SAÍDAS,
-    # --- FAZER CONTA DE HORAS DA PRIMEIRA LOCAÇÃO, TUDO COM FUNCÕES
+    if request.method != 'POST':
+        return render(request, 'cadastro/colegio.html', {'formulario': ordem_empresa, 'atividades': atividades,
+                                                         'horas': horas, 'professores': professores,
+                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i})
+
+    ordem_empresa = OrdemDeServicoEmpresa(request.POST)
+    os = ordem_empresa.save(commit=False)
+    os.tipo = Tipo.objects.get(tipo='Empresa')
+    verificar_atividades(request.POST, os)
+    verificar_locacoes(request.POST, os)
+    try:
+        os.save()
+    except:
+        messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
+        return redirect('dashboard')
+    else:
+        messages.success(request, 'Relatório de atendimento salvo com sucesso!')
+        return redirect('dashboard')
 
     return redirect('dashboard')
