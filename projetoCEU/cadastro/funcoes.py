@@ -1,34 +1,53 @@
 from cadastro.models import Atividades, Professores
 
 
-def indice_formulario(formulario, campo, n=5):
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
+def indice_formulario(formulario, campo, n=6):
     """
+    :param n: Número de recorrencias
     :param formulario: Form de model a ser percorrido
     :param campo: String a ser procurado nos campos do formulário
-    :param n_atividades: número de retornos necessários, para locacao, mandar 3
     :return: Irá retornar apenas os campos do fomulário que apresentam a palavra
              enviada no parametro campo.
     """
 
     indice = 1
-    campos = []
+    campo_1 = []
+    campo_2 = []
 
     for i in formulario.fields:
+
         if indice <= n:
             if campo in i:
                 if 'professores' not in i:
-                    if campo == 'hora':
+
+                    if 'hora' in i:
                         if 'entrada' not in i:
-                            campos.append(formulario[i])
+                            campo_2.append(formulario[i])
                     else:
-                        if 'hora' not in i:
-                            campos.append(formulario[i])
+                        campo_1.append(formulario[i])
+                        indice += 1
 
-    return campos
+    return campo_1, campo_2
 
 
-def is_ajax(request):
-    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+def verificar_atividades(dados, os):
+    os.professores_atividade_1 = juntar_professores(dados)
+
+    if dados.get('id_atividade_2') is not None:
+        os.professores_atividade_2 = juntar_professores(dados, atividade=2)
+
+    if dados.get('id_atividade_3') is not None:
+        os.professores_atividade_3 = juntar_professores(dados, atividade=3)
+
+    if dados.get('id_atividade_4') is not None:
+        os.professores_atividade_4 = juntar_professores(dados, atividade=4)
+
+    if dados.get('id_atividade_5') is not None:
+        os.professores_atividade_5 = juntar_professores(dados, atividade=5)
 
 
 def verificar_tabela(dados):
@@ -70,7 +89,7 @@ def verificar_tabela(dados):
             return True, 'É preciso cadastrar ao menos um professor na atividade 5'
 
     equipe = [dados.get('coordenador'), dados.get('professor_2'), dados.get('professor_3'), dados.get('professor_4')]
-    print(equipe)
+
     for d in dados:
         if 'prf' in d and dados.get(d) != '':
             if dados.get(d) not in equipe:
@@ -106,6 +125,7 @@ def analisar_tabela_atividade(os, dados):
 
 
 def juntar_professores(dados, atividade=1):
+
     if atividade == 1:
         professores = str(Professores.objects.get(id=dados.get('prf1atv1')))
         for d in dados:
