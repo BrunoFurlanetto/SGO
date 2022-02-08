@@ -30,6 +30,9 @@ class Atividades(models.Model):
 class Locaveis(models.Model):
     estrutura = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.estrutura
+
 
 class OrdemDeServico(models.Model):
     tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -123,10 +126,7 @@ class OrdemDeServicoPublico(forms.ModelForm):
 class OrdemDeServicoColegio(forms.ModelForm):
     class Meta:
         model = OrdemDeServico
-        exclude = ('locacao_1', 'horarios_locacao_1', 'professores_locacao_1', 'soma_horas_1',
-                   'locacao_2', 'horarios_locacao_2', 'professores_locacao_2', 'soma_horas_2',
-                   'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
-                   'horas_totais')
+        exclude = ()
 
         widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
@@ -137,7 +137,10 @@ class OrdemDeServicoColegio(forms.ModelForm):
                    'hora_atividade_3': forms.TimeInput(attrs={'type': 'time'}),
                    'hora_atividade_4': forms.TimeInput(attrs={'type': 'time'}),
                    'hora_atividade_5': forms.TimeInput(attrs={'type': 'time'}),
-
+                   'coordenador': forms.Select(attrs={'onchange': 'equipe(this)'}),
+                   'professor_2': forms.Select(attrs={'onchange': 'equipe(this)'}),
+                   'professor_3': forms.Select(attrs={'onchange': 'equipe(this)'}),
+                   'professor_4': forms.Select(attrs={'onchange': 'equipe(this)'}),
                    }
 
 

@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
+from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario, juntar_professores, \
+    verificar_atividades
 from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio
 
 
@@ -22,9 +23,6 @@ def publico(request):
         return render(request, 'cadastro/publico.html', {'formulario': ordem_publico, 'rangei': range_i,
                                                          'rangej': range_j, 'atividades': atividades,
                                                          'professores': professores})
-
-    if is_ajax(request) and request.method == 'POST':
-        return HttpResponse(Professores.objects.get(id=request.POST.get('id_professor')))
 
     ordem_publico = OrdemDeServicoPublico(request.POST)
     erro_de_preenchimento, mensagem_erro = verificar_tabela(request.POST)
@@ -54,19 +52,22 @@ def colegio(request):
         return redirect('login')
 
     ordem_colegio = OrdemDeServicoColegio()
-    atividades = indice_formulario(ordem_colegio, 'atividade_')
-    horas = indice_formulario(ordem_colegio, 'hora')
+    atividades, horas = indice_formulario(ordem_colegio, 'atividade_')
+    locacoes, exclusao = indice_formulario(ordem_colegio, 'locacao_', n=2)
     professores = Professores.objects.all()
     range_j = range(1, 5)
+    range_i = range(1, 4)
 
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'formulario': ordem_colegio, 'atividades': atividades,
                                                          'horas': horas, 'professores': professores,
-                                                         'rangej': range_j})
+                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i})
 
-    # --- TESTES PARA A EXISTÊNCIA DAS ATIVIDADES E JÁ CHAMAR FUNÇÃO PRA JUNTAR OS PROFESSORES
-    # --- DAS ATIVIDADES EXISTÊNTES.
-
+    ordem_colegio = OrdemDeServicoColegio(request.POST)
+    os = ordem_colegio.save(commit=False)
+    os.tipo = Tipo.objects.get(tipo='Colégio')
+    verificar_atividades(request.POST, os)
+    os.save()
     return redirect('dashboard')
 
 

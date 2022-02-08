@@ -1,10 +1,55 @@
-var escala = [];
+
+var escala = [$('#id_coordenador').val(),
+              $('#id_professor_2').val(),
+              $('#id_professor_3').val(),
+              $('#id_professor_4').val()];
+
+var atividade_1 = document.getElementById('id_atividade_1')
+var professor_1 = document.getElementById('prf1atv1')
+atividade_1.required = true
+professor_1.required = true
+
 
 function locacao(){
+    var professorLoc_1 = document.getElementById('prf1loc1')
+    var  locacao_1 = document.getElementById('id_locacao_1')
+    var entrada_1 = document.getElementById('horaEntrada1')
+    var saida_1 = document.getElementById('horaSaida1')
+
     var tabelaLocacao = document.getElementById('locacao')
     tabelaLocacao.classList.toggle('none')
+
+    if ($('#checkLocacao').is(":checked")){
+        professorLoc_1.required = true
+        locacao_1.required = true
+        entrada_1.required = true
+        saida_1.required = true
+    } else {
+        professorLoc_1.required = false
+        locacao_1.required = false
+        entrada_1.required = false
+        saida_1.required = false
+    }
+
 };
 
+function equipe(selecao){
+    let valorSelecao = selecao.value
+
+    if (!escala.includes(valorSelecao)){
+        escala.push(valorSelecao)
+    }
+}
+
+function verificarProfessor(selecao){
+    let valorSelecao = selecao.value
+
+    if (!escala.includes(valorSelecao)){
+        $(selecao).val('0')
+        alert('Professor não escalado!')
+    }
+
+}
 
 /*
 function equipe(selecao) {
