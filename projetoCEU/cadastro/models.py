@@ -59,7 +59,12 @@ class OrdemDeServico(models.Model):
     professores_atividade_1 = models.CharField(max_length=255, blank=True)
     locacao_1 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
                                   related_name='locacao_1')
-    horarios_locacao_1 = models.CharField(max_length=200, blank=True, null=True)
+    entrada_1_locacao_1 = models.TimeField(blank=True, null=True)
+    saida_1_locacao_1 = models.TimeField(blank=True, null=True)
+    entrada_2_locacao_1 = models.TimeField(blank=True, null=True)
+    saida_2_locacao_1 = models.TimeField(blank=True, null=True)
+    entrada_3_locacao_1 = models.TimeField(blank=True, null=True)
+    saida_3_locacao_1 = models.TimeField(blank=True, null=True)
     professores_locacao_1 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_1 = models.DurationField(blank=True, null=True)
 
@@ -70,7 +75,12 @@ class OrdemDeServico(models.Model):
     professores_atividade_2 = models.CharField(max_length=255, blank=True)
     locacao_2 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
                                   related_name='locacao_2')
-    horarios_locacao_2 = models.CharField(max_length=200, blank=True, null=True)
+    entrada_1_locacao_2 = models.TimeField(blank=True, null=True)
+    saida_1_locacao_2 = models.TimeField(blank=True, null=True)
+    entrada_2_locacao_2 = models.TimeField(blank=True, null=True)
+    saida_2_locacao_2 = models.TimeField(blank=True, null=True)
+    entrada_3_locacao_2 = models.TimeField(blank=True, null=True)
+    saida_3_locacao_2 = models.TimeField(blank=True, null=True)
     professores_locacao_2 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_2 = models.DurationField(blank=True, null=True)
 
@@ -81,7 +91,12 @@ class OrdemDeServico(models.Model):
     professores_atividade_3 = models.CharField(max_length=255, blank=True)
     locacao_3 = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, blank=True, null=True,
                                   related_name='locacao_3')
-    horarios_locacao_3 = models.TimeField(max_length=200, blank=True, null=True)
+    entrada_1_locacao_3 = models.TimeField(blank=True, null=True)
+    saida_1_locacao_3 = models.TimeField(blank=True, null=True)
+    entrada_2_locacao_3 = models.TimeField(blank=True, null=True)
+    saida_2_locacao_3 = models.TimeField(blank=True, null=True)
+    entrada_3_locacao_3 = models.TimeField(blank=True, null=True)
+    saida_3_locacao_3 = models.TimeField(blank=True, null=True)
     professores_locacao_3 = models.CharField(max_length=255, blank=True, null=True)
     soma_horas_3 = models.DurationField(blank=True, null=True)
 
@@ -111,10 +126,14 @@ class OrdemDeServicoPublico(forms.ModelForm):
     class Meta:
         model = OrdemDeServico
         exclude = ('instituicao', 'responsaveis', 'serie', 'coordenador_peraltas',
-                   'locacao_1', 'horarios_locacao_1', 'professores_locacao_1', 'soma_horas_1',
-                   'locacao_2', 'horarios_locacao_2', 'professores_locacao_2', 'soma_horas_2',
-                   'locacao_3', 'horarios_locacao_3', 'professores_locacao_3', 'soma_horas_3',
-                   'horas_totais', 'solicitado', 'entregue')
+                   'entrada_1_locacao_1', 'saida_1_locacao_1', 'entrada_2_locacao_1', 'saida_2_locacao_1',
+                   'entrada_3_locacao_1', 'saida_3_locacao_1', 'entrada_1_locacao_2', 'saida_1_locacao_2',
+                   'entrada_2_locacao_2', 'saida_2_locacao_2', 'entrada_3_locacao_2', 'saida_3_locacao_2',
+                   'entrada_1_locacao_3', 'saida_1_locacao_3', 'entrada_2_locacao_3', 'saida_2_locacao_3',
+                   'entrada_3_locacao_3', 'saida_3_locacao_3', 'locacao_1', 'horarios_locacao_1',
+                   'professores_locacao_1', 'soma_horas_1', 'locacao_2', 'horarios_locacao_2',
+                   'professores_locacao_2', 'soma_horas_2', 'locacao_3', 'horarios_locacao_3',
+                   'professores_locacao_3', 'soma_horas_3', 'horas_totais', 'solicitado', 'entregue')
 
         widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
@@ -141,6 +160,18 @@ class OrdemDeServicoColegio(forms.ModelForm):
                    'professor_2': forms.Select(attrs={'onchange': 'equipe(this)'}),
                    'professor_3': forms.Select(attrs={'onchange': 'equipe(this)'}),
                    'professor_4': forms.Select(attrs={'onchange': 'equipe(this)'}),
+                   'entrada_1_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_2_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_3_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_1_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_2_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_3_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_1_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_2_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_3_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_1_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_2_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_3_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
                    }
 
 

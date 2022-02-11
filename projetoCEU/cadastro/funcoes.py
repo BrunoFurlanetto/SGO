@@ -1,3 +1,5 @@
+import datetime
+
 from cadastro.models import Atividades, Professores
 
 
@@ -28,10 +30,26 @@ def indice_formulario(formulario, campo, n=6):
                         if 'entrada' not in i:
                             campo_2.append(formulario[i])
                     else:
-                        campo_1.append(formulario[i])
-                        indice += 1
+                        if 'entrada' not in i and 'saida' not in i and 'entrada' not in i:
+                            campo_1.append(formulario[i])
+                            print(i)
+                            indice += 1
 
     return campo_1, campo_2
+
+def entradas_e_saidas(formulario):
+    entradas = []
+    saidas = []
+
+    for i in formulario.fields:
+
+        if 'entrada' in i and 'hora' not in i:
+            entradas.append(formulario[i])
+
+        if 'saida' in i:
+            saidas.append(formulario[i])
+
+    return entradas, saidas
 
 
 def verificar_atividades(dados, os):
@@ -52,17 +70,16 @@ def verificar_atividades(dados, os):
 
 def verificar_locacoes(dados, os):
 
-    if dados.get('locacao_1') != '':
+    if dados.get('locacao_1') is not None:
         professores = str(Professores.objects.get(id=dados.get('prf1loc1')))
 
         for d in dados:
             if 'loc1' in d and dados.get(d) != '' and 'prf1' not in d:
                 professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
 
-        os.horarios_locacao_1, os.soma_horas_1 = juntar_horas(dados, 'loc1')
         os.professores_locacao_1 = professores
 
-    if dados.get('locacao_2') != '':
+    if dados.get('locacao_2') is not None:
         professores = str(Professores.objects.get(id=dados.get('prf1loc2')))
 
         for d in dados:
@@ -71,7 +88,7 @@ def verificar_locacoes(dados, os):
 
         os.professores_locacao_2 = professores
 
-    if dados.get('locacao_3') != '':
+    if dados.get('locacao_3') is not None:
         professores = str(Professores.objects.get(id=dados.get('prf1loc3')))
 
         for d in dados:
@@ -81,11 +98,10 @@ def verificar_locacoes(dados, os):
         os.professores_locacao_3 = professores,
 
 
-def juntar_horas(dados, local):
-
-    for d in dados:
-        if 'horaEntrada' in d and dados.get(d) != '':
-
+def somar_horas(dados, os):
+    if dados.get('locacao_1') is not None:
+        horas = datetime.timedelta(0, 0, 0)
+        
 
 
 def verificar_tabela(dados):

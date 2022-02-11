@@ -168,21 +168,43 @@
                 </center>
               </td>
 
-              {% for i in rangei %}
-                {% if j != 1 %}
-                  <tr>
-                {% endif %}
-                  <td>
-                    <input type="time" class="form-control my-1" id="horaEntrada{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaEntrada{{ forloop.counter }}">
-                  </td>
-                  <td>
-                    <input type="time" class="form-control my-1" id="horaSaida{{ forloop.counter }}loc{{ forloop.parentloop.counter }}" name="horaSaida{{ forloop.counter }}">
-                  </td>
-                {% if j != 1 %}
-                  </tr>
-                {% endif %}
+              {% if forloop.counter == 1 %}
+                {% for i in rangei %}
 
-              {% endfor %}
+                  {% if j != 0 %}
+                    <tr>
+                  {% endif %}
+                    <td>
+                      {{ entradas|index:i }}
+                    </td>
+                    <td>
+                      {{ saidas|index:i }}
+                    </td>
+                  {% if j != 0 %}
+                    </tr>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
+
+              {% if forloop.counter == 2 %}
+                {% for i in rangei2 %}
+
+                  {% if j != 0 %}
+                    <tr>
+                  {% endif %}
+                    <td>
+                      {{ entradas|index:i }}
+                    </td>
+                    <td>
+                      {{ saidas|index:i }}
+                    </td>
+                  {% if j != 0 %}
+                    </tr>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
             </tr>
           {% endfor %}
         </tbody>
