@@ -160,6 +160,18 @@ class OrdemDeServicoColegio(forms.ModelForm):
                    'professor_2': forms.Select(attrs={'onchange': 'equipe(this)'}),
                    'professor_3': forms.Select(attrs={'onchange': 'equipe(this)'}),
                    'professor_4': forms.Select(attrs={'onchange': 'equipe(this)'}),
+                   'entrada_1_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_2_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_3_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_1_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_2_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_3_locacao_1': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_1_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_2_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'entrada_3_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_1_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_2_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
+                   'saida_3_locacao_2': forms.TimeInput(attrs={'type': 'time'}),
                    }
 
 

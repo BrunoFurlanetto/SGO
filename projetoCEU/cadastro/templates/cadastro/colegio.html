@@ -168,21 +168,43 @@
                 </center>
               </td>
 
-              {% for i in rangei %}
-                {% if i == 1 or i == 3 %}
-                  <tr>
-                {% endif %}
-                  <td>
-                    {{ entradas|index:i }}
-                  </td>
-                  <td>
-                    {{ saidas|index:i }}
-                  </td>
-                {% if i == 1 or i == 3 %}
-                  </tr>
-                {% endif %}
+              {% if forloop.counter == 1 %}
+                {% for i in rangei %}
 
-              {% endfor %}
+                  {% if j != 0 %}
+                    <tr>
+                  {% endif %}
+                    <td>
+                      {{ entradas|index:i }}
+                    </td>
+                    <td>
+                      {{ saidas|index:i }}
+                    </td>
+                  {% if j != 0 %}
+                    </tr>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
+
+              {% if forloop.counter == 2 %}
+                {% for i in rangei2 %}
+
+                  {% if j != 0 %}
+                    <tr>
+                  {% endif %}
+                    <td>
+                      {{ entradas|index:i }}
+                    </td>
+                    <td>
+                      {{ saidas|index:i }}
+                    </td>
+                  {% if j != 0 %}
+                    </tr>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
             </tr>
           {% endfor %}
         </tbody>

@@ -57,19 +57,22 @@ def colegio(request):
     entradas, saidas = entradas_e_saidas(ordem_colegio)
     professores = Professores.objects.all()
     range_j = range(1, 5)
-    range_i = range(0, 6)
+    range_i = range(0, 3)
+    range_i2 = range(3, 6)
 
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'formulario': ordem_colegio, 'atividades': atividades,
                                                          'horas': horas, 'professores': professores,
                                                          'entradas': entradas, 'saidas': saidas,
-                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i})
+                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i,
+                                                         'rangei2': range_i2})
 
     ordem_colegio = OrdemDeServicoColegio(request.POST)
     os = ordem_colegio.save(commit=False)
     os.tipo = Tipo.objects.get(tipo='Colégio')
     verificar_atividades(request.POST, os)
     verificar_locacoes(request.POST, os)
+    somar_horas(request.POST, os)
     try:
         os.save()
     except:
