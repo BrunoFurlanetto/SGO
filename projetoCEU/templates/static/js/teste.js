@@ -32,6 +32,43 @@ function locacao(){
     }
 
 };
+var professorAtiv_1 = document.getElementById('prf1atv1')
+var  id_atividade_1 = document.getElementById('id_atividade_1')
+var hora_atividade_1 = document.getElementById('id_hora_atividade_1')
+var professorlocacao_1 = document.getElementById('prf1loc1')
+var  id_locacao_1 = document.getElementById('id_locacao_1')
+var entrada_1 = document.getElementById('id_entrada_1_locacao_1')
+var saida_1 = document.getElementById('id_saida_1_locacao_1')
+
+function verificarObrigatoriedade(){
+
+    if ($('#checkAtividade').is(":checked")){
+        professorAtiv_1.required = true
+        id_atividade_1.required = true
+        hora_atividade_1.required = true
+        professorlocacao_1.required = false
+        id_locacao_1.required = false
+        entrada_1.required = false
+        saida_1.required = false
+    } else {
+        professorAtiv_1.required = false
+        id_atividade_1.required = false
+        hora_atividade_1.required = false
+        professorlocacao_1.required = true
+        id_locacao_1.required = true
+        entrada_1.required = true
+        saida_1.required = true
+    }
+
+}
+
+function atividade(){
+
+    var tabelaAtividade = document.getElementById('tabelaAtividade')
+    tabelaAtividade.classList.toggle('none')
+    verificarObrigatoriedade()
+
+};
 
 function equipe(selecao){
     let valorSelecao = selecao.value
