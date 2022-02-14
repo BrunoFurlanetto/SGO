@@ -1,5 +1,5 @@
 import datetime
-
+from time import strptime
 from cadastro.models import Atividades, Professores
 
 
@@ -79,7 +79,7 @@ def verificar_locacoes(dados, os):
 
         os.professores_locacao_1 = professores
 
-    if dados.get('locacao_2') is not None:
+    if dados.get('locacao_2') != '':
         professores = str(Professores.objects.get(id=dados.get('prf1loc2')))
 
         for d in dados:
@@ -99,9 +99,96 @@ def verificar_locacoes(dados, os):
 
 
 def somar_horas(dados, os):
+    soma_horas = datetime.timedelta()
+    horas = datetime.timedelta()
+
     if dados.get('locacao_1') is not None:
-        horas = datetime.timedelta(0, 0, 0)
-        
+
+        entrada_1 = strptime(dados.get('entrada_1_locacao_1'), '%H:%M')
+        saida_1 = strptime(dados.get('saida_1_locacao_1'), '%H:%M')
+        temp_H = saida_1.tm_hour - entrada_1.tm_hour
+        temp_M = saida_1.tm_min - entrada_1.tm_min
+        horas = datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_2_locacao_1') != '' and dados.get('saida_2_locacao_1') != '':
+            entrada_1 = strptime(dados.get('entrada_2_locacao_1'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_2_locacao_1'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_3_locacao_1') != '' and dados.get('saida_3_locacao_1') != '':
+            entrada_1 = strptime(dados.get('entrada_3_locacao_1'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_3_locacao_1'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        os.soma_horas_1 = horas
+
+    soma_horas += datetime.timedelta(hours=horas.seconds/3600)
+
+    if dados.get('locacao_2') != '':
+
+        entrada_1 = strptime(dados.get('entrada_1_locacao_2'), '%H:%M')
+        saida_1 = strptime(dados.get('saida_1_locacao_2'), '%H:%M')
+        temp_H = saida_1.tm_hour - entrada_1.tm_hour
+        temp_M = saida_1.tm_min - entrada_1.tm_min
+        horas = datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_2_locacao_2') != '' and dados.get('saida_2_locacao_2') != '':
+            entrada_1 = strptime(dados.get('entrada_2_locacao_2'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_2_locacao_2'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_3_locacao_2') != '' and dados.get('saida_3_locacao_2') != '':
+            entrada_1 = strptime(dados.get('entrada_3_locacao_2'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_3_locacao_2'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        os.soma_horas_2 = horas
+        soma_horas += datetime.timedelta(hours=horas.seconds/3600)
+    else:
+        soma_horas += datetime.timedelta(hours=0)
+
+    if dados.get('locacao_3') is not None:
+
+        entrada_1 = strptime(dados.get('entrada_1_locacao_3'), '%H:%M')
+        saida_1 = strptime(dados.get('saida_1_locacao_3'), '%H:%M')
+        temp_H = saida_1.tm_hour - entrada_1.tm_hour
+        temp_M = saida_1.tm_min - entrada_1.tm_min
+        horas = datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_2_locacao_3') != '' and dados.get('saida_2_locacao_3') != '':
+            entrada_1 = strptime(dados.get('entrada_2_locacao_3'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_2_locacao_3'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        if dados.get('entrada_3_locacao_3') != '' and dados.get('saida_3_locacao_3') != '':
+            entrada_1 = strptime(dados.get('entrada_3_locacao_3'), '%H:%M')
+            saida_1 = strptime(dados.get('saida_3_locacao_3'), '%H:%M')
+            temp_H = saida_1.tm_hour - entrada_1.tm_hour
+            temp_M = saida_1.tm_min - entrada_1.tm_min
+
+            horas += datetime.timedelta(hours=temp_H, minutes=temp_M)
+
+        os.soma_horas_3 = horas
+        soma_horas += datetime.timedelta(hours=horas.seconds/3600)
+    else:
+        soma_horas += datetime.timedelta(hours=0)
+
+    os.horas_totais = soma_horas
 
 
 def verificar_tabela(dados):
