@@ -88,7 +88,7 @@ def verificar_locacoes(dados, os):
 
         os.professores_locacao_2 = professores
 
-    if dados.get('locacao_3') is not None:
+    if dados.get('locacao_3') != '':
         professores = str(Professores.objects.get(id=dados.get('prf1loc3')))
 
         for d in dados:
@@ -159,7 +159,7 @@ def somar_horas(dados, os):
     else:
         soma_horas += datetime.timedelta(hours=0)
 
-    if dados.get('locacao_3') is not None:
+    if dados.get('locacao_3') != '':
 
         entrada_1 = strptime(dados.get('entrada_1_locacao_3'), '%H:%M')
         saida_1 = strptime(dados.get('saida_1_locacao_3'), '%H:%M')

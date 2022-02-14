@@ -94,32 +94,40 @@ def empresa(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    if request.method != 'POST':
-        return render(request, 'cadastro/empresa.html')
-
     ordem_empresa = OrdemDeServicoEmpresa()
     atividades, horas = indice_formulario(ordem_empresa, 'atividade_')
     locacoes, exclusao = indice_formulario(ordem_empresa, 'locacao_', n=3)
+    entradas, saidas = entradas_e_saidas(ordem_empresa)
     professores = Professores.objects.all()
     range_j = range(1, 5)
-    range_i = range(1, 4)
+    range_i = range(0, 3)
+    range_i2 = range(3, 6)
+    range_i3 = range(6, 9)
 
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html', {'formulario': ordem_empresa, 'atividades': atividades,
+        return render(request, 'cadastro/empresa.html', {'formulario': ordem_empresa, 'atividades': atividades,
                                                          'horas': horas, 'professores': professores,
-                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i})
+                                                         'locacoes': locacoes, 'entradas': entradas, 'saidas': saidas,
+                                                         'rangej': range_j, 'rangei': range_i, 'rangei2': range_i2,
+                                                         'rangei3': range_i3})
 
-    ordem_empresa = OrdemDeServicoEmpresa(request.POST)
-    os = ordem_empresa.save(commit=False)
-    os.tipo = Tipo.objects.get(tipo='Empresa')
-    verificar_atividades(request.POST, os)
-    verificar_locacoes(request.POST, os)
-    somar_horas(request.POST, os)
     try:
+        ordem_empresa = OrdemDeServicoEmpresa(request.POST)
+        os = ordem_empresa.save(commit=False)
+        os.tipo = Tipo.objects.get(tipo='Empresa')
+        verificar_locacoes(request.POST, os)
+        verificar_atividades(request.POST, os)
+        somar_horas(request.POST, os)
         os.save()
     except:
-        messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
-        return redirect('dashboard')
+        messages.error(request, 'Houve um erro inesperado, por favor, verifique se todos os campos estão preenchidos'
+                                'corretamente!')
+        ordem_empresa = OrdemDeServicoEmpresa(request.POST)
+        return render(request, 'cadastro/empresa.html', {'formulario': ordem_empresa, 'atividades': atividades,
+                                                         'horas': horas, 'professores': professores,
+                                                         'locacoes': locacoes, 'entradas': entradas, 'saidas': saidas,
+                                                         'rangej': range_j, 'rangei': range_i, 'rangei2': range_i2,
+                                                         'rangei3': range_i3})
     else:
         messages.success(request, 'Relatório de atendimento salvo com sucesso!')
         return redirect('dashboard')

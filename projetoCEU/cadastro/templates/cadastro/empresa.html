@@ -9,26 +9,18 @@
   <div class="row conteudo-colegio">
     <div class="titulo-colegio">
       <center>
-        <h2>CADASTRO DE ORDEM DE SERVIÇO DE COLÉGIO</h2>
+        <h2>RELATÓRIO DE ATENDIMENTO DE EMPRESA</h2>
       </center>
     </div>
     <hr>
-    <form action="{% url 'colegio' %}" method="POST">
+    <form action="{% url 'empresa' %}" method="POST">
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
       <script src="{% static 'js/jquery.js' %}"></script>
       <div class="row">
-        <div style="width: 66%">
+        <div>
           <label>Instituição</label>
           {{ formulario.instituicao }}
-        </div>
-        <div style="width: 18%">
-          <label>Série</label>
-          {{ formulario.instituicao }}
-        </div>
-        <div style="width: 16%">
-          <label>Responsáveis</label>
-          {{ formulario.responsaveis }}
         </div>
       </div>
       <hr>
@@ -79,64 +71,8 @@
       <hr>
 
       <h5>Atividades ralizadas no CEU</h5>
-<!-------------------------------- TABELA ATIVIDADES ---------------------------->
-      <table class="table table-striped table-sm" style="caption-side: top">
-        <caption>Atividades do colégio no CEU:</caption>
-        <thead>
-          <tr>
-            <th style="width: 400px"><center>Nome dos professores</center></th>
-            <th style="width: 100px"><center>Entrada</center></th>
-            <th style="width: 100px"><center>Início</center></th>
-            <th style="width: 150px"><center>Atividade</center></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for atividade in atividades %}
-            <tr>
-              <td>
-                <div class="row">
-                  {% for i in rangej %}
-                    <div style="width: 120px; margin-right: -20px">
-                      <select class="form-control d mr-sm-2" onchange="verificarProfessor(this)" id="prf{{ forloop.counter }}atv{{ forloop.parentloop.counter }}" name="prf{{ forloop.counter }}atv{{ forloop.parentloop.counter }}">
-                        <option selected></option>
-                      {% for professor in professores %}
-                        <option value="{{ professor.id }}">{{ professor.nome }}</option>
-                      {% endfor %}
-                      </select>
-                    </div>
-                  {% endfor %}
-                </div>
-              </td>
-              <td>
-                <center>
-                  {% if forloop.counter == 1 %}
-                    {{ formulario.hora_entrada }}
-                  {% endif %}
-                </center>
-              </td>
-              <td>
-                <center>
-                  {{ horas|index:forloop.counter0 }}
-                </center>
-              </td>
-              <td>
-                {{ atividade }}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-<!------------------------------------------------------------------------------------->
-      <div class="form-group form-check form-switch mb-3 mt-3">
-        <input type="checkbox" class="form-check-input switch" id="checkLocacao" onChange="locacao()">
-        <label class="form-check-label">Houve locação de espaço?</label>
-      </div>
-<!------------------------------------------------------------------------------------->
-
-
-      <table id="locacao" class="table table-striped table-sm none" style="caption-side: top">
-        <caption>Locações do colégio no CEU:</caption>
+      <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
+        <caption>Locações da empresa no CEU:</caption>
         <thead>
           <tr>
             <th style="width: 400px"><center>Nome dos professores</center></th>
@@ -205,6 +141,80 @@
 
                 {% endfor %}
               {% endif %}
+
+              {% if forloop.counter == 3 %}
+                {% for i in rangei3 %}
+
+                  {% if j != 0 %}
+                    <tr>
+                  {% endif %}
+                    <td>
+                      {{ entradas|index:i }}
+                    </td>
+                    <td>
+                      {{ saidas|index:i }}
+                    </td>
+                  {% if j != 0 %}
+                    </tr>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+<!------------------------------------------------------------------------------------->
+      <div class="form-group form-check form-switch mb-3 mt-3">
+        <input type="checkbox" class="form-check-input switch" id="checkAtividade" onChange="atividade()">
+        <label class="form-check-label">Houve locação de espaço?</label>
+      </div>
+<!------------------------------------------------------------------------------------->
+
+<!-------------------------------- TABELA ATIVIDADES ---------------------------->
+      <table class="table table-striped table-sm none" id="tabelaAtividade" style="caption-side: top">
+        <caption>Atividades do colégio no CEU:</caption>
+        <thead>
+          <tr>
+            <th style="width: 400px"><center>Nome dos professores</center></th>
+            <th style="width: 100px"><center>Entrada</center></th>
+            <th style="width: 100px"><center>Início</center></th>
+            <th style="width: 150px"><center>Atividade</center></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for atividade in atividades %}
+            <tr>
+              <td>
+                <div class="row">
+                  {% for i in rangej %}
+                    <div style="width: 120px; margin-right: -20px">
+                      <select class="form-control d mr-sm-2" onchange="verificarProfessor(this)" id="prf{{ forloop.counter }}atv{{ forloop.parentloop.counter }}" name="prf{{ forloop.counter }}atv{{ forloop.parentloop.counter }}">
+                        <option selected></option>
+                      {% for professor in professores %}
+                        <option value="{{ professor.id }}">{{ professor.nome }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                <center>
+                  {% if forloop.counter0 == 0 %}
+                    {{ formulario.hora_entrada }}
+                  {% endif %}
+                </center>
+              </td>
+              <td>
+                <center>
+                  {{ horas|index:forloop.counter0}}
+                </center>
+              </td>
+              <td>
+                {{ atividade }}
+              </td>
             </tr>
           {% endfor %}
         </tbody>
