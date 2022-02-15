@@ -1,6 +1,5 @@
 from django.db import models
 from django import forms
-from django.utils import timezone
 
 
 class Professores(models.Model):

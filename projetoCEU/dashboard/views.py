@@ -29,13 +29,9 @@ def dashboard(request):
 
     # ------------------ Ordens para conta de atividades e horas do mês --------------------
     ordens_usuario = OrdemDeServico.objects.filter(
-        Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado) |
-        Q(professor_3=usuario_logado) | Q(professor_4=usuario_logado)).filter(
-        Q(tipo=Tipo.objects.get(tipo='Público')) | Q(tipo=Tipo.objects.get(tipo='Colégio'))).filter(
+        Q(coordenador__nome=usuario_logado) | Q(professor_2__nome=usuario_logado) |
+        Q(professor_3__nome=usuario_logado) | Q(professor_4__nome=usuario_logado)).filter(
         data_atendimento__month=datetime.now().month).values()
-    ordens_usuario_empresa = OrdemDeServico.objects.filter(
-        Q(coordenador=usuario_logado) | Q(professor_2=usuario_logado)).filter(
-        Q(tipo=Tipo.objects.get(tipo='Empresa'))).filter(data_atendimento__month=datetime.now().month).values()
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
     mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
@@ -71,7 +67,7 @@ def dashboard(request):
 
     # ------------------ Parte para chegar no resumo do mês -------------------
     n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
-    n_horas = contar_horas(usuario_logado, ordens_usuario_empresa.values())
+    n_horas = contar_horas(usuario_logado, ordens_usuario.values())
     # -------------------------------------------------------------------------
 
     if is_ajax(request) and request.method == 'POST':

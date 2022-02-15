@@ -32,7 +32,6 @@ def indice_formulario(formulario, campo, n=6):
                     else:
                         if 'entrada' not in i and 'saida' not in i and 'entrada' not in i:
                             campo_1.append(formulario[i])
-                            print(i)
                             indice += 1
 
     return campo_1, campo_2
@@ -55,20 +54,24 @@ def entradas_e_saidas(formulario):
 
 def verificar_atividades(dados, os):
 
-    if dados.get('id_atividade_1') is not None:
+    if dados.get('atividade_1') != '':
         os.professores_atividade_1 = juntar_professores(dados)
 
-    if dados.get('id_atividade_2') is not None:
+    if dados.get('atividade_2') != '':
         os.professores_atividade_2 = juntar_professores(dados, atividade=2)
 
-    if dados.get('id_atividade_3') is not None:
+    if dados.get('atividade_3') != '':
         os.professores_atividade_3 = juntar_professores(dados, atividade=3)
 
-    if dados.get('id_atividade_4') is not None:
-        os.professores_atividade_4 = juntar_professores(dados, atividade=4)
+    if dados.get('atividade_4') is None:
+        return
+    else:
+        if dados.get('atividade_4') != '':
+            print('foi')
+            os.professores_atividade_4 = juntar_professores(dados, atividade=4)
 
-    if dados.get('id_atividade_5') is not None:
-        os.professores_atividade_5 = juntar_professores(dados, atividade=5)
+        if dados.get('atividade_5') != '':
+            os.professores_atividade_5 = juntar_professores(dados, atividade=5)
 
 
 def verificar_locacoes(dados, os):
@@ -91,14 +94,17 @@ def verificar_locacoes(dados, os):
 
         os.professores_locacao_2 = professores
 
-    if dados.get('locacao_3') != '':
-        professores = str(Professores.objects.get(id=dados.get('prf1loc3')))
+    if dados.get('locacao_3') is None:
+        return
+    else:
+        if dados.get('locacao_3') != '':
+            professores = str(Professores.objects.get(id=dados.get('prf1loc3')))
 
-        for d in dados:
-            if 'loc3' in d and dados.get(d) != '' and 'prf3' not in d:
-                professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
+            for d in dados:
+                if 'loc3' in d and dados.get(d) != '' and 'prf3' not in d:
+                    professores += ', ' + str(Professores.objects.get(id=dados.get(d)))
 
-        os.professores_locacao_3 = professores,
+            os.professores_locacao_3 = professores,
 
 
 def somar_horas(dados, os):
