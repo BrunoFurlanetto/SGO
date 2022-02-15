@@ -19,7 +19,7 @@ def painelGeral(request):
         ordens_meses_ano_atual = OrdemDeServico.objects.filter(data_atendimento__year=datetime.now().year)
         mes_anterior = pegar_mes(ordens_mes_anterior)
         meses = pegar_mes(ordens_meses_ano_atual).split(', ')
-        meses.remove(mes_anterior)
+        # meses.remove(mes_anterior)
 
         for professor in professores:
             professor.n_atividades = contar_atividades(professor)
