@@ -13,9 +13,8 @@ def contar_atividades(professor_logado, ordens):
 
     for ordem in ordens:
         for nome in ordem:
-            if 'prf' in nome and ordem[nome] is not None:
-
-                if Professores.objects.get(pk=ordem[nome]) == professor_logado:
+            if 'professores' in nome and 'locacao' not in nome and ordem[nome] is not None:
+                if professor_logado.nome in ordem[nome] and ordem[nome] != 'Visita técnica':
                     n_atividades += 1
 
     return n_atividades
@@ -26,22 +25,22 @@ def contar_horas(professor_logado, ordens):
 
     for ordem in ordens:
         for nome in ordem:
-            if 'atv_1' in nome and ordem[nome] is not None:
+            if 'professores_locacao_1' in nome and ordem[nome] is not None:
 
-                if Professores.objects.get(pk=ordem[nome]) == professor_logado:
+                if professor_logado.nome in ordem[nome]:
                     n_horas += ordem['soma_horas_1']
 
-            if 'atv_2' in nome and ordem[nome] is not None:
+            if 'professores_locacao_2' in nome and ordem[nome] is not None:
 
-                if Professores.objects.get(pk=ordem[nome]) == professor_logado:
-                    if ordem['soma_horas_2'] is not None:
-                        n_horas += ordem['soma_horas_2']
+                if professor_logado.nome in ordem[nome]:
+                    # if ordem['soma_horas_2'] is not None:
+                    n_horas += ordem['soma_horas_2']
 
-            if 'atv_3' in nome and ordem[nome] is not None:
+            if 'professores_locacao_3' in nome and ordem[nome] is not None:
 
-                if ordem['soma_horas_3'] is not None:
-                    if Professores.objects.get(pk=ordem[nome]) == professor_logado:
-                        n_horas += ordem['soma_horas_3']
+                if professor_logado.nome in ordem[nome]:
+                    # if Professores.objects.get(pk=ordem[nome]) == professor_logado:
+                    n_horas += ordem['soma_horas_3']
 
     return formatar_horas(n_horas)
 
