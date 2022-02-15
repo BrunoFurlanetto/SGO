@@ -183,7 +183,8 @@ class OrdemDeServicoEmpresa(forms.ModelForm):
                    'atividade_5', 'hora_atividade_5', 'professores_atividade_5',
                    'solicitado', 'entregue')
 
-        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+        widgets = {'instituicao': forms.TimeInput(attrs={'onClick': 'verificarObrigatoriedade()'}),
+                   'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
                    'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
                    'hora_entrada': forms.TimeInput(attrs={'type': 'time'}),
