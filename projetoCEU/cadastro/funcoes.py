@@ -37,6 +37,7 @@ def indice_formulario(formulario, campo, n=6):
 
     return campo_1, campo_2
 
+
 def entradas_e_saidas(formulario):
     entradas = []
     saidas = []
@@ -53,7 +54,9 @@ def entradas_e_saidas(formulario):
 
 
 def verificar_atividades(dados, os):
-    os.professores_atividade_1 = juntar_professores(dados)
+
+    if dados.get('id_atividade_1') is not None:
+        os.professores_atividade_1 = juntar_professores(dados)
 
     if dados.get('id_atividade_2') is not None:
         os.professores_atividade_2 = juntar_professores(dados, atividade=2)
@@ -70,7 +73,7 @@ def verificar_atividades(dados, os):
 
 def verificar_locacoes(dados, os):
 
-    if dados.get('locacao_1') is not None:
+    if dados.get('locacao_1') != '':
         professores = str(Professores.objects.get(id=dados.get('prf1loc1')))
 
         for d in dados:
@@ -102,8 +105,9 @@ def somar_horas(dados, os):
     soma_horas = datetime.timedelta()
     horas = datetime.timedelta()
 
-    if dados.get('locacao_1') is not None:
-
+    if dados.get('locacao_1') == '':
+        return
+    else:
         entrada_1 = strptime(dados.get('entrada_1_locacao_1'), '%H:%M')
         saida_1 = strptime(dados.get('saida_1_locacao_1'), '%H:%M')
         temp_H = saida_1.tm_hour - entrada_1.tm_hour

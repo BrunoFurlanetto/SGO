@@ -1,4 +1,4 @@
-.conteudo-publico input, .conteudo-colegio input{
+.conteudo-publico input, .conteudo-colegio input, .conteudo-empresa input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -7,7 +7,7 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-publico select, .conteudo-colegio select{
+.conteudo-publico select, .conteudo-colegio select, .conteudo-empresa select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -25,7 +25,7 @@
     height: 150px;
     resize: none;
 }
-.conteudo-colegio .switch{
+.conteudo-colegio .switch, .conteudo-empresa .switch{
     padding: 0px;
     height: 15px;
 }

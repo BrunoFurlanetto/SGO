@@ -37,8 +37,10 @@
                                 var professores_disponiveis = response.split(', ')
 
                                 $('.d').empty()
+                                $('.disponiveis').empty()
                                 $('.d').append(`<option selected></option>`)
                                 for (let i in professores_disponiveis){
+                                  $('.disponiveis').append('<li>' + professores_disponiveis[i] + '</li>');
                                   $('.d').append('<option>' + professores_disponiveis[i] + '</option>');
                                 }
 
@@ -79,43 +81,51 @@
             <div class="modal-body">
                 {% csrf_token %}
               <div class="row">
-                <div class="form-group col-4">
-                  <label>Data</label>
-                  <input type="text" class="form-control" id="data" name="data_escala">
-                </div>
-                  <div class="form-group col-md-4">
-                    <label>Coordenador</label>
-                    <select class="form-control d col-7" name="coordenador" onChange="retirar(this)">
-                      <option selected></option>
-                    </select>
+                <div style="width: 55%">
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Data</label>
+                      <input type="text" class="form-control" id="data" name="data_escala">
+                    </div>
+                      <div class="form-group" style="width: 50%">
+                        <label>Coordenador</label>
+                        <select class="form-control d col-7" name="coordenador" onChange="retirar(this)">
+                          <option selected></option>
+                        </select>
+                      </div>
                   </div>
-              </div>
-              <div class="row">
-                <div class="form-group col-md-4">
-                  <label>Professor 2</label>
-                  <select class="form-control d col-7" name="professor_2" onChange="retirar(this)">
-                    <option selected></option>
-                  </select>
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 2</label>
+                      <select class="form-control d" name="professor_2" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 3</label>
+                      <select class="form-control d" name="professor_3" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 4</label>
+                      <select class="form-control d" name="professor_4" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 5</label>
+                      <select class="form-control d" name="professor_5" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-group col-md-4">
-                  <label>Professor 3</label>
-                  <select class="form-control d col-7" name="professor_3" onChange="retirar(this)">
-                    <option selected></option>
-                  </select>
-                </div>
-              </div>
-              <div class="row">
-                <div class="form-group col-md-4">
-                  <label>Professor 4</label>
-                  <select class="form-control d col-7" name="professor_4" onChange="retirar(this)">
-                    <option selected></option>
-                  </select>
-                </div>
-                <div class="form-group col-md-4 mb-3">
-                  <label>Professor 5</label>
-                  <select class="form-control d col-7" name="professor_5" onChange="retirar(this)">
-                    <option selected></option>
-                  </select>
+                <div style="width: 45%">
+                  <b>Professores disponiveis na data selecionada:</b>
+                  <ul class="disponiveis"></ul>
                 </div>
               </div>
             </div>

@@ -111,17 +111,18 @@ def empresa(request):
                                                          'rangej': range_j, 'rangei': range_i, 'rangei2': range_i2,
                                                          'rangei3': range_i3})
 
+    ordem_empresa = OrdemDeServicoEmpresa(request.POST)
+
+    os = ordem_empresa.save(commit=False)
+    os.tipo = Tipo.objects.get(tipo='Empresa')
+    verificar_locacoes(request.POST, os)
+    verificar_atividades(request.POST, os)
+    somar_horas(request.POST, os)
     try:
-        ordem_empresa = OrdemDeServicoEmpresa(request.POST)
-        os = ordem_empresa.save(commit=False)
-        os.tipo = Tipo.objects.get(tipo='Empresa')
-        verificar_locacoes(request.POST, os)
-        verificar_atividades(request.POST, os)
-        somar_horas(request.POST, os)
         os.save()
     except:
         messages.error(request, 'Houve um erro inesperado, por favor, verifique se todos os campos estão preenchidos'
-                                'corretamente!')
+                                ' corretamente!')
         ordem_empresa = OrdemDeServicoEmpresa(request.POST)
         return render(request, 'cadastro/empresa.html', {'formulario': ordem_empresa, 'atividades': atividades,
                                                          'horas': horas, 'professores': professores,
@@ -131,5 +132,3 @@ def empresa(request):
     else:
         messages.success(request, 'Relatório de atendimento salvo com sucesso!')
         return redirect('dashboard')
-
-    return redirect('dashboard')
