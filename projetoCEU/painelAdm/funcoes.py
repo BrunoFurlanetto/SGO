@@ -19,6 +19,7 @@ def verificar_anos(os):
     return anos
 
 
+# ------------- O meses aqui precisam ser nomeados porque os dados são enviados via ajax pra ser impresso na tela ------
 def pegar_mes(ordens):
     temp = []
     meses = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho',
@@ -101,3 +102,30 @@ def formatar_horas(horas):
         m = (horas.seconds % 3600) / 3600
         total = h + m
         return str(round(total, 2))
+
+
+def pegar_atividades(ordens):
+    atividades_realizadas = []
+    atividades = {}
+
+    for ordem in ordens:
+
+        if ordem.atividade_1 is not None:
+            atividades_realizadas.append(ordem.atividade_1.atividade)
+
+        if ordem.atividade_2 is not None:
+            atividades_realizadas.append(ordem.atividade_2.atividade)
+
+        if ordem.atividade_3 is not None:
+            atividades_realizadas.append(ordem.atividade_3.atividade)
+
+        if ordem.atividade_4 is not None:
+            atividades_realizadas.append(ordem.atividade_4.atividade)
+
+        if ordem.atividade_5 is not None:
+            atividades_realizadas.append(ordem.atividade_5.atividade)
+
+    for atividade in atividades_realizadas:
+        atividades[atividade] = atividades_realizadas.count(atividade)
+
+    return atividades
