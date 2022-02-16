@@ -68,7 +68,7 @@
                         </div>
                         <div style="width: 50%">
                             <label>Selecione o mês</label>
-                            <select id="selecaoMes" class="form-select" style="width: 150px">
+                            <select id="selecaoMes" class="form-select" style="width: 150px" onchange="pegarDados(this)">
                                 <option selected >{{ mesAnterior }}</option>
                                 {% for mes in meses %}
                                     <option>{{ mes }}</option>

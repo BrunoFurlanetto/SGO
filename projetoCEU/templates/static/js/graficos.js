@@ -4,7 +4,47 @@ google.charts.setOnLoadCallback(drawChart);
 google.charts.setOnLoadCallback(drawChart2);
 google.charts.setOnLoadCallback(drawChart3);
 
+var listaDeDadosMes = []
+var date = new Date()
+var mesAtual = date.getMonth()
+var anoAtual = date.getFullYear()
+
+$.ajax({
+    type: 'POST',
+    url: '',
+    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+    data: {'mes': mesAtual, 'ano': anoAtual},
+    success: function (response){
+        tratarDados(response)
+    }
+})
+
 var a = 4
+
+function getAno(){
+    return parseInt($('#selecaoAno').val())
+}
+
+function getNumeroMes(mes){
+    var meses = ['Janeiro', 'Fevereiro',
+    'Março', 'Abril', 'Maio',
+    'Junho','Julho', 'Agosto',
+    'Setembro', 'Outrubro',
+    'Novembro', 'Dezembro']
+
+    return meses.indexOf(mes) + 1
+}
+
+function tratarDados(dados){
+    var listaDeDadosMes = []
+
+    for (let i in dados['dados'][0]){
+        listaDeDadosMes.push([i, dados['dados'][0][i]])
+    }
+
+    drawChart();
+
+}
 
 function alterarMes(selecao){
 
@@ -24,18 +64,32 @@ function alterarMes(selecao){
     })
 };
 
+function pegarDados(selecao){
+
+    var mes = getNumeroMes(selecao.value)
+    var ano = getAno()
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'mes': mes, 'ano': ano},
+        success: function (response){
+            tratarDados(response)
+        }
+    })
+};
+
 // -------------------------- Gráfico 2 ---------------------------
 function drawChart() {
-    var data = google.visualization.arrayToDataTable([
-        ['Task', 'Hours per Day'],
-        ['a',     a],
-        ['Eat',      2],
-        ['Commute',  2],
-        ['Watch TV', 2],
-        ['Sleep',    7]
-    ]);
-
-
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Atividades');
+    data.addColumn('number', 'Incidência');
+    data.addRows(
+        for (let i = 1; i < 5; i++){
+            ['dfgad', i]
+        }
+    )
 
     var options = {
         height: 300,
