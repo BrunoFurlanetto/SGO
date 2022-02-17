@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-
+import operator
 from django.db.models import Q
 
 from cadastro.models import OrdemDeServico, Tipo, Professores

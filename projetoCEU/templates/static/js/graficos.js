@@ -1,25 +1,8 @@
 
 google.charts.load("current", {packages:["corechart"]});
-google.charts.setOnLoadCallback(drawChart);
+//google.charts.setOnLoadCallback(drawChart);
 google.charts.setOnLoadCallback(drawChart2);
 google.charts.setOnLoadCallback(drawChart3);
-
-var listaDeDadosMes = []
-var date = new Date()
-var mesAtual = date.getMonth()
-var anoAtual = date.getFullYear()
-
-$.ajax({
-    type: 'POST',
-    url: '',
-    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-    data: {'mes': mesAtual, 'ano': anoAtual},
-    success: function (response){
-        tratarDados(response)
-    }
-})
-
-var a = 4
 
 function getAno(){
     return parseInt($('#selecaoAno').val())
@@ -33,17 +16,6 @@ function getNumeroMes(mes){
     'Novembro', 'Dezembro']
 
     return meses.indexOf(mes) + 1
-}
-
-function tratarDados(dados){
-    var listaDeDadosMes = []
-
-    for (let i in dados['dados'][0]){
-        listaDeDadosMes.push([i, dados['dados'][0][i]])
-    }
-
-    drawChart();
-
 }
 
 function alterarMes(selecao){
@@ -64,9 +36,9 @@ function alterarMes(selecao){
     })
 };
 
-function pegarDados(selecao){
+function pegarDadosGrafico2(){
 
-    var mes = getNumeroMes(selecao.value)
+    var mes = getNumeroMes($('#selecaoMes').val())
     var ano = getAno()
 
     $.ajax({
@@ -75,21 +47,36 @@ function pegarDados(selecao){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'mes': mes, 'ano': ano},
         success: function (response){
-            tratarDados(response)
+            drawChart(response)
         }
     })
 };
 
-// -------------------------- Gráfico 2 ---------------------------
-function drawChart() {
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Atividades');
-    data.addColumn('number', 'Incidência');
-    data.addRows(
-        for (let i = 1; i < 5; i++){
-            ['dfgad', i]
+function pegarDadosGrafico3(){
+
+    var id_professor = $('#selecaoProfessor').val()
+    console.log(id_professor)
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_professor': id_professor},
+        success: function (response){
+            console.log(response)
         }
-    )
+    })
+};
+
+
+// -------------------------- Gráfico 2 ---------------------------
+function drawChart(dados) {
+    var dadosMes = [['Atividade', 'Incidência'],]
+
+    for (let i in dados['dados'][0]){
+        var linha = [i, dados['dados'][0][i]];
+        dadosMes.push(linha)
+    }
 
     var options = {
         height: 300,
@@ -97,6 +84,7 @@ function drawChart() {
         pieHole: 0.4,
     };
 
+    var data = new google.visualization.arrayToDataTable(dadosMes);
     var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
     chart.draw(data, options);
 };

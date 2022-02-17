@@ -21,8 +21,9 @@
             <div style="width: 30%"><nobr><b>Participantes confirmados:</b> {{ ordem.participantes_confirmados }}</nobr></div>
         </div>
         <div class="row" >
-            {% if ordem.instituicao %}
-                <nobr style="width: 20%"><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr>
+            {% if ordem.tipo == 'Colégio' %}
+                <nobr style="width: 25%"><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr>
+                <nobr style="width: 25%"><b>Nº Responsáveis: </b>{{ ordem.responsaveis }}</nobr>
                 <nobr style="width: 15%"><b>Serie: </b>{{ ordem.serie }}</nobr>
                 <nobr style="width: 25%"><b>Coordenador Peraltas: </b>{{ ordem.coordenador_peraltas }}</nobr>
             {% endif %}
@@ -46,7 +47,7 @@
             <tbody>
                 {% for i in ordem.n_atividades %}
                     <tr>
-                        <td>{{ ordem.profs|index:i }}</td>
+                        <td>{{ ordem.professores_atividade_1 }}</td>
                         {% if ordem.hora_entrada %}
                             {% if i == 0 %}
                                 <td><center>{{ ordem.hora_entrada }}</center></td>

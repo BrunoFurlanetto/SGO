@@ -48,7 +48,7 @@
 
     <div class="row painel-geral">
         {% csrf_token %}
-        <script src="{% static 'js/graficos.js' %}" ></script>
+
         <div class="resumo-mes" id="chart_div"></div>
         <div class="row" style="display: flex; height: 900px">
             <div class="notas"></div>
@@ -68,7 +68,7 @@
                         </div>
                         <div style="width: 50%">
                             <label>Selecione o mês</label>
-                            <select id="selecaoMes" class="form-select" style="width: 150px" onchange="pegarDados(this)">
+                            <select id="selecaoMes" class="form-select" style="width: 150px" onchange="pegarDadosGrafico2(this)">
                                 <option selected >{{ mesAnterior }}</option>
                                 {% for mes in meses %}
                                     <option>{{ mes }}</option>
@@ -79,13 +79,16 @@
                     <div id="donutchart"></div>
                 </div>
 
+<!--------------------------------------------- Gráfico 3 ------------------------------------------------------------>
                 <div class="grafico-3">
                     <h5 style="height: 10px; margin-bottom: 30px">Atividades realizadas por professores</h5>
                     <div class="row">
                         <div style="width: 100%">
                             <label>Selecione o professor</label>
-                            <select class="form-select" style="width: 180px">
-                                <option selected ></option>
+                            <select class="form-select" style="width: 180px" id="selecaoProfessor" onchange="pegarDadosGrafico3()">
+                                {% for professor in professores %}
+                                    <option value="{{ professor.id }}"> {{ professor.nome }} </option>
+                                {% endfor %}
                             </select>
                         </div>
                     <div id="piechart"> </div>
@@ -93,11 +96,13 @@
             </div>
         </div>
 
+        <script src="{% static 'js/graficos.js' %}" ></script>
         <div class="grafico-4" id="curve_chart"></div>
 
     </div>
 
-
+    <script>
+        setTimeout(() => {  pegarDadosGrafico2(); pegarDadosGrafico3()}, 450);
+    </script>
 
 {% endblock %}
-
