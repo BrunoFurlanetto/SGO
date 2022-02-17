@@ -14,6 +14,7 @@ def painelGeral(request):
 
     consulta = OrdemDeServico.objects.all().order_by('-data_atendimento')[:200]
     anos = verificar_anos(consulta)
+    professores = Professores.objects.all()
 
     if request.method != 'POST':
         professores = Professores.objects.all()
@@ -42,12 +43,21 @@ def painelGeral(request):
             consulta_2 = OrdemDeServico.objects.filter(data_atendimento__year=ano)
             meses = pegar_mes(consulta_2)
             return HttpResponse(meses)
-        else:
+
+        if request.POST.get('mes'):
             mes = request.POST.get('mes')
             ano = request.POST.get('ano')
             ordens_mes_e_ano_selecionado = OrdemDeServico.objects.filter(data_atendimento__year=ano).filter(
                 data_atendimento__month=mes)
-
-            print(len(ordens_mes_e_ano_selecionado))
             atividades = pegar_atividades(ordens_mes_e_ano_selecionado),
             return JsonResponse({'dados': atividades})
+
+        if request.POST.get('id_professor'):
+            print('foi')
+            professor_selecionado = Professores.obejects.get(request.POST.get('id_professor'))
+            ordens_professor = OrdemDeServico.objects.filter(Q(coordenador=professor_selecionado) |
+                                                             Q(professor_2=professor_selecionado) |
+                                                             Q(professor_3=professor_selecionado) |
+                                                             Q(professor_4=professor_selecionado))
+
+            print(len(ordens_professor))

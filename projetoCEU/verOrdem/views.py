@@ -12,7 +12,6 @@ def verOrdem(request, ordemdeservico_id):
     os.n_atividades = range(contar_atividades(os)[0])
     os.atividades = contar_atividades(os)[1]
     os.horas_atividades = contar_atividades(os)[2]
-    os.profs = contar_atividades(os)[3]
-    print(os.profs)
+    # os.profs = contar_atividades(os)[3]
 
     return render(request, 'verOrdem/verOrdem.html', {'ordem': os, 'rangei': rangei, 'rangej': rangej})
