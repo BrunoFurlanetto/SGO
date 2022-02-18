@@ -128,4 +128,65 @@ def pegar_atividades(ordens):
     for atividade in atividades_realizadas:
         atividades[atividade] = atividades_realizadas.count(atividade)
 
-    return atividades
+    return ordenar_dicionario(atividades)
+
+
+def contar_atividades_professor(professor, ordens):
+    atividades_realizadas = {}
+
+    for ordem in ordens:
+        if professor.nome in ordem.professores_atividade_1:
+            if atividades_realizadas.get(ordem.atividade_1.atividade):
+                atividades_realizadas[ordem.atividade_1.atividade] += 1
+            else:
+                atividades_realizadas[ordem.atividade_1.atividade] = 1
+
+        if professor.nome in ordem.professores_atividade_2:
+            if atividades_realizadas.get(ordem.atividade_2.atividade):
+                atividades_realizadas[ordem.atividade_2.atividade] += 1
+            else:
+                atividades_realizadas[ordem.atividade_2.atividade] = 1
+
+        if professor.nome in ordem.professores_atividade_3:
+            if atividades_realizadas.get(ordem.atividade_3.atividade):
+                atividades_realizadas[ordem.atividade_3.atividade] += 1
+            else:
+                atividades_realizadas[ordem.atividade_3.atividade] = 1
+
+        if professor.nome in ordem.professores_atividade_4:
+            if atividades_realizadas.get(ordem.atividade_4.atividade):
+                atividades_realizadas[ordem.atividade_4.atividade] += 1
+            else:
+                atividades_realizadas[ordem.atividade_4.atividade] = 1
+
+        if professor.nome in ordem.professores_atividade_5:
+            if atividades_realizadas.get(ordem.atividade_5.atividade):
+                atividades_realizadas[ordem.atividade_5.atividade] += 1
+            else:
+                atividades_realizadas[ordem.atividade_5.atividade] = 1
+
+    return ordenar_dicionario(atividades_realizadas)
+
+
+def ordenar_dicionario(dicionario):
+    tuplas_ordenada = sorted(dicionario.items(), key=operator.itemgetter(1), reverse=True)
+    tuplas_finais = []
+
+    # ------ Limita o número de atividades em 10, o restante vai para a key 'Outras' --------
+    if len(tuplas_ordenada) > 3:
+        posicao = 1
+        contagem_outros = 0
+
+        for chave, valor in tuplas_ordenada:
+            if posicao < 10:
+                tuplas_finais.append((chave, valor))
+                posicao += 1
+                continue
+            else:
+                contagem_outros += 1
+
+        tuplas_finais.append(('Outras', contagem_outros))
+        return dict((x, y) for x, y in tuplas_finais)
+    # ----------------------------------------------------------------------------------------
+
+    return dict((x, y) for x, y in tuplas_ordenada)
