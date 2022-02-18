@@ -16,8 +16,10 @@ for (var j = 0; j < arrow_2.length; j++) {
 
 let sidebar = document.querySelector(".sidebar");
 let sidebarBtn = document.querySelector(".bx-menu");
+let itens = document.querySelector(".item-sidebar")
 sidebarBtn.addEventListener("click", ()=>{
     sidebar.classList.toggle("close");
+    itens.classlist.add('foi')
 });
 let sidebarBtn2 = document.querySelector(".bxs-calendar");
 sidebarBtn2.addEventListener("click", ()=>{

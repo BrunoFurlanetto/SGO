@@ -23,7 +23,7 @@
     transition-delay: 1s;
     transition: all 0.5s ease;
     opacity: 0;
-    display: none;
+
 }
 .sidebar.close .bxs-calendar{
     transition-delay: 0s;
@@ -31,19 +31,60 @@
     opacity: 1;
     display: block;
 }
-.sidebar.calendar{
-    transition: all 1s ease;
-    transition-delay: 1s;
+.sidebar form{
+    transition: 1s ease;
+    transition-delay: 0s;
     display: block;
+    position: relative;
+    top: -50px;
 }
-.sidebar.close .calendar{
-    transition: all 1s ease;
-    transition-delay: 1s;
-    display:none;
+.sidebar.close form{
+    transition: 0.5s ease;
+    transition-delay: 0s;
+    position: relative;
+    animation: mover 0.5s;
     opacity: 0;
     width: 0px;
     height: 0px;
+    display: none;
 }
+.sidebar.close .item-sidebar{
+    position: relative;
+    top: 0px;
+    animation: moverCima 1s;
+}
+.sidebar .item-sidebar{
+    position: relative;
+    top: -50px;
+    animation: moverBaixo 1s;
+}
+
+@keyframes moverCima {
+    from{
+        transform: translateY(300px)
+    }
+    to{
+        transform: translateY(0px)
+    }
+}
+@keyframes moverBaixo {
+    from{
+        transform: translateY(-300px)
+    }
+    to{
+        transform: translateY(-0px)
+    }
+}
+
+@keyframes mover {
+    from{
+        transform: translateX(100px)
+    }
+    to {
+        transform: translateX(-50px)
+    }
+}
+
 .sidebar .logo-details{
   height: 60px;
   width: 100%;
@@ -97,6 +138,7 @@
 }
 .sidebar.close .nav-links li .iocn-link{
   display: block;
+
 }
 .sidebar .nav-links li .iocn-link-2{
   display: flex;

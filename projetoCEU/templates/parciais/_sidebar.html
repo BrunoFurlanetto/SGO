@@ -8,7 +8,21 @@
     {% if request.user.is_authenticated %}
         {% if not ver %}
           <ul class="nav-links">
+          {% if request.path == '/dashboard/' %}
             <li>
+              <a>
+                <i class="bx bxs-calendar"></i>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name">Calendário</a></li>
+              </ul>
+            </li>
+            <div class="calendario">
+              {% include 'parciais/_calendario.html' %}
+            </div>
+          {% endif %}
+
+            <li class="item-sidebar">
               <a href="{% url 'dashboard' %}">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
@@ -18,7 +32,7 @@
               </ul>
             </li>
 
-            <li>
+            <li class="item-sidebar">
               <a href="{% url 'painelGeral' %}">
                 <i class='bx bxs-pie-chart-alt-2' ></i>
                 <span class="link_name"><nobr>Painel estatístico</nobr></span>
@@ -28,7 +42,7 @@
               </ul>
             </li>
 
-            <li>
+            <li class="item-sidebar">
               <div class="iocn-link">
                 <a href="#">
                   <i class='bx bx-archive'></i>
@@ -57,7 +71,7 @@
               </ul>
             </li>
 
-            <li>
+            <li class="item-sidebar">
               <div class="iocn-link">
                 <a href="#">
                   <i class='bx bx-table'></i>
@@ -71,20 +85,6 @@
                 <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
               </ul>
             </li>
-
-          {% if request.path == '/dashboard/' %}
-            <li>
-              <a>
-                <i class="bx bxs-calendar"></i>
-              </a>
-              <ul class="sub-menu blank">
-                <li><a class="link_name">Calendário</a></li>
-              </ul>
-            </li>
-            <div class="calendario">
-              {% include 'parciais/_calendario.html' %}
-            </div>
-          {% endif %}
 
           <li>
             <div class="profile-details">
