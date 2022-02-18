@@ -6,7 +6,7 @@
 
   <div class="conteudo-dashboard">
     <div class="tabela-dashboard">
-      <h5>Ordens de serviço do dia: {{ data | date:'d/m/Y' }} </h5>
+      <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
       <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
         <thead>
           <tr class="table-active">
@@ -19,7 +19,7 @@
         </thead>
         <tbody id="dados">
           {% if not ordemDeServico %}
-            <td colspan='5'>Sem ordens de serviço para o dia {{ data | date:'d/m/Y' }}</td>
+            <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
           {% endif %}
 
           {% for os in ordemDeServico %}
