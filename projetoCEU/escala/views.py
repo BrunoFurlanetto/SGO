@@ -72,7 +72,8 @@ def disponibilidade(request):
                                                                'coordenador': coordenador})
 
     professor = Professores.objects.get(nome=request.user.first_name)
-    if request.POST.get('professor') != ' ':
+
+    if request.POST.get('professor') is not None:
         professor = Professores.objects.get(nome=request.POST.get('professor'))
 
     dias = verificar_dias(request.POST.get('datas_disponiveis'), Professores.objects.get(nome=professor))
