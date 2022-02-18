@@ -54,14 +54,20 @@
 
                     events: [
                         {% for escala in escalas %}
-                          {% for professor in escala.separar_equipe %}
-                              {
-                                  title: "{{ forloop.counter }} {{ professor }}",
-                                  start: "{{ escala.data | date:'Y-m-d' }}",
-                              },
-                          {% endfor %}
+                            {% for professor in escala.separar_equipe %}
+                                {
+                                    title: "{{ forloop.counter }} {{ professor }}",
+                                    start: "{{ escala.data | date:'Y-m-d' }}",
+
+                                    {% if user.first_name == professor %}
+                                      color: '#fcc607',
+                                      textColor: 'black'
+                                    {% endif %}
+                                },
+                            {% endfor %}
                         {% endfor %}
                     ]
+
                 });
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
