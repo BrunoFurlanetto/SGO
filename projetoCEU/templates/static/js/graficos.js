@@ -1,7 +1,7 @@
 
 google.charts.load("current", {packages:["corechart"]});
 //google.charts.setOnLoadCallback(drawChart);
-google.charts.setOnLoadCallback(drawChart2);
+//google.charts.setOnLoadCallback(drawChart2);
 google.charts.setOnLoadCallback(drawChart3);
 
 function getAno(){
@@ -24,7 +24,7 @@ function alterarMes(selecao){
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'ano': selecao.value},
+        data: {'ano': selecao.value, 'grafico': 0},
         success: function(response){
             var meses = response.split(',')
             $('#selecaoMes').empty()
@@ -45,36 +45,20 @@ function pegarDadosGrafico2(){
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'mes': mes, 'ano': ano},
+        data: {'mes': mes, 'ano': ano, 'grafico': 2},
         success: function (response){
+            console.log(response)
             drawChart(response)
         }
     })
 };
 
-function pegarDadosGrafico3(){
-
-    var id_professor = $('#selecaoProfessor').val()
-    console.log(id_professor)
-
-    $.ajax({
-        type: 'POST',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_professor': id_professor},
-        success: function (response){
-            console.log(response)
-        }
-    })
-};
-
-
 // -------------------------- Gráfico 2 ---------------------------
 function drawChart(dados) {
     var dadosMes = [['Atividade', 'Incidência'],]
 
-    for (let i in dados['dados'][0]){
-        var linha = [i, dados['dados'][0][i]];
+    for (let i in dados['dados']){
+        var linha = [i, dados['dados'][i]];
         dadosMes.push(linha)
     }
 
@@ -89,23 +73,38 @@ function drawChart(dados) {
     chart.draw(data, options);
 };
 
-// -------------------------- Gráfico 3 ---------------------------
-function drawChart2() {
+function pegarDadosGrafico3(){
 
-    var data = google.visualization.arrayToDataTable([
-        ['Task', 'Hours per Day'],
-        ['Work',     11],
-        ['Eat',      2],
-        ['Commute',  2],
-        ['Watch TV', 2],
-        ['Sleep',    7]
-    ]);
+    var id_professor = $('#selecaoProfessor').val()
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_professor': id_professor, 'grafico': 3},
+        success: function (response){
+            console.log(response)
+            drawChart2(response)
+        }
+    })
+};
+
+// -------------------------- Gráfico 3 ---------------------------
+function drawChart2(dados) {
+
+    var dadosProfessor = [['Atividade', 'Incidência'],]
+
+    for (let i in dados['dados']){
+        var linha = [i, dados['dados'][i]];
+        dadosProfessor.push(linha)
+    }
 
     var options = {
         height: 300,
         chartArea:{left: 50, top: 50, width:'100%', height: '100%'},
     };
 
+    var data = new google.visualization.arrayToDataTable(dadosProfessor);
     var chart = new google.visualization.PieChart(document.getElementById('piechart'));
 
     chart.draw(data, options)
