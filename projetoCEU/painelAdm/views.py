@@ -58,7 +58,7 @@ def painelGeral(request):
                                                         Q(professor_2=professor_selecionado) |
                                                         Q(professor_3=professor_selecionado) |
                                                         Q(professor_4=professor_selecionado)).order_by(
-                                                                                            '-data_atendimento')[:100]
+                                                                                            '-data_atendimento')[:300]
 
             atividades_realizadas = contar_atividades_professor(professor_selecionado, ordens_prof)
             return JsonResponse({'dados': atividades_realizadas})
