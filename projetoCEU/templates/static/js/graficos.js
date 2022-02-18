@@ -114,11 +114,11 @@ function drawChart2(dados) {
 // -------------------------- Gráfico 4 ---------------------------
 function drawChart3() {
     var data = google.visualization.arrayToDataTable([
-        ['Year', 'Sales', 'Expenses'],
-        ['2004',  1000,      400],
-        ['2005',  1170,      460],
-        ['2006',  660,       1120],
-        ['2007',  1030,      540]
+        ['Year', 'Sales', 'Expenses', 'oioioio'],
+        ['2004',  1000,      400,        200],
+        ['2005',  1170,      460,        300],
+        ['2006',  660,       1120,       100],
+        ['2007',  1030,      540,        250]
     ]);
 
     var options = {
