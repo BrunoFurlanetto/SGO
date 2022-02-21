@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from cadastro.models import OrdemDeServico, Tipo, Atividades, Professores
+from cadastro.models import RelatorioDeAtendimentoCeu, Tipo, Atividades, Professores
 from django.contrib.auth.models import Group
 from dashboard.views import is_ajax
 from fichaAvaliacao.models import FichaDeAvaliacaoForm
@@ -19,7 +19,7 @@ def fichaAvaliacao(request):
         return redirect('dashboard')
 
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
-    ordens = OrdemDeServico.objects.order_by('data_atendimento').filter(instituicao__icontains=request.user.last_name)
+    ordens = RelatorioDeAtendimentoCeu.objects.order_by('data_atendimento').filter(instituicao__icontains=request.user.last_name)
     avaliacoes = ['Excelente', 'Ótimo', 'Bom', 'Regular', 'Ruim']
     professores = []
     atividades = []
@@ -126,7 +126,7 @@ def fichaAvaliacao(request):
 
     if formulario.is_valid():
         avaliacao.save()
-        colegio = OrdemDeServico.objects.filter(instituicao__iexact=request.user.last_name)
+        colegio = RelatorioDeAtendimentoCeu.objects.filter(instituicao__iexact=request.user.last_name)
         colegio.update(entregue=True)
         return redirect('agradecimentos')
     else:
@@ -143,8 +143,8 @@ def solicitarFichaAvaliacao(request):
         return redirect('login')
 
     colegio = Tipo.objects.get(tipo='Colégio')
-    colegios = OrdemDeServico.objects.filter(tipo=colegio)
-    selecao = OrdemDeServico.objects.filter(instituicao__iexact=request.POST.get('instituicao'))
+    colegios = RelatorioDeAtendimentoCeu.objects.filter(tipo=colegio)
+    selecao = RelatorioDeAtendimentoCeu.objects.filter(instituicao__iexact=request.POST.get('instituicao'))
     instituicoes = []
 
     if selecao is None:

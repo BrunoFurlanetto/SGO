@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from cadastro.models import OrdemDeServico, Professores, Tipo
+from cadastro.models import RelatorioDeAtendimentoCeu, Professores, Tipo
 from django.views.decorators.csrf import csrf_exempt
 from dashboard.funcoes import contar_atividades, contar_horas, is_ajax, teste_aviso
 from escala.models import Escala
@@ -22,8 +22,10 @@ def dashboard(request):
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
 
-    professor = Professores.objects.get(nome=request.user)
-    print(professor.nome.first_name)
+    teste = RelatorioDeAtendimentoCeu.objects.filter(equipe__icontains=request.user.first_name)
+
+    for t in teste:
+        print(t.atividades['Atividades'][0]['professores'])
 
     # dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     # ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(

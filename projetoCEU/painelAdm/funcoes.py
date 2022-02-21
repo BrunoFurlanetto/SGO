@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 import operator
 from django.db.models import Q
 
-from cadastro.models import OrdemDeServico, Tipo, Professores
+from cadastro.models import RelatorioDeAtendimentoCeu, Tipo, Professores
 
 
 def is_ajax(request):
@@ -34,8 +34,8 @@ def pegar_mes(ordens):
 
 def contar_atividades(professor):
     n_atividades = 0
-    ordens = OrdemDeServico.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
-                                           Q(professor_3=professor) | Q(professor_4=professor)).filter(
+    ordens = RelatorioDeAtendimentoCeu.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
+                                                      Q(professor_3=professor) | Q(professor_4=professor)).filter(
         data_atendimento__month=datetime.now().month).values()
 
     for ordem in ordens:
@@ -50,7 +50,7 @@ def contar_atividades(professor):
 
 def contar_horas(professor):
     n_horas = timedelta()
-    ordens = OrdemDeServico.objects.filter(
+    ordens = RelatorioDeAtendimentoCeu.objects.filter(
         Q(coordenador__nome=professor) |
         Q(professor_2__nome=professor) |
         Q(professor_3__nome=professor) |
@@ -80,8 +80,8 @@ def contar_horas(professor):
 
 
 def contar_diaria(professor):
-    ordens = OrdemDeServico.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
-                                           Q(professor_3=professor) | Q(professor_4=professor)).filter(
+    ordens = RelatorioDeAtendimentoCeu.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
+                                                      Q(professor_3=professor) | Q(professor_4=professor)).filter(
         Q(tipo=Tipo.objects.get(tipo='Público')) |
         Q(tipo=Tipo.objects.get(tipo='Colégio'))).filter(data_atendimento__month=datetime.now().month).values()
 

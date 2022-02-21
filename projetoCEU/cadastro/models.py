@@ -50,7 +50,7 @@ class Atividades(models.Model):
         return self.atividade
 
 
-class OrdemDeServico(models.Model):
+class RelatorioDeAtendimentoCeu(models.Model):
     tipo = models.ForeignKey(Tipo, on_delete=models.DO_NOTHING, blank=True, null=True)
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
@@ -60,19 +60,19 @@ class OrdemDeServico(models.Model):
     coordenador_peraltas = models.CharField(max_length=100, blank=True)
     equipe = models.JSONField()  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
     atividades = models.JSONField()  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':, 'n_participantes':]}
-    locacoes = models.JSONField()  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':, 'data_hora_saida':,
+    locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':, 'data_hora_saida':,
     # 'soma_horas':, 'soma_horas_total':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
     solicitado = models.BooleanField(default=False)
     entregue = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Ordem de serviço de {self.tipo}'
+        return f'Relatório de {self.tipo}'
 
 
 class OrdemDeServicoPublico(forms.ModelForm):
     class Meta:
-        model = OrdemDeServico
+        model = RelatorioDeAtendimentoCeu
         exclude = ('instituicao', 'responsaveis', 'serie', 'coordenador_peraltas',
                    'locacoes', 'solicitado', 'entregue')
 
@@ -84,7 +84,7 @@ class OrdemDeServicoPublico(forms.ModelForm):
 
 class OrdemDeServicoColegio(forms.ModelForm):
     class Meta:
-        model = OrdemDeServico
+        model = RelatorioDeAtendimentoCeu
         exclude = ()
 
         widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
@@ -94,7 +94,7 @@ class OrdemDeServicoColegio(forms.ModelForm):
 
 class OrdemDeServicoEmpresa(forms.ModelForm):
     class Meta:
-        model = OrdemDeServico
+        model = RelatorioDeAtendimentoCeu
         exclude = ('responsaveis', 'serie', 'solicitado', 'entregue')
 
         widgets = {'instituicao': forms.TimeInput(attrs={'onClick': 'verificarObrigatoriedade()'}),

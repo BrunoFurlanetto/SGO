@@ -1,8 +1,8 @@
 from django.contrib import admin
-from cadastro.models import OrdemDeServico, Professores, Tipo, Atividades, Locaveis, Limitacoes
+from cadastro.models import RelatorioDeAtendimentoCeu, Professores, Tipo, Atividades, Locaveis, Limitacoes
 
 
-class OrdemDeServicoAdmin(admin.ModelAdmin):
+class RelatorioDeAtendimentoCeuAdmin(admin.ModelAdmin):
     list_display = ('tipo', 'instituicao', 'solicitado', 'entregue')
     list_display_links = ('tipo',)
     list_editable = ('solicitado', 'entregue')
@@ -23,4 +23,4 @@ admin.site.register(Professores, ProfessoresAdmin)
 admin.site.register(Tipo)
 admin.site.register(Atividades, AtividadesAdmin)
 admin.site.register(Locaveis)
-admin.site.register(OrdemDeServico, OrdemDeServicoAdmin)
+admin.site.register(RelatorioDeAtendimentoCeu, RelatorioDeAtendimentoCeuAdmin)
