@@ -1,4 +1,4 @@
-from cadastro.models import OrdemDeServico
+from cadastro.models import RelatorioDeAtendimentoCeu
 from cadastro import views
 
 
