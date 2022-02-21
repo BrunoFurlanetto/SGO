@@ -14,40 +14,61 @@
     <form action="{% url 'publico' %}" method="POST">
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
-        <div class="row">
-          <div style="width: 20%" class="mb-3">
-            <label>Coordenador</label>
-            {{ formulario.coordenador }}
-          </div>
-          <div style="width: 35%">
-            <label class="participantes" style="margin-left: 80px">Participantes: </label>
-            <div class="row">
-              <div style="width: 40%">
-                {{ formulario.participantes_previa }}
-              </div>
-              <div style="width: 60%">
-                {{ formulario.participantes_confirmados }}
-              </div>
+      <div class="row">
+        <div style="width: 20%" class="mb-3">
+          <label>Coordenador</label>
+            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onchange="equipe(this)">
+              <option selected></option>
+              {% for professor in professores %}
+                <option>{{ professor.usuario.first_name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+        <div style="width: 35%">
+          <label class="participantes" style="margin-left: 80px">Participantes: </label>
+          <div class="row">
+            <div style="width: 40%">
+              {{ formulario.participantes_previa }}
+            </div>
+            <div style="width: 60%">
+              {{ formulario.participantes_confirmados }}
             </div>
           </div>
-          <div style="width: 26%">
-            <label>Data do atendimento</label>
-            {{ formulario.data_atendimento }}
-          </div>
         </div>
-<!-------------------------------- LINHA 2 ---------------------------->
+        <div style="width: 26%">
+          <label>Data do atendimento</label>
+          <input type="date" name="data_atendimento">
+        </div>
+      </div>
+
+      <!-------------------------------- LINHA 2 ---------------------------->
       <div class="row">
         <div style="width: 20%">
           <label>Professor 2: </label>
-          {{ formulario.professor_2 }}
+            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" onchange="equipe(this)">
+              <option selected></option>
+              {% for professor in professores %}
+                <option>{{ professor.usuario.first_name }}</option>
+              {% endfor %}
+            </select>
         </div>
         <div style="width: 20%">
           <label>Professor 3: </label>
-          {{ formulario.professor_3 }}
+            <select class="form-select mr-sm-2" id="professor_3" name="professor_3" onchange="equipe(this)">
+              <option selected></option>
+              {% for professor in professores %}
+                <option>{{ professor.usuario.first_name }}</option>
+              {% endfor %}
+            </select>
         </div>
         <div style="width: 20%">
           <label>Professor 4: </label>
-          {{ formulario.professor_4 }}
+            <select class="form-select mr-sm-2" id="professor_4" name="professor_4" onchange="equipe(this)">
+              <option selected></option>
+              {% for professor in professores %}
+                <option>{{ professor.usuario.first_name }}</option>
+              {% endfor %}
+            </select>
         </div>
         </div>
       <hr>
@@ -56,10 +77,9 @@
         <caption>Atividades realizadas no CEU:</caption>
         <thead>
           <tr>
-            <th style="width: 400px"><center>Nome dos professores</center></th>
-            <th style="width: 100px"><center>Entrada</center></th>
+            <th style="width: 550px"><center>Nome dos professores</center></th>
             <th style="width: 100px"><center>Início</center></th>
-            <th style="width: 150px"><center>Atividade</center></th>
+            <th style="width: 250px"><center>Atividade</center></th>
           </tr>
         </thead>
         <tbody>
@@ -68,23 +88,13 @@
             <td>
               <div class="row">
                 {% for j in rangej %}
-                  <div style="width: 120px; margin-right: -20px">
-                    <select class="form-control d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
+                  <div style="width: 135px; margin-right: -20px">
+                    <select class="form-select d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
                       <option selected></option>
-                      {% for professor in professores %}
-                        <option value="{{ professor.id }}">{{ professor.nome }}</option>
-                      {% endfor %}
                     </select>
                   </div>
                 {% endfor %}
               </div>
-            </td>
-            <td>
-              <center>
-                {% if i == 1 %}
-                  {{ formulario.hora_entrada }}
-                {% endif %}
-              </center>
             </td>
             <td>
               <center>

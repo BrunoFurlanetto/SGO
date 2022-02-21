@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from cadastro.models import Professores
+from ceu.models import Professores
 from datetime import datetime, timedelta
 from escala.models import Disponibilidade
 

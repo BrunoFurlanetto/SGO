@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from cadastro.models import RelatorioDeAtendimentoCeu, Tipo, Atividades, Professores
+from cadastro.models import RelatorioDeAtendimentoCeu
+from ceu.models import Tipo, Atividades, Professores
 from django.contrib.auth.models import Group
 from dashboard.views import is_ajax
 from fichaAvaliacao.models import FichaDeAvaliacaoForm

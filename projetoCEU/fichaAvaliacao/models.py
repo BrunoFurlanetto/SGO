@@ -3,7 +3,7 @@ from django import forms
 from django.db import models
 from django.utils import timezone
 
-from cadastro.models import Atividades, Professores
+from ceu.models import Atividades, Professores
 
 
 class FichaDeAvaliacao(models.Model):

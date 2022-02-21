@@ -2,7 +2,8 @@ from datetime import timedelta, datetime
 import operator
 from django.db.models import Q
 
-from cadastro.models import RelatorioDeAtendimentoCeu, Tipo, Professores
+from cadastro.models import RelatorioDeAtendimentoCeu
+from ceu.models import Tipo, Professores
 
 
 def is_ajax(request):

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home.apps.HomeConfig',
+    'ceu.apps.CeuConfig',
+    'peraltas.apps.PeraltasConfig',
     'dashboard.apps.DashboardConfig',
     'cadastro.apps.CadastroConfig',
     'verOrdem.apps.VerordemConfig',
