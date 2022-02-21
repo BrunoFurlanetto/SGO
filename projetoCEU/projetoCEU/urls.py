@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('home.urls')),
+    path('ceu/', include('ceu.urls')),
+    path('peraltas/', include('peraltas.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('cadastro/', include('cadastro.urls')),
     path('ordem-de-servico/', include('verOrdem.urls')),

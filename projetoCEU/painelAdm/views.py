@@ -3,7 +3,8 @@ from datetime import datetime
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from cadastro.models import Professores, RelatorioDeAtendimentoCeu
+from ceu.models import Professores
+from cadastro.models import RelatorioDeAtendimentoCeu
 from painelAdm.funcoes import contar_atividades, contar_horas, contar_diaria, verificar_anos, is_ajax, pegar_mes, \
     pegar_atividades, contar_atividades_professor
 

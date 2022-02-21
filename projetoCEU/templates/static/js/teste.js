@@ -1,14 +1,16 @@
+let escala = [$('#coordenador').val(),
+              $('#professor_2').val(),
+              $('#professor_3').val(),
+              $('#professor_4').val()];
 
-var escala = [$('#id_coordenador').val(),
-              $('#id_professor_2').val(),
-              $('#id_professor_3').val(),
-              $('#id_professor_4').val()];
+function equipe(selecao) {
+    var valorSelecao = selecao.value
 
-var atividade_1 = document.getElementById('id_atividade_1')
-var professor_1 = document.getElementById('prf1atv1')
-atividade_1.required = true
-professor_1.required = true
-
+    if (!escala.includes(valorSelecao)){
+        escala.push(valorSelecao)
+        $('.d').append(`<option>` + valorSelecao + `</option>`)
+    }
+}
 
 function locacao(){
     var professorLoc_1 = document.getElementById('prf1loc1')
@@ -31,7 +33,8 @@ function locacao(){
         saida_1.required = false
     }
 
-};
+}
+
 var professorAtiv_1 = document.getElementById('prf1atv1')
 var  id_atividade_1 = document.getElementById('id_atividade_1')
 var hora_atividade_1 = document.getElementById('id_hora_atividade_1')
@@ -68,14 +71,6 @@ function atividade(){
     tabelaAtividade.classList.toggle('none')
     verificarObrigatoriedade()
 
-};
-
-function equipe(selecao){
-    let valorSelecao = selecao.value
-
-    if (!escala.includes(valorSelecao)){
-        escala.push(valorSelecao)
-    }
 }
 
 function verificarProfessor(selecao){
@@ -87,24 +82,6 @@ function verificarProfessor(selecao){
     }
 
 }
-
-/*
-function equipe(selecao) {
-
-    $.ajax({
-        type: 'POST',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_professor': selecao.value},
-        success: function(response){
-            if (!escala.includes(response)){
-                escala.push(response)
-                $('.d').append('<option>' + response + '</option>');
-            };
-        }
-    });
-};
-*/
 
 var removidos = []
 function retirar(selecao) {

@@ -1,6 +1,5 @@
 from django.db import models
-
-from cadastro.models import Professores
+from ceu.models import Professores
 
 
 class Escala(models.Model):

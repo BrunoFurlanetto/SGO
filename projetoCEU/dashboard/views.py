@@ -3,7 +3,8 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from cadastro.models import RelatorioDeAtendimentoCeu, Professores, Tipo
+from ceu.models import Professores, Tipo
+from cadastro.models import RelatorioDeAtendimentoCeu
 from django.views.decorators.csrf import csrf_exempt
 from dashboard.funcoes import contar_atividades, contar_horas, is_ajax, teste_aviso
 from escala.models import Escala
@@ -11,7 +12,6 @@ from escala.models import Escala
 
 @csrf_exempt
 def dashboard(request):
-
     # --------------------------- Parte para verificação de autenticação ---------------------------------
     if not request.user.is_authenticated:
         return redirect('login')
@@ -21,12 +21,6 @@ def dashboard(request):
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
-
-    teste = RelatorioDeAtendimentoCeu.objects.filter(equipe__icontains=request.user.first_name)
-
-    for t in teste:
-        print(t.atividades['Atividades'][0]['professores'])
-
     # dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
     # ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
     #     data_atendimento=request.POST.get('data_selecionada'))
@@ -77,8 +71,11 @@ def dashboard(request):
     #
     # if is_ajax(request) and request.method == 'POST':
     #     return HttpResponse(dados)
+    if request.method != 'POST':
+        professores = Professores.objects.all()
 
-    return render(request, 'dashboard/dashboard.html')#, {'ordemDeServico': dados_iniciais, 'data': data,
-                                                      #  'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
-                                                      #  'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,
-                                                      #  'depois_25': depois_25})
+        return render(request, 'dashboard/dashboard.html', {'professores': professores})
+        # , {'ordemDeServico': dados_iniciais, 'data': data,
+        #  'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
+        #  'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,
+        #  'depois_25': depois_25})

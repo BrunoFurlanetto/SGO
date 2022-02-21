@@ -1,19 +1,18 @@
 from time import sleep
-
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
-from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario, juntar_professores, \
-    verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
-from .models import Professores, Atividades, Tipo, OrdemDeServicoPublico, OrdemDeServicoColegio, OrdemDeServicoEmpresa
+from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
+from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
+from cadastro.models import RelatorioPublico
+from ceu.models import Professores, Atividades, Tipo
 
 
 def publico(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    ordem_publico = OrdemDeServicoPublico()
+    ordem_publico = RelatorioPublico()
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
     range_i = range(1, 6)
@@ -24,7 +23,7 @@ def publico(request):
                                                          'rangej': range_j, 'atividades': atividades,
                                                          'professores': professores})
 
-    ordem_publico = OrdemDeServicoPublico(request.POST)
+    ordem_publico = RelatorioPublico(request.POST)
     erro_de_preenchimento, mensagem_erro = verificar_tabela(request.POST)
 
     if not erro_de_preenchimento:
