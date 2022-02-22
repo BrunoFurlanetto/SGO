@@ -1,10 +1,11 @@
+
 let escala = [$('#coordenador').val(),
               $('#professor_2').val(),
               $('#professor_3').val(),
               $('#professor_4').val()];
 
 function equipe(selecao) {
-    var valorSelecao = selecao.value
+    let valorSelecao = selecao.value;
 
     if (!escala.includes(valorSelecao)){
         escala.push(valorSelecao)
