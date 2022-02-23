@@ -50,10 +50,14 @@
 }
 .sidebar.close .item-sidebar{
     position: relative;
-    top: 0px;
+    top: 0;
+}
+.cima {
+    position: relative;
+    top: 0;
     animation: moverCima 1s;
 }
-.sidebar .item-sidebar{
+.baixo{
     position: relative;
     top: -50px;
     animation: moverBaixo 1s;

@@ -12,87 +12,6 @@ function equipe(selecao) {
         $('.d').append(`<option>` + valorSelecao + `</option>`)
     }
 }
-// -------------------- Validação da tabela de atividades do público -----------------------------
-function validar(){
-    $('#ativ1').prop('required', true);
-    $('#prf1atv1').prop('required', true);
-    $('#horaAtividade_1').prop('required', true);
-    $('#ativ2').prop('required', true);
-    $('#prf1atv2').prop('required', true);
-    $('#horaAtividade_2').prop('required', true);
-
-    if ($("#ativ3").val() != '' || $("#prf1atv3").val() != '' || $("#horaAtividade_3").val() != ''){
-        $('#prf1atv3').prop('required', true);
-        $('#horaAtividade_3').prop('required', true);
-        $('#ativ3').prop('required', true)
-    }
-
-    if ($("#ativ4").val() != '' || $("#prf1atv4").val() != '' || $("#horaAtividade_4").val() != ''){
-        $('#prf1atv4').prop('required', true);
-        $('#horaAtividade_4').prop('required', true);
-        $('#ativ4').prop('required', true);
-    }
-
-    if ($("#ativ5").val() != '' || $("#prf1atv5").val() != '' || $("#horaAtividade_5").val() != ''){
-        $('#prf1atv5').prop('required', true);
-        $('#horaAtividade_5').prop('required', true);
-        $('#ativ5').prop('required', true)
-    }
-}
-// -----------------------------------------------------------------------------------------------
-
-function locacao(){
-    var professorLoc_1 = document.getElementById('prf1loc1')
-    var  locacao_1 = document.getElementById('id_locacao_1')
-    var entrada_1 = document.getElementById('horaEntrada1')
-    var saida_1 = document.getElementById('horaSaida1')
-
-    var tabelaLocacao = document.getElementById('locacao')
-    tabelaLocacao.classList.toggle('none')
-
-    if ($('#checkLocacao').is(":checked")){
-        professorLoc_1.required = true
-        locacao_1.required = true
-        entrada_1.required = true
-        saida_1.required = true
-    } else {
-        professorLoc_1.required = false
-        locacao_1.required = false
-        entrada_1.required = false
-        saida_1.required = false
-    }
-
-}
-
-var professorAtiv_1 = document.getElementById('prf1atv1')
-var  id_atividade_1 = document.getElementById('id_atividade_1')
-var hora_atividade_1 = document.getElementById('id_hora_atividade_1')
-var professorlocacao_1 = document.getElementById('prf1loc1')
-var  id_locacao_1 = document.getElementById('id_locacao_1')
-var entrada_1 = document.getElementById('id_entrada_1_locacao_1')
-var saida_1 = document.getElementById('id_saida_1_locacao_1')
-
-function verificarObrigatoriedade(){
-
-    if ($('#checkAtividade').is(":checked")){
-        professorAtiv_1.required = true
-        id_atividade_1.required = true
-        hora_atividade_1.required = true
-        professorlocacao_1.required = false
-        id_locacao_1.required = false
-        entrada_1.required = false
-        saida_1.required = false
-    } else {
-        professorAtiv_1.required = false
-        id_atividade_1.required = false
-        hora_atividade_1.required = false
-        professorlocacao_1.required = true
-        id_locacao_1.required = true
-        entrada_1.required = true
-        saida_1.required = true
-    }
-
-}
 
 function atividade(){
 
@@ -120,7 +39,7 @@ function retirar(selecao) {
 
     for (let i = (1 + removidos.length); i < 5; i++){
         for (let j = 1; j < opcoes.length + removidos.length; j++){
-            if (valorSelecao == $('.d')[i][j].value){
+            if (valorSelecao == $(".d")[i][j].value){
 
                 if (remover){
                     removidos.push(valorSelecao)
@@ -129,7 +48,7 @@ function retirar(selecao) {
 
                 $('.d')[i][j].remove()
                 break
-            };
+            }
         }
     }
 
@@ -141,7 +60,7 @@ function solicitar(selecao) {
         url: '',
         data: {'instituicao': selecao.value},
         success: function(response){
-            $('#informacoes').empty()
+            $("#informacoes").empty()
 
             var equipeTemp = [];
             var equipe = [];
