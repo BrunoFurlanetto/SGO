@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django import forms
 from ceu.models import Tipo
@@ -12,7 +14,8 @@ class RelatorioDeAtendimentoCeu(models.Model):
     serie = models.CharField(max_length=100, blank=True)
     coordenador_peraltas = models.CharField(max_length=100, blank=True)
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
-    atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':, 'n_participantes':]}
+    atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
+    # 'n_participantes':]}
     locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':,
     # 'data_hora_saida':, 'soma_horas':, 'soma_horas_total':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
@@ -21,6 +24,10 @@ class RelatorioDeAtendimentoCeu(models.Model):
 
     def __str__(self):
         return f'Relatório de {self.tipo}'
+
+    def data_atendimento(self):
+        if self.tipo == Tipo.objects.get(tipo='Público'):
+            return self.atividades['atividade_1']['data_e_hora'].split(' ')[0]
 
 
 class RelatorioPublico(forms.ModelForm):

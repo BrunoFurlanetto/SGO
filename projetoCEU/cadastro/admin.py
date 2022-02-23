@@ -5,7 +5,7 @@ from cadastro.models import RelatorioDeAtendimentoCeu
 
 @admin.register(RelatorioDeAtendimentoCeu)
 class RelatorioDeAtendimentoCeuAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'instituicao', 'solicitado', 'entregue')
+    list_display = ('tipo', 'instituicao', 'data_atendimento', 'solicitado', 'entregue')
     list_display_links = ('tipo',)
     list_editable = ('solicitado', 'entregue')
     list_filter = ('tipo', 'instituicao')

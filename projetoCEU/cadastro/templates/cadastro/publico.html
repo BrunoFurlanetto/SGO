@@ -17,7 +17,7 @@
       <div class="row">
         <div style="width: 20%" class="mb-3">
           <label>Coordenador</label>
-            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onchange="equipe(this)">
+            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onclick="validar()" onchange="equipe(this)" required>
               <option selected></option>
               {% for professor in professores %}
                 <option>{{ professor.usuario.first_name }}</option>
@@ -37,7 +37,7 @@
         </div>
         <div style="width: 26%">
           <label>Data do atendimento</label>
-          <input type="date" name="data_atendimento">
+          <input type="date" name="data_atendimento" required>
         </div>
       </div>
 
@@ -45,7 +45,7 @@
       <div class="row">
         <div style="width: 20%">
           <label>Professor 2: </label>
-            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" onchange="equipe(this)">
+            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" onchange="equipe(this)" required>
               <option selected></option>
               {% for professor in professores %}
                 <option>{{ professor.usuario.first_name }}</option>
@@ -89,7 +89,7 @@
               <div class="row">
                 {% for j in rangej %}
                   <div style="width: 135px; margin-right: -20px">
-                    <select class="form-select d mr-sm-2 my-1" name="prf{{ j }}atv{{ i }}">
+                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validar()">
                       <option selected></option>
                     </select>
                   </div>
@@ -98,14 +98,14 @@
             </td>
             <td>
               <center>
-                <input type="time" class="form-control my-1" style="width: 100px" name="horaAtividade_{{ i }}">
+                <input type="time" class="form-control my-1" style="width: 100px" id="horaAtividade_{{ i }}" name="horaAtividade_{{ i }}" onchange="validar()">
               </center>
             </td>
             <td>
-              <select class="form-control mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}">
+              <select class="form-select mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}" onchange="validar()">
                 <option selected></option>
                 {% for atividade in atividades %}
-                  <option>{{ atividade }}</option>
+                  <option>{{ atividade.atividade }}</option>
                 {% endfor %}
               </select>
             </td>
