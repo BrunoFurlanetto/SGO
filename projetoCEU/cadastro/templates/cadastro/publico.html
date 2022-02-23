@@ -14,10 +14,11 @@
     <form action="{% url 'publico' %}" method="POST">
       {% csrf_token %}
       <script src="{% static 'js/teste.js' %}"></script>
+      <script src="{% static 'js/validacao.js' %}"></script>
       <div class="row">
         <div style="width: 20%" class="mb-3">
           <label>Coordenador</label>
-            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onclick="validar()" onchange="equipe(this)" required>
+            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onclick="validarTabelaPublico()" onchange="equipe(this)" required>
               <option selected></option>
               {% for professor in professores %}
                 <option>{{ professor.usuario.first_name }}</option>
@@ -89,7 +90,7 @@
               <div class="row">
                 {% for j in rangej %}
                   <div style="width: 135px; margin-right: -20px">
-                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validar()">
+                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validarTabelaPublico()">
                       <option selected></option>
                     </select>
                   </div>
@@ -98,11 +99,11 @@
             </td>
             <td>
               <center>
-                <input type="time" class="form-control my-1" style="width: 100px" id="horaAtividade_{{ i }}" name="horaAtividade_{{ i }}" onchange="validar()">
+                <input type="time" class="form-control my-1" style="width: 100px" id="horaAtividade_{{ i }}" name="horaAtividade_{{ i }}" onchange="validarTabelaPublico()">
               </center>
             </td>
             <td>
-              <select class="form-select mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}" onchange="validar()">
+              <select class="form-select mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}" onchange="validarTabelaPublico()">
                 <option selected></option>
                 {% for atividade in atividades %}
                   <option>{{ atividade.atividade }}</option>
