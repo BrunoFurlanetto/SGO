@@ -1,17 +1,17 @@
 from time import sleep
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
 from cadastro.models import RelatorioPublico
 from ceu.models import Professores, Atividades, Tipo
-from .funcoesPublico import salvar_atividades
+from .funcoesPublico import salvar_atividades, salvar_equipe
 
 
+@login_required(login_url='login')
 def publico(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     relatorio_publico = RelatorioPublico()
     atividades = Atividades.objects.filter(publico=True)
@@ -25,35 +25,26 @@ def publico(request):
                                                          'professores': professores})
 
     relatorio_publico = RelatorioPublico(request.POST)
+    print(relatorio_publico.errors)
     relatorio = relatorio_publico.save(commit=False)
     relatorio.tipo = Tipo.objects.get(tipo='Público')
+    salvar_equipe(request.POST, relatorio)
     salvar_atividades(request.POST, relatorio)
-    relatorio.save()
+
+    try:
+        relatorio.save()
+    except:
+        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
+                                                         'rangej': range_j, 'atividades': atividades,
+                                                         'professores': professores})
+    else:
+        messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
+        return redirect('dashboard')
 
 
-    # if not erro_de_preenchimento:
-    #     os = relatorio_publico.save(commit=False)
-    #     os.tipo = Tipo.objects.get(tipo='Público')
-    #     analisar_tabela_atividade(os, request.POST)
-    #     try:
-    #         os.save()
-    #     except:
-    #         messages.error(request, 'Houve um erro inesperado, por favor,tentar mais tarde')
-    #         return redirect('dashboard')
-    #     else:
-    #         messages.success(request, 'Relatório de atendimento salvo com sucesso!')
-    #         return redirect('dashboard')
-    # else:
-    #     relatorio_publico = OrdemDeServicoPublico(request.POST)
-    #     messages.error(request, mensagem_erro)
-    #     return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
-    #                                                      'rangej': range_j, 'atividades': atividades,
-    #                                                      'professores': professores})
-
-
+@login_required(login_url='login')
 def colegio(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     ordem_colegio = OrdemDeServicoColegio()
     atividades, horas = indice_formulario(ordem_colegio, 'atividade_')
@@ -94,9 +85,8 @@ def colegio(request):
         return redirect('dashboard')
 
 
+@login_required(login_url='login')
 def empresa(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     ordem_empresa = OrdemDeServicoEmpresa()
     atividades, horas = indice_formulario(ordem_empresa, 'atividade_')
