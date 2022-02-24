@@ -28,5 +28,6 @@ urlpatterns = [
     path('escala/', include('escala.urls')),
     path('ficha-de-avaliacao/', include('fichaAvaliacao.urls')),
     path('painel-geral/', include('painelAdm.urls')),
+    path('ordem-de-servico/', include('ordeDeServico.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
