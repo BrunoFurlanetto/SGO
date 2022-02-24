@@ -1,5 +1,5 @@
 let arrow = document.querySelectorAll(".arrow");
-for (var i = 0; i < arrow.length; i++) {
+for (let i = 0; i < arrow.length; i++) {
     arrow[i].addEventListener("click", (e)=>{
     let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
     arrowParent.classList.toggle("showMenu");
@@ -17,22 +17,21 @@ for (let j = 0; j < arrow_2.length; j++) {
 let sidebar = document.querySelector(".sidebar");
 let sidebarBtn = document.querySelector(".bx-menu");
 let sidebarBtn2 = document.querySelector(".bxs-calendar");
-let itens = document.getElementsByClassName("item-sidebar");
+let itens = document.querySelectorAll(".item-sidebar");
 
 sidebarBtn.addEventListener("click", ()=>{
     sidebar.classList.toggle("close");
-    console.log(sidebar.classList)
 
-    for (let i in itens){
+    for (let i = 0; i < itens.length; i += 1){
         itens[i].classList.toggle('baixo')
     }
 
     if (sidebar.classList.contains('close')) {
-        for (let i in itens) {
+        for (let i = 0; i < itens.length; i += 1) {
             itens[i].classList.add('cima')
         }
     } else {
-        for (let i in itens) {
+        for (let i = 0; i < itens.length; i += 1) {
             itens[i].classList.add('cima')
         }
     }

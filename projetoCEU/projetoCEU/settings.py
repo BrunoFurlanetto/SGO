@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'escala.apps.EscalaConfig',
     'fichaAvaliacao.apps.FichaavaliacaoConfig',
     'painelAdm.apps.PaineladmConfig',
+    'ordemDeServico.apps.OrdemdeservicoConfig',
 ]
 
 MIDDLEWARE = [
