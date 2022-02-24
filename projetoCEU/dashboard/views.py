@@ -1,27 +1,29 @@
-from datetime import datetime, timedelta
-from django.db.models import Q
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from ceu.models import Professores, Tipo
-from cadastro.models import RelatorioDeAtendimentoCeu
 from django.views.decorators.csrf import csrf_exempt
-from dashboard.funcoes import contar_atividades, contar_horas, is_ajax, teste_aviso
-from escala.models import Escala
+
+from cadastro.models import RelatorioDeAtendimentoCeu
+from .funcoes import is_ajax
+
+from ceu.models import Professores
 
 
 @csrf_exempt
+@login_required(login_url='login')
 def dashboard(request):
     # --------------------------- Parte para verificação de autenticação ---------------------------------
-    if not request.user.is_authenticated:
-        return redirect('login')
-
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
-    # dados_iniciais = OrdemDeServico.objects.order_by('hora_atividade_1').filter(data_atendimento=datetime.now())
+    dados_iniciais = RelatorioDeAtendimentoCeu.objects.filter(atividades__icontains=datetime.now().date())
+    print(len(dados_iniciais))
+
     # ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
     #     data_atendimento=request.POST.get('data_selecionada'))
     # usuario_logado = Professores.objects.get(nome=request.user)
@@ -68,13 +70,14 @@ def dashboard(request):
     # n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
     # n_horas = contar_horas(usuario_logado, ordens_usuario.values())
     # # -------------------------------------------------------------------------
-    #
-    # if is_ajax(request) and request.method == 'POST':
-    #     return HttpResponse(dados)
+
+    if is_ajax(request) and request.method == 'POST':
+        return JsonResponse(dados)
+
     if request.method != 'POST':
         professores = Professores.objects.all()
 
-        return render(request, 'dashboard/dashboard.html', {'professores': professores})
+        return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais})
         # , {'ordemDeServico': dados_iniciais, 'data': data,
         #  'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
         #  'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,
