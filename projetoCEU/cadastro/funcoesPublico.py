@@ -12,7 +12,8 @@ def salvar_atividades(dados, relatorio):
         if dados.get(f'ativ{i}') != '':
             atividade = dados.get(f'ativ{i}')
             professores = pegar_professores(dados, i)
-            data_e_hora = f'{formatar_data(dados.get("data_atendimento"))} {dados.get(f"horaAtividade_{i}")}'
+            data_e_hora = f'{dados.get("data_atendimento")} dados.get(f"horaAtividade_{i}"'
+            print(data_e_hora)
 
 # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
             if dados.get('participantes_confirmados', None):
@@ -64,14 +65,6 @@ def teste_participantes_por_atividade(dados):
             participantes = int(dados.get('participantes_previa'))
 
     return participantes
-# -----------------------------------------------------------------------------------------------------------
-
-
-def formatar_data(data):
-    data = datetime.strptime(data, '%Y-%m-%d')
-    data = f'{data.day}/{data.month}/{data.year}'
-
-    return data
 # -----------------------------------------------------------------------------------------------------------
 
 

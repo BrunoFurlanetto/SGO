@@ -117,6 +117,8 @@ jQuery(document).ready(function($) {
 
 document.querySelector(".days").addEventListener("click", (event) => {
 
+    var mes_selecionado;
+    var divAntiga;
     /* Constante necessária para saber o último dia do mês anterior */
     const prevLastDay = new Date(
         date.getFullYear(),
@@ -148,7 +150,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
         var dia_selecionado = event.target.classList[1];
         var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado)
     }else if (event.target.classList.contains("prev-date")){
-        var divAntiga = event.target.classList[1];
+        divAntiga = event.target.classList[1];
         /* Voltando o mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() - 1);
         renderCalendar();
@@ -156,28 +158,28 @@ document.querySelector(".days").addEventListener("click", (event) => {
         var novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)));
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
-        var mes_selecionado = date.getMonth();
+        mes_selecionado = date.getMonth();
         var ano_selecionado = date.getFullYear();
         var dia_selecionado = novaDiv[0].classList;
         var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     }else{
         /* Caso que a seleção é dentro do mês que está sendo mostrados */
-        var divAntiga = event.target.classList[0];
+        divAntiga = event.target.classList[0];
         var novaDiv = document.getElementsByClassName(divAntiga);
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
-        var mes_selecionado = date.getMonth();
+        mes_selecionado = date.getMonth();
         var ano_selecionado = date.getFullYear();
         var dia_selecionado = event.target.classList[0];
         var data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
-    };
+    }
 
     /* Adcionando a class 'selected' na posição certa */
     if (novaDiv.length > 1){
         novaDiv[1].classList.add("selected");
     }else{
         novaDiv[0].classList.add("selected");
-    };
+    }
 
     $.ajax({
         type: 'POST',
@@ -185,16 +187,16 @@ document.querySelector(".days").addEventListener("click", (event) => {
         data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
         success: function(response){
             if (response[1] == ']'){
-                $('#dados').empty();
-                var novaLinha = document.createElement('tr')
+                $("#dados").empty();
+                let novaLinha = document.createElement('tr')
                 novaLinha.id = 'dados0'
                 $('#dados').append(novaLinha)
-                var mensagem = "<td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
+                let mensagem = "<td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
                 $('#dados0').append(mensagem)
-                $('h5').empty();
-                $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
+                $("h5").empty();
+                $("h5").append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
                 return
-            };
+            }
             var ids = [];
             var tipos = [];
             var instituicoes = [];

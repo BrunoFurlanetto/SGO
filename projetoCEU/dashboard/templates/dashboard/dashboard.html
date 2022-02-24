@@ -18,31 +18,31 @@
           </tr>
         </thead>
         <tbody id="dados">
-          {% if not ordemDeServico %}
+          {% if not relatorios %}
             <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
           {% endif %}
 
-          {% for os in ordemDeServico %}
-            <tr class='clickable-row' data-href="{% url 'verOrdem' os.id %}">
-              <td>{{ os.tipo }}</td>
-              <td>{{ os.instituicao }}</td>
-              <td>{{ os.coordenador }}</td>
+          {% for relatorio in relatorios %}
+            <tr class='clickable-row' data-href="{% url 'verOrdem' relatorio.id %}">
+              <td>{{ relatorio.tipo }}</td>
+              <td>{{ relatorio.instituicao }}</td>
+              <td>{{ relatorio.equipe.coordenador }}</td>
               <td>
-                {{ os.coordenador }}
-                {% if os.professor_2 != none %}
+                {{ relatorio.equipe.coordenador }}
+                {% if relatorio.equipe.professor_2 != none %}
                 ,
-                {{ os.professor_2 }}
+                {{ relatorio.equipe.professor_2 }}
                 {% endif %}
-                {% if os.professor_3 != none %}
+                {% if relatorio.equipe.professor_3 != none %}
                 ,
-                {{ os.professor_3 }}
+                {{ relatorio.equipe.professor_3 }}
                 {% endif %}
-                {% if os.professor_4 != none %}
+                {% if relatorio.equipe.professor_4 != none %}
                 ,
-                {{ os.professor_4 }}
+                {{ relatorio.equipe.professor_4 }}
                 {% endif %}
               </td>
-              <td>{{ os.data_atendimento }}</td>
+              <td>{{ relatorio.data_atendimento }}</td>
             </tr>
           {% endfor %}
         </tbody>
