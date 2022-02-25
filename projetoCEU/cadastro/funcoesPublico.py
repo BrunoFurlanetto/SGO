@@ -1,6 +1,5 @@
-# ------------------------- Funções relacionadas ao salvamento das atividades -------------------------------
 import math
-from datetime import datetime
+# ------------------------- Funções relacionadas ao salvamento das atividades -------------------------------
 
 
 def salvar_atividades(dados, relatorio):
@@ -12,7 +11,7 @@ def salvar_atividades(dados, relatorio):
         if dados.get(f'ativ{i}') != '':
             atividade = dados.get(f'ativ{i}')
             professores = pegar_professores(dados, i)
-            data_e_hora = f'{dados.get("data_atendimento")} dados.get(f"horaAtividade_{i}"'
+            data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
             print(data_e_hora)
 
 # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
