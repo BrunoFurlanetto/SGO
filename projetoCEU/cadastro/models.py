@@ -25,9 +25,19 @@ class RelatorioDeAtendimentoCeu(models.Model):
     def __str__(self):
         return f'Relatório de {self.tipo}'
 
+# ------------------------------ Funções para vizualização no template -----------------------------------------
     def data_atendimento(self):
         if self.tipo == Tipo.objects.get(tipo='Público'):
-            return self.atividades['atividade_1']['data_e_hora'].split(' ')[0]
+            data = datetime.strptime(self.atividades['atividade_1']['data_e_hora'], '%Y-%m-%d %H:%M')
+            return data.date()
+
+    def equipe_escalada(self):
+        professores = []
+        for professor in self.equipe.values():
+            professores.append(professor)
+
+        return ', '.join(professores)
+# --------------------------------------------------------------------------------------------------------------
 
 
 class RelatorioPublico(forms.ModelForm):

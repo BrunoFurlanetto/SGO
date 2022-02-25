@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from cadastro.models import RelatorioDeAtendimentoCeu
-from .funcoes import is_ajax
+from .funcoes import is_ajax, juntar_dados
 
 from ceu.models import Professores
 
@@ -21,11 +21,10 @@ def dashboard(request):
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
-    dados_iniciais = RelatorioDeAtendimentoCeu.objects.filter(atividades__icontains=datetime.now().date())
-    print(len(dados_iniciais))
+    dados_iniciais = RelatorioDeAtendimentoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+        atividades__icontains=datetime.now().date())
+    data_hoje = datetime.now()
 
-    # ordem_de_servico = OrdemDeServico.objects.order_by('hora_atividade_1').filter(
-    #     data_atendimento=request.POST.get('data_selecionada'))
     # usuario_logado = Professores.objects.get(nome=request.user)
     #
     # # ------------------ Ordens para conta de atividades e horas do mês --------------------
@@ -48,23 +47,6 @@ def dashboard(request):
     #     for escala in escalas:
     #         equipe_escalada = escala.equipe.split(', ')
     #
-    # # ------ Parte dos dados mandados para o ajax, para serem exibidos na tabela -------
-    # data = datetime.now()
-    # ids = []
-    # tipos = []
-    # coordenadores = []
-    # equipe = []
-    # instituicoes = []
-    # dados = [ids, tipos, instituicoes, coordenadores, equipe]
-    #
-    # for campo in ordem_de_servico:
-    #     ids.append(campo.id)
-    #     tipos.append(campo.tipo)
-    #     instituicoes.append(campo.instituicao)
-    #     coordenadores.append(campo.coordenador)
-    #     equipe.append(campo.professor_2)
-    #     equipe.append(campo.professor_3)
-    #     equipe.append(campo.professor_4)
     #
     # # ------------------ Parte para chegar no resumo do mês -------------------
     # n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
@@ -72,12 +54,18 @@ def dashboard(request):
     # # -------------------------------------------------------------------------
 
     if is_ajax(request) and request.method == 'POST':
-        return JsonResponse(dados)
+        relatorios = RelatorioDeAtendimentoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            atividades__icontains=request.POST.get('data_selecionada'))
+
+        dados = juntar_dados(relatorios)
+
+        return JsonResponse({'dados': dados})
 
     if request.method != 'POST':
         professores = Professores.objects.all()
 
-        return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais})
+        return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais,
+                                                            'data': data_hoje})
         # , {'ordemDeServico': dados_iniciais, 'data': data,
         #  'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
         #  'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,

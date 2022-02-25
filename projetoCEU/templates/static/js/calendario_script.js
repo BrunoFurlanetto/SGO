@@ -132,12 +132,12 @@ document.querySelector(".days").addEventListener("click", (event) => {
 
     if (selecionado.length > 0){
         selecionado[0].classList.remove("selected");
-    };
+    }
 
     /* Testes para conseguir adcionar a class 'selected' na div certa, já que tem diferença */
     /* entre as div's do mês mostrado pelo calendário e as div's do próximo mês e do anterior */
     if (event.target.classList.contains("next-date")){
-        var divAntiga = event.target.classList[1];
+        divAntiga = event.target.classList[1];
         /* Pulando pro próximo mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() + 1);
         renderCalendar();
@@ -186,74 +186,39 @@ document.querySelector(".days").addEventListener("click", (event) => {
         url: '',
         data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
         success: function(response){
-            if (response[1] == ']'){
-                $("#dados").empty();
-                let novaLinha = document.createElement('tr')
-                novaLinha.id = 'dados0'
-                $('#dados').append(novaLinha)
-                let mensagem = "<td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td>'
-                $('#dados0').append(mensagem)
-                $("h5").empty();
-                $("h5").append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
-                return
+            $('#dados').empty()
+            $('h5').empty();
+            $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
+
+            if (response['dados']  == null){
+                let mensagem = "<tr><td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td></tr>'
+                $('#dados').append(mensagem)
             }
-            var ids = [];
-            var tipos = [];
-            var instituicoes = [];
-            var coordenadores = [];
-            var equipe = [];
-            var dados = response.split('][')
 
-            var temp = dados[0].split(',')
-            for (var j in temp){
-                ids.push(temp[j].slice(1).trim())
-            };
+            var i = 1
+            var equipe_tabela = []
+            for (let relatorio in response['dados']){
+                console.log(response['dados'][relatorio]['equipe'])
 
-            temp = dados[1].split(',')
-            for (var j in temp){
-                tipos.push(temp[j].slice(7, -1))
-            };
-
-            var temp = dados[2].split(',')
-            for (var j in temp){
-                instituicoes.push(temp[j].trim().slice(1, -1))
-            };
-            temp = dados[3].split(',')
-            for (var j in temp){
-                coordenadores.push(temp[j].slice(14, -1).trim())
-            };
-            temp = dados[4].split(',')
-            var temp2 = 0
-            for (var i in tipos){
-                var equipe_i = []
-                for (var j = temp2; j < temp2+3; j++){
-                    equipe_i.push(temp[j].slice(14, -1).replace('>', '').trim())
-            };
-            equipe.push(equipe_i)
-            temp2 += 3
-            };
-
-            $('#dados').empty();
-            for (var key = 0; key < tipos.length; key++){
-                var novaLinha = `<tr id='dados${key}' class='clickable-row' data-href="/ordem-de-servico/${ids[key]}"></>`
+                let novaLinha = `<tr id='dados${i}' class='clickable-row' data-href="/ordem-de-servico/${response['dados'][relatorio]['id']}"></>`
                 $('#dados').append(novaLinha)
-                var script_tag = document.createElement('script')
+                let script_tag = document.createElement('script')
                 script_tag.text = 'jQuery(document).ready(function($){$(".clickable-row").click(function(){window.location = $(this).data("href");});});'
                 $('#dados').append(script_tag)
 
-                var tipo = '<td>'+tipos[key]+'</td>';
-                var instituicao = '<td>'+ instituicoes[key] +'</td>';
-                var coordenador = '<td>'+coordenadores[key]+'</td>';
-                var equipe_j = new String();
-                equipe_j = coordenadores[key]
-                if (equipe[key][0] != ''){
-                    equipe_j = equipe_j.concat(', ', equipe[key].join(', ').replace(/,(\s+)?$/, ''))
-                };
-                equipe_mostrar = '<td>' + equipe_j + '</td>';
-                var data_atendimento = '<td>'+data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
-                $('#dados'+key).append(tipo, instituicao, coordenador, equipe_mostrar, data_atendimento);
-                $('h5').empty();
-                $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
+                let tipo = '<td>'+response['dados'][relatorio]['tipo']+'</td>';
+                let instituicao = '<td>'+ response['dados'][relatorio]['instituicao'] +'</td>';
+                let coordenador = '<td>'+ response['dados'][relatorio]['coordenador'] +'</td>';
+
+                for (let profesor in response['dados'][relatorio]['equipe']){
+                    equipe_tabela.push(response['dados'][relatorio]['equipe'][profesor])
+                }
+
+                let equipe = '<td>'+ equipe_tabela.join(', ') +'</td>';
+                let data_atendimento = '<td>'+ data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
+
+                $('#dados'+i).append(tipo, instituicao, coordenador, equipe, data_atendimento)
+
             }
         }
     });

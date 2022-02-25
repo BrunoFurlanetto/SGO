@@ -27,21 +27,7 @@
               <td>{{ relatorio.tipo }}</td>
               <td>{{ relatorio.instituicao }}</td>
               <td>{{ relatorio.equipe.coordenador }}</td>
-              <td>
-                {{ relatorio.equipe.coordenador }}
-                {% if relatorio.equipe.professor_2 != none %}
-                ,
-                {{ relatorio.equipe.professor_2 }}
-                {% endif %}
-                {% if relatorio.equipe.professor_3 != none %}
-                ,
-                {{ relatorio.equipe.professor_3 }}
-                {% endif %}
-                {% if relatorio.equipe.professor_4 != none %}
-                ,
-                {{ relatorio.equipe.professor_4 }}
-                {% endif %}
-              </td>
+              <td>{{ relatorio.equipe_escalada }}</td>
               <td>{{ relatorio.data_atendimento }}</td>
             </tr>
           {% endfor %}
@@ -67,7 +53,9 @@
       </div>
     </div>
   </div>
-
+<!--------------------------------------------------------------------------------------------------------------------->
+<!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------->
   {% if mostrar_aviso and not depois_25 %}
     <script>
       $(window).on('load',function(){

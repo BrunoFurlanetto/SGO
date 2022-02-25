@@ -4,10 +4,29 @@ from datetime import datetime, timedelta
 from escala.models import Disponibilidade
 
 
+# Função necessária para verificar se é o ajax que está mandando o POST para o servidor
+# ----------------------------------------------------------------------------------------------------------------------
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+# ----------------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+def juntar_dados(relatorios):
+    i = 1
+    dados = {}
+
+    for relatorio in relatorios:
+        dados[f'relatorio_{i}'] = {'id': relatorio.id,
+                                   'tipo': str(relatorio.tipo),
+                                   'coordenador': relatorio.equipe['coordenador'],
+                                   'equipe': relatorio.equipe,
+                                   'instituicao': relatorio.instituicao}
+
+        return dados
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 def contar_atividades(professor_logado, ordens):
     n_atividades = 0
 
@@ -18,8 +37,10 @@ def contar_atividades(professor_logado, ordens):
                     n_atividades += 1
 
     return n_atividades
+# ----------------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 def contar_horas(professor_logado, ordens):
     n_horas = timedelta()
 
@@ -43,8 +64,10 @@ def contar_horas(professor_logado, ordens):
                     n_horas += ordem['soma_horas_3']
 
     return formatar_horas(n_horas)
+# ----------------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 def formatar_horas(horas):
 
     if horas != timedelta(days=0):
@@ -55,8 +78,10 @@ def formatar_horas(horas):
         h = horas.seconds // 3600
         m = (horas.seconds % 3600) / 60
         return f'{h}h{m:.0f}min'
+# ----------------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 def teste_aviso(hora_login, usuario, id_usuario):
     diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
     diferenca -= timedelta(hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second)
@@ -73,3 +98,4 @@ def teste_aviso(hora_login, usuario, id_usuario):
                     return True
 
     return False
+# ----------------------------------------------------------------------------------------------------------------------
