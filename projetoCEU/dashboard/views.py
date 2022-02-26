@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from cadastro.models import RelatorioDeAtendimentoCeu
-from .funcoes import is_ajax, juntar_dados
+from .funcoes import is_ajax, juntar_dados, contar_atividades
 
 from ceu.models import Professores
 
@@ -48,10 +48,6 @@ def dashboard(request):
     #         equipe_escalada = escala.equipe.split(', ')
     #
     #
-    # # ------------------ Parte para chegar no resumo do mês -------------------
-    # n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
-    # n_horas = contar_horas(usuario_logado, ordens_usuario.values())
-    # # -------------------------------------------------------------------------
 
     if is_ajax(request) and request.method == 'POST':
         relatorios = RelatorioDeAtendimentoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
@@ -63,6 +59,17 @@ def dashboard(request):
 
     if request.method != 'POST':
         professores = Professores.objects.all()
+        usuario_logado = Professores.objects.get(usuario=request.user)
+
+        ordens_usuario = RelatorioDeAtendimentoCeu.objects.filter(
+            equipe__icontains=usuario_logado.usuario.first_name).filter(
+            data_publico__month=datetime.now().month)
+
+        print(len(ordens_usuario))
+        # ------------------ Parte para chegar no resumo do mês -------------------
+        n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
+        # n_horas = contar_horas(usuario_logado, ordens_usuario.values())
+        # -------------------------------------------------------------------------
 
         return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais,
                                                             'data': data_hoje})

@@ -115,9 +115,13 @@ jQuery(document).ready(function($) {
     });
 });
 
+// ----------------- Parte do script que é responsável pela interação calendário -> tabela dashboard -------------------
 document.querySelector(".days").addEventListener("click", (event) => {
-
-    var mes_selecionado;
+    var novaDiv
+    var mes_selecionado
+    var ano_selecionado
+    var dia_selecionado
+    var data_selecionada
     var divAntiga;
     /* Constante necessária para saber o último dia do mês anterior */
     const prevLastDay = new Date(
@@ -142,36 +146,36 @@ document.querySelector(".days").addEventListener("click", (event) => {
         date.setMonth(date.getMonth() + 1);
         renderCalendar();
         /* Pegando o valor da div antiga pra conseguir selecionar o dia certo na nova div */
-        var novaDiv = document.getElementsByClassName(divAntiga);
+        novaDiv = document.getElementsByClassName(divAntiga);
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
-        var mes_selecionado = date.getMonth();
-        var ano_selecionado = date.getFullYear();
-        var dia_selecionado = event.target.classList[1];
-        var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado)
+        mes_selecionado = date.getMonth();
+        ano_selecionado = date.getFullYear();
+        dia_selecionado = event.target.classList[1];
+        data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado)
     }else if (event.target.classList.contains("prev-date")){
         divAntiga = event.target.classList[1];
         /* Voltando o mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() - 1);
         renderCalendar();
         /* Fazendo a conta utilizando a div antiga pra poder selecionar a div certa */
-        var novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)));
+        novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)));
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
         mes_selecionado = date.getMonth();
-        var ano_selecionado = date.getFullYear();
-        var dia_selecionado = novaDiv[0].classList;
-        var data_salacionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
+        ano_selecionado = date.getFullYear();
+        dia_selecionado = novaDiv[0].classList;
+        data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     }else{
         /* Caso que a seleção é dentro do mês que está sendo mostrados */
         divAntiga = event.target.classList[0];
-        var novaDiv = document.getElementsByClassName(divAntiga);
+        novaDiv = document.getElementsByClassName(divAntiga);
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
         mes_selecionado = date.getMonth();
-        var ano_selecionado = date.getFullYear();
-        var dia_selecionado = event.target.classList[0];
-        var data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
+        ano_selecionado = date.getFullYear();
+        dia_selecionado = event.target.classList[0];
+        data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     }
 
     /* Adcionando a class 'selected' na posição certa */
@@ -218,7 +222,6 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 let data_atendimento = '<td>'+ data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
 
                 $('#dados'+i).append(tipo, instituicao, coordenador, equipe, data_atendimento)
-
             }
         }
     });
