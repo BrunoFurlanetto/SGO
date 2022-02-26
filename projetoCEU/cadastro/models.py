@@ -13,6 +13,7 @@ class RelatorioDeAtendimentoCeu(models.Model):
     responsaveis = models.IntegerField(blank=True, null=True)
     serie = models.CharField(max_length=100, blank=True)
     coordenador_peraltas = models.CharField(max_length=100, blank=True)
+    data_publico = models.DateField(default=datetime.now)
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
     atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
@@ -48,7 +49,7 @@ class RelatorioPublico(forms.ModelForm):
 
         widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
+                   'data_publico': forms.DateTimeInput(attrs={'type': 'date'}),
                    }
 
 
