@@ -6,6 +6,7 @@
 
   <div class="conteudo-dashboard">
     <div class="tabela-dashboard">
+      {% csrf_token %}
       <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
       <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
         <thead>
@@ -33,6 +34,7 @@
           {% endfor %}
         </tbody>
       </table>
+<!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
     </div>
     <hr>
     <div class="dados_dashboard">

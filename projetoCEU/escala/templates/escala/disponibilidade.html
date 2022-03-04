@@ -40,8 +40,8 @@
             <div class="col-5">
               <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
                 <option selected></option>
-                {% for nome in professores %}
-                  <option>{{ nome }}</option>
+                {% for professor in professores %}
+                  <option>{{ professor.usuario.first_name }}</option>
                 {% endfor %}
               </select>
             </div>

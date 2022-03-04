@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
 from cadastro.models import RelatorioPublico
-from ceu.models import Professores, Atividades, Tipo
+from ceu.models import Professores, Atividades
 from .funcoesPublico import salvar_atividades, salvar_equipe
 
 
@@ -27,7 +27,6 @@ def publico(request):
     relatorio_publico = RelatorioPublico(request.POST)
     print(relatorio_publico.errors)
     relatorio = relatorio_publico.save(commit=False)
-    relatorio.tipo = Tipo.objects.get(tipo='Público')
     salvar_equipe(request.POST, relatorio)
     salvar_atividades(request.POST, relatorio)
 

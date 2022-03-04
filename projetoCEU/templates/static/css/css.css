@@ -151,7 +151,7 @@
 
 .conteudo-escala{
     width: 1000px;
-    margin: auto;
+    margin: auto auto 10%;
     height: auto;
     justify-content: center;
     align-items: center;

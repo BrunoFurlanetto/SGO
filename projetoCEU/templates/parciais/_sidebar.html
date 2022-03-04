@@ -22,7 +22,11 @@
             </div>
           {% endif %}
 
-            <li class="item-sidebar">
+            {% if request.path == '/dashboard/' %}
+              <li class="item-sidebar">
+            {% else %}
+              <li>
+            {% endif %}
               <a href="{% url 'dashboard' %}">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
@@ -32,7 +36,11 @@
               </ul>
             </li>
 
-            <li class="item-sidebar">
+            {% if request.path == '/dashboard/' %}
+              <li class="item-sidebar">
+            {% else %}
+              <li>
+            {% endif %}
               <a href="{% url 'painelGeral' %}">
                 <i class='bx bxs-pie-chart-alt-2' ></i>
                 <span class="link_name"><nobr>Painel estatístico</nobr></span>
@@ -42,7 +50,11 @@
               </ul>
             </li>
 
-            <li class="item-sidebar">
+            {% if request.path == '/dashboard/' %}
+              <li class="item-sidebar">
+            {% else %}
+              <li>
+            {% endif %}
               <div class="iocn-link">
                 <a href="#">
                   <i class='bx bx-archive'></i>
@@ -71,7 +83,11 @@
               </ul>
             </li>
 
-            <li class="item-sidebar">
+            {% if request.path == '/dashboard/' %}
+              <li class="item-sidebar">
+            {% else %}
+              <li>
+            {% endif %}
               <div class="iocn-link">
                 <a href="#">
                   <i class='bx bx-table'></i>

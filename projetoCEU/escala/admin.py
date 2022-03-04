@@ -4,6 +4,7 @@ from escala.models import Escala, Disponibilidade
 
 class EscalaAdmin(admin.ModelAdmin):
     list_display = ('equipe', 'data')
+    # date_hierarchy = 'data'
 
 
 class DisponibilidadeAdmin(admin.ModelAdmin):

@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+
+class Monitor(models.Model):
+    nome = models.CharField(max_length=255)
