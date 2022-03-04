@@ -188,6 +188,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
     $.ajax({
         type: 'POST',
         url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
         success: function(response){
             $('#dados').empty()

@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -8,14 +9,18 @@ from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_
 from escala.models import Escala, Disponibilidade
 
 
+@login_required(login_url='login')
 def escala(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     professores = Professores.objects.all()
     escalas = Escala.objects.all()
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
+
+    if request.method != 'POST':
+        return render(request, 'escala/escala.html', {'professores': professores,
+                                                      'escalas': escalas,
+                                                      'ver': ver_icons, 'edita': edita})
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request) and request.method == 'POST':
@@ -27,26 +32,16 @@ def escala(request):
         return HttpResponse(professores_disponiveis)
     # ----------------------------------------------------------------------------------------------------
 
-    for escala in escalas:
-        data = escala.data
-        equipe = escala.equipe.split(', ')
-
-    if request.method != 'POST':
-        return render(request, 'escala/escala.html', {'professores': professores,
-                                                      'equipe': equipe, 'data': data, 'escalas': escalas,
-                                                      'ver': ver_icons, 'edita': edita})
-
     # # ------------------- Pegando respostas do fomulário e montado a equipe ----------------------
-    if not is_ajax(request):
-        data_post = request.POST.get('data_escala')
-        data = datetime.strptime(data_post, '%d/%m/%Y').date()
-        coordenador = request.POST.get('coordenador')
-        professor_2 = request.POST.get('professor_2')
-        professor_3 = request.POST.get('professor_3')
-        professor_4 = request.POST.get('professor_4')
-        professor_5 = request.POST.get('professor_5')
+    data_post = request.POST.get('data_escala')
+    data = datetime.strptime(data_post, '%d/%m/%Y').date()
+    coordenador = request.POST.get('coordenador')
+    professor_2 = request.POST.get('professor_2')
+    professor_3 = request.POST.get('professor_3')
+    professor_4 = request.POST.get('professor_4')
+    professor_5 = request.POST.get('professor_5')
 
-        equipe = escalar(coordenador, professor_2, professor_3, professor_4, professor_5)
+    equipe = escalar(coordenador, professor_2, professor_3, professor_4, professor_5)
 
     # ------------------- Salvando a escala ----------------------
     try:
@@ -60,9 +55,8 @@ def escala(request):
         return redirect('escala')
 
 
+@login_required(login_url='login')
 def disponibilidade(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     if request.method != 'POST':
         antes_25 = True if datetime.now().day < 25 else False
@@ -71,12 +65,12 @@ def disponibilidade(request):
         return render(request, 'escala/disponibilidade.html', {'antes_25': antes_25, 'professores': professores,
                                                                'coordenador': coordenador})
 
-    professor = Professores.objects.get(nome=request.user.first_name)
+    professor = Professores.objects.get(usuario__first_name=request.user.first_name)
 
-    if request.POST.get('professor') is not None:
-        professor = Professores.objects.get(nome=request.POST.get('professor'))
+    if request.POST.get('professor') is not None and request.POST.get('professor') != '':
+        professor = Professores.objects.get(usuario__first_name=request.POST.get('professor'))
 
-    dias = verificar_dias(request.POST.get('datas_disponiveis'), Professores.objects.get(nome=professor))
+    dias = verificar_dias(request.POST.get('datas_disponiveis'), Professores.objects.get(usuario=professor.usuario))
 
     if dias[0]:
         n_dias = contar_dias(dias[0])

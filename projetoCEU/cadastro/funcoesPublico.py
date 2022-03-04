@@ -15,12 +15,11 @@ def salvar_atividades(dados, relatorio):
             print(data_e_hora)
 
 # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
-            if dados.get('participantes_confirmados', None):
-                if int(dados.get('participantes_confirmados')) // 2 != 0:
-                    if i == 1 or i == 3:
-                        participantes = math.floor(participantes) + 1
-                    elif i == 2 or i == 4:
-                        participantes = math.ceil(participantes) - 1
+            if float(dados.get('participantes_previa')) // 2 != 0:
+                if i == 1 or i == 3:
+                    participantes = participantes + 1
+                elif i == 2 or i == 4:
+                    participantes = participantes - 1
 
             if i == 5:
                 if dados.get('participantes_confirmados', None):
@@ -52,18 +51,17 @@ def teste_participantes_por_atividade(dados):
     if dados.get('horaAtividade_1') == dados.get('horaAtividade_2'):
 
         if dados.get('participantes_confirmados', None):
-            participantes = int(dados.get('participantes_confirmados')) / 2
+            return math.floor(float(dados.get('participantes_confirmados')) / 2)
         else:
-            participantes = int(dados.get('participantes_previa')) / 2
+            return math.floor(float(dados.get('participantes_previa')) / 2)
 
     else:
 
         if dados.get('participantes_confirmados', None):
-            participantes = int(dados.get('participantes_confirmados'))
+            return math.floor(float(dados.get('participantes_confirmados')))
         else:
-            participantes = int(dados.get('participantes_previa'))
+            return math.floor(float(dados.get('participantes_previa')))
 
-    return participantes
 # -----------------------------------------------------------------------------------------------------------
 
 

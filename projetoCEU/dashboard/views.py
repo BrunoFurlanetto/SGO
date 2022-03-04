@@ -4,15 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 
-from cadastro.models import RelatorioDeAtendimentoCeu
-from .funcoes import is_ajax, juntar_dados, contar_atividades
+from cadastro.models import RelatorioDeAtendimentoPublicoCeu
+from escala.models import Escala
+from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso
 
 from ceu.models import Professores
 
 
-@csrf_exempt
 @login_required(login_url='login')
 def dashboard(request):
     # --------------------------- Parte para verificação de autenticação ---------------------------------
@@ -21,36 +20,33 @@ def dashboard(request):
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
-    dados_iniciais = RelatorioDeAtendimentoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+    dados_iniciais = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
         atividades__icontains=datetime.now().date())
     data_hoje = datetime.now()
 
-    # usuario_logado = Professores.objects.get(nome=request.user)
-    #
-    # # ------------------ Ordens para conta de atividades e horas do mês --------------------
-    # ordens_usuario = OrdemDeServico.objects.filter(
-    #     Q(coordenador__nome=usuario_logado) | Q(professor_2__nome=usuario_logado) |
-    #     Q(professor_3__nome=usuario_logado) | Q(professor_4__nome=usuario_logado)).filter(
-    #     data_atendimento__month=datetime.now().month).values()
-    #
-    # # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
-    # mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
-    # depois_25 = False
-    # if datetime.now().day > 25:
-    #     depois_25 = True
-    #
-    # # ----------- Seleção da escala do dia -------------
-    # escalas = Escala.objects.filter(data=datetime.now())
-    #
-    # equipe_escalada = None
-    # if len(escalas) > 0:
-    #     for escala in escalas:
-    #         equipe_escalada = escala.equipe.split(', ')
-    #
-    #
+    usuario_logado = Professores.objects.get(usuario=request.user)
+
+    # ------------------ Ordens para conta de atividades e horas do mês --------------------
+    ordens_usuario = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+        equipe__icontains=usuario_logado).filter(
+        data_atendimento__month=datetime.now().month).values()
+
+    # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
+    mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
+    depois_25 = False
+    if datetime.now().day > 25:
+        depois_25 = True
+
+    # ----------- Seleção da escala do dia -------------
+    escalas = Escala.objects.filter(data=datetime.now())
+
+    equipe_escalada = None
+    if len(escalas) > 0:
+        for escala in escalas:
+            equipe_escalada = escala.equipe.split(', ')
 
     if is_ajax(request) and request.method == 'POST':
-        relatorios = RelatorioDeAtendimentoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+        relatorios = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
             atividades__icontains=request.POST.get('data_selecionada'))
 
         dados = juntar_dados(relatorios)
@@ -59,13 +55,11 @@ def dashboard(request):
 
     if request.method != 'POST':
         professores = Professores.objects.all()
-        usuario_logado = Professores.objects.get(usuario=request.user)
 
-        ordens_usuario = RelatorioDeAtendimentoCeu.objects.filter(
+        ordens_usuario = RelatorioDeAtendimentoPublicoCeu.objects.filter(
             equipe__icontains=usuario_logado.usuario.first_name).filter(
-            data_publico__month=datetime.now().month)
+            data_atendimento__month=datetime.now().month)
 
-        print(len(ordens_usuario))
         # ------------------ Parte para chegar no resumo do mês -------------------
         n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
         # n_horas = contar_horas(usuario_logado, ordens_usuario.values())

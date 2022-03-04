@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from ceu.models import Professores, Tipo, Atividades, Locaveis, Limitacoes
+from ceu.models import Professores, Atividades, Locaveis, Limitacoes
 
 
 class ProfessorInline(admin.StackedInline):
@@ -30,5 +30,4 @@ class AtividadesAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Limitacoes)
-admin.site.register(Tipo)
 admin.site.register(Locaveis)

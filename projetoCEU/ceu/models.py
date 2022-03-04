@@ -16,13 +16,6 @@ class Professores(models.Model):
         return self.usuario.get_full_name()
 
 
-class Tipo(models.Model):
-    tipo = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.tipo
-
-
 class Locaveis(models.Model):
     estrutura = models.CharField(max_length=100)
 

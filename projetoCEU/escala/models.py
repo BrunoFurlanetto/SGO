@@ -35,13 +35,16 @@ class Disponibilidade(models.Model):
     ano = models.CharField(max_length=20)
     n_dias = models.IntegerField()
 
-    def verificar_dias(self, mes, data):
+# ----- Função responsávvel por verificar a disponibilidade para o dia selecionado na aba de escala ---------
+    @staticmethod
+    def verificar_dias(mes, data):
         professores_disponiveis = []
 
         for teste in mes:
             dias = teste.dias_disponiveis.split(', ')
 
             if data in dias:
-                professores_disponiveis.append(teste.professor.nome)
+                professores_disponiveis.append(teste.professor.usuario.first_name)
 
         return ', '.join(professores_disponiveis)
+# -----------------------------------------------------------------------------------------------------------
