@@ -1,11 +1,13 @@
 from datetime import datetime
+from itertools import chain
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from cadastro.models import RelatorioDeAtendimentoPublicoCeu
+from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
+    RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso
 
@@ -20,9 +22,13 @@ def dashboard(request):
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
-    dados_iniciais = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        atividades__icontains=datetime.now().date())
-    data_hoje = datetime.now()
+    dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+        data_atendimento=datetime.now().date())
+    dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+        check_in__date__lt=datetime.now().date(), check_out__date__gt=datetime.now().date())
+    # dados_empresa =
+    dados_iniciais = list(chain(dados_publico, dados_colegio))
+    data_hoje = datetime.now().date()
 
     usuario_logado = Professores.objects.get(usuario=request.user)
 
@@ -46,8 +52,17 @@ def dashboard(request):
             equipe_escalada = escala.equipe.split(', ')
 
     if is_ajax(request) and request.method == 'POST':
-        relatorios = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-            atividades__icontains=request.POST.get('data_selecionada'))
+        data_selecao = request.POST.get('data_selecionada')
+
+        publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            data_atendimento=data_selecao)
+        colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
+        empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
+
+        relatorios = list(chain(publico, colegio, empresa))
+        print(relatorios)
 
         dados = juntar_dados(relatorios)
 

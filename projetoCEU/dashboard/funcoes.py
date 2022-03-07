@@ -18,12 +18,18 @@ def juntar_dados(relatorios):
 
     for relatorio in relatorios:
         dados[f'relatorio_{i}'] = {'id': relatorio.id,
-                                   'tipo': str(relatorio.tipo),
+                                   'tipo': relatorio.tipo,
                                    'coordenador': relatorio.equipe['coordenador'],
-                                   'equipe': relatorio.equipe,
-                                   'instituicao': relatorio.instituicao}
+                                   'equipe': relatorio.equipe}
 
-        return dados
+        if relatorio.tipo != 'Público':
+            dados[f'relatorio_{i}']['instituicao'] = relatorio.instituicao
+        else:
+            dados[f'relatorio_{i}']['instituicao'] = ''
+
+        i += 1
+
+    return dados
 
 
 # ----------------------------------------------------------------------------------------------------------------------

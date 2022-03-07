@@ -6,6 +6,7 @@ from peraltas.models import Monitor
 
 # ----------------------- Model para cadsatro de atendimento ao público ----------------------------------------
 class RelatorioDeAtendimentoPublicoCeu(models.Model):
+    tipo = models.CharField(max_length=7, default='Público')
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     data_atendimento = models.DateField()
@@ -46,6 +47,7 @@ class RelatorioPublico(forms.ModelForm):
 # --------------------------- Model para cadsatro do atendimento com comlégio -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoColegioCeu(models.Model):
+    tipo = models.CharField(max_length=7, default='Colégio')
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
@@ -95,6 +97,7 @@ class RelatorioColegio(forms.ModelForm):
 # --------------------------- Model para cadsatro do atendimento com empresa -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoEmpresaCeu(models.Model):
+    tipo = models.CharField(max_length=7, default='Empresa')
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
