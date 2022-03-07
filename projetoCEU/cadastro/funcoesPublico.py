@@ -11,15 +11,23 @@ def salvar_atividades(dados, relatorio):
         if dados.get(f'ativ{i}') != '':
             atividade = dados.get(f'ativ{i}')
             professores = pegar_professores(dados, i)
-            data_e_hora = f'{dados.get("data_publico")} {dados.get(f"horaAtividade_{i}")}'
-            print(data_e_hora)
+            data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
 
 # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
-            if float(dados.get('participantes_previa')) // 2 != 0:
-                if i == 1 or i == 3:
-                    participantes = participantes + 1
-                elif i == 2 or i == 4:
-                    participantes = participantes - 1
+            if dados.get('participantes_confirmados', None):
+                if int(dados.get('participantes_confirmados')) > 67 and \
+                        float(dados.get('participantes_confirmados')) % 2 != 0:
+                    if i == 1 or i == 3:
+                        participantes = participantes + 1
+                    elif i == 2 or i == 4:
+                        participantes = participantes - 1
+            else:
+                if int(dados.get('participantes_previa')) > 67 and \
+                        float(dados.get('participantes_previa')) % 2 != 0:
+                    if i == 1 or i == 3:
+                        participantes = participantes + 1
+                    elif i == 2 or i == 4:
+                        participantes = participantes - 1
 
             if i == 5:
                 if dados.get('participantes_confirmados', None):

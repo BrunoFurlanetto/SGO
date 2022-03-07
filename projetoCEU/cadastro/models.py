@@ -20,7 +20,7 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
     def __str__(self):
         return f'Relatório de atendimento do Público do dia {self.data_atendimento}'
 
-# ------------------------------ Funções para vizualização no template -----------------------------------------
+    # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
         professores = []
         for professor in self.equipe.values():
@@ -40,10 +40,11 @@ class RelatorioPublico(forms.ModelForm):
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
                    'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
                    }
+
+
 # --------------------------------------------------------------------------------------------------------------
-
-
-# --------------------------- Model para cadsatro do atendimento com colégio -----------------------------------
+# --------------------------- Model para cadsatro do atendimento com comlégio -----------------------------------
+# --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoColegioCeu(models.Model):
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
@@ -68,7 +69,7 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     def __str__(self):
         return f'Relatório de atendimento do colégio do dia {self.instituicao}'
 
-# ------------------------------ Funções para vizualização no template -----------------------------------------
+    # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
         professores = []
         for professor in self.equipe.values():
@@ -78,6 +79,7 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
 # --------------------------------------------------------------------------------------------------------------
 
 
+# --------------------------- Formulário para cadastro de atendimento à colégio --------------------------------
 class RelatorioColegio(forms.ModelForm):
     class Meta:
         model = RelatorioDeAtendimentoColegioCeu
@@ -89,7 +91,9 @@ class RelatorioColegio(forms.ModelForm):
 # --------------------------------------------------------------------------------------------------------------
 
 
-# --------------------------- Model para cadsatro do atendimento com colégio -----------------------------------
+# --------------------------------------------------------------------------------------------------------------
+# --------------------------- Model para cadsatro do atendimento com empresa -----------------------------------
+# --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
@@ -110,7 +114,7 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     def __str__(self):
         return f'Relatório de atendimento à empresa do dia {self.instituicao}'
 
-# ------------------------------ Funções para vizualização no template -----------------------------------------
+    # ------------------------------ Funções para vizualização no template -----------------------------------------
     def equipe_escalada(self):
         professores = []
         for professor in self.equipe.values():
@@ -120,6 +124,7 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
 # --------------------------------------------------------------------------------------------------------------
 
 
+# ----------------------------- Formulário para atendimento com empresa ----------------------------------------
 class RelatorioEmpresa(forms.ModelForm):
     class Meta:
         model = RelatorioDeAtendimentoEmpresaCeu
