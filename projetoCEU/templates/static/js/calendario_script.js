@@ -201,11 +201,11 @@ document.querySelector(".days").addEventListener("click", (event) => {
             }
 
             var i = 1
-            var equipe_tabela = []
             for (let relatorio in response['dados']){
-                console.log(response['dados'][relatorio]['equipe'])
+                var equipe_tabela = []
+                console.log(response['dados'][relatorio])
 
-                let novaLinha = `<tr id='dados${i}' class='clickable-row' data-href="/ordem-de-servico/${response['dados'][relatorio]['id']}"></>`
+                let novaLinha = `<tr id='dados${i}' class='clickable-row' data-href="/ordem-de-servico/${response['dados'][relatorio]['id']}"></tr>`
                 $('#dados').append(novaLinha)
                 let script_tag = document.createElement('script')
                 script_tag.text = 'jQuery(document).ready(function($){$(".clickable-row").click(function(){window.location = $(this).data("href");});});'
@@ -223,6 +223,8 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 let data_atendimento = '<td>'+ data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
 
                 $('#dados'+i).append(tipo, instituicao, coordenador, equipe, data_atendimento)
+
+                i++
             }
         }
     });

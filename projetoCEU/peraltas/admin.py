@@ -1,3 +1,7 @@
 from django.contrib import admin
+from peraltas.models import Monitor
 
-# Register your models here.
+
+@admin.register(Monitor)
+class ProfessoresAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
