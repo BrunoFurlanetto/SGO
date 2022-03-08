@@ -4,13 +4,14 @@ from datetime import datetime, timedelta
 from escala.models import Disponibilidade
 
 
-# Função necessária para verificar se é o ajax que está mandando o POST para o servidor
+# ------------ Função necessária para verificar se é o ajax que está mandando o POST para o servidor -------------------
 # ----------------------------------------------------------------------------------------------------------------------
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+# ------------------- Função responsável por juntar os dados à ser enviados para o ajax --------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 def juntar_dados(relatorios):
     i = 1
@@ -32,7 +33,8 @@ def juntar_dados(relatorios):
     return dados
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------- Funções relacionadas ao resumo do mês ---------------------------------------------
+# ---------------------------------- Contar atividades para o resumo do mês --------------------------------------------
 def contar_atividades(professor_logado, relatorios):
     n_atividades = 0
 
@@ -46,7 +48,7 @@ def contar_atividades(professor_logado, relatorios):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------- Contar horas para o resumo do mês ----------------------------------------------
 def contar_horas(professor_logado, relatorios):
     n_horas = timedelta(hours=0, minutes=0)
 
@@ -67,7 +69,7 @@ def contar_horas(professor_logado, relatorios):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------- Formatação para o reusmo do de horas do mês ------------------------------------------
 def formatar_horas(horas):
 
     if horas != timedelta(days=0):
@@ -79,9 +81,10 @@ def formatar_horas(horas):
         m = (horas.seconds % 3600) / 60
         return f'{h}h{m:.0f}min'
 # ----------------------------------------------------------------------------------------------------------------------
-
-
 # ----------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------- Função para testar o aviso de disponibilidades ---------------------------------------
 def teste_aviso(hora_login, usuario, id_usuario):
     diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
     diferenca -= timedelta(hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second)
@@ -92,9 +95,12 @@ def teste_aviso(hora_login, usuario, id_usuario):
         consulta = Disponibilidade.objects.filter(professor=usuario, mes=1, ano=datetime.now().year + 1)
 
     if len(consulta) == 0:
+
         if datetime.now().day > 20:
+
             if User.objects.filter(pk=id_usuario, groups__name='Professor').exists():
                 if diferenca == timedelta(days=0, hours=3):
+                    print('True')
                     return True
 
     return False
