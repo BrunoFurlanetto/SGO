@@ -1,4 +1,5 @@
 import math
+import json
 # ------------------------- Funções relacionadas ao salvamento das atividades -------------------------------
 
 
@@ -40,6 +41,7 @@ def salvar_atividades(dados, relatorio):
                                                  'data_e_hora': data_e_hora, 'participantes': participantes}
 
     relatorio.atividades = dados_atividade
+
 # -----------------------------------------------------------------------------------------------------------
 
 

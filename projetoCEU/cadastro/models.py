@@ -1,3 +1,6 @@
+import json
+from json import JSONEncoder
+
 from django.db import models
 from django import forms
 
@@ -6,7 +9,7 @@ from peraltas.models import Monitor
 
 # ----------------------- Model para cadsatro de atendimento ao público ----------------------------------------
 class RelatorioDeAtendimentoPublicoCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Público')
+    tipo = models.CharField(max_length=7, default='Público', blank=True)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     data_atendimento = models.DateField()
@@ -105,7 +108,7 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     check_out = models.DateTimeField()
     coordenador_peraltas = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
-    atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
+    atividades = models.JSONField(blank=True, null=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
     locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':,
     # 'data_hora_saida':, 'soma_horas':, 'soma_horas_total':]}
