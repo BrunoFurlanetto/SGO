@@ -1,15 +1,17 @@
+import json
 from datetime import datetime
 from itertools import chain
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala
-from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso
+from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas
 
 from ceu.models import Professores
 
@@ -22,20 +24,43 @@ def dashboard(request):
     if ver_icons:
         return redirect('fichaAvaliacao')
     # ----------------------------------------------------------------------------------------------------
+
+    # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
+    # Relatórios de atendimento ao público
     dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
         data_atendimento=datetime.now().date())
+    # Relatórios de atendimento com colégio
     dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        check_in__date__lt=datetime.now().date(), check_out__date__gt=datetime.now().date())
-    # dados_empresa =
-    dados_iniciais = list(chain(dados_publico, dados_colegio))
-    data_hoje = datetime.now().date()
+        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
+    # Relatórios de atendimento com empresa
+    dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
+        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
 
+    dados_iniciais = list(chain(dados_publico, dados_colegio, dados_empresa))
+    data_hoje = datetime.now().date()
+    # ----------------------------------------------------------------------------------------------------
+
+    # ------------------ Relatórios para conta de atividades e horas do mês --------------------
     usuario_logado = Professores.objects.get(usuario=request.user)
 
-    # ------------------ Ordens para conta de atividades e horas do mês --------------------
-    ordens_usuario = RelatorioDeAtendimentoPublicoCeu.objects.filter(
-        equipe__icontains=usuario_logado).filter(
-        data_atendimento__month=datetime.now().month).values()
+    usuario_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+        data_atendimento__month=datetime.now().month).filter(
+        equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+
+    usuario_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(
+        Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
+        equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+
+    usuario_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(
+        Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
+        equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+
+    relatorios_usuario = list(chain(usuario_publico, usuario_colegio, usuario_empresa))
+
+    # ------------------ Parte para chegar no resumo do mês -------------------
+    n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
+    n_horas = contar_horas(usuario_logado, relatorios_usuario)
+    # --------------------------------------------------------------------------------------------------------
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
     mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
@@ -51,38 +76,29 @@ def dashboard(request):
         for escala in escalas:
             equipe_escalada = escala.equipe.split(', ')
 
+    # ------------ Ajax enviado para construir as linhas da tabela para a data selecionada ----------------
     if is_ajax(request) and request.method == 'POST':
         data_selecao = request.POST.get('data_selecionada')
 
         publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
             data_atendimento=data_selecao)
         colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
+            t__date__gcheck_in__date__lte=data_selecao, check_oute=data_selecao)
         empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
             check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
 
         relatorios = list(chain(publico, colegio, empresa))
-        print(relatorios)
-
         dados = juntar_dados(relatorios)
 
         return JsonResponse({'dados': dados})
+    # -----------------------------------------------------------------------------------------------------
 
     if request.method != 'POST':
         professores = Professores.objects.all()
 
-        ordens_usuario = RelatorioDeAtendimentoPublicoCeu.objects.filter(
-            equipe__icontains=usuario_logado.usuario.first_name).filter(
-            data_atendimento__month=datetime.now().month)
-
-        # ------------------ Parte para chegar no resumo do mês -------------------
-        n_atividade = contar_atividades(usuario_logado, ordens_usuario.values())
-        # n_horas = contar_horas(usuario_logado, ordens_usuario.values())
-        # -------------------------------------------------------------------------
-
         return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais,
-                                                            'data': data_hoje})
+                                                            'data': data_hoje, 'equipe_escalada': equipe_escalada,
+                                                            'n_atividades': n_atividades, 'n_horas': n_horas})
         # , {'ordemDeServico': dados_iniciais, 'data': data,
-        #  'equipe_escalada': equipe_escalada, 'n_atividades': n_atividade,
-        #  'n_horas': n_horas, 'mostrar': mostrar_aviso_disponibilidade,
+        # 'mostrar': mostrar_aviso_disponibilidade,
         #  'depois_25': depois_25})

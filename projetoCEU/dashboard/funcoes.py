@@ -33,13 +33,13 @@ def juntar_dados(relatorios):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-def contar_atividades(professor_logado, ordens):
+def contar_atividades(professor_logado, relatorios):
     n_atividades = 0
 
-    for ordem in ordens:
-        for nome in ordem:
-            if 'professores' in nome and 'locacao' not in nome and ordem[nome] is not None:
-                if professor_logado.nome in ordem[nome] and ordem[nome] != 'Visita técnica':
+    for relatorio in relatorios:
+        if relatorio.atividades is not None:
+            for i in range(len(relatorio.atividades)):
+                if professor_logado.usuario.first_name in relatorio.atividades[f'atividade_{i+1}']['professores']:
                     n_atividades += 1
 
     return n_atividades
@@ -47,27 +47,21 @@ def contar_atividades(professor_logado, ordens):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-def contar_horas(professor_logado, ordens):
-    n_horas = timedelta()
+def contar_horas(professor_logado, relatorios):
+    n_horas = timedelta(hours=0, minutes=0)
 
-    for ordem in ordens:
-        for nome in ordem:
-            if 'professores_locacao_1' in nome and ordem[nome] is not None:
+    for relatorio in relatorios:
 
-                if professor_logado.nome in ordem[nome]:
-                    n_horas += ordem['soma_horas_1']
+        if relatorio.tipo != 'Público' and relatorio.locacoes is not None:
+            for i in range(len(relatorio.locacoes)):
 
-            if 'professores_locacao_2' in nome and ordem[nome] is not None:
-
-                if professor_logado.nome in ordem[nome]:
-                    # if ordem['soma_horas_2'] is not None:
-                    n_horas += ordem['soma_horas_2']
-
-            if 'professores_locacao_3' in nome and ordem[nome] is not None:
-
-                if professor_logado.nome in ordem[nome]:
-                    # if Professores.objects.get(pk=ordem[nome]) == professor_logado:
-                    n_horas += ordem['soma_horas_3']
+                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i+1}']['professores']:
+                    for j in range(int(len(relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'])/3)):
+                        n_horas += timedelta(
+                            hours=int(
+                                relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'][f'soma_horas_{j+1}'].split(':')[0]),
+                            minutes=int(
+                                relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'][f'soma_horas_{j+1}'].split(':')[1]))
 
     return formatar_horas(n_horas)
 # ----------------------------------------------------------------------------------------------------------------------
