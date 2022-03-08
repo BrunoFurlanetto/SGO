@@ -42,15 +42,15 @@ def dashboard(request):
 
     # ------------------ Relatórios para conta de atividades e horas do mês --------------------
     usuario_logado = Professores.objects.get(usuario=request.user)
-
+    # Relatórios de atendimento ao público
     usuario_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(
         data_atendimento__month=datetime.now().month).filter(
         equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
-
+    # Relatórios de atendimento de colégio
     usuario_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(
         Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
         equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
-
+    # Relatórios de atendimento de empresa
     usuario_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(
         Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
         equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
@@ -61,12 +61,6 @@ def dashboard(request):
     n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
     n_horas = contar_horas(usuario_logado, relatorios_usuario)
     # --------------------------------------------------------------------------------------------------------
-
-    # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
-    mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
-    depois_25 = False
-    if datetime.now().day > 25:
-        depois_25 = True
 
     # ----------- Seleção da escala do dia -------------
     escalas = Escala.objects.filter(data=datetime.now())
@@ -93,12 +87,18 @@ def dashboard(request):
         return JsonResponse({'dados': dados})
     # -----------------------------------------------------------------------------------------------------
 
+    # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
+    mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
+    depois_25 = False
+    if datetime.now().day > 25:
+        depois_25 = True
+
     if request.method != 'POST':
         professores = Professores.objects.all()
 
         return render(request, 'dashboard/dashboard.html', {'professores': professores, 'relatorios': dados_iniciais,
                                                             'data': data_hoje, 'equipe_escalada': equipe_escalada,
-                                                            'n_atividades': n_atividades, 'n_horas': n_horas})
-        # , {'ordemDeServico': dados_iniciais, 'data': data,
-        # 'mostrar': mostrar_aviso_disponibilidade,
-        #  'depois_25': depois_25})
+                                                            'n_atividades': n_atividades, 'n_horas': n_horas,
+                                                            'mostrar_aviso': mostrar_aviso_disponibilidade,
+                                                            'depois_25': depois_25})
+
