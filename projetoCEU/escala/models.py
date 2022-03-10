@@ -10,7 +10,7 @@ class Escala(models.Model):
         return self.equipe
 
     def separar_equipe(self):
-        return self.equipe.split(', ')
+        return self.equipe.split(',')
 
 
 class Disponibilidade(models.Model):
@@ -34,6 +34,9 @@ class Disponibilidade(models.Model):
     mes = models.IntegerField(choices=meses)
     ano = models.CharField(max_length=20)
     n_dias = models.IntegerField()
+
+    def __str__(self):
+        return f'Disponibilidade de {self.professor.usuario.first_name} para o mês {self.mes}'
 
 # ----- Função responsávvel por verificar a disponibilidade para o dia selecionado na aba de escala ---------
     @staticmethod

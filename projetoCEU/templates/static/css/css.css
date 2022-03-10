@@ -49,8 +49,7 @@
 /* Estilos do cadastro de público */
 .conteudo-publico{
     background-color: #fff;
-    margin: auto;
-    margin-bottom: 5%;
+    margin: auto auto 5%;
     width: 850px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
@@ -65,8 +64,7 @@
 /* Estilos do cadastro de colégio */
 .conteudo-colegio{
     background-color: #fff;
-    margin: auto;
-    margin-bottom: 5%;
+    margin: auto auto 5%;
     width: 850px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
@@ -81,8 +79,7 @@
 /* Estilos do cadastro de empresa */
 .conteudo-empresa{
     background-color: #fff;
-    margin: auto;
-    margin-bottom: 5%;
+    margin: auto auto 5%;
     width: 850px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
@@ -94,6 +91,22 @@
     margin: 20px;
 }
 /*------------------------------*/
+/* Estilos do cadastro de empresa */
+.conteudo-os{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 850px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-os {
+    margin: 20px;
+}
+/*------------------------------*/
+
 .conteudo-dashboard{
     margin: auto;
     width: 1100px;

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+  <div class="conteudo-dashboard">
+    <div class="tabela-dashboard">
+      {% csrf_token %}
+      <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
+      <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
+        <thead>
+          <tr class="table-active">
+            <th width="90px"><center>Tipo</center></th>
+            <th width="400px"><center>Instituição</center></th>
+            <th width="120px"><center>Coordenador</center></th>
+            <th width="250px" ><center>Equipe</center></th>
+            <th width="210px"><center><nobr>Data de atendimento</nobr></center></th>
+          </tr>
+        </thead>
+        <tbody id="dados">
+          {% if not relatorios %}
+            <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
+          {% endif %}
+
+          {% for relatorio in relatorios %}
+            <tr class='clickable-row' data-href="{% url 'verOrdem' relatorio.id %}">
+              <td>{{ relatorio.tipo }}</td>
+              <td>{{ relatorio.instituicao }}</td>
+              <td>{{ relatorio.equipe.coordenador }}</td>
+              <td>{{ relatorio.equipe_escalada }}</td>
+              <td>{{ data }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+<!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
+    </div>
+    <hr>
+    <div class="dados_dashboard">
+      <div class="dados-usuario">
+        <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
+      </div>
+      <div class="escala">
+        <b>Escala do dia:</b>
+
+        {% if equipe_escalada %}
+          {% for professor in equipe_escalada %}
+            {{ forloop.counter }} - {{ professor }},
+          {% endfor %}
+        {% else %}
+          Ninguém escalado para hoje!
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+<!--------------------------------------------------------------------------------------------------------------------->
+<!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------->
+  {% if mostrar_aviso and not depois_25 %}
+    <script>
+      $(window).on('load',function(){
+        $('#avisoAntes25').modal('show')
+      })
+    </script>
+    <div class="modal fade" id="avisoAntes25" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Aviso de envio de disponibilidade</h5>
+            <button class="x-fechar-modal" type="button" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Disponibilidade para o mês que vem ainda não foi enviada, por favor vá para Escala > Disponibilidade
+            e envie as datas disponiveis para o mês próximo mês.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if mostrar_aviso and depois_25 %}
+    <div class="modal fade" id="avisoDepois25" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Disponibilidade não enviada</h5>
+            <button type="button" class="x-fechar-modal" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            A disponibilidade para o mês seguinte não foi enviada a tempo, por favor entrar em contato com o coordenador
+            pedagógico.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(window).on('load',function(){
+        $('#avisoDepois25').modal('show')
+      })
+    </script>
+  {% endif %}
+
+{% endblock %}
+

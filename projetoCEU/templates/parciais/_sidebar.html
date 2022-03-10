@@ -2,13 +2,20 @@
 
 <div class="sidebar close">
 <div class="logo-details">
-<i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
-<span class="logo_name"><nobr>Fundação CEU</nobr></span>
+
+  {% if request.path == '/dashboard/ceu' %}
+    <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
+    <span class="logo_name"><nobr>Fundação CEU</nobr></span>
+  {% else %}
+    <i><img src="{% static 'img/GP.png' %}" alt="Logo CEU" height="60px" width="auto"></i>
+    <span class="logo_name" style="margin-top: 5px"><nobr>Grupo Peraltas</nobr></span>
+  {% endif %}
+
 </div>
     {% if request.user.is_authenticated %}
         {% if not ver %}
           <ul class="nav-links">
-          {% if request.path == '/dashboard/' %}
+          {% if request.path == '/dashboard/ceu' %}
             <li>
               <a>
                 <i class="bx bxs-calendar"></i>
@@ -22,21 +29,31 @@
             </div>
           {% endif %}
 
-            {% if request.path == '/dashboard/' %}
+            {% if request.path == '/dashboard/ceu' %}
               <li class="item-sidebar">
             {% else %}
               <li>
             {% endif %}
-              <a href="{% url 'dashboard' %}">
+
+            {% if request.path == '/dashboard/peraltas' %}
+              <a href="{% url 'dashboardPeraltas' %}">
+            {% else %}
+              <a href="{% url 'dashboardCeu' %}">
+            {% endif %}
+
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
               </a>
               <ul class="sub-menu blank">
-                <li><a class="link_name" href="{% url 'dashboard' %}">Dashboard</a></li>
+                {% if request.path == '/dashboard/peraltas' %}
+                  <li><a class="link_name" href="{% url 'dashboardPeraltas' %}">Dashboard</a></li>
+                {% else %}
+                  <li><a class="link_name" href="{% url 'dashboardCeu' %}">Dashboard</a></li>
+                {% endif %}
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/' %}
+            {% if request.path == '/dashboard/ceu' %}
               <li class="item-sidebar">
             {% else %}
               <li>
@@ -50,7 +67,7 @@
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/' %}
+            {% if request.path == '/dashboard/ceu' %}
               <li class="item-sidebar">
             {% else %}
               <li>
@@ -64,26 +81,30 @@
               </div>
               <ul class="sub-menu">
                 <li><a class="link_name">Cadastrar</a></li>
-                <li><a href="{% url 'publico' %}">Público</a></li>
+                {% if request.path == '/dashboard/ceu' %}
+                  <li><a href="{% url 'publico' %}">Público</a></li>
 
-                <li>
-                  <div class="iocn-link-2">
-                    <a href="{% url 'colegio' %}">
-                      <span>Colégio</span>
-                    </a>
-                    <i class='bx bxs-chevron-down arrow-2' ></i>
-                  </div>
-                  <ul class="sub-sub-menu">
-                    <li><a class="link_name">Colégio</a></li>
-                    <li><a href="{% url 'solicitarAvaliacao' %}">Avaliação</a></li>
-                  </ul>
-                </li>
+                  <li>
+                    <div class="iocn-link-2">
+                      <a href="{% url 'colegio' %}">
+                        <span>Colégio</span>
+                      </a>
+                      <i class='bx bxs-chevron-down arrow-2' ></i>
+                    </div>
+                    <ul class="sub-sub-menu">
+                      <li><a class="link_name">Colégio</a></li>
+                      <li><a href="{% url 'solicitarAvaliacao' %}">Avaliação</a></li>
+                    </ul>
+                  </li>
 
-                <li><a href="{% url 'empresa' %}">Empresa</a></li>
+                  <li><a href="{% url 'empresa' %}">Empresa</a></li>
+                {% else %}
+                  <li><a href="{% url 'ordem_de_servico' %}">Ordem de serviço</a></li>
+                {% endif %}
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/' %}
+            {% if request.path == '/dashboard/ceu' %}
               <li class="item-sidebar">
             {% else %}
               <li>

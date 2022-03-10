@@ -21,7 +21,7 @@ def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):
     if prof_5:
         equipe.append(prof_5)
 
-    return ', '.join(equipe)
+    return ','.join(equipe)
 
 
 def verificar_dias(dias_enviados, professor):

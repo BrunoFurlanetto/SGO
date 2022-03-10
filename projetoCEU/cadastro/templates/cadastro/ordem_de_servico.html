@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="row conteudo-os">
+        <div class="titulo-os">
+            <center>
+                <h2>Ficha de Evento</h2>
+            </center>
+        </div>
+        <form action="{% url 'ordem_de_servico' %}" method="POST">
+            <div>
+                <label>Tipo</label>
+                {{ form.tipo }}
+            </div>
+            <div>
+                <label>Instituição</label>
+                {{ form.instituicao }}
+            </div>
+            <div>
+                <label>Check in</label>
+                {{ form.check_in }}
+            </div>
+            <div>
+                <label>Check out</label>
+                {{ form.check_out }}
+            </div>
+        </form>
+    </div>
+{% endblock %}
