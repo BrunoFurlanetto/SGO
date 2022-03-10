@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
+from ordemDeServico.models import OrdemDeServico
 
 
 @admin.register(RelatorioDeAtendimentoPublicoCeu)
@@ -23,4 +22,12 @@ class RelatorioDeAtendimentoColegioCeuAdmin(admin.ModelAdmin):
 class RelatorioDeAtendimentoEmpresaCeuAdmin(admin.ModelAdmin):
     list_display = ('check_in', 'equipe')
     list_display_links = ('check_in',)
+    list_per_page = 10
+
+
+@admin.register(OrdemDeServico)
+class OrdemDeServico(admin.ModelAdmin):
+    list_display = ('instituicao', 'check_in', 'check_out', 'monitor_responsavel')
+    list_display_links = ()
+    list_editable = ('monitor_responsavel',)
     list_per_page = 10

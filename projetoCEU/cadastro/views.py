@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+
+from ordemDeServico.models import CadastroOrdemDeServico
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
 from cadastro.models import RelatorioPublico
@@ -125,3 +127,10 @@ def empresa(request):
     else:
         messages.success(request, 'Relatório de atendimento salvo com sucesso!')
         return redirect('dashboard')
+
+
+@login_required(login_url='login')
+def ordemDeServico(request):
+    form = CadastroOrdemDeServico()
+
+    return render(request, 'cadastro/ordem_de_servico.html', {'form': form})

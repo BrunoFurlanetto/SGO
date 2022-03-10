@@ -5,7 +5,12 @@ from django.contrib.auth.models import User
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        if User.objects.filter(pk=request.user.id, groups__name='CEU').exists():
+            return redirect('dashboardCeu')
+        elif User.objects.filter(pk=request.user.id, groups__name='Peraltas').exists():
+            return redirect('dashboardPeraltas')
+        elif User.objects.filter(pk=request.user.id, groups__name='Colégio').exists():
+            return redirect('fichaAvaliacao')
 
     if request.method != 'POST':
         return render(request, 'home/index.html')
@@ -17,7 +22,13 @@ def index(request):
         username = User.objects.get(email=email.lower()).username
         user = auth.authenticate(request, username=username, password=senha)
         auth.login(request, user)
-        return redirect('dashboard')
+
+        if User.objects.filter(pk=request.user.id, groups__name='CEU').exists():
+            return redirect('dashboardCeu')
+        elif User.objects.filter(pk=request.user.id, groups__name='Peraltas').exists():
+            return redirect('dashboardPeraltas')
+        elif User.objects.filter(pk=request.user.id, groups__name='Colégio').exists():
+            return redirect('fichaAvaliacao')
     except:
         messages.error(request, 'Email e/ou senha inválidos')
         return render(request, 'home/index.html')
