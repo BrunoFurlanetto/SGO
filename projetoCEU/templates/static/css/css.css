@@ -26,6 +26,11 @@
 .conteudo-login {
     justify-content: center;
     align-items: center;
+    height: 100vh;
+}
+.titulo-sistema{
+    margin: 2% 2%;
+    color: #A9A9A9;
 }
 .login {
     justify-content: center;
@@ -91,19 +96,16 @@
     margin: 20px;
 }
 /*------------------------------*/
-/* Estilos do cadastro de empresa */
+/* Estilos do cadastro de OS */
 .conteudo-os{
     background-color: #fff;
     margin: auto auto 5%;
-    width: 850px;
+    width: 650px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
     display: flex;
     justify-content: center;
-}
-.titulo-os {
-    margin: 20px;
 }
 /*------------------------------*/
 

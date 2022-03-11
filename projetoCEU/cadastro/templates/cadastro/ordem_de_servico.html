@@ -8,23 +8,79 @@
             <center>
                 <h2>Ficha de Evento</h2>
             </center>
+            <hr>
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST">
-            <div>
-                <label>Tipo</label>
-                {{ form.tipo }}
+            <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
+            <div class="row mb-2">
+                <h5>Informações do grupo</h5>
+                <div style="width:23%">
+                    <label>Tipo</label>
+                    {{ form.tipo }}
+                </div>
+                <div style="width: 77%">
+                    <label>Instituição</label>
+                    {{ form.instituicao }}
+                </div>
             </div>
-            <div>
-                <label>Instituição</label>
-                {{ form.instituicao }}
+
+            <div class="row mb-2">
+                <div style="width: 39%">
+                    <label>Check in</label>
+                    {{ form.check_in }}
+                </div>
+                <div style="width: 39%">
+                    <label>Check out</label>
+                    {{ form.check_out }}
+                </div>
+                <div style="width: 22%">
+                    <label>Participantes</label>
+                    {{ form.n_participantes }}
+                </div>
             </div>
-            <div>
-                <label>Check in</label>
-                {{ form.check_in }}
+            <hr>
+            <div class="row">
+                <div class="row">
+                    <div style="width: 45%">
+                        <label>Responsável do grupo</label>
+                        {{ form.responsavel_grupo }}
+                    </div>
+                    <div style="width: 25%">
+                        <label>Monitor</label>
+                        {{ form.monitor_responsavel }}
+                    </div>
+                </div>
             </div>
+            <hr>
+            <div class="row colegios none">
+                <div style="width: 45%">
+                    <label>Série</label>
+                    {{ form.serie }}
+                </div>
+                <div style="width: 20%">
+                    <label>Professores</label>
+                    {{ form.n_professores }}
+                </div>
+            </div>
+            <hr class="colegios_barra none">
+            <div class="atividade-ceu">
+                <h5>Atividades no CEU</h5>
+                <div class="atividades none"></div>
+                <button class="buton-plus" type="button">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            </div>
+            <hr>
+            <div style="width: 70%">
+                <h5>Cronograma do grupo</h5>
+                {{ form.cronograma_peraltas }}
+            </div>
+            <hr>
             <div>
-                <label>Check out</label>
-                {{ form.check_out }}
+                <div class="row mb-3">
+                    <label>Outras observações</label>
+                    {{ form.observacoes }}
+                </div>
             </div>
         </form>
     </div>

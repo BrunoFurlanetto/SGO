@@ -23,7 +23,7 @@
   </div>
 
   <div class="conteudo-avaliacao hide" style="padding: 10px">
-    <script src="{% static 'js/teste.js' %}"></script>
+    <script src="{% static 'js/script_base.js' %}"></script>
     <script src="{% static 'js/jquery.js' %}"></script>
 
     <div class="head">
@@ -34,7 +34,7 @@
 
     <form action="{% url 'fichaAvaliacao' %}" method="POST">
       {% csrf_token %}
-      <script src="{% static 'js/teste.js' %}"></script>
+      <script src="{% static 'js/script_base.js' %}"></script>
       <script src="{% static 'js/jquery.js' %}"></script>
       <link rel="stylesheet" href="{% static 'css/avaliacao.css' %}">
 

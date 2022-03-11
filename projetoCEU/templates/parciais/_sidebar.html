@@ -3,13 +3,19 @@
 <div class="sidebar close">
 <div class="logo-details">
 
-  {% if request.path == '/dashboard/ceu' %}
-    <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
-    <span class="logo_name"><nobr>Fundação CEU</nobr></span>
-  {% else %}
-    <i><img src="{% static 'img/GP.png' %}" alt="Logo CEU" height="60px" width="auto"></i>
-    <span class="logo_name" style="margin-top: 5px"><nobr>Grupo Peraltas</nobr></span>
-  {% endif %}
+  {% for group in request.user.groups.all %}
+    {% if group.name == 'CEU' %}
+      <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
+      <span class="logo_name"><nobr>Fundação CEU</nobr></span>
+    {% endif %}
+  {% endfor %}
+
+  {% for group in request.user.groups.all %}
+    {% if group.name == 'Peraltas' %}
+      <i><img src="{% static 'img/GP.png' %}" alt="Logo CEU" height="60px" width="auto"></i>
+      <span class="logo_name" style="margin-top: 5px"><nobr>Grupo Peraltas</nobr></span>
+    {% endif %}
+  {% endfor %}
 
 </div>
     {% if request.user.is_authenticated %}
