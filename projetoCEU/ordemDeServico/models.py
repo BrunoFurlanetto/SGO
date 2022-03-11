@@ -17,6 +17,7 @@ class OrdemDeServico(models.Model):
     check_out = models.DateTimeField()
     n_participantes = models.IntegerField()
     serie = models.CharField(max_length=255, blank=True, null=True)
+    n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
@@ -35,5 +36,6 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_in': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_out': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_in_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'})
+            'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'tipo': forms.Select(attrs={'onchange': 'verifica_colegio(this)'})
         }

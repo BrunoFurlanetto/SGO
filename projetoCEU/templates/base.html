@@ -6,15 +6,17 @@
   </head>
 
   <body style="background-color: #E4E9F7">
+  {% if user.groups.all %}
     {% include 'parciais/_sidebar.html' %}
     <section class="home-section">
       {% if not ver %}
         <div class="home-content">
           <i class='bx bx-menu' ></i>
-          <span class="text">Sistema de cadastro de relatórios</span>
+          <span class="text">Sistema de Gereciamento Operacional</span>
         </div>
         <hr class="barra">
       {% endif %}
+    {% endif %}
       <div>
         {% include 'parciais/_mensagens.html' %}
         {% block conteudo %}{% endblock %}
