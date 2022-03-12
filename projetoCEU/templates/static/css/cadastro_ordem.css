@@ -27,7 +27,14 @@
     height: 150px;
     resize: none;
 }
-.buton-plus{
+.buton-plus, .buton-x{
+    color: #006b1b;
+    font-size: 25px;
     border: none;
     background-color: #fff;
+}
+.buton-x{
+    margin-top: 3px;
+    font-size: 28px;
+    color: #b02a37;
 }

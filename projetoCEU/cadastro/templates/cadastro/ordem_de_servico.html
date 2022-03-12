@@ -45,7 +45,11 @@
                         <label>Responsável do grupo</label>
                         {{ form.responsavel_grupo }}
                     </div>
-                    <div style="width: 25%">
+                    <div style="width: 35%">
+                        <label>Vendedor(a)</label>
+                        {{ form.vendedor }}
+                    </div>
+                    <div class="mb-2" style="width: 35%">
                         <label>Monitor</label>
                         {{ form.monitor_responsavel }}
                     </div>
@@ -65,8 +69,8 @@
             <hr class="colegios_barra none">
             <div class="atividade-ceu">
                 <h5>Atividades no CEU</h5>
-                <div class="atividades none"></div>
-                <button class="buton-plus" type="button">
+                <div class="row atividades"></div>
+                <button class="buton-plus" type="button" onclick="add_atividade()">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>

@@ -34,7 +34,7 @@ function alterarMes(selecao){
             }
         }
     })
-};
+}
 
 function pegarDadosGrafico2(){
 

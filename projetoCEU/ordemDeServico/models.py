@@ -4,6 +4,8 @@ from django.db import models
 
 from peraltas.models import Monitor
 
+from peraltas.models import Vendedor
+
 
 class OrdemDeServico(models.Model):
     tipo_choice = (
@@ -19,6 +21,7 @@ class OrdemDeServico(models.Model):
     serie = models.CharField(max_length=255, blank=True, null=True)
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
