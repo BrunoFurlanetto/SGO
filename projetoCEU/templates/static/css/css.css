@@ -24,11 +24,13 @@
     align-items: center;
 }
 .conteudo-login {
+    display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 .titulo-sistema{
+    font-size: 4.5vh;
     margin: 2% 2%;
     color: #A9A9A9;
 }

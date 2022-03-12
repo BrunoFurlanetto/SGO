@@ -1,7 +1,7 @@
 from time import sleep
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico
@@ -133,4 +133,14 @@ def empresa(request):
 def ordemDeServico(request):
     form = CadastroOrdemDeServico()
 
-    return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
+    if is_ajax(request) and request.method == 'GET':
+        atividades_bd = Atividades.objects.all()
+        atividades = {}
+
+        for atividade in atividades_bd:
+            atividades[atividade.id] = atividade.atividade
+
+        return JsonResponse({'dados': atividades})
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
