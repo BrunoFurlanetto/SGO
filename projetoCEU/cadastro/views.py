@@ -9,6 +9,7 @@ from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indic
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
 from cadastro.models import RelatorioPublico
 from ceu.models import Professores, Atividades, Locaveis
+from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
 
 
@@ -133,6 +134,9 @@ def empresa(request):
 def ordemDeServico(request):
     form = CadastroOrdemDeServico()
 
+    if request.method != 'POST':
+        return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
+
     if is_ajax(request) and request.method == 'POST':
 
         if request.POST.get('tipo') == 'Colégio':
@@ -169,5 +173,23 @@ def ordemDeServico(request):
 
             return JsonResponse({'lotacao': local_selecionado.lotacao})
 
-    if request.method != 'POST':
-        return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
+    form = CadastroOrdemDeServico(request.POST, request.FILES)
+    ficha_de_evento = form.save(commit=False)
+
+    try:
+        salvar_atividades_ceu(request.POST, ficha_de_evento)
+        check_in_and_check_out_atividade(ficha_de_evento)
+        salvar_locacoes_ceu(request.POST, ficha_de_evento)
+        form.save()
+    except:
+        messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'
+                                'ou entre em contato com o desenvolvedor.')
+        return redirect('dashboardPeraltas')
+    else:
+
+        if ficha_de_evento.tipo == 'Empresa':
+            messages.success(request, f'Ficha do evento da empresa {ficha_de_evento.instituicao} salva com sucesso')
+        else:
+            messages.success(request, f'Ficha do evento do colégio {ficha_de_evento.instituicao} salva com sucesso')
+
+        return redirect('dashboardPeraltas')

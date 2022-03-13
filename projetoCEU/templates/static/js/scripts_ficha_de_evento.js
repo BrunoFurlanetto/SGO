@@ -92,7 +92,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_atividade_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required/>`
             let label_participantes = `<label>QTD</label>`
             let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
             let label_serie = `<label>Serie</label>`
@@ -154,7 +154,7 @@ function remover_atividade(selecao){
 
         // Então passa a renumeração/renomeação dos elementos
         $(select_atividade[k]).attr('id', `ativ_${k+1}`).attr('name', `atividade_${k+1}`);
-        $(hora_atividade[k]).attr('name', 'data_hora_atividade_'+(k+1));
+        $(hora_atividade[k]).attr('name', 'data_hora_'+(k+1));
         $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1));
         $(icone[k]).attr('id', 'btn_'+(k+1));
         $(serie[k]).attr('name', 'serie_participantes_'+(k+1));
@@ -194,7 +194,9 @@ function verificar_limitacoes(selecao) {
                     // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (response['limitacoes'].includes('Não pode acontecer durante a noite')) {
                         if (hora_atividade < 7.00 || hora_atividade >= 18.00) {
-                            alert('Atividade selecionada não pode acontecer durante a noite, verifique se no horário informado ainda terá sol!')
+                            $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger"  id="alert_noite_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                        } else {
+                            $(`#alert_noite_${selecao.id.split('_')[1]}`).remove()
                         }
                     }
 
@@ -202,7 +204,9 @@ function verificar_limitacoes(selecao) {
                     // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (response['limitacoes'].includes('Não pode acontecer durante o dia')) {
                         if (hora_atividade > 7.00 && hora_atividade <= 19.30) {
-                            alert('Atividade selecionada não pode acontecer durante o dia, verifique se a atividade selecionada pode acontecer nesse horário!')
+                            $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_dia_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                        } else {
+                            $(`#alert_dia_${selecao.id.split('_')[1]}`).remove()
                         }
                     }
                 }
@@ -213,14 +217,16 @@ function verificar_limitacoes(selecao) {
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
                     if(participantes < response['participantes_minimo']){
-                        alert('A quantidade de participantes cadastrado é menor do que o mínimo pra atividade selecionada acontecer (' + response['participantes_minimo'] + ')!' )
+                        $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_${selecao.id.split('_')[1]}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
+                    } else {
+                        $(`#alert_participantes_${selecao.id.split('_')[1]}`).remove()
                     }
 
                     // Verifica se o número de participantes está acimsa do limite de lotação.
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
                     if(participantes > limite){
                         dividar_atividade(selecao.id.split('_')[1], limite)
-                        alert('A quantidade de participantes cadastrado é menor do que o mínimo pra atividade selecionada acontecer (' + response['participantes_maximo'] + ')!')
+                        $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
                 }
             }
@@ -393,7 +399,6 @@ function verificar_lotacao(selecao){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'local': locacao},
         success: function(response){
-            console.log(participantes, response['lotacao'] * 0.7)
 
             if(locacao !== ''){
 
@@ -401,7 +406,17 @@ function verificar_lotacao(selecao){
                 // um alerta para pedindo a verificação de uma nova lotação caso haja uma disposição
                 // de mesas e cadeiras diferente
                 if(participantes > (response['lotacao'] * 0.7)){
-                    alert('Lotação informada acima de 70% da sala, por favor verificar disposição da sala, para saber a nova lotação.')
+
+                    if(participantes > response['lotacao']){
+                        $(`#div_pai_loc_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_loc_${selecao.id.split('_')[1]}" style="margin-left: 10px">Lotação máxima da sala ultrapassada!</p>`)
+                        $(`#participantes-loc_${selecao.id.split('_')[1]}`).empty()
+                    } else {
+                        $(`#alert_participantes_loc_${selecao.id.split('_')[1]}`).remove()
+                        $(`#div_pai_loc_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_loc_${selecao.id.split('_')[1]}" style="margin-left: 10px">Lotação acima de 70%. Necessário verificação acerca da disposição da sala!</p>`)
+                    }
+
+                } else {
+                    $(`#alert_participantes_loc_${selecao.id.split('_')[1]}`).remove()
                 }
             }
         }

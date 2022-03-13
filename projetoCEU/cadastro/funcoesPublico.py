@@ -1,5 +1,4 @@
 import math
-import json
 # ------------------------- Funções relacionadas ao salvamento das atividades -------------------------------
 
 
