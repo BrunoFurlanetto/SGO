@@ -20,7 +20,17 @@ def fichaAvaliacao(request):
     # elif not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
     #     return redirect('dashboard')
     #
-    # ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+    formulario = FichaDeAvaliacaoForm(request.POST)
+    atividades = Atividades.objects.all()
+    professores = Professores.objects.all()
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+    if request.method != 'POST':
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
+                                                                  'atividades': atividades,
+                                                                  'professores': professores})
+    return redirect('agradecimentos')
+
+
     # ordens = RelatorioDeAtendimentoPublicoCeu.objects.order_by('data_atendimento').filter(instituicao__icontains=request.user.last_name)
     # avaliacoes = ['Excelente', 'Ótimo', 'Bom', 'Regular', 'Ruim']
     # professores = []

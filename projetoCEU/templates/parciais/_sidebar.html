@@ -4,7 +4,7 @@
 <div class="logo-details">
 
   {% for group in request.user.groups.all %}
-    {% if group.name == 'CEU' %}
+    {% if group.name == 'CEU' or group.name == 'Colégio' %}
       <i><img src="{% static 'img/ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
       <span class="logo_name"><nobr>Fundação CEU</nobr></span>
     {% endif %}
