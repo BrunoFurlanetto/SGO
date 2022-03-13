@@ -11,6 +11,7 @@
             <hr>
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST">
+            {% csrf_token %}
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
             <div class="row mb-2">
                 <h5>Informações do grupo</h5>
@@ -41,7 +42,7 @@
             <hr>
             <div class="row">
                 <div class="row">
-                    <div style="width: 45%">
+                    <div class="mb-2" style="width: 45%">
                         <label>Responsável do grupo</label>
                         {{ form.responsavel_grupo }}
                     </div>
@@ -66,15 +67,32 @@
                     {{ form.n_professores }}
                 </div>
             </div>
-            <hr class="colegios_barra none">
-            <div class="atividade-ceu">
+            <hr class="colegios none">
+            <div class="locacao-ceu none">
+                <h5>Locacoes no CEU</h5>
+                <div class="row locacoes"></div>
+                <button class="buton-plus" type="button" onclick="add_locacao()">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+                <div class="form-group form-check form-switch mb-3 mt-3">
+                    <label class="form-check-label">A empresa realizara atividades no CEU?</label>
+                    <input type="checkbox" class="form-check-input switch" id="checkAtividade" onchange="mostrar_atividade()"/>
+                </div>
+                <hr style="margin-left: 3px">
+            </div>
+            <div class="atividade-ceu none">
                 <h5>Atividades no CEU</h5>
                 <div class="row atividades"></div>
                 <button class="buton-plus" type="button" onclick="add_atividade()">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
+                <div class="form-group form-check form-switch mb-3 mt-3">
+                    <label class="form-check-label">O colégio realizara locacoes no CEU?</label>
+                    <input type="checkbox" class="form-check-input switch" id="checkAtividade" onchange="mostrar_locacao()"/>
+                </div>
+                <hr style="margin-left: 3px">
             </div>
-            <hr>
+
             <div style="width: 70%">
                 <h5>Cronograma do grupo</h5>
                 {{ form.cronograma_peraltas }}

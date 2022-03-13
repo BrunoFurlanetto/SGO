@@ -8,7 +8,7 @@ from ordemDeServico.models import CadastroOrdemDeServico
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
 from cadastro.models import RelatorioPublico
-from ceu.models import Professores, Atividades
+from ceu.models import Professores, Atividades, Locaveis
 from .funcoesPublico import salvar_atividades, salvar_equipe
 
 
@@ -133,14 +133,35 @@ def empresa(request):
 def ordemDeServico(request):
     form = CadastroOrdemDeServico()
 
-    if is_ajax(request) and request.method == 'GET':
-        atividades_bd = Atividades.objects.all()
-        atividades = {}
+    if is_ajax(request) and request.method == 'POST':
 
-        for atividade in atividades_bd:
-            atividades[atividade.id] = atividade.atividade
+        if request.POST.get('tipo') == 'Colégio':
+            atividades_bd = Atividades.objects.all()
+            atividades = {}
 
-        return JsonResponse({'dados': atividades})
+            for atividade in atividades_bd:
+                atividades[atividade.id] = atividade.atividade
+
+            return JsonResponse({'dados': atividades})
+
+        if request.POST.get('tipo') == 'Empresa':
+            locaveis_bd = Locaveis.objects.filter(locavel=True)
+            locaveis = {}
+
+            for estrutura in locaveis_bd:
+                locaveis[estrutura.id] = estrutura.estrutura
+
+            return JsonResponse(locaveis)
+
+        atividade_selecionada = Atividades.objects.get(id=request.POST.get('atividade'))
+        limtacoes = []
+
+        for limite in atividade_selecionada.limitacao.all():
+            limtacoes.append(limite.limitacao)
+
+        return JsonResponse({'limitacoes': limtacoes,
+                             'participantes_minimo': atividade_selecionada.numero_de_participantes_minimo,
+                             'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo})
 
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
