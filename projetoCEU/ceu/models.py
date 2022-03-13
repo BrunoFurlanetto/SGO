@@ -19,6 +19,7 @@ class Professores(models.Model):
 class Locaveis(models.Model):
     estrutura = models.CharField(max_length=100)
     locavel = models.BooleanField(default=False)
+    lotacao = models.IntegerField()
 
     def __str__(self):
         return self.estrutura

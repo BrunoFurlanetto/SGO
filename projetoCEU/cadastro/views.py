@@ -153,15 +153,21 @@ def ordemDeServico(request):
 
             return JsonResponse(locaveis)
 
-        atividade_selecionada = Atividades.objects.get(id=request.POST.get('atividade'))
-        limtacoes = []
+        if request.POST.get('atividade'):
+            atividade_selecionada = Atividades.objects.get(id=request.POST.get('atividade'))
+            limtacoes = []
 
-        for limite in atividade_selecionada.limitacao.all():
-            limtacoes.append(limite.limitacao)
+            for limite in atividade_selecionada.limitacao.all():
+                limtacoes.append(limite.limitacao)
 
-        return JsonResponse({'limitacoes': limtacoes,
-                             'participantes_minimo': atividade_selecionada.numero_de_participantes_minimo,
-                             'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo})
+            return JsonResponse({'limitacoes': limtacoes,
+                                 'participantes_minimo': atividade_selecionada.numero_de_participantes_minimo,
+                                 'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo})
+
+        if request.POST.get('local'):
+            local_selecionado = Locaveis.objects.get(id=request.POST.get('local'))
+
+            return JsonResponse({'lotacao': local_selecionado.lotacao})
 
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {'form': form})

@@ -15,6 +15,7 @@ class OrdemDeServico(models.Model):
 
     tipo = models.CharField(choices=tipo_choice, max_length=7)
     instituicao = models.CharField(max_length=300)
+    cidade = models.CharField(max_length=255)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     n_participantes = models.IntegerField()
@@ -40,5 +41,5 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_in_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'tipo': forms.Select(attrs={'onchange': 'verifica_colegio(this)'})
+            'tipo': forms.Select(attrs={'onchange': 'verifica_colegio_empresa(this)', 'onclick': 'mostrar_check()'})
         }

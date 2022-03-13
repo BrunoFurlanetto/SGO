@@ -1,12 +1,12 @@
 
-/* Função responsável pelo aparecimento da div de informações de colégio */
-// noinspection JSJQueryEfficiency
-
-function verifica_colegio(selecao){
+// Função para verificar qual aba de cadastro abrir
+// Atividades para o caso de colégio e locação para o caso de empresa
+function verifica_colegio_empresa(selecao){
     let dados_colegio = document.querySelectorAll(".colegios")
-    let tipo_empresa = document.querySelector('.locacao-ceu')
     let tipo_colegio = document.querySelector('.atividade-ceu')
+    let tipo_empresa = document.querySelector('.locacao-ceu')
 
+    // Verifica se o tipo escolhido é 'Colégio' e tira a classe 'none' de todas as div's relacionadas à colégio
     if (selecao.value === 'Colégio'){
         tipo_colegio.classList.remove('none')
 
@@ -17,12 +17,14 @@ function verifica_colegio(selecao){
         tipo_empresa.classList.add('none')
 
     } else {
+        // Esconde as div's do colégio
         tipo_colegio.classList.add('none')
 
         for(let l = 0; l < dados_colegio.length; l++) {
             dados_colegio[l].classList.add('none')
         }
 
+        // Verifica se a seleção ta em empresa pra mostrar os dados relacionados a empresa
         if(selecao.value === 'Empresa'){
             tipo_empresa.classList.remove('none')
         } else {
@@ -31,58 +33,88 @@ function verifica_colegio(selecao){
 
     }
 }
+
+// Função para esconder ou mostrar o checkbox para aparecer a tabela de locação para o colégio
+// ou a tabela de atividades para a empresa. Necessário para caso haja a contratação da outra modalidade
+// de atividade pelo cliente e evita bug com erro inicial de seleção de do 'tipo'
+function mostrar_check(){
+    if($('#id_tipo').val() === 'Colégio') {
+        $('#checkAtividade').toggleClass('none')
+    }
+
+    if($('#id_tipo').val() === 'Empresa') {
+        $('#checkLocacao').toggleClass('none')
+    }
+}
+
+// Mostra a tabela para adição de locação de espaços do CEU pelo colégio
 function mostrar_locacao(){
     let locacao_ceu = document.querySelector('.locacao-ceu')
     locacao_ceu.classList.toggle('none')
 }
+
+// Mostra a tabela para adição de atividades que serão realizadas no CEU pela empresa
 function mostrar_atividade(){
     let atividade_ceu = document.querySelector('.atividade-ceu')
     atividade_ceu.classList.toggle('none')
 }
+//  ------------------------------------------------- Fim das funcionalidades gerais da página ---------------------------------------------------------
+
+// ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(){
-    /* Ajax responsável por puxar todas as atividades do banco de dados */
+function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_=''){
+    /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'tipo': 'Colégio'},
         success: function(response){
-            console.log(response)
-
+            // Variável responsável pelo indicie da nova atividade
+            // a 'div_pai' é a div que ira receber todos os elementos relacionado a mesma atividade
             let i = document.querySelectorAll('.div_pai').length + 1
 
+            // Adição da div pai na div de atividades no CEU
             $('.atividades').append(`<div class="row div_pai" id="div_pai_${i}"></div>`)
 
+            // As div's de cada dado que precisára ser informad no momento do cadas
             let div_atividade = `<div class="mb-2 div-atividade" id="div_atividade_${i}" style="width: 46%"></div>`
             let div_data_hora = `<div class="mb-2 div-data" id="div_data_hora_atividade_${i}" style="width: 35%"></div>`
             let div_participantes = `<div class="mb-2 div-participantes" id="div_participantes_${i}" style="width: 15%"></div>`
             let div_icone = `<div class="my-0 div-icone" id="div_icone_${i}" style="width: 4%; margin-top: auto"></div>`
             let div_serie = `<div class="mb-2 colegios div_serie" id="div_serie_${i}" style="width: 50%"></div>`;
 
+            // Adição das div's na div pai
             $(`#div_pai_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, `<hr class="barra" style="margin-left: 10px">`)
 
+            //Criação dos elementos html necessários par o cadastro de uma nova atividade contratada pelo cliente
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
             let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_atividade_${i}" onchange="verificar_limitacoes(this)" required/>`
             let label_participantes = `<label>QTD</label>`
-            let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes" id="serie_${i}" type="text" name="serie_participantes_${i}"/>`
 
+            // Adição dos elemntos em suas respectivas div's
             $(`#div_atividade_${i}`).append(label_atividade, select_atividade)
             $(`#div_data_hora_atividade_${i}`).append(label_data, data_hora_atividade)
             $(`#div_participantes_${i}`).append(label_participantes, participantes)
             $(`#div_serie_${i}`).append(label_serie, serie)
 
+            // Todas as atividades que serão dcionadas no select da atividade
             for (let j in response['dados']) {
-                $(`#ativ_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
+                if(response['dados'][j] != atividade_) {
+                    $(`#ativ_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
+                }
             }
 
-            $(`#ativ_${i}`).prepend(`<option selected></option>`)
+            // Adição das opções no select
+            $(`#ativ_${i}`).prepend(`<option selected value="${atividade_id_}">${atividade_}</option>`)
 
+            // Criação e adição do botão responsável por excluir uma atividade iniciada
             $(`#div_icone_${i}`).append(`<button class="buton-x" id="btn_${i}" type="button" onClick="remover_atividade(this)">`)
             $(`#btn_${i}`).append(`<span id="spn_${i}"><i class='bx bx-x'></i></span>`)
 
@@ -90,10 +122,12 @@ function add_atividade(){
     })
 
 }
-
+// Função responsável pela remoção de uma atividade já iniciada e
+// renumeração dos id's e nomes dos elementos pai e filho
 function remover_atividade(selecao){
-    $(`#div_pai_${selecao.id.split('_')[1]}`).remove()
+    $(`#div_pai_${selecao.id.split('_')[1]}`).remove() // Remoção do elemento selecionado
 
+    // Seleção de todas as div's a ser renumeradas/renomeadas
     let divs_pai = document.querySelectorAll('.div_pai')
     let divs_atividades = document.querySelectorAll('.div-atividade')
     let divs_data = document.querySelectorAll('.div-data')
@@ -101,13 +135,16 @@ function remover_atividade(selecao){
     let divs_icones = document.querySelectorAll('.div-icone')
     let divs_serie = document.querySelectorAll('.div_serie')
 
+    // Seleção dos elementos que serão renumerados/renomeados
     let select_atividade = document.querySelectorAll('.atividade')
     let hora_atividade = document.querySelectorAll('.hora_atividade')
     let qtd_atividade = document.querySelectorAll('.qtd_participantes')
     let icone = document.querySelectorAll('.buton-x')
     let serie = document.querySelectorAll('.serie_participantes')
 
+    // Renumeração/renomeação das div's e elementos antes selecionados
     for(let k = 0; k <= divs_pai.length; k++) {
+        // Começa trabalhando em cima das div's
         $(divs_pai[k]).attr('id', 'div_pai_'+(k+1));
         $(divs_atividades[k]).attr('id', 'div_atividade_'+(k+1));
         $(divs_data[k]).attr('id', 'div_data_hora_atividade_'+(k+1));
@@ -115,7 +152,8 @@ function remover_atividade(selecao){
         $(divs_icones[k]).attr('id', 'div_icone_'+(k+1));
         $(divs_serie[k]).attr('id', 'div_serie_'+(k+1));
 
-        $(select_atividade[k]).attr('id', `ativ_${k+1}`, 'name', `atividade_${k+1}`);
+        // Então passa a renumeração/renomeação dos elementos
+        $(select_atividade[k]).attr('id', `ativ_${k+1}`).attr('name', `atividade_${k+1}`);
         $(hora_atividade[k]).attr('name', 'data_hora_atividade_'+(k+1));
         $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1));
         $(icone[k]).attr('id', 'btn_'+(k+1));
@@ -124,48 +162,64 @@ function remover_atividade(selecao){
 
 }
 
+// Função responsável por verificar as limitações da atividades sendo cadastrada.
+// Verifica tanto número de participantes máximo e mínimo para a atividade acontecer,
+// quanto o horário que ela ta sendo cadastrada, necessário por haver atividades que
+// não podem acontecer durante a noite ou durante o dia.
 function verificar_limitacoes(selecao) {
+    // Seleção dos valores necessários para as verificações
     let participantes = $(`#participantes_${selecao.id.split('_')[1]}`).val()
     let atividade = $(`#ativ_${selecao.id.split('_')[1]}`).val()
-    let teste = $(`#ativ_${selecao.id.split('_')[1]}`).text()
-    console.log(teste)
     let data_atividade = $(`#data_${selecao.id.split('_')[1]}`).val()
 
+    // É preciso ter selecionado a atividade antes de prosseguir com a verificação
+    // isso porque o ajax vai mandar a atividade para receber todas as limitações e números de participantes
     if (atividade !== '') {
-
         $.ajax({
             type: 'POST',
             url: '',
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             data: {"atividade": atividade},
             success: function (response) {
-                console.log(response)
+                // Participantes máximo da atividade em questão
+                var limite = response['participantes_maximo']
 
+                // A primeira verificação é do horário
                 if(data_atividade !== ''){
 
+                    // Horário informado durante o cadastro da atividade
                     let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
 
+                    // Verificando se o horário informado é durante a noite. Como o sol se põe e nasce em horários
+                    // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (response['limitacoes'].includes('Não pode acontecer durante a noite')) {
                         if (hora_atividade < 7.00 || hora_atividade >= 18.00) {
                             alert('Atividade selecionada não pode acontecer durante a noite, verifique se no horário informado ainda terá sol!')
                         }
                     }
 
-                    if (response['limitacoes'].includes('Não pode acontecer em local abert')) {
+                    // Verificando se o horário informado é durante o dia. Como o sol se põe e nasce em horários
+                    // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
+                    if (response['limitacoes'].includes('Não pode acontecer durante o dia')) {
                         if (hora_atividade > 7.00 && hora_atividade <= 19.30) {
                             alert('Atividade selecionada não pode acontecer durante o dia, verifique se a atividade selecionada pode acontecer nesse horário!')
                         }
                     }
                 }
 
+                // Verificação de número de participantes
                 if(participantes !== ''){
 
+                    // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
+                    // É lançado apenas um aviso.
                     if(participantes < response['participantes_minimo']){
                         alert('A quantidade de participantes cadastrado é menor do que o mínimo pra atividade selecionada acontecer (' + response['participantes_minimo'] + ')!' )
                     }
 
-                    if(participantes > response['participantes_maximo']){
-                        dividar_atividade(selecao.id.split('_')[1])
+                    // Verifica se o número de participantes está acimsa do limite de lotação.
+                    // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
+                    if(participantes > limite){
+                        dividar_atividade(selecao.id.split('_')[1], limite)
                         alert('A quantidade de participantes cadastrado é menor do que o mínimo pra atividade selecionada acontecer (' + response['participantes_maximo'] + ')!')
                     }
                 }
@@ -174,65 +228,67 @@ function verificar_limitacoes(selecao) {
     }
 }
 
-function dividar_atividade(indicie){
+// Função responsável pela divisão das turmas caso a lotação máxima seja excedida
+function dividar_atividade(indicie, limite){
+    let participantes_apx, k, aproximado, sobra;
+    // Pegando os valores necessários para a divisão
     let qtd = $(`#participantes_${indicie}`)
     let atividade_ = $(`#ativ_${indicie} :selected`).text()
     let atividade_value_ = $(`#ativ_${indicie}`).val()
-    let participantes_ = qtd.val() / 2
     let serie_ = $(`#serie_${indicie}`).val()
 
-    qtd.val(participantes_)
+    // Aqui é feito uma verificação do número de turmas necessário
+    for(k = 2; k > 1; k++){
 
-    let div_serie;
-    let i = document.querySelectorAll('.div_pai').length + 1
+        // Vê se o número e turmas já é o suficiente
+        if(qtd.val() / k <= limite){
+            // Aproximação necessária para não haver número fracionado
+            participantes_apx = Math.trunc(qtd.val() / k)
+            // Booleano para dizer se houve aproximação
+            aproximado = qtd.val() / k !== participantes_apx
+            // Paticipantes sobrando devido a aproximação, caso tenha acontecido
+            sobra = qtd.val() - (participantes_apx * k)
+            break
+        }
 
-    $('.atividades').append(`<div class="row div_pai" id="div_pai_${i}"></div>`)
-
-    let div_atividade = `<div class="mb-2 div-atividade" id="div_atividade_${i}" style="width: 46%"></div>`
-    let div_data_hora = `<div class="mb-2 div-data" id="div_data_hora_atividade_${i}" style="width: 35%"></div>`
-    let div_participantes = `<div class="mb-2 div-participantes" id="div_participantes_${i}" style="width: 15%"></div>`
-    let div_icone = `<div class="my-0 div-icone" id="div_icone_${i}" style="width: 4%; margin-top: auto"></div>`
-
-    if($('#id_tipo').val() === 'Colégio'){
-        div_serie = `<div class="mb-2 colegios div_serie" id="div_serie_${i}" style="width: 50%"></div>`;
-    }else{
-        div_serie = `<div class="mb-2 colegios div_serie none" id="div_serie_${i}" style="width: 50%"></div>`;
     }
 
-    $(`#div_pai_${i}`).append(div_atividade, div_data_hora,div_participantes, div_icone, div_serie, `<hr class="barra" style="margin-left: 10px">`)
+    // Troca do número de participantes da atividade já inicado
+    if (aproximado){
+        qtd.val(participantes_apx + 1)
+    } else {
+        qtd.val(participantes_apx)
+    }
 
-    let label_atividade = `<label>Atividade</label>`
-    let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
-    let label_data = `<label>Data e hora da atividade</label>`
-    let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_atividade_${i}" onchange="verificar_limitacoes(this)" required/>`
-    let label_participantes = `<label>QTD</label>`
-    let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" value="${participantes_}" required/>`
-    let label_serie = `<label>Serie</label>`
-    let serie = `<input class="serie_participantes" type="text" name="serie_participantes_${i}" value="${serie_}"/>`
+    // Looping para adcionar o número de turmas que faltam
+    for (let j = 1; j < k; j++) {
+        // Variável do número de participantes das turmas
+        let participantes_ = participantes_apx
 
-    $(`#div_atividade_${i}`).append(label_atividade, select_atividade)
-    $(`#div_data_hora_atividade_${i}`).append(label_data, data_hora_atividade)
-    $(`#div_participantes_${i}`).append(label_participantes, participantes)
-    $(`#div_serie_${i}`).append(label_serie, serie)
-
-    $(`#ativ_${i}`).prepend(`<option value="${atividade_value_}">${atividade_}</option>`)
-
-    $(`#div_icone_${i}`).append(`<button class="buton-x" id="btn_${i}" type="button" onClick="remover_atividade(this)">`)
-    $(`#btn_${i}`).append(`<span id="spn_${i}"><i class='bx bx-x'></i></span>`)
+        // Caso haja participantes sobrando pelo arredondamento é adcionado nas primeiras turmas
+        if(j < sobra){
+            participantes_ = participantes_apx + 1
+        }
+        // Chama a função para adcionar atividades e manda os vlores da turma
+        add_atividade(participantes_, atividade_value_, atividade_, serie_)
+    }
 
 }
+// ------------------------------------------ Final das funções que trabalham com atividades ------------------------------------
 
+// ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
+// Função responsável por adicionar uma nova locação
 function add_locacao(){
-    /* Ajax responsável por puxar todas as atividades do banco de dados */
+    // Ajax responsável por puxar todas as estruturas do banco de dados
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'tipo': 'Empresa'},
         success: function(response){
-            console.log(response)
-
+            // A partir daqui os processos dessa parte são semelhantes a função de adcionar atividade,
+            // com alguns elementos a mais, importante para a locação.
             let i = document.querySelectorAll('.div_pai_loc').length + 1
 
             $('.locacoes').append(`<div class="row div_pai_loc" id="div_pai_loc_${i}"></div>`)
@@ -245,20 +301,21 @@ function add_locacao(){
             let div_hora_coffee = `<div class="mb-2 div-hora-coffee" id="div_hora_coffee_${i}" style="width: 20%"></div>`
             let div_icone_loc = `<div class="my-0 div-icone-loc" id="div_icone_loc_${i}" style="width: 4%; margin-top: auto"></div>`
 
+
             $(`#div_pai_loc_${i}`).append(div_locacao, div_entrada, div_saida, div_icone_loc, div_local_coffee, div_hora_coffee, div_participantes_loc, `<hr class="barra" style="margin-left: 10px">`)
 
             let label_locacao = `<label>Locação</label>`
-            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_limitacoes(this)" required></select>`
+            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" name="saida_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" name="saida_${i}" onchange="verificar_lotacao(this)" required/>`
             let label_local_coffee = `<label>Local do coffee</label>`
-            let local_coffee = `<input class="local_coffee" id="local_coffee_${i}" type="text" name="local_coffee_${i}"/>`
+            let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}"/>`
             let label_hora_coffee = `<label>Hora</label>`
-            let hora_coffee = `<input class="hora_coffee" id="hora_coffee_${i}" type="time" name="hora_coffee_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)" required/>`
             let label_participantes_loc = `<label>QTD</label>`
-            let participantes_loc = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required/>`
 
             $(`#div_locacao_${i}`).append(label_locacao, select_locacao)
             $(`#div_entrada_${i}`).append(label_entrada, entrada)
@@ -273,44 +330,80 @@ function add_locacao(){
 
             $(`#loc_${i}`).prepend(`<option selected></option>`)
 
-            $(`#div_icone_loc_${i}`).append(`<button class="buton-x" id="btn_loc_${i}" type="button" onClick="remover_locacao(this)">`)
-            $(`#btn_loc_${i}`).append(`<span id="spn_loc${i}"><i class='bx bx-x'></i></span>`)
+            $(`#div_icone_loc_${i}`).append(`<button class="buton-x buton-loc" id="btn-loc_${i}" type="button" onClick="remover_locacao(this)">`)
+            $(`#btn-loc_${i}`).append(`<span id="spn_loc${i}"><i class='bx bx-x'></i></span>`)
 
         }
     })
 
 }
 
+// Função semelhante a de remover atividade, mas para a parte de locação
 function remover_locacao(selecao){
-    console.log(selecao.id.split('_')[2])
-    $(`#div_pai_loc_${selecao.id.split('_')[2]}`).remove()
+    console.log(selecao.id.split('_')[1])
+    $(`#div_pai_loc_${selecao.id.split('_')[1]}`).remove()
 
     let divs_pai_loc = document.querySelectorAll('.div_pai_loc')
     let divs_locacoes = document.querySelectorAll('.div-locacao')
-    let divs_data = document.querySelectorAll('.div-data')
-    let divs_participantes = document.querySelectorAll('.div-participantes')
-    let divs_icones = document.querySelectorAll('.div-icone')
-    let divs_serie = document.querySelectorAll('.div_serie')
+    let divs_entrada = document.querySelectorAll('.div-entrada-loc')
+    let divs_saida = document.querySelectorAll('.div-saida-loc')
+    let divs_local_coffee = document.querySelectorAll('.div-local-coffee')
+    let divs_hora_coffee = document.querySelectorAll('.div-hora-coffee')
+    let divs_participantes_loc = document.querySelectorAll('.div-participantes-loc')
+    let divs_icones_loc = document.querySelectorAll('.div-icone-loc')
 
-    let select_atividade = document.querySelectorAll('.atividade')
-    let hora_atividade = document.querySelectorAll('.hora_atividade')
-    let qtd_atividade = document.querySelectorAll('.qtd_participantes')
-    let icone = document.querySelectorAll('.buton-x')
-    let serie = document.querySelectorAll('.serie_participantes')
+    let select_locacao = document.querySelectorAll('.locacao')
+    let entrada = document.querySelectorAll('.entrada')
+    let saida = document.querySelectorAll('.saida')
+    let local_coffee = document.querySelectorAll('.local_coffee')
+    let hora_coffee = document.querySelectorAll('.hora_coffee')
+    let participantes_lo = document.querySelectorAll('.qtd_participantes_loc')
+    let icone_loc = document.querySelectorAll('.buton-loc')
 
-    for(let k = 0; k <= divs_pai.length; k++) {
-        $(divs_pai[k]).attr('id', 'div_pai_'+(k+1));
-        $(divs_atividades[k]).attr('id', 'div_atividade_'+(k+1));
-        $(divs_data[k]).attr('id', 'div_data_hora_atividade_'+(k+1));
-        $(divs_participantes[k]).attr('id', 'div_participantes_'+(k+1));
-        $(divs_icones[k]).attr('id', 'div_icone_'+(k+1));
-        $(divs_serie[k]).attr('id', 'div_serie_'+(k+1));
+    for(let k = 0; k <= divs_pai_loc.length; k++) {
+        $(divs_pai_loc[k]).attr('id', 'div_pai_loc'+(k+1));
+        $(divs_locacoes[k]).attr('id', 'div_locacao_'+(k+1));
+        $(divs_entrada[k]).attr('id', 'div_entrada_'+(k+1));
+        $(divs_saida[k]).attr('id', 'div_saida_'+(k+1));
+        $(divs_local_coffee[k]).attr('id', 'div_local_coffee_'+(k+1));
+        $(divs_hora_coffee[k]).attr('id', 'div_hora_coffee_'+(k+1));
+        $(divs_participantes_loc[k]).attr('id', 'div-hora-coffee_'+(k+1));
+        $(divs_icones_loc[k]).attr('id', 'div_icone_loc_'+(k+1));
 
-        $(select_atividade[k]).attr('id', `ativ_${k+1}`, 'name', `atividade_${k+1}`);
-        $(hora_atividade[k]).attr('name', 'data_hora_atividade_'+(k+1));
-        $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1));
-        $(icone[k]).attr('id', 'btn_'+(k+1));
-        $(serie[k]).attr('name', 'serie_participantes_'+(k+1));
+        $(select_locacao[k]).attr('id', `loc_${k+1}`).attr('name', `locacao_${k+1}`);
+        $(entrada[k]).attr('id', `entrada_${k+1}`).attr('name', `entrada_${k+1}`);
+        $(saida[k]).attr('id',`saida_${k+1}`).attr('name', 'saida_'+(k+1));
+        $(local_coffee[k]).attr('id', `local-coffee_${k+1}`).attr('name', 'local-coffee_'+(k+1));
+        $(hora_coffee[k]).attr('id', `hora-coffee_${k+1}`).attr('name', 'hora-coffee_'+(k+1));
+        $(participantes_lo[k]).attr('id', `participantes-loc_${k+1}`).attr('name', 'participantes-loc_'+(k+1));
+        $(icone_loc[k]).attr('id', 'btn-loc_'+(k+1));
     }
 
+}
+// Responsável pela verificação da lotação da estrutura
+function verificar_lotacao(selecao){
+    let participantes = $(`#participantes-loc_${selecao.id.split('_')[1]}`).val()
+    let locacao = $(`#loc_${selecao.id.split('_')[1]}`).val()
+
+    console.log(selecao.id.split('_')[1])
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'local': locacao},
+        success: function(response){
+            console.log(participantes, response['lotacao'] * 0.7)
+
+            if(locacao !== ''){
+
+                // Verifica se a lotação informada excede 70% da lotação máxima do prédio e lança
+                // um alerta para pedindo a verificação de uma nova lotação caso haja uma disposição
+                // de mesas e cadeiras diferente
+                if(participantes > (response['lotacao'] * 0.7)){
+                    alert('Lotação informada acima de 70% da sala, por favor verificar disposição da sala, para saber a nova lotação.')
+                }
+            }
+        }
+    })
 }

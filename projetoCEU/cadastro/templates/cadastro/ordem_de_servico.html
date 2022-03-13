@@ -13,47 +13,28 @@
         <form action="{% url 'ordem_de_servico' %}" method="POST">
             {% csrf_token %}
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
-            <div class="row mb-2">
+            <div style="width:23%">
+                <label>Tipo</label>
+                {{ form.tipo }}
+            </div>
+            <hr>
+            <div class="row">
                 <h5>Informações do grupo</h5>
-                <div style="width:23%">
-                    <label>Tipo</label>
-                    {{ form.tipo }}
-                </div>
-                <div style="width: 77%">
+                <div class="mb-2" style="width: 70%">
                     <label>Instituição</label>
                     {{ form.instituicao }}
                 </div>
-            </div>
-
-            <div class="row mb-2">
-                <div style="width: 39%">
-                    <label>Check in</label>
-                    {{ form.check_in }}
+                <div style="width: 30%">
+                    <label>Cidade</label>
+                    {{ form.cidade }}
                 </div>
-                <div style="width: 39%">
-                    <label>Check out</label>
-                    {{ form.check_out }}
+                <div class="mb-2" style="width: 45%">
+                    <label>Responsável do grupo</label>
+                    {{ form.responsavel_grupo }}
                 </div>
                 <div style="width: 22%">
                     <label>Participantes</label>
                     {{ form.n_participantes }}
-                </div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="row">
-                    <div class="mb-2" style="width: 45%">
-                        <label>Responsável do grupo</label>
-                        {{ form.responsavel_grupo }}
-                    </div>
-                    <div style="width: 35%">
-                        <label>Vendedor(a)</label>
-                        {{ form.vendedor }}
-                    </div>
-                    <div class="mb-2" style="width: 35%">
-                        <label>Monitor</label>
-                        {{ form.monitor_responsavel }}
-                    </div>
                 </div>
             </div>
             <hr>
@@ -68,15 +49,40 @@
                 </div>
             </div>
             <hr class="colegios none">
+            <div class="row mb-2">
+                <h5>Informações internas</h5>
+                <div style="width: 39%">
+                    <label>Check in</label>
+                    {{ form.check_in }}
+                </div>
+                <div style="width: 39%">
+                    <label>Check out</label>
+                    {{ form.check_out }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="row">
+                    <div style="width: 35%">
+                        <label>Vendedor(a)</label>
+                        {{ form.vendedor }}
+                    </div>
+                    <div class="mb-2" style="width: 35%">
+                        <label>Coordenador do grupo</label>
+                        {{ form.monitor_responsavel }}
+                    </div>
+                </div>
+            </div>
+            <hr>
+
             <div class="locacao-ceu none">
                 <h5>Locacoes no CEU</h5>
                 <div class="row locacoes"></div>
                 <button class="buton-plus" type="button" onclick="add_locacao()">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
-                <div class="form-group form-check form-switch mb-3 mt-3">
+                <div class="form-group form-check form-switch mb-3 mt-3" id="checkAtividade">
                     <label class="form-check-label">A empresa realizara atividades no CEU?</label>
-                    <input type="checkbox" class="form-check-input switch" id="checkAtividade" onchange="mostrar_atividade()"/>
+                    <input type="checkbox" class="form-check-input switch" id="atividadeCheck" onchange="mostrar_atividade()"/>
                 </div>
                 <hr style="margin-left: 3px">
             </div>
@@ -86,9 +92,9 @@
                 <button class="buton-plus" type="button" onclick="add_atividade()">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
-                <div class="form-group form-check form-switch mb-3 mt-3">
+                <div class="form-group form-check form-switch mb-3 mt-3" id="checkLocacao">
                     <label class="form-check-label">O colégio realizara locacoes no CEU?</label>
-                    <input type="checkbox" class="form-check-input switch" id="checkAtividade" onchange="mostrar_locacao()"/>
+                    <input type="checkbox" class="form-check-input switch" id="locacaoCheck" onchange="mostrar_locacao()"/>
                 </div>
                 <hr style="margin-left: 3px">
             </div>
@@ -100,7 +106,7 @@
             <hr>
             <div>
                 <div class="row mb-3">
-                    <label>Outras observações</label>
+                    <h5>Outras observações</h5>
                     {{ form.observacoes }}
                 </div>
             </div>
