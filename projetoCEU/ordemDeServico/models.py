@@ -38,6 +38,7 @@ class OrdemDeServico(models.Model):
     loacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
     observacoes = models.TextField(blank=True, null=True)
+    relatorio_ceu_entregue = models.BooleanField(default=False)
 
 
 class CadastroOrdemDeServico(forms.ModelForm):

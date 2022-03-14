@@ -194,7 +194,16 @@ function verificar_limitacoes(selecao) {
                     // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (response['limitacoes'].includes('Não pode acontecer durante a noite')) {
                         if (hora_atividade < 7.00 || hora_atividade >= 18.00) {
-                            $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger"  id="alert_noite_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+
+                            if(hora_atividade >= 19){
+                                $(`#alert_noite_${selecao.id.split('_')[1]}`).remove()
+                                $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger"  id="alert_noite_${selecao.id.split('_')[1]}" style="margin-left: 10px">A atividade não pode ser realizada no horário informado!</p>`)
+                                $(`#data_${selecao.id.split('_')[1]}`).val('')
+                            } else {
+                                $(`#alert_noite_${selecao.id.split('_')[1]}`).remove()
+                                $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-warning"  id="alert_noite_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                            }
+
                         } else {
                             $(`#alert_noite_${selecao.id.split('_')[1]}`).remove()
                         }
@@ -203,8 +212,17 @@ function verificar_limitacoes(selecao) {
                     // Verificando se o horário informado é durante o dia. Como o sol se põe e nasce em horários
                     // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (response['limitacoes'].includes('Não pode acontecer durante o dia')) {
-                        if (hora_atividade > 7.00 && hora_atividade <= 19.30) {
-                            $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_dia_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                        if (hora_atividade <= 20) {
+
+                            if (hora_atividade <= 18) {
+                                $(`#alert_dia_${selecao.id.split('_')[1]}`).remove()
+                                $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_dia_${selecao.id.split('_')[1]}" style="margin-left: 10px">A atividade não pode ser realizada o horário informado!</p>`)
+                                $(`#data_${selecao.id.split('_')[1]}`).val('')
+                            } else {
+                                $(`#alert_dia_${selecao.id.split('_')[1]}`).remove()
+                                $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-warning" id="alert_dia_${selecao.id.split('_')[1]}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                            }
+
                         } else {
                             $(`#alert_dia_${selecao.id.split('_')[1]}`).remove()
                         }
