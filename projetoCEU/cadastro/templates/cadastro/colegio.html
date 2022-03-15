@@ -42,10 +42,10 @@
       <div class="row mb-2">
         <div class="col-3">
           <label for="coordenador">Coordenador</label>
-          <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" onchange="equipe(this)">
+          <select class="select-control d mr-sm-2" id="coordenador" name="coordenador">
             <option selected></option>
             {% for professor in professores %}
-              <option value="professor.id">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -72,37 +72,37 @@
       <div class="row mb-3">
         <div style="width: 25%">
           <label>Professor 2: </label>
-          <select class="select-control d mr-sm-2" id="professor_2" name="professor_2" onchange="equipe(this)">
+          <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
             <option selected></option>
             {% for professor in professores %}
-              <option value="professor.id">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
             {% endfor %}
           </select>
         </div>
         <div style="width: 25%">
           <label>Professor 3: </label>
-          <select class="select-control d mr-sm-2" id="professor_3" name="professor_3" onchange="equipe(this)">
+          <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
             <option selected></option>
             {% for professor in professores %}
-              <option value="professor.id">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
             {% endfor %}
           </select>
         </div>
         <div style="width: 25%">
           <label>Professor 4: </label>
-          <select class="select-control d mr-sm-2" id="professor_4" name="professor_4" onchange="equipe(this)">
+          <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
             <option selected></option>
             {% for professor in professores %}
-              <option value="professor.id">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
             {% endfor %}
           </select>
         </div>
         <div style="width: 25%">
           <label>Professor 5: </label>
-          <select class="select-control d mr-sm-2" id="professor_5" name="professor_5" onchange="equipe(this)">
+          <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
             <option selected></option>
             {% for professor in professores %}
-              <option value="professor.id">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -115,27 +115,39 @@
         <caption>Atividades do colégio no CEU:</caption>
         <thead>
           <tr>
-            <th style="width: 50%"><center>Nome dos professores</center></th>
+            <th style="width: 25%"><center>Nome dos professores</center></th>
             <th style="width: 25%"><center>Atividade</center></th>
-            <th style="width: 25%"><center>Data e Hora</center></th>
+            <th style="width: 20%"><center>Data e Hora</center></th>
+            <th style="width: 10%"><center>QTD</center></th>
+            <th style="width: 5%"><center></center></th>
           </tr>
         </thead>
-        <tbody id="corpo_tabela_atividade"></tbody>
+        <tbody class="auto" id="corpo_tabela_atividade"></tbody>
       </table>
+      <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+        <span><i class='bx bxs-plus-circle'></i></span>
+        <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+      </button>
 
 <!-------------------------------------- TABELA LOCAÇÃO --------------------------------------->
-      <table id="locacao" class="table table-striped table-sm none" style="caption-side: top">
-        <caption>Locações do colégio no CEU:</caption>
-        <thead>
-          <tr>
-            <th style="width: 22%"><center>Professor</center></th>
-            <th style="width: 17%"><center>Local</center></th>
-            <th style="width: 30%"><center>Check in</center></th>
-            <th style="width: 30%"><center>Check out</center></th>
-          </tr>
-        </thead>
-        <tbody id="corpo_tabela_locacao"></tbody>
-      </table>
+      <div class="locacao none">
+        <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
+          <caption>Locações do colégio no CEU:</caption>
+          <thead>
+            <tr>
+              <th style="width: 22%"><center>Professor</center></th>
+              <th style="width: 17%"><center>Local</center></th>
+              <th style="width: 30%"><center>Check in</center></th>
+              <th style="width: 30%"><center>Check out</center></th>
+            </tr>
+          </thead>
+          <tbody id="corpo_tabela_locacao"></tbody>
+        </table>
+        <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
+          <span><i class='bx bxs-plus-circle'></i></span>
+          <span class="text-black-50" style="font-size: 15px">Adcionar locacao</span>
+        </button>
+      </div>
 
 <!-------------------------------- RELATÓRIO FINAL ---------------------------->
       <div class="form-group">
