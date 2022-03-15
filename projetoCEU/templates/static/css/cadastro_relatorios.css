@@ -32,3 +32,17 @@
 .none{
     display: none;
 }
+
+.buton-x-{
+    background-color: transparent;
+    border: none;
+    font-size: 28px;
+    color: #b02a37;
+}
+.buton-plus-{
+    margin-top: -10px;
+    color: #006b1b;
+    font-size: 25px;
+    border: none;
+    background-color: #fff;
+}

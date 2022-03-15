@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
-from ordemDeServico.models import CadastroOrdemDeServico
+from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
-from cadastro.models import RelatorioPublico
+from cadastro.models import RelatorioPublico, RelatorioColegio
 from ceu.models import Professores, Atividades, Locaveis
+from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_colegio
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
 
@@ -48,23 +49,21 @@ def publico(request):
 @login_required(login_url='login')
 def colegio(request):
 
-    ordem_colegio = OrdemDeServicoColegio()
-    atividades, horas = indice_formulario(ordem_colegio, 'atividade_')
-    locacoes, exclusao = indice_formulario(ordem_colegio, 'locacao_', n=2)
-    entradas, saidas = entradas_e_saidas(ordem_colegio)
+    relatorio_colegio = RelatorioColegio()
     professores = Professores.objects.all()
-    range_j = range(1, 5)
-    range_i = range(0, 3)
-    range_i2 = range(3, 6)
+    colegios_no_ceu = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html', {'formulario': ordem_colegio, 'atividades': atividades,
-                                                         'horas': horas, 'professores': professores,
-                                                         'entradas': entradas, 'saidas': saidas,
-                                                         'locacoes': locacoes, 'rangej': range_j, 'rangei': range_i,
-                                                         'rangei2': range_i2})
+        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
+                                                         'colegios': colegios_no_ceu,
+                                                         'professores': professores,})
 
-    ordem_colegio = OrdemDeServicoColegio(request.POST)
+    if is_ajax(request) and request.method == 'POST':
+        info_colegio = pegar_informacoes_colegio(request.POST.get('colegio'))
+
+        return JsonResponse(info_colegio)
+
+    ordem_colegio = RelatorioColegio(request.POST)
 
     try:
         os = ordem_colegio.save(commit=False)
