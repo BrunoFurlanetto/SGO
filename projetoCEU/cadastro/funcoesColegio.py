@@ -12,30 +12,16 @@ def pegar_colegios_no_ceu():
     return colegios
 
 
-def pegar_informacoes_colegio(colegio):
-    professores = Professores.objects.all()
-    atividades = Atividades.objects.all()
-    ficha = OrdemDeServico.objects.get(instituicao=colegio)
-    info = {}
-    info_professores = {}
-    info_atividades = {}
+def pegar_informacoes_cliente(cliente):
+    ficha = OrdemDeServico.objects.get(instituicao=cliente)
 
-    for professor in professores:
-        info_professores[professor.id] = professor.usuario.first_name
-
-    for atividade in atividades:
-        info_atividades[atividade.id] = atividade.atividade
-
-    info['colegio'] = {
+    info = {'cliente': {
         'serie': ficha.serie,
         'responsaveis': ficha.n_professores,
         'previa': ficha.n_participantes,
         'coordenador_peraltas': ficha.monitor_responsavel.id,
         'atividades': ficha.atividades_ceu,
         'locacoes': ficha.loacao_ceu
-    }
-
-    info['professores'] = info_professores
-    info['atividades'] = info_atividades
+    }}
 
     return info
