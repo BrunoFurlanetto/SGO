@@ -1,9 +1,9 @@
 function check_locacao(){
 
     if($("#checkAtividade").is(":checked")){
-        $('.locacao').removeClass('none')
+        $('#tabela').removeClass('none')
     }else{
-        $('.locacao').addClass('none')
+        $('#tabela').addClass('none')
     }
 }
 
@@ -87,15 +87,15 @@ function completar_informacoes(selecao) {
         success: function (response) {
 
             check_locacao()
-            console.log('Mudou')
+            $('#div_check').removeClass('none')
             montar_cabecalho(response['cliente'])
             if(response['cliente']['atividades'] != null) {
                 montar_tabela_atividades(response['cliente'])
             }
 
             if(response['cliente']['locacoes'] != null) {
-                check_locacao()
-                $('#checkAtividade').addClass('none')
+                $('#tabela').removeClass('none')
+                $('#div_check').addClass('none')
                 montar_tabela_locacoes(response['cliente'])
             } else {
                 check_locacao()

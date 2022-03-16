@@ -12,6 +12,15 @@ def pegar_colegios_no_ceu():
     return colegios
 
 
+def pegar_empresas_no_ceu():
+    fichas_de_evento = OrdemDeServico.objects.filter(tipo='Empresa').filter(relatorio_ceu_entregue=False)
+    empresas = []
+
+    for ficha in fichas_de_evento:
+        empresas.append(ficha.instituicao)
+
+    return empresas
+
 def pegar_informacoes_cliente(cliente):
     ficha = OrdemDeServico.objects.get(instituicao=cliente)
 
