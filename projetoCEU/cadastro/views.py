@@ -7,9 +7,9 @@ from django.shortcuts import render, redirect
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from .funcoes import is_ajax, analisar_tabela_atividade, verificar_tabela, indice_formulario
 from .funcoes import juntar_professores, verificar_atividades, verificar_locacoes, entradas_e_saidas, somar_horas
-from cadastro.models import RelatorioPublico, RelatorioColegio
+from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
-from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_colegio
+from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
 
@@ -56,14 +56,44 @@ def colegio(request):
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                          'colegios': colegios_no_ceu,
-                                                         'professores': professores,})
+                                                         'professores': professores})
 
-    if is_ajax(request) and request.method == 'POST':
-        info_colegio = pegar_informacoes_colegio(request.POST.get('colegio'))
+    if is_ajax(request):
 
-        return JsonResponse(info_colegio)
+        if request.POST.get('cliente'):
+            info_cliente = pegar_informacoes_cliente(request.POST.get('cliente'))
 
-    ordem_colegio = RelatorioColegio(request.POST)
+            return JsonResponse(info_cliente)
+
+        if request.POST.get('campo') == 'professor':
+            professores_db = Professores.objects.all()
+            professores = {}
+
+            for professor in professores_db:
+                professores[professor.id] = professor.usuario.first_name
+
+            return JsonResponse(professores)
+
+        if request.POST.get('campo') == 'atividade':
+            atividades_db = Atividades.objects.all()
+            atividades = {}
+
+            for atividade in atividades_db:
+                atividades[atividade.id] = atividade.atividade
+
+            return JsonResponse(atividades)
+
+        if request.POST.get('campo') == 'locacao':
+            locais_bd = Locaveis.objects.filter(locavel=True)
+            locais = {}
+
+            for local in locais_bd:
+                locais[local.id] = local.estrutura
+
+            return JsonResponse(locais)
+
+
+    relatorio_colegio = RelatorioColegio(request.POST)
 
     try:
         os = ordem_colegio.save(commit=False)
@@ -89,7 +119,7 @@ def colegio(request):
 @login_required(login_url='login')
 def empresa(request):
 
-    ordem_empresa = OrdemDeServicoEmpresa()
+    ordem_empresa = RelatorioEmpresa()
     atividades, horas = indice_formulario(ordem_empresa, 'atividade_')
     locacoes, exclusao = indice_formulario(ordem_empresa, 'locacao_', n=3)
     entradas, saidas = entradas_e_saidas(ordem_empresa)

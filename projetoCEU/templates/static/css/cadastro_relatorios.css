@@ -33,7 +33,7 @@
     display: none;
 }
 
-.buton-x-{
+.buton-x-, .buton-x-loc{
     background-color: transparent;
     border: none;
     font-size: 28px;
