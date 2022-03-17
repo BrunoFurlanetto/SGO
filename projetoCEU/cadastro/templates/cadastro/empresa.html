@@ -64,7 +64,7 @@
       <div class="row mb-3">
         <div style="width: 25%">
           <label>Professor 2: </label>
-          <select class="select-control d mr-sm-2" id="professor_2" name="professor_2" required>
+          <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
             <option selected></option>
             {% for professor in professores %}
               <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>

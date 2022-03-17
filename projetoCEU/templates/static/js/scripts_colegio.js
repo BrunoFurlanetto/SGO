@@ -37,6 +37,8 @@ function completar_informacoes(selecao) {
         }
 
     })
+    setTimeout(() => {  verificar_n_professores(); }, 150);
+
 }
 
 // -------------------- Funções uteis utilizadas no resto do arquivo ------------------------
@@ -59,6 +61,40 @@ function montar_cabecalho(dados){
     $('#id_coordenador_peraltas').val(dados['coordenador_peraltas'])
     $('#corpo_tabela_atividade').empty()
     $('#corpo_tabela_locacao').empty()
+}
+
+// Responsável por verificar o número mínimo de professores por atividade
+function verificar_n_professores(){
+    let linhas = document.querySelectorAll('.linhas').length
+
+    for(let linha = 1; linha <= linhas; linha++){
+
+        // Com excessão do planetário, todas as outras atividades precisam de ao menos um professor
+        if($(`#ativ_${linha} :selected`).text() == 'Planetário'){
+            $(`#prof_2_ativ_${linha}`).prop('required', false)
+        }
+    }
+}
+
+// Função responsável por não deixar colcoar professor não escalado nas atividades
+function validacao(selecao){
+    let professor = selecao.value
+
+    let coordenador = $('#coordenador').val()
+    let professor_2 = $('#professor_2').val()
+    let professor_3 = $('#professor_2').val()
+    let professor_4 = $('#professor_2').val()
+    let professor_5 = $('#professor_2').val()
+
+    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4 && professor !== professor_5){
+        $('#alert').remove()
+        $($(`#${selecao.id}`).parent().parent().parent().parent()).prepend(`<td colspan="5" class="alert-danger" id="alert"><center>Professor não escalado</center></td>`)
+        $(`#${selecao.id}`).val('')
+    } else {
+        $('#alert').remove()
+    }
+
+
 }
 
 // -------------------- Funçõe úteis para as tabelas de atividades -------------------------
@@ -87,8 +123,15 @@ function popular_professores(i){
 
     // No caso das atividades é são criados 4 select's por atividade
     for(let j = 0; j < 4; j++) {
-        $(`#coluna_1_linha_${i+1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j}_ativ_${i + 1}" style="width: 45%; margin: 2px;"></select>`)
-        $(`#prof_${j+1}_ativ_${i+1}`).append(`<option selected></option>`)
+
+        // Faz a verificação pra poder deixar o campo requerido para 2 professores
+        if(j <= 1) {
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
+            $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
+        } else {
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)"></select>`)
+            $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
+        }
     }
 
      $.ajax({
@@ -117,15 +160,15 @@ function montar_tabela_atividades(dados){
         popular_professores(i) // Cria e popula os select's de professores
 
         // Coluna 2: Referênte as atividades realizadas pelo grupo
-        $(`#coluna_2_linha_${i + 1}`).append(`<select class="form-control atividades" id="ativ_${i + 1}" name="ativ_${i + 1}"></select>`)
+        $(`#coluna_2_linha_${i + 1}`).append(`<select class="form-control atividades" id="ativ_${i + 1}" name="ativ_${i + 1}" onchange="verificar_n_professores()" required></select>`)
         colocar_atividades(dados['atividades'][`atividade_${i + 1}`]['atividade'], `ativ_${i + 1}`) // Responsável pela crianção dos selects e população com as atividades
 
         // Coluna 3: Referênte a data e hora da atividade
         let data = dados['atividades'][`atividade_${i + 1}`]['data_e_hora'].replace(' ', 'T') // Replace necessário pelo formato que a data é salvo no BD inicialmente
-        $(`#coluna_3_linha_${i + 1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i + 1}" name="data_hora_ativ_${i + 1}" value="${data}"/>`)
+        $(`#coluna_3_linha_${i + 1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i + 1}" name="data_hora_ativ_${i + 1}" value="${data}" required/>`)
 
         // Coluna 4: Referênte a quantidade por atividade
-        $(`#coluna_4_linha_${i + 1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i + 1}" name="qtd_ativ_${i + 1}" value="${dados['atividades'][`atividade_${i + 1}`]['participantes']}"/>`)
+        $(`#coluna_4_linha_${i + 1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i + 1}" name="qtd_ativ_${i + 1}" value="${dados['atividades'][`atividade_${i + 1}`]['participantes']}" required/>`)
 
         // Coluna 5: Botão para exclusão da linha da tabela
         $(`#coluna_5_linha_${i + 1}`).append(`<button class="buton-x-" id="btn_${i + 1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x' ></span></button>`)
@@ -139,9 +182,10 @@ function colocar_atividades(atividade, id) {
 
     // Verificação para saber qual opção ficará selecionada inicialmente
     // Isso para o caso de vir a chamada da função principal
+    let id_atividade
+
     if (atividade != null) {
         $(`#${id}`).append(`<option></option>`)
-        $(`#${id}`).append(`<option selected value="">${atividade}</option>`)
     } else {
         $(`#${id}`).append(`<option selected></option>`)
     }
@@ -154,17 +198,17 @@ function colocar_atividades(atividade, id) {
         success: function (response) {
 
             for (let k in response) {
-
                 // Verificação para não adicionar duas vezes a mesma atividade
-                if(atividade != null){
-                    if(atividade != response[k]) {
-                        $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
-                    }
-                } else {
-                    $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
+                $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
+
+                if (atividade == response[k]){
+                    id_atividade = k
                 }
 
             }
+
+            $(`#${id}`).val(id_atividade)
+
         }
     })
 }
@@ -231,9 +275,9 @@ function add_linha_atividade() {
     popular_professores(i) // Cria e popula os select's de professores
 
     // Crianção dos elementos da atividade, data/hora, quantidade e botão
-    $(`#coluna_2_linha_${i+1}`).append(`<select class="form-control atividades" id="ativ_${i+1}" name="ativ_${i+1}"></select>`)
-    $(`#coluna_3_linha_${i+1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i+1}" name="data_hora_ativ_${i+1}"/>`)
-    $(`#coluna_4_linha_${i+1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i+1}" name="qtd_ativ_${i+1}"/>`)
+    $(`#coluna_2_linha_${i+1}`).append(`<select class="form-control atividades" id="ativ_${i+1}" name="ativ_${i+1}" onchange="verificar_n_professores()" required></select>`)
+    $(`#coluna_3_linha_${i+1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i+1}" name="data_hora_ativ_${i+1}" required/>`)
+    $(`#coluna_4_linha_${i+1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i+1}" name="qtd_ativ_${i+1}" required/>`)
     $(`#coluna_5_linha_${i+1}`).append(`<button class="buton-x-" id="btn_${i+1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x' ></span></button>`)
 
     colocar_atividades(null, `ativ_${i+1}`) // Populão o select das atividades
@@ -267,7 +311,7 @@ function criar_linhas_colunas_locacao(){
 function popular_professores_locacao(i){
 
     // Nesse caso é apenas um professor por locação
-    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="prf_loc_${i + 1}" style="width: 110px"></select>`)
+    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="prf_loc_${i + 1}" style="width: 110px" onchange="validacao(this)" required></select>`)
     $(`#prof_loc_${i+1}`).append(`<option selected></option>`)
 
     $.ajax({
@@ -308,7 +352,6 @@ function colocar_locacoes(local, id){
 
                 if(local != null){
                     if(local !== response[k]) {
-                        console.log(response)
                         $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
                     }
                 } else {
@@ -342,14 +385,14 @@ function montar_tabela_locacoes(dados) {
         criar_linhas_colunas_locacao()
         popular_professores_locacao(i)
 
-        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" style="width: 110px"></select>`)
+        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" style="width: 110px" required></select>`)
         colocar_locacoes(dados['locacoes'][`locacao_${i + 1}`]['espaco'], `loc_${i + 1}`)
 
         let check_in = dados['locacoes'][`locacao_${i + 1}`]['check_in'].replace(' ', 'T')
         let check_out = dados['locacoes'][`locacao_${i + 1}`]['check_out'].replace(' ', 'T')
-        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" value="${check_in}" style="width: 210px"/>`)
-        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" value="${check_out}" style="width: 210px"/>`)
-        $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}" value="${dados['locacoes'][`locacao_${i + 1}`]['participantes']}"/>`)
+        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" value="${check_in}" style="width: 210px" required/>`)
+        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" value="${check_out}" style="width: 210px" required/>`)
+        $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}" value="${dados['locacoes'][`locacao_${i + 1}`]['participantes']}" required/>`)
         $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x' ></span></button>`)
     }
 }
