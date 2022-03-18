@@ -1,0 +1,36 @@
+.conteudo-ficha{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 750px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.conteudo-ficha input{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+.conteudo-ficha select{
+    background-color: #fff;
+    width: 100%;
+    border-radius: 5px;
+    border-color: #ced4da;
+    padding-left: 12px;
+    height: 38px;
+ }
+.bx-search{
+    align-self: center;
+    font-size: 30px;
+    color: black;
+}
+.produtos input{
+    width: 2px;
+    height: 2px;
+}

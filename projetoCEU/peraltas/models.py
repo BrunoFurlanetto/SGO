@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 
 from ceu.models import Atividades
@@ -8,6 +9,10 @@ class Monitor(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class AtividadePeraltas(models.Model):
+    ...
 
 
 class Vendedor(models.Model):
@@ -23,6 +28,9 @@ class AtividadesEco(models.Model):
 
 class ProdutosPeraltas(models.Model):
     produto = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.produto
 
 
 class PerfilsParticipantes(models.Model):
@@ -102,11 +110,17 @@ class ClienteColegio(models.Model):
     cep = models.CharField(max_length=8)
 
 
-class FichaDeEvento(models.Model):
-    responsavel_evento = models.CharField(max_length=255)
+class Responsavel(models.Model):
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
     fone = models.CharField(max_length=9)
     email_responsavel_evento = models.EmailField()
+
+
+class FichaDeEvento(models.Model):
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.DO_NOTHING)
     produto = models.ManyToManyField(ProdutosPeraltas)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
@@ -119,3 +133,45 @@ class FichaDeEvento(models.Model):
     observacoes = models.TextField(blank=True)
     resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+
+
+# ------------------------------------------------ Formulários ---------------------------------------------------------
+class CadastroFichaDeEvento(forms.ModelForm):
+    class Meta:
+        model = FichaDeEvento
+        exclude = ()
+
+        widgets = {
+            'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
+            'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
+            'produto': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    produto = forms.ModelMultipleChoiceField(
+        queryset=ProdutosPeraltas.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+
+class CadastroCliente(forms.ModelForm):
+    class Meta:
+        model = ClienteColegio
+        exclude = ()
+
+
+class CadastroInfoAdicionais(forms.ModelForm):
+    class Meta:
+        model = InformacoesAdcionais
+        exclude = ()
+
+
+class CadastroCodioApp(forms.ModelForm):
+    class Meta:
+        model = CodigosApp
+        exclude = ()
+
+
+class CadastroResumoFinanceiro(forms.ModelForm):
+    class Meta:
+        model = ResumoFinanceiro
+        exclude = ()

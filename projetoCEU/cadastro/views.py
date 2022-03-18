@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
+from peraltas.models import CadastroFichaDeEvento
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -184,3 +185,10 @@ def ordemDeServico(request):
             messages.success(request, f'Ficha do evento do colégio {ficha_de_evento.instituicao} salva com sucesso')
 
         return redirect('dashboardPeraltas')
+
+
+@login_required(login_url='login')
+def fichaDeEvento(request):
+    form = CadastroFichaDeEvento()
+
+    return render(request, 'cadastro/ficha-de-evento.html', {'form': form})
