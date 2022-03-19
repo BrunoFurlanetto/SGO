@@ -30,7 +30,23 @@
     font-size: 30px;
     color: black;
 }
-.produtos input{
-    width: 2px;
-    height: 2px;
+.produtos-peraltas{
+    margin-bottom: 45px;
+}
+#id_produto input{
+    width: 1px;
+    height: 1px;
+}
+#id_produto {
+    width: 100%;
+    border: none;
+    margin-bottom: 40px;
+}
+#id_produto div{
+    display: inline-block;
+    width: 25%;
+    margin-right: 8%;
+}
+#id_produto label{
+    width: 200%;
 }

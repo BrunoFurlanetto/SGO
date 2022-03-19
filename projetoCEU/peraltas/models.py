@@ -144,12 +144,14 @@ class CadastroFichaDeEvento(forms.ModelForm):
         widgets = {
             'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
             'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
-            'produto': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'produto': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
         }
 
     produto = forms.ModelMultipleChoiceField(
         queryset=ProdutosPeraltas.objects.all(),
-        widget=forms.CheckboxSelectMultiple
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+
     )
 
 
