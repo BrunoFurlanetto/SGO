@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
 }
-.conteudo-ficha input{
+.conteudo-ficha input, .conteudo-cliente input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -25,28 +25,59 @@
     padding-left: 12px;
     height: 38px;
  }
+.conteudo-ficha textarea{
+    background-color: #fff;
+    width: 96%;
+    margin-left: 2%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 250px;
+    resize: none;
+}
 .bx-search{
     align-self: center;
     font-size: 30px;
     color: black;
 }
-.produtos-peraltas{
-    margin-bottom: 45px;
-}
-#id_produto input{
+#id_produto input, #id_perfil_participantes input{
     width: 1px;
     height: 1px;
 }
-#id_produto {
+#id_produto, #id_perfil_participantes{
     width: 100%;
+    height: 100%;
     border: none;
-    margin-bottom: 40px;
 }
-#id_produto div{
+#id_produto div, #id_perfil_participantes div{
     display: inline-block;
     width: 25%;
     margin-right: 8%;
 }
-#id_produto label{
+#id_produto label, #id_perfil_participantes label{
     width: 200%;
+}
+#id_professores_com_alunos{
+    width: 5px;
+    height: 5px;
+}
+/* Busca e cadastro de cliente */
+.conteudo-cliente{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 600px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-cliente{
+    margin: 20px;
+}
+.buton-search{
+    width: auto;
+    border: none;
+    background-color: transparent;
 }

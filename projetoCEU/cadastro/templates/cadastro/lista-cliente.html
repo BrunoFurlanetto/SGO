@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="row conteudo-cliente">
+        <div class="titulo-cliente">
+            <h4>Busca de cliente</h4>
+        </div>
+        <hr>
+        <div class="busca mb-3">
+            <form method="GET" action="{% url 'busca_cliente' %}">
+                <div class="row">
+                    <label>CNPJ</label>
+                    <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%">
+                    <button type="submit" class="buton-search">
+                        <span><i class='bx bx-search'></i></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="lista-clientes">
+            <table class="table">
+                <thead>
+                    <th>CNPJ</th>
+                    <th>RAZÃO SOCIAL</th>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.cnpj }}</td>
+                            <td>{{ cliente.razao_social }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="...">
+          <ul class="pagination justify-content-end">
+            {% for pagina in clientes.paginator.page_range %}
+
+              {% if clientes.number == pagina %}
+                <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                  {{ pagina }}
+                </a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                  {{ pagina }}
+                </a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+        <div class="cadastro-novo">
+            <form action="">
+                <div>
+                    <label>Razão social</label>
+                    {{ form.razao_social }}
+                </div>
+                <div class="row">
+                    <div style="width: 35%">
+                        <label>CNPJ</label>
+                        {{ form.cnpj }}
+                    </div>
+                    <div style="width: 65%">
+                        <label>Nome fantasia</label>
+                        {{ form.nome_fantasia }}
+                    </div>
+                    <div style="width: 65%">
+                        <label>Endereço</label>
+                        {{ form.endereco }}
+                    </div>
+                    <div style="width: 35%">
+                        <label>Bairro</label>
+                        {{ form.bairro }}
+                    </div>
+                    <div style="width: 35%">
+                        <label>Cidade</label>
+                        {{ form.cidade }}
+                    </div>
+                    <div style="width: 15%">
+                        <label>Estado</label>
+                        {{ form.estado }}
+                    </div>
+                    <div style="width: 50%">
+                        <label>CEP</label>
+                        {{ form.cep }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div style="width: 65%">
+                        <label>Responsavel do evento</label>
+                        {{ form.responsavel_evento }}
+                    </div>
+                    <div style="width: 10px; margin-top: 28px; margin-left: -15px">
+                        <a href="{% url 'lista_cliente' %}" target="_blank"><i class='bx bx-search'></i></a>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

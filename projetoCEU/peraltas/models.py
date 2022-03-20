@@ -34,8 +34,16 @@ class ProdutosPeraltas(models.Model):
 
 
 class PerfilsParticipantes(models.Model):
-    ano = models.CharField(max_length=255)
+    fase = models.CharField(max_length=255)
+    ano = models.CharField(max_length=255, blank=True)
     idade = models.CharField(max_length=255)
+
+    def __str__(self):
+
+        if self.ano != '':
+            return f'{self.ano}({self.idade})'
+        else:
+            return f'{self.fase}({self.idade})'
 
 
 class ResumoFinanceiro(models.Model):
@@ -108,10 +116,11 @@ class ClienteColegio(models.Model):
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=8)
+    responsavel_evento = models.CharField(max_length=255)
 
 
 class Responsavel(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
     fone = models.CharField(max_length=9)
@@ -122,6 +131,7 @@ class FichaDeEvento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.DO_NOTHING)
     produto = models.ManyToManyField(ProdutosPeraltas)
+    outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     professores_com_alunos = models.BooleanField()
@@ -131,28 +141,34 @@ class FichaDeEvento(models.Model):
     refeicoes = models.JSONField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
     observacoes = models.TextField(blank=True)
-    resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
+    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True)
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------
 class CadastroFichaDeEvento(forms.ModelForm):
+    perfil_participantes = forms.ModelMultipleChoiceField(
+        queryset=PerfilsParticipantes.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+    perfil_participantes.widget.attrs['class'] = 'form-check-input'
+
     class Meta:
         model = FichaDeEvento
         exclude = ()
 
         widgets = {
             'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
+            'produto': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
             'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
-            'produto': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
+            'check_in': forms.TextInput(attrs={'type': 'datetime-local'}),
+            'check_out': forms.TextInput(attrs={'type': 'datetime-local'}),
+            'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
+                                                          'class': 'form-check-input'}),
+            'perfil_participantes': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         }
-
-    produto = forms.ModelMultipleChoiceField(
-        queryset=ProdutosPeraltas.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=True,
-
-    )
 
 
 class CadastroCliente(forms.ModelForm):

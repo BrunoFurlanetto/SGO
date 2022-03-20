@@ -1,17 +1,20 @@
 from time import sleep
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
-from peraltas.models import CadastroFichaDeEvento
+from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente, pegar_empresas_no_ceu
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
+from django.core.paginator import Paginator
 
 
 @login_required(login_url='login')
@@ -192,3 +195,32 @@ def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
 
     return render(request, 'cadastro/ficha-de-evento.html', {'form': form})
+
+
+@login_required(login_url='login')
+def listaCliente(request):
+    form = CadastroCliente()
+    clientes = ClienteColegio.objects.all()
+    paginacao = Paginator(clientes, 10)
+    pagina = request.GET.get('page')
+    clientes = paginacao.get_page(pagina)
+
+    return render(request, 'cadastro/lista-cliente.html', {'form': form,
+                                                           'clientes': clientes})
+
+
+@login_required(login_url='login')
+def buscaCliente(request):
+    termo = request.GET.get('termo')
+
+    if termo is None or not termo:
+        messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
+        return redirect('busca_cliente')
+
+    clientes = ClienteColegio.objects.filter(cnpj__icontains=termo)
+
+    paginacao = Paginator(clientes, 10)
+    pagina = request.GET.get('page')
+    clientes = paginacao.get_page(pagina)
+
+    return render(request, 'cadastro/busca-cliente.html', {'clientes': clientes })

@@ -19,24 +19,96 @@
                     {{ form.cliente }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
-                    <a href="#"><i class='bx bx-search'></i></a>
+                    <a href="{% url 'lista_cliente' %}" target="_blank"><i class='bx bx-search'></i></a>
                 </div>
                 <div style="width: 30%; margin-right: -15px">
                     <label>Responsavel</label>
                     {{ form.responsavel_evento }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex">
-                    <a href="#"><i class='bx bx-search'></i></a>
+                    <a href=""><i class='bx bx-search'></i></a>
                 </div>
             </div>
             <hr>
             <div class="row produtos-peraltas" style="width: 100%">
-                <label>Produto Peraltas</label>
+                <h5>Produto Peraltas</h5>
                 {{ form.produto }}
+                <div class="mt-2" style="width: 50%">
+                    <label>Qual?</label>
+                    {{ form.outro_produto }}
+                </div>
+            </div>
+
+            <hr>
+            <div class="row mb-2">
+                <h5>Período e viagem e quantidades</h5>
+                <div style="width: 35%">
+                    <label>Check in</label>
+                    {{ form.check_in }}
+                </div>
+                <div style="width: 35%">
+                    <label>Check out</label>
+                    {{ form.check_out }}
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div style="width: 20%">
+                    <label>QTD confirmada</label>
+                    {{ form.qtd_confirmada }}
+                </div>
+                <div style="width: 20%">
+                    <label>QTD convidada</label>
+                    {{ form.qtd_confirmada }}
+                </div>
+                <div class="mt-2">
+                    <label class="my-1">Professores dormirão com os alunos?</label>
+                    {{ form.professores_com_alunos }}
+                </div>
             </div>
             <hr>
-
-
+            <div class="row" style="width: 100%">
+                <h5>Perfil dos participantes</h5>
+                <div class="row perfil">
+                    {{ form.perfil_participantes }}
+                </div>
+            </div>
+            <hr>
+            <div>
+                <h5>Refeições</h5>
+                <table class="table">
+                    <thead>
+                        <td style="width: 5px">Data</td>
+                        <td style="width: 5px"><small>Café</small></td>
+                        <td style="width: 5px"><small>Coffe manhã</small></td>
+                        <td style="width: 5px"><small>Almoço</small></td>
+                        <td style="width: 5px"><small>Lanche tarde</small></td>
+                        <td style="width: 5px"><small>Coffe tarde</small></td>
+                        <td style="width: 5px"><small>Jantar</small></td>
+                        <td style="width: 5px"><small>Lanche noite</small></td>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="date" style="width:  180px"></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="buton-plus" type="button" onclick="add_atividade()">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            </div>
+            <hr>
+            <div class="row">
+                <h5>Observações</h5>
+                {{ form.observacoes }}
+            </div>
+            {{ form.vendedora.as_hidden }}
             <button type="submit" class="btn btn-primary ml-5">Salvar</button>
         </form>
     </div>
