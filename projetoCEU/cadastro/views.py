@@ -19,7 +19,6 @@ from django.core.paginator import Paginator
 
 @login_required(login_url='login')
 def publico(request):
-
     relatorio_publico = RelatorioPublico()
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
@@ -51,7 +50,6 @@ def publico(request):
 
 @login_required(login_url='login')
 def colegio(request):
-
     relatorio_colegio = RelatorioColegio()
     professores = Professores.objects.all()
     colegios_no_ceu = pegar_colegios_no_ceu()
@@ -89,7 +87,6 @@ def colegio(request):
 
 @login_required(login_url='login')
 def empresa(request):
-
     relatorio_empresa = RelatorioEmpresa()
     professores = Professores.objects.all()
     empresas = pegar_empresas_no_ceu()
@@ -205,22 +202,28 @@ def listaCliente(request):
     pagina = request.GET.get('page')
     clientes = paginacao.get_page(pagina)
 
-    return render(request, 'cadastro/lista-cliente.html', {'form': form,
+    # ---------------------------------------------
+    if request.GET.get('termo'):
+        termo = request.GET.get('termo')
+
+        if termo is None or not termo:
+            messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
+            return redirect('busca_cliente')
+
+        clientes = ClienteColegio.objects.filter(cnpj__icontains=termo)
+
+        paginacao = Paginator(clientes, 10)
+        pagina = request.GET.get('page')
+        clientes = paginacao.get_page(pagina)
+
+        return render(request, 'cadastro/busca-cliente.html', {'clientes': clientes,
+                                                               'form': form})
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/lista-cliente.html', {'form': form,
                                                            'clientes': clientes})
 
+    form = CadastroCliente(request.POST)
 
-@login_required(login_url='login')
-def buscaCliente(request):
-    termo = request.GET.get('termo')
-
-    if termo is None or not termo:
-        messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
-        return redirect('busca_cliente')
-
-    clientes = ClienteColegio.objects.filter(cnpj__icontains=termo)
-
-    paginacao = Paginator(clientes, 10)
-    pagina = request.GET.get('page')
-    clientes = paginacao.get_page(pagina)
-
-    return render(request, 'cadastro/busca-cliente.html', {'clientes': clientes })
+    if form.is_valid():
+        form.save()

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% include 'parciais/_head.html' %}
+{% load custom_filter_tag %}
 
 {% block conteudo %}
     <div class="row conteudo-cliente">
@@ -9,16 +10,22 @@
         </div>
         <hr>
         <div class="busca mb-3">
-            <form method="GET" action="{% url 'busca_cliente' %}">
+            <form method="GET" action="{% url 'lista_cliente' %}">
+                <script src="{% static 'js/scripts_cliente.js' %}"></script>
                 <div class="row">
                     <label>CNPJ</label>
-                    <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%">
+                    <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
                     <button type="submit" class="buton-search">
                         <span><i class='bx bx-search'></i></span>
                     </button>
+                    <button class="buton-plus" type="button" onclick="novo_cliente()">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
                 </div>
             </form>
+            <hr>
         </div>
+
         <div class="lista-clientes">
             <table class="table">
                 <thead>
@@ -28,31 +35,74 @@
                 <tbody>
                     {% for cliente in clientes %}
                         <tr>
-                            <td>{{ cliente.cnpj }}</td>
+                            <td>{{ cliente.cnpj|cnpj }}</td>
                             <td>{{ cliente.razao_social }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    {% for pagina in clientes.paginator.page_range %}
+
+                        {% if clientes.number == pagina %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% endif %}
+
+                    {% endfor %}
+                </ul>
+            </nav>
         </div>
 
-        <nav aria-label="...">
-          <ul class="pagination justify-content-end">
-            {% for pagina in clientes.paginator.page_range %}
+        <div class="dados-cliente none">
+            <div>
+                <label>Razão social</label>
+                {{ form.razao_social }}
+            </div>
+            <div class="row">
+                <div style="width: 35%">
+                    <label>CNPJ</label>
+                    {{ form.cnpj }}
+                </div>
+                <div style="width: 65%">
+                    <label>Nome fantasia</label>
+                    {{ form.nome_fantasia }}
+                </div>
+                <div style="width: 65%">
+                    <label>Endereço</label>
+                    {{ form.endereco }}
+                </div>
+                <div style="width: 35%">
+                    <label>Bairro</label>
+                    {{ form.bairro }}
+                </div>
+                <div style="width: 35%">
+                    <label>Cidade</label>
+                    {{ form.cidade }}
+                </div>
+                <div style="width: 15%">
+                    <label>Estado</label>
+                    {{ form.estado }}
+                </div>
+                <div style="width: 50%">
+                    <label>CEP</label>
+                    {{ form.cep }}
+                </div>
+            </div>
+            <div class="row mb-3">
+            </div>
+            <button type="button" class="btn btn-primary ml-5">Ok</button>
+        </div>
 
-              {% if clientes.number == pagina %}
-                <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
-                  {{ pagina }}
-                </a></li>
-              {% else %}
-                <li class="page-item"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
-                  {{ pagina }}
-                </a></li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </nav>
-        <div class="cadastro-novo">
+        <div class="cadastro-novo none">
+            <h5>Cadastro novo cliente</h5>
             <form action="">
                 <div>
                     <label>Razão social</label>
@@ -89,13 +139,6 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div style="width: 65%">
-                        <label>Responsavel do evento</label>
-                        {{ form.responsavel_evento }}
-                    </div>
-                    <div style="width: 10px; margin-top: 28px; margin-left: -15px">
-                        <a href="{% url 'lista_cliente' %}" target="_blank"><i class='bx bx-search'></i></a>
-                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary ml-5">Salvar</button>
             </form>

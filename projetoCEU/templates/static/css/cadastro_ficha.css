@@ -81,3 +81,8 @@
     border: none;
     background-color: transparent;
 }
+.buton-plus{
+    color: black;
+    width: 10px;
+    margin-left: -15px;
+}

@@ -176,6 +176,10 @@ class CadastroCliente(forms.ModelForm):
         model = ClienteColegio
         exclude = ()
 
+        widgets = {
+            'cnpj': forms.NumberInput()
+        }
+
 
 class CadastroInfoAdicionais(forms.ModelForm):
     class Meta:
