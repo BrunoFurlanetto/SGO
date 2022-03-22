@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
 }
-.conteudo-ficha input, .conteudo-cliente input{
+.conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -85,4 +85,32 @@
     color: black;
     width: 10px;
     margin-left: -15px;
+}
+.button-cliente, .button-responsavel{
+    width: auto;
+    border: none;
+    background-color: transparent;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.conteudo-responsaveis{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 700px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-responsaveis{
+    margin: 20px;
+}
+.responsaveis td{
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

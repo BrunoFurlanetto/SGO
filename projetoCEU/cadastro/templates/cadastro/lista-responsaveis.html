@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+{% load custom_filter_tag %}
+
+{% block conteudo %}
+    {% csrf_token %}
+    <div class="row conteudo-responsaveis">
+        <script src="{% static 'js/scripts_cliente.js' %}"></script>
+        <script>
+            setTimeout(() => {  pegarDadosResponsaveis(); }, 100);
+        </script>
+        <div class="titulo-responsaveis"></div>
+        <hr>
+        <div class="lista-responsaveis">
+            <table class="table responsaveis">
+                <thead>
+                    <th style="max: 25%">NOME</th>
+                    <th style="width: 25%">TELEFONE</th>
+                    <th style="width: 25%">EMAIL</th>
+                    <th style="width: 30%">CLIENTE</th>
+                </thead>
+                <tbody id="corpo-tabela-responsaveis"></tbody>
+            </table>
+            <button class="buton-plus" type="button" onclick="novo_responsavel()" style="margin-left: 5px">
+                <span><i class='bx bxs-plus-circle'></i></span>
+            </button>
+        </div>
+
+        <div class="dados-responsavel none">
+            <h5>Dados do responsável</h5>
+            <form method="POST" action="{% url 'lista_responsaveis' %}" onchange="putResponsavel()">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="row mb-3">
+                        <div style="width: 60%">
+                            <label>Nome Completo</label>
+                            {{ form.nome }}
+                        </div>
+                        <div style="width: 40%">
+                            <label>Telefone</label>
+                            {{ form.fone }}
+                        </div>
+                        <div style="width: 30%">
+                            <label>Cargo</label>
+                            {{ form.cargo }}
+                        </div>
+                        <div style="width: 70%">
+                            <label>Email</label>
+                            {{ form.email_responsavel_evento }}
+                        </div>
+                        <input type="hidden" id="id_id" name="id">
+                        <input type="hidden" name="update" value="true">
+                        {{ form.responsavel_por.as_hidden }}
+                    </div>
+                    <button type="button" class="btn btn-primary ml-5" onclick="salvarResponsavel()">Seleconar responsável</button>
+                    <button type="submit" class="btn btn-primary btn-update" disabled>Salvar</button>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="cadastro-responsavel none">
+            <h5>Cadastro de novo responsável</h5>
+            <form method="POST" action="{% url 'lista_responsaveis' %}">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="row mb-3">
+                        <div style="width: 60%">
+                            <label>Nome Completo</label>
+                            {{ form.nome }}
+                        </div>
+                        <div style="width: 40%">
+                            <label>Telefone</label>
+                            {{ form.fone }}
+                        </div>
+                        <div style="width: 30%">
+                            <label>Cargo</label>
+                            {{ form.cargo }}
+                        </div>
+                        <div style="width: 70%">
+                            <label>Email</label>
+                            {{ form.email_responsavel_evento }}
+                        </div>
+                        {{ form.responsavel_por.as_hidden }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </fieldset>
+            </form>
+        </div>
+
+    </div>
+{% endblock %}

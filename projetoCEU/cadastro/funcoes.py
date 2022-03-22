@@ -5,6 +5,7 @@ from django.http import JsonResponse
 
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
+from peraltas.models import ClienteColegio, Responsavel
 
 
 def is_ajax(request):
@@ -12,7 +13,6 @@ def is_ajax(request):
 
 
 def requests_ajax(requisicao):
-
     if requisicao.get('cliente'):
         info_cliente = pegar_informacoes_cliente(requisicao.get('cliente'))
 
@@ -44,3 +44,48 @@ def requests_ajax(requisicao):
             locais[local.id] = local.estrutura
 
         return locais
+
+    if requisicao.get('cnpj'):
+        cliente_bd = ClienteColegio.objects.get(cnpj=int(requisicao.get('cnpj')))
+
+        cliente = {
+            'id': cliente_bd.id,
+            'razao_social': cliente_bd.razao_social,
+            'cnpj': cliente_bd.cnpj,
+            'nome_fantasia': cliente_bd.nome_fantasia,
+            'endereco': cliente_bd.endereco,
+            'bairro': cliente_bd.bairro,
+            'cidade': cliente_bd.bairro,
+            'estado': cliente_bd.estado,
+            'cep': cliente_bd.cep
+        }
+
+        return cliente
+
+    if requisicao.get('id'):
+        responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))
+        responsaveis = {}
+
+        for responsavel in responsaveis_bd:
+            responsaveis[responsavel.id] = {'nome': responsavel.nome,
+                                            'cargo': responsavel.cargo,
+                                            'fone': responsavel.fone,
+                                            'email': responsavel.email_responsavel_evento,
+                                            'responsavel_por': responsavel.responsavel_por.nome_fantasia
+                                            }
+
+        return responsaveis
+
+    if requisicao.get('id_selecao'):
+        responsavel_bd = Responsavel.objects.get(id=int(requisicao.get('id_selecao')))
+
+        responsavel = {
+            'id': responsavel_bd.id,
+            'nome': responsavel_bd.nome,
+            'cargo': responsavel_bd.cargo,
+            'fone': responsavel_bd.fone,
+            'email_responsavel_evento': responsavel_bd.email_responsavel_evento,
+            'responsavel_por': responsavel_bd.responsavel_por.id
+        }
+
+        return responsavel

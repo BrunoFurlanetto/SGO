@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
-from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio
+from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -202,6 +202,9 @@ def listaCliente(request):
     pagina = request.GET.get('page')
     clientes = paginacao.get_page(pagina)
 
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
+
     # ---------------------------------------------
     if request.GET.get('termo'):
         termo = request.GET.get('termo')
@@ -210,20 +213,98 @@ def listaCliente(request):
             messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
             return redirect('busca_cliente')
 
-        clientes = ClienteColegio.objects.filter(cnpj__icontains=termo)
+        clientes = ClienteColegio.objects.filter(cnpj=termo)
 
         paginacao = Paginator(clientes, 10)
         pagina = request.GET.get('page')
         clientes = paginacao.get_page(pagina)
 
-        return render(request, 'cadastro/busca-cliente.html', {'clientes': clientes,
+        return render(request, 'cadastro/lista-cliente.html', {'clientes': clientes,
                                                                'form': form})
 
     if request.method != 'POST':
         return render(request, 'cadastro/lista-cliente.html', {'form': form,
-                                                           'clientes': clientes})
+                                                               'clientes': clientes})
+
+    if request.POST.get('update') == 'true':
+        cliente = ClienteColegio.objects.get(cnpj=int(request.POST.get('cnpj')))
+        form = CadastroCliente(request.POST, instance=cliente)
+
+        if form.is_valid():
+
+            try:
+                form.save()
+            except:
+                messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+            else:
+                messages.success(request, 'Cliente atualizado com sucesso!')
+                return redirect('lista_cliente')
+
+        else:
+            messages.warning(request, form.errors)
+            return redirect('lista_cliente')
 
     form = CadastroCliente(request.POST)
 
     if form.is_valid():
-        form.save()
+
+        try:
+            form.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
+            return redirect('lista_cliente')
+        else:
+            messages.success(request, 'Cliente salvo com sucesso')
+            return redirect('lista_cliente')
+
+    else:
+        messages.warning(request, form.errors)
+        return redirect('lista_cliente')
+
+
+@login_required(login_url='login')
+def listaResponsaveis(request):
+    form = CadastroResponsavel()
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/lista-responsaveis.html', {'form': form})
+
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
+
+    if request.POST.get('update') == 'true':
+        responsavel = Responsavel.objects.get(id=int(request.POST.get('id')))
+
+        form = CadastroResponsavel(request.POST, instance=responsavel)
+
+        if form.is_valid():
+
+            try:
+                form.save()
+            except:
+                messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
+                return redirect('lista_responsaveis')
+            else:
+                messages.success(request, 'Dados do responsável atualizada com sucesso!')
+                return redirect('lista_responsaveis')
+
+        else:
+            messages.warning(request, form.errors)
+            return redirect('lista_responsaveis')
+
+    form = CadastroResponsavel(request.POST)
+
+    if form.is_valid():
+
+        try:
+            form.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
+            return redirect('lista_responsaveis')
+        else:
+            messages.success(request, 'Novo responsável salvo com sucesso!')
+            return redirect('lista_responsaveis')
+
+    else:
+        messages.warning(request, form.errors)
+        return redirect('lista-responsaveis')

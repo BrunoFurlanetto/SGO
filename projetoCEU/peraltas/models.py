@@ -109,22 +109,28 @@ class InformacoesAdcionais(models.Model):
 
 class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
-    cnpj = models.CharField(max_length=18)
+    cnpj = models.CharField(max_length=14, unique=True)
     nome_fantasia = models.CharField(max_length=255)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=8)
-    responsavel_evento = models.CharField(max_length=255)
+    responsavel_evento = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.nome_fantasia
 
 
 class Responsavel(models.Model):
     responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
-    fone = models.CharField(max_length=9)
+    fone = models.IntegerField(max_length=11)
     email_responsavel_evento = models.EmailField()
+
+    def __str__(self):
+        return self.nome
 
 
 class FichaDeEvento(models.Model):
@@ -178,6 +184,16 @@ class CadastroCliente(forms.ModelForm):
 
         widgets = {
             'cnpj': forms.NumberInput()
+        }
+
+
+class CadastroResponsavel(forms.ModelForm):
+    class Meta:
+        model = Responsavel
+        exclude = ()
+
+        widgets = {
+            'fone': forms.NumberInput(),
         }
 
 

@@ -9,19 +9,21 @@
             <h4>Busca de cliente</h4>
         </div>
         <hr>
-        <div class="busca mb-3">
+        <div id="busca" class="busca mb-3">
             <form method="GET" action="{% url 'lista_cliente' %}">
-                <script src="{% static 'js/scripts_cliente.js' %}"></script>
-                <div class="row">
-                    <label>CNPJ</label>
-                    <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
-                    <button type="submit" class="buton-search">
-                        <span><i class='bx bx-search'></i></span>
-                    </button>
-                    <button class="buton-plus" type="button" onclick="novo_cliente()">
-                        <span><i class='bx bxs-plus-circle'></i></span>
-                    </button>
-                </div>
+                <fieldset>
+                    <script src="{% static 'js/scripts_cliente.js' %}"></script>
+                    <div class="row">
+                        <label>CNPJ</label>
+                        <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
+                        <button type="submit" class="buton-search">
+                            <span><i class='bx bx-search'></i></span>
+                        </button>
+                        <button class="buton-plus" type="button" onclick="novo_cliente()">
+                            <span><i class='bx bxs-plus-circle'></i></span>
+                        </button>
+                    </div>
+                </fieldset>
             </form>
             <hr>
         </div>
@@ -29,14 +31,20 @@
         <div class="lista-clientes">
             <table class="table">
                 <thead>
-                    <th>CNPJ</th>
-                    <th>RAZÃO SOCIAL</th>
+                    <th style="width: 35%">CNPJ</th>
+                    <th>NOME FANTASIA</th>
                 </thead>
                 <tbody>
                     {% for cliente in clientes %}
-                        <tr>
-                            <td>{{ cliente.cnpj|cnpj }}</td>
-                            <td>{{ cliente.razao_social }}</td>
+                        <tr class='clickable-row' data-href="">
+                            <td>
+                                <button type="button" class="button-cliente" onclick="completa_dados_cliente(this)">
+                                    <span>
+                                        {{ cliente.cnpj|cnpj }}
+                                    </span>
+                                </button>
+                            </td>
+                            <td>{{ cliente.nome_fantasia }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -61,86 +69,97 @@
             </nav>
         </div>
 
-        <div class="dados-cliente none">
-            <div>
-                <label>Razão social</label>
-                {{ form.razao_social }}
-            </div>
-            <div class="row">
-                <div style="width: 35%">
-                    <label>CNPJ</label>
-                    {{ form.cnpj }}
-                </div>
-                <div style="width: 65%">
-                    <label>Nome fantasia</label>
-                    {{ form.nome_fantasia }}
-                </div>
-                <div style="width: 65%">
-                    <label>Endereço</label>
-                    {{ form.endereco }}
-                </div>
-                <div style="width: 35%">
-                    <label>Bairro</label>
-                    {{ form.bairro }}
-                </div>
-                <div style="width: 35%">
-                    <label>Cidade</label>
-                    {{ form.cidade }}
-                </div>
-                <div style="width: 15%">
-                    <label>Estado</label>
-                    {{ form.estado }}
-                </div>
-                <div style="width: 50%">
-                    <label>CEP</label>
-                    {{ form.cep }}
-                </div>
-            </div>
-            <div class="row mb-3">
-            </div>
-            <button type="button" class="btn btn-primary ml-5">Ok</button>
+        <div id="update" class="dados-cliente none">
+            <form method="POST" action="{% url 'lista_cliente' %}" onchange="put()">
+                <fieldset>
+                    {% csrf_token %}
+                    <div>
+                        <label>Razão social</label>
+                        {{ form.razao_social }}
+                    </div>
+                    <div class="row">
+                        <div style="width: 35%">
+                            <label>CNPJ</label>
+                            {{ form.cnpj }}
+                        </div>
+                        <div style="width: 65%">
+                            <label>Nome fantasia</label>
+                            {{ form.nome_fantasia }}
+                        </div>
+                        <div style="width: 65%">
+                            <label>Endereço</label>
+                            {{ form.endereco }}
+                        </div>
+                        <div style="width: 35%">
+                            <label>Bairro</label>
+                            {{ form.bairro }}
+                        </div>
+                        <div style="width: 35%">
+                            <label>Cidade</label>
+                            {{ form.cidade }}
+                        </div>
+                        <div style="width: 15%">
+                            <label>Estado</label>
+                            {{ form.estado }}
+                        </div>
+                        <div style="width: 50%">
+                            <label>CEP</label>
+                            {{ form.cep }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                    </div>
+                    <input type="hidden" name="update" value="true">
+                    <button type="button" class="btn btn-primary ml-5" onclick="salvarCliente()">Seleconar cliente</button>
+                    <button type="submit" class="btn btn-primary btn-update" disabled>Salvar</button>
+                </fieldset>
+            </form>
         </div>
 
-        <div class="cadastro-novo none">
+        <div class="cadastro-novo none" id="cadastro">
             <h5>Cadastro novo cliente</h5>
-            <form action="">
-                <div>
-                    <label>Razão social</label>
-                    {{ form.razao_social }}
-                </div>
-                <div class="row">
-                    <div style="width: 35%">
-                        <label>CNPJ</label>
-                        {{ form.cnpj }}
+            <form method="POST" action="{% url 'lista_cliente' %}">
+                <fieldset>
+                    {% csrf_token %}
+                    <div>
+                        <label>Razão social</label>
+                        {{ form.razao_social }}
                     </div>
-                    <div style="width: 65%">
-                        <label>Nome fantasia</label>
-                        {{ form.nome_fantasia }}
+                    <div class="row">
+                        <div style="width: 35%">
+                            <label>CNPJ</label>
+                            {{ form.cnpj.errors }}
+                            {{ form.cnpj }}
+                        </div>
+                        <div style="width: 65%">
+                            <label>Nome fantasia</label>
+                            {{ form.nome_fantasia }}
+                        </div>
+                        <div style="width: 65%">
+                            <label>Endereço</label>
+                            {{ form.endereco }}
+                        </div>
+                        <div style="width: 35%">
+                            <label>Bairro</label>
+                            {{ form.bairro }}
+                        </div>
+                        <div style="width: 35%">
+                            <label>Cidade</label>
+                            {{ form.cidade }}
+                        </div>
+                        <div style="width: 15%">
+                            <label>Estado</label>
+                            {{ form.estado }}
+                        </div>
+                        <div style="width: 50%">
+                            <label>CEP</label>
+                            {{ form.cep }}
+                        </div>
                     </div>
-                    <div style="width: 65%">
-                        <label>Endereço</label>
-                        {{ form.endereco }}
+                    <div class="row mb-3">
                     </div>
-                    <div style="width: 35%">
-                        <label>Bairro</label>
-                        {{ form.bairro }}
-                    </div>
-                    <div style="width: 35%">
-                        <label>Cidade</label>
-                        {{ form.cidade }}
-                    </div>
-                    <div style="width: 15%">
-                        <label>Estado</label>
-                        {{ form.estado }}
-                    </div>
-                    <div style="width: 50%">
-                        <label>CEP</label>
-                        {{ form.cep }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                </div>
-                <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+                    <button type="submit" class="btn btn-primary ml-5" >Salvar</button>
+                </fieldset>
             </form>
         </div>
     </div>

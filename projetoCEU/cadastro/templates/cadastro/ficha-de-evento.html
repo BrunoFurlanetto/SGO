@@ -13,24 +13,27 @@
         <form action='' method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
+            <script src="{% static 'js/scripts_cliente.js' %}"></script>
             <div class="row">
                 <div style="width: 55%; margin-right: -15px">
                     <label>Cliente</label>
-                    {{ form.cliente }}
+                    <input type="text" id="cliente" readonly onclick="pegarCliente()" required>
+                    {{ form.cliente.as_hidden }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
                     <a href="{% url 'lista_cliente' %}" target="_blank"><i class='bx bx-search'></i></a>
                 </div>
                 <div style="width: 30%; margin-right: -15px">
                     <label>Responsavel</label>
-                    {{ form.responsavel_evento }}
+                    <input type="text" id="responsavel" name="responsavel" onclick="pegarResponsavel()" readonly required>
+                    {{ form.responsavel_evento.as_hidden }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex">
-                    <a href=""><i class='bx bx-search'></i></a>
+                    <a href="{% url 'lista_responsaveis' %}" target="_blank" onclick="salvarIdCliente()"><i class='bx bx-search'></i></a>
                 </div>
             </div>
             <hr>
-            <div class="row produtos-peraltas" style="width: 100%">
+            <div class="row produtos-peraltas" style="width: 100%" onchange="verificarOutro()">
                 <h5>Produto Peraltas</h5>
                 {{ form.produto }}
                 <div class="mt-2" style="width: 50%">
