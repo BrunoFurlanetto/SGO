@@ -10,7 +10,7 @@
             </center>
             <hr>
         </div>
-        <form action='' method="POST" enctype="multipart/form-data">
+        <form action='' method="POST">
             {% csrf_token %}
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
             <script src="{% static 'js/scripts_cliente.js' %}"></script>
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <hr>
-            <div class="row produtos-peraltas" style="width: 100%" onchange="verificarOutro()">
+            <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                 <h5>Produto Peraltas</h5>
                 {{ form.produto }}
                 <div class="mt-2" style="width: 50%">
@@ -63,15 +63,20 @@
                     <label>QTD convidada</label>
                     {{ form.qtd_confirmada }}
                 </div>
+                <div style="width: 20%">
+                    <label>QTD professores</label>
+                    {{ form.qtd_professores }}
+                </div>
                 <div class="mt-2">
                     <label class="my-1">Professores dormirão com os alunos?</label>
                     {{ form.professores_com_alunos }}
                 </div>
+
             </div>
             <hr>
             <div class="row" style="width: 100%">
                 <h5>Perfil dos participantes</h5>
-                <div class="row perfil">
+                <div class="row perfil checkbox">
                     {{ form.perfil_participantes }}
                 </div>
             </div>
@@ -88,24 +93,24 @@
                         <td style="width: 5px"><small>Coffe tarde</small></td>
                         <td style="width: 5px"><small>Jantar</small></td>
                         <td style="width: 5px"><small>Lanche noite</small></td>
+                        <td style="width: 2px"><small></small></td>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td><input type="date" style="width:  180px"></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                            <td><center><input type="checkbox" class="form-check-input" style="width: 5px; height: 5px"></center></td>
-                        </tr>
-                    </tbody>
+                    <tbody id="corpo-tabela-refeicao"></tbody>
                 </table>
-                <button class="buton-plus" type="button" onclick="add_atividade()">
+                <button class="buton-plus" type="button" onclick="add_refeicao()" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
+            <hr>
+            <div class="form-check">
+                <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled>
+                <label class="my-1">Informações adicionais</label>
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" onclick="add_adicionais()" style="margin-left: 5px; margin-top: -15px">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            </div>
+
+            {{ form.informacoes_adcionais.as_hidden }}
             <hr>
             <div class="row">
                 <h5>Observações</h5>
@@ -115,5 +120,138 @@
             <button type="submit" class="btn btn-primary ml-5">Salvar</button>
         </form>
     </div>
+
+    <form action="">
+        <!-- Modal -->
+        <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                    <div class="mt-4 checkbox" style="width: 20%">
+                        <label>Transporte?</label>
+                        {{ formAdicionais.transporte }}
+                    </div>
+                    <div class="mb-2" style="width: 50%">
+                        <label>Endereço de embarque</label>
+                        {{ formAdicionais.endereco_embarque }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="mt-4 checkbox" style="width: 32%">
+                        <label>Etiquetas de embarque?</label>
+                        {{ formAdicionais.etiquetas_embarque }}
+                    </div>
+                    <div class="mb-2" style="width: 30%">
+                        <label>Serviço de bordo</label>
+                        {{ formAdicionais.servico_bordo }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="mt-4 checkbox" style="width: 15%">
+                        <label>Biólogo?</label>
+                        {{ formAdicionais.biologo }}
+                    </div>
+                    <div class="mb-2" style="width: 50%">
+                        <label>Em quais atividades</label>
+                        {{ formAdicionais.quais_atividades }}
+                    </div>
+                    <div class="mb-2" style="width: 40%">
+                        <label>Monitoria</label>
+                        {{ formAdicionais.monitoria }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div style="width: 30%">
+                        <label>Enfermaria</label>
+                        {{ formAdicionais.enfermaria }}
+                    </div>
+                    <div class="mb-2" style="width: 30%">
+                        <label>Horário</label>
+                        {{ formAdicionais.horario_garantia }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div>
+                        <h5>Atividades CEU</h5>
+                        {{ formAdicionais.atividades_ceu }}
+                    </div>
+                </div>
+                <hr>
+               <div class="row">
+                    <div>
+                        <label>Atividades Ecoturismo</label>
+                        {{ formAdicionais.atividades_eco }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-2">
+                    <div class="checkbox" style="width: 13%">
+                        <label>Seguro</label>
+                        {{ formAdicionais.seguro }}
+                    </div>
+                    <div class="checkbox" style="width: 20%">
+                        <label>Exclusividade</label>
+                        {{ formAdicionais.exclusividade }}
+                    </div>
+                    <div class="checkbox" style="width: 20%">
+                        <label>Fotos no site</label>
+                        {{ formAdicionais.fotos_site }}
+                    </div>
+                    <div class="checkbox" style="width: 25%">
+                        <label>Roupa de cama</label>
+                        {{ formAdicionais.roupa_de_cama }}
+                    </div>
+                    <div class="mt-2 checkbox" style="width: 25%">
+                        <label>Camêra on-line</label>
+                        {{ formAdicionais.camera_on_line }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="checkbox" style="width: 13%">
+                        <label>Abadá</label>
+                        {{ formAdicionais.abada }}
+                    </div>
+                    <div class="checkbox" style="width: 18%">
+                        <label>Camiseta</label>
+                        {{ formAdicionais.camiseta }}
+                    </div>
+                    <div class="checkbox" style="width: 13%">
+                        <label>Festas</label>
+                        {{ formAdicionais.festas }}
+                    </div>
+                    <div class="checkbox" style="width: 25%">
+                        <label>Cd para o aluno</label>
+                        {{ formAdicionais.cd_para_aluno }}
+                    </div>
+                    <div class="checkbox" style="width: 18%">
+                        <label>Bate-bate</label>
+                        {{ formAdicionais.bate_bate }}
+                    </div>
+                    <div class="mt-3 checkbox" style="width: 20%">
+                        <label>Fogueira</label>
+                        {{ formAdicionais.fogueira }}
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Salvar informações</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </form>
+
 
 {% endblock %}

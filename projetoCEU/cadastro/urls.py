@@ -9,4 +9,5 @@ urlpatterns = [
     path('ficha_de_evento/', views.fichaDeEvento, name='ficha_de_evento'),
     path('lista_cliente/', views.listaCliente, name='lista_cliente'),
     path('lista_responsaveis/', views.listaResponsaveis, name='lista_responsaveis'),
+    path('informacoes_adicionais/', views.infoAdicionais, name='info_adicionais'),
 ]

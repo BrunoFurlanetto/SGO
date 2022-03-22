@@ -440,3 +440,56 @@ function verificar_lotacao(selecao){
         }
     })
 }
+
+function add_refeicao(){
+    let i = document.querySelectorAll('.linha').length
+
+    $('#corpo-tabela-refeicao').append(`<tr class="linha" id="linha_${i+1}"></tr>`)
+
+    let linha = document.querySelector(`#linha_${i+1}`)
+
+    $(linha).append(`<td><input type="date" class="data" name="data_${i+1}" style="width:  180px"></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input cafe" id="cafe_${i+1}" name="cafe_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i+1}" name="coffee_m_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input almoco" id="almoco_${i+1}" name="almoco_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_t" id="lanche_t_${i+1}" name="lanche_t_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i+1}" name="coffee_t_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input jantar" id="jantar_${i+1}" name="jantar_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i+1}" name="lanche_n_${i+1}" style="width: 5px; height: 5px"></center></td>`)
+    $(linha).append(`<td><center><button class="buton-x-ref" id="btn-ref_${i + 1}" type="button" onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x' ></span></button></center></td>`)
+}
+
+function remover_dia_refeicao(selecao){
+    $(`#linha_${selecao.id.split('_')[1]}`).remove()
+
+    let n_linhas = document.querySelectorAll('.linha').length
+
+    let linhas = document.querySelectorAll('.linha')
+    let datas = document.querySelectorAll('.data')
+    let cafes = document.querySelectorAll('.cafe')
+    let coffes_m = document.querySelectorAll('.coffee_m')
+    let almocos = document.querySelectorAll('.almoco')
+    let lanches_t = document.querySelectorAll('.lanche_t')
+    let coffees_t = document.querySelectorAll('.coffee_t')
+    let jantares = document.querySelectorAll('.jantar')
+    let lanches_n = document.querySelectorAll('.lanche_n')
+    let butons = document.querySelectorAll('.buton-x-ref')
+
+    for(let k = 0; k <= n_linhas; k++){
+        $(linhas[k]).attr('id', `linha_${k+1}`)
+        $(datas[k]).attr('id', `data_${k+1}`).attr('name', `data_${k+1}`)
+        $(cafes[k]).attr('id', `cafe_${k+1}`).attr('name', `cafe_${k+1}`)
+        $(coffes_m[k]).attr('id', `coffee_m_${k+1}`).attr('name', `coffee_m_${k+1}`)
+        $(almocos[k]).attr('id', `almoco_${k+1}`).attr('name', `almoco_${k+1}`)
+        $(lanches_t[k]).attr('id', `lanche_t_${k+1}`).attr('name', `lanche_t_${k+1}`)
+        $(coffees_t[k]).attr('id', `coffee_t_${k+1}`).attr('name', `coffee_t_${k+1}`)
+        $(jantares[k]).attr('id', `jantar_${k+1}`).attr('name', `jantar_${k+1}`)
+        $(lanches_n[k]).attr('id', `lanche_n_${k+1}`).attr('name', `lanche_n_${k+1}`)
+        $(butons[k]).attr('id', `btn-ref_${k+1}`).attr('name', `btn-ref_${k+1}`)
+    }
+}
+
+function add_adicionais(){
+    console.log('Foi')
+    $("#modal-adicionais").modal('show')
+}

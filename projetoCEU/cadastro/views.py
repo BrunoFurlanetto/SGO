@@ -7,7 +7,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
-from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel
+from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
+    CadastroInfoAdicionais
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -190,8 +191,10 @@ def ordemDeServico(request):
 @login_required(login_url='login')
 def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
+    form_adicionais = CadastroInfoAdicionais()
 
-    return render(request, 'cadastro/ficha-de-evento.html', {'form': form})
+    return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+                                                             'formAdicionais': form_adicionais})
 
 
 @login_required(login_url='login')
@@ -267,7 +270,8 @@ def listaResponsaveis(request):
     form = CadastroResponsavel()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/lista-responsaveis.html', {'form': form})
+        return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
+                                                                    'formAdicionais': form_adcionais})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -308,3 +312,8 @@ def listaResponsaveis(request):
     else:
         messages.warning(request, form.errors)
         return redirect('lista-responsaveis')
+
+
+@login_required(login_url='login')
+def infoAdicionais(request):
+    return render(request, 'cadastro/info-adicionais.html')

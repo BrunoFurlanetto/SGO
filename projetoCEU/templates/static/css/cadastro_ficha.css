@@ -8,7 +8,8 @@
     display: flex;
     justify-content: center;
 }
-.conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input{
+.conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
+#id_endereco_embarque, #id_quais_atividades, #id_horario_garantia{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -17,7 +18,7 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-ficha select{
+.conteudo-ficha select, .modal-body select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -42,8 +43,9 @@
     color: black;
 }
 #id_produto input, #id_perfil_participantes input{
-    width: 1px;
-    height: 1px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
 }
 #id_produto, #id_perfil_participantes{
     width: 100%;
@@ -62,7 +64,7 @@
     width: 5px;
     height: 5px;
 }
-/* Busca e cadastro de cliente */
+ Busca e cadastro de cliente
 .conteudo-cliente{
     background-color: #fff;
     margin: auto auto 5%;
@@ -114,3 +116,27 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.buton-x-ref {
+    background-color: transparent;
+    border: none;
+    font-size: 28px;
+    color: #b02a37;
+}
+.info{
+    width: 1px  !important;
+    height: 1px !important;
+    margin-right: 10px !important;
+}
+/*
+.checkbox{
+    display: flex;
+    align-content: center;
+}
+.checkbox input{
+    background-color: #fff;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    margin-left: 5px;
+}*/

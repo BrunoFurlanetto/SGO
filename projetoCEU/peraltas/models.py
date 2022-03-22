@@ -95,7 +95,8 @@ class InformacoesAdcionais(models.Model):
     fotos_site = models.BooleanField()
     abada = models.BooleanField()
     camiseta = models.BooleanField()
-    enfermaria = models.IntegerField()
+    festas = models.BooleanField()
+    enfermaria = models.IntegerField(choices=tipos_enfermaria, blank=True, null=True)
     horario_garantia = models.TimeField(blank=True, null=True)
     roupa_de_cama = models.BooleanField()
     camera_on_line = models.BooleanField()
@@ -141,6 +142,7 @@ class FichaDeEvento(models.Model):
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     professores_com_alunos = models.BooleanField()
+    qtd_professores = models.IntegerField(blank=True, null=True)
     qtd_convidada = models.PositiveIntegerField()
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes)
@@ -161,19 +163,24 @@ class CadastroFichaDeEvento(forms.ModelForm):
     )
     perfil_participantes.widget.attrs['class'] = 'form-check-input'
 
+    produto = forms.ModelMultipleChoiceField(
+        queryset=ProdutosPeraltas.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+    produto.widget.attrs['class'] = 'form-check-input'
+
     class Meta:
         model = FichaDeEvento
         exclude = ()
 
         widgets = {
             'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
-            'produto': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
             'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
             'check_in': forms.TextInput(attrs={'type': 'datetime-local'}),
             'check_out': forms.TextInput(attrs={'type': 'datetime-local'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
-                                                          'class': 'form-check-input'}),
-            'perfil_participantes': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+                                                             'class': 'form-check-input'}),
         }
 
 
@@ -198,9 +205,23 @@ class CadastroResponsavel(forms.ModelForm):
 
 
 class CadastroInfoAdicionais(forms.ModelForm):
+    atividades_ceu = forms.ModelMultipleChoiceField(
+        queryset=Atividades.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    atividades_eco = forms.ModelMultipleChoiceField(
+        queryset=AtividadesEco.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     class Meta:
         model = InformacoesAdcionais
         exclude = ()
+
+        widgets = {
+            'horario_garantia': forms.TextInput(attrs={'type': 'time'}),
+        }
 
 
 class CadastroCodioApp(forms.ModelForm):
