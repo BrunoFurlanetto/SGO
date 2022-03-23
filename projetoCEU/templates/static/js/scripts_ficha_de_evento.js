@@ -489,7 +489,4 @@ function remover_dia_refeicao(selecao){
     }
 }
 
-function add_adicionais(){
-    console.log('Foi')
-    $("#modal-adicionais").modal('show')
-}
+

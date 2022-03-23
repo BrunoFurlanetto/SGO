@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'multiselectfield',
+    'bootstrap_modal_forms',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',

@@ -270,8 +270,7 @@ def listaResponsaveis(request):
     form = CadastroResponsavel()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
-                                                                    'formAdicionais': form_adcionais})
+        return render(request, 'cadastro/lista-responsaveis.html', {'form': form})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))

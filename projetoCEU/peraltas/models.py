@@ -1,3 +1,4 @@
+from bootstrap_modal_forms.forms import BSModalModelForm
 from django import forms
 from django.db import models
 
@@ -204,7 +205,7 @@ class CadastroResponsavel(forms.ModelForm):
         }
 
 
-class CadastroInfoAdicionais(forms.ModelForm):
+class CadastroInfoAdicionais(BSModalModelForm):
     atividades_ceu = forms.ModelMultipleChoiceField(
         queryset=Atividades.objects.all(),
         widget=forms.CheckboxSelectMultiple,

@@ -60,7 +60,7 @@ function salvarIdCliente(){
 }
 function pegarDadosResponsaveis(){
     let id_cliente = localStorage.getItem('id_cliente')
-
+    console.log(id_cliente)
     $('.titulo-responsaveis').append(`<h4>Lista de responsáveis por ${localStorage.getItem('fantasia_cliente')}</h4>`)
 
      $.ajax({
@@ -69,11 +69,11 @@ function pegarDadosResponsaveis(){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id': id_cliente},
         success: function (response) {
-            console.log(response)
+
             for(let i in response){
-                const ddd = response[i]['fone'].slice(0, 2)
-                const parte_1 = response[i]['fone'].slice(3, 7)
-                const parte_2 = response[i]['fone'].slice(7, 11)
+                const ddd = String(response[i]['fone']).slice(0, 2)
+                const parte_1 = String(response[i]['fone']).slice(3, 7)
+                const parte_2 = String(response[i]['fone']).slice(7, 11)
 
                 $('#corpo-tabela-responsaveis').append(`<tr id="${i}"></tr>`)
                 $(`#${i}`).append(`<td><button type="button" class="button-responsavel" onclick="completa_dados_responsavel(this)"><span>${response[i]['nome']}</span></button></td>`)

@@ -63,6 +63,7 @@ def requests_ajax(requisicao):
         return cliente
 
     if requisicao.get('id'):
+        print(requisicao.get('id'))
         responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))
         responsaveis = {}
 
