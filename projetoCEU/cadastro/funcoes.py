@@ -5,7 +5,8 @@ from django.http import JsonResponse
 
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
-from peraltas.models import ClienteColegio, Responsavel
+from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, CadastroResumoFinanceiro, \
+    CadastroCodioApp
 
 
 def is_ajax(request):
@@ -90,3 +91,30 @@ def requests_ajax(requisicao):
         }
 
         return responsavel
+
+    if requisicao.get('infos') == 'adicionais':
+        form = CadastroInfoAdicionais(requisicao)
+
+        if form.is_valid():
+            novas_infos = form.save()
+            return {'id': novas_infos.id}
+        else:
+            print('Não foi')
+            print(form.errors)
+
+    if requisicao.get('infos') == 'financeiro':
+        form = CadastroResumoFinanceiro(requisicao)
+        resumo = form.save(commit=False)
+
+        resumo.forma_pagamento = f'{requisicao.get("parcelas")} no(a) {requisicao.get("forma_pagamento")}'
+
+        if form.is_valid():
+            novo_resumo = form.save()
+            return {'id': novo_resumo.id}
+
+    if requisicao.get('infos') == 'app':
+        form = CadastroCodioApp()
+
+        if form.is_valid():
+            novo_codigo = form.save()
+            return {'id': novo_codigo.id}

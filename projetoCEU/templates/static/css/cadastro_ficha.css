@@ -9,7 +9,8 @@
     justify-content: center;
 }
 .conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
-#id_endereco_embarque, #id_quais_atividades, #id_horario_garantia{
+#id_endereco_embarque, #id_quais_atividades, #id_horario_garantia,
+#id_valor, #id_valor_por_participantes, .app input, #vencimentos input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -18,7 +19,7 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-ficha select, .modal-body select{
+.conteudo-ficha select, .modal-body select, #id_contrato{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -26,7 +27,7 @@
     padding-left: 12px;
     height: 38px;
  }
-.conteudo-ficha textarea{
+.conteudo-ficha textarea, #id_observacoes_financeiras{
     background-color: #fff;
     width: 96%;
     margin-left: 2%;
@@ -35,6 +36,17 @@
     padding-left: 12px;
     padding-top: 2px;
     height: 250px;
+    resize: none;
+}
+#id_observacoes_financeiras{
+    background-color: #fff;
+    width: 96%;
+    margin-left: 2%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
     resize: none;
 }
 .bx-search{
@@ -126,6 +138,10 @@
     width: 1px  !important;
     height: 1px !important;
     margin-right: 10px !important;
+}
+#id_nota_fiscal{
+    width: 20px;
+    height: 20px;
 }
 /*
 .checkbox{

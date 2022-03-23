@@ -489,4 +489,54 @@ function remover_dia_refeicao(selecao){
     }
 }
 
+jQuery('document').ready(function() {
+  jQuery('#infos').submit(function() {
+    var dados = jQuery(this).serialize();
+    //aqui voce pega o conteudo do atributo action do form
+    var url = $(this).attr('action');
+    $.ajax({
+      url: url,
+      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+      type: "POST",
+      data: dados,
+      success: function(response) {
+          $('#id_informacoes_adcionais').val(response['id'])
+          $('#modal-adicionais').modal('hide')
+      }
+    });
 
+    return false;
+  });
+});
+
+function n_pracelas(selecao){
+    const parcelas = parseInt(selecao.value)
+    let div_vencimentos = $('#vencimentos')
+    $('#vencimentos').empty()
+
+    for(let i = 1; i <= parcelas; i++){
+        div_vencimentos.append(`<div style="width: 40%" id="div_vencimento_${i}"></div>`)
+        $(`#div_vencimento_${i}`).append(`<label>Vencimento ${i}</label>`)
+        $(`#div_vencimento_${i}`).append(`<input type="date" name="vencimento_${i}"/>`)
+    }
+}
+
+jQuery('document').ready(function() {
+  jQuery('#financeiro').submit(function() {
+    var dados = jQuery(this).serialize();
+    //aqui voce pega o conteudo do atributo action do form
+    var url = $(this).attr('action');
+    $.ajax({
+      url: url,
+      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+      type: "POST",
+      data: dados,
+      success: function(response) {
+          $('#id_resumo_financeiro').val(response['id'])
+          $('#resumo_financeiro').modal('hide')
+      }
+    });
+
+    return false;
+  });
+});

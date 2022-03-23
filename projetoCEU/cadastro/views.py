@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais
+    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodioApp
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -192,16 +192,24 @@ def ordemDeServico(request):
 def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
     form_adicionais = CadastroInfoAdicionais()
+    form_financeiro = CadastroResumoFinanceiro()
+    form_app = CadastroCodioApp()
 
-    return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
-                                                             'formAdicionais': form_adicionais})
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
+
+    if request.method != 'POST':
+        return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+                                                                 'formAdicionais': form_adicionais,
+                                                                 'formFinanceiro': form_financeiro,
+                                                                 'formApp': form_app})
 
 
 @login_required(login_url='login')
 def listaCliente(request):
     form = CadastroCliente()
     clientes = ClienteColegio.objects.all()
-    paginacao = Paginator(clientes, 10)
+    paginacao = Paginator(clientes, 5)
     pagina = request.GET.get('page')
     clientes = paginacao.get_page(pagina)
 
@@ -311,8 +319,3 @@ def listaResponsaveis(request):
     else:
         messages.warning(request, form.errors)
         return redirect('lista-responsaveis')
-
-
-@login_required(login_url='login')
-def infoAdicionais(request):
-    return render(request, 'cadastro/info-adicionais.html')

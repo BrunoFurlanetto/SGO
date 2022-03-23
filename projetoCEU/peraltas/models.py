@@ -26,6 +26,9 @@ class Vendedor(models.Model):
 class AtividadesEco(models.Model):
     atividade = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.atividade
+
 
 class ProdutosPeraltas(models.Model):
     produto = models.CharField(max_length=255)
@@ -54,17 +57,19 @@ class ResumoFinanceiro(models.Model):
     )
 
     valor = models.FloatField()
-    forma_pagamento = models.CharField(max_length=255)
+    valor_por_participantes = models.FloatField(blank=True, null=True)
+    forma_pagamento = models.CharField(max_length=255, blank=True)
     vencimentos = models.CharField(max_length=255)
     contrato = models.IntegerField(choices=tipo_contrato)
     nota_fiscal = models.BooleanField()
+    observacoes_financeiras = models.TextField(blank=True)
 
 
 class CodigosApp(models.Model):
-    cliente_pj = models.CharField(max_length=20)
-    cliente_pf = models.CharField(max_length=20)
-    evento = models.CharField(max_length=20)
-    reserva = models.CharField(max_length=20)
+    cliente_pj = models.CharField(max_length=20, blank=True)
+    cliente_pf = models.CharField(max_length=20, blank=True)
+    evento = models.CharField(max_length=20, blank=True)
+    reserva = models.CharField(max_length=20, blank=True)
 
 
 class InformacoesAdcionais(models.Model):
@@ -105,7 +110,7 @@ class InformacoesAdcionais(models.Model):
     bate_bate = models.BooleanField()
     fogueira = models.BooleanField()
     atividades_ceu = models.ManyToManyField(Atividades)
-    atividades_eco = models.ManyToManyField(AtividadesEco)
+    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     outros = models.CharField(max_length=300, blank=True)
 
 
@@ -128,7 +133,7 @@ class Responsavel(models.Model):
     responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
-    fone = models.IntegerField(max_length=11)
+    fone = models.IntegerField()
     email_responsavel_evento = models.EmailField()
 
     def __str__(self):
@@ -205,7 +210,7 @@ class CadastroResponsavel(forms.ModelForm):
         }
 
 
-class CadastroInfoAdicionais(BSModalModelForm):
+class CadastroInfoAdicionais(forms.ModelForm):
     atividades_ceu = forms.ModelMultipleChoiceField(
         queryset=Atividades.objects.all(),
         widget=forms.CheckboxSelectMultiple,

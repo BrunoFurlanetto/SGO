@@ -106,22 +106,31 @@
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled>
                 <label class="my-1">Informações adicionais</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" onclick="add_adicionais()" style="margin-left: 5px; margin-top: -15px">
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
-            <script type="text/javascript">
-            $(document).ready(function() {
-
-                $("#modal-adicionais").modalForm({
-                    formURL: "{% url 'ficha_de_evento' %}"
-                });
-
-            });
-            </script>
             {{ form.informacoes_adcionais.as_hidden }}
             <hr>
-            <div class="row">
+            <div class="form-check">
+                <input class="form-check-input info" type="checkbox" value="" id="resumo_financeiro_ok" name="resumo_financeiro_ok" disabled>
+                <label class="my-1">Resumo financeiro</label>
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#resumo_financeiro" style="margin-left: 5px; margin-top: -15px">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            </div>
+            {{ form.resumo_financeiro.as_hidden }}
+            <hr>
+            <div class="form-check">
+                <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="icodigos_app_ok" disabled>
+                <label class="my-1">Códigos APP</label>
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#codigos_app" style="margin-left: 5px; margin-top: -15px">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            </div>
+            {{ form.codigos_app.as_hidden }}
+            <hr>
+            <div class="mb-3 row">
                 <h5>Observações</h5>
                 {{ form.observacoes }}
             </div>
@@ -130,7 +139,7 @@
         </form>
     </div>
 
-    <form method="POST" action="">
+    <form method="POST" action="{% url 'ficha_de_evento' %}" id="infos">
         {% csrf_token %}
         <!-- Modal -->
         <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
@@ -144,6 +153,7 @@
               </div>
               <div class="modal-body">
                 <div class="row">
+                    <input type="hidden" name="infos" value="adicionais">
                     <div class="mt-4 checkbox" style="width: 20%">
                         <label>Transporte?</label>
                         {{ formAdicionais.transporte }}
@@ -256,12 +266,136 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Salvar informações</button>
+                <button type="submit" class="btn btn-primary" id="salvar_infos">Salvar informações</button>
               </div>
             </div>
           </div>
         </div>
     </form>
 
+    <form method="POST" action="{% url 'ficha_de_evento' %}" id="financeiro">
+    <!-- Modal do resumo financeiro -->
+        <div class="modal fade" id="resumo_financeiro" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="m-2 modal-body">
+                        <input type="hidden" name="infos" value="financeiro">
+                        <div class="row">
+                            <div style="width: 35%">
+                                <label>Valor pacote R$</label>
+                                {{ formFinanceiro.valor }}
+                            </div>
+                            <div style="width: 35%">
+                                <label>Valor indivudual</label>
+                                {{ formFinanceiro.valor_por_participantes }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <h5>Forma de pagamento</h5>
+                            <div style="width: 30%">
+                                <select name="parcelas" id="parcelas" onchange="n_pracelas(this)">
+                                    <option selected></option>
+                                    <option value="1">A vista</option>
+                                    <option value="2">2 vezes</option>
+                                    <option value="3">3 vezes</option>
+                                    <option value="4">4 vezes</option>
+                                    <option value="5">5 vezes</option>
+                                    <option value="6">6 vezes</option>
+                                    <option value="7">7 vezes</option>
+                                    <option value="8">8 vezes</option>
+                                    <option value="9">9 vezes</option>
+                                    <option value="10">10 vezes</option>
+                                    <option value="11">11 vezes</option>
+                                    <option value="12">12 vezes</option>
+                                </select>
+                            </div>
+                            <div style="width: 30%">
+                                <select name="forma_pagamento" id="forma_pagamento">
+                                    <option selected></option>
+                                    <option>Dinheiro</option>
+                                    <option>Débito</option>
+                                    <option>Crédito</option>
+                                    <option>PIX</option>
+                                    <option>Transferência</option>
+                                    <option>Depósito</option>
+                                    <option>Cheque</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row" id="vencimentos">
+                            <h5>Vencimentos</h5>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="mb-3" style="width: 35%">
+                                <label>Tipo de contrato</label>
+                                {{ formFinanceiro.contrato }}
+                            </div>
+                            <div>
+                                <label>Nota fiscal?</label>
+                                {{ formFinanceiro.nota_fiscal }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div>
+                            <h5>Observações</h5>
+                            {{ formFinanceiro.observacoes_financeiras }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Salvar resumoss</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
+    <form>
+        <!-- Modal para o cadastro dos códigos do APP -->
+        <div class="modal fade" id="codigos_app" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body app">
+                        <div class="row">
+                            <div style="width: 25%">
+                                <label>Cliente PJ</label>
+                                {{ formApp.cliente_pj }}
+                            </div>
+                            <div style="width: 25%">
+                                <label>Cliente PF</label>
+                                {{ formApp.cliente_pf }}
+                            </div>
+                            <div style="width: 25%">
+                                <label>Evento</label>
+                                {{ formApp.evento }}
+                            </div>
+                            <div style="width: 25%">
+                                <label>Reserva</label>
+                                {{ formApp.reserva }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}
