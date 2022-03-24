@@ -11,7 +11,7 @@
 .conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
 #id_endereco_embarque, #id_quais_atividades, #id_horario_garantia,
 #id_valor, #id_valor_por_participantes, .app input, #vencimentos input,
-#id_outro_produto{
+#id_outro_produto, #id_outros{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;

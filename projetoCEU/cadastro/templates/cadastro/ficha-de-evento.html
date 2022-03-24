@@ -15,6 +15,7 @@
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
             <script src="{% static 'js/scripts_cliente.js' %}"></script>
             <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+            <script src="{% static 'js/Moment.js' %}"></script>
             <div class="row">
                 <div style="width: 55%; margin-right: -15px">
                     <label>Cliente</label>
@@ -30,7 +31,7 @@
                     {{ form.responsavel_evento.as_hidden }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex">
-                    <a href="{% url 'lista_responsaveis' %}" target="_blank" onclick="salvarIdCliente()"><i class='bx bx-search'></i></a>
+                    <a class="none search"  href="{% url 'lista_responsaveis' %}" target="_blank" onclick="salvarIdCliente()" ><i class='bx bx-search'></i></a>
                 </div>
             </div>
             <hr>
@@ -106,7 +107,7 @@
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled required>
                 <label class="my-1">Informações adicionais</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" style="margin-left: 5px; margin-top: -15px">
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
@@ -115,7 +116,7 @@
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="resumo_financeiro_ok" name="resumo_financeiro_ok" disabled required>
                 <label class="my-1">Resumo financeiro</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#resumo_financeiro" style="margin-left: 5px; margin-top: -15px">
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#resumo_financeiro" onclick="pegarIdResumoFinanceiro()" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
@@ -124,7 +125,7 @@
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="codigos_app_ok" disabled>
                 <label class="my-1">Códigos APP</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal_codigos_app" style="margin-left: 5px; margin-top: -15px">
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
@@ -135,6 +136,9 @@
                 {{ form.observacoes }}
             </div>
             {{ form.vendedora.as_hidden }}
+            <script>
+                $('#id_vendedora').val({{ request.user.pk }})
+            </script>
             <button type="submit" class="btn btn-primary ml-5">Salvar</button>
         </form>
     </div>
@@ -240,6 +244,7 @@
                 </div>
                 <hr>
                 <div class="row">
+                    <h5 class="titulo-secao">Formatura</h5>
                     <div class="checkbox" style="width: 13%">
                         {{ formAdicionais.abada }}
                         <label>Abadá</label>
@@ -264,6 +269,11 @@
                         {{ formAdicionais.fogueira }}
                         <label>Fogueira</label>
                     </div>
+                </div>
+                <hr>
+                <div class="mt-3">
+                    <label>Outros</label>
+                    {{ formAdicionais.outros }}
                 </div>
               </div>
               <div class="modal-footer">

@@ -441,14 +441,30 @@ function verificar_lotacao(selecao){
     })
 }
 
-function add_refeicao(){
+function pegarDias(){
+    if($('#id_check_in').val() !== '' && $('#id_check_out').val() !== ''){
+        const data_1 = $('#id_check_in').val().split('T')[0]
+        const data_2 = $('#id_check_out').val().split('T')[0]
+        var intervalo = moment(data_2,"YYYY-MM-DD").diff(moment(data_1,"YYYY-MM-DD"));
+        var dias = moment.duration(intervalo).asDays();
+
+        $('#corpo-tabela-refeicao').empty()
+
+        for(let i = 0; i <= dias; i++){
+            add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
+        }
+
+    }
+}
+
+function add_refeicao(data=null){
     let i = document.querySelectorAll('.linha').length
 
     $('#corpo-tabela-refeicao').append(`<tr class="linha" id="linha_${i+1}"></tr>`)
 
     let linha = document.querySelector(`#linha_${i+1}`)
 
-    $(linha).append(`<td><input type="date" class="data" name="data_${i+1}" style="width:  180px"></td>`)
+    $(linha).append(`<td><input type="date" class="data" name="data_refeicao_${i+1}" style="width:  180px" value="${data}"></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input cafe" id="cafe_${i+1}" name="cafe_${i+1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i+1}" name="coffee_m_${i+1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input almoco" id="almoco_${i+1}" name="almoco_${i+1}" style="width: 5px; height: 5px"></center></td>`)
@@ -477,7 +493,7 @@ function remover_dia_refeicao(selecao){
 
     for(let k = 0; k <= n_linhas; k++){
         $(linhas[k]).attr('id', `linha_${k+1}`)
-        $(datas[k]).attr('id', `data_${k+1}`).attr('name', `data_${k+1}`)
+        $(datas[k]).attr('id', `data_${k+1}`).attr('name', `data_refeicao_${k+1}`)
         $(cafes[k]).attr('id', `cafe_${k+1}`).attr('name', `cafe_${k+1}`)
         $(coffes_m[k]).attr('id', `coffee_m_${k+1}`).attr('name', `coffee_m_${k+1}`)
         $(almocos[k]).attr('id', `almoco_${k+1}`).attr('name', `almoco_${k+1}`)
@@ -520,12 +536,17 @@ function horario(selecao){
         $('#horario').addClass('none')
     }
 }
+function pegarIdInfosAdicionais(){
+    if($('#id_informacoes_adcionais').val() !== ''){
+        $('#infos').append(`<input type="hidden" name="id_infos_adicionais" value="${$('#id_informacoes_adcionais').val()}"/>`)
+    }
+}
 
 jQuery('document').ready(function() {
   jQuery('#infos').submit(function() {
     var dados = jQuery(this).serialize();
-    //aqui voce pega o conteudo do atributo action do form
     var url = $(this).attr('action');
+
     $.ajax({
       url: url,
       headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -537,6 +558,36 @@ jQuery('document').ready(function() {
 
           if($('#id_informacoes_adcionais')){
               $('#info_adicionais_ok').prop('checked', true)
+          }
+      }
+    });
+
+    return false;
+  });
+});
+
+function pegarIdResumoFinanceiro(){
+    if($('#id_resumo_financeiro').val() !== ''){
+        $('#financeiro').append(`<input type="hidden" name="id_resumo_financeiro" value="${$('#id_resumo_financeiro').val()}"/>`)
+    }
+}
+
+jQuery('document').ready(function() {
+  jQuery('#financeiro').submit(function() {
+    var dados = jQuery(this).serialize();
+    //aqui voce pega o conteudo do atributo action do form
+    var url = $(this).attr('action');
+    $.ajax({
+      url: url,
+      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+      type: "POST",
+      data: dados,
+      success: function(response) {
+          $('#id_resumo_financeiro').val(response['id'])
+          $('#resumo_financeiro').modal('hide')
+
+          if($('#id_resumo_financeiro')){
+              $('#resumo_financeiro_ok').prop('checked', true)
           }
       }
     });
@@ -557,25 +608,11 @@ function n_pracelas(selecao){
     }
 }
 
-jQuery('document').ready(function() {
-  jQuery('#financeiro').submit(function() {
-    var dados = jQuery(this).serialize();
-    //aqui voce pega o conteudo do atributo action do form
-    var url = $(this).attr('action');
-    $.ajax({
-      url: url,
-      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-      type: "POST",
-      data: dados,
-      success: function(response) {
-          $('#id_resumo_financeiro').val(response['id'])
-          $('#resumo_financeiro').modal('hide')
-      }
-    });
-
-    return false;
-  });
-});
+function pegarIdCodigosApp(){
+    if($('#id_codigos_app').val() !== ''){
+        $('#codigos_app').append(`<input type="hidden" name="id_codigo_app" value="${$('#id_codigos_app').val()}"/>`)
+    }
+}
 
 jQuery('document').ready(function() {
   jQuery('#codigos_app').submit(function() {
@@ -590,6 +627,10 @@ jQuery('document').ready(function() {
       success: function(response) {
           $('#id_codigos_app').val(response['id'])
           $('#modal_codigos_app').modal('hide')
+
+          if($('#id_codigos_app')){
+              $('#codigos_app_ok').prop('checked', true)
+          }
       }
     });
 

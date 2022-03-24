@@ -5,11 +5,12 @@ from django.db.models import Q
 from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodigoApp
-from .funcoes import is_ajax, requests_ajax
+from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente, pegar_empresas_no_ceu
@@ -191,18 +192,39 @@ def ordemDeServico(request):
 @login_required(login_url='login')
 def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
-    form_adicionais = CadastroInfoAdicionais()
-    form_financeiro = CadastroResumoFinanceiro()
-    form_app = CadastroCodigoApp()
 
-    if is_ajax(request):
-        return JsonResponse(requests_ajax(request.POST))
+    # send_mail('TESTE', 'Mensagem de Teste',
+    #           'no-reply@fundaceoceu.com',
+    #           ['bruno.furlanetto@hotmail.com'],
+    #           fail_silently=False)
 
     if request.method != 'POST':
+        form_adicionais = CadastroInfoAdicionais()
+        form_financeiro = CadastroResumoFinanceiro()
+        form_app = CadastroCodigoApp()
+
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formFinanceiro': form_financeiro,
                                                                  'formApp': form_app})
+
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
+
+    form = CadastroFichaDeEvento(request.POST)
+    novo_evento = form.save(commit=False)
+    novo_evento.refeicoes = pegar_refeicoes(request.POST)
+
+
+
+    try:
+        form.save()
+    except:
+        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+        return redirect('ficha_de_evento')
+    else:
+        messages.success(request, 'Ficha de evento salva com sucesso')
+        return redirect('ficha_de_evento')
 
 
 @login_required(login_url='login')

@@ -50,6 +50,15 @@ function salvarCliente(){
 function pegarCliente(){
     $('#id_cliente').val(localStorage.getItem('id'))
     $('#cliente').val(localStorage.getItem('fantasia'))
+
+    if($('#id_cliente').val() !== ''){
+        $('.search').removeClass('none')
+    } else {
+        $('.search').addClass('none')
+        $('#responsavel').val('')
+        $('#id_responsavel_evento').val('')
+    }
+
     localStorage.removeItem('id')
     localStorage.removeItem('fantasia')
 }

@@ -1,12 +1,7 @@
-import datetime
-from time import strptime
-
-from django.http import JsonResponse
-
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, CadastroResumoFinanceiro, \
-    CadastroCodigoApp
+    CadastroCodigoApp, InformacoesAdcionais, ResumoFinanceiro, CodigosApp
 
 
 def is_ajax(request):
@@ -93,7 +88,12 @@ def requests_ajax(requisicao):
         return responsavel
 
     if requisicao.get('infos') == 'adicionais':
-        form = CadastroInfoAdicionais(requisicao)
+
+        if requisicao.get('id_infos_adicionais'):
+            info = InformacoesAdcionais.objects.get(id=int(requisicao.get('id_infos_adicionais')))
+            form = CadastroInfoAdicionais(requisicao, instance=info)
+        else:
+            form = CadastroInfoAdicionais(requisicao)
 
         if form.is_valid():
             novas_infos = form.save()
@@ -103,7 +103,13 @@ def requests_ajax(requisicao):
             print(form.errors)
 
     if requisicao.get('infos') == 'financeiro':
-        form = CadastroResumoFinanceiro(requisicao)
+
+        if requisicao.get('id_resumo_financeiro'):
+            resumo = ResumoFinanceiro.objects.get(id=int(requisicao.get('id_resumo_financeiro')))
+            form = CadastroResumoFinanceiro(requisicao, instance=resumo)
+        else:
+            form = CadastroResumoFinanceiro(requisicao)
+
         resumo = form.save(commit=False)
         vencimentos = []
 
@@ -120,8 +126,50 @@ def requests_ajax(requisicao):
             print(form.errors)
 
     if requisicao.get('infos') == 'app':
-        form = CadastroCodigoApp(requisicao)
+
+        if requisicao.get('id_codigo_app'):
+            codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
+            form = CadastroCodigoApp(requisicao, instance=codigo)
+        else:
+            form = CadastroCodigoApp(requisicao)
 
         if form.is_valid():
             novo_codigo = form.save()
             return {'id': novo_codigo.id}
+
+
+def pegar_refeicoes(dados):
+    refeicoes = {}
+    refeicao_data = []
+    i = 0
+
+    for campo in dados:
+        if 'data_refeicao' in campo:
+            i += 1
+
+    for j in range(1, i+1):
+
+        if dados.get(f'cafe{j}'):
+            refeicao_data.append('Café')
+
+        if dados.get(f'coffee_m_{j}'):
+            refeicao_data.append('Coffee manhã')
+
+        if dados.get(f'almoco_{j}'):
+            refeicao_data.append('Almoço')
+
+        if dados.get(f'lanche_t_{j}'):
+            refeicao_data.append('Lanche tarde')
+
+        if dados.get(f'coffee_t_{j}'):
+            refeicao_data.append('Coffee tarde')
+
+        if dados.get(f'jantar{j}'):
+            refeicao_data.append('Jantar')
+
+        if dados.get(f'coffee_n_{j}'):
+            refeicao_data.append('Coffee noite')
+
+        refeicoes[dados.get(f'data_refeicao_{j}')] = refeicao_data
+
+    return refeicoes

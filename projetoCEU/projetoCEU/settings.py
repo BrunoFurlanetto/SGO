@@ -87,6 +87,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'projetoCEU.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -154,3 +155,10 @@ MESSAGE_TAGS = {
     constants.SUCCESS: 'alert alert-success',
     constants.INFO: 'alert alert-info',
 }
+
+# Parte de configuração de envio de email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST_USER = 'no-reply@fundacaoceu.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

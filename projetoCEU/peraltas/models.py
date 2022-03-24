@@ -1,4 +1,5 @@
-from bootstrap_modal_forms.forms import BSModalModelForm
+import datetime
+
 from django import forms
 from django.db import models
 
@@ -56,7 +57,7 @@ class ResumoFinanceiro(models.Model):
         (2, 'Individual')
     )
 
-    valor = models.FloatField()
+    valor = models.FloatField(blank=True, null=True)
     valor_por_participantes = models.FloatField(blank=True, null=True)
     forma_pagamento = models.CharField(max_length=255, blank=True)
     vencimentos = models.CharField(max_length=255, blank=True)
@@ -149,15 +150,16 @@ class FichaDeEvento(models.Model):
     check_out = models.DateTimeField()
     professores_com_alunos = models.BooleanField()
     qtd_professores = models.IntegerField(blank=True, null=True)
-    qtd_convidada = models.PositiveIntegerField()
+    qtd_convidada = models.PositiveIntegerField(blank=True, null=True)
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes)
     refeicoes = models.JSONField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
     observacoes = models.TextField(blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
-    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True)
+    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------
@@ -183,8 +185,8 @@ class CadastroFichaDeEvento(forms.ModelForm):
         widgets = {
             'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
             'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
-            'check_in': forms.TextInput(attrs={'type': 'datetime-local'}),
-            'check_out': forms.TextInput(attrs={'type': 'datetime-local'}),
+            'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
+            'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
         }
