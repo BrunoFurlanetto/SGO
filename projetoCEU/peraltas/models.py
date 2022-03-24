@@ -59,7 +59,7 @@ class ResumoFinanceiro(models.Model):
     valor = models.FloatField()
     valor_por_participantes = models.FloatField(blank=True, null=True)
     forma_pagamento = models.CharField(max_length=255, blank=True)
-    vencimentos = models.CharField(max_length=255)
+    vencimentos = models.CharField(max_length=255, blank=True)
     contrato = models.IntegerField(choices=tipo_contrato)
     nota_fiscal = models.BooleanField()
     observacoes_financeiras = models.TextField(blank=True)
@@ -90,10 +90,10 @@ class InformacoesAdcionais(models.Model):
     )
 
     transporte = models.BooleanField()
-    endereco_embarque = models.CharField(max_length=255)
+    endereco_embarque = models.CharField(max_length=255, blank=True)
     etiquetas_embarque = models.BooleanField()
-    servico_bordo = models.IntegerField(choices=servicos_de_bordo)
-    monitoria = models.IntegerField(choices=tipos_monitoria)
+    servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
+    monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
     quais_atividades = models.CharField(max_length=255, blank=True)
     seguro = models.BooleanField()
@@ -109,7 +109,7 @@ class InformacoesAdcionais(models.Model):
     cd_para_aluno = models.BooleanField()
     bate_bate = models.BooleanField()
     fogueira = models.BooleanField()
-    atividades_ceu = models.ManyToManyField(Atividades)
+    atividades_ceu = models.ManyToManyField(Atividades, blank=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     outros = models.CharField(max_length=300, blank=True)
 
@@ -214,11 +214,13 @@ class CadastroInfoAdicionais(forms.ModelForm):
     atividades_ceu = forms.ModelMultipleChoiceField(
         queryset=Atividades.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False,
     )
 
     atividades_eco = forms.ModelMultipleChoiceField(
         queryset=AtividadesEco.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False
     )
 
     class Meta:
@@ -226,11 +228,15 @@ class CadastroInfoAdicionais(forms.ModelForm):
         exclude = ()
 
         widgets = {
+            'transporte': forms.CheckboxInput(attrs={'onchange': 'pegarEndereco()'}),
+            'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
+            'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
+            'enfermaria': forms.Select(attrs={'onchange': 'horario(this)'}),
             'horario_garantia': forms.TextInput(attrs={'type': 'time'}),
         }
 
 
-class CadastroCodioApp(forms.ModelForm):
+class CadastroCodigoApp(forms.ModelForm):
     class Meta:
         model = CodigosApp
         exclude = ()

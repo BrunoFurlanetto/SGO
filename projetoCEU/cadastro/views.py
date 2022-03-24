@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodioApp
+    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodigoApp
 from .funcoes import is_ajax, requests_ajax
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -193,7 +193,7 @@ def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
     form_adicionais = CadastroInfoAdicionais()
     form_financeiro = CadastroResumoFinanceiro()
-    form_app = CadastroCodioApp()
+    form_app = CadastroCodigoApp()
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))

@@ -489,6 +489,38 @@ function remover_dia_refeicao(selecao){
     }
 }
 
+function pegarEndereco(){
+    if($('#id_transporte').prop('checked')){
+        $('#endereco_embarque').removeClass('none')
+    } else {
+        $('#endereco_embarque').addClass('none')
+    }
+}
+
+function servicoBordo(){
+    if($('#id_etiquetas_embarque').prop('checked')){
+        $('#servico_de_bordo').removeClass('none')
+    } else {
+        $('#servico_de_bordo').addClass('none')
+    }
+}
+
+function quaisAtividades(){
+    if($('#id_biologo').prop('checked')){
+        $('#quais_atividades').removeClass('none')
+    } else {
+        $('#quais_atividades').addClass('none')
+    }
+}
+
+function horario(selecao){
+    if(selecao.value === '2'){
+        $('#horario').removeClass('none')
+    } else {
+        $('#horario').addClass('none')
+    }
+}
+
 jQuery('document').ready(function() {
   jQuery('#infos').submit(function() {
     var dados = jQuery(this).serialize();
@@ -502,6 +534,10 @@ jQuery('document').ready(function() {
       success: function(response) {
           $('#id_informacoes_adcionais').val(response['id'])
           $('#modal-adicionais').modal('hide')
+
+          if($('#id_informacoes_adcionais')){
+              $('#info_adicionais_ok').prop('checked', true)
+          }
       }
     });
 
@@ -534,6 +570,26 @@ jQuery('document').ready(function() {
       success: function(response) {
           $('#id_resumo_financeiro').val(response['id'])
           $('#resumo_financeiro').modal('hide')
+      }
+    });
+
+    return false;
+  });
+});
+
+jQuery('document').ready(function() {
+  jQuery('#codigos_app').submit(function() {
+    var dados = jQuery(this).serialize();
+    //aqui voce pega o conteudo do atributo action do form
+    var url = $(this).attr('action');
+    $.ajax({
+      url: url,
+      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+      type: "POST",
+      data: dados,
+      success: function(response) {
+          $('#id_codigos_app').val(response['id'])
+          $('#modal_codigos_app').modal('hide')
       }
     });
 

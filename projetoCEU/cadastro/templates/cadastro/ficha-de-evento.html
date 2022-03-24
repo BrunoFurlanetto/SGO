@@ -35,7 +35,7 @@
             </div>
             <hr>
             <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
-                <h5>Produto Peraltas</h5>
+                <h5 class="titulo-secao">Produto Peraltas</h5>
                 {{ form.produto }}
                 <div class="mt-2" style="width: 50%">
                     <label>Qual?</label>
@@ -45,7 +45,7 @@
 
             <hr>
             <div class="row mb-2">
-                <h5>Período e viagem e quantidades</h5>
+                <h5 class="titulo-secao">Período e viagem e quantidades</h5>
                 <div style="width: 35%">
                     <label>Check in</label>
                     {{ form.check_in }}
@@ -69,21 +69,21 @@
                     {{ form.qtd_professores }}
                 </div>
                 <div class="mt-2">
-                    <label class="my-1">Professores dormirão com os alunos?</label>
                     {{ form.professores_com_alunos }}
+                    <label class="my-1">Professores dormirão com os alunos?</label>
                 </div>
 
             </div>
             <hr>
             <div class="row" style="width: 100%">
-                <h5>Perfil dos participantes</h5>
+                <h5 class="titulo-secao">Perfil dos participantes</h5>
                 <div class="row perfil checkbox">
                     {{ form.perfil_participantes }}
                 </div>
             </div>
             <hr>
             <div>
-                <h5>Refeições</h5>
+                <h5 class="titulo-secao">Refeições</h5>
                 <table class="table">
                     <thead>
                         <td style="width: 5px">Data</td>
@@ -104,7 +104,7 @@
             </div>
             <hr>
             <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled>
+                <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled required>
                 <label class="my-1">Informações adicionais</label>
                 <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
@@ -113,7 +113,7 @@
             {{ form.informacoes_adcionais.as_hidden }}
             <hr>
             <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="resumo_financeiro_ok" name="resumo_financeiro_ok" disabled>
+                <input class="form-check-input info" type="checkbox" value="" id="resumo_financeiro_ok" name="resumo_financeiro_ok" disabled required>
                 <label class="my-1">Resumo financeiro</label>
                 <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#resumo_financeiro" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
@@ -122,16 +122,16 @@
             {{ form.resumo_financeiro.as_hidden }}
             <hr>
             <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="icodigos_app_ok" disabled>
+                <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="codigos_app_ok" disabled>
                 <label class="my-1">Códigos APP</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#codigos_app" style="margin-left: 5px; margin-top: -15px">
+                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal_codigos_app" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
             </div>
             {{ form.codigos_app.as_hidden }}
             <hr>
             <div class="mb-3 row">
-                <h5>Observações</h5>
+                <h5 class="titulo-secao">Observações</h5>
                 {{ form.observacoes }}
             </div>
             {{ form.vendedora.as_hidden }}
@@ -146,7 +146,7 @@
           <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Informações Adicionais</h5>
                 <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -155,34 +155,36 @@
                 <div class="row">
                     <input type="hidden" name="infos" value="adicionais">
                     <div class="mt-4 checkbox" style="width: 20%">
-                        <label>Transporte?</label>
                         {{ formAdicionais.transporte }}
+                        <label>Transporte?</label>
                     </div>
-                    <div class="mb-2" style="width: 50%">
-                        <label>Endereço de embarque</label>
+                    <div class="mb-2 none" style="width: 50%" id="endereco_embarque">
                         {{ formAdicionais.endereco_embarque }}
+                        <label>Endereço de embarque</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="mt-4 checkbox" style="width: 32%">
-                        <label>Etiquetas de embarque?</label>
                         {{ formAdicionais.etiquetas_embarque }}
+                        <label>Etiquetas de embarque?</label>
                     </div>
-                    <div class="mb-2" style="width: 30%">
-                        <label>Serviço de bordo</label>
+                    <div class="mb-2 none" style="width: 30%" id="servico_de_bordo">
                         {{ formAdicionais.servico_bordo }}
+                        <label>Serviço de bordo</label>
                     </div>
                 </div>
                 <hr>
-                <div class="row">
+                <div class="row mb-2">
                     <div class="mt-4 checkbox" style="width: 15%">
-                        <label>Biólogo?</label>
                         {{ formAdicionais.biologo }}
+                        <label>Biólogo?</label>
                     </div>
-                    <div class="mb-2" style="width: 50%">
+                    <div class="mb-2 none" style="width: 50%" id="quais_atividades">
                         <label>Em quais atividades</label>
                         {{ formAdicionais.quais_atividades }}
                     </div>
+                </div>
+                <div class="row">
                     <div class="mb-2" style="width: 40%">
                         <label>Monitoria</label>
                         {{ formAdicionais.monitoria }}
@@ -194,7 +196,7 @@
                         <label>Enfermaria</label>
                         {{ formAdicionais.enfermaria }}
                     </div>
-                    <div class="mb-2" style="width: 30%">
+                    <div class="mb-2 none" style="width: 30%" id="horario">
                         <label>Horário</label>
                         {{ formAdicionais.horario_garantia }}
                     </div>
@@ -202,65 +204,65 @@
                 <hr>
                 <div class="row">
                     <div>
-                        <h5>Atividades CEU</h5>
+                        <h5 class="titulo-secao">Atividades CEU</h5>
                         {{ formAdicionais.atividades_ceu }}
                     </div>
                 </div>
                 <hr>
                <div class="row">
                     <div>
-                        <label>Atividades Ecoturismo</label>
+                        <h5 class="titulo-secao">Atividades Ecoturismo</h5>
                         {{ formAdicionais.atividades_eco }}
                     </div>
                 </div>
                 <hr>
                 <div class="row mb-2">
-                    <div class="checkbox" style="width: 13%">
-                        <label>Seguro</label>
+                    <div class="checkbox" style="width: 15%">
                         {{ formAdicionais.seguro }}
+                        <label>Seguro</label>
                     </div>
                     <div class="checkbox" style="width: 20%">
-                        <label>Exclusividade</label>
                         {{ formAdicionais.exclusividade }}
+                        <label>Exclusividade</label>
                     </div>
                     <div class="checkbox" style="width: 20%">
-                        <label>Fotos no site</label>
                         {{ formAdicionais.fotos_site }}
+                        <label>Fotos no site</label>
                     </div>
                     <div class="checkbox" style="width: 25%">
-                        <label>Roupa de cama</label>
                         {{ formAdicionais.roupa_de_cama }}
+                        <label>Roupa de cama</label>
                     </div>
                     <div class="mt-2 checkbox" style="width: 25%">
-                        <label>Camêra on-line</label>
                         {{ formAdicionais.camera_on_line }}
+                        <label>Camêra on-line</label>
                     </div>
                 </div>
                 <hr>
                 <div class="row">
                     <div class="checkbox" style="width: 13%">
-                        <label>Abadá</label>
                         {{ formAdicionais.abada }}
+                        <label>Abadá</label>
                     </div>
                     <div class="checkbox" style="width: 18%">
-                        <label>Camiseta</label>
                         {{ formAdicionais.camiseta }}
+                        <label>Camiseta</label>
                     </div>
                     <div class="checkbox" style="width: 13%">
-                        <label>Festas</label>
                         {{ formAdicionais.festas }}
+                        <label>Festas</label>
                     </div>
                     <div class="checkbox" style="width: 25%">
-                        <label>Cd para o aluno</label>
                         {{ formAdicionais.cd_para_aluno }}
+                        <label>Cd para o aluno</label>
                     </div>
                     <div class="checkbox" style="width: 18%">
-                        <label>Bate-bate</label>
                         {{ formAdicionais.bate_bate }}
+                        <label>Bate-bate</label>
                     </div>
                     <div class="mt-3 checkbox" style="width: 20%">
-                        <label>Fogueira</label>
                         {{ formAdicionais.fogueira }}
+                        <label>Fogueira</label>
                     </div>
                 </div>
               </div>
@@ -279,7 +281,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Resumo financeiro</h5>
                         <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -287,6 +289,7 @@
                     <div class="m-2 modal-body">
                         <input type="hidden" name="infos" value="financeiro">
                         <div class="row">
+                            <h5 class="titulo-secao">Valores</h5>
                             <div style="width: 35%">
                                 <label>Valor pacote R$</label>
                                 {{ formFinanceiro.valor }}
@@ -298,7 +301,7 @@
                         </div>
                         <hr>
                         <div class="row">
-                            <h5>Forma de pagamento</h5>
+                            <h5 class="titulo-secao">Forma de pagamento</h5>
                             <div style="width: 30%">
                                 <select name="parcelas" id="parcelas" onchange="n_pracelas(this)">
                                     <option selected></option>
@@ -331,7 +334,7 @@
                         </div>
                         <hr>
                         <div class="row" id="vencimentos">
-                            <h5>Vencimentos</h5>
+                            <h5 class="titulo-secao">Vencimentos</h5>
                         </div>
                         <hr>
                         <div class="row">
@@ -340,13 +343,13 @@
                                 {{ formFinanceiro.contrato }}
                             </div>
                             <div>
-                                <label>Nota fiscal?</label>
                                 {{ formFinanceiro.nota_fiscal }}
+                                <label>Nota fiscal?</label>
                             </div>
                         </div>
                         <hr>
                         <div>
-                            <h5>Observações</h5>
+                            <h5 class="titulo-secao">Observações</h5>
                             {{ formFinanceiro.observacoes_financeiras }}
                         </div>
                     </div>
@@ -359,18 +362,20 @@
         </div>
     </form>
 
-    <form>
+    <form method="POST" action="{% url 'ficha_de_evento' %}" id="codigos_app">
+        {% csrf_token %}
         <!-- Modal para o cadastro dos códigos do APP -->
-        <div class="modal fade" id="codigos_app" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" id="modal_codigos_app" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Códigos APP</h5>
                         <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body app">
+                        <input type="hidden" name="infos" value="app">
                         <div class="row">
                             <div style="width: 25%">
                                 <label>Cliente PJ</label>
@@ -392,7 +397,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>

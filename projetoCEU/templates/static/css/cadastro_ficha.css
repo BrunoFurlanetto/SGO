@@ -10,7 +10,8 @@
 }
 .conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
 #id_endereco_embarque, #id_quais_atividades, #id_horario_garantia,
-#id_valor, #id_valor_por_participantes, .app input, #vencimentos input{
+#id_valor, #id_valor_por_participantes, .app input, #vencimentos input,
+#id_outro_produto{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -139,20 +140,12 @@
     height: 1px !important;
     margin-right: 10px !important;
 }
-#id_nota_fiscal{
-    width: 20px;
-    height: 20px;
-}
-/*
-.checkbox{
-    display: flex;
-    align-content: center;
-}
-.checkbox input{
-    background-color: #fff;
+#id_nota_fiscal, .checkbox input, #id_atividades_ceu input,
+#id_atividades_eco input{
     width: 20px;
     height: 20px;
     border: 1px solid #ced4da;
-    border-radius: 5px;
-    margin-left: 5px;
-}*/
+}
+.titulo-secao{
+    margin: -15px 0 15px 0
+}

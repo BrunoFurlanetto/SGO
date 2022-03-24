@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, CadastroResumoFinanceiro, \
-    CadastroCodioApp
+    CadastroCodigoApp
 
 
 def is_ajax(request):
@@ -105,15 +105,22 @@ def requests_ajax(requisicao):
     if requisicao.get('infos') == 'financeiro':
         form = CadastroResumoFinanceiro(requisicao)
         resumo = form.save(commit=False)
+        vencimentos = []
 
-        resumo.forma_pagamento = f'{requisicao.get("parcelas")} no(a) {requisicao.get("forma_pagamento")}'
+        for i in range(1, int(requisicao.get('parcelas')) + 1):
+            vencimentos.append(requisicao.get(f'vencimento_{i}'))
+
+        resumo.vencimentos = ', '.join(vencimentos)
+        resumo.forma_pagamento = f'{requisicao.get("parcelas")}vezes no(a) {requisicao.get("forma_pagamento")}'
 
         if form.is_valid():
             novo_resumo = form.save()
             return {'id': novo_resumo.id}
+        else:
+            print(form.errors)
 
     if requisicao.get('infos') == 'app':
-        form = CadastroCodioApp()
+        form = CadastroCodigoApp(requisicao)
 
         if form.is_valid():
             novo_codigo = form.save()

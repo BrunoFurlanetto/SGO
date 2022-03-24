@@ -1,6 +1,6 @@
 from django.contrib import admin
 from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
-    InformacoesAdcionais, AtividadesEco
+    InformacoesAdcionais, AtividadesEco, ResumoFinanceiro, CodigosApp
 
 from peraltas.models import Vendedor
 
@@ -44,4 +44,14 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
 @admin.register(InformacoesAdcionais)
 class InformacoesAdicionaisAdmin(admin.ModelAdmin):
-    list_display = ('transporte',)
+    list_display = ('id',)
+
+
+@admin.register(ResumoFinanceiro)
+class ResumoFinanceiroAdmin(admin.ModelAdmin):
+    list_display = ('valor',)
+
+
+@admin.register(CodigosApp)
+class CodigosAppAdmin(admin.ModelAdmin):
+    list_display = ('cliente_pj',)
