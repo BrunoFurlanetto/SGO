@@ -260,7 +260,7 @@ def listaCliente(request):
                                                                'clientes': clientes})
 
     if request.POST.get('update') == 'true':
-        cliente = ClienteColegio.objects.get(cnpj=int(request.POST.get('cnpj')))
+        cliente = ClienteColegio.objects.get(id=int(request.POST.get('id')))
         form = CadastroCliente(request.POST, instance=cliente)
 
         if form.is_valid():
@@ -298,9 +298,11 @@ def listaCliente(request):
 @login_required(login_url='login')
 def listaResponsaveis(request):
     form = CadastroResponsavel()
+    clientes = ClienteColegio.objects.all()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/lista-responsaveis.html', {'form': form})
+        return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
+                                                                    'clientes': clientes})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))

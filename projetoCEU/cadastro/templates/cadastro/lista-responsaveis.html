@@ -11,8 +11,24 @@
         <script>
             setTimeout(() => {  pegarDadosResponsaveis(); }, 100);
         </script>
-        <div class="titulo-responsaveis"></div>
+        <div class="titulo-responsaveis">
+            <h4>Lista de responsáveis por eventos</h4>
+        </div>
         <hr>
+        <div class="mb-3 selecao-cliente" style="display: flex; flex-direction: column">
+            <label>Selecione o cliente/empresa</label>
+            <select class="clientes form-select" name="clientes" style="width: 50%" onchange="pegarDadosResponsaveis(this)">
+                <option selected></option>
+                {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
+                {% endfor %}
+            </select>
+            <script>
+                $(document).ready(function() {
+                    $('.clientes').select2();
+                });
+            </script>
+        </div>
         <div class="lista-responsaveis">
             <table class="table responsaveis">
                 <thead>
@@ -54,7 +70,7 @@
                         <input type="hidden" name="update" value="true">
                         {{ form.responsavel_por.as_hidden }}
                     </div>
-                    <button type="button" class="btn btn-primary ml-5" onclick="salvarResponsavel()">Seleconar responsável</button>
+                    <button type="button" class="btn btn-primary ml-5" id="btn_selecionar" onclick="salvarResponsavel()">Seleconar responsável</button>
                     <button type="submit" class="btn btn-primary btn-update" disabled>Salvar</button>
                 </fieldset>
             </form>

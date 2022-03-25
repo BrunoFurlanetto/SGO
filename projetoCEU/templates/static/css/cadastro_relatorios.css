@@ -30,7 +30,7 @@
     height: 15px;
 }
 .none{
-    display: none;
+    display: none !important;
 }
 
 .buton-x-, .buton-x-loc{

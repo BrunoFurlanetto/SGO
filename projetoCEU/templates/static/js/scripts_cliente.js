@@ -3,10 +3,20 @@ function novo_cliente(){
     $('.busca').remove()
     $('.lista-clientes').addClass('none')
     $('.cadastro-novo').removeClass('none')
+    $('.dados-cliente').addClass('none')
+}
+
+function encaminhamento(){
+    localStorage.setItem('encaminhado', true)
 }
 
 function completa_dados_cliente(selecao) {
     let cnpj = parseInt(selecao.children[0].textContent.replaceAll('.', '').replaceAll('/', '').replace('-', ''))
+    let encaminhado = localStorage.getItem('encaminhado')
+
+    if(!encaminhado){
+        $('#btn_selecionar_cliente').addClass('none')
+    }
 
     $('.dados-cliente').removeClass('none')
 
@@ -32,6 +42,7 @@ function put(){
 function salvarCliente(){
     let cliente = document.getElementById('id_nome_fantasia')
     localStorage.setItem('fantasia', cliente.value);
+    localStorage.removeItem('encaminhado')
 
     $.ajax({
         type: 'POST',
@@ -67,10 +78,18 @@ function salvarIdCliente(){
     localStorage.setItem('id_cliente', $('#id_cliente').val())
     localStorage.setItem('fantasia_cliente', $('#cliente').val())
 }
-function pegarDadosResponsaveis(){
+function pegarDadosResponsaveis(selecao){
     let id_cliente = localStorage.getItem('id_cliente')
+    $('#corpo-tabela-responsaveis').empty()
+
+    if(id_cliente){
+        $('.selecao-cliente').addClass('none')
+    } else {
+        $('#id_responsavel_por').val(selecao.value)
+        id_cliente = selecao.value
+    }
+
     console.log(id_cliente)
-    $('.titulo-responsaveis').append(`<h4>Lista de responsáveis por ${localStorage.getItem('fantasia_cliente')}</h4>`)
 
      $.ajax({
         type: 'POST',
@@ -81,12 +100,13 @@ function pegarDadosResponsaveis(){
 
             for(let i in response){
                 const ddd = String(response[i]['fone']).slice(0, 2)
+                const parte_1_9 = String(response[i]['fone']).slice(2, 3)
                 const parte_1 = String(response[i]['fone']).slice(3, 7)
                 const parte_2 = String(response[i]['fone']).slice(7, 11)
 
                 $('#corpo-tabela-responsaveis').append(`<tr id="${i}"></tr>`)
                 $(`#${i}`).append(`<td><button type="button" class="button-responsavel" onclick="completa_dados_responsavel(this)"><span>${response[i]['nome']}</span></button></td>`)
-                $(`#${i}`).append(`<td>${'(' + ddd + ')' + ' 9 ' + parte_1 + ' - ' + parte_2}</td>`)
+                $(`#${i}`).append(`<td>${'(' + ddd + ') '+ parte_1_9 + ' ' + parte_1 + ' - ' + parte_2}</td>`)
                 $(`#${i}`).append(`<td>${response[i]['email']}</td>`)
                 $(`#${i}`).append(`<td id="responsavel_cliente">${response[i]['responsavel_por']}</td>`)
             }
@@ -97,6 +117,11 @@ function pegarDadosResponsaveis(){
 function completa_dados_responsavel(selecao){
     let id = parseInt(selecao.parentNode.parentNode.id)
     $('.dados-responsavel').removeClass('none')
+    let id_cliente = localStorage.getItem('id_cliente')
+
+    if(!id_cliente){
+        $('#btn_selecionar').addClass('none')
+    }
 
     $.ajax({
         type: 'POST',
@@ -116,6 +141,7 @@ function completa_dados_responsavel(selecao){
 function novo_responsavel(){
     $('.cadastro-responsavel').removeClass('none')
     $('.dados-responsavel').remove()
+    setTimeout(() => {  $('#id_responsavel_por').val($('.clientes').val()); }, 100)
     $('.lista-responsaveis').addClass('none')
 
     $('#id_responsavel_por').val(localStorage.getItem('id_cliente'))
@@ -138,6 +164,7 @@ function pegarResponsavel(){
     $('#responsavel').val(localStorage.getItem('nome_responsavel'))
     $('#id_responsavel_evento').val(parseInt(localStorage.getItem('id_cliente_responsavel')))
 
+    localStorage.removeItem('id_cliente')
     localStorage.removeItem('nome_responsavel')
     localStorage.removeItem('id_cliente_responsavel')
 }
