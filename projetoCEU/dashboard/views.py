@@ -16,8 +16,21 @@ from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, cont
 from ceu.models import Professores
 
 
+def dashboard(request):
+
+    if request.user in User.objects.filter(groups__name='CEU'):
+        return redirect('dashboardCeu')
+
+    if request.user in User.objects.filter(groups__name='Peraltas'):
+        return redirect('dashboardPeraltas')
+
+
 @login_required(login_url='login')
 def dashboardCeu(request):
+
+    if request.user not in User.objects.filter(groups__name='CEU'):
+        return redirect('dashboardPeraltas')
+
     # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
     # Relatórios de atendimento ao público
     dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
@@ -99,4 +112,8 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
+
+    if request.user not in User.objects.filter(groups__name='Peraltas'):
+        return redirect('dashboardCeu')
+
     return render(request, 'dashboard/dashboardPeraltas.html')

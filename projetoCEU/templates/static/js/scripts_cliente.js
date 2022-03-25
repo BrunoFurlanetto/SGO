@@ -11,6 +11,7 @@ function encaminhamento(){
 }
 
 function completa_dados_cliente(selecao) {
+
     let cnpj = parseInt(selecao.children[0].textContent.replaceAll('.', '').replaceAll('/', '').replace('-', ''))
     let encaminhado = localStorage.getItem('encaminhado')
 
@@ -78,6 +79,7 @@ function salvarIdCliente(){
     localStorage.setItem('id_cliente', $('#id_cliente').val())
     localStorage.setItem('fantasia_cliente', $('#cliente').val())
 }
+
 function pegarDadosResponsaveis(selecao){
     let id_cliente = localStorage.getItem('id_cliente')
     $('#corpo-tabela-responsaveis').empty()

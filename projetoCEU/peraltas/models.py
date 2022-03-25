@@ -160,6 +160,7 @@ class FichaDeEvento(models.Model):
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
+    os = models.BooleanField(default=False)
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------

@@ -1,7 +1,7 @@
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, CadastroResumoFinanceiro, \
-    CadastroCodigoApp, InformacoesAdcionais, ResumoFinanceiro, CodigosApp
+    CadastroCodigoApp, InformacoesAdcionais, ResumoFinanceiro, CodigosApp, FichaDeEvento
 
 
 def is_ajax(request):
@@ -9,6 +9,70 @@ def is_ajax(request):
 
 
 def requests_ajax(requisicao):
+    if requisicao.get('id_ficha'):
+        ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha')))
+        serie = []
+        atividades_ceu = {}
+
+        for perfil in ficha_de_evento.perfil_participantes.all():
+            if perfil.ano != '':
+                serie.append(perfil.ano)
+            elif perfil.fase == 'Ensino superior':
+                serie.append(perfil.fase)
+
+        for atividade in ficha_de_evento.informacoes_adcionais.atividades_ceu.all():
+            atividades_ceu[atividade.id] = atividade.atividade
+
+        dados_ficha = {
+            'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
+            'id_cidade': ficha_de_evento.cliente.cidade,
+            'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
+            'id_n_participantes': ficha_de_evento.qtd_convidada,
+            'id_serie': ', '.join(serie),
+            'id_n_professores': ficha_de_evento.qtd_professores,
+            'id_check_in': ficha_de_evento.check_in,
+            'id_check_out': ficha_de_evento.check_out,
+            'id_vendedor': ficha_de_evento.vendedora.id,
+            'atividades_ceu': atividades_ceu,
+        }
+
+        return dados_ficha
+
+
+    if requisicao.get('tipo') == 'Colégio':
+        atividades_bd = Atividades.objects.all()
+        atividades = {}
+
+        for atividade in atividades_bd:
+            atividades[atividade.id] = atividade.atividade
+
+        return {'dados': atividades}
+
+    if requisicao.get('tipo') == 'Empresa':
+        locaveis_bd = Locaveis.objects.filter(locavel=True)
+        locaveis = {}
+
+        for estrutura in locaveis_bd:
+            locaveis[estrutura.id] = estrutura.estrutura
+
+        return locaveis
+
+    if requisicao.get('atividade'):
+        atividade_selecionada = Atividades.objects.get(id=requisicao.POST.get('atividade'))
+        limtacoes = []
+
+        for limite in atividade_selecionada.limitacao.all():
+            limtacoes.append(limite.limitacao)
+
+        return {'limitacoes': limtacoes,
+                'participantes_minimo': atividade_selecionada.numero_de_participantes_minimo,
+                'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo}
+
+    if requisicao.get('local'):
+        local_selecionado = Locaveis.objects.get(id=requisicao.POST.get('local'))
+
+        return {'lotacao': local_selecionado.lotacao}
+
     if requisicao.get('cliente'):
         info_cliente = pegar_informacoes_cliente(requisicao.get('cliente'))
 
@@ -147,7 +211,7 @@ def pegar_refeicoes(dados):
         if 'data_refeicao' in campo:
             i += 1
 
-    for j in range(1, i+1):
+    for j in range(1, i + 1):
 
         if dados.get(f'cafe{j}'):
             refeicao_data.append('Café')

@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodigoApp
+    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodigoApp, FichaDeEvento
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -127,45 +127,14 @@ def empresa(request):
 @login_required(login_url='login')
 def ordemDeServico(request):
     form = CadastroOrdemDeServico()
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False)
 
     if request.method != 'POST':
-        return render(request, 'cadastro/ordem_de_servico.html', {'form': form})
+        return render(request, 'cadastro/ordem_de_servico.html', {'form': form,
+                                                                  'fichas': fichas_de_evento})
 
-    if is_ajax(request) and request.method == 'POST':
-
-        if request.POST.get('tipo') == 'Colégio':
-            atividades_bd = Atividades.objects.all()
-            atividades = {}
-
-            for atividade in atividades_bd:
-                atividades[atividade.id] = atividade.atividade
-
-            return JsonResponse({'dados': atividades})
-
-        if request.POST.get('tipo') == 'Empresa':
-            locaveis_bd = Locaveis.objects.filter(locavel=True)
-            locaveis = {}
-
-            for estrutura in locaveis_bd:
-                locaveis[estrutura.id] = estrutura.estrutura
-
-            return JsonResponse(locaveis)
-
-        if request.POST.get('atividade'):
-            atividade_selecionada = Atividades.objects.get(id=request.POST.get('atividade'))
-            limtacoes = []
-
-            for limite in atividade_selecionada.limitacao.all():
-                limtacoes.append(limite.limitacao)
-
-            return JsonResponse({'limitacoes': limtacoes,
-                                 'participantes_minimo': atividade_selecionada.numero_de_participantes_minimo,
-                                 'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo})
-
-        if request.POST.get('local'):
-            local_selecionado = Locaveis.objects.get(id=request.POST.get('local'))
-
-            return JsonResponse({'lotacao': local_selecionado.lotacao})
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     ficha_de_evento = form.save(commit=False)
@@ -238,6 +207,8 @@ def listaCliente(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
+    print(request.method)
+    print(request.GET)
     # ---------------------------------------------
     if request.GET.get('termo'):
         termo = request.GET.get('termo')

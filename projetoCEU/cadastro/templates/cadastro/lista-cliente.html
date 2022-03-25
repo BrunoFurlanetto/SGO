@@ -10,7 +10,7 @@
         </div>
         <hr>
         <div id="busca" class="busca mb-3">
-            <form method="GET" action="{% url 'lista_cliente' %}">
+            <form method="GET" action="{% url 'lista_cliente' %}" enctype='multipart/form-data'>
                 <fieldset>
                     <script src="{% static 'js/scripts_cliente.js' %}"></script>
                     <div class="row">
@@ -36,7 +36,7 @@
                 </thead>
                 <tbody>
                     {% for cliente in clientes %}
-                        <tr class='clickable-row' data-href="">
+                        <tr>
                             <td>
                                 <button type="button" class="button-cliente" onclick="completa_dados_cliente(this)">
                                     <span>
@@ -70,7 +70,7 @@
         </div>
 
         <div id="update" class="dados-cliente none">
-            <form method="POST" action="{% url 'lista_cliente' %}" onchange="put()">
+            <form method="POST" action="{% url 'lista_cliente' %}" onchange="put()" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
                     <div>
@@ -119,7 +119,7 @@
 
         <div class="cadastro-novo none" id="cadastro">
             <h5>Cadastro novo cliente</h5>
-            <form method="POST" action="{% url 'lista_cliente' %}">
+            <form method="POST" action="{% url 'lista_cliente' %}" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
                     <div>

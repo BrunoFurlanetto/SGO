@@ -6,16 +6,26 @@
     <div class="row conteudo-os">
         <div class="titulo-os">
             <center>
-                <h2>Ficha de Evento</h2>
+                <h2>Ordem de serviço</h2>
             </center>
             <hr>
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
-            <div style="width:23%">
-                <label>Tipo</label>
-                {{ form.tipo }}
+            <script src="{% static 'js/scripts_ordem.js' %}"></script>
+            <div style="width: 50%">
+                <label>Ficha de evento</label>
+                <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
+                    <option selected></option>
+                    {% for ficha in fichas %}
+                        <option value="{{ ficha.id }}">{{ ficha.cliente.nome_fantasia }}</option>
+                    {% endfor %}
+                </select>
+                <script>
+                    $(document).ready(function() {
+                        $('#ficha_de_evento').select2();
+                    });
+                </script>
             </div>
             <hr>
             <div class="row">
@@ -38,7 +48,7 @@
                 </div>
             </div>
             <hr>
-            <div class="row colegios none">
+            <div class="row colegios">
                 <div style="width: 45%">
                     <label>Série</label>
                     {{ form.serie }}
@@ -48,7 +58,7 @@
                     {{ form.n_professores }}
                 </div>
             </div>
-            <hr class="colegios none">
+            <hr class="colegios">
             <div class="row mb-2">
                 <h5>Informações internas</h5>
                 <div style="width: 39%">
@@ -77,7 +87,7 @@
                 </div>
             </div>
             <hr>
-            <div class="center locacao-ceu none">
+            <div class="center locacao-ceu">
                 <h5>Locacoes no CEU</h5>
                 <div class="row locacoes"></div>
                 <button class="buton-plus" type="button" onclick="add_locacao()">
@@ -89,7 +99,7 @@
                 </div>
                 <hr style="margin-left: 3px">
             </div>
-            <div class="atividade-ceu none">
+            <div class="atividade-ceu">
                 <h5>Atividades no CEU</h5>
                 <div class="row atividades"></div>
                 <button class="buton-plus" type="button" onclick="add_atividade()">

@@ -21,48 +21,39 @@
     {% if request.user.is_authenticated %}
         {% if not ver %}
           <ul class="nav-links">
-          {% if request.path == '/dashboard/ceu' %}
-            <li>
-              <a>
-                <i class="bx bxs-calendar"></i>
-              </a>
-              <ul class="sub-menu blank">
-                <li><a class="link_name">Calendário</a></li>
-              </ul>
-            </li>
-            <div class="calendario">
-              {% include 'parciais/_calendario.html' %}
-            </div>
-          {% endif %}
 
-            {% if request.path == '/dashboard/ceu' %}
-              <li class="item-sidebar">
-            {% else %}
-              <li>
+            {% if 'dashboard' in request.path %}
+                <li>
+                  <a>
+                    <i class="bx bxs-calendar"></i>
+                  </a>
+                  <ul class="sub-menu blank">
+                    <li><a class="link_name">Calendário</a></li>
+                  </ul>
+                </li>
+                <div class="calendario">
+                  {% include 'parciais/_calendario.html' %}
+                </div>
             {% endif %}
 
-            {% if request.path == '/dashboard/peraltas' %}
-              <a href="{% url 'dashboardPeraltas' %}">
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
             {% else %}
-              <a href="{% url 'dashboardCeu' %}">
+                <li>
             {% endif %}
-
+              <a href="{% url 'dashboard' %}">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
               </a>
               <ul class="sub-menu blank">
-                {% if request.path == '/dashboard/peraltas' %}
-                  <li><a class="link_name" href="{% url 'dashboardPeraltas' %}">Dashboard</a></li>
-                {% else %}
-                  <li><a class="link_name" href="{% url 'dashboardCeu' %}">Dashboard</a></li>
-                {% endif %}
+                <li><a class="link_name" href="{% url 'dashboard' %}">Dashboard</a></li>
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/ceu' %}
-              <li class="item-sidebar">
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
             {% else %}
-              <li>
+                <li>
             {% endif %}
               <a href="{% url 'painelGeral' %}">
                 <i class='bx bxs-pie-chart-alt-2' ></i>
@@ -73,10 +64,10 @@
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/ceu' %}
-              <li class="item-sidebar">
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
             {% else %}
-              <li>
+                <li>
             {% endif %}
               <div class="iocn-link">
                 <a href="#">
@@ -87,9 +78,7 @@
               </div>
               <ul class="sub-menu">
                 <li><a class="link_name">Cadastrar</a></li>
-                {% if request.path == '/dashboard/ceu' %}
                   <li><a href="{% url 'publico' %}">Público</a></li>
-
                   <li>
                     <div class="iocn-link-2">
                       <a href="{% url 'colegio' %}">
@@ -102,18 +91,18 @@
                       <li><a href="{% url 'solicitarAvaliacao' %}">Avaliação</a></li>
                     </ul>
                   </li>
-
                   <li><a href="{% url 'empresa' %}">Empresa</a></li>
-                {% else %}
-                  <li><a href="{% url 'ordem_de_servico' %}">Ficha de evento</a></li>
-                {% endif %}
+                  <li><a href="{% url 'ordem_de_servico' %}">Ordem de Serviço</a></li>
+                  <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
+                  <li><a href="{% url 'lista_cliente' %}">Cliente</a></li>
+                  <li><a href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
               </ul>
             </li>
 
-            {% if request.path == '/dashboard/ceu' %}
-              <li class="item-sidebar">
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
             {% else %}
-              <li>
+                <li>
             {% endif %}
               <div class="iocn-link">
                 <a href="#">
@@ -129,21 +118,21 @@
               </ul>
             </li>
 
-          <li>
-            <div class="profile-details">
-              <div class="profile-content">
-              </div>
-              <div class="name-job">
-                <div class="profile_name">{{ user.first_name }} {{ user.last_name }}</div>
-                <div class="job">{{ user.groups.all.0 }}</div>
-              </div>
-              <a href="{% url 'logout' %}"><i class='bx bx-log-out' ></i></a>
-              <ul class="sub-menu blank">
-                <li><a class="link_name" href="{% url 'logout' %}">Logout</a></li>
-              </ul>
-            </div>
-          </li>
-        </ul>
+              <li>
+                <div class="profile-details">
+                  <div class="profile-content">
+                  </div>
+                  <div class="name-job">
+                    <div class="profile_name">{{ user.first_name }} {{ user.last_name }}</div>
+                    <div class="job">{{ user.groups.all.0 }}</div>
+                  </div>
+                  <a href="{% url 'logout' %}"><i class='bx bx-log-out' ></i></a>
+                  <ul class="sub-menu blank">
+                    <li><a class="link_name" href="{% url 'logout' %}">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+          </ul>
         {% endif %}
 
         {% if ver %}

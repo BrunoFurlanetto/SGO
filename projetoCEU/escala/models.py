@@ -10,7 +10,7 @@ class Escala(models.Model):
         return self.equipe
 
     def separar_equipe(self):
-        return self.equipe.split(',')
+        return self.equipe.split(', ')
 
 
 class Disponibilidade(models.Model):
