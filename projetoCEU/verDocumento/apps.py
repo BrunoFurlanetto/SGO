@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class VerordemConfig(AppConfig):
+class VerdocumentoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'verOrdem'
+    name = 'verDocumento'

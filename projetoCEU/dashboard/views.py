@@ -91,7 +91,7 @@ def dashboardCeu(request):
         relatorios = list(chain(publico, colegio, empresa))
         dados = juntar_dados(relatorios)
 
-        return JsonResponse({'dados': dados})
+        return JsonResponse({'dados': dados,})
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
 

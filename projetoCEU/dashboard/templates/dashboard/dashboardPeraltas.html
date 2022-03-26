@@ -24,7 +24,7 @@
           {% endif %}
 
           {% for relatorio in relatorios %}
-            <tr class='clickable-row' data-href="{% url 'verOrdem' relatorio.id %}">
+            <tr class='clickable-row' data-href="{% url 'verRelatorio' relatorio.id %}">
               <td>{{ relatorio.tipo }}</td>
               <td>{{ relatorio.instituicao }}</td>
               <td>{{ relatorio.equipe.coordenador }}</td>

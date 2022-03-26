@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from ceu.models import Professores
 from datetime import datetime, timedelta
 from escala.models import Disponibilidade
+from unidecode import unidecode
 
 
 # ------------ Função necessária para verificar se é o ajax que está mandando o POST para o servidor -------------------
@@ -21,7 +22,8 @@ def juntar_dados(relatorios):
         dados[f'relatorio_{i}'] = {'id': relatorio.id,
                                    'tipo': relatorio.tipo,
                                    'coordenador': relatorio.equipe['coordenador'],
-                                   'equipe': relatorio.equipe}
+                                   'equipe': relatorio.equipe,
+                                   'url': f'relatorio-de-atendimento/{unidecode(relatorio.tipo).lower()}/{relatorio.id}'}
 
         if relatorio.tipo != 'Público':
             dados[f'relatorio_{i}']['instituicao'] = relatorio.instituicao

@@ -191,6 +191,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
         success: function(response){
+            console.log(response)
             $('#dados').empty()
             $('h5').empty();
             $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
@@ -206,10 +207,10 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 console.log(response['dados'][relatorio])
 
                 /* ---------------------- Parte necesária para tornar a linha toda da coluna clicável e mandar o ida correto -------------------------- */
-                let novaLinha = `<tr id='dados${i}' class='clickable-row' data-href="/ordem-de-servico/${response['dados'][relatorio]['id']}"></tr>`
+                let novaLinha = `<tr id='dados${i}' class='linha-clicavel' data-href="${response['dados'][relatorio]['url']}"></tr>`
                 $('#dados').append(novaLinha)
                 let script_tag = document.createElement('script')
-                script_tag.text = 'jQuery(document).ready(function($){$(".clickable-row").click(function(){window.location = $(this).data("href");});});'
+                script_tag.text = 'jQuery(document).ready(function($){$(".linha-clicavel").click(function(){window.location = $(this).data("href");});});'
                 $('#dados').append(script_tag)
                 /* ------------------------------------------------------------------------------------------------------------------------------------ */
 
