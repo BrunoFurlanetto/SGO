@@ -11,6 +11,7 @@
             <hr>
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST" enctype="multipart/form-data">
+            {{ form.tipo.as_hidden }}
             {% csrf_token %}
             <script src="{% static 'js/scripts_ordem.js' %}"></script>
             <div style="width: 50%">
@@ -87,30 +88,23 @@
                 </div>
             </div>
             <hr>
-            <div class="center locacao-ceu">
-                <h5>Locacoes no CEU</h5>
-                <div class="row locacoes"></div>
-                <button class="buton-plus" type="button" onclick="add_locacao()">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-                <div class="form-group form-check form-switch mb-3 mt-3" id="checkAtividade">
-                    <label class="form-check-label">A empresa realizara atividades no CEU?</label>
-                    <input type="checkbox" class="form-check-input switch" id="atividadeCheck" onchange="mostrar_atividade()"/>
-                </div>
-                <hr style="margin-left: 3px">
-            </div>
             <div class="atividade-ceu">
                 <h5>Atividades no CEU</h5>
                 <div class="row atividades"></div>
-                <button class="buton-plus" type="button" onclick="add_atividade()">
+                <button class="buton-plus" type="button" onclick="add_atividade()" style="margin-left: 0">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
-                <div class="form-group form-check form-switch mb-3 mt-3" id="checkLocacao">
-                    <label class="form-check-label">O colégio realizara locacoes no CEU?</label>
-                    <input type="checkbox" class="form-check-input switch" id="locacaoCheck" onchange="mostrar_locacao()"/>
-                </div>
                 <hr style="margin-left: 3px">
             </div>
+            <div class="center locacao-ceu">
+                <h5>Locacoes no CEU</h5>
+                <div class="row locacoes"></div>
+                <button class="buton-plus" type="button" onclick="add_locacao()" style="margin-left: 0">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+                <hr style="margin-left: 3px">
+            </div>
+
 
             <div style="width: 70%">
                 <h5>Cronograma do grupo</h5>

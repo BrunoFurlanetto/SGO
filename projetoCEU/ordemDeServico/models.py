@@ -17,7 +17,7 @@ class OrdemDeServico(models.Model):
 
     empresa_choices = (
         ('Peraltas', 'Peraltas'),
-        ('Fundação CEU', 'Fundação CEU')
+        ('CEU', 'Fundação CEU')
     )
 
     tipo = models.CharField(choices=tipo_choice, max_length=7)

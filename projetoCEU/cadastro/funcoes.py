@@ -13,6 +13,7 @@ def requests_ajax(requisicao):
         ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha')))
         serie = []
         atividades_ceu = {}
+        locacoes_ceu = {}
 
         for perfil in ficha_de_evento.perfil_participantes.all():
             if perfil.ano != '':
@@ -23,21 +24,26 @@ def requests_ajax(requisicao):
         for atividade in ficha_de_evento.informacoes_adcionais.atividades_ceu.all():
             atividades_ceu[atividade.id] = atividade.atividade
 
+        for local in ficha_de_evento.informacoes_adcionais.locacoes_ceu.all():
+            locacoes_ceu[local.id] = local.local.estrutura
+
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
-            'id_n_participantes': ficha_de_evento.qtd_convidada,
+            'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
             'id_n_professores': ficha_de_evento.qtd_professores,
             'id_check_in': ficha_de_evento.check_in,
             'id_check_out': ficha_de_evento.check_out,
             'id_vendedor': ficha_de_evento.vendedora.id,
+            'id_empresa': ficha_de_evento.empresa,
             'atividades_ceu': atividades_ceu,
+            'locacoes_ceu': locacoes_ceu,
+            'id_observacoes': ficha_de_evento.observacoes
         }
 
         return dados_ficha
-
 
     if requisicao.get('tipo') == 'Colégio':
         atividades_bd = Atividades.objects.all()
@@ -49,11 +55,12 @@ def requests_ajax(requisicao):
         return {'dados': atividades}
 
     if requisicao.get('tipo') == 'Empresa':
-        locaveis_bd = Locaveis.objects.filter(locavel=True)
+        locaveis_bd = Locaveis.objects.all()
         locaveis = {}
 
         for estrutura in locaveis_bd:
-            locaveis[estrutura.id] = estrutura.estrutura
+            print(estrutura.local)
+            locaveis[estrutura.local.id] = estrutura.local.estrutura
 
         return locaveis
 
@@ -150,6 +157,17 @@ def requests_ajax(requisicao):
         }
 
         return responsavel
+
+    if requisicao.get('id_cliente'):
+        responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
+        print(requisicao.get('id_responsavel'))
+        if responsavel.responsavel_por.id == int(requisicao.get('id_cliente')):
+
+            resposta = True
+        else:
+            resposta = False
+
+        return {'resposta': resposta}
 
     if requisicao.get('infos') == 'adicionais':
 

@@ -7,8 +7,6 @@ function completar_dados_os(selecao){
         data: {'id_ficha': selecao.value},
         success: function (response) {
 
-            console.log(response['atividades_ceu'])
-
             for(let i in response){
                 $(`#${i}`).val(response[i])
             }
@@ -20,69 +18,28 @@ function completar_dados_os(selecao){
                 $('.colegios').addClass('none')
             }
 
+            if($('#id_serie').val() === ''){
+                $('#id_tipo').val('Empresa')
+            } else {
+                $('#id_tipo').val('Colégio')
+            }
+
+            if(response['atividades_ceu'] != ''){
+                for(let i in response['atividades_ceu']){
+                    add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
+                }
+            }
+
+            if(response['locacoes_ceu'] != ''){
+                for(let i in response['locacoes_ceu']){
+                    add_locacao(parseInt(i), response['locacoes_ceu'][i], parseInt(response['id_n_participantes']))
+                }
+            }
+
         }
     })
 }
 
-// Função para verificar qual aba de cadastro abrir
-// Atividades para o caso de colégio e locação para o caso de empresa
-function verifica_colegio_empresa(selecao){
-    let dados_colegio = document.querySelectorAll(".colegios")
-    let tipo_colegio = document.querySelector('.atividade-ceu')
-    let tipo_empresa = document.querySelector('.locacao-ceu')
-
-    // Verifica se o tipo escolhido é 'Colégio' e tira a classe 'none' de todas as div's relacionadas à colégio
-    if (selecao.value === 'Colégio'){
-        tipo_colegio.classList.remove('none')
-
-        for(let l = 0; l < dados_colegio.length; l++) {
-            dados_colegio[l].classList.remove('none')
-        }
-
-        tipo_empresa.classList.add('none')
-
-    } else {
-        // Esconde as div's do colégio
-        tipo_colegio.classList.add('none')
-
-        for(let l = 0; l < dados_colegio.length; l++) {
-            dados_colegio[l].classList.add('none')
-        }
-
-        // Verifica se a seleção ta em empresa pra mostrar os dados relacionados a empresa
-        if(selecao.value === 'Empresa'){
-            tipo_empresa.classList.remove('none')
-        } else {
-            tipo_empresa.classList.add('none')
-        }
-
-    }
-}
-
-// Função para esconder ou mostrar o checkbox para aparecer a tabela de locação para o colégio
-// ou a tabela de atividades para a empresa. Necessário para caso haja a contratação da outra modalidade
-// de atividade pelo cliente e evita bug com erro inicial de seleção de do 'tipo'
-function mostrar_check(){
-    if($('#id_tipo').val() === 'Colégio') {
-        $('#checkAtividade').toggleClass('none')
-    }
-
-    if($('#id_tipo').val() === 'Empresa') {
-        $('#checkLocacao').toggleClass('none')
-    }
-}
-
-// Mostra a tabela para adição de locação de espaços do CEU pelo colégio
-function mostrar_locacao(){
-    let locacao_ceu = document.querySelector('.locacao-ceu')
-    locacao_ceu.classList.toggle('none')
-}
-
-// Mostra a tabela para adição de atividades que serão realizadas no CEU pela empresa
-function mostrar_atividade(){
-    let atividade_ceu = document.querySelector('.atividade-ceu')
-    atividade_ceu.classList.toggle('none')
-}
 //  ------------------------------------------------- Fim das funcionalidades gerais da página ---------------------------------------------------------
 
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
@@ -121,7 +78,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
             let label_participantes = `<label>QTD</label>`
             let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
             let label_serie = `<label>Serie</label>`
-            let serie = `<input class="serie_participantes" id="serie_${i}" type="text" name="serie_participantes_${i}"/>`
+            let serie = `<input class="serie_participantes" id="serie_${i}" type="text" name="serie_participantes_${i}" value="${serie_}"/>`
 
             // Adição dos elemntos em suas respectivas div's
             $(`#div_atividade_${i}`).append(label_atividade, select_atividade)
@@ -328,8 +285,13 @@ function dividar_atividade(indicie, limite){
 // ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
 // Função responsável por adicionar uma nova locação
-function add_locacao(){
+function add_locacao(id_local_=parseInt(''), local_='', qtd_=parseInt('')){
     // Ajax responsável por puxar todas as estruturas do banco de dados
+
+    if(isNaN(qtd_)){
+        qtd_ = ($('#id_n_participantes').val())
+    }
+
     $.ajax({
         type: 'POST',
         url: '',
@@ -354,7 +316,7 @@ function add_locacao(){
             $(`#div_pai_loc_${i}`).append(div_locacao, div_entrada, div_saida, div_icone_loc, div_local_coffee, div_hora_coffee, div_participantes_loc, `<hr class="barra" style="margin-left: 10px">`)
 
             let label_locacao = `<label>Locação</label>`
-            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required></select>`
+            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value=""></select>`
             let label_entrada = `<label>Check in</label>`
             let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required/>`
             let label_saida = `<label>Check out</label>`
@@ -362,9 +324,9 @@ function add_locacao(){
             let label_local_coffee = `<label>Local do coffee</label>`
             let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}"/>`
             let label_hora_coffee = `<label>Hora</label>`
-            let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)" required/>`
+            let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)"/>`
             let label_participantes_loc = `<label>QTD</label>`
-            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required/>`
+            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required value="${qtd_}"/>`
 
             $(`#div_locacao_${i}`).append(label_locacao, select_locacao)
             $(`#div_entrada_${i}`).append(label_entrada, entrada)
@@ -377,7 +339,7 @@ function add_locacao(){
                 $(`#loc_${i}`).append(`<option value="${j}">${response[j]}</option>`)
             }
 
-            $(`#loc_${i}`).prepend(`<option selected></option>`)
+            $(`#loc_${i}`).prepend(`<option selected value="${id_local_}">${local_}</option>`)
 
             $(`#div_icone_loc_${i}`).append(`<button class="buton-x buton-loc" id="btn-loc_${i}" type="button" onClick="remover_locacao(this)">`)
             $(`#btn-loc_${i}`).append(`<span id="spn_loc${i}"><i class='bx bx-x'></i></span>`)

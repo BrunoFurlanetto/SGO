@@ -76,20 +76,20 @@ function pegarCliente(){
 }
 
 function salvarIdCliente(){
-    localStorage.setItem('id_cliente', $('#id_cliente').val())
-    localStorage.setItem('fantasia_cliente', $('#cliente').val())
+    localStorage.setItem('id_cliente', $('#search-cliente').val())
+    localStorage.setItem('fantasia_cliente', $('#search-cliente :selected').text())
+}
+
+function limpar_dados_salvos(){
+    localStorage.removeItem('id_cliente')
+    localStorage.removeItem('fantasia_cliente')
 }
 
 function pegarDadosResponsaveis(selecao){
-    let id_cliente = localStorage.getItem('id_cliente')
     $('#corpo-tabela-responsaveis').empty()
+    $('#id_responsavel_por').val(selecao.value)
+    let id_cliente = selecao.value
 
-    if(id_cliente){
-        $('.selecao-cliente').addClass('none')
-    } else {
-        $('#id_responsavel_por').val(selecao.value)
-        id_cliente = selecao.value
-    }
 
     console.log(id_cliente)
 
@@ -117,21 +117,19 @@ function pegarDadosResponsaveis(selecao){
 }
 
 function completa_dados_responsavel(selecao){
-    let id = parseInt(selecao.parentNode.parentNode.id)
+    let id = parseInt(selecao.id)
     $('.dados-responsavel').removeClass('none')
-    let id_cliente = localStorage.getItem('id_cliente')
+    $('.lista-responsaveis').addClass('none')
 
-    if(!id_cliente){
-        $('#btn_selecionar').addClass('none')
-    }
+    console.log(id)
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/cadastro/lista_responsaveis/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_selecao': id},
         success: function (response) {
-
+            console.log(response)
              for(let j in response){
                 $(`#id_${j}`).val(response[j])
             }
@@ -143,10 +141,11 @@ function completa_dados_responsavel(selecao){
 function novo_responsavel(){
     $('.cadastro-responsavel').removeClass('none')
     $('.dados-responsavel').remove()
-    setTimeout(() => {  $('#id_responsavel_por').val($('.clientes').val()); }, 100)
     $('.lista-responsaveis').addClass('none')
 
     $('#id_responsavel_por').val(localStorage.getItem('id_cliente'))
+    $('#nome_fantasia_cliente').val(localStorage.getItem('fantasia_cliente'))
+
 }
 
 function putResponsavel(){
@@ -155,18 +154,39 @@ function putResponsavel(){
 
 function salvarResponsavel(){
     localStorage.removeItem('id_cliente')
-    console.log($('#responsavel_cliente'))
     localStorage.setItem('nome_responsavel', $('#id_nome').val())
     localStorage.setItem('id_cliente_responsavel', $('#id_responsavel_por').val())
+    localStorage.setItem('id_responsavel', $('#id_id').val())
 
     window.close()
 }
 
 function pegarResponsavel(){
-    $('#responsavel').val(localStorage.getItem('nome_responsavel'))
-    $('#id_responsavel_evento').val(parseInt(localStorage.getItem('id_cliente_responsavel')))
 
-    localStorage.removeItem('id_cliente')
-    localStorage.removeItem('nome_responsavel')
-    localStorage.removeItem('id_cliente_responsavel')
+    if($('#id_cliente').val() && localStorage.getItem('id_cliente_responsavel')) {
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'id_cliente': $('#id_cliente').val(), 'id_responsavel': localStorage.getItem('id_responsavel')},
+            success: function (response) {
+                console.log(response)
+                if (!response['resposta']) {
+                    alert(localStorage.getItem('nome_responsavel') + ' não está cadastrado como responsável de eventos pela ' + $('#cliente').val())
+                    $('#responsavel').val('')
+                    $('#id_responsavel_evento').val('')
+                } else {
+                    $('#responsavel').val(localStorage.getItem('nome_responsavel'))
+                    $('#id_responsavel_evento').val(parseInt(localStorage.getItem('id_responsavel')))
+                }
+            }
+        })
+    }
+
+
+    setTimeout(() => {
+        localStorage.removeItem('id_cliente')
+        localStorage.removeItem('nome_responsavel')
+        localStorage.removeItem('id_cliente_responsavel') }, 450);
+
 }

@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.db import models
 
-from ceu.models import Atividades
+from ceu.models import Atividades, Locaveis
 
 
 class Monitor(models.Model):
@@ -65,12 +65,18 @@ class ResumoFinanceiro(models.Model):
     nota_fiscal = models.BooleanField()
     observacoes_financeiras = models.TextField(blank=True)
 
+    def __str__(self):
+        return f'Resumo financeiro númeor {self.id}'
+
 
 class CodigosApp(models.Model):
     cliente_pj = models.CharField(max_length=20, blank=True)
     cliente_pf = models.CharField(max_length=20, blank=True)
     evento = models.CharField(max_length=20, blank=True)
     reserva = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
 
 
 class InformacoesAdcionais(models.Model):
@@ -111,8 +117,12 @@ class InformacoesAdcionais(models.Model):
     bate_bate = models.BooleanField()
     fogueira = models.BooleanField()
     atividades_ceu = models.ManyToManyField(Atividades, blank=True)
+    locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     outros = models.CharField(max_length=300, blank=True)
+
+    def __str__(self):
+        return f'Informações adicionais id: {self.id}'
 
 
 class ClienteColegio(models.Model):
@@ -157,10 +167,14 @@ class FichaDeEvento(models.Model):
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
     observacoes = models.TextField(blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    empresa = models.CharField(max_length=100, blank=True, null=True)
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Ficha de evento de {self.cliente}'
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------
@@ -216,6 +230,12 @@ class CadastroResponsavel(forms.ModelForm):
 class CadastroInfoAdicionais(forms.ModelForm):
     atividades_ceu = forms.ModelMultipleChoiceField(
         queryset=Atividades.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    locacoes_ceu = forms.ModelMultipleChoiceField(
+        queryset=Locaveis.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )

@@ -141,7 +141,7 @@
     margin-right: 10px !important;
 }
 #id_nota_fiscal, .checkbox input, #id_atividades_ceu input,
-#id_atividades_eco input{
+#id_atividades_eco input, #id_locacoes_ceu input{
     width: 20px;
     height: 20px;
     border: 1px solid #ced4da;

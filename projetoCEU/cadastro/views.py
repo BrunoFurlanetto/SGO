@@ -1,6 +1,7 @@
 from time import sleep
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
@@ -137,6 +138,7 @@ def ordemDeServico(request):
         return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroOrdemDeServico(request.POST, request.FILES)
+    print(form.errors)
     ficha_de_evento = form.save(commit=False)
 
     try:
@@ -172,10 +174,16 @@ def fichaDeEvento(request):
         form_financeiro = CadastroResumoFinanceiro()
         form_app = CadastroCodigoApp()
 
+        if request.user in User.objects.filter(groups__name='CEU'):
+            grupo_usuario = 'CEU'
+        else:
+            grupo_usuario = 'Peraltas'
+
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formFinanceiro': form_financeiro,
-                                                                 'formApp': form_app})
+                                                                 'formApp': form_app,
+                                                                 'grupo_usuario': grupo_usuario})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -183,8 +191,6 @@ def fichaDeEvento(request):
     form = CadastroFichaDeEvento(request.POST)
     novo_evento = form.save(commit=False)
     novo_evento.refeicoes = pegar_refeicoes(request.POST)
-
-
 
     try:
         form.save()
@@ -207,19 +213,17 @@ def listaCliente(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    print(request.method)
-    print(request.GET)
     # ---------------------------------------------
     if request.GET.get('termo'):
         termo = request.GET.get('termo')
 
         if termo is None or not termo:
             messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
-            return redirect('busca_cliente')
+            return redirect('lista_cliente')
 
         clientes = ClienteColegio.objects.filter(cnpj=termo)
 
-        paginacao = Paginator(clientes, 10)
+        paginacao = Paginator(clientes, 5)
         pagina = request.GET.get('page')
         clientes = paginacao.get_page(pagina)
 
@@ -270,10 +274,32 @@ def listaCliente(request):
 def listaResponsaveis(request):
     form = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
+    responsaveis = Responsavel.objects.all()
+    paginacao = Paginator(responsaveis, 5)
+    pagina = request.GET.get('page')
+    responsaveis = paginacao.get_page(pagina)
+
+    # ---------------------------------------------
+    if request.GET.get('cliente'):
+        cliente = request.GET.get('cliente')
+
+        if cliente is None or not cliente:
+            messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
+            return redirect('lista_responsaveis')
+
+        responsaveis = Responsavel.objects.filter(responsavel_por=cliente)
+        paginacao = Paginator(responsaveis, 5)
+        pagina = request.GET.get('page')
+        responsaveis = paginacao.get_page(pagina)
+
+        return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
+                                                                    'clientes': clientes,
+                                                                    'responsaveis': responsaveis})
 
     if request.method != 'POST':
         return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
-                                                                    'clientes': clientes})
+                                                                    'clientes': clientes,
+                                                                    'responsaveis': responsaveis})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -313,4 +339,4 @@ def listaResponsaveis(request):
 
     else:
         messages.warning(request, form.errors)
-        return redirect('lista-responsaveis')
+        return redirect('lista_responsaveis')

@@ -39,12 +39,12 @@ class PerfilParticipantesAdmin(admin.ModelAdmin):
 
 @admin.register(ClienteColegio)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nome_fantasia', 'razao_social', 'cnpj')
+    list_display = ('id', 'nome_fantasia', 'razao_social', 'cnpj')
 
 
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
-    list_display = ('nome',)
+    list_display = ('id', 'nome',)
 
 
 @admin.register(InformacoesAdcionais)

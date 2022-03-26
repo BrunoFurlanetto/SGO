@@ -8,40 +8,86 @@
     <div class="row conteudo-responsaveis">
         <script src="{% static 'js/scripts_cliente.js' %}"></script>
         <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
-        <script>
-            setTimeout(() => {  pegarDadosResponsaveis(); }, 100);
-        </script>
         <div class="titulo-responsaveis">
             <h4>Lista de responsáveis por eventos</h4>
         </div>
         <hr>
-        <div class="mb-3 selecao-cliente" style="display: flex; flex-direction: column">
-            <label>Selecione o cliente/empresa</label>
-            <select class="clientes form-select" name="clientes" style="width: 50%" onchange="pegarDadosResponsaveis(this)">
-                <option selected></option>
-                {% for cliente in clientes %}
-                    <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
-                {% endfor %}
-            </select>
-            <script>
-                $(document).ready(function() {
-                    $('.clientes').select2();
-                });
-            </script>
-        </div>
+
         <div class="lista-responsaveis">
+            <form method="GET" action="{% url 'lista_responsaveis' %}">
+                <fieldset>
+                    <div class="row">
+                        <div class="mb-3 selecao-cliente" style="width: 50%" >
+                            <label>Selecione o cliente/empresa</label>
+                            <select class="clientes form-select" name="cliente" id="search-cliente" value="{{ request.GET.cliente }}" onchange="salvarIdCliente()">
+                                <option selected></option>
+                                {% for cliente in clientes %}
+                                    <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="width: 10%; margin-top: 22px; margin-left: -15px">
+                            <button type="submit" class="buton-search">
+                                <span><i class='bx bx-search'></i></span>
+                            </button>
+                        </div>
+                    </div>
+
+                        <script>
+                            $(document).ready(function() {
+                                $('.clientes').select2();
+                            });
+                        </script>
+                </fieldset>
+            </form>
             <table class="table responsaveis">
                 <thead>
-                    <th style="max: 25%">NOME</th>
+                    <th style="width: 25%">NOME</th>
                     <th style="width: 25%">TELEFONE</th>
                     <th style="width: 25%">EMAIL</th>
                     <th style="width: 30%">CLIENTE</th>
                 </thead>
-                <tbody id="corpo-tabela-responsaveis"></tbody>
+                <tbody id="corpo-tabela-responsaveis">
+                    {% for responsavel in responsaveis %}
+                        <tr>
+                            <td>
+                                <button type="button" id="{{ responsavel.id }}" class="button-responsavel" onclick="completa_dados_responsavel(this)">
+                                    <span>
+                                        {{ responsavel.nome }}
+                                    </span>
+                                </button>
+                            </td>
+                            <td>{{ responsavel.fone }}</td>
+                            <td>{{ responsavel.email_responsavel_evento }}</td>
+                            <td>{{ responsavel.responsavel_por }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
-            <button class="buton-plus" type="button" onclick="novo_responsavel()" style="margin-left: 5px">
-                <span><i class='bx bxs-plus-circle'></i></span>
-            </button>
+            {% if request.GET.cliente and request.GET.cliente != '' %}
+                <button class="buton-plus" type="button" onclick="novo_responsavel()" style="margin-left: 5px">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                </button>
+            {% endif %}
+
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    {% for pagina in responsaveis.paginator.page_range %}
+
+                        {% if responsaveis.number == pagina %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&cliente={{ request.GET.cliente }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ pagina }}&cliente={{ request.GET.cliente }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% endif %}
+
+                    {% endfor %}
+                </ul>
+            </nav>
+
         </div>
 
         <div class="dados-responsavel none">
@@ -82,6 +128,11 @@
                 {% csrf_token %}
                 <fieldset>
                     <div class="row mb-3">
+                        <div>
+                            <label>Cliente ao qual é responsvel</label>
+                            <input type="text" id="nome_fantasia_cliente" readonly>
+                            {{ form.responsavel_por.as_hidden }}
+                        </div>
                         <div style="width: 60%">
                             <label>Nome Completo</label>
                             {{ form.nome }}
@@ -98,9 +149,8 @@
                             <label>Email</label>
                             {{ form.email_responsavel_evento }}
                         </div>
-                        {{ form.responsavel_por.as_hidden }}
                     </div>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="submit" class="btn btn-primary" onclick="limpar_dados_salvos()">Salvar</button>
                 </fieldset>
             </form>
         </div>

@@ -16,13 +16,20 @@ class Professores(models.Model):
         return self.usuario.get_full_name()
 
 
-class Locaveis(models.Model):
+class Estruturas(models.Model):
     estrutura = models.CharField(max_length=100)
     locavel = models.BooleanField(default=False)
     lotacao = models.IntegerField()
 
     def __str__(self):
         return self.estrutura
+
+
+class Locaveis(models.Model):
+    local = models.ForeignKey(Estruturas, on_delete=models.CASCADE, unique=True)
+
+    def __str__(self):
+        return self.local.estrutura
 
 
 class Limitacoes(models.Model):
@@ -34,7 +41,7 @@ class Limitacoes(models.Model):
 
 class Atividades(models.Model):
     atividade = models.CharField(max_length=100)
-    local_da_atividade = models.ForeignKey(Locaveis, on_delete=models.DO_NOTHING, related_name='local')
+    local_da_atividade = models.ForeignKey(Estruturas, on_delete=models.DO_NOTHING, related_name='local')
     numero_de_participantes_minimo = models.IntegerField()
     numero_de_participantes_maximo = models.IntegerField()
     duracao = models.DurationField()
