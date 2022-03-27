@@ -23,9 +23,13 @@
           <select class="select-control d mr-sm-2" id="empresa" name="empresa" onchange="completar_informacoes(this)">
             <option selected></option>
             {% for empresa in empresas %}
-              <option>{{ empresa }}</option>
+              <option value="{{ empresa.id }}">{{ empresa.instituicao }}</option>
             {% endfor %}
           </select>
+          {{ formulario.instituicao.as_hidden }}
+          {{ formulario.check_in.as_hidden }}
+          {{ formulario.check_out.as_hidden }}
+          <input type="hidden" name="id_ordem" id="id_ordem">
         </div>
       </div>
       <hr>

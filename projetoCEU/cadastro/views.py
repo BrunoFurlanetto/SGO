@@ -15,7 +15,7 @@ from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente, pegar_empresas_no_ceu, \
-    salvar_atividades_colegio, salvar_equipe_colegio
+    salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
 from django.core.paginator import Paginator
@@ -109,13 +109,14 @@ def empresa(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    ordem_empresa = OrdemDeServicoEmpresa(request.POST)
+    relatorio_empresa = RelatorioEmpresa(request.POST)
+    relatorio = relatorio_empresa.save(commit=False)
+    salvar_equipe_colegio(request.POST, relatorio)
+    salvar_locacoes_empresa(request.POST, relatorio)
 
-    os = ordem_empresa.save(commit=False)
-    os.tipo = Tipo.objects.get(tipo='Empresa')
-    verificar_locacoes(request.POST, os)
-    verificar_atividades(request.POST, os)
-    somar_horas(request.POST, os)
+    if request.POST.get('ativ_1'):
+        salvar_atividades_colegio(request.POST, relatorio)
+
     try:
         os.save()
     except:

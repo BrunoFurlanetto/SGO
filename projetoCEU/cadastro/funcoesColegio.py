@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from cadastro.funcoesPublico import pegar_professores
-from ceu.models import Professores, Atividades
+from ceu.models import Professores, Atividades, Locaveis
 from ordemDeServico.models import OrdemDeServico
 
 
@@ -15,11 +17,12 @@ def pegar_colegios_no_ceu():
 
 
 def pegar_empresas_no_ceu():
-    fichas_de_evento = OrdemDeServico.objects.filter(tipo='Empresa').filter(relatorio_ceu_entregue=False)
+    ordens = OrdemDeServico.objects.filter(tipo='Empresa').filter(relatorio_ceu_entregue=False)
     empresas = []
 
-    for ficha in fichas_de_evento:
-        empresas.append(ficha.instituicao)
+    for ordem in ordens:
+        empresas.append({'id': ordem.id,
+                         'instituicao': ordem.instituicao})
 
     return empresas
 
@@ -42,6 +45,8 @@ def pegar_informacoes_cliente(cliente):
     return info
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 def salvar_atividades_colegio(dados, relatorio):
     dados_atividade = {}
     n_atividades = 0
@@ -62,7 +67,30 @@ def salvar_atividades_colegio(dados, relatorio):
 
     relatorio.atividades = dados_atividade
 
-    print(relatorio.equipe)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def salvar_locacoes_empresa(dados, relatorio):
+    dados_locacoes = {}
+    n_locacoes = 0
+
+    for campo in dados:
+        if 'qtd' in campo:
+            n_locacoes += 1
+
+        for i in range(1, n_locacoes + 1):
+            atividade = Locaveis.objects.get(id=int(dados.get(f'loc_{i}')))
+            professor = Professores.objects.get(id=dados.get('fprf_loc_{i}'))
+            check_in = dados.get(f'check_in{i}')
+            check_out = dados.get(f'check_out{i}')
+            soma_horas = somar_horas_parciais(check_in, check_out)
+            participantes = dados.get(f'qtd_loc_{i}')
+
+            # ------------------------------------ Salvando as atividades ----------------------------------------------
+            dados_atividade[f'atividade_{i}'] = {'atividade': atividade.atividade, 'professores': professores,
+                                                 'data_e_hora': data_e_hora, 'participantes': participantes}
+
+    relatorio.atividades = dados_atividade
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -89,3 +117,10 @@ def salvar_equipe_colegio(dados, relatorio):
             professores[f'professor_{i}'] = professor.usuario.first_name
 
     relatorio.equipe = professores
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+def somar_horas_parciais(entrada, saida):
+    f = '%Y-%m-%dT%H:%M:%S'
+    dif = (datetime.strptime(saida, f) - datetime.strptime(entrada, f)).total_seconds()
+    print(dif)
