@@ -11,9 +11,10 @@
             <hr>
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST" enctype="multipart/form-data">
-            {{ form.tipo.as_hidden }}
             {% csrf_token %}
             <script src="{% static 'js/scripts_ordem.js' %}"></script>
+            <script src="{% static 'js/Moment.js' %}"></script>
+            <script src="{% static 'js/Moment_timezone.js' %}"></script>
             <div style="width: 50%">
                 <label>Ficha de evento</label>
                 <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
@@ -46,6 +47,10 @@
                 <div style="width: 22%">
                     <label>Participantes</label>
                     {{ form.n_participantes }}
+                </div>
+                <div style="width: 25%">
+                    <label>Tipo</label>
+                    {{ form.tipo }}
                 </div>
             </div>
             <hr>
@@ -88,6 +93,20 @@
                 </div>
             </div>
             <hr>
+            <div class="row form-group" style="width: 100%">
+                <div class="row checkbox">
+                      <h5 class="titulo-secao">Atividades Ecoturismo</h5>
+                    {{ form.atividades_eco }}
+                    <script>$('#id_atividades_eco').removeClass('form-check-input')</script>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <h5 class="titulo-secao">Atividades Peraltas</h5>
+                {{ form.atividades_peraltas }}
+                <script>$('#id_atividades_peraltas').removeClass('form-check-input')</script>
+            </div>
+            <hr>
             <div class="atividade-ceu">
                 <h5>Atividades no CEU</h5>
                 <div class="row atividades"></div>
@@ -121,10 +140,4 @@
         </form>
     </div>
 
-{#    <div class="row conteudo-os">#}
-{#        <form action="" method="post">#}
-{#            {{ form.as_ul }}#}
-{#            <input type="submit" value="Go" />#}
-{#        </form>#}
-{#    </div>#}
 {% endblock %}

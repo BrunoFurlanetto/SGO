@@ -1,5 +1,8 @@
 
 function completar_dados_os(selecao){
+    $('.atividades').empty()
+    $('.locacoes').empty()
+
     $.ajax({
         type: 'POST',
         url: '',
@@ -11,17 +14,22 @@ function completar_dados_os(selecao){
                 $(`#${i}`).val(response[i])
             }
 
-            $('#id_check_in').val(response['id_check_in'].replace('Z', ''))
-            $('#id_check_out').val(response['id_check_out'].replace('Z', ''))
+            $('#id_check_in').val(moment(response['id_check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['id_check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
             if($('#id_serie').val() === ''){
                 $('.colegios').addClass('none')
             }
 
-            if($('#id_serie').val() === ''){
+            if(response['corporativo']){
                 $('#id_tipo').val('Empresa')
+
             } else {
                 $('#id_tipo').val('Colégio')
+            }
+
+            for(let i in response['atividades_eco']){
+                $(`#id_atividades_eco_${i-1}`).prop('checked', true)
             }
 
             if(response['atividades_ceu'] != ''){

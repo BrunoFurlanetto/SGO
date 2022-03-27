@@ -4,7 +4,7 @@ import form as form
 from django import forms
 from django.db import models
 
-from peraltas.models import Monitor
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas
 
 from peraltas.models import Vendedor
 
@@ -34,6 +34,8 @@ class OrdemDeServico(models.Model):
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
+    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True, null=True)
+    atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True, null=True)
     atividades_ceu = models.JSONField(blank=True, null=True)
     loacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
@@ -42,6 +44,20 @@ class OrdemDeServico(models.Model):
 
 
 class CadastroOrdemDeServico(forms.ModelForm):
+    atividades_eco = forms.ModelMultipleChoiceField(
+        queryset=AtividadesEco.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    atividades_eco.widget.attrs['class'] = 'form-check-input atividades-eco-os'
+
+    atividades_peraltas = forms.ModelMultipleChoiceField(
+        queryset=AtividadePeraltas.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    atividades_peraltas.widget.attrs['class'] = 'form-check-input'
+
     class Meta:
         model = OrdemDeServico
         exclude = ()

@@ -1,5 +1,5 @@
 
-.conteudo-os .row input{
+.conteudo-os input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -37,4 +37,37 @@
     margin-top: -60px;
     font-size: 28px;
     color: #b02a37;
+}
+#id_cronograma_peraltas{
+    border: none;
+    height: 100%;
+}
+#id_atividades_eco input, #id_atividades_peraltas input{
+    width: 18px;
+    height: 18px;
+    padding: 0;
+}
+#id_atividades_eco, #id_atividades_peraltas{
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+#id_atividades_eco div{
+    display: inline-block;
+    width: 20%;
+    margin-right: 8%;
+}
+#id_atividades_peraltas div{
+    display: inline-block;
+    width: 30%;
+    margin-right: 8%;
+}
+#id_atividades_eco label, #id_atividades_peraltas label{
+    width: 100%;
+}
+
+.checkbox input{
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
 }

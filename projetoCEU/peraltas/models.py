@@ -14,7 +14,10 @@ class Monitor(models.Model):
 
 
 class AtividadePeraltas(models.Model):
-    ...
+    atividade = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.atividade
 
 
 class Vendedor(models.Model):

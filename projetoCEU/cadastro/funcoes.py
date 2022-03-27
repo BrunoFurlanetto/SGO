@@ -1,7 +1,7 @@
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, CadastroResumoFinanceiro, \
-    CadastroCodigoApp, InformacoesAdcionais, ResumoFinanceiro, CodigosApp, FichaDeEvento
+    CadastroCodigoApp, InformacoesAdcionais, ResumoFinanceiro, CodigosApp, FichaDeEvento, ProdutosPeraltas
 
 
 def is_ajax(request):
@@ -14,6 +14,10 @@ def requests_ajax(requisicao):
         serie = []
         atividades_ceu = {}
         locacoes_ceu = {}
+        atividades_eco = {}
+        atividades_peraltas = {}
+        corporativo = False
+        produto_corporativo = ProdutosPeraltas.objects.get(produto='Corporativo (Empresa)')
 
         for perfil in ficha_de_evento.perfil_participantes.all():
             if perfil.ano != '':
@@ -26,6 +30,14 @@ def requests_ajax(requisicao):
 
         for local in ficha_de_evento.informacoes_adcionais.locacoes_ceu.all():
             locacoes_ceu[local.id] = local.local.estrutura
+
+        for atividade in ficha_de_evento.informacoes_adcionais.atividades_eco.all():
+            atividades_eco[atividade.id] = atividade.atividade
+
+        for produto in ficha_de_evento.produto.all():
+
+            if produto == produto_corporativo:
+                corporativo = True
 
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
@@ -40,7 +52,9 @@ def requests_ajax(requisicao):
             'id_empresa': ficha_de_evento.empresa,
             'atividades_ceu': atividades_ceu,
             'locacoes_ceu': locacoes_ceu,
-            'id_observacoes': ficha_de_evento.observacoes
+            'atividades_eco': atividades_eco,
+            'id_observacoes': ficha_de_evento.observacoes,
+            'corporativo': corporativo
         }
 
         return dados_ficha
@@ -65,7 +79,7 @@ def requests_ajax(requisicao):
         return locaveis
 
     if requisicao.get('atividade'):
-        atividade_selecionada = Atividades.objects.get(id=requisicao.POST.get('atividade'))
+        atividade_selecionada = Atividades.objects.get(id=requisicao.get('atividade'))
         limtacoes = []
 
         for limite in atividade_selecionada.limitacao.all():
@@ -222,16 +236,17 @@ def requests_ajax(requisicao):
 
 def pegar_refeicoes(dados):
     refeicoes = {}
-    refeicao_data = []
     i = 0
+    print(dados)
 
     for campo in dados:
         if 'data_refeicao' in campo:
             i += 1
 
     for j in range(1, i + 1):
+        refeicao_data = []
 
-        if dados.get(f'cafe{j}'):
+        if dados.get(f'cafe_{j}'):
             refeicao_data.append('Café')
 
         if dados.get(f'coffee_m_{j}'):
@@ -246,12 +261,16 @@ def pegar_refeicoes(dados):
         if dados.get(f'coffee_t_{j}'):
             refeicao_data.append('Coffee tarde')
 
-        if dados.get(f'jantar{j}'):
+        if dados.get(f'jantar_{j}'):
             refeicao_data.append('Jantar')
 
         if dados.get(f'coffee_n_{j}'):
             refeicao_data.append('Coffee noite')
 
+        if dados.get(f'lanche_n_{j}'):
+            refeicao_data.append('Lanche noite')
+
         refeicoes[dados.get(f'data_refeicao_{j}')] = refeicao_data
+        print(refeicoes)
 
     return refeicoes

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load pipes %}
+{#{% load pipes %}#}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -24,9 +24,13 @@
           <select class="select-control d mr-sm-2" id="colegio" name="colegio" onchange="completar_informacoes(this)" required>
             <option selected></option>
             {% for colegio in colegios %}
-              <option>{{ colegio }}</option>
+              <option value="{{ colegio.id }}">{{ colegio.instituicao }}</option>
             {% endfor %}
           </select>
+          {{ formulario.instituicao.as_hidden }}
+          {{ formulario.check_in.as_hidden }}
+          {{ formulario.check_out.as_hidden }}
+            <input type="hidden" name="id_ordem" id="id_ordem">
         </div>
         <div style="width: 18%">
           <label>Série</label>

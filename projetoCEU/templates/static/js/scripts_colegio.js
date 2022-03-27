@@ -2,13 +2,18 @@
 // já existêntes na ficha de evento
 function completar_informacoes(selecao) {
     let cliente = selecao.value // Nome da empresa/colégio selecionado
-
+    $('#id_ordem').val(cliente)
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'cliente': cliente},
         success: function (response) {
+
+            // Preenchimeento do nome da instituição e check in/check_out no CEU
+            $('#id_instituicao').val(response['cliente']['instituicao'])
+            $('#id_check_in').val(response['cliente']['check_in'])
+            $('#id_check_out').val(response['cliente']['check_out'])
 
             // Checagem necessário para evitar possíveis erros de usuabilidade
             check_locacao()

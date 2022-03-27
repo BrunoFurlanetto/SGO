@@ -50,12 +50,12 @@ class RelatorioPublico(forms.ModelForm):
 # --------------------------- Model para cadsatro do atendimento com comlégio -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoColegioCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Colégio')
+    tipo = models.CharField(max_length=7, default='Colégio', blank=True)
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
-    check_in = models.DateTimeField()
-    check_out = models.DateTimeField()
+    check_in = models.DateTimeField(blank=True)
+    check_out = models.DateTimeField(blank=True)
     responsaveis = models.IntegerField(blank=True, null=True)
     serie = models.CharField(max_length=100, blank=True)
     coordenador_peraltas = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
@@ -100,7 +100,7 @@ class RelatorioColegio(forms.ModelForm):
 # --------------------------- Model para cadsatro do atendimento com empresa -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoEmpresaCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Empresa')
+    tipo = models.CharField(max_length=7, default='Empresa', blank=True)
     instituicao = models.CharField(max_length=255)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)

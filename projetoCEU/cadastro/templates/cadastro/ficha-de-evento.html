@@ -3,6 +3,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     <div class="row conteudo-ficha">
         <div class="titulo-os">
             <center>
@@ -10,7 +11,7 @@
             </center>
             <hr>
         </div>
-        <form action='' method="POST">
+        <form action='{% url 'ficha_de_evento' %}' method="POST">
             {% csrf_token %}
             <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
             <script src="{% static 'js/scripts_cliente.js' %}"></script>
@@ -38,6 +39,7 @@
             <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                 <h5 class="titulo-secao">Produto Peraltas</h5>
                 {{ form.produto }}
+                <script>$('#id_produto').removeClass('form-check-input')</script>
                 <div class="mt-2" style="width: 50%">
                     <label>Qual?</label>
                     {{ form.outro_produto }}
@@ -80,6 +82,7 @@
                 <h5 class="titulo-secao">Perfil dos participantes</h5>
                 <div class="row perfil checkbox">
                     {{ form.perfil_participantes }}
+                    <script>$('#id_perfil_participantes').removeClass('form-check-input')</script>
                 </div>
             </div>
             <hr>
