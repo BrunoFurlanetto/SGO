@@ -58,8 +58,8 @@ def contar_horas(professor_logado, relatorios):
 
         if relatorio.tipo != 'Público' and relatorio.locacoes is not None:
             for i in range(len(relatorio.locacoes)):
-
-                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i+1}']['professores']:
+                print(relatorio.locacoes['locacao_1'].keys())
+                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i+1}']['professor']:
                     for j in range(int(len(relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'])/3)):
                         n_horas += timedelta(
                             hours=int(

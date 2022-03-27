@@ -110,27 +110,34 @@ def empresa(request):
         return JsonResponse(requests_ajax(request.POST))
 
     relatorio_empresa = RelatorioEmpresa(request.POST)
-    relatorio = relatorio_empresa.save(commit=False)
-    salvar_equipe_colegio(request.POST, relatorio)
-    salvar_locacoes_empresa(request.POST, relatorio)
 
-    if request.POST.get('ativ_1'):
-        salvar_atividades_colegio(request.POST, relatorio)
+    if relatorio_empresa.is_valid():
+        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        relatorio = relatorio_empresa.save(commit=False)
+        salvar_equipe_colegio(request.POST, relatorio)
+        salvar_locacoes_empresa(request.POST, relatorio)
 
-    try:
-        os.save()
-    except:
-        messages.error(request, 'Houve um erro inesperado, por favor, verifique se todos os campos estão preenchidos'
-                                ' corretamente!')
-        ordem_empresa = OrdemDeServicoEmpresa(request.POST)
-        return render(request, 'cadastro/empresa.html', {'formulario': ordem_empresa, 'atividades': atividades,
-                                                         'horas': horas, 'professores': professores,
-                                                         'locacoes': locacoes, 'entradas': entradas, 'saidas': saidas,
-                                                         'rangej': range_j, 'rangei': range_i, 'rangei2': range_i2,
-                                                         'rangei3': range_i3})
+        if request.POST.get('ativ_1'):
+            salvar_atividades_colegio(request.POST, relatorio)
+
+        try:
+            relatorio_empresa.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
+            relatorio_empresa = RelatorioEmpresa()
+            return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
+                                                             'professores': professores,
+                                                             'empresas': empresas})
+        else:
+            ordem.relatorio_ceu_entregue = True
+            ordem.save()
+            messages.success(request, 'Relatório de atendimento salvo com sucesso!')
+            return redirect('dashboard')
     else:
-        messages.success(request, 'Relatório de atendimento salvo com sucesso!')
-        return redirect('dashboard')
+        messages.warning(request, relatorio_empresa.errors)
+        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
+                                                         'professores': professores,
+                                                         'empresas': empresas})
 
 
 @login_required(login_url='login')
@@ -148,7 +155,7 @@ def ordemDeServico(request):
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     print(form.errors)
     ordem_de_servico = form.save(commit=False)
-
+    ficha = FichaDeEvento.objects.get(id=int(request.get('id_ficha')))
 
     try:
         salvar_atividades_ceu(request.POST, ordem_de_servico)
@@ -160,6 +167,8 @@ def ordemDeServico(request):
                                 'ou entre em contato com o desenvolvedor.')
         return redirect('dashboardPeraltas')
     else:
+        ficha.os = True
+        ficha.save()
 
         if ordem_de_servico.tipo == 'Empresa':
             messages.success(request, f'Ficha do evento da empresa {ordem_de_servico.instituicao} salva com sucesso')

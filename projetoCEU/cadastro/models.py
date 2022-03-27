@@ -110,8 +110,8 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
     atividades = models.JSONField(blank=True, null=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
-    locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':,
-    # 'data_hora_saida':, 'soma_horas':, 'soma_horas_total':]}
+    locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'professor':, 'data_hora_entrada':,
+    # 'data_hora_saida':, 'soma_horas':, 'participantes:}, 'soma_horas_total':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
 
     class Meta:

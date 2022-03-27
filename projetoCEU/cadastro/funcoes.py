@@ -118,11 +118,11 @@ def requests_ajax(requisicao):
         return atividades
 
     if requisicao.get('campo') == 'locacao':
-        locais_bd = Locaveis.objects.filter(locavel=True)
+        locais_bd = Locaveis.objects.all()
         locais = {}
 
         for local in locais_bd:
-            locais[local.id] = local.estrutura
+            locais[local.id] = local.local.estrutura
 
         return locais
 

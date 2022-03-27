@@ -63,8 +63,8 @@ def dashboardCeu(request):
     relatorios_usuario = list(chain(usuario_publico, usuario_colegio, usuario_empresa))
 
     # ------------------ Parte para chegar no resumo do mês -------------------
-    n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
-    n_horas = contar_horas(usuario_logado, relatorios_usuario)
+    # n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
+    # n_horas = contar_horas(usuario_logado, relatorios_usuario)
 
     # ----------- Seleção da escala do dia -------------
     escalas = Escala.objects.filter(data=datetime.now())
@@ -105,7 +105,7 @@ def dashboardCeu(request):
 
         return render(request, 'dashboard/dashboardCeu.html', {'professores': professores, 'relatorios': dados_iniciais,
                                                                'data': data_hoje, 'equipe_escalada': equipe_escalada,
-                                                               'n_atividades': n_atividades, 'n_horas': n_horas,
+                                                               # 'n_atividades': n_atividades, 'n_horas': n_horas,
                                                                'mostrar_aviso': mostrar_aviso_disponibilidade,
                                                                'depois_25': depois_25})
 

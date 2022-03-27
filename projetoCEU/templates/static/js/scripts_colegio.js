@@ -341,10 +341,11 @@ function colocar_locacoes(local, id){
     // A partir de agora tem as mesmas funcionalidades da função de atividade
     if (local != null) {
         $(`#${id}`).append(`<option></option>`)
-        $(`#${id}`).append(`<option selected value="">${local}</option>`)
     } else {
         $(`#${id}`).append(`<option selected></option>`)
     }
+
+    let id_local
 
     $.ajax({
         type: 'POST',
@@ -353,17 +354,19 @@ function colocar_locacoes(local, id){
         data: {'campo': 'locacao'},
         success: function (response) {
 
-            for (let k in response) {
+            console.log(response)
 
-                if(local != null){
-                    if(local !== response[k]) {
-                        $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
-                    }
-                } else {
-                    $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
+            for (let k in response) {
+                // Verificação para não adicionar duas vezes a mesma atividade
+                $(`#${id}`).append(`<option value="${k}">${response[k]}</option>`)
+
+                if (local === response[k]){
+                    id_local = k
                 }
 
             }
+
+            $(`#${id}`).val(id_local)
         }
     })
 }
@@ -450,7 +453,7 @@ function remover_linha_locacao(selecao){
 
         $(professores[k]).attr('id', `prf_loc_${k+1}`).attr('name', `prf_loc_${k+1}`)
 
-        $(locacoes[k]).attr('id', `ativ_${k+1}`).attr('name', `ativ_${k+1}`)
+        $(locacoes[k]).attr('id', `loc_${k+1}`).attr('name', `loc_${k+1}`)
         $(check_in[k]).attr('id', `check_in_${k+1}`).attr('name', `check_in_${k+1}`)
         $(check_out[k]).attr('id', `check_out_${k+1}`).attr('name', `check_out_${k+1}`)
         $(qtds[k]).attr('id', `qtds_loc_${k+1}`).attr('name', `qtd_loc_${k+1}`)

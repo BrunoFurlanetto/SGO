@@ -23,6 +23,7 @@
                         <option value="{{ ficha.id }}">{{ ficha.cliente.nome_fantasia }}</option>
                     {% endfor %}
                 </select>
+                <input type="hidden" id="id_ficha" name="id_ficha">
                 <script>
                     $(document).ready(function() {
                         $('#ficha_de_evento').select2();

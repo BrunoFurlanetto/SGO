@@ -29,6 +29,9 @@ class AtividadesAdmin(admin.ModelAdmin):
     filter_horizontal = ('limitacao',)
 
 
+@admin.register(Locaveis)
+class LocaveisAdmin(admin.ModelAdmin):
+    list_display = ('id', 'local')
+
 admin.site.register(Limitacoes)
-admin.site.register(Locaveis)
 admin.site.register(Estruturas)
