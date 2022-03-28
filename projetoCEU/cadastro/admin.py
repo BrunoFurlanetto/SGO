@@ -6,7 +6,7 @@ from ordemDeServico.models import OrdemDeServico
 
 @admin.register(RelatorioDeAtendimentoPublicoCeu)
 class RelatorioDeAtendimentoPublicoCeuAdmin(admin.ModelAdmin):
-    list_display = ('data_atendimento', 'equipe')
+    list_display = ('id', 'data_atendimento', 'equipe')
     list_display_links = ('data_atendimento',)
     list_per_page = 10
 

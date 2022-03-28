@@ -35,7 +35,6 @@ def publico(request):
                                                          'professores': professores})
 
     relatorio_publico = RelatorioPublico(request.POST)
-    print(relatorio_publico.errors)
     relatorio = relatorio_publico.save(commit=False)
     salvar_equipe(request.POST, relatorio)
     salvar_atividades(request.POST, relatorio)

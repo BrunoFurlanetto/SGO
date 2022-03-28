@@ -87,9 +87,9 @@ function validacao(selecao){
 
     let coordenador = $('#coordenador').val()
     let professor_2 = $('#professor_2').val()
-    let professor_3 = $('#professor_2').val()
-    let professor_4 = $('#professor_2').val()
-    let professor_5 = $('#professor_2').val()
+    let professor_3 = $('#professor_3').val()
+    let professor_4 = $('#professor_4').val()
+    let professor_5 = $('#professor_5').val()
 
     if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4 && professor !== professor_5){
         $('#alert').remove()

@@ -207,7 +207,7 @@ document.querySelector(".days").addEventListener("click", (event) => {
                 console.log(response['dados'][relatorio])
 
                 /* ---------------------- Parte necesária para tornar a linha toda da coluna clicável e mandar o ida correto -------------------------- */
-                let novaLinha = `<tr id='dados${i}' class='linha-clicavel' data-href="${response['dados'][relatorio]['url']}"></tr>`
+                let novaLinha = `<tr id='dados${i}' class='linha-clicavel' data-href="/visualizacao/${response['dados'][relatorio]['tipo']}/${response['dados'][relatorio]['id']}"></tr>`
                 $('#dados').append(novaLinha)
                 let script_tag = document.createElement('script')
                 script_tag.text = 'jQuery(document).ready(function($){$(".linha-clicavel").click(function(){window.location = $(this).data("href");});});'

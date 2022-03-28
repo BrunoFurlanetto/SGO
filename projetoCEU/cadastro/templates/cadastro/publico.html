@@ -18,10 +18,10 @@
       <div class="row">
         <div style="width: 20%" class="mb-3">
           <label>Coordenador</label>
-            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" onclick="validarTabelaPublico()" onchange="equipe(this)" required>
+            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
               <option selected></option>
               {% for professor in professores %}
-                <option>{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
               {% endfor %}
             </select>
         </div>
@@ -46,28 +46,28 @@
       <div class="row">
         <div style="width: 20%">
           <label>Professor 2: </label>
-            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" onchange="equipe(this)" required>
+            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
               <option selected></option>
               {% for professor in professores %}
-                <option>{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
               {% endfor %}
             </select>
         </div>
         <div style="width: 20%">
           <label>Professor 3: </label>
-            <select class="form-select mr-sm-2" id="professor_3" name="professor_3" onchange="equipe(this)">
+            <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
               <option selected></option>
               {% for professor in professores %}
-                <option>{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
               {% endfor %}
             </select>
         </div>
         <div style="width: 20%">
           <label>Professor 4: </label>
-            <select class="form-select mr-sm-2" id="professor_4" name="professor_4" onchange="equipe(this)">
+            <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
               <option selected></option>
               {% for professor in professores %}
-                <option>{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
               {% endfor %}
             </select>
         </div>
@@ -90,8 +90,11 @@
               <div class="row">
                 {% for j in rangej %}
                   <div style="width: 135px; margin-right: -20px">
-                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validarTabelaPublico()">
+                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validacao(this)">
                       <option selected></option>
+                      {% for professor in professores %}
+                        <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                      {% endfor %}
                     </select>
                   </div>
                 {% endfor %}
@@ -106,7 +109,7 @@
               <select class="form-select mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}" onchange="validarTabelaPublico()">
                 <option selected></option>
                 {% for atividade in atividades %}
-                  <option>{{ atividade.atividade }}</option>
+                  <option value="{{ atividade.id }}">{{ atividade.atividade }}</option>
                 {% endfor %}
               </select>
             </td>

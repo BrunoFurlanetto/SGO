@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from json import JSONEncoder
 
 from django.db import models
@@ -17,6 +18,7 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
     atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
+    data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
 
     class Meta:
         verbose_name_plural = "Relatórios de atendimento ao público (CEU)"

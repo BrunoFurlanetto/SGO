@@ -1,17 +1,21 @@
-/* Professores escalado, necessário para um caso de retorno a página de preenchimento */
-let escala = [$('#coordenador').val(),
-              $('#professor_2').val(),
-              $('#professor_3').val(),
-              $('#professor_4').val()];
 
-/* Adição do professor selecionado nos select dentro das tabelas de atividades */
-function equipe(selecao) {
-    let valorSelecao = selecao.value;
+/* Validação do professor selecionado nos select dentro das tabelas de atividades */
+function validacao(selecao){
+    let professor = selecao.value
 
-    if (!escala.includes(valorSelecao)){
-        escala.push(valorSelecao)
-        $('.d').append(`<option>` + valorSelecao + `</option>`)
+    let coordenador = $('#coordenador').val()
+    let professor_2 = $('#professor_2').val()
+    let professor_3 = $('#professor_3').val()
+    let professor_4 = $('#professor_4').val()
+
+    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4){
+        $('#alert').remove()
+        $($(`#${selecao.id}`).parent().parent().parent().parent().parent()).prepend(`<td colspan="5" class="alert-danger" id="alert"><center>Professor não escalado</center></td>`)
+        $(`#${selecao.id}`).val('')
+    } else {
+        $('#alert').remove()
     }
+
 
 }
 /* Verifica se o professor selecionado para a atividades está escalado */

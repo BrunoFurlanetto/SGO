@@ -1,5 +1,6 @@
 import math
 # ------------------------- Funções relacionadas ao salvamento das atividades -------------------------------
+from ceu.models import Atividades, Professores
 
 
 def salvar_atividades(dados, relatorio):
@@ -9,7 +10,7 @@ def salvar_atividades(dados, relatorio):
     for i in range(1, 6):
 
         if dados.get(f'ativ{i}') != '':
-            atividade = dados.get(f'ativ{i}')
+            atividade = Atividades.objects.get(id=dados.get(f'ativ{i}'))
             professores = pegar_professores(dados, i)
             data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
 
@@ -36,7 +37,7 @@ def salvar_atividades(dados, relatorio):
                     participantes = int(dados.get('participantes_previa'))
 # -----------------------------------------------------------------------------------------------------------
 
-            dados_atividade[f'atividade_{i}'] = {'atividade': atividade, 'professores': professores,
+            dados_atividade[f'atividade_{i}'] = {'atividade': atividade.atividade, 'professores': professores,
                                                  'data_e_hora': data_e_hora, 'participantes': participantes}
 
     relatorio.atividades = dados_atividade
@@ -49,7 +50,8 @@ def pegar_professores(dados, j):
 
     for d in dados:
         if f'atv{j}' in d and dados[d] != '':
-            professores.append(dados[d])
+            professor = Professores.objects.get(id=int(dados[d]))
+            professores.append(professor.usuario.first_name)
 
     return professores
 # -----------------------------------------------------------------------------------------------------------
@@ -76,11 +78,13 @@ def teste_participantes_por_atividade(dados):
 
 # -------------------------- Funções pra pegar a equipe escalada no atendimento -----------------------------
 def salvar_equipe(dados, relatorio):
-    professores = {'coordenador': dados.get('coordenador')}
+    coordenador = Professores.objects.get(id=int(dados.get('coordenador')))
+    professores = {'coordenador': coordenador.usuario.first_name}
 
     for i in range(2, 5):
         if dados.get(f'professor_{i}') != '':
-            professores[f'professor_{i}'] = dados.get(f'professor_{i}')
+            professor = Professores.objects.get(id=int(dados.get(f'professor_{i}')))
+            professores[f'professor_{i}'] = professor.usuario.first_name
 
     relatorio.equipe = professores
 # -----------------------------------------------------------------------------------------------------------
