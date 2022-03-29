@@ -141,7 +141,7 @@ function popular_professores(i){
 
      $.ajax({
         type: 'POST',
-        url: '',
+        url: '/cadastro/colegio/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'campo': 'professor'},
         success: function (response) {
@@ -197,7 +197,7 @@ function colocar_atividades(atividade, id) {
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/cadastro/colegio/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'campo': 'atividade'},
         success: function (response) {
@@ -321,7 +321,7 @@ function popular_professores_locacao(i){
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/cadastro/empresa/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'campo': 'professor'},
         success: function (response) {
@@ -339,6 +339,7 @@ function colocar_locacoes(local, id){
     // - id: Linha da tabela que vai ser adicionado a locação
 
     // A partir de agora tem as mesmas funcionalidades da função de atividade
+    console.log(local)
     if (local != null) {
         $(`#${id}`).append(`<option></option>`)
     } else {
@@ -349,12 +350,10 @@ function colocar_locacoes(local, id){
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/cadastro/empresa/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'campo': 'locacao'},
         success: function (response) {
-
-            console.log(response)
 
             for (let k in response) {
                 // Verificação para não adicionar duas vezes a mesma atividade

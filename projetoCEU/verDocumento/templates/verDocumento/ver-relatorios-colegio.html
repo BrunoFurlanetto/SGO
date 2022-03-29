@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{#{% load pipes %}#}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+<!-------------------------------- LINHA 1 ---------------------------->
+  <div class="row conteudo-colegio">
+    <div class="titulo-colegio">
+      <center>
+        <h2>RELATÓRIO DE ATENDIMENTO DO COLÉGIO</h2>
+      </center>
+    </div>
+    <hr>
+    <form action="" method="POST">
+      <fieldset id="formulario" disabled>
+          {% csrf_token %}
+          <script src="{% static 'js/script_base.js' %}"></script>
+          <script src="{% static 'js/jquery.js' %}"></script>
+          <script src="{% static 'js/scripts_colegio.js' %}"></script>
+          <script src="{% static 'js/scripts_verDocumento-colegio-empresa.js' %}"></script>
+          <div class="row">
+            <div style="width: 66%">
+              <label>Colégio</label>
+              {{ formulario.instituicao }}
+              {{ formulario.check_in.as_hidden }}
+              {{ formulario.check_out.as_hidden }}
+              <input type="hidden" name="id_relatorio" id="id_relatorio" value="{{ formulario.id }}">
+              {{ formulario.tipo.as_hidden }}
+            </div>
+            <div style="width: 18%">
+              <label>Série</label>
+              {{ formulario.serie }}
+            </div>
+            <div style="width: 16%">
+              <label>Professores</label>
+              {{ formulario.responsaveis }}
+            </div>
+          </div>
+          <hr>
+    <!------------------------------------------------------------------------------>
+          <div class="row mb-2">
+            <div class="col-3">
+              <label for="coordenador">Coordenador</label>
+              <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" required>
+                <option selected></option>
+                {% for professor in professores %}
+                  <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="width: 300px">
+              <center>
+                <label>Participantes: </label>
+              </center>
+              <div class="row">
+                <div style="width: 120px">
+                  {{ formulario.participantes_previa }}
+                </div>
+                <div style="width: 170px">
+                  {{ formulario.participantes_confirmados }}
+                </div>
+              </div>
+            </div>
+            <div style="width: 322px">
+              <label>Coordenador peraltas</label>
+              {{ formulario.coordenador_peraltas }}
+            </div>
+          </div>
+
+    <!-------------------------------- LINHA 2 ---------------------------->
+          <div class="row mb-3">
+            <div style="width: 25%">
+              <label>Professor 2: </label>
+              <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
+                <option selected></option>
+                {% for professor in professores %}
+                  <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="width: 25%">
+              <label>Professor 3: </label>
+              <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
+                <option selected></option>
+                {% for professor in professores %}
+                  <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="width: 25%">
+              <label>Professor 4: </label>
+              <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
+                <option selected></option>
+                {% for professor in professores %}
+                  <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="width: 25%">
+              <label>Professor 5: </label>
+              <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
+                <option selected></option>
+                {% for professor in professores %}
+                  <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <hr>
+
+          <h5>Atividades ralizadas no CEU</h5>
+    <!------------------------------------ TABELA ATIVIDADES ------------------------------------->
+          <table class="table table-striped table-sm" style="caption-side: top">
+            <caption>Atividades do colégio no CEU:</caption>
+            <thead>
+              <tr>
+                <th style="width: 25%"><center>Nome dos professores</center></th>
+                <th style="width: 25%"><center>Atividade</center></th>
+                <th style="width: 20%"><center>Data e Hora</center></th>
+                <th style="width: 10%"><center>QTD</center></th>
+                <th style="width: 5%"><center></center></th>
+              </tr>
+            </thead>
+            <tbody class="auto" id="corpo_tabela_atividade"></tbody>
+          </table>
+          <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+            <span><i class='bx bxs-plus-circle'></i></span>
+            <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+          </button>
+
+    <!------------------------------------------------------------------------------------->
+          <div class="form-group form-check form-switch mb-3 mt-3" id="div_check">
+            <input type="checkbox" class="form-check-input switch" id="checkAtividade" onChange="check_locacao()">
+            <span class="text-black-50" style="font-size: 15px">O colégio realizou locações no CEU?</span>
+          </div>
+    <!------------------------------------------------------------------------------------->
+
+    <!-------------------------------------- TABELA LOCAÇÃO --------------------------------------->
+          <div class="none" id="tabela">
+            <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
+              <caption>Locações do colégio no CEU:</caption>
+              <thead>
+                <tr>
+                  <th><center>Professor</center></th>
+                  <th><center>Local</center></th>
+                  <th><center>Check in</center></th>
+                  <th><center>Check out</center></th>
+                  <th><center>QTD</center></th>
+                  <th><center></center></th>
+                </tr>
+              </thead>
+              <tbody id="corpo_tabela_locacao"></tbody>
+            </table>
+            <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
+              <span><i class='bx bxs-plus-circle'></i></span>
+              <span class="text-black-50" style="font-size: 15px">Adcionar locacao</span>
+            </button>
+          </div>
+
+    <!-------------------------------- RELATÓRIO FINAL ---------------------------->
+          <div class="form-group">
+            <label>Relatório do dia:</label>
+            <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
+          </div>
+          </fieldset>
+          {% if editar %}
+              <div>
+                  <button type="submit" class="btn btn-primary ml-5" id="salvar" disabled>Salvar</button>
+                  <button type="button" class="btn btn-primary ml-5" id="editar" onclick="edita()">Editar</button>
+                  <button type="button" class="btn btn-danger" id="excluir" data-toggle="modal" data-target="#modal-excuir">Excluir</button>
+              </div>
+          {% endif %}
+          <script src="{% static 'js/script_base.js' %}"></script>
+
+        <div class="modal fade" id="modal-excuir" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="TituloModalCentralizado">Tem certeza disso?</h5>
+                <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Fechar">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Você tem certeza que deseja excluir o relatório em questão?
+                {% csrf_token %}
+              </div>
+              <div class="modal-footer">
+                <input type="submit" name="acao" value="Sim" style="background-color: #dc3545; color: white; width: 65px; display: flex; justify-content: center; padding: 2px">
+                <button type="button" class="btn btn-primary">Não</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </form>
+  </div>
+
+{% endblock %}

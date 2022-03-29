@@ -13,14 +13,14 @@ class RelatorioDeAtendimentoPublicoCeuAdmin(admin.ModelAdmin):
 
 @admin.register(RelatorioDeAtendimentoColegioCeu)
 class RelatorioDeAtendimentoColegioCeuAdmin(admin.ModelAdmin):
-    list_display = ('check_in', 'equipe')
+    list_display = ('id', 'check_in', 'equipe')
     list_display_links = ('check_in',)
     list_per_page = 10
 
 
 @admin.register(RelatorioDeAtendimentoEmpresaCeu)
 class RelatorioDeAtendimentoEmpresaCeuAdmin(admin.ModelAdmin):
-    list_display = ('check_in', 'equipe')
+    list_display = ('id', 'check_in', 'equipe')
     list_display_links = ('check_in',)
     list_per_page = 10
 

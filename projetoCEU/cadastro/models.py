@@ -65,9 +65,10 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
     locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'profs_acompanhando':, 'data_hora_entrada':,
-    # 'data_hora_saida':, 'soma_horas':, 'soma_horas_total':]}
+    # 'data_hora_saida':, 'soma_horas':}]}
+    horas_totais_locacoes = models.DurationField(blank=True, null=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
-    solicitado = models.BooleanField(default=False)
+    data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
     entregue = models.BooleanField(default=False)
 
     class Meta:
@@ -113,7 +114,9 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     atividades = models.JSONField(blank=True, null=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
     locacoes = models.JSONField(blank=True, null=True)  # dict{['local':, 'professor':, 'data_hora_entrada':,
-    # 'data_hora_saida':, 'soma_horas':, 'participantes:}, 'soma_horas_total':]}
+    # 'data_hora_saida':, 'soma_horas':, 'participantes:}]}
+    horas_totais_locacoes = models.DurationField(blank=True, null=True)
+    data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
 
     class Meta:

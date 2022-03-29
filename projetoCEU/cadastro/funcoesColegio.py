@@ -92,12 +92,12 @@ def salvar_locacoes_empresa(dados, relatorio):
             # ------------------------------------ Salvando as atividades ----------------------------------------------
             dados_locacoes[f'locacao_{i}'] = {'espaco': local.local.estrutura,
                                               'professor': professor.usuario.first_name,
-                                              'data_hora_entrada': check_in,
-                                              'data_hora_saida': check_out,
+                                              'check_in': check_in,
+                                              'check_out': check_out,
                                               'soma_horas': str(horas_parciais),
                                               'participantes': participantes}
 
-    dados_locacoes['soma_horas_total'] = str(horas_totais)
+    relatorio.horas_totais_locacoes = horas_totais
     relatorio.locacoes = dados_locacoes
 
 
