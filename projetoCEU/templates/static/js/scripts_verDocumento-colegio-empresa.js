@@ -34,6 +34,7 @@ setTimeout(() => {
                     for(let i in response['professores_locacoes']){
                         $(`#${i}`).val(response['professores_locacoes'][i])
                     }
+                    verificar_n_professores()
                 },200)
 
             }

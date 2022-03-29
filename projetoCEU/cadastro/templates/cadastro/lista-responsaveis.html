@@ -4,6 +4,7 @@
 {% load custom_filter_tag %}
 
 {% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     {% csrf_token %}
     <div class="row conteudo-responsaveis">
         <script src="{% static 'js/scripts_cliente.js' %}"></script>

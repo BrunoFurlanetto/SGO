@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 
 from cadastro.funcoesColegio import salvar_equipe_colegio, salvar_locacoes_empresa, salvar_atividades_colegio
 from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
+from ordemDeServico.models import OrdemDeServico
 from .funcoes import is_ajax, requests_ajax
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -28,7 +29,7 @@ def verRelatorioPublico(request, id_relatorio):
     relatorio_publico.id = int(id_relatorio)
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
-    editar = datetime.now().day - relatorio.data_hora_salvo.day < 2
+    editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and request.user.first_name == relatorio.equipe['coordenador']
     range_i = range(1, 6)
     range_j = range(1, 5)
 
@@ -87,6 +88,10 @@ def verRelatorioColegio(request, id_relatorio):
         return JsonResponse(requests_ajax(request.POST))
 
     if request.POST.get('acao'):
+        ordem = OrdemDeServico.objects.get(instituicao=colegio.instituicao)
+        ordem.relatorio_ceu_entregue = False
+        ordem.save()
+
         colegio.delete()
         messages.success(request, 'Relatório excluido com sucesso!')
         return redirect('dashboard')
@@ -106,7 +111,7 @@ def verRelatorioColegio(request, id_relatorio):
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                              'professores': professores})
         else:
-            messages.success(request, 'Relatório de atendimento salvo com sucesso!')
+            messages.success(request, 'Relatório de atendimento atualizado com sucesso!')
             return redirect('dashboard')
 
     else:
@@ -133,6 +138,10 @@ def verRelatorioEmpresa(request, id_relatorio):
         return JsonResponse(requests_ajax(request.POST))
 
     if request.POST.get('acao'):
+        ordem = OrdemDeServico.objects.get(instituicao=empresa.instituicao)
+        ordem.relatorio_ceu_entregue = False
+        ordem.save()
+
         empresa.delete()
         messages.success(request, 'Relatório excluido com sucesso!')
         return redirect('dashboard')

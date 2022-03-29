@@ -4,7 +4,7 @@ function validarTabelaPublico(){
     $('#prf1atv1').prop('required', true);
     $('#horaAtividade_1').prop('required', true);
     $('#ativ2').prop('required', true);
-    $('#prf1atv2').prop('required', true);
+    //$('#prf1atv2').prop('required', true);
     $('#horaAtividade_2').prop('required', true);
 
     if ($("#ativ3").val() != '' || $("#prf1atv3").val() != '' || $("#horaAtividade_3").val() != ''){

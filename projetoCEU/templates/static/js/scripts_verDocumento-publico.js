@@ -45,7 +45,7 @@ function validacao(selecao){
     let professor_3 = $('#professor_3').val()
     let professor_4 = $('#professor_4').val()
 
-    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4 && professor !== professor_5){
+    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4){
         $('#alert').remove()
         $($(`#${selecao.id}`).parent().parent().parent().parent().parent()).prepend(`<td colspan="5" class="alert-danger" id="alert"><center>Professor não escalado</center></td>`)
         $(`#${selecao.id}`).val('')

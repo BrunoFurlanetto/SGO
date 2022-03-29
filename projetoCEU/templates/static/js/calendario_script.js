@@ -191,20 +191,18 @@ document.querySelector(".days").addEventListener("click", (event) => {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
         success: function(response){
-            console.log(response)
             $('#dados').empty()
             $('h5').empty();
             $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
 
-            if (response['dados']  == null){
+            if (Object.keys(response['dados']).length === 0){
                 let mensagem = "<tr><td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td></tr>'
                 $('#dados').append(mensagem)
             }
 
-            var i = 1
+            let i = 1
             for (let relatorio in response['dados']){
                 var equipe_tabela = []
-                console.log(response['dados'][relatorio])
 
                 /* ---------------------- Parte necesária para tornar a linha toda da coluna clicável e mandar o ida correto -------------------------- */
                 let novaLinha = `<tr id='dados${i}' class='linha-clicavel' data-href="/visualizacao/${response['dados'][relatorio]['tipo']}/${response['dados'][relatorio]['id']}"></tr>`

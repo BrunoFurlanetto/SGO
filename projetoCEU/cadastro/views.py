@@ -154,7 +154,7 @@ def ordemDeServico(request):
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     print(form.errors)
     ordem_de_servico = form.save(commit=False)
-    ficha = FichaDeEvento.objects.get(id=int(request.get('id_ficha')))
+    ficha = FichaDeEvento.objects.get(id=int(request.POST.get('id_ficha')))
 
     try:
         salvar_atividades_ceu(request.POST, ordem_de_servico)
