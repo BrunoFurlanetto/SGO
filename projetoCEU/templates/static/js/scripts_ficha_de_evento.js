@@ -15,6 +15,10 @@ function pegarDias(){
     }
 }
 
+function obs(){
+    $('#observacoes_refeicoes').toggleClass('none')
+}
+
 function add_refeicao(data=null){
     let i = document.querySelectorAll('.linha').length
 
@@ -195,3 +199,18 @@ jQuery('document').ready(function() {
     return false;
   });
 });
+
+// -------------------------- Máscaras ---------------------------------
+
+$(document).ready(function() {
+    // Dinheiro
+    $('#id_valor, #id_valor_por_participantes').maskMoney({
+        prefix: 'R$ ',
+        allowNegative: false,
+        thousands: '.', decimal: ',',
+        affixesStay: true
+    });
+
+    // CNPJ
+    $('#search-input').mask("99.999.999/9999-99")
+})

@@ -60,8 +60,8 @@ class ResumoFinanceiro(models.Model):
         (2, 'Individual')
     )
 
-    valor = models.FloatField(blank=True, null=True)
-    valor_por_participantes = models.FloatField(blank=True, null=True)
+    valor = models.CharField(max_length=50, blank=True, null=True)
+    valor_por_participantes = models.CharField(max_length=50, blank=True, null=True)
     forma_pagamento = models.CharField(max_length=255, blank=True)
     vencimentos = models.CharField(max_length=255, blank=True)
     contrato = models.IntegerField(choices=tipo_contrato)
@@ -130,13 +130,13 @@ class InformacoesAdcionais(models.Model):
 
 class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
-    cnpj = models.CharField(max_length=14, unique=True)
+    cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
-    cep = models.CharField(max_length=8)
+    cep = models.CharField(max_length=10)
     responsavel_evento = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -144,10 +144,10 @@ class ClienteColegio(models.Model):
 
 
 class Responsavel(models.Model):
-    responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
-    fone = models.IntegerField()
+    fone = models.CharField(max_length=16)
     email_responsavel_evento = models.EmailField()
 
     def __str__(self):
@@ -155,8 +155,8 @@ class Responsavel(models.Model):
 
 
 class FichaDeEvento(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
-    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.DO_NOTHING)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE)
     produto = models.ManyToManyField(ProdutosPeraltas)
     outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
@@ -167,6 +167,7 @@ class FichaDeEvento(models.Model):
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes)
     refeicoes = models.JSONField(blank=True, null=True)
+    observacoes_refeicoes = models.TextField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
     observacoes = models.TextField(blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
@@ -215,19 +216,11 @@ class CadastroCliente(forms.ModelForm):
         model = ClienteColegio
         exclude = ()
 
-        widgets = {
-            'cnpj': forms.NumberInput()
-        }
-
 
 class CadastroResponsavel(forms.ModelForm):
     class Meta:
         model = Responsavel
         exclude = ()
-
-        widgets = {
-            'fone': forms.NumberInput(),
-        }
 
 
 class CadastroInfoAdicionais(forms.ModelForm):

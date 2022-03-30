@@ -16,7 +16,7 @@
                     <script src="{% static 'js/scripts_cliente.js' %}"></script>
                     <div class="row">
                         <label>CNPJ</label>
-                        <input class="form-control" type="number" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
+                        <input class="form-control" type="text" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
                         <button type="submit" class="buton-search">
                             <span><i class='bx bx-search'></i></span>
                         </button>
@@ -24,6 +24,7 @@
                             <span><i class='bx bxs-plus-circle'></i></span>
                         </button>
                     </div>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
                 </fieldset>
             </form>
             <hr>
@@ -41,7 +42,7 @@
                             <td>
                                 <button type="button" class="button-cliente" onclick="completa_dados_cliente(this)">
                                     <span>
-                                        {{ cliente.cnpj|cnpj }}
+                                        {{ cliente.cnpj }}
                                     </span>
                                 </button>
                             </td>

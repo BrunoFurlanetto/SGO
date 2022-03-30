@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     {% csrf_token %}
     <div class="row conteudo-responsaveis">
-        <script src="{% static 'js/scripts_cliente.js' %}"></script>
-        <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
         <div class="titulo-responsaveis">
             <h4>Lista de responsáveis por eventos</h4>
         </div>
@@ -152,6 +150,9 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary" onclick="limpar_dados_salvos()">Salvar</button>
+                    <script src="{% static 'js/scripts_cliente.js' %}"></script>
+{#                    <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>#}
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
                 </fieldset>
             </form>
         </div>

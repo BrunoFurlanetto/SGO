@@ -4,6 +4,13 @@ function novo_cliente(){
     $('.lista-clientes').addClass('none')
     $('.cadastro-novo').removeClass('none')
     $('.dados-cliente').addClass('none')
+
+    // CEP
+    setTimeout(() => {
+        console.log('Foi')
+        $("#id_cep").mask("00.000-000");
+    }, 100)
+
 }
 
 function encaminhamento(){
@@ -12,7 +19,7 @@ function encaminhamento(){
 
 function completa_dados_cliente(selecao) {
 
-    let cnpj = parseInt(selecao.children[0].textContent.replaceAll('.', '').replaceAll('/', '').replace('-', ''))
+    let cnpj = selecao.children[0].textContent.trim()
     let encaminhado = localStorage.getItem('encaminhado')
 
     if(!encaminhado){
@@ -146,6 +153,16 @@ function novo_responsavel(){
     $('#id_responsavel_por').val(localStorage.getItem('id_cliente'))
     $('#nome_fantasia_cliente').val(localStorage.getItem('fantasia_cliente'))
 
+        // Telefone
+    $('#id_fone').mask('(00) 0 0000-00009');
+    $('#id_fone').blur(function(event) {
+       if($(this).val().length == 16){ // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
+          $(this).mask('(00) 0 0000-0009');
+       } else {
+          $(this).mask('(00) 0000-0000');
+       }
+    });
+
 }
 
 function putResponsavel(){
@@ -190,3 +207,9 @@ function pegarResponsavel(){
         localStorage.removeItem('id_cliente_responsavel') }, 450);
 
 }
+
+// ------------------------- Mascaras ---------------------
+$(document).ready(function() {
+    // CNPJ
+    $('#search-input, #id_cnpj').mask("99.999.999/9999-99")
+})

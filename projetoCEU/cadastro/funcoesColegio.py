@@ -10,8 +10,9 @@ def pegar_colegios_no_ceu():
     colegios = []
 
     for ordem in Ordens_de_servico:
-        colegios.append({'id': ordem.id,
-                         'instituicao': ordem.instituicao})
+        if ordem.atividades_ceu or ordem.loacao_ceu:
+            colegios.append({'id': ordem.id,
+                             'instituicao': ordem.instituicao})
 
     return colegios
 
@@ -21,8 +22,9 @@ def pegar_empresas_no_ceu():
     empresas = []
 
     for ordem in ordens:
-        empresas.append({'id': ordem.id,
-                         'instituicao': ordem.instituicao})
+        if ordem.atividades_ceu or ordem.locacao_ceu:
+            empresas.append({'id': ordem.id,
+                             'instituicao': ordem.instituicao})
 
     return empresas
 

@@ -26,7 +26,7 @@ class Estruturas(models.Model):
 
 
 class Locaveis(models.Model):
-    local = models.ForeignKey(Estruturas, on_delete=models.CASCADE, unique=True)
+    local = models.OneToOneField(Estruturas, on_delete=models.CASCADE, unique=True)
 
     def __str__(self):
         return self.local.estrutura

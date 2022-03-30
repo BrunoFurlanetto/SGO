@@ -50,6 +50,13 @@
     height: 150px;
     resize: none;
 }
+#id_observacoes_refeicoes{
+    height: 100px;
+}
+.conteudo-ficha .switch{
+    padding: 0px;
+    height: 15px;
+}
 .bx-search{
     align-self: center;
     font-size: 30px;

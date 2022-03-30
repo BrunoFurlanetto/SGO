@@ -127,7 +127,8 @@ def requests_ajax(requisicao):
         return locais
 
     if requisicao.get('cnpj'):
-        cliente_bd = ClienteColegio.objects.get(cnpj=int(requisicao.get('cnpj')))
+        print(requisicao.get('cnpj'))
+        cliente_bd = ClienteColegio.objects.get(cnpj=requisicao.get('cnpj'))
 
         cliente = {
             'id': cliente_bd.id,

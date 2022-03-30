@@ -105,6 +105,14 @@
                 <button class="buton-plus" type="button" onclick="add_refeicao()" style="margin-left: 5px; margin-top: -15px">
                     <span><i class='bx bxs-plus-circle'></i></span>
                 </button>
+                <div class="form-group form-check form-switch mb-3 mt-3">
+                    <input type="checkbox" class="form-check-input switch" onChange="obs()">
+                    <label class="form-check-label">Observações</label>
+                </div>
+                <div id="observacoes_refeicoes" class="none">
+                    <label>Observações</label>
+                    {{ form.observacoes_refeicoes }}
+                </div>
             </div>
             <hr>
             <div class="form-check">
@@ -374,6 +382,8 @@
                             <h5 class="titulo-secao">Observações</h5>
                             {{ formFinanceiro.observacoes_financeiras }}
                         </div>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                        <script src="{% static 'js/maskMoney.js' %}"></script> <!-- Máscara de dinheiro -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
