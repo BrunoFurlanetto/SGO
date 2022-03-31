@@ -10,7 +10,7 @@ def pegar_colegios_no_ceu():
     colegios = []
 
     for ordem in Ordens_de_servico:
-        if ordem.atividades_ceu or ordem.loacao_ceu:
+        if ordem.atividades_ceu or ordem.locacao_ceu:
             colegios.append({'id': ordem.id,
                              'instituicao': ordem.instituicao})
 
@@ -41,7 +41,7 @@ def pegar_informacoes_cliente(cliente):
         'previa': ficha.n_participantes,
         'coordenador_peraltas': ficha.monitor_responsavel.id,
         'atividades': ficha.atividades_ceu,
-        'locacoes': ficha.loacao_ceu
+        'locacoes': ficha.locacao_ceu
     }}
 
     return info

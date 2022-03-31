@@ -37,7 +37,7 @@ class OrdemDeServico(models.Model):
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     atividades_ceu = models.JSONField(blank=True, null=True)
-    loacao_ceu = models.JSONField(blank=True, null=True)
+    locacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)

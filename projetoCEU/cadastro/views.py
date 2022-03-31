@@ -152,7 +152,6 @@ def ordemDeServico(request):
         return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroOrdemDeServico(request.POST, request.FILES)
-    print(form.errors)
     ordem_de_servico = form.save(commit=False)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('id_ficha')))
 

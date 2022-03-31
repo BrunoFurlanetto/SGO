@@ -40,7 +40,7 @@ def check_in_and_check_out_atividade(ficha_de_evento):
         return
 
 
-def salvar_locacoes_ceu(dados, ficha_de_evento):
+def salvar_locacoes_ceu(dados, ordem_de_servico):
     dados_locacao = {}
     n_locacoes = 0
 
@@ -61,8 +61,8 @@ def salvar_locacoes_ceu(dados, ficha_de_evento):
             'participantes': int(dados.get(f'participantes-loc_{i}')),
         }
 
-    ficha_de_evento.loacao_ceu = dados_locacao
-    ficha_de_evento.check_in_ceu = dados.get(f'entrada_1').replace('T', ' ')
-    ficha_de_evento.check_out_ceu = dados.get(f'saida_{n_locacoes}').replace('T', ' ')
+    ordem_de_servico.locacao_ceu = dados_locacao
+    ordem_de_servico.check_in_ceu = dados.get(f'entrada_1').replace('T', ' ')
+    ordem_de_servico.check_out_ceu = dados.get(f'saida_{n_locacoes}').replace('T', ' ')
 
     return
