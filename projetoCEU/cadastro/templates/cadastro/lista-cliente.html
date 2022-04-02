@@ -158,12 +158,17 @@
                             <label>CEP</label>
                             {{ form.cep }}
                         </div>
-                    </div>
-                    <div class="row mb-3">
+                        <div>
+                            <label>Responsável pelo evento:</label>
+                            <input type="text" name="responsavel" id="responsavel" readonly onclick="abrirModal()"/>
+                            {{ form.responsavel_evento.as_hidden }}
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary ml-5" >Salvar</button>
                 </fieldset>
             </form>
         </div>
     </div>
+
+
 {% endblock %}

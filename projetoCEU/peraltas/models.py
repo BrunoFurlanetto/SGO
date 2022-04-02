@@ -36,6 +36,8 @@ class AtividadesEco(models.Model):
 
 class ProdutosPeraltas(models.Model):
     produto = models.CharField(max_length=255)
+    pernoite = models.BooleanField(default=True)
+    colegio = models.BooleanField(default=True)
 
     def __str__(self):
         return self.produto
@@ -162,9 +164,15 @@ class FichaDeEvento(models.Model):
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     professores_com_alunos = models.BooleanField()
-    qtd_professores = models.IntegerField(blank=True, null=True)
+    qtd_professores = models.PositiveIntegerField(blank=True, null=True)
+    qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True)
+    qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True)
     qtd_convidada = models.PositiveIntegerField(blank=True, null=True)
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
+    qtd_meninos = models.PositiveIntegerField(blank=True, null=True)
+    qtd_meninas = models.PositiveIntegerField(blank=True, null=True)
+    qtd_homens = models.PositiveIntegerField(blank=True, null=True)
+    qtd_mulheres = models.PositiveIntegerField(blank=True, null=True)
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes)
     refeicoes = models.JSONField(blank=True, null=True)
     observacoes_refeicoes = models.TextField(blank=True, null=True)
@@ -224,24 +232,6 @@ class CadastroResponsavel(forms.ModelForm):
 
 
 class CadastroInfoAdicionais(forms.ModelForm):
-    atividades_ceu = forms.ModelMultipleChoiceField(
-        queryset=Atividades.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
-
-    locacoes_ceu = forms.ModelMultipleChoiceField(
-        queryset=Locaveis.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
-
-    atividades_eco = forms.ModelMultipleChoiceField(
-        queryset=AtividadesEco.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-
     class Meta:
         model = InformacoesAdcionais
         exclude = ()

@@ -4,6 +4,7 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
+    <link rel="stylesheet" href="{% static 'css/MultiSelect.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     <div class="row conteudo-ficha">
         <div class="titulo-os">
             <center>
@@ -36,11 +37,10 @@
                 </div>
             </div>
             <hr>
-            <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
+            <div class="row produtos-peraltas checkbox form-group" style="width: 100%" onchange="teste()">
                 <h5 class="titulo-secao">Produto Peraltas</h5>
                 {{ form.produto }}
-                <script>$('#id_produto').removeClass('form-check-input')</script>
-                <div class="mt-2" style="width: 50%">
+                <div class="mt-2 outro-produto none" style="width: 50%" onchange="verQuantidades(this)">
                     <label>Qual?</label>
                     {{ form.outro_produto }}
                 </div>
@@ -48,7 +48,7 @@
 
             <hr>
             <div class="row mb-2">
-                <h5 class="titulo-secao">Período e viagem e quantidades</h5>
+                <h5 class="titulo-secao">Período de viagem</h5>
                 <div style="width: 35%">
                     <label>Check in</label>
                     {{ form.check_in }}
@@ -58,24 +58,51 @@
                     {{ form.check_out }}
                 </div>
             </div>
+            <hr>
             <div class="row mb-2">
-                <div style="width: 20%">
-                    <label>QTD confirmada</label>
-                    {{ form.qtd_confirmada }}
-                </div>
-                <div style="width: 20%">
+                <h5 class="titulo-secao">Quantidades</h5>
+                <div style="width: 16%">
                     <label>QTD convidada</label>
+                    {{ form.qtd_convidada }}
+                </div>
+                <div style="width: 16%">
+                    <label>QTD reservada</label>
                     {{ form.qtd_confirmada }}
                 </div>
-                <div style="width: 20%">
+                <div class="alunos-pernoite none" style="width: 15%">
+                    <label>QTD meninas</label>
+                    {{ form.qtd_meninas }}
+                </div>
+                <div class="alunos-pernoite none" style="width: 15%">
+                    <label>QTD meninos</label>
+                    {{ form.qtd_meninos }}
+                </div>
+                <div class="corporativo none" style="width: 15%;">
+                    <label>QTD homens</label>
+                    {{ form.qtd_homens }}
+                </div>
+                <div class="corporativo none" style="width: 15%">
+                    <label>QTD mulheres</label>
+                    {{ form.qtd_mulheres }}
+                </div>
+            </div>
+            <div class="row professores none">
+                <div style="width: 16%">
                     <label>QTD professores</label>
                     {{ form.qtd_professores }}
                 </div>
-                <div class="mt-2">
+                <div class="professores-pernoite none" style="width: 15%">
+                    <label>QTD homens</label>
+                    {{ form.qtd_profs_homens }}
+                </div>
+                <div class="professores-pernoite none" style="width: 15%">
+                    <label>QTD mulheres</label>
+                    {{ form.qtd_profs_mulheres }}
+                </div>
+                <div class="mt-2 professores-pernoite none">
                     {{ form.professores_com_alunos }}
                     <label class="my-1">Professores dormirão com os alunos?</label>
                 </div>
-
             </div>
             <hr>
             <div class="row" style="width: 100%">
@@ -145,6 +172,8 @@
             <div class="mb-3 row">
                 <h5 class="titulo-secao">Observações</h5>
                 {{ form.observacoes }}
+                <br>
+                <br>
             </div>
             {{ form.vendedora.as_hidden }}
             {{ form.empresa.as_hidden }}
@@ -176,8 +205,8 @@
                         <label>Transporte?</label>
                     </div>
                     <div class="mb-2 none" style="width: 50%" id="endereco_embarque">
-                        {{ formAdicionais.endereco_embarque }}
                         <label>Endereço de embarque</label>
+                        {{ formAdicionais.endereco_embarque }}
                     </div>
                 </div>
                 <div class="row">
@@ -186,8 +215,8 @@
                         <label>Etiquetas de embarque?</label>
                     </div>
                     <div class="mb-2 none" style="width: 30%" id="servico_de_bordo">
-                        {{ formAdicionais.servico_bordo }}
                         <label>Serviço de bordo</label>
+                        {{ formAdicionais.servico_bordo }}
                     </div>
                 </div>
                 <hr>
@@ -223,6 +252,13 @@
                     <div>
                         <h5 class="titulo-secao">Atividades CEU</h5>
                         {{ formAdicionais.atividades_ceu }}
+                        <script src="{% static 'js/MultiSelect.js' %}"></script>
+                        <script>
+                            $(document).ready(function () {
+                              $("#id_atividades_ceu").CreateMultiCheckBox({ width: '230px',
+                                         defaultText : 'Select Below', height:'250px' });
+                            });
+                        </script>
                     </div>
                 </div>
               <hr>

@@ -189,6 +189,7 @@ def fichaDeEvento(request):
         form_adicionais = CadastroInfoAdicionais()
         form_financeiro = CadastroResumoFinanceiro()
         form_app = CadastroCodigoApp()
+        atividades_ceu = Atividades.objects.all()
 
         if request.user in User.objects.filter(groups__name='CEU'):
             grupo_usuario = 'CEU'
@@ -199,8 +200,10 @@ def fichaDeEvento(request):
                                                                  'formAdicionais': form_adicionais,
                                                                  'formFinanceiro': form_financeiro,
                                                                  'formApp': form_app,
-                                                                 'grupo_usuario': grupo_usuario})
+                                                                 'grupo_usuario': grupo_usuario,
+                                                                 'atividades_ceu': atividades_ceu})
 
+    print(request.POST)
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 

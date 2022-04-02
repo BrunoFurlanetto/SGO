@@ -1,4 +1,42 @@
 
+function teste(){
+    for(let i = 0; i < $('#id_produto').children('div').length; i++){
+            verQuantidades($(`#id_produto_${i}`))
+        }
+}
+
+function verQuantidades(id_produto){
+    if(id_produto.is(':checked')){
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {'id_produto': id_produto.val()},
+            success: function (response) {
+                if(response['colegio']){
+                    $('.professores').removeClass('none')
+                    if(response['outro']){
+                        $('.outro-produto').removeClass('none')
+                    }
+
+                    if(response['pernoite']){
+                        $('.alunos-pernoite, .professores-pernoite').removeClass('none')
+                    }
+
+                    if(response['vt']){
+                        $('.alunos-pernoite').addClass('none')
+                    }
+
+                } else {
+                    $('.corporativo').removeClass('none')
+                }
+            }
+        })
+    } else {
+        $('.alunos-pernoite, .professores-pernoite, .corporativo, .professores, .outro-produto').addClass('none')
+    }
+}
+
 function pegarDias(){
     if($('#id_check_in').val() !== '' && $('#id_check_out').val() !== ''){
         const data_1 = $('#id_check_in').val().split('T')[0]

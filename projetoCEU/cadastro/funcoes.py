@@ -234,6 +234,16 @@ def requests_ajax(requisicao):
             novo_codigo = form.save()
             return {'id': novo_codigo.id}
 
+    if requisicao.get('id_produto'):
+        produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
+
+        return {
+            'colegio': produto.colegio,
+            'pernoite': produto.pernoite,
+            'vt': produto.produto == 'Visita Técnica',
+            'outro': produto.produto == 'Outro'
+        }
+
 
 def pegar_refeicoes(dados):
     refeicoes = {}
