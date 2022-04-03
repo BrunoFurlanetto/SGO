@@ -142,6 +142,55 @@
                 </div>
             </div>
             <hr>
+            <div class="row">
+                <h5 class="titulo-secao">CEU</h5>
+                <div style="width: 40%">
+                    <label>Atividades</label>
+                    {{ form.atividades_ceu }}
+                    <script src="{% static 'js/MultiSelect.js' %}"></script>
+                    <script>
+                        $(document).ready(function () {
+                          $("#id_atividades_ceu").CreateMultiCheckBox({ width: '250px',
+                             defaultText : 'Selecione as atividades', height:'250px' });
+                        });
+                    </script>
+                </div>
+                <div style="width: 40%">
+                    <label>Locações</label>
+                    {{ form.locacoes_ceu }}
+                    <script>
+                        $(document).ready(function () {
+                          $("#id_locacoes_ceu").CreateMultiCheckBox({ width: '250px',
+                             defaultText : 'Selecione o local', height:'250px' });
+                        });
+                    </script>
+                </div>
+            </div>
+            <hr>
+            <div class="row peraltas">
+                <h5 class="titulo-secao">Peraltas</h5>
+                <div style="width: 40%">
+                    <label>Ecoturismo</label>
+                    {{ form.atividades_eco }}
+                    <script>
+                        $(document).ready(function () {
+                          $("#id_atividades_eco").CreateMultiCheckBox({ width: '250px',
+                             defaultText : 'Selecione as atividades', height:'250px' });
+                        });
+                    </script>
+                </div>
+                <div style="width: 40%">
+                    <label>Acampamento</label>
+                    {{ form.atividades_peraltas }}
+                    <script>
+                        $(document).ready(function () {
+                          $("#id_atividades_peraltas").CreateMultiCheckBox({ width: '250px',
+                             defaultText : 'Selecione as atividades', height:'250px' });
+                        });
+                    </script>
+                </div>
+            </div>
+            <hr class="peraltas">
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled required>
                 <label class="my-1">Informações adicionais</label>
@@ -150,15 +199,6 @@
                 </button>
             </div>
             {{ form.informacoes_adcionais.as_hidden }}
-            <hr>
-            <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="resumo_financeiro_ok" name="resumo_financeiro_ok" disabled required>
-                <label class="my-1">Resumo financeiro</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#resumo_financeiro" onclick="pegarIdResumoFinanceiro()" style="margin-left: 5px; margin-top: -15px">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-            </div>
-            {{ form.resumo_financeiro.as_hidden }}
             <hr>
             <div class="form-check">
                 <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="codigos_app_ok" disabled>
@@ -172,8 +212,6 @@
             <div class="mb-3 row">
                 <h5 class="titulo-secao">Observações</h5>
                 {{ form.observacoes }}
-                <br>
-                <br>
             </div>
             {{ form.vendedora.as_hidden }}
             {{ form.empresa.as_hidden }}
@@ -252,46 +290,6 @@
                     </div>
                 </div>
                 <hr>
-                <div class="row">
-                    <div>
-                        <h5 class="titulo-secao">Atividades CEU</h5>
-                        {{ formAdicionais.atividades_ceu }}
-                        <script src="{% static 'js/MultiSelect.js' %}"></script>
-                        <script>
-                            $(document).ready(function () {
-                              $("#id_atividades_ceu").CreateMultiCheckBox({ width: '250px',
-                                 defaultText : 'Selecione as atividades', height:'250px' });
-                            });
-                        </script>
-                    </div>
-                </div>
-              <hr>
-                <div class="row">
-                    <div>
-                        <h5 class="titulo-secao">Locções CEU</h5>
-                            {{ formAdicionais.locacoes_ceu }}
-                        <script>
-                            $(document).ready(function () {
-                              $("#id_locacoes_ceu").CreateMultiCheckBox({ width: '250px',
-                                 defaultText : 'Selecione o local', height:'250px' });
-                            });
-                        </script>
-                    </div>
-                </div>
-                <hr>
-               <div class="row">
-                    <div>
-                        <h5 class="titulo-secao">Atividades Ecoturismo</h5>
-                        {{ formAdicionais.atividades_eco }}
-                        <script>
-                            $(document).ready(function () {
-                              $("#id_atividades_eco").CreateMultiCheckBox({ width: '250px',
-                                 defaultText : 'Selecione as atividades', height:'250px' });
-                            });
-                        </script>
-                    </div>
-                </div>
-                <hr>
                 <div class="row mb-2">
                     <div class="checkbox" style="width: 15%">
                         {{ formAdicionais.seguro }}
@@ -354,95 +352,6 @@
               </div>
             </div>
           </div>
-        </div>
-    </form>
-
-    <form method="POST" action="{% url 'ficha_de_evento' %}" id="financeiro">
-    <!-- Modal do resumo financeiro -->
-        <div class="modal fade" id="resumo_financeiro" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Resumo financeiro</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="m-2 modal-body">
-                        <input type="hidden" name="infos" value="financeiro">
-                        <div class="row">
-                            <h5 class="titulo-secao">Valores</h5>
-                            <div style="width: 35%">
-                                <label>Valor pacote R$</label>
-                                {{ formFinanceiro.valor }}
-                            </div>
-                            <div style="width: 35%">
-                                <label>Valor indivudual</label>
-                                {{ formFinanceiro.valor_por_participantes }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <h5 class="titulo-secao">Forma de pagamento</h5>
-                            <div style="width: 30%">
-                                <select name="parcelas" id="parcelas" onchange="n_pracelas(this)">
-                                    <option selected></option>
-                                    <option value="1">A vista</option>
-                                    <option value="2">2 vezes</option>
-                                    <option value="3">3 vezes</option>
-                                    <option value="4">4 vezes</option>
-                                    <option value="5">5 vezes</option>
-                                    <option value="6">6 vezes</option>
-                                    <option value="7">7 vezes</option>
-                                    <option value="8">8 vezes</option>
-                                    <option value="9">9 vezes</option>
-                                    <option value="10">10 vezes</option>
-                                    <option value="11">11 vezes</option>
-                                    <option value="12">12 vezes</option>
-                                </select>
-                            </div>
-                            <div style="width: 30%">
-                                <select name="forma_pagamento" id="forma_pagamento">
-                                    <option selected></option>
-                                    <option>Dinheiro</option>
-                                    <option>Débito</option>
-                                    <option>Crédito</option>
-                                    <option>PIX</option>
-                                    <option>Transferência</option>
-                                    <option>Depósito</option>
-                                    <option>Cheque</option>
-                                </select>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row" id="vencimentos">
-                            <h5 class="titulo-secao">Vencimentos</h5>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="mb-3" style="width: 35%">
-                                <label>Tipo de contrato</label>
-                                {{ formFinanceiro.contrato }}
-                            </div>
-                            <div>
-                                {{ formFinanceiro.nota_fiscal }}
-                                <label>Nota fiscal?</label>
-                            </div>
-                        </div>
-                        <hr>
-                        <div>
-                            <h5 class="titulo-secao">Observações</h5>
-                            {{ formFinanceiro.observacoes_financeiras }}
-                        </div>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
-                        <script src="{% static 'js/maskMoney.js' %}"></script> <!-- Máscara de dinheiro -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Salvar resumos</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </form>
 

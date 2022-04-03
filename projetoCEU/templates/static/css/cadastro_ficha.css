@@ -39,22 +39,11 @@
     height: 250px;
     resize: none;
 }
-#id_observacoes_financeiras{
-    background-color: #fff;
-    width: 96%;
-    margin-left: 2%;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    padding-left: 12px;
-    padding-top: 2px;
-    height: 150px;
-    resize: none;
-}
 #id_observacoes_refeicoes{
     height: 100px;
 }
 .conteudo-ficha .switch{
-    padding: 0px;
+    padding: 06;
     height: 15px;
 }
 .bx-search{
@@ -151,5 +140,11 @@
 #id_atividades_eco input, #id_locacoes_ceu input{
     width: 20px;
     height: 20px;
+    border: 1px solid #ced4da;
+}
+.cont input {
+    width: 20px;
+    height: 20px;
+    padding: 0;
     border: 1px solid #ced4da;
 }

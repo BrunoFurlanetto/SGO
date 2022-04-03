@@ -1,3 +1,4 @@
+from itertools import chain
 from time import sleep
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,7 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento
+    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -222,6 +223,7 @@ def fichaDeEvento(request):
 @login_required(login_url='login')
 def listaCliente(request):
     form = CadastroCliente()
+    formResponsavel = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
     paginacao = Paginator(clientes, 5)
     pagina = request.GET.get('page')
@@ -249,7 +251,8 @@ def listaCliente(request):
 
     if request.method != 'POST':
         return render(request, 'cadastro/lista-cliente.html', {'form': form,
-                                                               'clientes': clientes})
+                                                               'clientes': clientes,
+                                                               'formResponsavel': formResponsavel})
 
     if request.POST.get('update') == 'true':
         cliente = ClienteColegio.objects.get(id=int(request.POST.get('id')))
@@ -292,6 +295,11 @@ def listaResponsaveis(request):
     form = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
     responsaveis = Responsavel.objects.all()
+
+    for responsavel in responsaveis:
+        relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+        responsavel.responsavel_por = relacao.cliente.nome_fantasia
+
     paginacao = Paginator(responsaveis, 5)
     pagina = request.GET.get('page')
     responsaveis = paginacao.get_page(pagina)
@@ -304,7 +312,16 @@ def listaResponsaveis(request):
             messages.add_message(request, messages.ERROR, 'Campo busca não pode ficar vazio')
             return redirect('lista_responsaveis')
 
-        responsaveis = Responsavel.objects.filter(responsavel_por=cliente)
+        responsaveis = list(chain())
+        relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+
+        for responsavel in relacoes.responsavel.all():
+            responsaveis.append(Responsavel.objects.get(id=responsavel.id))
+
+        for responsavel in responsaveis:
+            relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+            responsavel.responsavel_por = relacao.cliente.nome_fantasia
+
         paginacao = Paginator(responsaveis, 5)
         pagina = request.GET.get('page')
         responsaveis = paginacao.get_page(pagina)
@@ -346,11 +363,19 @@ def listaResponsaveis(request):
     if form.is_valid():
 
         try:
-            form.save()
+            novo_responsavel = form.save()
         except:
             messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
             return redirect('lista_responsaveis')
         else:
+            relacao = RelacaoClienteResponsavel.objects.get(cliente=int(request.POST.get('responsavel_por')))
+
+            if relacao:
+                relacao.responsavel.add(novo_responsavel.id)
+            else:
+                relacao.create(cliente=int(request.POST.get('responsavel_por')),
+                               rsponsavel=novo_responsavel.id)
+
             messages.success(request, 'Novo responsável salvo com sucesso!')
             return redirect('lista_responsaveis')
 

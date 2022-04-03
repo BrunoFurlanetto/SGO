@@ -218,7 +218,8 @@ def requests_ajax(requisicao):
             'colegio': produto.colegio,
             'pernoite': produto.pernoite,
             'vt': produto.produto == 'Visita Técnica',
-            'outro': produto.produto == 'Outro'
+            'outro': produto.produto == 'Outro',
+            'so_ceu': produto.produto == 'Só CEU'
         }
 
 

@@ -104,9 +104,6 @@ class InformacoesAdcionais(models.Model):
     cd_para_aluno = models.BooleanField()
     bate_bate = models.BooleanField()
     fogueira = models.BooleanField()
-    atividades_ceu = models.ManyToManyField(Atividades, blank=True)
-    locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
-    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     outros = models.CharField(max_length=300, blank=True)
 
     def __str__(self):
@@ -124,14 +121,12 @@ class ClienteColegio(models.Model):
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=10)
-    responsavel_evento = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.nome_fantasia
 
 
 class Responsavel(models.Model):
-    responsavel_por = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
     fone = models.CharField(max_length=16)
@@ -139,6 +134,14 @@ class Responsavel(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class RelacaoClienteResponsavel(models.Model):
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    responsavel = models.ManyToManyField(Responsavel)
+
+    def __str__(self):
+        return f'{self.responsavel.nome} é responsável de eventos de {self.cliente.nome_fantasia}'
 
 
 class FichaDeEvento(models.Model):
@@ -163,6 +166,10 @@ class FichaDeEvento(models.Model):
     observacoes_refeicoes = models.TextField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
     observacoes = models.TextField(blank=True)
+    atividades_ceu = models.ManyToManyField(Atividades, blank=True)
+    locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
+    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
+    atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)

@@ -55,7 +55,6 @@
             <nav aria-label="...">
                 <ul class="pagination justify-content-end">
                     {% for pagina in clientes.paginator.page_range %}
-
                         {% if clientes.number == pagina %}
                             <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
                                 {{ pagina }}
@@ -65,7 +64,6 @@
                                 {{ pagina }}
                             </a></li>
                         {% endif %}
-
                     {% endfor %}
                 </ul>
             </nav>
@@ -109,8 +107,6 @@
                             {{ form.cep }}
                         </div>
                     </div>
-                    <div class="row mb-3">
-                    </div>
                     <input type="hidden" name="update" value="true">
                     <input type="hidden" id="id_id" name="id">
                     <button type="button" class="btn btn-primary ml-5" id="btn_selecionar_cliente" onclick="salvarCliente()">Seleconar cliente</button>
@@ -133,17 +129,16 @@
                             <label>Cliente PF</label>
                             {{ form.codigo_app_pf }}
                         </div>
-                    <div>
-                    <hr>
-                    <h5 class="titulo-secao">Informações do cliente</h5>
-                    <div>
-                        <label>Razão social</label>
-                        {{ form.razao_social }}
                     </div>
+                    <hr>
                     <div class="row">
+                        <h5 class="titulo-secao">Informações do cliente</h5>
+                        <div>
+                            <label>Razão social</label>
+                            {{ form.razao_social }}
+                        </div>
                         <div style="width: 35%">
                             <label>CNPJ</label>
-                            {{ form.cnpj.errors }}
                             {{ form.cnpj }}
                         </div>
                         <div style="width: 65%">
@@ -170,17 +165,70 @@
                             <label>CEP</label>
                             {{ form.cep }}
                         </div>
-                        <div>
-                            <label>Responsável pelo evento:</label>
-                            <input type="text" name="responsavel" id="responsavel" readonly onclick="abrirModal()"/>
-                            {{ form.responsavel_evento.as_hidden }}
-                        </div>
                     </div>
+                    <hr>
+                    <div>
+                        <label>Adicionar responsavel</label>
+                        <button class="buton-plus" type="button" style="margin-left: 0px" data-toggle="modal" data-target="#novo_responsavel">
+                            <span><i class='bx bxs-plus-circle'></i></span>
+                        </button>
+                    </div>
+                    <hr>
                     <button type="submit" class="btn btn-primary ml-5" >Salvar</button>
                 </fieldset>
             </form>
         </div>
-    </div>
 
+        <form method="POST" action="{% url 'lista_responsaveis' %}">
+            {% csrf_token %}
+            <fieldset>
+                <div class="modal fade" tabindex="-1" role="dialog" id="novo_responsavel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Cadastro de novo responsável</h5>
+                                <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="cadastro-responsavel">
+                                    <div class="row mb-3">
+                                        <div>
+                                            <label>Cliente ao qual é responsvel</label>
+                                            <input type="text" id="nome_fantasia_cliente" readonly>
+                                            <input type="hidden" name="responsavel_por" id="id_responsavel_por">
+                                        </div>
+                                        <div style="width: 60%">
+                                            <label>Nome Completo</label>
+                                            {{ formResponsavel.nome }}
+                                        </div>
+                                        <div style="width: 40%">
+                                            <label>Telefone</label>
+                                            {{ formResponsavel.fone }}
+                                        </div>
+                                        <div style="width: 30%">
+                                            <label>Cargo</label>
+                                            {{ formResponsavel.cargo }}
+                                        </div>
+                                        <div style="width: 70%">
+                                            <label>Email</label>
+                                            {{ formResponsavel.email_responsavel_evento }}
+                                        </div>
+                                        </div>
+                                        <script src="{% static 'js/scripts_cliente.js' %}"></script>
+                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 
 {% endblock %}

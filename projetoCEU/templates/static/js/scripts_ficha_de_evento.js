@@ -13,6 +13,11 @@ function verQuantidades(id_produto){
             type: "POST",
             data: {'id_produto': id_produto.val()},
             success: function (response) {
+
+                if(response['so_ceu']){
+                    $('.peraltas').addClass('none')
+                }
+
                 if(response['colegio']){
                     $('.professores').removeClass('none')
                     if(response['outro']){
@@ -34,6 +39,7 @@ function verQuantidades(id_produto){
         })
     } else {
         $('.alunos-pernoite, .professores-pernoite, .corporativo, .professores, .outro-produto').addClass('none')
+        $('.peraltas').removeClass('none')
     }
 }
 
@@ -166,55 +172,13 @@ jQuery('document').ready(function() {
   });
 });
 
-function pegarIdResumoFinanceiro(){
-    if($('#id_resumo_financeiro').val() !== ''){
-        $('#financeiro').append(`<input type="hidden" name="id_resumo_financeiro" value="${$('#id_resumo_financeiro').val()}"/>`)
-    }
-}
-
-jQuery('document').ready(function() {
-  jQuery('#financeiro').submit(function() {
-    var dados = jQuery(this).serialize();
-    //aqui voce pega o conteudo do atributo action do form
-    var url = $(this).attr('action');
-    $.ajax({
-      url: url,
-      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-      type: "POST",
-      data: dados,
-      success: function(response) {
-          $('#id_resumo_financeiro').val(response['id'])
-          $('#resumo_financeiro').modal('hide')
-
-          if($('#id_resumo_financeiro')){
-              $('#resumo_financeiro_ok').prop('checked', true)
-          }
-      }
-    });
-
-    return false;
-  });
-});
-
-function n_pracelas(selecao){
-    const parcelas = parseInt(selecao.value)
-    let div_vencimentos = $('#vencimentos')
-    $('#vencimentos').empty()
-
-    for(let i = 1; i <= parcelas; i++){
-        div_vencimentos.append(`<div style="width: 40%" id="div_vencimento_${i}"></div>`)
-        $(`#div_vencimento_${i}`).append(`<label>Vencimento ${i}</label>`)
-        $(`#div_vencimento_${i}`).append(`<input type="date" name="vencimento_${i}"/>`)
-    }
-}
-
 function pegarIdCodigosApp(){
     if($('#id_codigos_app').val() !== ''){
         $('#codigos_app').append(`<input type="hidden" name="id_codigo_app" value="${$('#id_codigos_app').val()}"/>`)
     }
 }
 
-jQuery('document').ready(function() {
+$('document').ready(function() {
   jQuery('#codigos_app').submit(function() {
     var dados = jQuery(this).serialize();
     //aqui voce pega o conteudo do atributo action do form
@@ -241,14 +205,6 @@ jQuery('document').ready(function() {
 // -------------------------- Máscaras ---------------------------------
 
 $(document).ready(function() {
-    // Dinheiro
-    $('#id_valor, #id_valor_por_participantes').maskMoney({
-        prefix: 'R$ ',
-        allowNegative: false,
-        thousands: '.', decimal: ',',
-        affixesStay: true
-    });
-
     // CNPJ
     $('#search-input').mask("99.999.999/9999-99")
 })
