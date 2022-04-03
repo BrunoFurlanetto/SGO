@@ -107,9 +107,9 @@ function remover_dia_refeicao(selecao){
 
 function pegarEndereco(){
     if($('#id_transporte').prop('checked')){
-        $('#endereco_embarque').removeClass('none')
+        $('#endereco_embarque, #terceirizado').removeClass('none')
     } else {
-        $('#endereco_embarque').addClass('none')
+        $('#endereco_embarque, #terceirizado').addClass('none')
     }
 }
 

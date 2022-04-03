@@ -120,10 +120,22 @@
         </div>
 
         <div class="cadastro-novo none" id="cadastro">
-            <h5>Cadastro novo cliente</h5>
             <form method="POST" action="{% url 'lista_cliente' %}" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
+                    <div class="row">
+                        <h5 class="titulo-secao">Códigos APP</h5>
+                        <div style="width: 20%">
+                            <label>Cliente PJ</label>
+                            {{ form.codigo_app_pj }}
+                        </div>
+                        <div style="width: 20%">
+                            <label>Cliente PF</label>
+                            {{ form.codigo_app_pf }}
+                        </div>
+                    <div>
+                    <hr>
+                    <h5 class="titulo-secao">Informações do cliente</h5>
                     <div>
                         <label>Razão social</label>
                         {{ form.razao_social }}

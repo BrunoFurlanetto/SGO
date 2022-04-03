@@ -208,6 +208,10 @@
                         <label>Endereço de embarque</label>
                         {{ formAdicionais.endereco_embarque }}
                     </div>
+                    <div class="mt-4 checkbox none" style="width: 20%" id="terceirizado">
+                        {{ formAdicionais.terceirizado }}
+                        <label>Terceirizado?</label>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="mt-4 checkbox" style="width: 32%">
@@ -255,8 +259,8 @@
                         <script src="{% static 'js/MultiSelect.js' %}"></script>
                         <script>
                             $(document).ready(function () {
-                              $("#id_atividades_ceu").CreateMultiCheckBox({ width: '230px',
-                                         defaultText : 'Select Below', height:'250px' });
+                              $("#id_atividades_ceu").CreateMultiCheckBox({ width: '250px',
+                                 defaultText : 'Selecione as atividades', height:'250px' });
                             });
                         </script>
                     </div>
@@ -266,6 +270,12 @@
                     <div>
                         <h5 class="titulo-secao">Locções CEU</h5>
                             {{ formAdicionais.locacoes_ceu }}
+                        <script>
+                            $(document).ready(function () {
+                              $("#id_locacoes_ceu").CreateMultiCheckBox({ width: '250px',
+                                 defaultText : 'Selecione o local', height:'250px' });
+                            });
+                        </script>
                     </div>
                 </div>
                 <hr>
@@ -273,6 +283,12 @@
                     <div>
                         <h5 class="titulo-secao">Atividades Ecoturismo</h5>
                         {{ formAdicionais.atividades_eco }}
+                        <script>
+                            $(document).ready(function () {
+                              $("#id_atividades_eco").CreateMultiCheckBox({ width: '250px',
+                                 defaultText : 'Selecione as atividades', height:'250px' });
+                            });
+                        </script>
                     </div>
                 </div>
                 <hr>

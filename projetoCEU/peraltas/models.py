@@ -56,24 +56,6 @@ class PerfilsParticipantes(models.Model):
             return f'{self.fase}({self.idade})'
 
 
-class ResumoFinanceiro(models.Model):
-    tipo_contrato = (
-        (1, 'Grupo'),
-        (2, 'Individual')
-    )
-
-    valor = models.CharField(max_length=50, blank=True, null=True)
-    valor_por_participantes = models.CharField(max_length=50, blank=True, null=True)
-    forma_pagamento = models.CharField(max_length=255, blank=True)
-    vencimentos = models.CharField(max_length=255, blank=True)
-    contrato = models.IntegerField(choices=tipo_contrato)
-    nota_fiscal = models.BooleanField()
-    observacoes_financeiras = models.TextField(blank=True)
-
-    def __str__(self):
-        return f'Resumo financeiro númeor {self.id}'
-
-
 class CodigosApp(models.Model):
     cliente_pj = models.CharField(max_length=20, blank=True)
     cliente_pf = models.CharField(max_length=20, blank=True)
@@ -102,6 +84,7 @@ class InformacoesAdcionais(models.Model):
     )
 
     transporte = models.BooleanField()
+    terceirizado = models.BooleanField()
     endereco_embarque = models.CharField(max_length=255, blank=True)
     etiquetas_embarque = models.BooleanField()
     servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
@@ -134,6 +117,8 @@ class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
+    codigo_app_pj = models.CharField(max_length=10)
+    codigo_app_pf = models.CharField(max_length=10)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
@@ -181,7 +166,6 @@ class FichaDeEvento(models.Model):
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
-    resumo_financeiro = models.ForeignKey(ResumoFinanceiro, on_delete=models.CASCADE)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)
 
@@ -248,10 +232,4 @@ class CadastroInfoAdicionais(forms.ModelForm):
 class CadastroCodigoApp(forms.ModelForm):
     class Meta:
         model = CodigosApp
-        exclude = ()
-
-
-class CadastroResumoFinanceiro(forms.ModelForm):
-    class Meta:
-        model = ResumoFinanceiro
         exclude = ()

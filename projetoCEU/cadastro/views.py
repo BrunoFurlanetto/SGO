@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroResumoFinanceiro, CadastroCodigoApp, FichaDeEvento
+    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -187,7 +187,6 @@ def fichaDeEvento(request):
 
     if request.method != 'POST':
         form_adicionais = CadastroInfoAdicionais()
-        form_financeiro = CadastroResumoFinanceiro()
         form_app = CadastroCodigoApp()
         atividades_ceu = Atividades.objects.all()
 
@@ -198,12 +197,10 @@ def fichaDeEvento(request):
 
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
-                                                                 'formFinanceiro': form_financeiro,
                                                                  'formApp': form_app,
                                                                  'grupo_usuario': grupo_usuario,
                                                                  'atividades_ceu': atividades_ceu})
 
-    print(request.POST)
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
