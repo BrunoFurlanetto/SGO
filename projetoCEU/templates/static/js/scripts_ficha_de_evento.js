@@ -1,3 +1,6 @@
+function encaminhamento(){
+    localStorage.setItem("encaminhado", true)
+}
 
 function teste(){
     for(let i = 0; i < $('#id_produto').children('div').length; i++){

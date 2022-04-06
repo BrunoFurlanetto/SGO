@@ -140,9 +140,6 @@ class RelacaoClienteResponsavel(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     responsavel = models.ManyToManyField(Responsavel)
 
-    def __str__(self):
-        return f'{self.responsavel.nome} é responsável de eventos de {self.cliente.nome_fantasia}'
-
 
 class FichaDeEvento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)

@@ -116,9 +116,10 @@
         </div>
 
         <div class="cadastro-novo none" id="cadastro">
-            <form method="POST" action="{% url 'lista_cliente' %}" enctype='multipart/form-data'>
+            <form method="POST" action="{% url 'lista_cliente' %}" id="cadastro_cliente" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
+                    <input type="hidden" name="novo" value="cliente">
                     <div class="row">
                         <h5 class="titulo-secao">Códigos APP</h5>
                         <div style="width: 20%">
@@ -167,7 +168,10 @@
                         </div>
                     </div>
                     <hr>
-                    <div>
+                    <div class="row" id="div-pai-responsavel-evento">
+                        <div id="responsavel-evento" style="width: 50%"></div>
+                    </div>
+                    <div id="add_responsavel">
                         <label>Adicionar responsavel</label>
                         <button class="buton-plus" type="button" style="margin-left: 0px" data-toggle="modal" data-target="#novo_responsavel">
                             <span><i class='bx bxs-plus-circle'></i></span>
@@ -179,7 +183,7 @@
             </form>
         </div>
 
-        <form method="POST" action="{% url 'lista_responsaveis' %}">
+        <form method="POST" action="{% url 'lista_cliente' %}" id="form_responsavel">
             {% csrf_token %}
             <fieldset>
                 <div class="modal fade" tabindex="-1" role="dialog" id="novo_responsavel" aria-hidden="true">
@@ -194,11 +198,6 @@
                             <div class="modal-body">
                                 <div class="cadastro-responsavel">
                                     <div class="row mb-3">
-                                        <div>
-                                            <label>Cliente ao qual é responsvel</label>
-                                            <input type="text" id="nome_fantasia_cliente" readonly>
-                                            <input type="hidden" name="responsavel_por" id="id_responsavel_por">
-                                        </div>
                                         <div style="width: 60%">
                                             <label>Nome Completo</label>
                                             {{ formResponsavel.nome }}
@@ -215,14 +214,14 @@
                                             <label>Email</label>
                                             {{ formResponsavel.email_responsavel_evento }}
                                         </div>
-                                        </div>
-                                        <script src="{% static 'js/scripts_cliente.js' %}"></script>
-                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                                        <input type="hidden" name="novo" value="responsavel">
+                                    </div>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">Save changes</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Savar</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                             </div>
                         </div>
                     </div>

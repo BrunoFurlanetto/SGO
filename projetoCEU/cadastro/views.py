@@ -223,7 +223,7 @@ def fichaDeEvento(request):
 @login_required(login_url='login')
 def listaCliente(request):
     form = CadastroCliente()
-    formResponsavel = CadastroResponsavel()
+    form_responsavel = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
     paginacao = Paginator(clientes, 5)
     pagina = request.GET.get('page')
@@ -252,7 +252,7 @@ def listaCliente(request):
     if request.method != 'POST':
         return render(request, 'cadastro/lista-cliente.html', {'form': form,
                                                                'clientes': clientes,
-                                                               'formResponsavel': formResponsavel})
+                                                               'formResponsavel': form_responsavel})
 
     if request.POST.get('update') == 'true':
         cliente = ClienteColegio.objects.get(id=int(request.POST.get('id')))

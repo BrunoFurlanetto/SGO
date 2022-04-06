@@ -1,7 +1,11 @@
+from django.contrib import messages
+from django.shortcuts import redirect
+
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
-    CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas
+    CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
+    CadastroCliente, RelacaoClienteResponsavel
 
 
 def is_ajax(request):
@@ -73,7 +77,6 @@ def requests_ajax(requisicao):
         locaveis = {}
 
         for estrutura in locaveis_bd:
-            print(estrutura.local)
             locaveis[estrutura.local.id] = estrutura.local.estrutura
 
         return locaveis
@@ -126,8 +129,7 @@ def requests_ajax(requisicao):
 
         return locais
 
-    if requisicao.get('cnpj'):
-        print(requisicao.get('cnpj'))
+    if requisicao.get('cnpj') and not requisicao.get('novo'):
         cliente_bd = ClienteColegio.objects.get(cnpj=requisicao.get('cnpj'))
 
         cliente = {
@@ -145,7 +147,6 @@ def requests_ajax(requisicao):
         return cliente
 
     if requisicao.get('id'):
-        print(requisicao.get('id'))
         responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))
         responsaveis = {}
 
@@ -174,15 +175,57 @@ def requests_ajax(requisicao):
         return responsavel
 
     if requisicao.get('id_cliente'):
-        responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
-        print(requisicao.get('id_responsavel'))
-        if responsavel.responsavel_por.id == int(requisicao.get('id_cliente')):
+        relacao = RelacaoClienteResponsavel.objects.get(cliente=int(requisicao.get('id_cliente')))
 
+        if int(requisicao.get('id_responsavel')) in relacao.responsavel.all():
             resposta = True
         else:
             resposta = False
 
         return {'resposta': resposta}
+
+    if requisicao.get('novo') == 'responsavel':
+        form = CadastroResponsavel(requisicao)
+
+        if form.is_valid():
+            try:
+                novo_responsavel = form.save()
+            except:
+                return {'mensagem': 'Houve um erro inesperado, responsável não foi salvo. Por favor tente mais tarde!'}
+            else:
+                return {'mensagem': 'Responsável salvo com sucesso!',
+                        'nome_responsavel': novo_responsavel.nome,
+                        'id_responsavel': novo_responsavel.id}
+
+        else:
+            return {'mensagem': form.errors}
+
+    if requisicao.get('novo') == 'cliente':
+        print(requisicao)
+        form = CadastroCliente(requisicao)
+        print('Foi')
+
+        if form.is_valid():
+
+            try:
+                novo_cliente = form.save()
+            except:
+                return {'mensagem': 'Houve um erro inesperado, por favor tentar mais tarde!'}
+            else:
+
+                if requisicao.get('id_responsavel'):
+                    cliente = ClienteColegio.objects.get(id=int(novo_cliente.id))
+                    responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
+                    relacao = RelacaoClienteResponsavel(cliente=cliente)
+                    relacao.responsavel.set(id=responsavel.id)
+                    relacao.save()
+
+                return {'mensagem': 'Cliente salvo com sucesso, redirecionando novamente para a ficha de evento',
+                        'id_cliente': novo_cliente.id,
+                        'nome_fantasia': novo_cliente.nome_fantasia}
+
+        else:
+            return {'mensagem': form.errors}
 
     if requisicao.get('infos') == 'adicionais':
 
@@ -196,7 +239,6 @@ def requests_ajax(requisicao):
             novas_infos = form.save()
             return {'id': novas_infos.id}
         else:
-            print('Não foi')
             print(form.errors)
 
     if requisicao.get('infos') == 'app':
@@ -226,7 +268,6 @@ def requests_ajax(requisicao):
 def pegar_refeicoes(dados):
     refeicoes = {}
     i = 0
-    print(dados)
 
     for campo in dados:
         if 'data_refeicao' in campo:
@@ -260,6 +301,5 @@ def pegar_refeicoes(dados):
             refeicao_data.append('Lanche noite')
 
         refeicoes[dados.get(f'data_refeicao_{j}')] = refeicao_data
-        print(refeicoes)
 
     return refeicoes

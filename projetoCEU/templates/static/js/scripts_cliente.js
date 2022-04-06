@@ -200,7 +200,6 @@ function pegarResponsavel(){
         })
     }
 
-
     setTimeout(() => {
         localStorage.removeItem('id_cliente')
         localStorage.removeItem('nome_responsavel')
@@ -208,6 +207,67 @@ function pegarResponsavel(){
 
 }
 
+$('document').ready(function() {
+    jQuery('#form_responsavel').submit(function() {
+        let div_responsavel = $('#responsavel-evento')
+        let dados = jQuery(this).serialize();
+        let url = $(this).attr('action');
+        $.ajax({
+            url: url,
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: dados,
+            success: function(response) {
+                $('#div-pai-responsavel-evento').prepend(`<p class="alert-success">${response['mensagem']}</p>`)
+                div_responsavel.append(`<label>Nome do responsável</label>`)
+                div_responsavel.append(`<input name="repsonsavel" value="${response['nome_responsavel']}" id="nome_do_responsavel" readonly/>`)
+                div_responsavel.append(`<input type="hidden" name="id_responsavel" id="id_responsavel" value="${response['id_responsavel']}"/>`)
+                $('#add_responsavel').addClass('none')
+                $('#novo_responsavel').modal('hide')
+            },
+            error: function(response){
+                div_responsavel.append(`<p class="alert-alert">${response['mensagem']}</p>`)
+            }
+        });
+        return false;
+    });
+});
+
+$('document').ready(function() {
+    if(localStorage.getItem('encaminhado')) {
+        jQuery('#cadastro_cliente').submit(function () {
+            let dados = jQuery(this).serialize();
+            let url = $(this).attr('action');
+            $.ajax({
+                url: url,
+                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                type: "POST",
+                data: dados,
+                success: function (response) {
+                    $('.conteudo-cliente').prepend(`<p class="alert-success">${response['mensagem']}</p>`)
+                    console.log(response)
+                    localStorage.removeItem('encaminhado')
+                    localStorage.setItem('id', response['id_cliente'])
+                    localStorage.setItem('id_cliente_responsavel', response['id_cliente'])
+                    localStorage.setItem('fantasia', response['nome_fantasia'])
+
+                    if($('#nome_do_resposavel')){
+                        localStorage.setItem('nome_responsavel', $('#nome_do_responsavel').val())
+                        localStorage.setItem('id_responsavel', $('#id_responsavel').val())
+                    }
+
+                    setTimeout( () => {
+                        window.close()
+                    }, 3000)
+                },
+                error: function (response) {
+                    $('.conteudo-cliente').prepend(`<p class="alert-danger">${response['mensagem']}</p>`)
+                }
+            });
+            return false;
+        });
+    }
+});
 // ------------------------- Mascaras ---------------------
 $(document).ready(function() {
     // CNPJ
