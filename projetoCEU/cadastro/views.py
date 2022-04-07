@@ -207,7 +207,6 @@ def fichaDeEvento(request):
 
     form = CadastroFichaDeEvento(request.POST)
     novo_evento = form.save(commit=False)
-    print(novo_evento.check_in)
     novo_evento.refeicoes = pegar_refeicoes(request.POST)
 
     try:
@@ -313,14 +312,18 @@ def listaResponsaveis(request):
             return redirect('lista_responsaveis')
 
         responsaveis = list(chain())
-        relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
 
-        for responsavel in relacoes.responsavel.all():
-            responsaveis.append(Responsavel.objects.get(id=responsavel.id))
+        try:
+            relacoes = RelacaoClienteResponsavel.objects.get(cliente=int(cliente))
+        except RelacaoClienteResponsavel.DoesNotExist:
+            responsaveis = []
+        else:
+            for responsavel in relacoes.responsavel.all():
+                responsaveis.append(Responsavel.objects.get(id=responsavel.id))
 
-        for responsavel in responsaveis:
-            relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
-            responsavel.responsavel_por = relacao.cliente.nome_fantasia
+            for responsavel in responsaveis:
+                relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+                responsavel.responsavel_por = relacao.cliente.nome_fantasia
 
         paginacao = Paginator(responsaveis, 5)
         pagina = request.GET.get('page')
@@ -368,13 +371,15 @@ def listaResponsaveis(request):
             messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
             return redirect('lista_responsaveis')
         else:
-            relacao = RelacaoClienteResponsavel.objects.get(cliente=int(request.POST.get('responsavel_por')))
 
-            if relacao:
+            try:
+                relacao = RelacaoClienteResponsavel.objects.get(cliente=int(request.POST.get('responsavel_por')))
+            except RelacaoClienteResponsavel.DoesNotExist:
+                cliente = ClienteColegio.objects.get(id=int(request.POST.get('responsavel_por')))
+                RelacaoClienteResponsavel(cliente=cliente).save()
+                relacao = RelacaoClienteResponsavel.objects.get(cliente=int(request.POST.get('responsavel_por')))
+            finally:
                 relacao.responsavel.add(novo_responsavel.id)
-            else:
-                relacao.create(cliente=int(request.POST.get('responsavel_por')),
-                               rsponsavel=novo_responsavel.id)
 
             messages.success(request, 'Novo responsável salvo com sucesso!')
             return redirect('lista_responsaveis')

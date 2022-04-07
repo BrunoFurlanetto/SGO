@@ -107,6 +107,16 @@
                             {{ form.cep }}
                         </div>
                     </div>
+                    <hr>
+                    <div class="row">
+                        <div style="width: 50%">
+                            <label>Responsavel</label>
+                            <select class="form-select" name="responsavel_pelo_evento" id="responsavel_evento">
+                                <option selected></option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr>
                     <input type="hidden" name="update" value="true">
                     <input type="hidden" id="id_id" name="id">
                     <button type="button" class="btn btn-primary ml-5" id="btn_selecionar_cliente" onclick="salvarCliente()">Seleconar cliente</button>

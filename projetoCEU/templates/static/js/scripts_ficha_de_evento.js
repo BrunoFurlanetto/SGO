@@ -168,6 +168,11 @@ jQuery('document').ready(function() {
           if($('#id_informacoes_adcionais')){
               $('#info_adicionais_ok').prop('checked', true)
           }
+
+          if(response['mensagem']){
+              $('#corpo_site').prepend(response['mensagem'])
+          }
+
       }
     });
 

@@ -39,6 +39,10 @@ function completa_dados_cliente(selecao) {
                 $(`#id_${i}`).val(response[i])
             }
 
+            for(let i in response['responsaveis']){
+                $('#responsavel_evento').append(`<option value="${i}">${response['responsaveis'][i]}</option>`)
+            }
+
         }
     })
 }
@@ -60,6 +64,13 @@ function salvarCliente(){
         success: function (response) {
             console.log(response['id'])
             localStorage.setItem('id', response['id'])
+
+            if($('#responsavel_evento').val() !== ''){
+                localStorage.setItem('nome_responsavel', $('#responsavel_evento :selected').text())
+                localStorage.setItem('id_responsavel', $('#responsavel_evento').val())
+                localStorage.setItem('id_cliente_responsavel', response['id'])
+            }
+
         }
     })
 
@@ -244,8 +255,17 @@ $('document').ready(function() {
                 type: "POST",
                 data: dados,
                 success: function (response) {
-                    $('.conteudo-cliente').prepend(`<p class="alert-success">${response['mensagem']}</p>`)
-                    console.log(response)
+                    if(typeof response['mensagem'] === 'object'){
+                        for(let i in response['mensagem']){
+                            for(let j = 0; j < Object.keys(response['mensagem'][i]).length; j++){
+                                $('#corpo_site').prepend(`<p class="alert-warning">${response['mensagem'][i][j]}</p>`)
+                            }
+                        }
+                        return
+                    } else {
+                        $('#corpo_site').prepend(`<p class="alert-success">${response['mensagem']}</p>`)
+                    }
+
                     localStorage.removeItem('encaminhado')
                     localStorage.setItem('id', response['id_cliente'])
                     localStorage.setItem('id_cliente_responsavel', response['id_cliente'])
@@ -255,13 +275,12 @@ $('document').ready(function() {
                         localStorage.setItem('nome_responsavel', $('#nome_do_responsavel').val())
                         localStorage.setItem('id_responsavel', $('#id_responsavel').val())
                     }
-
                     setTimeout( () => {
                         window.close()
                     }, 3000)
                 },
                 error: function (response) {
-                    $('.conteudo-cliente').prepend(`<p class="alert-danger">${response['mensagem']}</p>`)
+                    $('#corpo_site').prepend(response['mensagem'])
                 }
             });
             return false;

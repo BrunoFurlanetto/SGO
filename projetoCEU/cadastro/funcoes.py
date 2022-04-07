@@ -1,6 +1,3 @@
-from django.contrib import messages
-from django.shortcuts import redirect
-
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
@@ -132,17 +129,37 @@ def requests_ajax(requisicao):
     if requisicao.get('cnpj') and not requisicao.get('novo'):
         cliente_bd = ClienteColegio.objects.get(cnpj=requisicao.get('cnpj'))
 
-        cliente = {
-            'id': cliente_bd.id,
-            'razao_social': cliente_bd.razao_social,
-            'cnpj': cliente_bd.cnpj,
-            'nome_fantasia': cliente_bd.nome_fantasia,
-            'endereco': cliente_bd.endereco,
-            'bairro': cliente_bd.bairro,
-            'cidade': cliente_bd.bairro,
-            'estado': cliente_bd.estado,
-            'cep': cliente_bd.cep
-        }
+        try:
+            relacao = RelacaoClienteResponsavel.objects.get(cliente=cliente_bd)
+        except RelacaoClienteResponsavel.DoesNotExist:
+            cliente = {
+                'id': cliente_bd.id,
+                'razao_social': cliente_bd.razao_social,
+                'cnpj': cliente_bd.cnpj,
+                'nome_fantasia': cliente_bd.nome_fantasia,
+                'endereco': cliente_bd.endereco,
+                'bairro': cliente_bd.bairro,
+                'cidade': cliente_bd.bairro,
+                'estado': cliente_bd.estado,
+                'cep': cliente_bd.cep,
+            }
+        else:
+            responsaveis = {}
+            for responsavel in relacao.responsavel.all():
+                responsaveis[responsavel.id] = responsavel.nome
+
+            cliente = {
+                'id': cliente_bd.id,
+                'razao_social': cliente_bd.razao_social,
+                'cnpj': cliente_bd.cnpj,
+                'nome_fantasia': cliente_bd.nome_fantasia,
+                'endereco': cliente_bd.endereco,
+                'bairro': cliente_bd.bairro,
+                'cidade': cliente_bd.bairro,
+                'estado': cliente_bd.estado,
+                'cep': cliente_bd.cep,
+                'responsaveis': responsaveis
+            }
 
         return cliente
 
@@ -162,6 +179,7 @@ def requests_ajax(requisicao):
 
     if requisicao.get('id_selecao'):
         responsavel_bd = Responsavel.objects.get(id=int(requisicao.get('id_selecao')))
+        relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel_bd)
 
         responsavel = {
             'id': responsavel_bd.id,
@@ -169,15 +187,16 @@ def requests_ajax(requisicao):
             'cargo': responsavel_bd.cargo,
             'fone': responsavel_bd.fone,
             'email_responsavel_evento': responsavel_bd.email_responsavel_evento,
-            'responsavel_por': responsavel_bd.responsavel_por.id
+            'responsavel_por': relacao.cliente.id
         }
 
         return responsavel
 
     if requisicao.get('id_cliente'):
         relacao = RelacaoClienteResponsavel.objects.get(cliente=int(requisicao.get('id_cliente')))
+        responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
 
-        if int(requisicao.get('id_responsavel')) in relacao.responsavel.all():
+        if responsavel in relacao.responsavel.all():
             resposta = True
         else:
             resposta = False
@@ -201,9 +220,7 @@ def requests_ajax(requisicao):
             return {'mensagem': form.errors}
 
     if requisicao.get('novo') == 'cliente':
-        print(requisicao)
         form = CadastroCliente(requisicao)
-        print('Foi')
 
         if form.is_valid():
 
@@ -217,8 +234,9 @@ def requests_ajax(requisicao):
                     cliente = ClienteColegio.objects.get(id=int(novo_cliente.id))
                     responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
                     relacao = RelacaoClienteResponsavel(cliente=cliente)
-                    relacao.responsavel.set(id=responsavel.id)
                     relacao.save()
+                    relacao = RelacaoClienteResponsavel.objects.get(cliente=int(novo_cliente.id))
+                    relacao.responsavel.add(responsavel.id)
 
                 return {'mensagem': 'Cliente salvo com sucesso, redirecionando novamente para a ficha de evento',
                         'id_cliente': novo_cliente.id,
@@ -239,7 +257,7 @@ def requests_ajax(requisicao):
             novas_infos = form.save()
             return {'id': novas_infos.id}
         else:
-            print(form.errors)
+            return {'mensagem': form.errors}
 
     if requisicao.get('infos') == 'app':
 
