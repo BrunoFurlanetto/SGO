@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'fichaAvaliacao.apps.FichaavaliacaoConfig',
     'painelAdm.apps.PaineladmConfig',
     'ordemDeServico.apps.OrdemdeservicoConfig',
+    'calendarioEventos.apps.CalendarioeventosConfig',
 ]
 
 MIDDLEWARE = [

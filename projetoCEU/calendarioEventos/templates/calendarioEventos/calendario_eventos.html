@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}"> <!-- Styles da bootstrap -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
+
+    <div class="conteudo-escala">
+        <div id="calendar" class="card" style="padding: 10px"></div>
+          {% csrf_token %}
+        <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                var calendarUI = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarUI,{
+
+                    headerToolbar: {
+                        left: '',
+                        center: 'title',
+                    },
+                    eventOrderStrict: true,
+                    locale: 'pt-br',
+                    dayMaxEvents: 3,
+                });
+                calendar.render();
+                calendar.setOption('locale', 'pt-br')
+            });
+        </script>
+
+    <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Cadastro de escala</h5>
+            <button class="x-fechar-modal" data-bs-dismiss="modal" >
+              <span aria-hidden="false" >&times;</span>
+            </button>
+          </div>
+          <form action="{% url 'escala' %}" method="POST">
+            <div class="modal-body">
+                {% csrf_token %}
+              <div class="row">
+                <div style="width: 55%">
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Data</label>
+                      <input type="text" class="form-control" id="data" name="data_escala">
+                    </div>
+                      <div class="form-group" style="width: 50%">
+                        <label>Coordenador</label>
+                        <select class="form-control d col-7" name="coordenador" onChange="retirar(this)">
+                          <option selected></option>
+                        </select>
+                      </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 2</label>
+                      <select class="form-control d" name="professor_2" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 3</label>
+                      <select class="form-control d" name="professor_3" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 4</label>
+                      <select class="form-control d" name="professor_4" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="width: 50%">
+                      <label>Professor 5</label>
+                      <select class="form-control d" name="professor_5" onChange="retirar(this)">
+                        <option selected></option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div style="width: 45%">
+                  <b>Professores disponiveis na data selecionada:</b>
+                  <ul class="disponiveis"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Salvar escala</button>
+            </div>
+            <script src="{% static 'js/script_base.js' %}"></script>
+          </form>
+        </div>
+      </div>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
+    </div>
+
+    </div>
+
+{% endblock %}
