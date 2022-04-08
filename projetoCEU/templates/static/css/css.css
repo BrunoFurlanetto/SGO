@@ -321,3 +321,11 @@
 .input-excluir{
     width: 40px;
 }
+.conteudo-calendario-eventos{
+    width: 1000px;
+    margin: auto auto 10%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 10px;
+}

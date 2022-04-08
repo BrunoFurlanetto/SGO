@@ -118,6 +118,20 @@
               </ul>
             </li>
 
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
+            {% else %}
+                <li>
+            {% endif %}
+              <a href="{% url 'calendario_eventos' %}">
+                <i class='bx bx-calendar'></i>
+                <span class="link_name">Eventos</span>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'calendario_eventos' %}">Eventos</a></li>
+              </ul>
+            </li>
+
               <li>
                 <div class="profile-details">
                   <div class="profile-content">

@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 
 from cadastro.funcoesColegio import salvar_equipe_colegio, salvar_locacoes_empresa, salvar_atividades_colegio
 from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
-from ordemDeServico.models import OrdemDeServico
+from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from .funcoes import is_ajax, requests_ajax
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -15,12 +15,15 @@ from ceu.models import Atividades, Professores
 
 
 def verDocumento(request, id_documento, tipo_atendimento):
+    print(id_documento, tipo_atendimento)
     if tipo_atendimento == 'Público':
         return redirect('verRelatorioPublico', id_documento)
     elif tipo_atendimento == 'Colégio':
         return redirect('verRelatorioColegio', id_documento)
     elif tipo_atendimento == 'Empresa':
         return redirect('verRelatorioEmpresa', id_documento)
+    elif tipo_atendimento == 'ordem':
+        return redirect('verOrdemDeServico', id_documento)
 
 
 def verRelatorioPublico(request, id_relatorio):
@@ -29,7 +32,8 @@ def verRelatorioPublico(request, id_relatorio):
     relatorio_publico.id = int(id_relatorio)
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
-    editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and request.user.first_name == relatorio.equipe['coordenador']
+    editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and request.user.first_name == relatorio.equipe[
+        'coordenador']
     range_i = range(1, 6)
     range_j = range(1, 5)
 
@@ -77,7 +81,8 @@ def verRelatorioColegio(request, id_relatorio):
     relatorio_colegio.id = int(id_relatorio)
     relatorio_colegio.tipo = colegio.tipo
     professores = Professores.objects.all()
-    editar = datetime.now().day - colegio.data_hora_salvo.day < 2 and request.user.first_name == colegio.equipe['coordenador']
+    editar = datetime.now().day - colegio.data_hora_salvo.day < 2 and request.user.first_name == colegio.equipe[
+        'coordenador']
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-colegio.html', {'formulario': relatorio_colegio,
@@ -161,16 +166,19 @@ def verRelatorioEmpresa(request, id_relatorio):
         except:
             messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
             relatorio_empresa = RelatorioEmpresa()
-            return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                             'professores': professores})
+            return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
+                                                                                'professores': professores})
         else:
             messages.success(request, 'Relatório de atendimento atualizado com sucesso!')
             return redirect('dashboard')
     else:
         messages.warning(request, relatorio_empresa.errors)
-        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                         'professores': professores,})
+        return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
+                                                                            'professores': professores, })
 
 
-def verOrdemDeServico(request):
-    ...
+def verOrdemDeServico(request, id_ordemDeServico):
+    ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
+    ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
+
+    return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico})

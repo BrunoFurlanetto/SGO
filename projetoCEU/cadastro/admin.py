@@ -27,7 +27,7 @@ class RelatorioDeAtendimentoEmpresaCeuAdmin(admin.ModelAdmin):
 
 @admin.register(OrdemDeServico)
 class OrdemDeServico(admin.ModelAdmin):
-    list_display = ('instituicao', 'check_in', 'check_out', 'monitor_responsavel')
+    list_display = ('id', 'instituicao', 'check_in', 'check_out', 'monitor_responsavel')
     list_display_links = ()
     list_editable = ('monitor_responsavel',)
     list_per_page = 10
