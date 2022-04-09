@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 
 from cadastro.funcoesColegio import salvar_equipe_colegio, salvar_locacoes_empresa, salvar_atividades_colegio
 from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
+import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from .funcoes import is_ajax, requests_ajax
 
@@ -180,5 +181,12 @@ def verRelatorioEmpresa(request, id_relatorio):
 def verOrdemDeServico(request, id_ordemDeServico):
     ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
     ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
+    ordens_de_servico.id = ordem.id
+
+    if is_ajax(request):
+        if request.POST.get('tipo'):
+            return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
+
+        return JsonResponse(requests_ajax(request.POST))
 
     return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico})

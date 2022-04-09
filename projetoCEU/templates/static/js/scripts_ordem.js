@@ -33,13 +33,13 @@ function completar_dados_os(selecao){
                 $(`#id_atividades_eco_${i-1}`).prop('checked', true)
             }
 
-            if(response['atividades_ceu'] != ''){
+            if(response['atividades_ceu'] !== ''){
                 for(let i in response['atividades_ceu']){
                     add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
                 }
             }
 
-            if(response['locacoes_ceu'] != ''){
+            if(response['locacoes_ceu'] !== ''){
                 for(let i in response['locacoes_ceu']){
                     add_locacao(parseInt(i), response['locacoes_ceu'][i], parseInt(response['id_n_participantes']))
                 }
@@ -435,4 +435,63 @@ function verificar_lotacao(selecao){
             }
         }
     })
+}
+
+// Scripts da parte de visialização da ordem de serviço
+
+function dadosVerOrdem(){
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_ordem_de_servico': $('#id_ordem').val()},
+        success: function (response) {
+            $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            console.log(response['atividades_ceu'])
+            if(response['atividades_ceu']){
+                for(let i in response['atividades_ceu']){
+                    add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
+                    setTimeout(() => {
+                        for(let j = 1; j <= Object.keys(response['atividades_ceu']).length; j++) {
+                            $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                        }
+                    }, 100)
+                }
+            } else {
+                $('.atividade-ceu').addClass('none')
+            }
+
+            if(response['locacoes_ceu']){
+
+                for (let i in response['locacoes_ceu']) {
+                    add_locacao(response['locacoes_ceu'][i]['id_espcao'], response['locacoes_ceu'][i]['espaco'], response['locacoes_ceu'][i]['participantes'])
+                    setTimeout(() => {
+                        for(let j = 1; j <= Object.keys(response['locacoes_ceu']).length; j++){
+                            $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
+                            $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
+                            $(`#local-coffee_${j}`).val(response['locacoes_ceu'][i]['local_coffee'])
+                            $(`#hora-coffee_${j}`).val(response['locacoes_ceu'][i]['hora_coffee'])
+                        }
+                    }, 100)
+                }
+
+            } else {
+                $('.locacao-ceu').addClass('none')
+            }
+
+            setTimeout(() => {
+                $('.buton-x').addClass('none')
+            },  100)
+
+        }
+    })
+
+    //Cronograma
+    if($('#id_cronograma_peraltas').val() !== '') {
+        $('.cronograma-cliente').append(`<a href="/media/${$('#id_cronograma_peraltas').val()}">Cronograma do grupo</a>`)
+    } else {
+        $('.cronograma-cliente').addClass('none')
+    }
 }

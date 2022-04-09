@@ -6,7 +6,7 @@ from peraltas.models import FichaDeEvento
 
 
 def eventos(request):
-    eventos = OrdemDeServico.objects.all()
+    ordens = OrdemDeServico.objects.all()
     fichas_de_evento = FichaDeEvento.objects.all()
     professor_ceu = False
 
@@ -15,6 +15,6 @@ def eventos(request):
 
     print(professor_ceu)
 
-    return render(request, 'calendarioEventos/calendario_eventos.html', {'eventos': eventos,
+    return render(request, 'calendarioEventos/calendario_eventos.html', {'eventos': ordens,
                                                                          'fichas': fichas_de_evento,
                                                                          'professor_ceu': professor_ceu})

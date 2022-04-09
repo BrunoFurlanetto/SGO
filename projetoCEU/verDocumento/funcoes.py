@@ -1,6 +1,7 @@
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
-from ceu.models import Atividades, Professores
+from ceu.models import Atividades, Professores, Locaveis
+from ordemDeServico.models import OrdemDeServico
 
 
 def is_ajax(request):
@@ -54,8 +55,6 @@ def requests_ajax(requisicao):
             prf = Professores.objects.get(usuario__first_name=relatorio.equipe[f'{professor}'])
             equipe[professor] = prf.id
 
-        print(relatorio.atividades)
-
         if relatorio.atividades:
             for i in range(1, len(relatorio.atividades) + 1):
                 for j in range(len(relatorio.atividades[f'atividade_{i}']['professores'])):
@@ -78,3 +77,25 @@ def requests_ajax(requisicao):
         }
 
         return dados
+
+    if requisicao.get('id_ordem_de_servico'):
+        ordem_de_servico = OrdemDeServico.objects.get(id=int(requisicao.get('id_ordem_de_servico')))
+
+        if ordem_de_servico.atividades_ceu:
+            for i in range(1, len(ordem_de_servico.atividades_ceu) + 1):
+                atividade = Atividades.objects.get(atividade=ordem_de_servico.atividades_ceu[f'atividade_{i}']['atividade'])
+                ordem_de_servico.atividades_ceu[f'atividade_{i}'][f'id_atividade'] = atividade.id
+
+        if ordem_de_servico.locacao_ceu:
+            for i in range(1, len(ordem_de_servico.locacao_ceu) + 1):
+                local = Locaveis.objects.get(local__estrutura=ordem_de_servico.locacao_ceu[f'locacao_{i}']['espaco'])
+                ordem_de_servico.locacao_ceu[f'locacao_{i}']['id_espaco'] = local.id
+
+        dados_ordem_de_servico = {
+            'check_in': ordem_de_servico.check_in,
+            'check_out': ordem_de_servico.check_out,
+            'atividades_ceu': ordem_de_servico.atividades_ceu,
+            'locacoes_ceu': ordem_de_servico.locacao_ceu
+        }
+
+        return dados_ordem_de_servico

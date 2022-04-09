@@ -102,7 +102,7 @@
 }
 /*------------------------------*/
 /* Estilos do cadastro de OS */
-.conteudo-os{
+.conteudo-os, .conteudo-ver-os{
     background-color: #fff;
     margin: auto auto 5%;
     width: 750px;
@@ -328,4 +328,28 @@
     justify-content: center;
     align-items: center;
     box-shadow: 5px 5px 10px;
+}
+.conteudo-ver-os input{
+    margin-top: -15px !important;
+    border: none !important;
+    background-color: transparent !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.conteudo-ver-os label{
+    font-weight: bold;
+}
+.conteudo-ver-os select{
+    border: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: transparent !important;
+    margin-top: -15px !important;
+}
+#cronograma_cliente a{
+    max-width: 75%;
+    text-overflow: ellipsis;
+}
+.atividades-eco-os label, .atividades-peraltas-os label{
+    font-weight: normal !important;
 }

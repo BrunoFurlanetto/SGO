@@ -1,5 +1,5 @@
 
-.conteudo-os input{
+.conteudo-os input, .conteudo-ver-os input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -8,7 +8,7 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-os select{
+.conteudo-os select, .conteudo-ver-os select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -16,7 +16,7 @@
     padding-left: 12px;
     height: 38px;
  }
-.conteudo-os textarea{
+.conteudo-os textarea, .conteudo-ver-os textarea{
     background-color: #fff;
     width: 96%;
     margin-left: 2%;

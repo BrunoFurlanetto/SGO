@@ -56,7 +56,7 @@ class CadastroOrdemDeServico(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
-    atividades_peraltas.widget.attrs['class'] = 'form-check-input'
+    atividades_peraltas.widget.attrs['class'] = 'form-check-input atividades-peraltas-os'
 
     class Meta:
         model = OrdemDeServico
