@@ -26,14 +26,17 @@ def requests_ajax(requisicao):
             elif perfil.fase == 'Ensino superior':
                 serie.append(perfil.fase)
 
-        for atividade in ficha_de_evento.informacoes_adcionais.atividades_ceu.all():
+        for atividade in ficha_de_evento.atividades_ceu.all():
             atividades_ceu[atividade.id] = atividade.atividade
 
-        for local in ficha_de_evento.informacoes_adcionais.locacoes_ceu.all():
+        for local in ficha_de_evento.locacoes_ceu.all():
             locacoes_ceu[local.id] = local.local.estrutura
 
-        for atividade in ficha_de_evento.informacoes_adcionais.atividades_eco.all():
+        for atividade in ficha_de_evento.atividades_eco.all():
             atividades_eco[atividade.id] = atividade.atividade
+
+        for atividade in ficha_de_evento.atividades_peraltas.all():
+            atividades_peraltas[atividade.id] = atividade.atividade
 
         for produto in ficha_de_evento.produto.all():
 
@@ -54,6 +57,7 @@ def requests_ajax(requisicao):
             'atividades_ceu': atividades_ceu,
             'locacoes_ceu': locacoes_ceu,
             'atividades_eco': atividades_eco,
+            'atividades_peraltas': atividades_peraltas,
             'id_observacoes': ficha_de_evento.observacoes,
             'corporativo': corporativo
         }

@@ -44,20 +44,6 @@ class OrdemDeServico(models.Model):
 
 
 class CadastroOrdemDeServico(forms.ModelForm):
-    atividades_eco = forms.ModelMultipleChoiceField(
-        queryset=AtividadesEco.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-    atividades_eco.widget.attrs['class'] = 'form-check-input atividades-eco-os'
-
-    atividades_peraltas = forms.ModelMultipleChoiceField(
-        queryset=AtividadePeraltas.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-    atividades_peraltas.widget.attrs['class'] = 'form-check-input atividades-peraltas-os'
-
     class Meta:
         model = OrdemDeServico
         exclude = ()

@@ -71,3 +71,9 @@
     height: 20px;
     border: 1px solid #ced4da;
 }
+.cont input {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #ced4da;
+}

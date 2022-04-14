@@ -4,21 +4,6 @@ $(document).ready(function () {
         detail.show();
     });
 
-    // $(document).on("click", ".MultiCheckBoxDetailHeader input", function (e) {
-    //     e.stopPropagation();
-    //     var hc = $(this).prop("checked");
-    //     $(this).closest(".MultiCheckBoxDetail").find(".MultiCheckBoxDetailBody input").prop("checked", hc);
-    //     $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
-    // });
-    //
-    // $(document).on("click", ".MultiCheckBoxDetailHeader", function (e) {
-    //     var inp = $(this).find("input");
-    //     var chk = inp.prop("checked");
-    //     inp.prop("checked", !chk);
-    //     $(this).closest(".MultiCheckBoxDetail").find(".MultiCheckBoxDetailBody input").prop("checked", !chk);
-    //     $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
-    // });
-
     $(document).on("click", ".MultiCheckBoxDetail .cont input", function (e) {
         e.stopPropagation();
         $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
@@ -73,7 +58,13 @@ jQuery.fn.extend({
             if (val == undefined)
                 val = '';
 
-            multiCheckBoxDetailBody.append("<div class='cont'><div><input type='checkbox' class='mulinput form-check-input' value='" + val + "' /></div><div>" + $(this).text() + "</div></div>");
+            multiCheckBoxDetailBody.append("" +
+                "<div class='cont'>" +
+                "   <div>" +
+                        "<input type='checkbox' class='mulinput form-check-input' value='" + val + "' />" +
+                "   </div>" +
+            "       <div class='name'>" + $(this).text() + "</div>" +
+                "</div>");
         });
 
         multiCheckBoxDetailBody.css("max-height", (parseInt($(".MultiCheckBoxDetail").css("max-height")) - 28) + "px");

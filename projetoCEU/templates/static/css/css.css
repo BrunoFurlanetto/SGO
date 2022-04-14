@@ -353,3 +353,19 @@
 .atividades-eco-os label, .atividades-peraltas-os label{
     font-weight: normal !important;
 }
+.conteudo-ver-os textarea{
+    height: auto !important;
+    border: none !important;
+}
+.conteudo-ver-os .buton-x{
+    display: none !important;
+}
+.cronograma-cliente{
+    width: 80%;
+    display: inline-block;
+    overflow-x: clip;
+    text-overflow: ellipsis;
+}
+#cronograma_peraltas-clear_id{
+    display: none;
+}

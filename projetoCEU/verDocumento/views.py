@@ -182,6 +182,17 @@ def verOrdemDeServico(request, id_ordemDeServico):
     ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
     ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
     ordens_de_servico.id = ordem.id
+    atividades_eco = []
+    atividades_peraltas = []
+
+    for atividade in ordem.atividades_eco.all():
+        atividades_eco.append(atividade.atividade)
+
+    for atividade in ordem.atividades_peraltas.all():
+        atividades_peraltas.append(atividade.atividade)
+
+    atividades_eco = ', '.join(atividades_eco)
+    atividades_peraltas = ', '.join(atividades_peraltas)
 
     if is_ajax(request):
         if request.POST.get('tipo'):
@@ -189,4 +200,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
 
         return JsonResponse(requests_ajax(request.POST))
 
-    return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico})
+    return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
+                                                                      'atividades_eco': atividades_eco,
+                                                                      'atividades_peraltas': atividades_peraltas,
+                                                                      'colegio': ordem.tipo == 'Colégio'})
