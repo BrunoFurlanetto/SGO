@@ -83,20 +83,22 @@ const renderCalendar = () => {
     }
 
     for (let i = 1; i <= lastDay; i++) {
-        if (
-              i === new Date().getDate() &&
-              date.getMonth() === new Date().getMonth()
-        ) {
+        if (i === new Date().getDate() && date.getMonth() === new Date().getMonth()) {
               days += `<div class="${i} today">${i}</div>`;
         } else {
               days += `<div class="${i}">${i}</div>`;
         }
     }
 
-    for (let j = 1; j <= nextDays; j++) {
-        days += `<div class="next-date ${j}">${j}</div>`;
+    if(nextDays !== 0){
+        for (let j = 1; j <= nextDays; j++) {
+            days += `<div class="next-date ${j}">${j}</div>`;
+            monthDays.innerHTML = days;
+        }
+    } else {
         monthDays.innerHTML = days;
     }
+
 };
 
 document.querySelector(".prev").addEventListener("click", () => {

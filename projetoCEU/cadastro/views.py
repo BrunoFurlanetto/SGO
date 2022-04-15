@@ -154,7 +154,7 @@ def ordemDeServico(request):
 
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     ordem_de_servico = form.save(commit=False)
-    ficha = FichaDeEvento.objects.get(id=int(request.POST.get('id_ficha')))
+    ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
 
     try:
         salvar_atividades_ceu(request.POST, ordem_de_servico)
@@ -170,9 +170,9 @@ def ordemDeServico(request):
         ficha.save()
 
         if ordem_de_servico.tipo == 'Empresa':
-            messages.success(request, f'Ficha do evento da empresa {ordem_de_servico.instituicao} salva com sucesso')
+            messages.success(request, f'Ordem de serviço da empresa {ordem_de_servico.instituicao} salva com sucesso')
         else:
-            messages.success(request, f'Ficha do evento do colégio {ordem_de_servico.instituicao} salva com sucesso')
+            messages.success(request, f'Ordem de serviço do colégio {ordem_de_servico.instituicao} salva com sucesso')
 
         return redirect('dashboardPeraltas')
 

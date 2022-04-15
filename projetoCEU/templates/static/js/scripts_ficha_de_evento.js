@@ -216,3 +216,103 @@ $(document).ready(function() {
     // CNPJ
     $('#search-input').mask("99.999.999/9999-99")
 })
+
+// Visualização Ficha de evento
+
+function completar_visualizacao_ficha(id_ficha){
+    if($('#id_observacoes').val() === ''){
+        $('.observacoes-ver-ficha').addClass('none')
+    }
+
+    $('#info_adicionais_ok, #codigos_app_ok').prop('checked', true)
+
+    $.ajax({
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "POST",
+        data: {'id_ficha_de_evento': id_ficha},
+        success: function (response) {
+            $('#cliente').val(response['cliente'])
+            $('#responsavel').val(response['responsavel'])
+
+            $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            pegarDias()
+
+            if(!response['perfil']){
+                $('.perfil-participantes-ver-ficha').addClass('none')
+            }
+
+            for(let refeicao in response['refeicoes']){
+                $(`#${response['refeicoes'][refeicao]}`).prop('checked', true)
+            }
+
+            if(response['obs_refeicoes']){
+                $('#observacoes_refeicoes').removeClass('none')
+            }
+
+            if(Object.keys(response['atividades_eco']).length !== 0){
+                let atividades_eco = []
+                $('.name').each(function (index, value){
+                    for (let i in response['atividades_eco']){
+                        if(value.textContent === response['atividades_eco'][i]){
+                            value.parentElement.children[0].children[0].checked = true
+                            atividades_eco.push(response['atividades_eco'][i])
+                        }
+                    }
+                })
+                $('#atividades_peraltas_ficha').append(`<div id="lista_atividades_eco"><h5 class="titulo-secao">Ecoturismo</h5><p>${atividades_eco}</p><hr></div>`)
+            }
+
+            if(Object.keys(response['atividades_peraltas']).length !== 0){
+                let atividades_peraltas = []
+                $('.name').each(function (index, value){
+                    for (let i in response['atividades_peraltas']){
+                        if(value.textContent === response['atividades_peraltas'][i]){
+                            value.parentElement.children[0].children[0].checked = true
+                            atividades_peraltas.push(response['atividades_peraltas'][i])
+                        }
+                    }
+                })
+                $('#atividades_peraltas_ficha').append(`<div id="lista_atividades_peraltas"><h5 class="titulo-secao">Acampamento</h5><p>${atividades_peraltas}</p><hr></div>`)
+            }
+
+            if(Object.keys(response['atividades_ceu']).length !== 0){
+                let atividades_ceu = []
+                $('.name').each(function (index, value){
+                    for (let i in response['atividades_ceu']){
+                        if(value.textContent === response['atividades_ceu'][i]){
+                            value.parentElement.children[0].children[0].checked = true
+                            atividades_ceu.push(response['atividades_ceu'][i])
+                        }
+                    }
+                })
+                $('#ceu').append(`<div id="lista_atividades_ceu"><h5 class="titulo-secao">Atividades no CEU</h5><p>${atividades_ceu}</p><hr></div>`)
+            }
+            console.log(response)
+            if(Object.keys(response['locacoes_ceu']).length !== 0){
+                let locacoes_ceu = []
+                $('.name').each(function (index, value){
+                    for (let i in response['locacoes_ceu']){
+                        if(value.textContent === response['locacoes_ceu'][i]){
+                            value.parentElement.children[0].children[0].checked = true
+                            locacoes_ceu.push(response['locacoes_ceu'][i])
+                        }
+                    }
+                })
+                $('#ceu').append(`<div id="lista_locacoes_ceu"><h5 class="titulo-secao">Locacoes no CEU</h5><p>${locacoes_ceu}</p><hr></div>`)
+            }
+
+        }
+    })
+}
+
+function edita_ficha(){
+    $('#form_ficha, #form_adicionais, #form_app').prop('disabled', false)
+    $('.ver-conteudo-ficha').addClass('conteudo-ficha')
+    $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
+
+    $('.perfil-participantes-ver-ficha, .observacoes-ver-ficha, #ceu :first-child, #atividades_ceu_ver_ficha, #locacoes_ceu_ver_ficha').removeClass('none')
+    $('.ceu, #atividades_peraltas_ver_ficha, #atividades_eco_ver_ficha, .peraltas :first-child, .peraltas').removeClass('none')
+    $('#lista_locacoes_ceu, #lista_atividadess_ceu, #lista_atividades_peraltas, #lista_atividades_eco').addClass('none')
+}

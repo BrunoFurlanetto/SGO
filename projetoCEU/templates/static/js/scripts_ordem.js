@@ -2,7 +2,7 @@
 function completar_dados_os(selecao){
     $('.atividades').empty()
     $('.locacoes').empty()
-    $('#id_ficha').val(selecao.value)
+    $('#id_ficha_de_evento').val(selecao.value)
 
     $.ajax({
         type: 'POST',

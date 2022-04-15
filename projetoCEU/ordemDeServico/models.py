@@ -4,7 +4,7 @@ import form as form
 from django import forms
 from django.db import models
 
-from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento
 
 from peraltas.models import Vendedor
 
@@ -21,6 +21,7 @@ class OrdemDeServico(models.Model):
     )
 
     tipo = models.CharField(choices=tipo_choice, max_length=7)
+    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.DO_NOTHING)
     instituicao = models.CharField(max_length=300)
     cidade = models.CharField(max_length=255)
     check_in = models.DateTimeField()

@@ -20,7 +20,7 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-ficha select, .modal-body select, #id_contrato{
+.conteudo-ficha select, .modal-body select, #id_contrato, .ver-conteudo-ficha select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -43,7 +43,7 @@
     height: 100px;
 }
 .conteudo-ficha .switch{
-    padding: 06;
+    padding: 6px;
     height: 15px;
 }
 .bx-search{
@@ -55,6 +55,7 @@
     width: 18px;
     height: 18px;
     padding: 0;
+    border: solid 1px #ced4da;
 }
 #id_produto, #id_perfil_participantes{
     width: 100%;
@@ -68,6 +69,7 @@
 }
 #id_produto label, #id_perfil_participantes label{
     width: 200%;
+    font-weight: normal !important;
 }
 #id_professores_com_alunos{
     width: 5px;
@@ -147,4 +149,40 @@
     height: 20px;
     padding: 0;
     border: 1px solid #ced4da;
+}
+.ver-conteudo-ficha{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 750px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.ver-conteudo-ficha input{
+    border: none;
+    background-color: white;
+}
+.ver-conteudo-ficha textarea{
+    border: none;
+    background-color: white;
+    height: auto !important;
+    resize: none;
+}
+.ver-conteudo-ficha label{
+    font-weight: bold;
+}
+.ver-conteudo-ficha .infos, .ver-conteudo-ficha .bx, .ver-conteudo-ficha .form-switch{
+    display: none;
+}
+.ver-conteudo-ficha .form-check .bx{
+    display: block;
+}
+.ver-conteudo-ficha #corpo-tabela-refeicao .form-check-input{
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 12px;
+    height: 38px;
 }

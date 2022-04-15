@@ -158,7 +158,7 @@ class FichaDeEvento(models.Model):
     qtd_meninas = models.PositiveIntegerField(blank=True, null=True)
     qtd_homens = models.PositiveIntegerField(blank=True, null=True)
     qtd_mulheres = models.PositiveIntegerField(blank=True, null=True)
-    perfil_participantes = models.ManyToManyField(PerfilsParticipantes)
+    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True, null=True)
     refeicoes = models.JSONField(blank=True, null=True)
     observacoes_refeicoes = models.TextField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)

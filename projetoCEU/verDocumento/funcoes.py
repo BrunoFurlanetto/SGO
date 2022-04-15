@@ -2,6 +2,8 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
     RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Atividades, Professores, Locaveis
 from ordemDeServico.models import OrdemDeServico
+from peraltas.models import FichaDeEvento
+import unidecode
 
 
 def is_ajax(request):
@@ -99,3 +101,58 @@ def requests_ajax(requisicao):
         }
 
         return dados_ordem_de_servico
+
+    if requisicao.get('id_ficha_de_evento'):
+        ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha_de_evento')))
+        refeicoes = []
+        atividades_ceu = {}
+        locacoes_ceu = {}
+        atividades_eco = {}
+        atividades_peraltas = {}
+        algum_perfil = False
+        i = 1
+
+        for perfil in ficha_de_evento.perfil_participantes.all():
+            if perfil:
+                algum_perfil = True
+
+        for dia in ficha_de_evento.refeicoes:
+
+            for refeicao in ficha_de_evento.refeicoes[dia]:
+                string = unidecode.unidecode(refeicao.lower().replace(' ', '_'))
+                indice = string.find('_')
+
+                if indice != -1:
+                    refeicoes.append(f'{string[:indice + 2]}_{i}')
+                else:
+                    refeicoes.append(f'{string}_{i}')
+
+            i += 1
+
+        for atividade in ficha_de_evento.atividades_ceu.all():
+            atividades_ceu[atividade.id] = atividade.atividade
+
+        for locacao in ficha_de_evento.locacoes_ceu.all():
+            locacoes_ceu[locacao.local.id] = locacao.local.estrutura
+
+        for atividade in ficha_de_evento.atividades_eco.all():
+            atividades_eco[atividade.id] = atividade.atividade
+
+        for atividade in ficha_de_evento.atividades_peraltas.all():
+            atividades_peraltas[atividade.id] = atividade.atividade
+
+        dados_ficha = {
+            'cliente': ficha_de_evento.cliente.nome_fantasia,
+            'responsavel': ficha_de_evento.responsavel_evento.nome,
+            'check_in': ficha_de_evento.check_in,
+            'check_out': ficha_de_evento.check_out,
+            'perfil': algum_perfil,
+            'refeicoes': refeicoes,
+            'obs_refeicoes': ficha_de_evento.observacoes_refeicoes,
+            'atividades_ceu': atividades_ceu,
+            'locacoes_ceu': locacoes_ceu,
+            'atividades_eco': atividades_eco,
+            'atividades_peraltas': atividades_peraltas,
+        }
+
+        return dados_ficha

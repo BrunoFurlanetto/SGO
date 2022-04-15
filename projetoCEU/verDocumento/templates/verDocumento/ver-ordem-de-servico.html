@@ -24,6 +24,7 @@
                 <input type="hidden" id="id_ordem" value="{{ form.id }}">
                 <div class="row">
                     <h5 class="titulo-secao">Informações do grupo</h5>
+                    <a href="{% url 'verDocumento' 'ficha' id_ficha %}" style="margin-bottom: 5px">Ficha de evento</a>
                     <div class="mb-2" style="width: 70%">
                         <label>Instituição</label>
                         {{ form.instituicao }}
@@ -160,11 +161,13 @@
                     </div>
                 </div>
             </fieldset>
-            <div class="botoes">
-                <button type="submit" class="btn btn-primary ml-5 salvar" disabled>Salvar</button>
-                <button type="button" class="btn btn-primary ml-5" onclick="edita_os()">Editar</button>
-                <button type="button" class="btn btn-danger ml-5">Excluir</button>
-            </div>
+            {% if adm_peraltas %}
+                <div class="botoes">
+                    <button type="submit" class="btn btn-primary ml-5 salvar" disabled>Salvar</button>
+                    <button type="button" class="btn btn-primary ml-5" onclick="edita_os()">Editar</button>
+                    <button type="button" class="btn btn-danger ml-5">Excluir</button>
+                </div>
+            {% endif %}
         </form>
     </div>
 

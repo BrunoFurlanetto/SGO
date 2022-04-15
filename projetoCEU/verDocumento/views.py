@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -8,6 +9,8 @@ from cadastro.funcoesColegio import salvar_equipe_colegio, salvar_locacoes_empre
 from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
 import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
+from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
+    CadastroInfoAdicionais, CadastroCodigoApp
 from .funcoes import is_ajax, requests_ajax
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -16,7 +19,6 @@ from ceu.models import Atividades, Professores
 
 
 def verDocumento(request, id_documento, tipo_atendimento):
-    print(id_documento, tipo_atendimento)
     if tipo_atendimento == 'Público':
         return redirect('verRelatorioPublico', id_documento)
     elif tipo_atendimento == 'Colégio':
@@ -25,6 +27,8 @@ def verDocumento(request, id_documento, tipo_atendimento):
         return redirect('verRelatorioEmpresa', id_documento)
     elif tipo_atendimento == 'ordem':
         return redirect('verOrdemDeServico', id_documento)
+    elif tipo_atendimento == 'ficha':
+        return redirect('verFichaDeEvento', id_documento)
 
 
 def verRelatorioPublico(request, id_relatorio):
@@ -182,8 +186,11 @@ def verOrdemDeServico(request, id_ordemDeServico):
     ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
     ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
     ordens_de_servico.id = ordem.id
+    id_ficha_de_evento = ordem.ficha_de_evento.id
     atividades_eco = []
     atividades_peraltas = []
+
+    adm_peraltas = User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists()
 
     for atividade in ordem.atividades_eco.all():
         atividades_eco.append(atividade.atividade)
@@ -201,6 +208,33 @@ def verOrdemDeServico(request, id_ordemDeServico):
         return JsonResponse(requests_ajax(request.POST))
 
     return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
+                                                                      'id_ficha': id_ficha_de_evento,
                                                                       'atividades_eco': atividades_eco,
                                                                       'atividades_peraltas': atividades_peraltas,
-                                                                      'colegio': ordem.tipo == 'Colégio'})
+                                                                      'colegio': ordem.tipo == 'Colégio',
+                                                                      'adm_peraltas': adm_peraltas})
+
+
+def verFichaDeEvento(request, id_fichaDeEvento):
+    ficha = FichaDeEvento.objects.get(id=int(id_fichaDeEvento))
+    informacoes = InformacoesAdcionais.objects.get(id=ficha.informacoes_adcionais.id)
+    app = CodigosApp.objects.get(id=ficha.codigos_app.id)
+
+    ficha_de_evento = CadastroFichaDeEvento(instance=ficha)
+    informacoes_adicionais = CadastroInfoAdicionais(instance=informacoes)
+    codigos_app = CadastroCodigoApp(instance=app)
+
+    ficha_de_evento.id = ficha.id
+
+    adm_peraltas = User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists()
+
+    if is_ajax(request):
+        if request.POST.get('id_ficha_de_evento'):
+            return JsonResponse(requests_ajax(request.POST))
+
+        return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
+
+    return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
+                                                                     'formAdicionais': informacoes_adicionais,
+                                                                     'formApp': codigos_app,
+                                                                     'adm_peraltas': adm_peraltas})
