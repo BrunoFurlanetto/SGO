@@ -53,7 +53,7 @@ def salvar_locacoes_ceu(dados, ordem_de_servico):
 
     for i in range(1, n_locacoes + 1):
         dados_locacao[f'locacao_{i}'] = {
-            'espaco': str(Locaveis.objects.get(pk=dados.get(f'locacao_{i}'))),
+            'espaco': str(Locaveis.objects.get(local__id=int(dados.get(f'locacao_{i}')))),
             'check_in': dados.get(f'entrada_{i}').replace('T', ' '),
             'check_out': dados.get(f'saida_{i}').replace('T', ' '),
             'local_coffee': dados.get(f'local-coffee_{i}'),

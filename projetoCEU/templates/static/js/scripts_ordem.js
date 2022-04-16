@@ -482,14 +482,14 @@ function dadosVerOrdem(){
             if(response['locacoes_ceu']){
                 let j = 1
                 for (let i in response['locacoes_ceu']) {
-                    add_locacao(response['locacoes_ceu'][i]['id_espcao'], response['locacoes_ceu'][i]['espaco'], response['locacoes_ceu'][i]['participantes'])
+                    add_locacao(response['locacoes_ceu'][i]['id_espaco'], response['locacoes_ceu'][i]['espaco'], response['locacoes_ceu'][i]['participantes'])
                     setTimeout(() => {
                         $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
                         $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
                         $(`#local-coffee_${j}`).val(response['locacoes_ceu'][i]['local_coffee'])
                         $(`#hora-coffee_${j}`).val(response['locacoes_ceu'][i]['hora_coffee'])
                         j++
-                    }, 100)
+                    }, 150)
                 }
 
             } else {

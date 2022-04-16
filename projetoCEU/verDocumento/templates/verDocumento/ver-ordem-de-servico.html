@@ -11,7 +11,7 @@
             </center>
             <hr>
         </div>
-        <form action="{% url 'ordem_de_servico' %}" method="POST" enctype="multipart/form-data">
+        <form action="" method="POST" enctype="multipart/form-data">
             <fieldset id="fieldset_form" disabled="disabled">
                 {% csrf_token %}
                 <script src="{% static 'js/scripts_ordem.js' %}"></script>
@@ -24,6 +24,7 @@
                 <input type="hidden" id="id_ordem" value="{{ form.id }}">
                 <div class="row">
                     <h5 class="titulo-secao">Informações do grupo</h5>
+                    {{ form.ficha_de_evento.as_hidden }}
                     <a href="{% url 'verDocumento' 'ficha' id_ficha %}" style="margin-bottom: 5px">Ficha de evento</a>
                     <div class="mb-2" style="width: 70%">
                         <label>Instituição</label>
@@ -165,10 +166,32 @@
                 <div class="botoes">
                     <button type="submit" class="btn btn-primary ml-5 salvar" disabled>Salvar</button>
                     <button type="button" class="btn btn-primary ml-5" onclick="edita_os()">Editar</button>
-                    <button type="button" class="btn btn-danger ml-5">Excluir</button>
+                    <button type="button" class="btn btn-danger ml-5" id="excluir" data-toggle="modal" data-target="#modal-excuir">Excluir</button>
                 </div>
             {% endif %}
+            <div class="modal fade" id="modal-excuir" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="TituloModalCentralizado">Tem certeza disso?</h5>
+                            <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Fechar">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Você tem certeza que deseja excluir a ordem de serviço em questão?
+                            {% csrf_token %}
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" name="acao" value="Sim" style="background-color: #dc3545; color: white; width: 65px; display: flex; justify-content: center; padding: 2px">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Fechar">Não</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
+
+
 
 {% endblock %}

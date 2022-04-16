@@ -91,7 +91,7 @@ def requests_ajax(requisicao):
         if ordem_de_servico.locacao_ceu:
             for i in range(1, len(ordem_de_servico.locacao_ceu) + 1):
                 local = Locaveis.objects.get(local__estrutura=ordem_de_servico.locacao_ceu[f'locacao_{i}']['espaco'])
-                ordem_de_servico.locacao_ceu[f'locacao_{i}']['id_espaco'] = local.id
+                ordem_de_servico.locacao_ceu[f'locacao_{i}']['id_espaco'] = local.local.id
 
         dados_ordem_de_servico = {
             'check_in': ordem_de_servico.check_in,

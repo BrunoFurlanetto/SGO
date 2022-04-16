@@ -75,10 +75,15 @@ const renderCalendar_disponibilidade = () => {
         }
     }
 
-    for (let j = 1; j <= nextDays_disponibilidade; j++) {
-        days_disponibilidade += `<div class="next-date-disponibilidade ${j}">${j}</div>`;
+    if(nextDays_disponibilidade !== 0){
+        for (let j = 1; j <= nextDays_disponibilidade; j++) {
+            days_disponibilidade += `<div class="next-date-disponibilidade ${j}">${j}</div>`;
+            monthDays_disponibilidade.innerHTML = days_disponibilidade;
+        }
+    }else{
         monthDays_disponibilidade.innerHTML = days_disponibilidade;
     }
+
 };
 
  if (document.getElementsByClassName("fa-angle-left").length > 0){

@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from cadastro.funcoesColegio import salvar_equipe_colegio, salvar_locacoes_empresa, salvar_atividades_colegio
+from cadastro.funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
 import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
@@ -207,12 +208,48 @@ def verOrdemDeServico(request, id_ordemDeServico):
 
         return JsonResponse(requests_ajax(request.POST))
 
-    return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
-                                                                      'id_ficha': id_ficha_de_evento,
-                                                                      'atividades_eco': atividades_eco,
-                                                                      'atividades_peraltas': atividades_peraltas,
-                                                                      'colegio': ordem.tipo == 'Colégio',
-                                                                      'adm_peraltas': adm_peraltas})
+    if request.method != 'POST':
+        return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
+                                                                          'id_ficha': id_ficha_de_evento,
+                                                                          'atividades_eco': atividades_eco,
+                                                                          'atividades_peraltas': atividades_peraltas,
+                                                                          'colegio': ordem.tipo == 'Colégio',
+                                                                          'adm_peraltas': adm_peraltas})
+
+    if request.POST.get('acao') == 'Sim':
+        ficha = FichaDeEvento.objects.get(id=int(ordem.ficha_de_evento.id))
+        ficha.os = False
+        ficha.save()
+
+        ordem.delete()
+        messages.success(request, 'Ordem de serviço excluida com sucesso!')
+        return redirect('dashboard')
+
+    ordens_de_servico = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem)
+
+    if ordens_de_servico.is_valid():
+        ordem_de_servico = ordens_de_servico.save(commit=False)
+
+        try:
+            salvar_atividades_ceu(request.POST, ordem_de_servico)
+            check_in_and_check_out_atividade(ordem_de_servico)
+            salvar_locacoes_ceu(request.POST, ordem_de_servico)
+            ordens_de_servico.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Ordem de serviço atualizada com sucesso!')
+            return redirect('verOrdemDeServico', ordem.id)
+
+    else:
+        messages.warning(request, ordens_de_servico.errors)
+        return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
+                                                                          'id_ficha': id_ficha_de_evento,
+                                                                          'atividades_eco': atividades_eco,
+                                                                          'atividades_peraltas': atividades_peraltas,
+                                                                          'colegio': ordem.tipo == 'Colégio',
+                                                                          'adm_peraltas': adm_peraltas})
 
 
 def verFichaDeEvento(request, id_fichaDeEvento):
