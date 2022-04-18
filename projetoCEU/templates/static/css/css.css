@@ -369,3 +369,25 @@
 #cronograma_peraltas-clear_id{
     display: none;
 }
+.colegio .cor{
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #FF8C00;
+    border-radius: 8px;
+    background-color: #FF8C00;
+ }.empresa .cor {
+    margin: 10px 5px 15px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #fcc607;
+    border-radius: 8px;
+    background-color: #fcc607;
+ }.ficha_evento .cor {
+    margin: 10px 5px 10px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #8B008B;
+    border-radius: 8px;
+    background-color: #8B008B;
+ }

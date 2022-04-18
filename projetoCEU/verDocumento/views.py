@@ -188,6 +188,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
     ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
     ordens_de_servico.id = ordem.id
     id_ficha_de_evento = ordem.ficha_de_evento.id
+    coordenador_grupo = request.user == ordem.monitor_responsavel.usuario
     atividades_eco = []
     atividades_peraltas = []
 
@@ -210,6 +211,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
+                                                                          'coordenador_grupo': coordenador_grupo,
                                                                           'id_ficha': id_ficha_de_evento,
                                                                           'atividades_eco': atividades_eco,
                                                                           'atividades_peraltas': atividades_peraltas,
@@ -262,8 +264,14 @@ def verFichaDeEvento(request, id_fichaDeEvento):
     codigos_app = CadastroCodigoApp(instance=app)
 
     ficha_de_evento.id = ficha.id
-
     adm_peraltas = User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists()
+
+    if request.method != 'POST':
+        return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
+                                                                         'formAdicionais': informacoes_adicionais,
+                                                                         'formApp': codigos_app,
+                                                                         'adm_peraltas': adm_peraltas})
+
 
     if is_ajax(request):
         if request.POST.get('id_ficha_de_evento'):
@@ -271,7 +279,25 @@ def verFichaDeEvento(request, id_fichaDeEvento):
 
         return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
-    return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
-                                                                     'formAdicionais': informacoes_adicionais,
-                                                                     'formApp': codigos_app,
-                                                                     'adm_peraltas': adm_peraltas})
+    ficha_de_evento = CadastroFichaDeEvento(request.POST, instance=ficha)
+
+    if ficha_de_evento.is_valid():
+
+        nova_ficha = ficha_de_evento.save(commit=False)
+        nova_ficha.refeicoes = cadastro.funcoes.pegar_refeicoes(request.POST)
+
+        try:
+            ficha_de_evento.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Ficha de evento salva com sucesso')
+            return redirect('verFichaDeEvento', ficha.id)
+
+    else:
+        messages.warning(request, ficha_de_evento.errors)
+        return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
+                                                                         'formAdicionais': informacoes_adicionais,
+                                                                         'formApp': codigos_app,
+                                                                         'adm_peraltas': adm_peraltas})

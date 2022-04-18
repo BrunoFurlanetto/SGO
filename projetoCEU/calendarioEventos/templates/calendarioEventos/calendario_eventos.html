@@ -42,15 +42,31 @@
 
                                 {% if evento.tipo == 'Empresa' %}
                                   color: '#fcc607',
-                                  textColor: 'black'
+                                  textColor: 'black',
                                 {% endif %}
 
                                 {% if evento.tipo == 'Colégio' %}
                                     color: '#FF8C00',
-                                    textColor: 'black'
+                                    textColor: 'black',
                                 {% endif %}
                             },
                         {% endfor %}
+
+                        {% if ver_ficha %}
+                            {% for ficha in fichas %}
+                                {% if not ficha.os%}
+                                    {
+                                        title: "{{ ficha.cliente}}",
+                                        start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
+                                        end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
+                                        url: '{% url 'verDocumento' 'ficha' ficha.id %}',
+
+                                        color: '#8B008B',
+                                        textColor: 'white',
+                                    },
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     ],
 
                 });
@@ -58,77 +74,22 @@
                 calendar.setOption('locale', 'pt-br')
             });
         </script>
-
-    <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Cadastro de escala</h5>
-            <button class="x-fechar-modal" data-bs-dismiss="modal" >
-              <span aria-hidden="false" >&times;</span>
-            </button>
-          </div>
-          <form action="{% url 'escala' %}" method="POST">
-            <div class="modal-body">
-                {% csrf_token %}
-              <div class="row">
-                <div style="width: 55%">
-                  <div class="row">
-                    <div class="form-group" style="width: 50%">
-                      <label>Data</label>
-                      <input type="text" class="form-control" id="data" name="data_escala">
-                    </div>
-                      <div class="form-group" style="width: 50%">
-                        <label>Coordenador</label>
-                        <select class="form-control d col-7" name="coordenador" onChange="retirar(this)">
-                          <option selected></option>
-                        </select>
-                      </div>
-                  </div>
-                  <div class="row">
-                    <div class="form-group" style="width: 50%">
-                      <label>Professor 2</label>
-                      <select class="form-control d" name="professor_2" onChange="retirar(this)">
-                        <option selected></option>
-                      </select>
-                    </div>
-                    <div class="form-group" style="width: 50%">
-                      <label>Professor 3</label>
-                      <select class="form-control d" name="professor_3" onChange="retirar(this)">
-                        <option selected></option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="form-group" style="width: 50%">
-                      <label>Professor 4</label>
-                      <select class="form-control d" name="professor_4" onChange="retirar(this)">
-                        <option selected></option>
-                      </select>
-                    </div>
-                    <div class="form-group" style="width: 50%">
-                      <label>Professor 5</label>
-                      <select class="form-control d" name="professor_5" onChange="retirar(this)">
-                        <option selected></option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div style="width: 45%">
-                  <b>Professores disponiveis na data selecionada:</b>
-                  <ul class="disponiveis"></ul>
-                </div>
-              </div>
+        <div class="legenda row">
+            <div class="colegio" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Colégio</p>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-primary">Salvar escala</button>
+            <div class="empresa" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Empresa</p>
             </div>
-            <script src="{% static 'js/script_base.js' %}"></script>
-          </form>
+            {% if ver_ficha %}
+                <div class="ficha_evento" style="display: flex;  width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Ficha de Evento</p>
+                </div>
+            {% endif %}
         </div>
-      </div>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
-    </div>
 
     </div>
 

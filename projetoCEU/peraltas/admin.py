@@ -5,11 +5,6 @@ from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, Cli
 from peraltas.models import Vendedor
 
 
-@admin.register(Monitor)
-class ProfessoresAdmin(admin.ModelAdmin):
-    list_display = ('nome',)
-
-
 @admin.register(AtividadePeraltas)
 class AtividadePeraltasAdmin(admin.ModelAdmin):
     list_display = ('id', 'atividade')
@@ -20,9 +15,28 @@ class AtividadeEcoAdmin(admin.ModelAdmin):
     list_display = ('atividade',)
 
 
+class MonitorInline(admin.StackedInline):
+    model = Monitor
+    can_delete = False
+    verbose_name = 'Monitor(a)'
+    extra = 0
+
+
+@admin.register(Monitor)
+class MonitorAdmin(admin.ModelAdmin):
+    list_display = ('nome_completo', 'telefone')
+
+
+class VendedorInline(admin.StackedInline):
+    model = Vendedor
+    can_delete = False
+    verbose_name = 'Vendedor(a)'
+    extra = 0
+
+
 @admin.register(Vendedor)
 class VendedorAdmin(admin.ModelAdmin):
-    list_display = ('nome_vendedor',)
+    list_display = ('nome_completo', 'telefone')
 
 
 @admin.register(FichaDeEvento)

@@ -513,8 +513,7 @@ function dadosVerOrdem(){
 
 function edita_os(){
     let ver_os = $('#ver_os')
-    $('#fieldset_form').prop('disabled', false)
-    $('.salvar').prop('disabled', false)
+    $('#fieldset_form, .salvar, #excluir').prop('disabled', false)
     ver_os.removeClass('conteudo-ver-os')
     ver_os.addClass('conteudo-os')
     $('.atividades_eco_os, .buton-plus, .atividade-ceu, .atividades_peraltas_os, .cronograma-cliente, .locacao-ceu').removeClass('none')

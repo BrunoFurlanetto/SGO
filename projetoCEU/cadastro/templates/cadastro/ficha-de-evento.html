@@ -216,7 +216,7 @@
             {{ form.vendedora.as_hidden }}
             {{ form.empresa.as_hidden }}
             <script>
-                $('#id_vendedora').val({{ request.user.pk }})
+                $('#id_vendedora').val({{ form.id_vendedora}})
                 $('#id_empresa').val('{{ grupo_usuario }}')
             </script>
             <button type="submit" class="btn btn-primary ml-5">Salvar</button>

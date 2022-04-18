@@ -181,6 +181,7 @@ jQuery('document').ready(function() {
 });
 
 function pegarIdCodigosApp(){
+
     if($('#id_codigos_app').val() !== ''){
         $('#codigos_app').append(`<input type="hidden" name="id_codigo_app" value="${$('#id_codigos_app').val()}"/>`)
     }
@@ -308,11 +309,11 @@ function completar_visualizacao_ficha(id_ficha){
 }
 
 function edita_ficha(){
-    $('#form_ficha, #form_adicionais, #form_app').prop('disabled', false)
+    $('#form_ficha, #form_adicionais, #form_app, #salvar, #excluir').prop('disabled', false)
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
 
     $('.perfil-participantes-ver-ficha, .observacoes-ver-ficha, #ceu :first-child, #atividades_ceu_ver_ficha, #locacoes_ceu_ver_ficha').removeClass('none')
     $('.ceu, #atividades_peraltas_ver_ficha, #atividades_eco_ver_ficha, .peraltas :first-child, .peraltas').removeClass('none')
-    $('#lista_locacoes_ceu, #lista_atividadess_ceu, #lista_atividades_peraltas, #lista_atividades_eco').addClass('none')
+    $('#lista_locacoes_ceu, #lista_atividades_ceu, #lista_atividades_peraltas, #lista_atividades_eco').addClass('none')
 }

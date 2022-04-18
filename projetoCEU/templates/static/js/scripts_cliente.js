@@ -91,6 +91,19 @@ function pegarCliente(){
 
     localStorage.removeItem('id')
     localStorage.removeItem('fantasia')
+
+    $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {'id_cliente_app': $('#id_cliente').val()},
+            success: function (response) {
+                for(let i in response){
+                    console.log(i, response[i])
+                    $(`#${i}`).val(response[i]).prop('readonly', true)
+                }
+            }
+        })
 }
 
 function salvarIdCliente(){

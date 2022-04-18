@@ -150,11 +150,13 @@
                     <h5 class="titulo-secao">Cronograma do grupo</h5>
                     {{ form.cronograma_peraltas }}
                 </div>
-                <hr class="cronograma-cliente none" style="width: 100%">
-                <div class="cliente-cronograma">
-                    <h5 class="titulo-secao">Cronograma do grupo</h5>
-                </div>
-                <hr class="cliente-cronograma">
+                {% if coordenador_grupo %}
+                    <hr class="cronograma-cliente none" style="width: 100%">
+                    <div class="cliente-cronograma">
+                        <h5 class="titulo-secao">Cronograma do grupo</h5>
+                    </div>
+                    <hr class="cliente-cronograma">
+                {% endif %}
                 <div class="observacoes">
                     <div class="row mb-3">
                         <h5 class="titulo-secao">Observações</h5>
@@ -166,7 +168,7 @@
                 <div class="botoes">
                     <button type="submit" class="btn btn-primary ml-5 salvar" disabled>Salvar</button>
                     <button type="button" class="btn btn-primary ml-5" onclick="edita_os()">Editar</button>
-                    <button type="button" class="btn btn-danger ml-5" id="excluir" data-toggle="modal" data-target="#modal-excuir">Excluir</button>
+                    <button type="button" class="btn btn-danger ml-5" id="excluir" data-toggle="modal" data-target="#modal-excuir" disabled>Excluir</button>
                 </div>
             {% endif %}
             <div class="modal fade" id="modal-excuir" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">

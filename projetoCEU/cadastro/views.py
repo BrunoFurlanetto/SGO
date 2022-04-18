@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel
+    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -180,6 +180,16 @@ def ordemDeServico(request):
 @login_required(login_url='login')
 def fichaDeEvento(request):
     form = CadastroFichaDeEvento()
+    form_adicionais = CadastroInfoAdicionais()
+    form_app = CadastroCodigoApp()
+    atividades_ceu = Atividades.objects.all()
+    vendedora = Vendedor.objects.get(usuario=request.user)
+    form.id_vendedora = vendedora.id
+
+    if request.user in User.objects.filter(groups__name='CEU'):
+        grupo_usuario = 'CEU'
+    else:
+        grupo_usuario = 'Peraltas'
 
     # send_mail('TESTE', 'Mensagem de Teste',
     #           'no-reply@fundaceoceu.com',
@@ -187,15 +197,6 @@ def fichaDeEvento(request):
     #           fail_silently=False)
 
     if request.method != 'POST':
-        form_adicionais = CadastroInfoAdicionais()
-        form_app = CadastroCodigoApp()
-        atividades_ceu = Atividades.objects.all()
-
-        if request.user in User.objects.filter(groups__name='CEU'):
-            grupo_usuario = 'CEU'
-        else:
-            grupo_usuario = 'Peraltas'
-
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
@@ -206,17 +207,26 @@ def fichaDeEvento(request):
         return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroFichaDeEvento(request.POST)
-    novo_evento = form.save(commit=False)
-    novo_evento.refeicoes = pegar_refeicoes(request.POST)
 
-    try:
-        form.save()
-    except:
-        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
-        return redirect('ficha_de_evento')
+    if form.is_valid():
+        novo_evento = form.save(commit=False)
+        novo_evento.refeicoes = pegar_refeicoes(request.POST)
+
+        try:
+            form.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+            return redirect('ficha_de_evento')
+        else:
+            messages.success(request, 'Ficha de evento salva com sucesso')
+            return redirect('dashboard')
     else:
-        messages.success(request, 'Ficha de evento salva com sucesso')
-        return redirect('ficha_de_evento')
+        messages.warning(request, form.errors)
+        return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+                                                                 'formAdicionais': form_adicionais,
+                                                                 'formApp': form_app,
+                                                                 'grupo_usuario': grupo_usuario,
+                                                                 'atividades_ceu': atividades_ceu})
 
 
 @login_required(login_url='login')

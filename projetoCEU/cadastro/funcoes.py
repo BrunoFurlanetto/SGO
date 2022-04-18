@@ -167,6 +167,11 @@ def requests_ajax(requisicao):
 
         return cliente
 
+    if requisicao.get('id_cliente_app'):
+        cliente = ClienteColegio.objects.get(id=int(requisicao.get('id_cliente_app')))
+
+        return {'id_cliente_pj': cliente.codigo_app_pj, 'id_cliente_pf': cliente.codigo_app_pf}
+
     if requisicao.get('id'):
         responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))
         responsaveis = {}

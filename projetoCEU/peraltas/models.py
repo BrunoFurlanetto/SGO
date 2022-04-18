@@ -1,16 +1,22 @@
 import datetime
 
 from django import forms
+from django.contrib.auth.models import User
 from django.db import models
 
 from ceu.models import Atividades, Locaveis
 
 
 class Monitor(models.Model):
-    nome = models.CharField(max_length=255)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    telefone = models.CharField(max_length=11)
+    nota = models.FloatField(default=0.00)
 
     def __str__(self):
-        return self.nome
+        return self.usuario.get_full_name()
+
+    def nome_completo(self):
+        return self.usuario.get_full_name()
 
 
 class AtividadePeraltas(models.Model):
@@ -21,10 +27,15 @@ class AtividadePeraltas(models.Model):
 
 
 class Vendedor(models.Model):
-    nome_vendedor = models.CharField(max_length=255)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    telefone = models.CharField(max_length=11)
+    nota = models.FloatField(default=0.00)
 
     def __str__(self):
-        return self.nome_vendedor
+        return self.usuario.get_full_name()
+
+    def nome_completo(self):
+        return self.usuario.get_full_name()
 
 
 class AtividadesEco(models.Model):
@@ -158,7 +169,7 @@ class FichaDeEvento(models.Model):
     qtd_meninas = models.PositiveIntegerField(blank=True, null=True)
     qtd_homens = models.PositiveIntegerField(blank=True, null=True)
     qtd_mulheres = models.PositiveIntegerField(blank=True, null=True)
-    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True, null=True)
+    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True)
     refeicoes = models.JSONField(blank=True, null=True)
     observacoes_refeicoes = models.TextField(blank=True, null=True)
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
@@ -182,7 +193,6 @@ class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(
         queryset=PerfilsParticipantes.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        required=True
     )
     perfil_participantes.widget.attrs['class'] = 'form-check-input'
 
