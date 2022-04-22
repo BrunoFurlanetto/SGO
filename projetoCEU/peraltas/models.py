@@ -193,6 +193,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(
         queryset=PerfilsParticipantes.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False
     )
     perfil_participantes.widget.attrs['class'] = 'form-check-input'
 

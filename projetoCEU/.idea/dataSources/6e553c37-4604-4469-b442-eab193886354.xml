@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="db.sqlite3">
-  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.38">
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.32">
     <root id="1">
       <ServerVersion>3.34.0</ServerVersion>
     </root>
@@ -1383,10 +1383,10 @@
       <System>1</System>
     </table>
     <column id="537" parent="491" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="538" parent="491" name="name">
       <DataType>varchar(150)|0s</DataType>
@@ -1395,6 +1395,7 @@
     </column>
     <index id="539" parent="491" name="sqlite_autoindex_auth_group_1">
       <ColNames>name</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -1407,10 +1408,10 @@
       <UnderlyingIndexName>sqlite_autoindex_auth_group_1</UnderlyingIndexName>
     </key>
     <column id="542" parent="492" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="543" parent="492" name="group_id">
       <DataType>integer|0s</DataType>
@@ -1439,23 +1440,27 @@
     <index id="547" parent="492" name="auth_group_permissions_group_id_permission_id_0cd325b0_uniq">
       <ColNames>group_id
 permission_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="548" parent="492" name="auth_group_permissions_group_id_b120cbf9">
       <ColNames>group_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="549" parent="492" name="auth_group_permissions_permission_id_84c5c92e">
       <ColNames>permission_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="550" parent="492">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="551" parent="493" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="552" parent="493" name="content_type_id">
       <DataType>integer|0s</DataType>
@@ -1482,20 +1487,23 @@ permission_id</ColNames>
     <index id="556" parent="493" name="auth_permission_content_type_id_codename_01ab375a_uniq">
       <ColNames>content_type_id
 codename</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="557" parent="493" name="auth_permission_content_type_id_2f476e4b">
       <ColNames>content_type_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="558" parent="493">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="559" parent="494" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="560" parent="494" name="password">
       <DataType>varchar(128)|0s</DataType>
@@ -1548,6 +1556,7 @@ codename</ColNames>
     </column>
     <index id="570" parent="494" name="sqlite_autoindex_auth_user_1">
       <ColNames>username</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -1560,10 +1569,10 @@ codename</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_auth_user_1</UnderlyingIndexName>
     </key>
     <column id="573" parent="495" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="574" parent="495" name="user_id">
       <DataType>integer|0s</DataType>
@@ -1592,23 +1601,27 @@ codename</ColNames>
     <index id="578" parent="495" name="auth_user_groups_user_id_group_id_94350c0c_uniq">
       <ColNames>user_id
 group_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="579" parent="495" name="auth_user_groups_user_id_6a12ed8b">
       <ColNames>user_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="580" parent="495" name="auth_user_groups_group_id_97559544">
       <ColNames>group_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="581" parent="495">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="582" parent="496" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="583" parent="496" name="user_id">
       <DataType>integer|0s</DataType>
@@ -1637,13 +1650,17 @@ group_id</ColNames>
     <index id="587" parent="496" name="auth_user_user_permissions_user_id_permission_id_14a6b632_uniq">
       <ColNames>user_id
 permission_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="588" parent="496" name="auth_user_user_permissions_user_id_a95ead1b">
       <ColNames>user_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="589" parent="496" name="auth_user_user_permissions_permission_id_1fbb5f2c">
       <ColNames>permission_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="590" parent="496">
       <ColNames>id</ColNames>
@@ -1659,10 +1676,10 @@ permission_id</ColNames>
       <Predicate>(JSON_VALID(&quot;locacoes&quot;) OR &quot;locacoes&quot; IS NULL)</Predicate>
     </check>
     <column id="594" parent="497" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="595" parent="497" name="instituicao">
       <DataType>varchar(255)|0s</DataType>
@@ -1749,6 +1766,7 @@ permission_id</ColNames>
     </foreign-key>
     <index id="612" parent="497" name="cadastro_relatoriodeatendimentocolegioceu_coordenador_peraltas_id_64679fe3">
       <ColNames>coordenador_peraltas_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="613" parent="497">
       <ColNames>id</ColNames>
@@ -1764,10 +1782,10 @@ permission_id</ColNames>
       <Predicate>(JSON_VALID(&quot;locacoes&quot;) OR &quot;locacoes&quot; IS NULL)</Predicate>
     </check>
     <column id="617" parent="498" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="618" parent="498" name="instituicao">
       <DataType>varchar(255)|0s</DataType>
@@ -1839,6 +1857,7 @@ permission_id</ColNames>
     </foreign-key>
     <index id="632" parent="498" name="cadastro_relatoriodeatendimentoempresaceu_coordenador_peraltas_id_70ec8dba">
       <ColNames>coordenador_peraltas_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="633" parent="498">
       <ColNames>id</ColNames>
@@ -1851,10 +1870,10 @@ permission_id</ColNames>
       <Predicate>(JSON_VALID(&quot;equipe&quot;) OR &quot;equipe&quot; IS NULL)</Predicate>
     </check>
     <column id="636" parent="499" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="637" parent="499" name="participantes_previa">
       <DataType>integer|0s</DataType>
@@ -1900,10 +1919,10 @@ permission_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="646" parent="500" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="647" parent="500" name="atividade">
       <DataType>varchar(100)|0s</DataType>
@@ -1944,16 +1963,17 @@ permission_id</ColNames>
     </foreign-key>
     <index id="654" parent="500" name="ceu_atividades_local_da_atividade_id_3e85a67c">
       <ColNames>local_da_atividade_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="655" parent="500">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="656" parent="501" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="657" parent="501" name="atividades_id">
       <DataType>bigint|0s</DataType>
@@ -1982,23 +2002,27 @@ permission_id</ColNames>
     <index id="661" parent="501" name="ceu_atividades_limitacao_atividades_id_limitacoes_id_91c1266d_uniq">
       <ColNames>atividades_id
 limitacoes_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="662" parent="501" name="ceu_atividades_limitacao_atividades_id_8e45d6b1">
       <ColNames>atividades_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="663" parent="501" name="ceu_atividades_limitacao_limitacoes_id_6521200a">
       <ColNames>limitacoes_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="664" parent="501">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="665" parent="502" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="666" parent="502" name="estrutura">
       <DataType>varchar(100)|0s</DataType>
@@ -2020,10 +2044,10 @@ limitacoes_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="670" parent="503" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="671" parent="503" name="limitacao">
       <DataType>varchar(100)|0s</DataType>
@@ -2035,10 +2059,10 @@ limitacoes_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="673" parent="504" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="674" parent="504" name="local_id">
       <DataType>bigint|0s</DataType>
@@ -2054,6 +2078,7 @@ limitacoes_id</ColNames>
     </foreign-key>
     <index id="676" parent="504" name="sqlite_autoindex_ceu_locaveis_1">
       <ColNames>local_id</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -2066,10 +2091,10 @@ limitacoes_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_ceu_locaveis_1</UnderlyingIndexName>
     </key>
     <column id="679" parent="505" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="680" parent="505" name="telefone">
       <DataType>varchar(11)|0s</DataType>
@@ -2100,6 +2125,7 @@ limitacoes_id</ColNames>
     </foreign-key>
     <index id="685" parent="505" name="sqlite_autoindex_ceu_professores_1">
       <ColNames>usuario_id</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -2115,10 +2141,10 @@ limitacoes_id</ColNames>
       <Predicate>&quot;action_flag&quot; &gt;= 0</Predicate>
     </check>
     <column id="689" parent="506" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="690" parent="506" name="action_time">
       <DataType>datetime|0s</DataType>
@@ -2169,19 +2195,21 @@ limitacoes_id</ColNames>
     </foreign-key>
     <index id="699" parent="506" name="django_admin_log_content_type_id_c4bce8eb">
       <ColNames>content_type_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="700" parent="506" name="django_admin_log_user_id_c564eba6">
       <ColNames>user_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="701" parent="506">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="702" parent="507" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="703" parent="507" name="app_label">
       <DataType>varchar(100)|0s</DataType>
@@ -2196,6 +2224,8 @@ limitacoes_id</ColNames>
     <index id="705" parent="507" name="django_content_type_app_label_model_76bd3d3b_uniq">
       <ColNames>app_label
 model</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <key id="706" parent="507">
@@ -2203,10 +2233,10 @@ model</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="707" parent="508" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="708" parent="508" name="app">
       <DataType>varchar(255)|0s</DataType>
@@ -2244,11 +2274,13 @@ model</ColNames>
     </column>
     <index id="715" parent="509" name="sqlite_autoindex_django_session_1">
       <ColNames>session_key</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
     <index id="716" parent="509" name="django_session_expire_date_a5c62663">
       <ColNames>expire_date</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="717" parent="509">
       <ColNames>session_key</ColNames>
@@ -2256,10 +2288,10 @@ model</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_django_session_1</UnderlyingIndexName>
     </key>
     <column id="718" parent="510" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="719" parent="510" name="dias_disponiveis">
       <DataType>text|0s</DataType>
@@ -2295,16 +2327,17 @@ model</ColNames>
     </foreign-key>
     <index id="725" parent="510" name="escala_disponibilidade_professor_id_b2f3bb78">
       <ColNames>professor_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="726" parent="510">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="727" parent="511" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="728" parent="511" name="equipe">
       <DataType>varchar(300)|0s</DataType>
@@ -2321,10 +2354,10 @@ model</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="731" parent="512" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="732" parent="512" name="instituicao">
       <DataType>varchar(400)|0s</DataType>
@@ -2674,45 +2707,59 @@ model</ColNames>
     </foreign-key>
     <index id="804" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_1_id_844cad4a">
       <ColNames>atividade_1_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="805" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_2_id_5556b590">
       <ColNames>atividade_2_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="806" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_3_id_8725f217">
       <ColNames>atividade_3_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="807" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_4_id_aa69da60">
       <ColNames>atividade_4_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="808" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_5_id_bbd99fcf">
       <ColNames>atividade_5_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="809" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_6_id_9ab34c44">
       <ColNames>atividade_6_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="810" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_7_id_d872a64f">
       <ColNames>atividade_7_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="811" parent="512" name="fichaAvaliacao_fichadeavaliacao_atividade_8_id_8f364d4c">
       <ColNames>atividade_8_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="812" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_1_id_9ebf26c0">
       <ColNames>professor_1_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="813" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_2_id_3a7ac78b">
       <ColNames>professor_2_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="814" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_3_id_e9c26395">
       <ColNames>professor_3_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="815" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_4_id_3fe34d38">
       <ColNames>professor_4_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="816" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_5_id_f3f72260">
       <ColNames>professor_5_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="817" parent="512" name="fichaAvaliacao_fichadeavaliacao_professor_6_id_14c4cebd">
       <ColNames>professor_6_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="818" parent="512">
       <ColNames>id</ColNames>
@@ -2725,10 +2772,10 @@ model</ColNames>
       <Predicate>(JSON_VALID(&quot;locacao_ceu&quot;) OR &quot;locacao_ceu&quot; IS NULL)</Predicate>
     </check>
     <column id="821" parent="513" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="822" parent="513" name="instituicao">
       <DataType>varchar(300)|0s</DataType>
@@ -2820,6 +2867,7 @@ model</ColNames>
     </column>
     <column id="841" parent="513" name="vendedor_id">
       <DataType>bigint|0s</DataType>
+      <NotNull>1</NotNull>
       <Position>21</Position>
     </column>
     <foreign-key id="842" parent="513">
@@ -2845,22 +2893,25 @@ model</ColNames>
     </foreign-key>
     <index id="845" parent="513" name="ordemDeServico_ordemdeservico_monitor_responsavel_id_2c744914">
       <ColNames>monitor_responsavel_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="846" parent="513" name="ordemDeServico_ordemdeservico_ficha_de_evento_id_1e2b572e">
       <ColNames>ficha_de_evento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="847" parent="513" name="ordemDeServico_ordemdeservico_vendedor_id_124c94a6">
       <ColNames>vendedor_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="848" parent="513">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="849" parent="514" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="850" parent="514" name="ordemdeservico_id">
       <DataType>bigint|0s</DataType>
@@ -2889,23 +2940,27 @@ model</ColNames>
     <index id="854" parent="514" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_atividadeseco_id_4eb6df6c_uniq">
       <ColNames>ordemdeservico_id
 atividadeseco_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="855" parent="514" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_759875cb">
       <ColNames>ordemdeservico_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="856" parent="514" name="ordemDeServico_ordemdeservico_atividades_eco_atividadeseco_id_89a1329f">
       <ColNames>atividadeseco_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="857" parent="514">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="858" parent="515" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="859" parent="515" name="ordemdeservico_id">
       <DataType>bigint|0s</DataType>
@@ -2934,23 +2989,27 @@ atividadeseco_id</ColNames>
     <index id="863" parent="515" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_atividadeperaltas_id_0e5fb72d_uniq">
       <ColNames>ordemdeservico_id
 atividadeperaltas_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="864" parent="515" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_5d7467c5">
       <ColNames>ordemdeservico_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="865" parent="515" name="ordemDeServico_ordemdeservico_atividades_peraltas_atividadeperaltas_id_5dc996ac">
       <ColNames>atividadeperaltas_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="866" parent="515">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="867" parent="516" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="868" parent="516" name="atividade">
       <DataType>varchar(255)|0s</DataType>
@@ -2962,10 +3021,10 @@ atividadeperaltas_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="870" parent="517" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="871" parent="517" name="atividade">
       <DataType>varchar(255)|0s</DataType>
@@ -2977,10 +3036,10 @@ atividadeperaltas_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="873" parent="518" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="874" parent="518" name="razao_social">
       <DataType>varchar(255)|0s</DataType>
@@ -3034,6 +3093,7 @@ atividadeperaltas_id</ColNames>
     </column>
     <index id="884" parent="518" name="sqlite_autoindex_peraltas_clientecolegio_1">
       <ColNames>cnpj</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -3046,10 +3106,10 @@ atividadeperaltas_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_clientecolegio_1</UnderlyingIndexName>
     </key>
     <column id="887" parent="519" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="888" parent="519" name="cliente_pj">
       <DataType>varchar(20)|0s</DataType>
@@ -3106,10 +3166,10 @@ atividadeperaltas_id</ColNames>
       <Predicate>(JSON_VALID(&quot;refeicoes&quot;) OR &quot;refeicoes&quot; IS NULL)</Predicate>
     </check>
     <column id="903" parent="520" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="904" parent="520" name="responsavel_evento_id">
       <DataType>bigint|0s</DataType>
@@ -3253,28 +3313,33 @@ atividadeperaltas_id</ColNames>
     </foreign-key>
     <index id="933" parent="520" name="peraltas_fichadeevento_responsavel_evento_id_07d70a7f">
       <ColNames>responsavel_evento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="934" parent="520" name="peraltas_fichadeevento_informacoes_adcionais_id_10311a58">
       <ColNames>informacoes_adcionais_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="935" parent="520" name="peraltas_fichadeevento_vendedora_id_389f93c4">
       <ColNames>vendedora_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="936" parent="520" name="peraltas_fichadeevento_cliente_id_69450c15">
       <ColNames>cliente_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="937" parent="520" name="peraltas_fichadeevento_codigos_app_id_9860ea6e">
       <ColNames>codigos_app_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="938" parent="520">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="939" parent="521" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="940" parent="521" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3303,23 +3368,27 @@ atividadeperaltas_id</ColNames>
     <index id="944" parent="521" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_atividades_id_39d78c04_uniq">
       <ColNames>fichadeevento_id
 atividades_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="945" parent="521" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_a7663a90">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="946" parent="521" name="peraltas_fichadeevento_atividades_ceu_atividades_id_1dd20047">
       <ColNames>atividades_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="947" parent="521">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="948" parent="522" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="949" parent="522" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3348,23 +3417,27 @@ atividades_id</ColNames>
     <index id="953" parent="522" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_atividadeseco_id_14c93b90_uniq">
       <ColNames>fichadeevento_id
 atividadeseco_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="954" parent="522" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_d1d9b50c">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="955" parent="522" name="peraltas_fichadeevento_atividades_eco_atividadeseco_id_b03b0db1">
       <ColNames>atividadeseco_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="956" parent="522">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="957" parent="523" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="958" parent="523" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3393,23 +3466,27 @@ atividadeseco_id</ColNames>
     <index id="962" parent="523" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_atividadeperaltas_id_20687f00_uniq">
       <ColNames>fichadeevento_id
 atividadeperaltas_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="963" parent="523" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_4a7665b6">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="964" parent="523" name="peraltas_fichadeevento_atividades_peraltas_atividadeperaltas_id_0461e78a">
       <ColNames>atividadeperaltas_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="965" parent="523">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="966" parent="524" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="967" parent="524" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3438,23 +3515,27 @@ atividadeperaltas_id</ColNames>
     <index id="971" parent="524" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_locaveis_id_2e42f452_uniq">
       <ColNames>fichadeevento_id
 locaveis_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="972" parent="524" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_f9cb610f">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="973" parent="524" name="peraltas_fichadeevento_locacoes_ceu_locaveis_id_56bac8f9">
       <ColNames>locaveis_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="974" parent="524">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="975" parent="525" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="976" parent="525" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3483,23 +3564,27 @@ locaveis_id</ColNames>
     <index id="980" parent="525" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_perfilsparticipantes_id_39eeec23_uniq">
       <ColNames>fichadeevento_id
 perfilsparticipantes_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="981" parent="525" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_a2ee92f1">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="982" parent="525" name="peraltas_fichadeevento_perfil_participantes_perfilsparticipantes_id_be96f0c2">
       <ColNames>perfilsparticipantes_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="983" parent="525">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="984" parent="526" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="985" parent="526" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
@@ -3528,23 +3613,27 @@ perfilsparticipantes_id</ColNames>
     <index id="989" parent="526" name="peraltas_fichadeevento_produto_fichadeevento_id_produtosperaltas_id_a4ff9a72_uniq">
       <ColNames>fichadeevento_id
 produtosperaltas_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="990" parent="526" name="peraltas_fichadeevento_produto_fichadeevento_id_684afefa">
       <ColNames>fichadeevento_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="991" parent="526" name="peraltas_fichadeevento_produto_produtosperaltas_id_629555ec">
       <ColNames>produtosperaltas_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="992" parent="526">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="993" parent="527" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="994" parent="527" name="transporte">
       <DataType>bool|0s</DataType>
@@ -3657,10 +3746,10 @@ produtosperaltas_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1017" parent="528" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1018" parent="528" name="nota">
       <DataType>real|0s</DataType>
@@ -3685,6 +3774,7 @@ produtosperaltas_id</ColNames>
     </foreign-key>
     <index id="1022" parent="528" name="sqlite_autoindex_peraltas_monitor_1">
       <ColNames>usuario_id</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
@@ -3697,10 +3787,10 @@ produtosperaltas_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_monitor_1</UnderlyingIndexName>
     </key>
     <column id="1025" parent="529" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1026" parent="529" name="ano">
       <DataType>varchar(255)|0s</DataType>
@@ -3722,10 +3812,10 @@ produtosperaltas_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1030" parent="530" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1031" parent="530" name="produto">
       <DataType>varchar(255)|0s</DataType>
@@ -3747,10 +3837,10 @@ produtosperaltas_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1035" parent="531" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1036" parent="531" name="cliente_id">
       <DataType>bigint|0s</DataType>
@@ -3766,16 +3856,17 @@ produtosperaltas_id</ColNames>
     </foreign-key>
     <index id="1038" parent="531" name="peraltas_relacaoclienteresponsavel_cliente_id_a488f376">
       <ColNames>cliente_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="1039" parent="531">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1040" parent="532" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1041" parent="532" name="relacaoclienteresponsavel_id">
       <DataType>bigint|0s</DataType>
@@ -3804,23 +3895,27 @@ produtosperaltas_id</ColNames>
     <index id="1045" parent="532" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_responsavel_id_2ff56303_uniq">
       <ColNames>relacaoclienteresponsavel_id
 responsavel_id</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
       <Unique>1</Unique>
     </index>
     <index id="1046" parent="532" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_91343eb5">
       <ColNames>relacaoclienteresponsavel_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <index id="1047" parent="532" name="peraltas_relacaoclienteresponsavel_responsavel_responsavel_id_be0f46a0">
       <ColNames>responsavel_id</ColNames>
+      <ColumnCollations></ColumnCollations>
     </index>
     <key id="1048" parent="532">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1049" parent="533" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1050" parent="533" name="nome">
       <DataType>varchar(255)|0s</DataType>
@@ -3847,10 +3942,10 @@ responsavel_id</ColNames>
       <Primary>1</Primary>
     </key>
     <column id="1055" parent="534" name="id">
-      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
     </column>
     <column id="1056" parent="534" name="nota">
       <DataType>real|0s</DataType>
@@ -3875,6 +3970,7 @@ responsavel_id</ColNames>
     </foreign-key>
     <index id="1060" parent="534" name="sqlite_autoindex_peraltas_vendedor_1">
       <ColNames>usuario_id</ColNames>
+      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>

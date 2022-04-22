@@ -482,8 +482,9 @@ function dadosVerOrdem(){
             if(response['locacoes_ceu']){
                 let j = 1
                 for (let i in response['locacoes_ceu']) {
-                    add_locacao(response['locacoes_ceu'][i]['id_espaco'], response['locacoes_ceu'][i]['espaco'], response['locacoes_ceu'][i]['participantes'])
+                    add_locacao()
                     setTimeout(() => {
+                        $(`#loc_${j}`).val(response['locacoes_ceu'][i]['id_espaco'])
                         $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
                         $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
                         $(`#local-coffee_${j}`).val(response['locacoes_ceu'][i]['local_coffee'])
@@ -516,7 +517,7 @@ function edita_os(){
     $('#fieldset_form, .salvar, #excluir').prop('disabled', false)
     ver_os.removeClass('conteudo-ver-os')
     ver_os.addClass('conteudo-os')
-    $('.atividades_eco_os, .buton-plus, .atividade-ceu, .atividades_peraltas_os, .cronograma-cliente, .locacao-ceu').removeClass('none')
+    $('.atividades_eco_os, .buton-plus, .atividade-ceu, .atividades_peraltas_os, .cronograma-cliente, .locacao-ceu, .observacoes').removeClass('none')
     $('.cliente-cronograma, .p-atividades-eco, .p-atividades-peraltas').addClass('none')
     atividades_eco_peraltas_selecionadas()
 }

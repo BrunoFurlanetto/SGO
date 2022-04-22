@@ -78,7 +78,7 @@ def requests_ajax(requisicao):
         locaveis = {}
 
         for estrutura in locaveis_bd:
-            locaveis[estrutura.local.id] = estrutura.local.estrutura
+            locaveis[estrutura.id] = estrutura.local.estrutura
 
         return locaveis
 
