@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
+from django.contrib.auth.models import User, Group
 
-from cadastro.funcoesPublico import pegar_professores
 from ceu.models import Professores, Atividades, Locaveis
 from ordemDeServico.models import OrdemDeServico
+
+import unidecode
 
 
 def pegar_colegios_no_ceu():
@@ -136,3 +138,21 @@ def somar_horas_parciais(entrada, saida):
     diferenca = (datetime.strptime(str(saida), f) - datetime.strptime(str(entrada), f))
 
     return diferenca
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+def criar_usuario_colegio(dados_colegio):
+    colegio_username = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}'
+    colegio_password = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].capitalize())}'
+    colegio_last_name = dados_colegio.instituicao
+    colegio_email = f'avaliacao_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}@fundacaoceu.com'
+
+    user = User.objects.create_user(username=colegio_username, email=colegio_email,
+                                    password=colegio_password, first_name='Colégio',
+                                    last_name=colegio_last_name)
+
+    user.save()
+
+    usuario = User.objects.get(id=user.id)
+    grupo_colegio = Group.objects.get(name='Colégio')
+    usuario.groups.add(grupo_colegio)

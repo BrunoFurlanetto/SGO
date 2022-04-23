@@ -459,3 +459,9 @@ function remover_linha_locacao(selecao){
         $(buton[k]).attr('id', `btn-loc_${k+1}`)
     }
 }
+
+function abrir_modal(){
+    $(window).on('load',function(){
+        $('#modal_dados_usuario_colegio').modal('show')
+    });
+}

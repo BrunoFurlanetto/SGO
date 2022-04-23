@@ -24,6 +24,9 @@ def dashboard(request):
     if request.user in User.objects.filter(groups__name='Peraltas'):
         return redirect('dashboardPeraltas')
 
+    if User.objects.filter(pk=request.user.id, groups__name='Colégio').exists():
+        return redirect('fichaAvaliacao')
+
 
 @login_required(login_url='login')
 def dashboardCeu(request):

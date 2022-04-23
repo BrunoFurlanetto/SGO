@@ -16,7 +16,7 @@ from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente, pegar_empresas_no_ceu, \
-    salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa
+    salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
 from .funcoesPublico import salvar_atividades, salvar_equipe
 from django.core.paginator import Paginator
@@ -75,7 +75,7 @@ def colegio(request):
         salvar_atividades_colegio(request.POST, relatorio)
 
         try:
-            relatorio_colegio.save()
+            novo_colegio = relatorio_colegio.save()
         except:
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
@@ -85,8 +85,13 @@ def colegio(request):
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
-            messages.success(request, 'Relatório de atendimento salvo com sucesso!')
-            return redirect('dashboard')
+
+            criar_usuario_colegio(novo_colegio)
+            print('Foi')
+            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
+                                                             'colegios': colegios_no_ceu,
+                                                             'professores': professores,
+                                                             'mostrar': True})
 
     else:
         messages.warning(request, relatorio_colegio.errors)
