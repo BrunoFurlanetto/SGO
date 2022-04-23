@@ -24,7 +24,6 @@
 
   <div class="conteudo-avaliacao hide" style="padding: 10px">
     <script src="{% static 'js/script_base.js' %}"></script>
-    <script src="{% static 'js/jquery.js' %}"></script>
 
     <div class="head">
       <img src="{% static  'img/logoAvalicao.png' %}">
@@ -41,7 +40,8 @@
       <!-- Identificação do colégio e quantidades -->
       <div class="row">
         <div class="form-group col-md-7">
-          {{ form.instituicao }}
+            <input type="text" id="fantasia_colegio">
+            {{ form.instituicao.as_hidden }}
           <script>
             $('#id_instituicao').val('{{ user.last_name }}')
           </script>

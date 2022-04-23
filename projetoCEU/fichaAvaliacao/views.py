@@ -10,26 +10,23 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu
 from ceu.models import Atividades, Professores
 from django.contrib.auth.models import Group
 from dashboard.views import is_ajax
+from fichaAvaliacao.funcoes import pegar_atividades_relatorio
 from fichaAvaliacao.models import FichaDeAvaliacaoForm
 
 
 def fichaAvaliacao(request):
-    ...
-    # if not request.user.is_authenticated:
-    #     return redirect('login')
-    # elif not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
-    #     return redirect('dashboard')
-    #
-    formulario = FichaDeAvaliacaoForm(request.POST)
-    atividades = Atividades.objects.all()
-    professores = Professores.objects.all()
-    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
-    if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
-                                                                  'atividades': atividades,
-                                                                  'professores': professores})
-    return redirect('agradecimentos')
+    if not request.user.is_authenticated:
+        return redirect('login')
+    elif not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
+        return redirect('dashboard')
 
+    formulario = FichaDeAvaliacaoForm()
+    formulario.atividades = pegar_atividades_relatorio(request.user.last_name)
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+
+    if request.method != 'POST':
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario})
+    return redirect('agradecimentos')
 
     # ordens = RelatorioDeAtendimentoPublicoCeu.objects.order_by('data_atendimento').filter(instituicao__icontains=request.user.last_name)
     # avaliacoes = ['Excelente', 'Ótimo', 'Bom', 'Regular', 'Ruim']
@@ -147,85 +144,6 @@ def fichaAvaliacao(request):
     #                                                                   'atividades': atividades,
     #                                                                   'professores': professores,
     #                                                                   'form': formulario})
-
-
-@csrf_exempt
-def solicitarFichaAvaliacao(request):
-    ...
-    # if not request.user.is_authenticated:
-    #     return redirect('login')
-
-    # colegios = RelatorioDeAtendimentoCeu.objects.filter(tipo=colegio)
-    # selecao = RelatorioDeAtendimentoCeu.objects.filter(instituicao__iexact=request.POST.get('instituicao'))
-    # instituicoes = []
-    #
-    # if selecao is None:
-    #     messages.error(request, 'Não houve nenhuma seleção!')
-    #     return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})
-    #
-    # for escolas in colegios:
-    #     if escolas.instituicao.capitalize() not in instituicoes and not escolas.solicitado:
-    #         instituicoes.append(escolas.instituicao.capitalize())
-    #
-    # if selecao is not None:
-    #     equipe = []
-    #     atividades = []
-    #     dados = [equipe, atividades]
-    #
-    #     for campo in selecao:
-    #         equipe.append(campo.coordenador)
-    #         equipe.append(campo.professor_2)
-    #         equipe.append(campo.professor_3)
-    #         equipe.append(campo.professor_4)
-    #         atividades.append(campo.atividade_1)
-    #         atividades.append(campo.atividade_2)
-    #         atividades.append(campo.atividade_3)
-    #         atividades.append(campo.atividade_4)
-    #         atividades.append(campo.atividade_5)
-    #
-    # if is_ajax(request) and request.method == 'POST':
-    #     return HttpResponse(dados)
-    #
-    # if request.method != 'POST':
-    #     return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})
-    # else:
-    #     i = 0
-    #     for letra in request.POST.get('instituicao'):
-    #
-    #         if letra == ' ':
-    #             break
-    #
-    #         i += 1
-    #
-    #     instituicao = normalize('NFKD', request.POST.get("instituicao")).encode('ASCII', 'ignore').decode('ASCII')
-    #
-    #     login = f'Colegio{instituicao[0:i].capitalize()}'
-    #     senha = f'{instituicao[0:i].capitalize()}{datetime.now().year}@'
-    #     email = f'avaliacao_{instituicao[0:i].lower()}@fundacaoceu.com'
-    #
-    #     try:
-    #         if instituicao == '':
-    #             messages.error(request, 'Instituição não selecionada!')
-    #             return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})
-    #         else:
-    #             user = User.objects.create_user(username=login, email=email,
-    #                                             password=senha, first_name='Colégio',
-    #                                             last_name=request.POST.get("instituicao"))
-    #             grupo = Group.objects.get(name='Colégio')
-    #             grupo.user_set.add(user)
-    #             user.save()
-    #             selecao.update(solicitado=True)
-    #
-    #             novo_user = {'instituicao': request.POST.get('instituicao'), 'login': login, 'senha': senha,
-    #                          'email': email}
-    #             chamar = True
-    #
-    #             return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes,
-    #                                                                                 'chamar': chamar,
-    #                                                                                 "novo_user": novo_user})
-    #     except:
-    #         messages.error(request, 'Houve um erro inesperado e não foi possível terminar a solicitação!')
-    #         return render(request, 'fichaAvaliacao/solicitacaoAvaliacao.html', {'instituicoes': instituicoes})
 
 
 def agradecimentos(request):

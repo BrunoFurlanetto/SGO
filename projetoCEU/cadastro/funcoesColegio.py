@@ -156,3 +156,5 @@ def criar_usuario_colegio(dados_colegio):
     usuario = User.objects.get(id=user.id)
     grupo_colegio = Group.objects.get(name='Colégio')
     usuario.groups.add(grupo_colegio)
+
+    return colegio_email, colegio_password

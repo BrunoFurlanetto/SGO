@@ -86,12 +86,14 @@ def colegio(request):
             ordem.relatorio_ceu_entregue = True
             ordem.save()
 
-            criar_usuario_colegio(novo_colegio)
-            print('Foi')
+            email, senha = criar_usuario_colegio(novo_colegio)
+
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                              'colegios': colegios_no_ceu,
                                                              'professores': professores,
-                                                             'mostrar': True})
+                                                             'mostrar': True,
+                                                             'email': email,
+                                                             'senha': senha})
 
     else:
         messages.warning(request, relatorio_colegio.errors)

@@ -52,6 +52,7 @@ function completar_dados_os(selecao){
             if(response['atividades_ceu'] !== ''){
                 for(let i in response['atividades_ceu']){
                     add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
+                    let j = document.querySelectorAll('.div_pai').length
                 }
             }
 
