@@ -11,6 +11,7 @@ class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
     nota = models.FloatField(default=0.00)
+    n_avaliacoes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.usuario.get_full_name()
@@ -30,6 +31,7 @@ class Vendedor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
     nota = models.FloatField(default=0.00)
+    n_avaliacoes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.usuario.get_full_name()

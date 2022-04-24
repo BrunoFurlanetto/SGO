@@ -39,366 +39,258 @@
 
       <!-- Identificação do colégio e quantidades -->
       <div class="row">
+        <h5 class="titulo-secao">Dados do grupo</h5>
         <div class="form-group col-md-7">
-            <input type="text" id="fantasia_colegio">
+            <input type="text" id="fantasia_colegio" value="{{ request.user.last_name }}" readonly style="width: 100%">
             {{ form.instituicao.as_hidden }}
           <script>
-            $('#id_instituicao').val('{{ user.last_name }}')
+            $('#id_instituicao').val('{{ form.dados_colegio.instituicao }}')
           </script>
         </div>
         <div class="form-group col-md-5">
           {{ form.cidade }}
+          <script>
+            $('#id_cidade').val('{{ form.dados_colegio.cidade }}')
+          </script>
         </div>
       </div>
       <div class="row mt-1">
-        <div class="form-group my-3 col-auto menos-margem">
-          <label>Nº Alunos:</label>
+        <div class="row form-group my-3" style="width: 38%; margin-right: -75px">
+          <div style="width: 35%">
+              <label class="my-2"><nobr>Nº Alunos:</nobr></label>
+          </div>
+          <div style="width: 40%">
+              {{ form.n_alunos }}
+          </div>
+          <script>
+            $('#id_n_alunos').val('{{ form.dados_colegio.n_alunos }}')
+          </script>
         </div>
-        <div class="form-group col-md-2 margem-label">
-          {{ form.n_alunos }}
+        <div class="row form-group my-3" style="width: 38%; margin-right: -55px">
+          <div style="width: 52%">
+              <label class="my-2"><nobr>Nº Educadores:</nobr></label>
+          </div>
+          <div style="width: 34%">
+              {{ form.n_professores }}
+          </div>
+
+          <script>
+            $('#id_n_professores').val('{{ form.dados_colegio.n_professores }}')
+          </script>
         </div>
-        <div class="form-group my-3 col-auto menos-margem">
-          <label>Nº Educadores:</label>
-        </div>
-        <div class="form-group col-md-2 margem-label">
-          {{ form.n_educadores }}
-        </div>
-        <div class="form-group my-3 col-auto menos-margem">
-          <label>Série:</label>
-        </div>
-        <div class="form-group col-md-2" style="width: 154px">
-          {{ form.serie }}
+        <div class="row form-group my-3" style="width: 49%">
+          <div style="width: 20%">
+              <label class="my-2"><nobr>Série:</nobr></label>
+          </div>
+          <div style="width: 80%">
+              {{ form.serie }}
+          </div>
+          <script>
+            $('#id_serie').val('{{ form.dados_colegio.serie }}')
+          </script>
         </div>
       </div>
 
       <!-- Identificação dos avaliadores -->
       <hr class="divisao">
-      <h5>Identificação dos avaliadores</h5>
+      <h5 class="titulo-secao">Identificação do avaliador</h5>
       <div class="row mb-2">
         <div class="form-group col-4">
-          {{ form.nome_educador_1 }}
+            <input type="text" id="nome_avaliador" value="{{ form.dados_avaliador.nome }}" readonly>
+          {{ form.nome_avaliador.as_hidden }}
+          <script>
+            $('#id_nome_avaliador').val('{{ form.dados_avaliador.id }}')
+          </script>
         </div>
         <div class="form-group col-3">
-          {{ form.cargo_educador_1 }}
+          {{ form.cargo_avaliador}}
+          <script>
+            $('#id_cargo_avaliador').val('{{ form.dados_avaliador.cargo }}')
+          </script>
         </div>
         <div class="form-group col-5">
-          {{ form.email_educador_1 }}
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-4">
-          {{ form.nome_educador_2 }}
-        </div>
-        <div class="form-group col-3">
-          {{ form.cargo_educador_2 }}
-        </div>
-        <div class="form-group col-5">
-          {{ form.email_educador_2 }}
+          {{ form.email_avaliador}}
+          <script>
+            $('#id_email_avaliador').val('{{ form.dados_avaliador.email }}')
+          </script>
         </div>
       </div>
       <hr class="divisao">
 
       <!-- Avaliação representante de vendas -->
-      <div class="row mb-1">
-        <div class="form-group my-3 col-auto">
-          <label>Representante de vendas: </label>
+      <div class="row mb-1 vendas">
+        <h5 class="titulo-secao">Avaliação do responsável de vendas</h5>
+        <div class="labels" style="margin-bottom: 10px">
+            <label style="margin-left: 200px"><b>Agilidade</b></label>
+            <label style="margin-left: 100px"><b>Clareza de ideias</b></label>
         </div>
-        <div class="form-group col-md-5">
-          {{ form.nome_vendedor }}
+        <div style="width: 28%">
+          <input type="text" value="{{ form.dados_colegio.nome_vendedor }}" readonly>
+          {{ form.nome_vendedor.as_hidden }}
+          <script>
+            $('#id_nome_vendedor').val('{{ form.dados_colegio.id_vendedor }}')
+          </script>
         </div>
-        <div class="form-group col-md-3">
-          {{ form.avaliacao_vendedor }}
+        <div style="width: 27%">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio5" value="5" required>
+                <label class="form-check-label" for="inlineRadio1">5</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio4" value="4">
+                <label class="form-check-label" for="inlineRadio2">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio3" value="3">
+                <label class="form-check-label" for="inlineRadio3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio2" value="2">
+                <label class="form-check-label" for="inlineRadio3">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio1" value="1">
+                <label class="form-check-label" for="inlineRadio3">1</label>
+            </div>
         </div>
-      </div>
-      <div>
-          <div class="form-group">
-            <label>Justificativa da avaliação</label>
-            {{ form.justificativa_avaliacao_vendedor }}
-          </div>
+          <div style="width: 30%">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio5" value="5" required>
+                <label class="form-check-label" for="inlineRadio1">5</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio4" value="4">
+                <label class="form-check-label" for="inlineRadio2">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio3" value="3">
+                <label class="form-check-label" for="inlineRadio3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio2" value="2">
+                <label class="form-check-label" for="inlineRadio3">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio1" value="1">
+                <label class="form-check-label" for="inlineRadio3">1</label>
+            </div>
+        </div>
       </div>
       <hr class="divisao">
 
       <!-- Avaliação atividades -->
-      <h5>Atividades do CEU - Centro de Estudos do Universo</h5>
-      {% for atividade in atividades %}
-        <!-- Campos das atividades 1 -->
-        {% if forloop.counter == 1 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_1 }}
-              <script>
-                $("#id_data_atividade_1").val('{{ atividade.data| date:'Y-m-d' }}');
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_1 }}
-              <script>
-                $('#id_atividade_1').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_1 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 2 -->
-        {% if forloop.counter == 2 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_2 }}
-              <script>
-                $('#id_data_atividade_2').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_2 }}
-              <script>
-                $('#id_atividade_2').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_2 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 3 -->
-        {% if forloop.counter == 3 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_3 }}
-              <script>
-                $('#id_data_atividade_3').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_3 }}
-              <script>
-                $('#id_atividade_3').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_3 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 3 -->
-        {% if forloop.counter == 4 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_4 }}
-              <script>
-                $('#id_data_atividade_4').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_4 }}
-              <script>
-                $('#id_atividade_4').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_4 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 5 -->
-        {% if forloop.counter == 5 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_5 }}
-              <script>
-                $('#id_data_atividade_5').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_5 }}
-              <script>
-                $('#id_atividade_5').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_5 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 6 -->
-        {% if forloop.counter == 6 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_6 }}
-              <script>
-                $('#id_data_atividade_6').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_6 }}
-              <script>
-                $('#id_atividade_6').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_6 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 7 -->
-        {% if forloop.counter == 7 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-              {{ form.data_atividade_7 }}
-              <script>
-                $('#id_data_atividade_7').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividde_7 }}
-              <script>
-                $('#id_atividade_7').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_7 }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Campos das atividades 8 -->
-        {% if forloop.counter == 8 %}
-          <div class="row mb-2">
-            <div class="form-group col-4" style="width: 190px">
-                {{ form.data_atividade_8 }}
-              <script>
-                $('#id_data_atividade_8').val('{{ atividade.data| date:'Y-m-d' }}')
-              </script>
-            </div>
-            <div class="form-group col-5" style="width: 335px">
-              {{ form.atividade_8 }}
-              <script>
-                $('#id_atividade_8').val('{{ atividade.atividade }}')
-              </script>
-            </div>
-            <div class="form-group col-3">
-              {{ form.avaliacao_atividade_8 }}
-            </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-
-      <div>
-        <div class="form-group">
-          <label>Justificativa das avaliações</label>
-          {{ form.justificativa_avaliacao_atividades }}
+        <h5>Atividades do CEU - Centro de Estudos do Universo</h5>
+        <div class="row">
+            {% for atividade in form.atividades.atividades%}
+                <div style="width: 80%; margin-bottom: 10px">
+                    <input type="text" name="atividade_{{ forloop.counter }}" id="atividade_{{ forloop.counter }}" value="{{ atividade.atividade }}" readonly style="width: 60%">
+                    <input type="text" name="data_atividade_{{ forloop.counter }}" id="data_atividade_{{ forloop.counter }}" value="{{ atividade.data }}" readonly style="width: 39%">
+                </div>
+                <div style="width: 20%; margin-bottom: 10px">
+                    <select name="avaliacao_atividade_{{ forloop.counter }}" id="avaliacao_ativ_{{ forloop.counter }}" required>
+                        <option value="" disabled selected>...</option>
+                        <option value="5">Excelente</option>
+                        <option value="4">Ótimo</option>
+                        <option value="3">Bom</option>
+                        <option value="2">Regular</option>
+                        <option value="1">Ruim</option>
+                    </select>
+                </div>
+            {% endfor %}
         </div>
-      </div>
       <hr class="divisao">
 
       <!-- Avaliação dos professores do CEU -->
-      <h5>Avaliação dos Professores do CEU</h5>
+      <h5 class="titulo-secao">Avaliação dos Professores do CEU</h5>
       <div class="row mb-2">
-        <div class="form-group col-6">
-          {% for professor in professores %}
-            <!- Campos professor 1 -->
-            {% if forloop.counter == 1 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_1 }}
-                  <script>
-                    $('#id_professor_1').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_1 }}
-                </div>
+          {% for professor in form.professores %}
+              <div style="width: 18%">
+                  {% if forloop.counter == 1 %}
+                    <label><b>Professor(es)</b></label>
+                    <input type="text" name="professor_{{ forloop.counter }}" id="professor_{{ forloop.counter }}" value="{{ professor }}" style="margin-top: 2%" readonly>
+                  {% else %}
+                    <input type="text" name="professor_{{ forloop.counter }}" id="professor_{{ forloop.counter }}" value="{{ professor }}" style="margin-top: -5%" readonly>
+                  {% endif %}
               </div>
-            {% endif %}
-
-            <!- Campos professor 2 -->
-            {% if forloop.counter == 2 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_2}}
-                  <script>
-                    $('#id_professor_2').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_2 }}
-                </div>
+              <div style="width: 27%">
+                  {% if forloop.counter == 1 %}
+                    <label style="width: 100%; margin-bottom: 10px"><b>Domínio do assunto</b></label>
+                  {% endif %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                        <label class="form-check-label" for="inlineRadio1">5</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                        <label class="form-check-label" for="inlineRadio2">4</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                        <label class="form-check-label" for="inlineRadio3">3</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                        <label class="form-check-label" for="inlineRadio3">2</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                        <label class="form-check-label" for="inlineRadio3">1</label>
+                    </div>
+                    <hr style="color: transparent">
               </div>
-            {% endif %}
-
-            <!- Campos professor 3 -->
-            {% if forloop.counter == 3 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_3 }}
-                  <script>
-                    $('#id_professor_3').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_3 }}
-                </div>
+              <div style="width: 27%">
+                  {% if forloop.counter == 1 %}
+                    <label style="width: 100%; margin-bottom: 10px"><b>Clareza de ideias</b></label>
+                  {% endif %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                        <label class="form-check-label" for="inlineRadio1">5</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                        <label class="form-check-label" for="inlineRadio2">4</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                        <label class="form-check-label" for="inlineRadio3">3</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                        <label class="form-check-label" for="inlineRadio3">2</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                        <label class="form-check-label" for="inlineRadio3">1</label>
+                    </div>
               </div>
-            {% endif %}
-            <!- Campos professor 4 -->
-            {% if forloop.counter == 4 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_4 }}
-                  <script>
-                    $('#id_professor_4').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_4 }}
-                </div>
+              <div style="width: 27%">
+                  {% if forloop.counter == 1 %}
+                    <label style="width: 100%; margin-bottom: 10px"><b>Desenvoltura</b></label>
+                  {% endif %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                        <label class="form-check-label" for="inlineRadio1">5</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="desenvolturao_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                        <label class="form-check-label" for="inlineRadio2">4</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                        <label class="form-check-label" for="inlineRadio3">3</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                        <label class="form-check-label" for="inlineRadio3">2</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                        <label class="form-check-label" for="inlineRadio3">1</label>
+                    </div>
               </div>
-            {% endif %}
-            <!- Campos professor 5 -->
-            {% if forloop.counter == 5 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_5 }}
-                  <script>
-                    $('#id_professor_5').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_5 }}
-                </div>
-              </div>
-            {% endif %}
-
-            <!- Campos professor 6 -->
-            {% if forloop.counter == 6 %}
-              <div class="row mb-2">
-                <div class="form-group col-6 menos-margem">
-                  {{ form.professor_6 }}
-                  <script>
-                    $('#id_professor_6').val('{{ professor }}')
-                  </script>
-                </div>
-                <div class="form-group col-6">
-                  {{ form.avaliacao_professor_6 }}
-                </div>
-              </div>
-            {% endif %}
           {% endfor %}
-
-        </div>
-        <div class="form-group mb-2 col-6 justificativa-professores">
-          <label>Justificativa das avaliações</label>
-          {{ form.justificativa_avaliacao_professores }}
-        </div>
       </div>
-      <hr class="divisao">
+      <hr class="divisao" style="margin-top: -40px">
 
     <!-- Avaliações gerais -->
       <h5>Avaliação Geral</h5>
@@ -428,16 +320,22 @@
           </div>
           <div class="row">
             <div class="form-group col-auto menos-margem my-3">
-              <label>Estado do Jardim:</label>
+              <label>Conservação das estruturas</label>
             </div>
             <div class="form-group col-4">
-              {{ form.estado_jardim }}
+              {{ form.estado_conservacao }}
             </div>
           </div>
         </div>
         <div class="form-group col-4 logo-final">
           <img src="{% static  'img/logoAvalicao.png' %}">
         </div>
+      </div>
+      <div>
+          <div class="form-group mb-3">
+              <label>O que quer ver da próxima vez que voltar?</label>
+              {{ form.o_que_quer_proxima }}
+          </div>
       </div>
       <div>
           <div class="form-group mb-3">

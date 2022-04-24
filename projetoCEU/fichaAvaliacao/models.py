@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from cadastro.models import RelatorioDeAtendimentoColegioCeu
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import Responsavel, Vendedor
+from peraltas.models import Responsavel, Vendedor, ClienteColegio
 
 
 class FichaDeAvaliacao(models.Model):
@@ -16,7 +16,7 @@ class FichaDeAvaliacao(models.Model):
         (2, 'Regular'),
         (1, 'Ruim'))
 
-    instituicao = models.ForeignKey(RelatorioDeAtendimentoColegioCeu, on_delete=models.DO_NOTHING)
+    instituicao = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     cidade = models.CharField(max_length=255)
     n_alunos = models.IntegerField()
     n_professores = models.IntegerField()
@@ -31,6 +31,8 @@ class FichaDeAvaliacao(models.Model):
     motivo_trazer_grupo = models.TextField(max_length=400, blank=True)
     avaliacao_conteudo_pedagogico = models.IntegerField(choices=avaliacoes_choices)
     limpeza_instalacoes = models.IntegerField(choices=avaliacoes_choices)
+    estado_conservacao = models.IntegerField(choices=avaliacoes_choices)
+    o_que_quer_proxima = models.TextField(blank=True)
     observacoes = models.TextField(max_length=400, blank=True)
     data_preenchimento = models.DateField(default=timezone.now, blank=True, null=True)
 
@@ -39,4 +41,11 @@ class FichaDeAvaliacaoForm(forms.ModelForm):
     class Meta:
         model = FichaDeAvaliacao
         exclude = ()
-        widgets = {}
+        widgets = {
+            'cidade': forms.TextInput(attrs={'readonly': True}),
+            'n_alunos': forms.NumberInput(attrs={'readonly': True}),
+            'n_professores': forms.NumberInput(attrs={'readonly': True}),
+            'serie': forms.TextInput(attrs={'readonly': True}),
+            'cargo_avaliador': forms.TextInput(attrs={'readonly': True}),
+            'email_avaliador': forms.TextInput(attrs={'readonly': True}),
+        }

@@ -8,6 +8,7 @@ class Professores(models.Model):
     telefone = models.CharField(max_length=11)
     diarista = models.BooleanField(default=False)
     nota = models.FloatField(default=0.00)
+    n_avaliacoes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.usuario.get_full_name()
@@ -45,6 +46,8 @@ class Atividades(models.Model):
     numero_de_participantes_minimo = models.IntegerField()
     numero_de_participantes_maximo = models.IntegerField()
     duracao = models.DurationField()
+    nota = models.FloatField(default=0.00)
+    n_avaliacoes = models.IntegerField(default=0)
     limitacao = models.ManyToManyField(Limitacoes)
     publico = models.BooleanField(default=False)
 

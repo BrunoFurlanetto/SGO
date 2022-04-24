@@ -1,4 +1,5 @@
-.conteudo-avaliacao input{
+.conteudo-avaliacao input[type=text], .conteudo-avaliacao input[type=number],
+.conteudo-avaliacao input[type=email]{
     background-color: #fff;
     max-width: 100%;
     border-width: 0 0 2px;
@@ -55,19 +56,10 @@ textarea:hover, textarea:focus{
 .conteudo-avaliacao #id_serie{
     width: 150px;
 }
-.conteudo-avaliacao #id_email_educador_1, .conteudo-avaliacao #id_email_educador_2,
 .conteudo-avaliacao #id_nome_vendedor, .conteudo-avaliacao #id_observacoes,
-.conteudo-avaliacao #id_motivo_trazer_grupo{
+.conteudo-avaliacao #id_motivo_trazer_grupo, .conteudo-avaliacao #id_o_que_quer_proxima,
+.conteudo-avaliacao #id_serie{
     width: 100%;
-}
-.conteudo-avaliacao.justificativa-professores{
-    margin-left: -80px;
-    width: 432px;
-    display: block;
-}
-.conteudo-avaliacao #id_justificativa_avaliacao_professores{
-    width: 400px;
-    height: 85%;
 }
 .conteudo-avaliacao #id_estado_jardim, .conteudo-avaliacao #id_limpeza_instalacoes,
 .conteudo-avaliacao #id_avaliacao_conteudo_pedagogico{
@@ -173,4 +165,15 @@ textarea:hover, textarea:focus{
   to {
     transform: translateY(-100vh);
   }
+}
+.conteudo-avaliacao input[type=radio]{
+    border-color: #007ec1;
+}.conteudo-avaliacao input[type=radio]:checked{
+    background-color: #fcc607;
+}
+.form-check-inline{
+    margin-right: 18px;
+}
+option[value=""][disabled][selected]{
+  opacity: 0.5;
 }

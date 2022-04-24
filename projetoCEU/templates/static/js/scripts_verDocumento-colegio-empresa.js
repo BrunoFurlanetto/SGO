@@ -28,7 +28,7 @@ setTimeout(() => {
                     for(let i in response['professores_atividade']){
                         $(`#${i}`).val(response['professores_atividade'][i])
                     }
-                },100)
+                },700)
 
                 setTimeout(() =>{
                     for(let i in response['professores_locacoes']){

@@ -467,14 +467,15 @@ function dadosVerOrdem(){
             $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
+            let j = 1
             if(response['atividades_ceu']){
                 for(let i in response['atividades_ceu']){
                     add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
                     setTimeout(() => {
-                        for(let j = 1; j <= Object.keys(response['atividades_ceu']).length; j++) {
-                            $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                        }
-                    }, 100)
+                        console.log(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                        $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                        j++
+                    }, 600)
                 }
             } else {
                 $('.atividade-ceu').addClass('none')

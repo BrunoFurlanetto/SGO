@@ -124,7 +124,7 @@ def salvar_equipe_colegio(dados, relatorio):
     professor = Professores.objects.get(id=int(dados.get('coordenador')))
     professores = {'coordenador': professor.usuario.first_name}
 
-    for i in range(2, 5):
+    for i in range(2, 6):
         if dados.get(f'professor_{i}') != '':
             professor = Professores.objects.get(id=int(dados.get(f'professor_{i}')))
             professores[f'professor_{i}'] = professor.usuario.first_name
