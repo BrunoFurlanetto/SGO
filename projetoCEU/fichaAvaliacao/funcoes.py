@@ -39,28 +39,13 @@ def pegar_dados_avaliador(colegio):
 def pegar_atividades_relatorio(colegio):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
     relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando)
-    teste_atividades = {}
-    ativiades = []
-    datas = []
-    dados_atividades = {}
+    atividades = []
 
     for i in range(1, len(relatorio_colegio.atividades) + 1):
-        ativ = relatorio_colegio.atividades[f'atividade_{i}']['atividade']
-        data_ativ = datetime.datetime.strptime(
-            relatorio_colegio.atividades[f'atividade_{i}']['data_e_hora'].split('T')[0], '%Y-%m-%d').date()
-        adiciona = True
+        if relatorio_colegio.atividades[f'atividade_{i}']['atividade'] not in atividades:
+            atividades.append(relatorio_colegio.atividades[f'atividade_{i}']['atividade'])
 
-        for j in range(1, len(teste_atividades) + 1):
-            if ativ in teste_atividades[f'atividade_{j}'].values() and data_ativ in teste_atividades[f'atividade_{j}'].values():
-                adiciona = False
-
-        if adiciona:
-            teste_atividades[f'atividade_{len(teste_atividades) + 1}'] = {'atividade': ativ, 'data': data_ativ}
-            ativiades.append({'atividade': ativ, 'data': data_ativ})
-
-        dados_atividades = {'atividades': ativiades, 'datas': datas}
-
-    return dados_atividades
+    return atividades
 
 
 def pegar_professores_relatorio(colegio):
@@ -98,7 +83,7 @@ def salvar_avaliacoes_atividades(dados, ficha):
         if 'atividade' in chave:
             n_atividades += 1
 
-    n_atividades = int(n_atividades / 3)
+    n_atividades = int(n_atividades / 2)
 
     for i in range(1, n_atividades + 1):
         atividade = Atividades.objects.get(atividade=dados.get(f'atividade_{i}'))

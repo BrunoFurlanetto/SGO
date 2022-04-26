@@ -130,7 +130,7 @@ function popular_professores(i){
     for(let j = 0; j < 4; j++) {
 
         // Faz a verificação pra poder deixar o campo requerido para 2 professores
-        if(j <= 1) {
+        if(j < 1) {
             $(`#coluna_1_linha_${i + 1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
             $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
         } else {

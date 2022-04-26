@@ -58,11 +58,12 @@ textarea:hover, textarea:focus{
 }
 .conteudo-avaliacao #id_nome_vendedor, .conteudo-avaliacao #id_observacoes,
 .conteudo-avaliacao #id_motivo_trazer_grupo, .conteudo-avaliacao #id_o_que_quer_proxima,
-.conteudo-avaliacao #id_serie{
+.conteudo-avaliacao #id_serie, .conteudo-avaliacao #id_email_avaliador{
     width: 100%;
 }
-.conteudo-avaliacao #id_estado_jardim, .conteudo-avaliacao #id_limpeza_instalacoes,
-.conteudo-avaliacao #id_avaliacao_conteudo_pedagogico{
+.conteudo-avaliacao #id_limpeza_instalacoes, .conteudo-avaliacao #id_avaliacao_conteudo_pedagogico,
+.conteudo-avaliacao #id_estado_conservacao{
+    margin-left: -10%;
     width: 80%
 }
 
