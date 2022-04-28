@@ -390,4 +390,14 @@
     border: solid 1px #8B008B;
     border-radius: 8px;
     background-color: #8B008B;
- }
+}
+.conteudo-resumo-financeiro-ceu{
+    width: 800px;
+    padding: 10px;
+    margin: auto auto 5%;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+}

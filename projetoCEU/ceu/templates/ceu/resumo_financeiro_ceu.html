@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-resumo-financeiro-ceu">
+        <div class="titulo-resumo-ceu">
+            <center>
+                <h2>RELATÓRIO FINANCEIRO CEU</h2>
+            </center>
+        </div>
+        <hr>
+        <form action="{% url 'resumo_financeiro_ceu' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Testar</button>
+        </form>
+    </div>
+{% endblock %}
