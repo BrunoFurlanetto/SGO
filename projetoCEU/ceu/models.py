@@ -53,3 +53,8 @@ class Atividades(models.Model):
 
     def __str__(self):
         return self.atividade
+
+
+class Valores(models.Model):
+    tipo = models.CharField(max_length=100)
+    valor_pago = models.FloatField(default=0.00)
