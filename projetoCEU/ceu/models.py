@@ -58,3 +58,19 @@ class Atividades(models.Model):
 class Valores(models.Model):
     tipo = models.CharField(max_length=100)
     valor_pago = models.FloatField(default=0.00)
+
+
+class ReembolsosProfessores(models.Model):
+    meses = (
+        (1, 'janeiro'), (2, 'Fevereiro'), (3, 'Março'),
+        (4, 'Abril'), (5, 'Maio'), (6, 'Junho'),
+        (7, 'Julho'), (8, 'Agosto'), (9, 'Setembro'),
+        (10, 'Outubro'), (11, 'Novemmbro'), (12, 'Dezembro')
+    )
+
+    usuario_professor = models.ForeignKey(Professores, on_delete=models.DO_NOTHING)
+    mes_referente = models.IntegerField(choices=meses)
+    ano_referente = models.IntegerField()
+    valores = models.CharField(max_length=255)
+    valor_reembolso = models.FloatField()
+    comprovante_reembolso = models.FileField(upload_to=f'comprovantes/{usuario_professor}/%Y/%m')

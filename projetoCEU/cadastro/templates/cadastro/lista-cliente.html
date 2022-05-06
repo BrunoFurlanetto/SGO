@@ -111,7 +111,7 @@
                     <div class="row">
                         <div style="width: 50%">
                             <label>Responsavel</label>
-                            <select class="form-select" name="responsavel_pelo_evento" id="responsavel_evento">
+                            <select class="form-select" name="responsavel_pelo_evento" id="responsavel_evento" onchange="manter_botao()">
                                 <option selected></option>
                             </select>
                         </div>
@@ -175,6 +175,11 @@
                         <div style="width: 50%">
                             <label>CEP</label>
                             {{ form.cep }}
+                            <script>
+                                $(document).ready(function() {
+                                    $('#update #id_cep, #cadastro #id_cep').mask('99999-999');
+                                })
+                            </script>
                         </div>
                     </div>
                     <hr>
@@ -215,6 +220,16 @@
                                         <div style="width: 40%">
                                             <label>Telefone</label>
                                             {{ formResponsavel.fone }}
+                                            <script>
+                                                $('#id_fone').mask('(00) 0 0000-00009');
+                                                $('#id_fone').blur(function(event) {
+                                                    if($(this).val().length == 16){ // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
+                                                        $(this).mask('(00) 0 0000-0009');
+                                                    } else {
+                                                        $(this).mask('(00) 0000-0000');
+                                                    }
+                                                });
+                                            </script>
                                         </div>
                                         <div style="width: 30%">
                                             <label>Cargo</label>

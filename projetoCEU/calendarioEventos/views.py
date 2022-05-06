@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render
 
@@ -5,6 +6,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento
 
 
+@login_required(login_url='login')
 def eventos(request):
     ordens = OrdemDeServico.objects.all()
     fichas_de_evento = FichaDeEvento.objects.all()

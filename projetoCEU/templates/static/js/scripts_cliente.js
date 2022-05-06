@@ -77,6 +77,12 @@ function salvarCliente(){
     setTimeout(() => {  window.close(); }, 100);
 }
 
+function manter_botao(){
+    setTimeout(() => {
+        $('.btn-update').prop('disabled', true)
+    }, 1)
+}
+
 function pegarCliente(){
     $('#id_cliente').val(localStorage.getItem('id'))
     $('#cliente').val(localStorage.getItem('fantasia'))
@@ -185,7 +191,7 @@ function novo_responsavel(){
        } else {
           $(this).mask('(00) 0000-0000');
        }
-    });
+     });
 
 }
 

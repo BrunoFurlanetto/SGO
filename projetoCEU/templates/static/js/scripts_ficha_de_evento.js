@@ -130,6 +130,23 @@ function servicoBordo(){
     }
 }
 
+function pegar_atividades_eco(){
+    $('#biologo .MultiCheckBoxDetailBody').empty()
+
+    $('#atividades_ecoturismo .cont').each(function (index, value){
+
+        if (value.children[0].children[0].checked){
+            let div_nova = $(value).clone()
+
+            $('#biologo .MultiCheckBoxDetailBody').append(div_nova)
+            $('#biologo .cont').children('div').children().prop('checked', false)
+
+        }
+
+    })
+
+}
+
 function quaisAtividades(){
     if($('#id_biologo').prop('checked')){
         $('#quais_atividades').removeClass('none')

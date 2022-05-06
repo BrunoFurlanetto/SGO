@@ -14,7 +14,7 @@ from random import randint
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
-from ceu.models import Professores, Valores
+from ceu.models import Professores, Valores, ReembolsosProfessores
 
 
 def pt(mm):
@@ -128,14 +128,25 @@ def pegar_dados_relatorios(professor):
         diarias,
         converter_dinheiro(n_atividades * valor_atividade.valor_pago),
         converter_dinheiro(diarias * valor_diaria.valor_pago),
-        converter_dinheiro(0),
-        converter_dinheiro(n_atividades * valor_atividade.valor_pago + diarias * valor_diaria.valor_pago)
+        converter_dinheiro(pegar_valor_reembolso(professor)),
+        converter_dinheiro(n_atividades * valor_atividade.valor_pago +
+                           diarias * valor_diaria.valor_pago +
+                           pegar_valor_reembolso(professor))
     ]
 
     return dados
 
 
 def converter_dinheiro(valor):
-    dinheiro = f'R$ {valor}'
+    dinheiro = f'R$ {valor:.2f}'
 
     return dinheiro.replace('.', ',')
+
+
+def pegar_valor_reembolso(professor):
+    try:
+        reembolso = ReembolsosProfessores.objects.get(usuario_professor=professor.id)
+    except ReembolsosProfessores.DoesNotExist:
+        return 0
+    else:
+        return reembolso.valor_reembolso

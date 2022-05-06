@@ -103,7 +103,7 @@ class InformacoesAdcionais(models.Model):
     servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
-    quais_atividades = models.CharField(max_length=255, blank=True)
+    quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
     seguro = models.BooleanField()
     exclusividade = models.BooleanField()
     fotos_site = models.BooleanField()
@@ -127,8 +127,8 @@ class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
-    codigo_app_pj = models.CharField(max_length=10)
-    codigo_app_pf = models.CharField(max_length=10)
+    codigo_app_pj = models.CharField(max_length=10, unique=True)
+    codigo_app_pf = models.CharField(max_length=10, unique=True)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
@@ -188,6 +188,29 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+
+class DisponibilidadeAcampamento(models.Model):
+    meses = {
+        (1, 'Janeiro'),
+        (2, 'Fevereiro'),
+        (3, 'Março'),
+        (4, 'Abril'),
+        (5, 'Maio'),
+        (6, 'Junho'),
+        (7, 'Julho'),
+        (8, 'Agosto'),
+        (9, 'Setembro'),
+        (10, 'Outubro'),
+        (11, 'Novembro'),
+        (12, 'Dezembro'),
+    }
+
+    monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
+    dias_disponiveis = models.TextField(max_length=500)
+    mes = models.IntegerField(choices=meses)
+    ano = models.CharField(max_length=20)
+    n_dias = models.IntegerField()
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------

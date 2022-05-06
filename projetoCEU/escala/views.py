@@ -107,3 +107,7 @@ def disponibilidade(request):
     except:
         messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
         return redirect('dashboard')
+
+
+def disponibilidadePeraltas(request):
+    return render(request, 'escala/disponibilidade-peraltas.html')

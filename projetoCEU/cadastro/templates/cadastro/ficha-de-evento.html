@@ -150,8 +150,8 @@
                     <script src="{% static 'js/MultiSelect.js' %}"></script>
                     <script>
                         $(document).ready(function () {
-                          $("#id_atividades_ceu").CreateMultiCheckBox({ width: '250px',
-                             defaultText : 'Selecione as atividades', height:'250px' });
+                          $("#id_atividades_ceu").CreateMultiCheckBox({ width: 'auto',
+                             defaultText : 'Selecione as atividades', height:'350px' });
                         });
                     </script>
                 </div>
@@ -169,7 +169,7 @@
             <hr>
             <div class="row peraltas">
                 <h5 class="titulo-secao">Peraltas</h5>
-                <div style="width: 40%">
+                <div id="atividades_ecoturismo" style="width: 40%" onchange="pegar_atividades_eco()">
                     <label>Ecoturismo</label>
                     {{ form.atividades_eco }}
                     <script>
@@ -262,7 +262,7 @@
                     </div>
                 </div>
                 <hr>
-                <div class="row mb-2">
+                <div id="biologo" class="row mb-2">
                     <div class="mt-4 checkbox" style="width: 15%">
                         {{ formAdicionais.biologo }}
                         <label>Biólogo?</label>
@@ -270,6 +270,12 @@
                     <div class="mb-2 none" style="width: 50%" id="quais_atividades">
                         <label>Em quais atividades</label>
                         {{ formAdicionais.quais_atividades }}
+                        <script>
+                        $(document).ready(function () {
+                          $("#id_quais_atividades").CreateMultiCheckBox({ width: '250px',
+                             defaultText : 'Selecione as atividades', height:'250px' });
+                        });
+                    </script>
                     </div>
                 </div>
                 <div class="row">

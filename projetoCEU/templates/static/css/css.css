@@ -256,6 +256,17 @@
     padding: 30px;
     width: 500px;
 }
+.conteudo-disponibilidade-acampamento{
+    margin-left: auto;
+    padding: 30px;
+    width: 500px;
+}
+.conteudo-disponibilidade-hotelaria{
+    margin-right: auto;
+    margin-left: 10px;
+    padding: 30px;
+    width: 500px;
+}
 .painel-geral {
     display: flex;
     margin: auto;

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+    <div class="row" style="margin-left: auto; margin-right: auto">
+        <div class="conteudo-disponibilidade-acampamento">
+            <h5>Disponibilidade acampamento</h5>
+            <form method="POST">
+               <fieldset>
+                  {% csrf_token %}
+                  <div>
+                    <div class="calendar-disponibilidade-acampamento">
+                      <div class="month-disponibilidade-acampamento">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+                          <i class="fas fa-angle-left prev-disponibilidade-acampamento"></i>
+                        <div class="date-disponibilidade-acampamento">
+                          <h1></h1>
+                          <p></p>
+                        </div>
+                          <i class="fas fa-angle-right next-disponibilidade-acampamento"></i>
+                      </div>
+                      <div class="weekdays-disponibilidade-acampamento">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sab</div>
+                      </div>
+                      <div class="days-disponibilidade-acampamento">
+                      </div>
+                      <div class="botoes">
+                        {% if coordenador %}
+                          <div class="row mb-1">
+                            <div class="my-2" style="width: 80px">
+                              <label>Professor</label>
+                            </div>
+                            <div class="col-5">
+                              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
+                                <option selected></option>
+                                {% for professor in professores %}
+                                  <option>{{ professor.usuario.first_name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        {% endif %}
+                        <button type="button" class="botao" onClick="selecionar_acampamento()">
+                          <span>Selecionar todos os dias</span>
+                        </button>
+                        <input id="entrada" name="datas_disponiveis" type="hidden">
+                          <button type="button" onClick="enviar_acampamento()" class="botao mt-1">
+                            <span>Enviar datas disponiveis</span>
+                          </button>
+                        <div hidden>
+                          <button id="enviando" type="submit">Enviar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+               </fieldset>
+            </form>
+        </div>
+
+        <div class="linha-vertical"></div>
+
+        <div class="conteudo-disponibilidade-hotelaria">
+            <h5>Disponibilidade hotelaria</h5>
+            <form method="POST">
+               <fieldset>
+                  {% csrf_token %}
+                  <div>
+                    <div class="calendar-disponibilidade-hotelaria">
+                      <div class="month-disponibilidade-hotelaria">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+                          <i class="fas fa-angle-left prev-disponibilidade-hotelaria"></i>
+                        <div class="date-disponibilidade-hotelaria">
+                          <h1></h1>
+                          <p></p>
+                        </div>
+                          <i class="fas fa-angle-right next-disponibilidade-hotelaria"></i>
+                      </div>
+                      <div class="weekdays-disponibilidade-hotelaria">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sab</div>
+                      </div>
+                      <div class="days-disponibilidade-hotelaria">
+                      </div>
+                      <div class="botoes">
+                        {% if coordenador %}
+                          <div class="row mb-1">
+                            <div class="my-2" style="width: 80px">
+                              <label>Professor</label>
+                            </div>
+                            <div class="col-5">
+                              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
+                                <option selected></option>
+                                {% for professor in professores %}
+                                  <option>{{ professor.usuario.first_name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        {% endif %}
+                        <button type="button" class="botao" onClick="selecionar_hotelaria()">
+                          <span>Selecionar todos os dias</span>
+                        </button>
+                        <input id="entrada" name="datas_disponiveis" type="hidden">
+                          <button type="button" onClick="enviar_hotelaria()" class="botao mt-1">
+                            <span>Enviar datas disponiveis</span>
+                          </button>
+                        <div hidden>
+                          <button id="enviando" type="submit">Enviar</button>
+                        </div>
+                        <script src="{% static 'js/calendario_script_diponibilidade_acampamento.js' %}"></script>
+                        <script src="{% static 'js/calendario_script_diponibilidade_hotelaria.js' %}"></script>
+                      </div>
+                    </div>
+                  </div>
+               </fieldset>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
