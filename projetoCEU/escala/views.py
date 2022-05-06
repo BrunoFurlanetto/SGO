@@ -2,7 +2,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax
@@ -110,4 +110,8 @@ def disponibilidade(request):
 
 
 def disponibilidadePeraltas(request):
+    if is_ajax(request):
+        print(request.POST)
+        return JsonResponse({'foi': 'foi'})
+
     return render(request, 'escala/disponibilidade-peraltas.html')

@@ -136,12 +136,34 @@ function enviar_hotelaria(){
 
         let todas_as_datas = todas_as_datas_list.join(', ')
         $('#entrada').val(todas_as_datas)
-        document.getElementById('enviando').click();
+        document.getElementById('enviando_hotelaria').click();
 
     } else {
         alert('Selecione algum dia disponivel para enviar')
     }
 
 }
+
+jQuery('document').ready(function() {
+  jQuery('#hotelaria').submit(function() {
+      let dados = jQuery(this).serialize();
+      let url = $(this).attr('action');
+
+      $.ajax({
+          url: url,
+          headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+          type: "POST",
+          data: dados,
+          success: function (response) {
+              let div_conteudo = $('.conteudo-disponibilidade-hotelaria')
+
+              div_conteudo.empty()
+              div_conteudo.append('<h5 style="display: flex; align-items: center"><center>Disponibilidade para a hotelaria enviado com sucesso!!</center></h5>')
+              div_conteudo.addClass('texto-final')
+          }
+      })
+      return false;
+  })
+})
 
 renderCalendar_disponibilidade_hotelaria();

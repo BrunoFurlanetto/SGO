@@ -123,28 +123,50 @@ function selecionar_acampamento(){
 }
 
 function enviar_acampamento(){
-    var dias_selecionados = document.getElementsByClassName('selected-disponibilidade-acampamento')
-    var mes_selecionado = date_disponibilidade_acampamento.getMonth();
-    var ano_selecionado = date_disponibilidade_acampamento.getFullYear();
-    var todas_as_datas_list = []
-    var token = document.getElementById('token')
+    let dias_selecionados = document.getElementsByClassName('selected-disponibilidade-acampamento')
+    let mes_selecionado = date_disponibilidade_acampamento.getMonth();
+    let ano_selecionado = date_disponibilidade_acampamento.getFullYear();
+    let todas_as_datas_list = [];
+    let token = document.getElementById('token');
 
     console.log(dias_selecionados[0])
 
     if (dias_selecionados[0]){
         for (let i = 0; i < dias_selecionados.length; i++){
-            var datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
+            let datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
             todas_as_datas_list.push(datas_selecionadas.toLocaleDateString('pt-BR'))
-        };
+        }
 
-        var todas_as_datas = todas_as_datas_list.join(', ')
+        let todas_as_datas = todas_as_datas_list.join(', ')
         $('#entrada').val(todas_as_datas)
-        document.getElementById('enviando').click();
+        document.getElementById('enviando_acampamento').click();
 
     } else {
         alert('Selecione algum dia disponivel para enviar')
     }
 
 }
+
+jQuery('document').ready(function() {
+  jQuery('#acampamento').submit(function() {
+      let dados = jQuery(this).serialize();
+      let url = $(this).attr('action');
+
+      $.ajax({
+          url: url,
+          headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+          type: "POST",
+          data: dados,
+          success: function (response) {
+              let div_conteudo = $('.conteudo-disponibilidade-acampamento')
+
+              div_conteudo.empty()
+              div_conteudo.append('<h5 style="display: flex; align-items: center"><center>Disponibilidade para o acampamento enviado com sucesso!!</center></h5>')
+              div_conteudo.addClass('texto-final')
+          }
+      })
+      return false;
+  })
+})
 
 renderCalendar_disponibilidade_acampamento();

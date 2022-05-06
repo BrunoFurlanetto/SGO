@@ -156,3 +156,7 @@
   border-left: 2px solid #5c636a;
   width: 1px;
 }
+.texto-final{
+  display: flex;
+  align-items: center;
+}
