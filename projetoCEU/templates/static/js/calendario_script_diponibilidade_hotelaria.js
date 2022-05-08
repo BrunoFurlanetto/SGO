@@ -132,10 +132,10 @@ function enviar_hotelaria(){
         for (let i = 0; i < dias_selecionados.length; i++){
             let datas_selecionadas = new Date(ano_selecionado, mes_selecionado, dias_selecionados[i].textContent);
             todas_as_datas_list.push(datas_selecionadas.toLocaleDateString('pt-BR'))
-        };
+        }
 
         let todas_as_datas = todas_as_datas_list.join(', ')
-        $('#entrada').val(todas_as_datas)
+        $('#entrada_hotelaria').val(todas_as_datas)
         document.getElementById('enviando_hotelaria').click();
 
     } else {
@@ -158,7 +158,13 @@ jQuery('document').ready(function() {
               let div_conteudo = $('.conteudo-disponibilidade-hotelaria')
 
               div_conteudo.empty()
-              div_conteudo.append('<h5 style="display: flex; align-items: center"><center>Disponibilidade para a hotelaria enviado com sucesso!!</center></h5>')
+
+              if(response['tipo'] !== 'erro') {
+                  div_conteudo.append(`<h5 style="display: flex; align-items: center"><center>${response['mensagem']}</center></h5>`)
+              }else{
+                  div_conteudo.append(`<h5 class="alert-danger" style="display: flex; align-items: center"><center>${response['mensagem']}</center></h5>`)
+              }
+
               div_conteudo.addClass('texto-final')
           }
       })

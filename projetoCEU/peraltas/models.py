@@ -213,6 +213,29 @@ class DisponibilidadeAcampamento(models.Model):
     n_dias = models.IntegerField()
 
 
+class DisponibilidadeHotelaria(models.Model):
+    meses = {
+        (1, 'Janeiro'),
+        (2, 'Fevereiro'),
+        (3, 'Março'),
+        (4, 'Abril'),
+        (5, 'Maio'),
+        (6, 'Junho'),
+        (7, 'Julho'),
+        (8, 'Agosto'),
+        (9, 'Setembro'),
+        (10, 'Outubro'),
+        (11, 'Novembro'),
+        (12, 'Dezembro'),
+    }
+
+    monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
+    dias_disponiveis = models.TextField(max_length=500)
+    mes = models.IntegerField(choices=meses)
+    ano = models.CharField(max_length=20)
+    n_dias = models.IntegerField()
+
+
 # ------------------------------------------------ Formulários ---------------------------------------------------------
 class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(

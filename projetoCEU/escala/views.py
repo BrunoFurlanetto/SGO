@@ -7,11 +7,11 @@ from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax
 from escala.models import Escala, Disponibilidade
+from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 
 @login_required(login_url='login')
 def escala(request):
-
     professores = Professores.objects.all()
     escalas = Escala.objects.all()
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
@@ -57,7 +57,6 @@ def escala(request):
 
 @login_required(login_url='login')
 def disponibilidade(request):
-
     if request.method != 'POST':
         antes_25 = True if datetime.now().day < 25 else False
         coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
@@ -110,8 +109,75 @@ def disponibilidade(request):
 
 
 def disponibilidadePeraltas(request):
-    if is_ajax(request):
-        print(request.POST)
-        return JsonResponse({'foi': 'foi'})
 
-    return render(request, 'escala/disponibilidade-peraltas.html')
+    if request.method != "POST":
+        antes_25 = True if datetime.now().day < 25 else False
+        coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
+        monitores = Monitor.objects.all()
+
+        return render(request, 'escala/disponibilidade-peraltas.html')
+
+    if is_ajax(request):
+        monitor = Monitor.objects.get(usuario=request.user)
+        print(request.POST.get('datas_disponiveis'))
+        if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
+            monitor = Monitor.objects.get(id=int(request.POST.get('minitor')))
+
+        dias = verificar_dias(request.POST.get('datas_disponiveis'),
+                              Monitor.objects.get(usuario=monitor.usuario),
+                              peraltas=request.POST.get('peraltas'))
+
+        if dias[0]:
+            n_dias = contar_dias(dias[0])
+            mes_e_ano_cadastro = verificar_mes_e_ano(dias[0])
+        else:
+            n_dias = 0
+            mes_e_ano_cadastro = verificar_mes_e_ano(dias[1])
+
+        if request.POST.get('peraltas') == 'acampamento':
+            ja_cadastrado = DisponibilidadeAcampamento.objects.filter(monitor=monitor,
+                                                                      mes=mes_e_ano_cadastro[0],
+                                                                      ano=mes_e_ano_cadastro[1])
+        else:
+            ja_cadastrado = DisponibilidadeHotelaria.objects.filter(monitor=monitor,
+                                                                    mes=mes_e_ano_cadastro[0],
+                                                                    ano=mes_e_ano_cadastro[1])
+
+        try:
+            if ja_cadastrado:
+
+                if dias[0]:
+                    for cadastro in ja_cadastrado:
+                        ja_cadastrado.update(dias_disponiveis=cadastro.dias_disponiveis + ', ' + dias[0],
+                                             n_dias=cadastro.n_dias + n_dias)
+
+                        if dias[1]:
+                            msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
+                            return JsonResponse({'tipo': 'sucesso',
+                                                'mensagem': msg})
+                else:
+                    return JsonResponse({'tipo': 'aviso',
+                                         'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'})
+
+            else:
+
+                if request.POST.get('peraltas') == 'acampamento':
+                    dias_disponiveis = DisponibilidadeAcampamento(monitor=monitor,
+                                                                  mes=mes_e_ano_cadastro[0],
+                                                                  ano=mes_e_ano_cadastro[1],
+                                                                  n_dias=n_dias,
+                                                                  dias_disponiveis=dias[0])
+                else:
+                    dias_disponiveis = DisponibilidadeHotelaria(monitor=monitor,
+                                                                mes=mes_e_ano_cadastro[0],
+                                                                ano=mes_e_ano_cadastro[1],
+                                                                n_dias=n_dias,
+                                                                dias_disponiveis=dias[0])
+
+                dias_disponiveis.save()
+                return JsonResponse({'tipo': 'sucesso',
+                                     'mensagem': 'Disponibilidade salva com sucesso'})
+        except:
+            return JsonResponse({'tipo': 'erro',
+                                 'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
+

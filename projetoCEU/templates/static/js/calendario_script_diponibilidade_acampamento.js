@@ -138,7 +138,7 @@ function enviar_acampamento(){
         }
 
         let todas_as_datas = todas_as_datas_list.join(', ')
-        $('#entrada').val(todas_as_datas)
+        $('#entrada_acampamento').val(todas_as_datas)
         document.getElementById('enviando_acampamento').click();
 
     } else {
@@ -157,11 +157,17 @@ jQuery('document').ready(function() {
           headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
           type: "POST",
           data: dados,
-          success: function (response) {
+          success: function(response) {
               let div_conteudo = $('.conteudo-disponibilidade-acampamento')
 
               div_conteudo.empty()
-              div_conteudo.append('<h5 style="display: flex; align-items: center"><center>Disponibilidade para o acampamento enviado com sucesso!!</center></h5>')
+
+              if(response['tipo'] !== 'erro') {
+                  div_conteudo.append(`<h5 style="display: flex; align-items: center"><center>${response['mensagem']}</center></h5>`)
+              }else{
+                  div_conteudo.append(`<h5 class="alert-danger" style="display: flex; align-items: center"><center>${response['mensagem']}</center></h5>`)
+              }
+
               div_conteudo.addClass('texto-final')
           }
       })

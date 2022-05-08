@@ -29,13 +29,31 @@ def salvar_atividades_ceu(dados, ficha_de_evento):
 def check_in_and_check_out_atividade(ficha_de_evento):
 
     if ficha_de_evento.atividades_ceu is not None:
-        ficha_de_evento.check_in_ceu = ficha_de_evento.atividades_ceu[f'atividade_1']['data_e_hora']
-        atividade_cadastrada = Atividades.objects.get(atividade=ficha_de_evento.atividades_ceu[f'atividade_1']['atividade'])
+
+        # --------------------- Verificar a data e hora de check in e chek out no CEU ----------------------------------
+        check_in = datetime
+        check_out = []
+        for i in range(1, len(ficha_de_evento.atividades_ceu) + 1):
+            data = datetime.datetime.strptime(ficha_de_evento.atividades_ceu[f'atividade_{i}']['data_e_hora'],
+                                              '%Y-%m-%d %H:%M')
+
+            if i == 1:
+                check_in = data
+                check_out.append(data)
+                check_out.append(ficha_de_evento.atividades_ceu[f'atividade_{i}']['atividade'])
+            elif check_in > data:
+                check_in = data
+
+            if check_out[0] < data:
+                check_out[0] = data
+                check_out[1] = ficha_de_evento.atividades_ceu[f'atividade_{i}']['atividade']
+        # --------------------------------------------------------------------------------------------------------------
+
+        ficha_de_evento.check_in_ceu = check_in
+        print(ficha_de_evento.check_in_ceu)
+        atividade_cadastrada = Atividades.objects.get(atividade=check_out[1])
         duracao = atividade_cadastrada.duracao
-        hora_ultima_atividade = datetime.datetime.strptime(
-            ficha_de_evento.atividades_ceu[f'atividade_{len(ficha_de_evento.atividades_ceu)}']['data_e_hora'],
-            '%Y-%m-%d %H:%M')
-        ficha_de_evento.check_out_ceu = hora_ultima_atividade + duracao
+        ficha_de_evento.check_out_ceu = check_out[0] + duracao
     else:
         return
 
