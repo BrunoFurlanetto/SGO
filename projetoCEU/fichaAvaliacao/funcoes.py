@@ -117,7 +117,7 @@ def salvar_avaliacoes_professores(dados, ficha):
         professor.save()
 
         avaliacoes[f'professor_{i}'] = {'professor': professor.usuario.get_full_name(),
-                                        'domínio': dados.get(f'dominio_professor_{i}'),
+                                        'dominio': dados.get(f'dominio_professor_{i}'),
                                         'clareza': dados.get(f'clareza_professor_{i}'),
                                         'desenvoltura': dados.get(f'desenvoltura_professor_{i}'),
                                         'media': media}

@@ -87,7 +87,7 @@
 }
 /*------------------------------*/
 /* Estilos do cadastro de empresa */
-.conteudo-empresa{
+.conteudo-empresa, .conteudo-fichas-entregues{
     background-color: #fff;
     margin: auto auto 5%;
     width: 850px;
@@ -411,4 +411,37 @@
     background-color: #fff;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
+}
+.conteudo-fichas-entregues{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 650px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-fichas-entregues{
+    margin: 20px;
+}
+.conteudo-fichas-entregues .buton-search{
+    width: auto;
+    border: none;
+    background-color: transparent;
+}
+.conteudo-fichas-entregues .bx-search{
+    align-self: center;
+    font-size: 30px;
+    color: black;
+}
+.conteudo-fichas-entregues .button-report{
+    width: auto;
+    border: none;
+    background-color: transparent;
+}
+.conteudo-fichas-entregues .bxs-report{
+    align-self: center;
+    font-size: 25px;
+    color: black;
 }

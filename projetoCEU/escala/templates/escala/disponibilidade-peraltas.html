@@ -36,13 +36,13 @@
                         {% if coordenador %}
                           <div class="row mb-1">
                             <div class="my-2" style="width: 80px">
-                              <label>Professor</label>
+                              <label>Monitor</label>
                             </div>
                             <div class="col-5">
                               <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
                                 <option selected></option>
-                                {% for professor in professores %}
-                                  <option>{{ professor.usuario.first_name }}</option>
+                                {% for monitor in monitores %}
+                                  <option value="{{ monitor.id }}">{{ monitor.usuario.first_name }}</option>
                                 {% endfor %}
                               </select>
                             </div>
@@ -99,13 +99,13 @@
                         {% if coordenador %}
                           <div class="row mb-1">
                             <div class="my-2" style="width: 80px">
-                              <label>Professor</label>
+                              <label>Monitor</label>
                             </div>
                             <div class="col-5">
                               <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
                                 <option selected></option>
-                                {% for professor in professores %}
-                                  <option>{{ professor.usuario.first_name }}</option>
+                                {% for monitor in monitores %}
+                                  <option value="{{ monitor.id }}">{{ monitor.usuario.first_name }}</option>
                                 {% endfor %}
                               </select>
                             </div>

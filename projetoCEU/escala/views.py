@@ -115,7 +115,8 @@ def disponibilidadePeraltas(request):
         coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
         monitores = Monitor.objects.all()
 
-        return render(request, 'escala/disponibilidade-peraltas.html')
+        return render(request, 'escala/disponibilidade-peraltas.html', {'coordenador': coordenador,
+                                                                        'monitores': monitores})
 
     if is_ajax(request):
         monitor = Monitor.objects.get(usuario=request.user)

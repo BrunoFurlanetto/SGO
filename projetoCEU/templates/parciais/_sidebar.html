@@ -121,6 +121,20 @@
               </ul>
             </li>
 
+            {% if 'dashboard' in request.path %}
+                <li class="item-sidebar">
+            {% else %}
+                <li>
+            {% endif %}
+              <a href="{% url 'entregues' %}">
+                <i class='bx bxs-report'></i>
+                <span class="link_name">Avaliações</span>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name" href="{% url 'entregues' %}">Avaliações</a></li>
+              </ul>
+            </li>
+
               <li>
                 <div class="profile-details">
                   <div class="profile-content">

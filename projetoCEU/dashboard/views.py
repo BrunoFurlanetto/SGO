@@ -16,6 +16,7 @@ from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, cont
 from ceu.models import Professores
 
 
+@login_required(login_url='login')
 def dashboard(request):
 
     if request.user in User.objects.filter(groups__name='CEU'):

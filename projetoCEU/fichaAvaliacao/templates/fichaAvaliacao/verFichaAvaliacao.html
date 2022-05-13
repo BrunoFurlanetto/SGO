@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+  <div class="conteudo-avaliacao" style="padding: 10px">
+    <script src="{% static 'js/script_base.js' %}"></script>
+
+    <div class="head">
+      <img src="{% static  'img/logoAvalicao.png' %}">
+      <p>Ficha de Avaliação das atividades</p>
+    </div>
+    <hr class="divisao">
+
+    <form action="{% url 'fichaAvaliacao' %}" method="POST">
+        <fieldset disabled="disabled">
+          {% csrf_token %}
+          <script src="{% static 'js/script_base.js' %}"></script>
+          <script src="{% static 'js/jquery.js' %}"></script>
+          <link rel="stylesheet" href="{% static 'css/avaliacao.css' %}">
+
+          <!-- Identificação do colégio e quantidades -->
+          <div class="row">
+            <h5 class="titulo-secao">Dados do grupo</h5>
+            <div class="form-group col-md-7">
+                {{ form.instituicao }}
+            </div>
+            <div class="form-group col-md-5">
+              {{ form.cidade }}
+            </div>
+          </div>
+          <div class="row mt-1">
+            <div class="row form-group my-3" style="width: 38%; margin-right: -75px">
+              <div style="width: 35%">
+                  <label class="my-2"><nobr>Nº Alunos:</nobr></label>
+              </div>
+              <div style="width: 40%">
+                  {{ form.n_alunos }}
+              </div>
+            </div>
+            <div class="row form-group my-3" style="width: 38%; margin-right: -55px">
+              <div style="width: 52%">
+                  <label class="my-2"><nobr>Nº Educadores:</nobr></label>
+              </div>
+              <div style="width: 34%">
+                  {{ form.n_professores }}
+              </div>
+            </div>
+            <div class="row form-group my-3" style="width: 49%">
+              <div style="width: 20%">
+                  <label class="my-2"><nobr>Série:</nobr></label>
+              </div>
+              <div style="width: 80%">
+                  {{ form.serie }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Identificação dos avaliadores -->
+          <hr class="divisao">
+          <h5 class="titulo-secao">Identificação do avaliador</h5>
+          <div class="row mb-2">
+            <div style="width: 40%">
+              {{ form.nome_avaliador }}
+                <style>
+                    #id_nome_avaliador{
+                        width: 100%;
+                    }
+                </style>
+            </div>
+            <div style="width: 25%">
+              {{ form.cargo_avaliador}}
+            </div>
+            <div style="width: 35%">
+              {{ form.email_avaliador}}
+            </div>
+          </div>
+          <hr class="divisao">
+
+          <!-- Avaliação representante de vendas -->
+          <div class="row mb-1 vendas">
+            <h5 class="titulo-secao">Avaliação do responsável de vendas</h5>
+            <div class="labels" style="margin-bottom: 10px">
+                <label style="margin-left: 280px"><b>Agilidade</b></label>
+                <label style="margin-left: 108px"><b>Clareza de ideias</b></label>
+            </div>
+            <div style="width: 40%">
+              {{ form.nome_vendedor }}
+            </div>
+            <div style="width: 27%" id="agilidade_vendedor">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio5" value="5" required>
+                    <label class="form-check-label" for="inlineRadio1">5</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio4" value="4">
+                    <label class="form-check-label" for="inlineRadio2">4</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio3" value="3">
+                    <label class="form-check-label" for="inlineRadio3">3</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio2" value="2">
+                    <label class="form-check-label" for="inlineRadio3">2</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio1" value="1">
+                    <label class="form-check-label" for="inlineRadio3">1</label>
+                </div>
+                <script>
+                    let nota_agilidade = {{ form.nota_agilidade_vendedor }}
+                    $(`#agilidade_vendedor #inlineRadio${nota_agilidade}`).prop('checked', true)
+                </script>
+            </div>
+              <div style="width: 30%" id="clareza_vendedor">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio5" value="5" required>
+                    <label class="form-check-label" for="inlineRadio1">5</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio4" value="4">
+                    <label class="form-check-label" for="inlineRadio2">4</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio3" value="3">
+                    <label class="form-check-label" for="inlineRadio3">3</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio2" value="2">
+                    <label class="form-check-label" for="inlineRadio3">2</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio1" value="1">
+                    <label class="form-check-label" for="inlineRadio3">1</label>
+                </div>
+            </div>
+            <script>
+                let nota_clareza = {{ form.nota_clareza_vendedor }}
+                $(`#clareza_vendedor #inlineRadio${nota_clareza}`).prop('checked', true)
+            </script>
+          </div>
+          <hr class="divisao">
+
+          <!-- Avaliação atividades -->
+            <h5 class="titulo-secao">Atividades do CEU - Centro de Estudos do Universo</h5>
+            <div class="row">
+                {% for atividade in form.atividades%}
+                    <div style="width: 70%; margin-bottom: 10px">
+                        <input type="text" name="atividade_{{ forloop.counter }}" id="atividade_{{ forloop.counter }}" value="{{ atividade.atividade }}" readonly>
+                    </div>
+                    <div style="width: 20%; margin-bottom: 10px">
+                        <select name="avaliacao_atividade_{{ forloop.counter }}" id="avaliacao_ativ_{{ forloop.counter }}">
+                            <option value="" disabled selected>...</option>
+                            <option value="5">Excelente</option>
+                            <option value="4">Ótimo</option>
+                            <option value="3">Bom</option>
+                            <option value="2">Regular</option>
+                            <option value="1">Ruim</option>
+                        </select>
+                        <script>
+                            $('#avaliacao_ativ_{{ forloop.counter }}').val('{{ atividade.avaliacao }}')
+                        </script>
+                    </div>
+                {% endfor %}
+            </div>
+          <hr class="divisao">
+
+          <!-- Avaliação dos professores do CEU -->
+          <h5 class="titulo-secao">Avaliação dos Professores do CEU</h5>
+          <div class="row mb-2">
+              {% for professor in form.professores %}
+                  <div style="width: 18%">
+                      {% if forloop.counter == 1 %}
+                        <label><b>Professor(es)</b></label>
+                        <input type="text" name="professor_{{ forloop.counter }}" id="professor_{{ forloop.counter }}" value="{{ professor.professor }}" style="margin-top: 2%" readonly>
+                      {% else %}
+                        <input type="text" name="professor_{{ forloop.counter }}" id="professor_{{ forloop.counter }}" value="{{ professor.professor }}" style="margin-top: -5%" readonly>
+                      {% endif %}
+                  </div>
+                  <div id="dominio_professor_{{ forloop.counter }}" style="width: 27%">
+                      {% if forloop.counter == 1 %}
+                        <label style="width: 100%; margin-bottom: 10px"><b>Domínio do assunto</b></label>
+                      {% endif %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                            <label class="form-check-label" for="inlineRadio1">5</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                            <label class="form-check-label" for="inlineRadio2">4</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                            <label class="form-check-label" for="inlineRadio3">3</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                            <label class="form-check-label" for="inlineRadio3">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dominio_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                            <label class="form-check-label" for="inlineRadio3">1</label>
+                        </div>
+                        <hr style="color: transparent">
+                  </div>
+                  <div style="width: 27%" id="clareza_professor_{{ forloop.counter }}">
+                      {% if forloop.counter == 1 %}
+                        <label style="width: 100%; margin-bottom: 10px"><b>Clareza de ideias</b></label>
+                      {% endif %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                            <label class="form-check-label" for="inlineRadio1">5</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                            <label class="form-check-label" for="inlineRadio2">4</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                            <label class="form-check-label" for="inlineRadio3">3</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                            <label class="form-check-label" for="inlineRadio3">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                            <label class="form-check-label" for="inlineRadio3">1</label>
+                        </div>
+                  </div>
+                  <div style="width: 27%" id="desenvoltura_professor_{{ forloop.counter }}">
+                      {% if forloop.counter == 1 %}
+                        <label style="width: 100%; margin-bottom: 10px"><b>Desenvoltura</b></label>
+                      {% endif %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                            <label class="form-check-label" for="inlineRadio1">5</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                            <label class="form-check-label" for="inlineRadio2">4</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                            <label class="form-check-label" for="inlineRadio3">3</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                            <label class="form-check-label" for="inlineRadio3">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="desenvoltura_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                            <label class="form-check-label" for="inlineRadio3">1</label>
+                        </div>
+                  </div>
+                  <script>
+                    let nota_dominio_{{ forloop.counter }} = {{ professor.dominio }}
+                    $(`#dominio_professor_{{ forloop.counter }} #inlineRadio${nota_dominio_{{ forloop.counter }}}`).prop('checked', true)
+                  </script>
+                  <script>
+                    let nota_clareza_{{ forloop.counter }} = {{ professor.clareza }}
+                    $(`#clareza_professor_{{ forloop.counter }} #inlineRadio${nota_clareza_{{ forloop.counter }}}`).prop('checked', true)
+                  </script>
+                  <script>
+                    let nota_desenvoltura_{{ forloop.counter }} = {{ professor.desenvoltura }}
+                    $(`#desenvoltura_professor_{{ forloop.counter }} #inlineRadio${nota_desenvoltura_{{ forloop.counter }}}`).prop('checked', true)
+                  </script>
+              {% endfor %}
+          </div>
+          <hr class="divisao" style="margin-top: -40px">
+
+        <!-- Avaliações gerais -->
+          <h5 class="titulo-secao">Avaliação Geral</h5>
+          <div>
+              <div class="form-group">
+                <label>O que motivou trazer o seu grupo?</label>
+                {{ form.motivo_trazer_grupo }}
+              </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-8">
+              <div class="row">
+                <div class="my-3" style="width: 45%">
+                  <label>Conteúdo Pedagógico: </label>
+                </div>
+                <div style="width: 35%">
+                  {{ form.avaliacao_conteudo_pedagogico }}
+                </div>
+              </div>
+              <div class="row">
+                <div class="my-3" style="width: 48%">
+                  <label>Limpeza das Instalações:</label>
+                </div>
+                <div style="width: 35%">
+                  {{ form.limpeza_instalacoes }}
+                </div>
+              </div>
+              <div class="row">
+                <div class="my-3" style="width: 55%">
+                  <label>Conservação das estruturas:</label>
+                </div>
+                <div style="width: 35%">
+                  {{ form.estado_conservacao }}
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-4 logo-final">
+              <img src="{% static  'img/logoAvalicao.png' %}">
+            </div>
+          </div>
+          <div>
+              <div class="form-group mb-3">
+                  <label>O que quer ver da próxima vez que voltar?</label>
+                  {{ form.o_que_quer_proxima }}
+              </div>
+          </div>
+          <div>
+              <div class="form-group mb-3">
+                <label>Outras observações:</label>
+                {{ form.observacoes }}
+              </div>
+          </div>
+        </fieldset>
+    </form>
+  </div>
+
+{% endblock %}
