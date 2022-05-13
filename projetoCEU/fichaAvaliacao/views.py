@@ -68,7 +68,7 @@ def agradecimentos(request):
 
 @login_required(login_url='login')
 def entregues(request):
-    fichas = FichaDeAvaliacao.objects.all().order_by('data_preenchimento')
+    fichas = FichaDeAvaliacao.objects.order_by('-id').all()
 
     paginacao = Paginator(fichas, 10)
     pagina = request.GET.get('page')
