@@ -25,7 +25,9 @@
                 <div class="row">
                     <h5 class="titulo-secao">Informações do grupo</h5>
                     {{ form.ficha_de_evento.as_hidden }}
-                    <a href="{% url 'verDocumento' 'ficha' id_ficha %}" style="margin-bottom: 5px">Ficha de evento</a>
+                    {% if adm_peraltas %}
+                        <a href="{% url 'verDocumento' 'ficha' id_ficha %}" style="margin-bottom: 5px">Ficha de evento</a>
+                    {% endif %}
                     <div class="mb-2" style="width: 70%">
                         <label>Instituição</label>
                         {{ form.instituicao }}
