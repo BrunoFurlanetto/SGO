@@ -8,7 +8,7 @@ from peraltas.models import ClienteColegio, Responsavel, RelacaoClienteResponsav
 
 def pegar_dados_colegio(colegio):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando)
+    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando, ficha_avaliacao=False)
     dados_colegio = {}
 
     dados_colegio = {'instituicao': colegio_avaliando.id,
@@ -24,7 +24,7 @@ def pegar_dados_colegio(colegio):
 
 def pegar_dados_avaliador(colegio):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando)
+    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando, ficha_avaliacao=False)
     responsavel = Responsavel.objects.get(nome=ordem_colegio.responsavel_grupo)
     dados_responsavel = {}
 
@@ -38,7 +38,8 @@ def pegar_dados_avaliador(colegio):
 
 def pegar_atividades_relatorio(colegio):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando)
+    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando,
+                                                                     ficha_avaliacao=False)
     atividades = []
 
     for i in range(1, len(relatorio_colegio.atividades) + 1):
@@ -50,7 +51,8 @@ def pegar_atividades_relatorio(colegio):
 
 def pegar_professores_relatorio(colegio):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando)
+    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando,
+                                                                     ficha_avaliacao=False)
     professores = []
 
     for i in relatorio_colegio.equipe:
@@ -62,12 +64,16 @@ def pegar_professores_relatorio(colegio):
 # --------------------------------------------- Salvando avaliação ----------------------------------------------------
 def salvar_avaliacoes_vendedor(dados, ficha):
     vendedora = Vendedor.objects.get(id=int(ficha.nome_vendedor.id))
-    media = (int(dados.get('agilidade_vendedor')) + int(dados.get('clareza_vendedor'))) / 2
+    media = (int(dados.get('cordialidade_vendedor')) +
+             int(dados.get('agilidade_vendedor')) +
+             int(dados.get('clareza_vendedor'))) / 3
+
     vendedora.n_avaliacoes += 1
     vendedora.nota = (vendedora.nota + media) / vendedora.n_avaliacoes
     vendedora.save()
 
     dados_avaliacao = {'vendedora': vendedora.usuario.get_full_name(),
+                       'cordialidade': dados.get('cordialidade_vendedor'),
                        'agilidade': dados.get('agilidade_vendedor'),
                        'clareza_ideias': dados.get('clareza_vendedor'),
                        'media': media}
@@ -110,15 +116,16 @@ def salvar_avaliacoes_professores(dados, ficha):
     for i in range(1, n_professores + 1):
         professor = Professores.objects.get(usuario__first_name=dados.get(f'professor_{i}'))
         media = (int(dados.get(f'dominio_professor_{i}')) +
-                 int(dados.get(f'clareza_professor_{i}')) +
+                 int(dados.get(f'cordialidade_professor_{i}')) +
                  int(dados.get(f'desenvoltura_professor_{i}'))) / 3
+
         professor.n_avaliacoes += 1
         professor.nota = (professor.nota + media) / professor.n_avaliacoes
         professor.save()
 
         avaliacoes[f'professor_{i}'] = {'professor': professor.usuario.get_full_name(),
                                         'dominio': dados.get(f'dominio_professor_{i}'),
-                                        'clareza': dados.get(f'clareza_professor_{i}'),
+                                        'cordialidade': dados.get(f'cordialidade_professor_{i}'),
                                         'desenvoltura': dados.get(f'desenvoltura_professor_{i}'),
                                         'media': media}
 

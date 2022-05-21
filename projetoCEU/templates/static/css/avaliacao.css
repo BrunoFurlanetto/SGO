@@ -1,5 +1,5 @@
 .conteudo-avaliacao input[type=text], .conteudo-avaliacao input[type=number],
-.conteudo-avaliacao input[type=email]{
+.conteudo-avaliacao input[type=email] {
     background-color: #fff;
     max-width: 100%;
     border-width: 0 0 2px;
@@ -9,7 +9,8 @@
     padding: 12px;
     height: 38px;
 }
-.conteudo-avaliacao select{
+
+.conteudo-avaliacao select {
     background-color: #fff;
     max-width: 100%;
     border-width: 0 0 2px;
@@ -20,7 +21,8 @@
     height: 38px;
     -webkit-appearance: none;
 }
-.conteudo-avaliacao textarea{
+
+.conteudo-avaliacao textarea {
     background-color: #fff;
     max-width: 100%;
     border-width: 2px;
@@ -32,101 +34,122 @@
     height: 85px;
     resize: none;
 }
-.conteudo-avaliacao [id*="avaliacao"], .conteudo-avaliacao [id*="atividade"]{
+
+.conteudo-avaliacao [id*="avaliacao"], .conteudo-avaliacao [id*="atividade"] {
     width: 100%
 }
-.conteudo-avaliacao [id*="avaliacao_professor"]{
+
+.conteudo-avaliacao [id*="avaliacao_professor"] {
     width: 100px;
 }
+
 select:hover, select:focus, input:hover, input:focus,
-textarea:hover, textarea:focus{
+textarea:hover, textarea:focus {
     border-color: #fcc607;
 }
-.conteudo-avaliacao #id_instituicao{
+
+.conteudo-avaliacao #id_instituicao {
     width: 400px;
     height: 38px;
     font-weight: 400;
 }
-.conteudo-avaliacao #id_cidade{
+
+.conteudo-avaliacao #id_cidade {
     width: 300px;
 }
-.conteudo-avaliacao #id_n_alunos, #id_n_educadores{
+
+.conteudo-avaliacao #id_n_alunos, #id_n_educadores {
     width: 100px;
 }
-.conteudo-avaliacao #id_serie{
+
+.conteudo-avaliacao #id_serie {
     width: 150px;
 }
+
 .conteudo-avaliacao #id_nome_vendedor, .conteudo-avaliacao #id_observacoes,
 .conteudo-avaliacao #id_motivo_trazer_grupo, .conteudo-avaliacao #id_o_que_quer_proxima,
-.conteudo-avaliacao #id_serie, .conteudo-avaliacao #id_email_avaliador{
+.conteudo-avaliacao #id_serie, .conteudo-avaliacao #id_email_avaliador {
     width: 100%;
 }
+
 .conteudo-avaliacao #id_limpeza_instalacoes, .conteudo-avaliacao #id_avaliacao_conteudo_pedagogico,
-.conteudo-avaliacao #id_estado_conservacao{
+.conteudo-avaliacao #id_estado_conservacao {
     margin-left: -10%;
     width: 80%
 }
 
 /* Pra parte da animação */
-.conteudo-inicio{
+.conteudo-inicio {
     padding: 8%;
     width: 100%;
     height: 100vh;
     background-color: #000;
     animation: fadeIn 2s;
 }
-.conteudo-final{
+
+.conteudo-final {
     padding: 8%;
     width: 100%;
     height: 100vh;
     background-color: #000;
 }
-.imagem{
-    width: 500px;
+
+.imagem {
+    width: 345px;
+    margin: 5px;
 }
-.conteudo-inicio p{
+
+.conteudo-inicio p {
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     color: #fff;
 }
-.conteudo-final p{
+
+.conteudo-final p {
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     color: #fff;
 }
-.conteudo-inicio hr{
+
+.conteudo-inicio hr {
     width: 700px;
     color: #fff;
 }
-.conteudo-final hr{
+
+.conteudo-final hr {
     width: 700px;
     color: #fff;
 }
+
 .conteudo-inicio button {
     background-color: #000;
     border: none;
     color: #fff;
 }
-.agradecimentos{
+
+.agradecimentos {
     padding: 8%;
     width: 100%;
     height: 100vh;
     background-color: #000;
     animation: fadeIn 2s;
 }
-.agradecimentos p{
+
+.agradecimentos p {
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     color: #fff;
 }
-.agradecimentos hr{
+
+.agradecimentos hr {
     width: 700px;
     color: #fff;
 }
-.conteudo-avaliacao{
+
+.conteudo-avaliacao {
     width: 700px;
     margin: auto;
     margin-bottom: 5%;
@@ -135,46 +158,89 @@ textarea:hover, textarea:focus{
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-.hide{
+
+.hide {
     display: none;
 }
-.animado{
+
+.animado {
     animation: aparecer 2s;
 }
-.animado-2{
+
+.animado-2 {
     animation: sumir 2s;
 }
 
 /* As animações */
 @keyframes fadeIn {
-    from{
+    from {
         opacity: 0;
     }
     to {
         opacity: 1;
     }
 }
+
 @keyframes aparecer {
-  from {
-    transform: translateY(0px);
-  }
-  to {
-    transform: translateY(-100vh);
-  }
+    from {
+        transform: translateY(0px);
+    }
+    to {
+        transform: translateY(-100vh);
+    }
 }
+
 @keyframes sumir {
-  to {
-    transform: translateY(-100vh);
-  }
+    to {
+        transform: translateY(-100vh);
+    }
 }
-.conteudo-avaliacao input[type=radio]{
+
+.conteudo-avaliacao input[type=radio] {
     border-color: #007ec1;
-}.conteudo-avaliacao input[type=radio]:checked{
+}
+
+.conteudo-avaliacao input[type=radio]:checked {
     background-color: #fcc607;
 }
-.form-check-inline{
-    margin-right: 18px;
+
+.form-check-inline {
+    margin-right: 14px;
 }
-option[value=""][disabled][selected]{
-  opacity: 0.5;
+
+option[value=""][disabled][selected] {
+    opacity: 0.5;
+}
+
+
+@media print {
+    * {
+        visibility: hidden;
+    }
+
+    .home-section{
+        position: absolute;
+        left: 0;
+        width: 100%;
+    }
+
+    .sidebar.close ~ .home-section{
+        left: 0;
+        width: 100%;
+    }
+
+    .conteudo-avaliacao{
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .conteudo-avaliacao * {
+        visibility: visible;
+    }
+
+    @page {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 }

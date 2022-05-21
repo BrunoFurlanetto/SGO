@@ -6,7 +6,8 @@
 <!-------------------------------- LINHA 1 ---------------------------->
   <div class="conteudo-inicio">
     <center>
-      <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
+        <img class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
+        <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
 
       <hr>
         <p>
@@ -17,7 +18,7 @@
             de grande importância na busca pela excelência de nossos serviços e na qualidade da infraestrutura.
         </p>
         <p align="right">
-            Ass. Equipe de Professores
+            Ass. Grupo Peraltas e Fundação CEU
         </p>
       <hr>
       <button onClick="animacao()">
@@ -124,18 +125,41 @@
       <!-- Avaliação representante de vendas -->
       <div class="row mb-1 vendas">
         <h5 class="titulo-secao">Avaliação do responsável de vendas</h5>
-        <div class="labels" style="margin-bottom: 10px">
-            <label style="margin-left: 280px"><b>Agilidade</b></label>
-            <label style="margin-left: 108px"><b>Clareza de ideias</b></label>
+        <div class="labels" style="margin-bottom: 10px; display: inherit">
+            <label style="margin-left: 145px"><b>Cordialidade</b></label>
+            <label style="margin-left: 75px"><b>Agilidade</b></label>
+            <label style="margin-left: 100px"><b>Clareza de ideias</b></label>
         </div>
-        <div style="width: 40%">
+        <div style="width: 20%">
           <input type="text" value="{{ form.dados_colegio.nome_vendedor }}" style="width: 100%" readonly>
           {{ form.nome_vendedor.as_hidden }}
           <script>
             $('#id_nome_vendedor').val('{{ form.dados_colegio.id_vendedor }}')
           </script>
         </div>
-        <div style="width: 27%">
+        <div style="width: 26%">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cordialidade_vendedor" id="inlineRadio5" value="5" required>
+                <label class="form-check-label" for="inlineRadio1">5</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cordialidade_vendedor" id="inlineRadio4" value="4">
+                <label class="form-check-label" for="inlineRadio2">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cordialidade_vendedor" id="inlineRadio3" value="3">
+                <label class="form-check-label" for="inlineRadio3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cordialidade_vendedor" id="inlineRadio2" value="2">
+                <label class="form-check-label" for="inlineRadio3">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cordialidade_vendedor" id="inlineRadio1" value="1">
+                <label class="form-check-label" for="inlineRadio3">1</label>
+            </div>
+        </div>
+        <div style="width: 26%">
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="agilidade_vendedor" id="inlineRadio5" value="5" required>
                 <label class="form-check-label" for="inlineRadio1">5</label>
@@ -157,7 +181,7 @@
                 <label class="form-check-label" for="inlineRadio3">1</label>
             </div>
         </div>
-          <div style="width: 30%">
+          <div style="width: 26%">
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="clareza_vendedor" id="inlineRadio5" value="5" required>
                 <label class="form-check-label" for="inlineRadio1">5</label>
@@ -243,26 +267,26 @@
               </div>
               <div style="width: 27%">
                   {% if forloop.counter == 1 %}
-                    <label style="width: 100%; margin-bottom: 10px"><b>Clareza de ideias</b></label>
+                    <label style="width: 100%; margin-bottom: 10px"><b>Cordialidade</b></label>
                   {% endif %}
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
+                        <input class="form-check-input" type="radio" name="cordialidade_professor_{{ forloop.counter }}" id="inlineRadio5" value="5" required>
                         <label class="form-check-label" for="inlineRadio1">5</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
+                        <input class="form-check-input" type="radio" name="cordialidade_professor_{{ forloop.counter }}" id="inlineRadio4" value="4">
                         <label class="form-check-label" for="inlineRadio2">4</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
+                        <input class="form-check-input" type="radio" name="cordialidade_professor_{{ forloop.counter }}" id="inlineRadio3" value="3">
                         <label class="form-check-label" for="inlineRadio3">3</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
+                        <input class="form-check-input" type="radio" name="cordialidade_professor_{{ forloop.counter }}" id="inlineRadio2" value="2">
                         <label class="form-check-label" for="inlineRadio3">2</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="clareza_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
+                        <input class="form-check-input" type="radio" name="cordialidade_professor_{{ forloop.counter }}" id="inlineRadio1" value="1">
                         <label class="form-check-label" for="inlineRadio3">1</label>
                     </div>
               </div>
@@ -347,7 +371,7 @@
           </div>
       </div>
 
-      <button type="submit" class="btn btn-primary" onClick="animacao_final()">salvar</button>
+      <button type="submit" class="btn btn-primary">salvar</button>
     </form>
   </div>
 

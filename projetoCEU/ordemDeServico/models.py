@@ -42,6 +42,7 @@ class OrdemDeServico(models.Model):
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)
+    ficha_avaliacao = models.BooleanField(default=False)
 
 
 class CadastroOrdemDeServico(forms.ModelForm):

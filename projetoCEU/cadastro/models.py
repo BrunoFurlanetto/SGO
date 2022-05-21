@@ -69,7 +69,7 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     horas_totais_locacoes = models.DurationField(blank=True, null=True)
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
     data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
-    entregue = models.BooleanField(default=False)
+    ficha_avaliacao = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Relatórios de atendimento com colégio (CEU)"

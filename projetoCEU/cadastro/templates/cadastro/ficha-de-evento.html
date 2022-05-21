@@ -61,11 +61,11 @@
             <hr>
             <div class="row mb-2">
                 <h5 class="titulo-secao">Quantidades</h5>
-                <div style="width: 16%">
-                    <label>QTD convidada</label>
+                <div style="width: 15%">
+                    <label>QTD estimada</label>
                     {{ form.qtd_convidada }}
                 </div>
-                <div style="width: 16%">
+                <div style="width: 15%">
                     <label>QTD reservada</label>
                     {{ form.qtd_confirmada }}
                 </div>
@@ -237,57 +237,74 @@
               </div>
               <div class="modal-body">
                 <div class="row">
+                    <h5 class="titulo-secao">Transporte</h5>
                     <input type="hidden" name="infos" value="adicionais">
-                    <div class="mt-4 checkbox" style="width: 20%">
+                    <div class="checkbox" style="width: 20%">
                         {{ formAdicionais.transporte }}
                         <label>Transporte?</label>
                     </div>
-                    <div class="mb-2 none" style="width: 50%" id="endereco_embarque">
-                        <label>Endereço de embarque</label>
-                        {{ formAdicionais.endereco_embarque }}
-                    </div>
-                    <div class="mt-4 checkbox none" style="width: 20%" id="terceirizado">
+                    <div class="checkbox none" style="width: 40%" id="terceirizado">
                         {{ formAdicionais.terceirizado }}
                         <label>Terceirizado?</label>
                     </div>
                 </div>
+                <div class="row mt-2">
+                    <div class="checkbox none" style="width: 50%" id="viacao">
+                        <label>Viação</label>
+                        {{ formAdicionais.viacao }}
+                    </div>
+                    <div class="checkbox none" style="width: 25%" id="veiculo">
+                        <label>Tipo veículos</label>
+                        {{ formAdicionais.tipo_veiculo }}
+                    </div>
+                    <div class="mt-2 none" style="width: 75%" id="endereco_embarque">
+                        <label>Endereço de embarque</label>
+                        {{ formAdicionais.endereco_embarque }}
+                    </div>
+                </div>
+                <hr>
                 <div class="row">
-                    <div class="mt-4 checkbox" style="width: 32%">
+                    <div class="checkbox">
                         {{ formAdicionais.etiquetas_embarque }}
                         <label>Etiquetas de embarque?</label>
                     </div>
-                    <div class="mb-2 none" style="width: 30%" id="servico_de_bordo">
+                    <div class="mt-2 none" style="width: 30%" id="servico_de_bordo">
                         <label>Serviço de bordo</label>
                         {{ formAdicionais.servico_bordo }}
                     </div>
                 </div>
                 <hr>
-                <div id="biologo" class="row mb-2">
-                    <div class="mt-4 checkbox" style="width: 15%">
+                <div class="checkbox" style="width: 15%">
+                    {{ formAdicionais.seguro }}
+                    <label>Seguro</label>
+                </div>
+                <hr>
+                  <div class="row">
+                    <h5 class="titulo-secao">Monitoria</h5>
+                    <div class="mb-2" style="width: 60%">
+                        <label>Tipo</label>
+                        {{ formAdicionais.monitoria }}
+                    </div>
+                    <div class="checkbox" style="width: 40%; margin-top: 35px">
                         {{ formAdicionais.biologo }}
                         <label>Biólogo?</label>
                     </div>
-                    <div class="mb-2 none" style="width: 50%" id="quais_atividades">
+                    <div id="biologo" class="mt-2 none" style="width: 50%">
                         <label>Em quais atividades</label>
                         {{ formAdicionais.quais_atividades }}
                         <script>
-                        $(document).ready(function () {
-                          $("#id_quais_atividades").CreateMultiCheckBox({ width: '250px',
-                             defaultText : 'Selecione as atividades', height:'250px' });
-                        });
-                    </script>
+                            $(document).ready(function () {
+                              $("#id_quais_atividades").CreateMultiCheckBox({ width: '250px',
+                                 defaultText : 'Selecione as atividades', height:'250px' });
+                            });
+                        </script>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="mb-2" style="width: 40%">
-                        <label>Monitoria</label>
-                        {{ formAdicionais.monitoria }}
-                    </div>
-                </div>
+                  </div>
                 <hr>
                 <div class="row">
+                    <h5 class="titulo-secao">Enfermaria</h5>
                     <div style="width: 30%">
-                        <label>Enfermaria</label>
+                        <label>Tipo</label>
                         {{ formAdicionais.enfermaria }}
                     </div>
                     <div class="mb-2 none" style="width: 30%" id="horario">
@@ -297,10 +314,7 @@
                 </div>
                 <hr>
                 <div class="row mb-2">
-                    <div class="checkbox" style="width: 15%">
-                        {{ formAdicionais.seguro }}
-                        <label>Seguro</label>
-                    </div>
+                    <h5 class="titulo-secao">Opcionais gerais</h5>
                     <div class="checkbox" style="width: 20%">
                         {{ formAdicionais.exclusividade }}
                         <label>Exclusividade</label>
@@ -345,11 +359,10 @@
                         {{ formAdicionais.fogueira }}
                         <label>Fogueira</label>
                     </div>
-                </div>
-                <hr>
-                <div class="mt-3">
-                    <label>Outros</label>
-                    {{ formAdicionais.outros }}
+                    <div class="mt-3">
+                        <label>Outros</label>
+                        {{ formAdicionais.outros }}
+                    </div>
                 </div>
               </div>
               <div class="modal-footer">

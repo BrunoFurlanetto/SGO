@@ -79,50 +79,6 @@ class CodigosApp(models.Model):
         return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
 
 
-class InformacoesAdcionais(models.Model):
-    servicos_de_bordo = (
-        (1, 'Padrão'),
-        (2, 'Diferenciado')
-    )
-
-    tipos_monitoria = (
-        (1, '1/2 monitoria (fora de quarto - 1/20)'),
-        (2, '1/2 monitoria (dentro de quarto - 1/20'),
-        (3, 'Monitoria completa (em quarto - 1/10)')
-    )
-
-    tipos_enfermaria = (
-        (1, 'Padrão'),
-        (2, 'Garantia')
-    )
-
-    transporte = models.BooleanField()
-    terceirizado = models.BooleanField()
-    endereco_embarque = models.CharField(max_length=255, blank=True)
-    etiquetas_embarque = models.BooleanField()
-    servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
-    monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
-    biologo = models.BooleanField()
-    quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
-    seguro = models.BooleanField()
-    exclusividade = models.BooleanField()
-    fotos_site = models.BooleanField()
-    abada = models.BooleanField()
-    camiseta = models.BooleanField()
-    festas = models.BooleanField()
-    enfermaria = models.IntegerField(choices=tipos_enfermaria, blank=True, null=True)
-    horario_garantia = models.TimeField(blank=True, null=True)
-    roupa_de_cama = models.BooleanField()
-    camera_on_line = models.BooleanField()
-    cd_para_aluno = models.BooleanField()
-    bate_bate = models.BooleanField()
-    fogueira = models.BooleanField()
-    outros = models.CharField(max_length=300, blank=True)
-
-    def __str__(self):
-        return f'Informações adicionais id: {self.id}'
-
-
 class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
@@ -147,6 +103,78 @@ class Responsavel(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class EmpresaOnibus(models.Model):
+    viacao = models.CharField(max_length=255)
+    cnpj = models.CharField(max_length=18, unique=True)
+    endereco = models.CharField(max_length=255)
+    bairro = models.CharField(max_length=255)
+    cidade = models.CharField(max_length=255)
+    estado = models.CharField(max_length=255)
+    cep = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.viacao
+
+
+class DadosSegurado(models.Model):
+    grupo = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    segurados = models.JSONField()  # {{'cpf_responsavel': , 'nome_crianca': , 'data_nascimento': , 'rg_crianca'}}
+
+    def __str__(self):
+        return f'lista de segurados de {self.grupo}.'
+
+
+class InformacoesAdcionais(models.Model):
+    veiculo = (
+        (1, 'Ônibus'),
+        (1, 'Micro ônibus')
+    )
+
+    servicos_de_bordo = (
+        (1, 'Padrão'),
+        (2, 'Diferenciado')
+    )
+
+    tipos_monitoria = (
+        (1, '1/2 monitoria (fora de quarto - 1/20)'),
+        (2, '1/2 monitoria (dentro de quarto - 1/20'),
+        (3, 'Monitoria completa (em quarto - 1/10)')
+    )
+
+    tipos_enfermaria = (
+        (1, 'Padrão'),
+        (2, 'Garantia')
+    )
+
+    transporte = models.BooleanField()
+    terceirizado = models.BooleanField()
+    viacao = models.ForeignKey(EmpresaOnibus, on_delete=models.DO_NOTHING, blank=True, null=True)
+    tipo_veiculo = models.IntegerField(choices=veiculo, blank=True, null=True)
+    endereco_embarque = models.CharField(max_length=255, blank=True)
+    etiquetas_embarque = models.BooleanField()
+    servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
+    monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
+    biologo = models.BooleanField()
+    quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
+    seguro = models.BooleanField()
+    exclusividade = models.BooleanField()
+    fotos_site = models.BooleanField()
+    abada = models.BooleanField()
+    camiseta = models.BooleanField()
+    festas = models.BooleanField()
+    enfermaria = models.IntegerField(choices=tipos_enfermaria, blank=True, null=True)
+    horario_garantia = models.TimeField(blank=True, null=True)
+    roupa_de_cama = models.BooleanField()
+    camera_on_line = models.BooleanField()
+    cd_para_aluno = models.BooleanField()
+    bate_bate = models.BooleanField()
+    fogueira = models.BooleanField()
+    outros = models.CharField(max_length=300, blank=True)
+
+    def __str__(self):
+        return f'Informações adicionais id: {self.id}'
 
 
 class RelacaoClienteResponsavel(models.Model):
@@ -185,6 +213,7 @@ class FichaDeEvento(models.Model):
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)
+    ficha_financeira = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'

@@ -116,9 +116,9 @@ function remover_dia_refeicao(selecao){
 
 function pegarEndereco(){
     if($('#id_transporte').prop('checked')){
-        $('#endereco_embarque, #terceirizado').removeClass('none')
+        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').removeClass('none')
     } else {
-        $('#endereco_embarque, #terceirizado').addClass('none')
+        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').addClass('none')
     }
 }
 
@@ -149,9 +149,9 @@ function pegar_atividades_eco(){
 
 function quaisAtividades(){
     if($('#id_biologo').prop('checked')){
-        $('#quais_atividades').removeClass('none')
+        $('#biologo').removeClass('none')
     } else {
-        $('#quais_atividades').addClass('none')
+        $('#biologo').addClass('none')
     }
 }
 

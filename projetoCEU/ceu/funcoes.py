@@ -31,10 +31,10 @@ def criar_pdf_relatorio():
     pdf.setTitle('Resumo financeiro')
 
     pdf.drawImage(
-        r'C:\Users\bruno\OneDrive\Área de Trabalho\Projetos\SGO\projetoCEU\templates\static\img\logoPeraltasResumo.jpg',
+        r'C:\Users\bfurlanetto\Desktop\projeto\projetoCEU\templates\static\img\logoPeraltasResumo.jpg',
         x=pt(20), y=pt(20), width=200, height=42.83, preserveAspectRatio=True)
     pdf.drawImage(
-        r'C:\Users\bruno\OneDrive\Área de Trabalho\Projetos\SGO\projetoCEU\templates\static\img\logoResumo.jpg',
+        r'C:\Users\bfurlanetto\Desktop\projeto\projetoCEU\templates\static\img\logoResumo.jpg',
         x=pt(140), y=pt(20), width=150, height=57.78, preserveAspectRatio=True)
 
     pdf.setFont('Times-Bold', 18)
@@ -50,8 +50,8 @@ def criar_pdf_relatorio():
     pdf.setFont('Times-Roman', 12)
     professores = Professores.objects.all()
 
-    for professor in professores:
-        data.append(pegar_dados_relatorios(professor))
+    # for professor in professores:
+    #     data.append(pegar_dados_relatorios(professor))
 
     data.append(cabecalho)
 

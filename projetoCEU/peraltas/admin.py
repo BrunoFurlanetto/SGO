@@ -1,6 +1,6 @@
 from django.contrib import admin
 from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
-    InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas
+    InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas, EmpresaOnibus
 
 from peraltas.models import Vendedor
 
@@ -37,6 +37,11 @@ class VendedorInline(admin.StackedInline):
 @admin.register(Vendedor)
 class VendedorAdmin(admin.ModelAdmin):
     list_display = ('nome_completo', 'telefone')
+
+
+@admin.register(EmpresaOnibus)
+class EmpresaOnibusAdmin(admin.ModelAdmin):
+    list_display = ('viacao', 'cnpj')
 
 
 @admin.register(FichaDeEvento)
