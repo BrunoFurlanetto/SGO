@@ -314,51 +314,14 @@
                 </div>
                 <hr>
                 <div class="row mb-2">
+                    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
                     <h5 class="titulo-secao">Opcionais gerais</h5>
-                    <div class="checkbox" style="width: 20%">
-                        {{ formAdicionais.exclusividade }}
-                        <label>Exclusividade</label>
-                    </div>
-                    <div class="checkbox" style="width: 20%">
-                        {{ formAdicionais.fotos_site }}
-                        <label>Fotos no site</label>
-                    </div>
-                    <div class="checkbox" style="width: 25%">
-                        {{ formAdicionais.roupa_de_cama }}
-                        <label>Roupa de cama</label>
-                    </div>
-                    <div class="mt-2 checkbox" style="width: 25%">
-                        {{ formAdicionais.camera_on_line }}
-                        <label>Camêra on-line</label>
-                    </div>
+                    {{ formAdicionais.opcionais_geral }}
                 </div>
                 <hr>
                 <div class="row">
                     <h5 class="titulo-secao">Formatura</h5>
-                    <div class="checkbox" style="width: 13%">
-                        {{ formAdicionais.abada }}
-                        <label>Abadá</label>
-                    </div>
-                    <div class="checkbox" style="width: 18%">
-                        {{ formAdicionais.camiseta }}
-                        <label>Camiseta</label>
-                    </div>
-                    <div class="checkbox" style="width: 13%">
-                        {{ formAdicionais.festas }}
-                        <label>Festas</label>
-                    </div>
-                    <div class="checkbox" style="width: 25%">
-                        {{ formAdicionais.cd_para_aluno }}
-                        <label>Cd para o aluno</label>
-                    </div>
-                    <div class="checkbox" style="width: 18%">
-                        {{ formAdicionais.bate_bate }}
-                        <label>Bate-bate</label>
-                    </div>
-                    <div class="mt-3 checkbox" style="width: 20%">
-                        {{ formAdicionais.fogueira }}
-                        <label>Fogueira</label>
-                    </div>
+                        {{ formAdicionais.opcionais_formatura }}
                     <div class="mt-3">
                         <label>Outros</label>
                         {{ formAdicionais.outros }}
@@ -372,6 +335,16 @@
             </div>
           </div>
         </div>
+        <script>
+            $(document).ready(function() {
+                $('#id_opcionais_geral').select2({
+                    dropdownParent: $("#modal-adicionais")
+                });
+                $('#id_opcionais_formatura').select2({
+                    dropdownParent: $("#modal-adicionais")
+                });
+            });
+        </script>
     </form>
 
     <form method="POST" action="{% url 'ficha_de_evento' %}" id="codigos_app">

@@ -126,6 +126,20 @@ class DadosSegurado(models.Model):
         return f'lista de segurados de {self.grupo}.'
 
 
+class OpcionaisGerais(models.Model):
+    opcional_geral = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.opcional_geral
+
+
+class OpcionaisFormatura(models.Model):
+    opcional_formatura = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.opcional_formatura
+
+
 class InformacoesAdcionais(models.Model):
     veiculo = (
         (1, 'Ônibus'),
@@ -153,24 +167,16 @@ class InformacoesAdcionais(models.Model):
     viacao = models.ForeignKey(EmpresaOnibus, on_delete=models.DO_NOTHING, blank=True, null=True)
     tipo_veiculo = models.IntegerField(choices=veiculo, blank=True, null=True)
     endereco_embarque = models.CharField(max_length=255, blank=True)
+    seguro = models.BooleanField()
     etiquetas_embarque = models.BooleanField()
     servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
     quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
-    seguro = models.BooleanField()
-    exclusividade = models.BooleanField()
-    fotos_site = models.BooleanField()
-    abada = models.BooleanField()
-    camiseta = models.BooleanField()
-    festas = models.BooleanField()
     enfermaria = models.IntegerField(choices=tipos_enfermaria, blank=True, null=True)
     horario_garantia = models.TimeField(blank=True, null=True)
-    roupa_de_cama = models.BooleanField()
-    camera_on_line = models.BooleanField()
-    cd_para_aluno = models.BooleanField()
-    bate_bate = models.BooleanField()
-    fogueira = models.BooleanField()
+    opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
+    opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
     outros = models.CharField(max_length=300, blank=True)
 
     def __str__(self):

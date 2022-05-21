@@ -186,3 +186,6 @@
     padding: 12px;
     height: 38px;
 }
+#id_opcionais_geral, #id_opcionais_formatura{
+    width: 790px;
+}
