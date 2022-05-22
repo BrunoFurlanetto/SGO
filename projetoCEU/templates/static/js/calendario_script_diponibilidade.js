@@ -151,3 +151,53 @@ function enviar(){
 };
 
 renderCalendar_disponibilidade();
+
+function dia_alterado(){
+    $('#botao_dia').prop('disabled', false)
+}
+
+function alterar_dia_limite() {
+    let novo_dia = $('#dia_limite').val()
+    let div_mensagem = $('#mensagem')
+
+    let ultimo_dia_mes = new Date(
+        date_disponibilidade.getFullYear(),
+        date_disponibilidade.getMonth() + 1,
+        0
+    ).getDate();
+
+    if(novo_dia > 0 && novo_dia <= ultimo_dia_mes){
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'novo_dia': novo_dia},
+            success: function (response) {
+
+                if(response['tipo'] === 'sucesso'){
+                    if(div_mensagem.length !== 0) {
+                        div_mensagem.empty()
+                        div_mensagem.append(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }else{
+                        $('#corpo_site').prepend(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }
+                }else{
+                    if(div_mensagem.length !== 0) {
+                        div_mensagem.empty()
+                        div_mensagem.append(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }else{
+                        $('#corpo_site').prepend(`<p id="mensagem" class="alert-danger">${response['mensagem']}</p>`)
+                    }
+                }
+
+            }
+        })
+    }else{
+        if($('#mensagem').length !== 0){
+            $('#mensagem').empty()
+            $('#mensagem').append(`<p id="mensagem" class="alert-danger">O dia limite deve estar entre 01 e ${ultimo_dia_mes}!</p>`)
+        }else {
+            $('#corpo_site').prepend(`<p id="mensagem" class="alert-danger">O dia limite deve estar entre 01 e ${ultimo_dia_mes}!</p>`)
+        }
+    }
+}

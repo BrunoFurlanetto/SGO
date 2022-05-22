@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from ceu.models import Professores
 from datetime import datetime, timedelta
-from escala.models import Disponibilidade
+from escala.models import Disponibilidade, DiaLimite
 from unidecode import unidecode
 
 
@@ -88,6 +88,8 @@ def formatar_horas(horas):
 
 # ------------------------------- Função para testar o aviso de disponibilidades ---------------------------------------
 def teste_aviso(hora_login, usuario, id_usuario):
+    dia_limite = DiaLimite.objects.get(id=1)
+
     diferenca = timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
     diferenca -= timedelta(hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second)
 
@@ -98,7 +100,7 @@ def teste_aviso(hora_login, usuario, id_usuario):
 
     if len(consulta) == 0:
 
-        if datetime.now().day > 20:
+        if datetime.now().day > dia_limite.dia_limite - 5:
 
             if User.objects.filter(pk=id_usuario, groups__name='Professor').exists():
                 if diferenca == timedelta(days=0, hours=3):

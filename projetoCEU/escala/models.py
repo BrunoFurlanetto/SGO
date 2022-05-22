@@ -51,3 +51,7 @@ class Disponibilidade(models.Model):
 
         return ', '.join(professores_disponiveis)
 # -----------------------------------------------------------------------------------------------------------
+
+
+class DiaLimite(models.Model):
+    dia_limite = models.PositiveIntegerField()

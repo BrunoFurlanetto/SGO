@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax
-from escala.models import Escala, Disponibilidade
+from escala.models import Escala, Disponibilidade, DiaLimite
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 
@@ -57,17 +57,31 @@ def escala(request):
 
 @login_required(login_url='login')
 def disponibilidade(request):
+    dia_limite = DiaLimite.objects.get(id=1)
+
     if request.method != 'POST':
-        antes_25 = True if datetime.now().day < 25 else False
+        antes_dia = True if datetime.now().day < dia_limite.dia_limite else False
         coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
         professores = Professores.objects.all()
-        return render(request, 'escala/disponibilidade.html', {'antes_25': antes_25, 'professores': professores,
-                                                               'coordenador': coordenador})
+
+        return render(request, 'escala/disponibilidade.html', {'antes_25': antes_dia, 'dia_limite': dia_limite,
+                                                               'professores': professores, 'coordenador': coordenador})
+
+    if is_ajax(request):
+        try:
+            dia_limite.dia_limite = request.POST.get('novo_dia')
+            dia_limite.save()
+        except:
+            return JsonResponse({'tipo': 'error',
+                                 'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
+        else:
+            return JsonResponse({'tipo': 'sucesso',
+                                 'mensagem': 'Dia limite alterado com sucesso!'})
 
     professor = Professores.objects.get(usuario__first_name=request.user.first_name)
 
     if request.POST.get('professor') is not None and request.POST.get('professor') != '':
-        professor = Professores.objects.get(usuario__first_name=request.POST.get('professor'))
+        professor = Professores.objects.get(id=int(request.POST.get('professor')))
 
     dias = verificar_dias(request.POST.get('datas_disponiveis'), Professores.objects.get(usuario=professor.usuario))
 

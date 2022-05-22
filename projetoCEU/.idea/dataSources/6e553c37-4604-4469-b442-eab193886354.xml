@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="db.sqlite3">
-  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.32">
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.39">
     <root id="1">
       <ServerVersion>3.34.0</ServerVersion>
     </root>
@@ -1353,2749 +1353,2844 @@
     <table id="509" parent="170" name="django_content_type"/>
     <table id="510" parent="170" name="django_migrations"/>
     <table id="511" parent="170" name="django_session"/>
-    <table id="512" parent="170" name="escala_disponibilidade"/>
-    <table id="513" parent="170" name="escala_escala"/>
-    <table id="514" parent="170" name="fichaAvaliacao_fichadeavaliacao"/>
-    <table id="515" parent="170" name="ordemDeServico_ordemdeservico"/>
-    <table id="516" parent="170" name="ordemDeServico_ordemdeservico_atividades_eco"/>
-    <table id="517" parent="170" name="ordemDeServico_ordemdeservico_atividades_peraltas"/>
-    <table id="518" parent="170" name="peraltas_atividadeperaltas"/>
-    <table id="519" parent="170" name="peraltas_atividadeseco"/>
-    <table id="520" parent="170" name="peraltas_clientecolegio"/>
-    <table id="521" parent="170" name="peraltas_codigosapp"/>
-    <table id="522" parent="170" name="peraltas_dadossegurado"/>
-    <table id="523" parent="170" name="peraltas_disponibilidadeacampamento"/>
-    <table id="524" parent="170" name="peraltas_disponibilidadehotelaria"/>
-    <table id="525" parent="170" name="peraltas_empresaonibus"/>
-    <table id="526" parent="170" name="peraltas_fichadeevento"/>
-    <table id="527" parent="170" name="peraltas_fichadeevento_atividades_ceu"/>
-    <table id="528" parent="170" name="peraltas_fichadeevento_atividades_eco"/>
-    <table id="529" parent="170" name="peraltas_fichadeevento_atividades_peraltas"/>
-    <table id="530" parent="170" name="peraltas_fichadeevento_locacoes_ceu"/>
-    <table id="531" parent="170" name="peraltas_fichadeevento_perfil_participantes"/>
-    <table id="532" parent="170" name="peraltas_fichadeevento_produto"/>
-    <table id="533" parent="170" name="peraltas_informacoesadcionais"/>
-    <table id="534" parent="170" name="peraltas_informacoesadcionais_quais_atividades"/>
-    <table id="535" parent="170" name="peraltas_monitor"/>
-    <table id="536" parent="170" name="peraltas_opcionaisformatura"/>
-    <table id="537" parent="170" name="peraltas_opcionaisgerais"/>
-    <table id="538" parent="170" name="peraltas_perfilsparticipantes"/>
-    <table id="539" parent="170" name="peraltas_produtosperaltas"/>
-    <table id="540" parent="170" name="peraltas_relacaoclienteresponsavel"/>
-    <table id="541" parent="170" name="peraltas_relacaoclienteresponsavel_responsavel"/>
-    <table id="542" parent="170" name="peraltas_responsavel"/>
-    <table id="543" parent="170" name="peraltas_vendedor"/>
-    <table id="544" parent="170" name="sqlite_master">
+    <table id="512" parent="170" name="escala_dialimite"/>
+    <table id="513" parent="170" name="escala_disponibilidade"/>
+    <table id="514" parent="170" name="escala_escala"/>
+    <table id="515" parent="170" name="fichaAvaliacao_fichadeavaliacao"/>
+    <table id="516" parent="170" name="ordemDeServico_ordemdeservico"/>
+    <table id="517" parent="170" name="ordemDeServico_ordemdeservico_atividades_eco"/>
+    <table id="518" parent="170" name="ordemDeServico_ordemdeservico_atividades_peraltas"/>
+    <table id="519" parent="170" name="peraltas_atividadeperaltas"/>
+    <table id="520" parent="170" name="peraltas_atividadeseco"/>
+    <table id="521" parent="170" name="peraltas_clientecolegio"/>
+    <table id="522" parent="170" name="peraltas_codigosapp"/>
+    <table id="523" parent="170" name="peraltas_dadossegurado"/>
+    <table id="524" parent="170" name="peraltas_dialimiteacampamento"/>
+    <table id="525" parent="170" name="peraltas_dialimitehotelaria"/>
+    <table id="526" parent="170" name="peraltas_disponibilidadeacampamento"/>
+    <table id="527" parent="170" name="peraltas_disponibilidadehotelaria"/>
+    <table id="528" parent="170" name="peraltas_empresaonibus"/>
+    <table id="529" parent="170" name="peraltas_escalaacampamneto"/>
+    <table id="530" parent="170" name="peraltas_escalahotelaria"/>
+    <table id="531" parent="170" name="peraltas_fichadeevento"/>
+    <table id="532" parent="170" name="peraltas_fichadeevento_atividades_ceu"/>
+    <table id="533" parent="170" name="peraltas_fichadeevento_atividades_eco"/>
+    <table id="534" parent="170" name="peraltas_fichadeevento_atividades_peraltas"/>
+    <table id="535" parent="170" name="peraltas_fichadeevento_locacoes_ceu"/>
+    <table id="536" parent="170" name="peraltas_fichadeevento_perfil_participantes"/>
+    <table id="537" parent="170" name="peraltas_fichadeevento_produto"/>
+    <table id="538" parent="170" name="peraltas_informacoesadcionais"/>
+    <table id="539" parent="170" name="peraltas_informacoesadcionais_opcionais_formatura"/>
+    <table id="540" parent="170" name="peraltas_informacoesadcionais_opcionais_geral"/>
+    <table id="541" parent="170" name="peraltas_informacoesadcionais_quais_atividades"/>
+    <table id="542" parent="170" name="peraltas_monitor"/>
+    <table id="543" parent="170" name="peraltas_opcionaisformatura"/>
+    <table id="544" parent="170" name="peraltas_opcionaisgerais"/>
+    <table id="545" parent="170" name="peraltas_perfilsparticipantes"/>
+    <table id="546" parent="170" name="peraltas_produtosperaltas"/>
+    <table id="547" parent="170" name="peraltas_relacaoclienteresponsavel"/>
+    <table id="548" parent="170" name="peraltas_relacaoclienteresponsavel_responsavel"/>
+    <table id="549" parent="170" name="peraltas_responsavel"/>
+    <table id="550" parent="170" name="peraltas_vendedor"/>
+    <table id="551" parent="170" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="545" parent="170" name="sqlite_sequence">
+    <table id="552" parent="170" name="sqlite_sequence">
       <System>1</System>
     </table>
-    <column id="546" parent="491" name="id">
+    <column id="553" parent="491" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="547" parent="491" name="name">
+    <column id="554" parent="491" name="name">
       <DataType>varchar(150)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <index id="548" parent="491" name="sqlite_autoindex_auth_group_1">
+    <index id="555" parent="491" name="sqlite_autoindex_auth_group_1">
       <ColNames>name</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="549" parent="491">
+    <key id="556" parent="491">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="550" parent="491">
+    <key id="557" parent="491">
       <ColNames>name</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_auth_group_1</UnderlyingIndexName>
     </key>
-    <column id="551" parent="492" name="id">
+    <column id="558" parent="492" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="552" parent="492" name="group_id">
+    <column id="559" parent="492" name="group_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="553" parent="492" name="permission_id">
+    <column id="560" parent="492" name="permission_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="554" parent="492">
+    <foreign-key id="561" parent="492">
       <ColNames>group_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_group</RefTableName>
     </foreign-key>
-    <foreign-key id="555" parent="492">
+    <foreign-key id="562" parent="492">
       <ColNames>permission_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_permission</RefTableName>
     </foreign-key>
-    <index id="556" parent="492" name="auth_group_permissions_group_id_permission_id_0cd325b0_uniq">
+    <index id="563" parent="492" name="auth_group_permissions_group_id_permission_id_0cd325b0_uniq">
       <ColNames>group_id
 permission_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="557" parent="492" name="auth_group_permissions_group_id_b120cbf9">
+    <index id="564" parent="492" name="auth_group_permissions_group_id_b120cbf9">
       <ColNames>group_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="558" parent="492" name="auth_group_permissions_permission_id_84c5c92e">
+    <index id="565" parent="492" name="auth_group_permissions_permission_id_84c5c92e">
       <ColNames>permission_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="559" parent="492">
+    <key id="566" parent="492">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="560" parent="493" name="id">
+    <column id="567" parent="493" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="561" parent="493" name="content_type_id">
+    <column id="568" parent="493" name="content_type_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="562" parent="493" name="codename">
+    <column id="569" parent="493" name="codename">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="563" parent="493" name="name">
+    <column id="570" parent="493" name="name">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <foreign-key id="564" parent="493">
+    <foreign-key id="571" parent="493">
       <ColNames>content_type_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>django_content_type</RefTableName>
     </foreign-key>
-    <index id="565" parent="493" name="auth_permission_content_type_id_codename_01ab375a_uniq">
+    <index id="572" parent="493" name="auth_permission_content_type_id_codename_01ab375a_uniq">
       <ColNames>content_type_id
 codename</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="566" parent="493" name="auth_permission_content_type_id_2f476e4b">
+    <index id="573" parent="493" name="auth_permission_content_type_id_2f476e4b">
       <ColNames>content_type_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="567" parent="493">
+    <key id="574" parent="493">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="568" parent="494" name="id">
+    <column id="575" parent="494" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="569" parent="494" name="password">
+    <column id="576" parent="494" name="password">
       <DataType>varchar(128)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="570" parent="494" name="last_login">
+    <column id="577" parent="494" name="last_login">
       <DataType>datetime|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="571" parent="494" name="is_superuser">
+    <column id="578" parent="494" name="is_superuser">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="572" parent="494" name="username">
+    <column id="579" parent="494" name="username">
       <DataType>varchar(150)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="573" parent="494" name="last_name">
+    <column id="580" parent="494" name="last_name">
       <DataType>varchar(150)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="574" parent="494" name="email">
+    <column id="581" parent="494" name="email">
       <DataType>varchar(254)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="575" parent="494" name="is_staff">
+    <column id="582" parent="494" name="is_staff">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="576" parent="494" name="is_active">
+    <column id="583" parent="494" name="is_active">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="577" parent="494" name="date_joined">
+    <column id="584" parent="494" name="date_joined">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="578" parent="494" name="first_name">
+    <column id="585" parent="494" name="first_name">
       <DataType>varchar(150)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>11</Position>
     </column>
-    <index id="579" parent="494" name="sqlite_autoindex_auth_user_1">
+    <index id="586" parent="494" name="sqlite_autoindex_auth_user_1">
       <ColNames>username</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="580" parent="494">
+    <key id="587" parent="494">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="581" parent="494">
+    <key id="588" parent="494">
       <ColNames>username</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_auth_user_1</UnderlyingIndexName>
     </key>
-    <column id="582" parent="495" name="id">
+    <column id="589" parent="495" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="583" parent="495" name="user_id">
+    <column id="590" parent="495" name="user_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="584" parent="495" name="group_id">
+    <column id="591" parent="495" name="group_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="585" parent="495">
+    <foreign-key id="592" parent="495">
       <ColNames>user_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <foreign-key id="586" parent="495">
+    <foreign-key id="593" parent="495">
       <ColNames>group_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_group</RefTableName>
     </foreign-key>
-    <index id="587" parent="495" name="auth_user_groups_user_id_group_id_94350c0c_uniq">
+    <index id="594" parent="495" name="auth_user_groups_user_id_group_id_94350c0c_uniq">
       <ColNames>user_id
 group_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="588" parent="495" name="auth_user_groups_user_id_6a12ed8b">
+    <index id="595" parent="495" name="auth_user_groups_user_id_6a12ed8b">
       <ColNames>user_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="589" parent="495" name="auth_user_groups_group_id_97559544">
+    <index id="596" parent="495" name="auth_user_groups_group_id_97559544">
       <ColNames>group_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="590" parent="495">
+    <key id="597" parent="495">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="591" parent="496" name="id">
+    <column id="598" parent="496" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="592" parent="496" name="user_id">
+    <column id="599" parent="496" name="user_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="593" parent="496" name="permission_id">
+    <column id="600" parent="496" name="permission_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="594" parent="496">
+    <foreign-key id="601" parent="496">
       <ColNames>user_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <foreign-key id="595" parent="496">
+    <foreign-key id="602" parent="496">
       <ColNames>permission_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_permission</RefTableName>
     </foreign-key>
-    <index id="596" parent="496" name="auth_user_user_permissions_user_id_permission_id_14a6b632_uniq">
+    <index id="603" parent="496" name="auth_user_user_permissions_user_id_permission_id_14a6b632_uniq">
       <ColNames>user_id
 permission_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="597" parent="496" name="auth_user_user_permissions_user_id_a95ead1b">
+    <index id="604" parent="496" name="auth_user_user_permissions_user_id_a95ead1b">
       <ColNames>user_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="598" parent="496" name="auth_user_user_permissions_permission_id_1fbb5f2c">
+    <index id="605" parent="496" name="auth_user_user_permissions_permission_id_1fbb5f2c">
       <ColNames>permission_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="599" parent="496">
+    <key id="606" parent="496">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="600" parent="497">
+    <check id="607" parent="497">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
     </check>
-    <check id="601" parent="497">
+    <check id="608" parent="497">
       <Predicate>(JSON_VALID(&quot;equipe&quot;) OR &quot;equipe&quot; IS NULL)</Predicate>
     </check>
-    <check id="602" parent="497">
+    <check id="609" parent="497">
       <Predicate>(JSON_VALID(&quot;locacoes&quot;) OR &quot;locacoes&quot; IS NULL)</Predicate>
     </check>
-    <column id="603" parent="497" name="id">
+    <column id="610" parent="497" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="604" parent="497" name="tipo">
+    <column id="611" parent="497" name="tipo">
       <DataType>varchar(7)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="605" parent="497" name="instituicao">
+    <column id="612" parent="497" name="instituicao">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="606" parent="497" name="participantes_previa">
+    <column id="613" parent="497" name="participantes_previa">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="607" parent="497" name="participantes_confirmados">
+    <column id="614" parent="497" name="participantes_confirmados">
       <DataType>integer|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="608" parent="497" name="check_in">
+    <column id="615" parent="497" name="check_in">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="609" parent="497" name="check_out">
+    <column id="616" parent="497" name="check_out">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="610" parent="497" name="responsaveis">
+    <column id="617" parent="497" name="responsaveis">
       <DataType>integer|0s</DataType>
       <Position>8</Position>
     </column>
-    <column id="611" parent="497" name="serie">
+    <column id="618" parent="497" name="serie">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="612" parent="497" name="equipe">
+    <column id="619" parent="497" name="equipe">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="613" parent="497" name="atividades">
+    <column id="620" parent="497" name="atividades">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>11</Position>
     </column>
-    <column id="614" parent="497" name="locacoes">
+    <column id="621" parent="497" name="locacoes">
       <DataType>text|0s</DataType>
       <Position>12</Position>
     </column>
-    <column id="615" parent="497" name="horas_totais_locacoes">
+    <column id="622" parent="497" name="horas_totais_locacoes">
       <DataType>bigint|0s</DataType>
       <Position>13</Position>
     </column>
-    <column id="616" parent="497" name="relatorio">
+    <column id="623" parent="497" name="relatorio">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>14</Position>
     </column>
-    <column id="617" parent="497" name="data_hora_salvo">
+    <column id="624" parent="497" name="data_hora_salvo">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>15</Position>
     </column>
-    <column id="618" parent="497" name="coordenador_peraltas_id">
+    <column id="625" parent="497" name="coordenador_peraltas_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>16</Position>
     </column>
-    <column id="619" parent="497" name="ficha_avaliacao">
+    <column id="626" parent="497" name="ficha_avaliacao">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>17</Position>
     </column>
-    <foreign-key id="620" parent="497">
+    <foreign-key id="627" parent="497">
       <ColNames>coordenador_peraltas_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_monitor</RefTableName>
     </foreign-key>
-    <index id="621" parent="497" name="cadastro_relatoriodeatendimentocolegioceu_coordenador_peraltas_id_64679fe3">
+    <index id="628" parent="497" name="cadastro_relatoriodeatendimentocolegioceu_coordenador_peraltas_id_64679fe3">
       <ColNames>coordenador_peraltas_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="622" parent="497">
+    <key id="629" parent="497">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="623" parent="498">
+    <check id="630" parent="498">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
     </check>
-    <check id="624" parent="498">
+    <check id="631" parent="498">
       <Predicate>(JSON_VALID(&quot;equipe&quot;) OR &quot;equipe&quot; IS NULL)</Predicate>
     </check>
-    <check id="625" parent="498">
+    <check id="632" parent="498">
       <Predicate>(JSON_VALID(&quot;locacoes&quot;) OR &quot;locacoes&quot; IS NULL)</Predicate>
     </check>
-    <column id="626" parent="498" name="id">
+    <column id="633" parent="498" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="627" parent="498" name="tipo">
+    <column id="634" parent="498" name="tipo">
       <DataType>varchar(7)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="628" parent="498" name="instituicao">
+    <column id="635" parent="498" name="instituicao">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="629" parent="498" name="participantes_previa">
+    <column id="636" parent="498" name="participantes_previa">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="630" parent="498" name="participantes_confirmados">
+    <column id="637" parent="498" name="participantes_confirmados">
       <DataType>integer|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="631" parent="498" name="check_in">
+    <column id="638" parent="498" name="check_in">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="632" parent="498" name="check_out">
+    <column id="639" parent="498" name="check_out">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="633" parent="498" name="equipe">
+    <column id="640" parent="498" name="equipe">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="634" parent="498" name="atividades">
+    <column id="641" parent="498" name="atividades">
       <DataType>text|0s</DataType>
       <Position>9</Position>
     </column>
-    <column id="635" parent="498" name="locacoes">
+    <column id="642" parent="498" name="locacoes">
       <DataType>text|0s</DataType>
       <Position>10</Position>
     </column>
-    <column id="636" parent="498" name="horas_totais_locacoes">
+    <column id="643" parent="498" name="horas_totais_locacoes">
       <DataType>bigint|0s</DataType>
       <Position>11</Position>
     </column>
-    <column id="637" parent="498" name="data_hora_salvo">
+    <column id="644" parent="498" name="data_hora_salvo">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>12</Position>
     </column>
-    <column id="638" parent="498" name="relatorio">
+    <column id="645" parent="498" name="relatorio">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>13</Position>
     </column>
-    <column id="639" parent="498" name="coordenador_peraltas_id">
+    <column id="646" parent="498" name="coordenador_peraltas_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>14</Position>
     </column>
-    <foreign-key id="640" parent="498">
+    <foreign-key id="647" parent="498">
       <ColNames>coordenador_peraltas_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_monitor</RefTableName>
     </foreign-key>
-    <index id="641" parent="498" name="cadastro_relatoriodeatendimentoempresaceu_coordenador_peraltas_id_70ec8dba">
+    <index id="648" parent="498" name="cadastro_relatoriodeatendimentoempresaceu_coordenador_peraltas_id_70ec8dba">
       <ColNames>coordenador_peraltas_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="642" parent="498">
+    <key id="649" parent="498">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="643" parent="499">
+    <check id="650" parent="499">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
     </check>
-    <check id="644" parent="499">
+    <check id="651" parent="499">
       <Predicate>(JSON_VALID(&quot;equipe&quot;) OR &quot;equipe&quot; IS NULL)</Predicate>
     </check>
-    <column id="645" parent="499" name="id">
+    <column id="652" parent="499" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="646" parent="499" name="tipo">
+    <column id="653" parent="499" name="tipo">
       <DataType>varchar(7)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="647" parent="499" name="participantes_previa">
+    <column id="654" parent="499" name="participantes_previa">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="648" parent="499" name="participantes_confirmados">
+    <column id="655" parent="499" name="participantes_confirmados">
       <DataType>integer|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="649" parent="499" name="data_atendimento">
+    <column id="656" parent="499" name="data_atendimento">
       <DataType>date|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="650" parent="499" name="equipe">
+    <column id="657" parent="499" name="equipe">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="651" parent="499" name="atividades">
+    <column id="658" parent="499" name="atividades">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="652" parent="499" name="relatorio">
+    <column id="659" parent="499" name="relatorio">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="653" parent="499" name="data_hora_salvo">
+    <column id="660" parent="499" name="data_hora_salvo">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <key id="654" parent="499">
+    <key id="661" parent="499">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="655" parent="500" name="id">
+    <column id="662" parent="500" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="656" parent="500" name="atividade">
+    <column id="663" parent="500" name="atividade">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="657" parent="500" name="numero_de_participantes_minimo">
+    <column id="664" parent="500" name="numero_de_participantes_minimo">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="658" parent="500" name="numero_de_participantes_maximo">
+    <column id="665" parent="500" name="numero_de_participantes_maximo">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="659" parent="500" name="duracao">
+    <column id="666" parent="500" name="duracao">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="660" parent="500" name="publico">
+    <column id="667" parent="500" name="publico">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="661" parent="500" name="local_da_atividade_id">
+    <column id="668" parent="500" name="local_da_atividade_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="662" parent="500" name="n_avaliacoes">
+    <column id="669" parent="500" name="n_avaliacoes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="663" parent="500" name="nota">
+    <column id="670" parent="500" name="nota">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <foreign-key id="664" parent="500">
+    <foreign-key id="671" parent="500">
       <ColNames>local_da_atividade_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_estruturas</RefTableName>
     </foreign-key>
-    <index id="665" parent="500" name="ceu_atividades_local_da_atividade_id_3e85a67c">
+    <index id="672" parent="500" name="ceu_atividades_local_da_atividade_id_3e85a67c">
       <ColNames>local_da_atividade_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="666" parent="500">
+    <key id="673" parent="500">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="667" parent="501" name="id">
+    <column id="674" parent="501" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="668" parent="501" name="atividades_id">
+    <column id="675" parent="501" name="atividades_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="669" parent="501" name="limitacoes_id">
+    <column id="676" parent="501" name="limitacoes_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="670" parent="501">
+    <foreign-key id="677" parent="501">
       <ColNames>atividades_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_atividades</RefTableName>
     </foreign-key>
-    <foreign-key id="671" parent="501">
+    <foreign-key id="678" parent="501">
       <ColNames>limitacoes_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_limitacoes</RefTableName>
     </foreign-key>
-    <index id="672" parent="501" name="ceu_atividades_limitacao_atividades_id_limitacoes_id_91c1266d_uniq">
+    <index id="679" parent="501" name="ceu_atividades_limitacao_atividades_id_limitacoes_id_91c1266d_uniq">
       <ColNames>atividades_id
 limitacoes_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="673" parent="501" name="ceu_atividades_limitacao_atividades_id_8e45d6b1">
+    <index id="680" parent="501" name="ceu_atividades_limitacao_atividades_id_8e45d6b1">
       <ColNames>atividades_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="674" parent="501" name="ceu_atividades_limitacao_limitacoes_id_6521200a">
+    <index id="681" parent="501" name="ceu_atividades_limitacao_limitacoes_id_6521200a">
       <ColNames>limitacoes_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="675" parent="501">
+    <key id="682" parent="501">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="676" parent="502" name="id">
+    <column id="683" parent="502" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="677" parent="502" name="estrutura">
+    <column id="684" parent="502" name="estrutura">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="678" parent="502" name="locavel">
+    <column id="685" parent="502" name="locavel">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="679" parent="502" name="lotacao">
+    <column id="686" parent="502" name="lotacao">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <key id="680" parent="502">
+    <key id="687" parent="502">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="681" parent="503" name="id">
+    <column id="688" parent="503" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="682" parent="503" name="limitacao">
+    <column id="689" parent="503" name="limitacao">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <key id="683" parent="503">
+    <key id="690" parent="503">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="684" parent="504" name="id">
+    <column id="691" parent="504" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="685" parent="504" name="local_id">
+    <column id="692" parent="504" name="local_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <foreign-key id="686" parent="504">
+    <foreign-key id="693" parent="504">
       <ColNames>local_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_estruturas</RefTableName>
     </foreign-key>
-    <index id="687" parent="504" name="sqlite_autoindex_ceu_locaveis_1">
+    <index id="694" parent="504" name="sqlite_autoindex_ceu_locaveis_1">
       <ColNames>local_id</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="688" parent="504">
+    <key id="695" parent="504">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="689" parent="504">
+    <key id="696" parent="504">
       <ColNames>local_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_ceu_locaveis_1</UnderlyingIndexName>
     </key>
-    <column id="690" parent="505" name="id">
+    <column id="697" parent="505" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="691" parent="505" name="telefone">
+    <column id="698" parent="505" name="telefone">
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="692" parent="505" name="diarista">
+    <column id="699" parent="505" name="diarista">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="693" parent="505" name="nota">
+    <column id="700" parent="505" name="nota">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="694" parent="505" name="usuario_id">
+    <column id="701" parent="505" name="usuario_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="695" parent="505" name="n_avaliacoes">
+    <column id="702" parent="505" name="n_avaliacoes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <foreign-key id="696" parent="505">
+    <foreign-key id="703" parent="505">
       <ColNames>usuario_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <index id="697" parent="505" name="sqlite_autoindex_ceu_professores_1">
+    <index id="704" parent="505" name="sqlite_autoindex_ceu_professores_1">
       <ColNames>usuario_id</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="698" parent="505">
+    <key id="705" parent="505">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="699" parent="505">
+    <key id="706" parent="505">
       <ColNames>usuario_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_ceu_professores_1</UnderlyingIndexName>
     </key>
-    <column id="700" parent="506" name="id">
+    <column id="707" parent="506" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="701" parent="506" name="mes_referente">
+    <column id="708" parent="506" name="mes_referente">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="702" parent="506" name="ano_referente">
+    <column id="709" parent="506" name="ano_referente">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="703" parent="506" name="valor_reembolso">
+    <column id="710" parent="506" name="valor_reembolso">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="704" parent="506" name="usuario_professor_id">
+    <column id="711" parent="506" name="usuario_professor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="705" parent="506" name="valores">
+    <column id="712" parent="506" name="valores">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="706" parent="506" name="comprovante_reembolso">
+    <column id="713" parent="506" name="comprovante_reembolso">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <foreign-key id="707" parent="506">
+    <foreign-key id="714" parent="506">
       <ColNames>usuario_professor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_professores</RefTableName>
     </foreign-key>
-    <index id="708" parent="506" name="ceu_reembolsosprofessores_usuario_professor_id_145c0aee">
+    <index id="715" parent="506" name="ceu_reembolsosprofessores_usuario_professor_id_145c0aee">
       <ColNames>usuario_professor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="709" parent="506">
+    <key id="716" parent="506">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="710" parent="507" name="id">
+    <column id="717" parent="507" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="711" parent="507" name="valor_pago">
+    <column id="718" parent="507" name="valor_pago">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="712" parent="507" name="tipo">
+    <column id="719" parent="507" name="tipo">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <key id="713" parent="507">
+    <key id="720" parent="507">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="714" parent="508">
+    <check id="721" parent="508">
       <Predicate>&quot;action_flag&quot; &gt;= 0</Predicate>
     </check>
-    <column id="715" parent="508" name="id">
+    <column id="722" parent="508" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="716" parent="508" name="action_time">
+    <column id="723" parent="508" name="action_time">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="717" parent="508" name="object_id">
+    <column id="724" parent="508" name="object_id">
       <DataType>text|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="718" parent="508" name="object_repr">
+    <column id="725" parent="508" name="object_repr">
       <DataType>varchar(200)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="719" parent="508" name="change_message">
+    <column id="726" parent="508" name="change_message">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="720" parent="508" name="content_type_id">
+    <column id="727" parent="508" name="content_type_id">
       <DataType>integer|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="721" parent="508" name="user_id">
+    <column id="728" parent="508" name="user_id">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="722" parent="508" name="action_flag">
+    <column id="729" parent="508" name="action_flag">
       <DataType>smallint unsigned|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <foreign-key id="723" parent="508">
+    <foreign-key id="730" parent="508">
       <ColNames>content_type_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>django_content_type</RefTableName>
     </foreign-key>
-    <foreign-key id="724" parent="508">
+    <foreign-key id="731" parent="508">
       <ColNames>user_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <index id="725" parent="508" name="django_admin_log_content_type_id_c4bce8eb">
+    <index id="732" parent="508" name="django_admin_log_content_type_id_c4bce8eb">
       <ColNames>content_type_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="726" parent="508" name="django_admin_log_user_id_c564eba6">
+    <index id="733" parent="508" name="django_admin_log_user_id_c564eba6">
       <ColNames>user_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="727" parent="508">
+    <key id="734" parent="508">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="728" parent="509" name="id">
+    <column id="735" parent="509" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="729" parent="509" name="app_label">
+    <column id="736" parent="509" name="app_label">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="730" parent="509" name="model">
+    <column id="737" parent="509" name="model">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <index id="731" parent="509" name="django_content_type_app_label_model_76bd3d3b_uniq">
+    <index id="738" parent="509" name="django_content_type_app_label_model_76bd3d3b_uniq">
       <ColNames>app_label
 model</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <key id="732" parent="509">
+    <key id="739" parent="509">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="733" parent="510" name="id">
+    <column id="740" parent="510" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="734" parent="510" name="app">
+    <column id="741" parent="510" name="app">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="735" parent="510" name="name">
+    <column id="742" parent="510" name="name">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="736" parent="510" name="applied">
+    <column id="743" parent="510" name="applied">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <key id="737" parent="510">
+    <key id="744" parent="510">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="738" parent="511" name="session_key">
+    <column id="745" parent="511" name="session_key">
       <DataType>varchar(40)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="739" parent="511" name="session_data">
+    <column id="746" parent="511" name="session_data">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="740" parent="511" name="expire_date">
+    <column id="747" parent="511" name="expire_date">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <index id="741" parent="511" name="sqlite_autoindex_django_session_1">
+    <index id="748" parent="511" name="sqlite_autoindex_django_session_1">
       <ColNames>session_key</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <index id="742" parent="511" name="django_session_expire_date_a5c62663">
+    <index id="749" parent="511" name="django_session_expire_date_a5c62663">
       <ColNames>expire_date</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="743" parent="511">
+    <key id="750" parent="511">
       <ColNames>session_key</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>sqlite_autoindex_django_session_1</UnderlyingIndexName>
     </key>
-    <column id="744" parent="512" name="id">
+    <check id="751" parent="512">
+      <Predicate>&quot;dia_limite&quot; &gt;= 0</Predicate>
+    </check>
+    <column id="752" parent="512" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="745" parent="512" name="dias_disponiveis">
+    <column id="753" parent="512" name="dia_limite">
+      <DataType>integer unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <key id="754" parent="512">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="755" parent="513" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="756" parent="513" name="dias_disponiveis">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="746" parent="512" name="ano">
+    <column id="757" parent="513" name="ano">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="747" parent="512" name="n_dias">
+    <column id="758" parent="513" name="n_dias">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="748" parent="512" name="professor_id">
+    <column id="759" parent="513" name="professor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="749" parent="512" name="mes">
+    <column id="760" parent="513" name="mes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <foreign-key id="750" parent="512">
+    <foreign-key id="761" parent="513">
       <ColNames>professor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_professores</RefTableName>
     </foreign-key>
-    <index id="751" parent="512" name="escala_disponibilidade_professor_id_b2f3bb78">
+    <index id="762" parent="513" name="escala_disponibilidade_professor_id_b2f3bb78">
       <ColNames>professor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="752" parent="512">
+    <key id="763" parent="513">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="753" parent="513" name="id">
+    <column id="764" parent="514" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="754" parent="513" name="equipe">
+    <column id="765" parent="514" name="equipe">
       <DataType>varchar(300)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="755" parent="513" name="data">
+    <column id="766" parent="514" name="data">
       <DataType>date|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <key id="756" parent="513">
+    <key id="767" parent="514">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="757" parent="514">
+    <check id="768" parent="515">
       <Predicate>(JSON_VALID(&quot;avaliacao_vendedor&quot;) OR &quot;avaliacao_vendedor&quot; IS NULL)</Predicate>
     </check>
-    <check id="758" parent="514">
+    <check id="769" parent="515">
       <Predicate>(JSON_VALID(&quot;avaliacoes_atividades&quot;) OR &quot;avaliacoes_atividades&quot; IS NULL)</Predicate>
     </check>
-    <check id="759" parent="514">
+    <check id="770" parent="515">
       <Predicate>(JSON_VALID(&quot;avaliacoes_professores&quot;) OR &quot;avaliacoes_professores&quot; IS NULL)</Predicate>
     </check>
-    <column id="760" parent="514" name="id">
+    <column id="771" parent="515" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="761" parent="514" name="cidade">
+    <column id="772" parent="515" name="cidade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="762" parent="514" name="n_alunos">
+    <column id="773" parent="515" name="n_alunos">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="763" parent="514" name="serie">
+    <column id="774" parent="515" name="serie">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="764" parent="514" name="nome_vendedor_id">
+    <column id="775" parent="515" name="nome_vendedor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="765" parent="514" name="avaliacao_vendedor">
+    <column id="776" parent="515" name="avaliacao_vendedor">
       <DataType>text|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="766" parent="514" name="motivo_trazer_grupo">
+    <column id="777" parent="515" name="motivo_trazer_grupo">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="767" parent="514" name="avaliacao_conteudo_pedagogico">
+    <column id="778" parent="515" name="avaliacao_conteudo_pedagogico">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="768" parent="514" name="limpeza_instalacoes">
+    <column id="779" parent="515" name="limpeza_instalacoes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="769" parent="514" name="observacoes">
+    <column id="780" parent="515" name="observacoes">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="770" parent="514" name="data_preenchimento">
+    <column id="781" parent="515" name="data_preenchimento">
       <DataType>date|0s</DataType>
       <Position>11</Position>
     </column>
-    <column id="771" parent="514" name="email_avaliador">
+    <column id="782" parent="515" name="email_avaliador">
       <DataType>varchar(254)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>12</Position>
     </column>
-    <column id="772" parent="514" name="n_professores">
+    <column id="783" parent="515" name="n_professores">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>13</Position>
     </column>
-    <column id="773" parent="514" name="avaliacoes_atividades">
+    <column id="784" parent="515" name="avaliacoes_atividades">
       <DataType>text|0s</DataType>
       <Position>14</Position>
     </column>
-    <column id="774" parent="514" name="avaliacoes_professores">
+    <column id="785" parent="515" name="avaliacoes_professores">
       <DataType>text|0s</DataType>
       <Position>15</Position>
     </column>
-    <column id="775" parent="514" name="cargo_avaliador">
+    <column id="786" parent="515" name="cargo_avaliador">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>16</Position>
     </column>
-    <column id="776" parent="514" name="nome_avaliador_id">
+    <column id="787" parent="515" name="nome_avaliador_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>17</Position>
     </column>
-    <column id="777" parent="514" name="estado_conservacao">
+    <column id="788" parent="515" name="estado_conservacao">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>18</Position>
     </column>
-    <column id="778" parent="514" name="o_que_quer_proxima">
+    <column id="789" parent="515" name="o_que_quer_proxima">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>19</Position>
     </column>
-    <column id="779" parent="514" name="instituicao_id">
+    <column id="790" parent="515" name="instituicao_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>20</Position>
     </column>
-    <foreign-key id="780" parent="514">
+    <foreign-key id="791" parent="515">
       <ColNames>nome_vendedor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_vendedor</RefTableName>
     </foreign-key>
-    <foreign-key id="781" parent="514">
+    <foreign-key id="792" parent="515">
       <ColNames>nome_avaliador_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_responsavel</RefTableName>
     </foreign-key>
-    <foreign-key id="782" parent="514">
+    <foreign-key id="793" parent="515">
       <ColNames>instituicao_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_clientecolegio</RefTableName>
     </foreign-key>
-    <index id="783" parent="514" name="fichaAvaliacao_fichadeavaliacao_nome_vendedor_id_cb032df7">
+    <index id="794" parent="515" name="fichaAvaliacao_fichadeavaliacao_nome_vendedor_id_cb032df7">
       <ColNames>nome_vendedor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="784" parent="514" name="fichaAvaliacao_fichadeavaliacao_nome_avaliador_id_6d909136">
+    <index id="795" parent="515" name="fichaAvaliacao_fichadeavaliacao_nome_avaliador_id_6d909136">
       <ColNames>nome_avaliador_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="785" parent="514" name="fichaAvaliacao_fichadeavaliacao_instituicao_id_847d7e85">
+    <index id="796" parent="515" name="fichaAvaliacao_fichadeavaliacao_instituicao_id_847d7e85">
       <ColNames>instituicao_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="786" parent="514">
+    <key id="797" parent="515">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="787" parent="515">
+    <check id="798" parent="516">
       <Predicate>(JSON_VALID(&quot;atividades_ceu&quot;) OR &quot;atividades_ceu&quot; IS NULL)</Predicate>
     </check>
-    <check id="788" parent="515">
+    <check id="799" parent="516">
       <Predicate>(JSON_VALID(&quot;locacao_ceu&quot;) OR &quot;locacao_ceu&quot; IS NULL)</Predicate>
     </check>
-    <column id="789" parent="515" name="id">
+    <column id="800" parent="516" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="790" parent="515" name="tipo">
+    <column id="801" parent="516" name="tipo">
       <DataType>varchar(7)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="791" parent="515" name="instituicao">
+    <column id="802" parent="516" name="instituicao">
       <DataType>varchar(300)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="792" parent="515" name="cidade">
+    <column id="803" parent="516" name="cidade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="793" parent="515" name="check_in">
+    <column id="804" parent="516" name="check_in">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="794" parent="515" name="check_out">
+    <column id="805" parent="516" name="check_out">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="795" parent="515" name="n_participantes">
+    <column id="806" parent="516" name="n_participantes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="796" parent="515" name="serie">
+    <column id="807" parent="516" name="serie">
       <DataType>varchar(255)|0s</DataType>
       <Position>8</Position>
     </column>
-    <column id="797" parent="515" name="n_professores">
+    <column id="808" parent="516" name="n_professores">
       <DataType>integer|0s</DataType>
       <Position>9</Position>
     </column>
-    <column id="798" parent="515" name="responsavel_grupo">
+    <column id="809" parent="516" name="responsavel_grupo">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="799" parent="515" name="empresa">
+    <column id="810" parent="516" name="empresa">
       <DataType>varchar(15)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>11</Position>
     </column>
-    <column id="800" parent="515" name="check_in_ceu">
+    <column id="811" parent="516" name="check_in_ceu">
       <DataType>datetime|0s</DataType>
       <Position>12</Position>
     </column>
-    <column id="801" parent="515" name="check_out_ceu">
+    <column id="812" parent="516" name="check_out_ceu">
       <DataType>datetime|0s</DataType>
       <Position>13</Position>
     </column>
-    <column id="802" parent="515" name="atividades_ceu">
+    <column id="813" parent="516" name="atividades_ceu">
       <DataType>text|0s</DataType>
       <Position>14</Position>
     </column>
-    <column id="803" parent="515" name="locacao_ceu">
+    <column id="814" parent="516" name="locacao_ceu">
       <DataType>text|0s</DataType>
       <Position>15</Position>
     </column>
-    <column id="804" parent="515" name="cronograma_peraltas">
+    <column id="815" parent="516" name="cronograma_peraltas">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>16</Position>
     </column>
-    <column id="805" parent="515" name="observacoes">
+    <column id="816" parent="516" name="observacoes">
       <DataType>text|0s</DataType>
       <Position>17</Position>
     </column>
-    <column id="806" parent="515" name="relatorio_ceu_entregue">
+    <column id="817" parent="516" name="relatorio_ceu_entregue">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>18</Position>
     </column>
-    <column id="807" parent="515" name="ficha_de_evento_id">
+    <column id="818" parent="516" name="ficha_de_evento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>19</Position>
     </column>
-    <column id="808" parent="515" name="monitor_responsavel_id">
+    <column id="819" parent="516" name="monitor_responsavel_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>20</Position>
     </column>
-    <column id="809" parent="515" name="vendedor_id">
+    <column id="820" parent="516" name="vendedor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>21</Position>
     </column>
-    <column id="810" parent="515" name="ficha_avaliacao">
+    <column id="821" parent="516" name="ficha_avaliacao">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>22</Position>
     </column>
-    <foreign-key id="811" parent="515">
+    <foreign-key id="822" parent="516">
       <ColNames>ficha_de_evento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="812" parent="515">
+    <foreign-key id="823" parent="516">
       <ColNames>monitor_responsavel_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_monitor</RefTableName>
     </foreign-key>
-    <foreign-key id="813" parent="515">
+    <foreign-key id="824" parent="516">
       <ColNames>vendedor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_vendedor</RefTableName>
     </foreign-key>
-    <index id="814" parent="515" name="ordemDeServico_ordemdeservico_ficha_de_evento_id_1e2b572e">
+    <index id="825" parent="516" name="ordemDeServico_ordemdeservico_ficha_de_evento_id_1e2b572e">
       <ColNames>ficha_de_evento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="815" parent="515" name="ordemDeServico_ordemdeservico_monitor_responsavel_id_2c744914">
+    <index id="826" parent="516" name="ordemDeServico_ordemdeservico_monitor_responsavel_id_2c744914">
       <ColNames>monitor_responsavel_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="816" parent="515" name="ordemDeServico_ordemdeservico_vendedor_id_124c94a6">
+    <index id="827" parent="516" name="ordemDeServico_ordemdeservico_vendedor_id_124c94a6">
       <ColNames>vendedor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="817" parent="515">
+    <key id="828" parent="516">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="818" parent="516" name="id">
+    <column id="829" parent="517" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="819" parent="516" name="ordemdeservico_id">
+    <column id="830" parent="517" name="ordemdeservico_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="820" parent="516" name="atividadeseco_id">
+    <column id="831" parent="517" name="atividadeseco_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="821" parent="516">
+    <foreign-key id="832" parent="517">
       <ColNames>ordemdeservico_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ordemDeServico_ordemdeservico</RefTableName>
     </foreign-key>
-    <foreign-key id="822" parent="516">
+    <foreign-key id="833" parent="517">
       <ColNames>atividadeseco_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_atividadeseco</RefTableName>
     </foreign-key>
-    <index id="823" parent="516" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_atividadeseco_id_4eb6df6c_uniq">
+    <index id="834" parent="517" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_atividadeseco_id_4eb6df6c_uniq">
       <ColNames>ordemdeservico_id
 atividadeseco_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="824" parent="516" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_759875cb">
+    <index id="835" parent="517" name="ordemDeServico_ordemdeservico_atividades_eco_ordemdeservico_id_759875cb">
       <ColNames>ordemdeservico_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="825" parent="516" name="ordemDeServico_ordemdeservico_atividades_eco_atividadeseco_id_89a1329f">
+    <index id="836" parent="517" name="ordemDeServico_ordemdeservico_atividades_eco_atividadeseco_id_89a1329f">
       <ColNames>atividadeseco_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="826" parent="516">
+    <key id="837" parent="517">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="827" parent="517" name="id">
+    <column id="838" parent="518" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="828" parent="517" name="ordemdeservico_id">
+    <column id="839" parent="518" name="ordemdeservico_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="829" parent="517" name="atividadeperaltas_id">
+    <column id="840" parent="518" name="atividadeperaltas_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="830" parent="517">
+    <foreign-key id="841" parent="518">
       <ColNames>ordemdeservico_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ordemDeServico_ordemdeservico</RefTableName>
     </foreign-key>
-    <foreign-key id="831" parent="517">
+    <foreign-key id="842" parent="518">
       <ColNames>atividadeperaltas_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_atividadeperaltas</RefTableName>
     </foreign-key>
-    <index id="832" parent="517" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_atividadeperaltas_id_0e5fb72d_uniq">
+    <index id="843" parent="518" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_atividadeperaltas_id_0e5fb72d_uniq">
       <ColNames>ordemdeservico_id
 atividadeperaltas_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="833" parent="517" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_5d7467c5">
+    <index id="844" parent="518" name="ordemDeServico_ordemdeservico_atividades_peraltas_ordemdeservico_id_5d7467c5">
       <ColNames>ordemdeservico_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="834" parent="517" name="ordemDeServico_ordemdeservico_atividades_peraltas_atividadeperaltas_id_5dc996ac">
+    <index id="845" parent="518" name="ordemDeServico_ordemdeservico_atividades_peraltas_atividadeperaltas_id_5dc996ac">
       <ColNames>atividadeperaltas_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="835" parent="517">
+    <key id="846" parent="518">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="836" parent="518" name="id">
+    <column id="847" parent="519" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="837" parent="518" name="atividade">
+    <column id="848" parent="519" name="atividade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <key id="838" parent="518">
+    <key id="849" parent="519">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="839" parent="519" name="id">
+    <column id="850" parent="520" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="840" parent="519" name="atividade">
+    <column id="851" parent="520" name="atividade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <key id="841" parent="519">
+    <key id="852" parent="520">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="842" parent="520" name="id">
+    <column id="853" parent="521" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="843" parent="520" name="razao_social">
+    <column id="854" parent="521" name="razao_social">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="844" parent="520" name="cnpj">
+    <column id="855" parent="521" name="cnpj">
       <DataType>varchar(18)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="845" parent="520" name="nome_fantasia">
+    <column id="856" parent="521" name="nome_fantasia">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="846" parent="520" name="codigo_app_pf">
+    <column id="857" parent="521" name="codigo_app_pf">
       <DataType>varchar(10)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="847" parent="520" name="endereco">
+    <column id="858" parent="521" name="endereco">
       <DataType>varchar(600)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="848" parent="520" name="bairro">
+    <column id="859" parent="521" name="bairro">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="849" parent="520" name="cidade">
+    <column id="860" parent="521" name="cidade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="850" parent="520" name="estado">
+    <column id="861" parent="521" name="estado">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="851" parent="520" name="cep">
+    <column id="862" parent="521" name="cep">
       <DataType>varchar(10)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>10</Position>
     </column>
-    <column id="852" parent="520" name="codigo_app_pj">
+    <column id="863" parent="521" name="codigo_app_pj">
       <DataType>varchar(10)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>11</Position>
     </column>
-    <index id="853" parent="520" name="sqlite_autoindex_peraltas_clientecolegio_1">
+    <index id="864" parent="521" name="sqlite_autoindex_peraltas_clientecolegio_1">
       <ColNames>cnpj</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <index id="854" parent="520" name="sqlite_autoindex_peraltas_clientecolegio_2">
+    <index id="865" parent="521" name="sqlite_autoindex_peraltas_clientecolegio_2">
       <ColNames>codigo_app_pf</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <index id="855" parent="520" name="sqlite_autoindex_peraltas_clientecolegio_3">
+    <index id="866" parent="521" name="sqlite_autoindex_peraltas_clientecolegio_3">
       <ColNames>codigo_app_pj</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="856" parent="520">
+    <key id="867" parent="521">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="857" parent="520">
+    <key id="868" parent="521">
       <ColNames>cnpj</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_clientecolegio_1</UnderlyingIndexName>
     </key>
-    <key id="858" parent="520">
+    <key id="869" parent="521">
       <ColNames>codigo_app_pf</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_clientecolegio_2</UnderlyingIndexName>
     </key>
-    <key id="859" parent="520">
+    <key id="870" parent="521">
       <ColNames>codigo_app_pj</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_clientecolegio_3</UnderlyingIndexName>
     </key>
-    <column id="860" parent="521" name="id">
+    <column id="871" parent="522" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="861" parent="521" name="cliente_pj">
+    <column id="872" parent="522" name="cliente_pj">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="862" parent="521" name="cliente_pf">
+    <column id="873" parent="522" name="cliente_pf">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="863" parent="521" name="evento">
+    <column id="874" parent="522" name="evento">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="864" parent="521" name="reserva">
+    <column id="875" parent="522" name="reserva">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <key id="865" parent="521">
+    <key id="876" parent="522">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="866" parent="522">
+    <check id="877" parent="523">
       <Predicate>(JSON_VALID(&quot;segurados&quot;) OR &quot;segurados&quot; IS NULL)</Predicate>
     </check>
-    <column id="867" parent="522" name="id">
+    <column id="878" parent="523" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="868" parent="522" name="segurados">
+    <column id="879" parent="523" name="segurados">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="869" parent="522" name="grupo_id">
+    <column id="880" parent="523" name="grupo_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="870" parent="522">
+    <foreign-key id="881" parent="523">
       <ColNames>grupo_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_clientecolegio</RefTableName>
     </foreign-key>
-    <index id="871" parent="522" name="peraltas_dadossegurado_grupo_id_1357bb62">
+    <index id="882" parent="523" name="peraltas_dadossegurado_grupo_id_1357bb62">
       <ColNames>grupo_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="872" parent="522">
+    <key id="883" parent="523">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="873" parent="523" name="id">
+    <check id="884" parent="524">
+      <Predicate>&quot;dia_limite_acampamento&quot; &gt;= 0</Predicate>
+    </check>
+    <column id="885" parent="524" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="874" parent="523" name="dias_disponiveis">
+    <column id="886" parent="524" name="dia_limite_acampamento">
+      <DataType>integer unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <key id="887" parent="524">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="888" parent="525">
+      <Predicate>&quot;dia_limite_acampamento&quot; &gt;= 0</Predicate>
+    </check>
+    <column id="889" parent="525" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="890" parent="525" name="dia_limite_acampamento">
+      <DataType>integer unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <key id="891" parent="525">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="892" parent="526" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="893" parent="526" name="dias_disponiveis">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="875" parent="523" name="ano">
+    <column id="894" parent="526" name="ano">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="876" parent="523" name="n_dias">
+    <column id="895" parent="526" name="n_dias">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="877" parent="523" name="monitor_id">
+    <column id="896" parent="526" name="monitor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="878" parent="523" name="mes">
+    <column id="897" parent="526" name="mes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <foreign-key id="879" parent="523">
+    <foreign-key id="898" parent="526">
       <ColNames>monitor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_monitor</RefTableName>
     </foreign-key>
-    <index id="880" parent="523" name="peraltas_disponibilidadeacampamento_monitor_id_6182a91a">
+    <index id="899" parent="526" name="peraltas_disponibilidadeacampamento_monitor_id_6182a91a">
       <ColNames>monitor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="881" parent="523">
+    <key id="900" parent="526">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="882" parent="524" name="id">
+    <column id="901" parent="527" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="883" parent="524" name="dias_disponiveis">
+    <column id="902" parent="527" name="dias_disponiveis">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="884" parent="524" name="ano">
+    <column id="903" parent="527" name="ano">
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="885" parent="524" name="n_dias">
+    <column id="904" parent="527" name="n_dias">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="886" parent="524" name="monitor_id">
+    <column id="905" parent="527" name="monitor_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="887" parent="524" name="mes">
+    <column id="906" parent="527" name="mes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <foreign-key id="888" parent="524">
+    <foreign-key id="907" parent="527">
       <ColNames>monitor_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_monitor</RefTableName>
     </foreign-key>
-    <index id="889" parent="524" name="peraltas_disponibilidadehotelaria_monitor_id_49e13fc6">
+    <index id="908" parent="527" name="peraltas_disponibilidadehotelaria_monitor_id_49e13fc6">
       <ColNames>monitor_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="890" parent="524">
+    <key id="909" parent="527">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="891" parent="525" name="id">
+    <column id="910" parent="528" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="892" parent="525" name="viacao">
+    <column id="911" parent="528" name="viacao">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="893" parent="525" name="cnpj">
+    <column id="912" parent="528" name="cnpj">
       <DataType>varchar(18)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="894" parent="525" name="endereco">
+    <column id="913" parent="528" name="endereco">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="895" parent="525" name="bairro">
+    <column id="914" parent="528" name="bairro">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="896" parent="525" name="cidade">
+    <column id="915" parent="528" name="cidade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="897" parent="525" name="estado">
+    <column id="916" parent="528" name="estado">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <column id="898" parent="525" name="cep">
+    <column id="917" parent="528" name="cep">
       <DataType>varchar(10)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <index id="899" parent="525" name="sqlite_autoindex_peraltas_empresaonibus_1">
+    <index id="918" parent="528" name="sqlite_autoindex_peraltas_empresaonibus_1">
       <ColNames>cnpj</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="900" parent="525">
+    <key id="919" parent="528">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="901" parent="525">
+    <key id="920" parent="528">
       <ColNames>cnpj</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_empresaonibus_1</UnderlyingIndexName>
     </key>
-    <check id="902" parent="526">
-      <Predicate>&quot;qtd_confirmada&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="903" parent="526">
-      <Predicate>&quot;qtd_convidada&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="904" parent="526">
-      <Predicate>&quot;qtd_homens&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="905" parent="526">
-      <Predicate>&quot;qtd_meninas&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="906" parent="526">
-      <Predicate>&quot;qtd_meninos&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="907" parent="526">
-      <Predicate>&quot;qtd_mulheres&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="908" parent="526">
-      <Predicate>&quot;qtd_professores&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="909" parent="526">
-      <Predicate>&quot;qtd_profs_homens&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="910" parent="526">
-      <Predicate>&quot;qtd_profs_mulheres&quot; &gt;= 0</Predicate>
-    </check>
-    <check id="911" parent="526">
-      <Predicate>(JSON_VALID(&quot;refeicoes&quot;) OR &quot;refeicoes&quot; IS NULL)</Predicate>
-    </check>
-    <column id="912" parent="526" name="id">
+    <column id="921" parent="529" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="913" parent="526" name="outro_produto">
+    <column id="922" parent="529" name="monitores_acampamento">
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="923" parent="529" name="data">
+      <DataType>date|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <key id="924" parent="529">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="925" parent="530" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="926" parent="530" name="monitores_hotelaria">
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="927" parent="530" name="data">
+      <DataType>date|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <key id="928" parent="530">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="929" parent="531">
+      <Predicate>&quot;qtd_confirmada&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="930" parent="531">
+      <Predicate>&quot;qtd_convidada&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="931" parent="531">
+      <Predicate>&quot;qtd_homens&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="932" parent="531">
+      <Predicate>&quot;qtd_meninas&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="933" parent="531">
+      <Predicate>&quot;qtd_meninos&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="934" parent="531">
+      <Predicate>&quot;qtd_mulheres&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="935" parent="531">
+      <Predicate>&quot;qtd_professores&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="936" parent="531">
+      <Predicate>&quot;qtd_profs_homens&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="937" parent="531">
+      <Predicate>&quot;qtd_profs_mulheres&quot; &gt;= 0</Predicate>
+    </check>
+    <check id="938" parent="531">
+      <Predicate>(JSON_VALID(&quot;refeicoes&quot;) OR &quot;refeicoes&quot; IS NULL)</Predicate>
+    </check>
+    <column id="939" parent="531" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="940" parent="531" name="outro_produto">
       <DataType>varchar(255)|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="914" parent="526" name="check_in">
+    <column id="941" parent="531" name="check_in">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="915" parent="526" name="check_out">
+    <column id="942" parent="531" name="check_out">
       <DataType>datetime|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="916" parent="526" name="professores_com_alunos">
+    <column id="943" parent="531" name="professores_com_alunos">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="917" parent="526" name="qtd_professores">
+    <column id="944" parent="531" name="qtd_professores">
       <DataType>integer unsigned|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="918" parent="526" name="qtd_profs_homens">
+    <column id="945" parent="531" name="qtd_profs_homens">
       <DataType>integer unsigned|0s</DataType>
       <Position>7</Position>
     </column>
-    <column id="919" parent="526" name="qtd_profs_mulheres">
+    <column id="946" parent="531" name="qtd_profs_mulheres">
       <DataType>integer unsigned|0s</DataType>
       <Position>8</Position>
     </column>
-    <column id="920" parent="526" name="qtd_convidada">
+    <column id="947" parent="531" name="qtd_convidada">
       <DataType>integer unsigned|0s</DataType>
       <Position>9</Position>
     </column>
-    <column id="921" parent="526" name="qtd_confirmada">
+    <column id="948" parent="531" name="qtd_confirmada">
       <DataType>integer unsigned|0s</DataType>
       <Position>10</Position>
     </column>
-    <column id="922" parent="526" name="qtd_meninos">
+    <column id="949" parent="531" name="qtd_meninos">
       <DataType>integer unsigned|0s</DataType>
       <Position>11</Position>
     </column>
-    <column id="923" parent="526" name="qtd_meninas">
+    <column id="950" parent="531" name="qtd_meninas">
       <DataType>integer unsigned|0s</DataType>
       <Position>12</Position>
     </column>
-    <column id="924" parent="526" name="qtd_homens">
+    <column id="951" parent="531" name="qtd_homens">
       <DataType>integer unsigned|0s</DataType>
       <Position>13</Position>
     </column>
-    <column id="925" parent="526" name="qtd_mulheres">
+    <column id="952" parent="531" name="qtd_mulheres">
       <DataType>integer unsigned|0s</DataType>
       <Position>14</Position>
     </column>
-    <column id="926" parent="526" name="refeicoes">
+    <column id="953" parent="531" name="refeicoes">
       <DataType>text|0s</DataType>
       <Position>15</Position>
     </column>
-    <column id="927" parent="526" name="observacoes_refeicoes">
+    <column id="954" parent="531" name="observacoes_refeicoes">
       <DataType>text|0s</DataType>
       <Position>16</Position>
     </column>
-    <column id="928" parent="526" name="observacoes">
+    <column id="955" parent="531" name="observacoes">
       <DataType>text|0s</DataType>
       <NotNull>1</NotNull>
       <Position>17</Position>
     </column>
-    <column id="929" parent="526" name="empresa">
+    <column id="956" parent="531" name="empresa">
       <DataType>varchar(100)|0s</DataType>
       <Position>18</Position>
     </column>
-    <column id="930" parent="526" name="data_preenchimento">
+    <column id="957" parent="531" name="data_preenchimento">
       <DataType>date|0s</DataType>
       <Position>19</Position>
     </column>
-    <column id="931" parent="526" name="os">
+    <column id="958" parent="531" name="os">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>20</Position>
     </column>
-    <column id="932" parent="526" name="cliente_id">
+    <column id="959" parent="531" name="cliente_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>21</Position>
     </column>
-    <column id="933" parent="526" name="codigos_app_id">
+    <column id="960" parent="531" name="codigos_app_id">
       <DataType>bigint|0s</DataType>
       <Position>22</Position>
     </column>
-    <column id="934" parent="526" name="informacoes_adcionais_id">
+    <column id="961" parent="531" name="informacoes_adcionais_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>23</Position>
     </column>
-    <column id="935" parent="526" name="responsavel_evento_id">
+    <column id="962" parent="531" name="responsavel_evento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>24</Position>
     </column>
-    <column id="936" parent="526" name="vendedora_id">
+    <column id="963" parent="531" name="vendedora_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>25</Position>
     </column>
-    <column id="937" parent="526" name="ficha_financeira">
+    <column id="964" parent="531" name="ficha_financeira">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>26</Position>
     </column>
-    <foreign-key id="938" parent="526">
+    <foreign-key id="965" parent="531">
       <ColNames>cliente_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_clientecolegio</RefTableName>
     </foreign-key>
-    <foreign-key id="939" parent="526">
+    <foreign-key id="966" parent="531">
       <ColNames>codigos_app_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_codigosapp</RefTableName>
     </foreign-key>
-    <foreign-key id="940" parent="526">
+    <foreign-key id="967" parent="531">
       <ColNames>informacoes_adcionais_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_informacoesadcionais</RefTableName>
     </foreign-key>
-    <foreign-key id="941" parent="526">
+    <foreign-key id="968" parent="531">
       <ColNames>responsavel_evento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_responsavel</RefTableName>
     </foreign-key>
-    <foreign-key id="942" parent="526">
+    <foreign-key id="969" parent="531">
       <ColNames>vendedora_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_vendedor</RefTableName>
     </foreign-key>
-    <index id="943" parent="526" name="peraltas_fichadeevento_cliente_id_69450c15">
+    <index id="970" parent="531" name="peraltas_fichadeevento_cliente_id_69450c15">
       <ColNames>cliente_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="944" parent="526" name="peraltas_fichadeevento_codigos_app_id_9860ea6e">
+    <index id="971" parent="531" name="peraltas_fichadeevento_codigos_app_id_9860ea6e">
       <ColNames>codigos_app_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="945" parent="526" name="peraltas_fichadeevento_informacoes_adcionais_id_10311a58">
+    <index id="972" parent="531" name="peraltas_fichadeevento_informacoes_adcionais_id_10311a58">
       <ColNames>informacoes_adcionais_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="946" parent="526" name="peraltas_fichadeevento_responsavel_evento_id_07d70a7f">
+    <index id="973" parent="531" name="peraltas_fichadeevento_responsavel_evento_id_07d70a7f">
       <ColNames>responsavel_evento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="947" parent="526" name="peraltas_fichadeevento_vendedora_id_389f93c4">
+    <index id="974" parent="531" name="peraltas_fichadeevento_vendedora_id_389f93c4">
       <ColNames>vendedora_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="948" parent="526">
+    <key id="975" parent="531">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="949" parent="527" name="id">
+    <column id="976" parent="532" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="950" parent="527" name="fichadeevento_id">
+    <column id="977" parent="532" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="951" parent="527" name="atividades_id">
+    <column id="978" parent="532" name="atividades_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="952" parent="527">
+    <foreign-key id="979" parent="532">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="953" parent="527">
+    <foreign-key id="980" parent="532">
       <ColNames>atividades_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_atividades</RefTableName>
     </foreign-key>
-    <index id="954" parent="527" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_atividades_id_39d78c04_uniq">
+    <index id="981" parent="532" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_atividades_id_39d78c04_uniq">
       <ColNames>fichadeevento_id
 atividades_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="955" parent="527" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_a7663a90">
+    <index id="982" parent="532" name="peraltas_fichadeevento_atividades_ceu_fichadeevento_id_a7663a90">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="956" parent="527" name="peraltas_fichadeevento_atividades_ceu_atividades_id_1dd20047">
+    <index id="983" parent="532" name="peraltas_fichadeevento_atividades_ceu_atividades_id_1dd20047">
       <ColNames>atividades_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="957" parent="527">
+    <key id="984" parent="532">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="958" parent="528" name="id">
+    <column id="985" parent="533" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="959" parent="528" name="fichadeevento_id">
+    <column id="986" parent="533" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="960" parent="528" name="atividadeseco_id">
+    <column id="987" parent="533" name="atividadeseco_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="961" parent="528">
+    <foreign-key id="988" parent="533">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="962" parent="528">
+    <foreign-key id="989" parent="533">
       <ColNames>atividadeseco_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_atividadeseco</RefTableName>
     </foreign-key>
-    <index id="963" parent="528" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_atividadeseco_id_14c93b90_uniq">
+    <index id="990" parent="533" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_atividadeseco_id_14c93b90_uniq">
       <ColNames>fichadeevento_id
 atividadeseco_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="964" parent="528" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_d1d9b50c">
+    <index id="991" parent="533" name="peraltas_fichadeevento_atividades_eco_fichadeevento_id_d1d9b50c">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="965" parent="528" name="peraltas_fichadeevento_atividades_eco_atividadeseco_id_b03b0db1">
+    <index id="992" parent="533" name="peraltas_fichadeevento_atividades_eco_atividadeseco_id_b03b0db1">
       <ColNames>atividadeseco_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="966" parent="528">
+    <key id="993" parent="533">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="967" parent="529" name="id">
+    <column id="994" parent="534" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="968" parent="529" name="fichadeevento_id">
+    <column id="995" parent="534" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="969" parent="529" name="atividadeperaltas_id">
+    <column id="996" parent="534" name="atividadeperaltas_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="970" parent="529">
+    <foreign-key id="997" parent="534">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="971" parent="529">
+    <foreign-key id="998" parent="534">
       <ColNames>atividadeperaltas_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_atividadeperaltas</RefTableName>
     </foreign-key>
-    <index id="972" parent="529" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_atividadeperaltas_id_20687f00_uniq">
+    <index id="999" parent="534" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_atividadeperaltas_id_20687f00_uniq">
       <ColNames>fichadeevento_id
 atividadeperaltas_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="973" parent="529" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_4a7665b6">
+    <index id="1000" parent="534" name="peraltas_fichadeevento_atividades_peraltas_fichadeevento_id_4a7665b6">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="974" parent="529" name="peraltas_fichadeevento_atividades_peraltas_atividadeperaltas_id_0461e78a">
+    <index id="1001" parent="534" name="peraltas_fichadeevento_atividades_peraltas_atividadeperaltas_id_0461e78a">
       <ColNames>atividadeperaltas_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="975" parent="529">
+    <key id="1002" parent="534">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="976" parent="530" name="id">
+    <column id="1003" parent="535" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="977" parent="530" name="fichadeevento_id">
+    <column id="1004" parent="535" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="978" parent="530" name="locaveis_id">
+    <column id="1005" parent="535" name="locaveis_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="979" parent="530">
+    <foreign-key id="1006" parent="535">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="980" parent="530">
+    <foreign-key id="1007" parent="535">
       <ColNames>locaveis_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>ceu_locaveis</RefTableName>
     </foreign-key>
-    <index id="981" parent="530" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_locaveis_id_2e42f452_uniq">
+    <index id="1008" parent="535" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_locaveis_id_2e42f452_uniq">
       <ColNames>fichadeevento_id
 locaveis_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="982" parent="530" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_f9cb610f">
+    <index id="1009" parent="535" name="peraltas_fichadeevento_locacoes_ceu_fichadeevento_id_f9cb610f">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="983" parent="530" name="peraltas_fichadeevento_locacoes_ceu_locaveis_id_56bac8f9">
+    <index id="1010" parent="535" name="peraltas_fichadeevento_locacoes_ceu_locaveis_id_56bac8f9">
       <ColNames>locaveis_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="984" parent="530">
+    <key id="1011" parent="535">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="985" parent="531" name="id">
+    <column id="1012" parent="536" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="986" parent="531" name="fichadeevento_id">
+    <column id="1013" parent="536" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="987" parent="531" name="perfilsparticipantes_id">
+    <column id="1014" parent="536" name="perfilsparticipantes_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="988" parent="531">
+    <foreign-key id="1015" parent="536">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="989" parent="531">
+    <foreign-key id="1016" parent="536">
       <ColNames>perfilsparticipantes_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_perfilsparticipantes</RefTableName>
     </foreign-key>
-    <index id="990" parent="531" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_perfilsparticipantes_id_39eeec23_uniq">
+    <index id="1017" parent="536" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_perfilsparticipantes_id_39eeec23_uniq">
       <ColNames>fichadeevento_id
 perfilsparticipantes_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="991" parent="531" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_a2ee92f1">
+    <index id="1018" parent="536" name="peraltas_fichadeevento_perfil_participantes_fichadeevento_id_a2ee92f1">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="992" parent="531" name="peraltas_fichadeevento_perfil_participantes_perfilsparticipantes_id_be96f0c2">
+    <index id="1019" parent="536" name="peraltas_fichadeevento_perfil_participantes_perfilsparticipantes_id_be96f0c2">
       <ColNames>perfilsparticipantes_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="993" parent="531">
+    <key id="1020" parent="536">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="994" parent="532" name="id">
+    <column id="1021" parent="537" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="995" parent="532" name="fichadeevento_id">
+    <column id="1022" parent="537" name="fichadeevento_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="996" parent="532" name="produtosperaltas_id">
+    <column id="1023" parent="537" name="produtosperaltas_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="997" parent="532">
+    <foreign-key id="1024" parent="537">
       <ColNames>fichadeevento_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_fichadeevento</RefTableName>
     </foreign-key>
-    <foreign-key id="998" parent="532">
+    <foreign-key id="1025" parent="537">
       <ColNames>produtosperaltas_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_produtosperaltas</RefTableName>
     </foreign-key>
-    <index id="999" parent="532" name="peraltas_fichadeevento_produto_fichadeevento_id_produtosperaltas_id_a4ff9a72_uniq">
+    <index id="1026" parent="537" name="peraltas_fichadeevento_produto_fichadeevento_id_produtosperaltas_id_a4ff9a72_uniq">
       <ColNames>fichadeevento_id
 produtosperaltas_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="1000" parent="532" name="peraltas_fichadeevento_produto_fichadeevento_id_684afefa">
+    <index id="1027" parent="537" name="peraltas_fichadeevento_produto_fichadeevento_id_684afefa">
       <ColNames>fichadeevento_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="1001" parent="532" name="peraltas_fichadeevento_produto_produtosperaltas_id_629555ec">
+    <index id="1028" parent="537" name="peraltas_fichadeevento_produto_produtosperaltas_id_629555ec">
       <ColNames>produtosperaltas_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="1002" parent="532">
+    <key id="1029" parent="537">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1003" parent="533" name="id">
+    <column id="1030" parent="538" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1004" parent="533" name="transporte">
+    <column id="1031" parent="538" name="transporte">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1005" parent="533" name="terceirizado">
+    <column id="1032" parent="538" name="terceirizado">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1006" parent="533" name="endereco_embarque">
+    <column id="1033" parent="538" name="endereco_embarque">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="1007" parent="533" name="etiquetas_embarque">
+    <column id="1034" parent="538" name="etiquetas_embarque">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="1008" parent="533" name="servico_bordo">
+    <column id="1035" parent="538" name="servico_bordo">
       <DataType>integer|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="1009" parent="533" name="monitoria">
+    <column id="1036" parent="538" name="monitoria">
       <DataType>integer|0s</DataType>
       <Position>7</Position>
     </column>
-    <column id="1010" parent="533" name="biologo">
+    <column id="1037" parent="538" name="biologo">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>8</Position>
     </column>
-    <column id="1011" parent="533" name="seguro">
+    <column id="1038" parent="538" name="seguro">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="1012" parent="533" name="enfermaria">
+    <column id="1039" parent="538" name="enfermaria">
       <DataType>integer|0s</DataType>
       <Position>10</Position>
     </column>
-    <column id="1013" parent="533" name="horario_garantia">
+    <column id="1040" parent="538" name="horario_garantia">
       <DataType>time|0s</DataType>
       <Position>11</Position>
     </column>
-    <column id="1014" parent="533" name="outros">
+    <column id="1041" parent="538" name="outros">
       <DataType>varchar(300)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>12</Position>
     </column>
-    <column id="1015" parent="533" name="viacao_id">
+    <column id="1042" parent="538" name="viacao_id">
       <DataType>bigint|0s</DataType>
       <Position>13</Position>
     </column>
-    <column id="1016" parent="533" name="tipo_veiculo">
+    <column id="1043" parent="538" name="tipo_veiculo">
       <DataType>integer|0s</DataType>
       <Position>14</Position>
     </column>
-    <foreign-key id="1017" parent="533">
+    <foreign-key id="1044" parent="538">
       <ColNames>viacao_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_empresaonibus</RefTableName>
     </foreign-key>
-    <index id="1018" parent="533" name="peraltas_informacoesadcionais_viacao_id_6de7f327">
+    <index id="1045" parent="538" name="peraltas_informacoesadcionais_viacao_id_6de7f327">
       <ColNames>viacao_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="1019" parent="533">
+    <key id="1046" parent="538">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1020" parent="534" name="id">
+    <column id="1047" parent="539" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1021" parent="534" name="informacoesadcionais_id">
+    <column id="1048" parent="539" name="informacoesadcionais_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1022" parent="534" name="atividadeseco_id">
+    <column id="1049" parent="539" name="opcionaisformatura_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="1023" parent="534">
+    <foreign-key id="1050" parent="539">
       <ColNames>informacoesadcionais_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_informacoesadcionais</RefTableName>
     </foreign-key>
-    <foreign-key id="1024" parent="534">
+    <foreign-key id="1051" parent="539">
+      <ColNames>opcionaisformatura_id</ColNames>
+      <Deferrable>1</Deferrable>
+      <InitiallyDeferred>1</InitiallyDeferred>
+      <RefColNames>id</RefColNames>
+      <RefTableName>peraltas_opcionaisformatura</RefTableName>
+    </foreign-key>
+    <index id="1052" parent="539" name="peraltas_informacoesadcionais_opcionais_formatura_informacoesadcionais_id_opcionaisformatura_id_bcaa5a4b_uniq">
+      <ColNames>informacoesadcionais_id
+opcionaisformatura_id</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <index id="1053" parent="539" name="peraltas_informacoesadcionais_opcionais_formatura_informacoesadcionais_id_20ee2392">
+      <ColNames>informacoesadcionais_id</ColNames>
+    </index>
+    <index id="1054" parent="539" name="peraltas_informacoesadcionais_opcionais_formatura_opcionaisformatura_id_effd9359">
+      <ColNames>opcionaisformatura_id</ColNames>
+    </index>
+    <key id="1055" parent="539">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="1056" parent="540" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="1057" parent="540" name="informacoesadcionais_id">
+      <DataType>bigint|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="1058" parent="540" name="opcionaisgerais_id">
+      <DataType>bigint|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <foreign-key id="1059" parent="540">
+      <ColNames>informacoesadcionais_id</ColNames>
+      <Deferrable>1</Deferrable>
+      <InitiallyDeferred>1</InitiallyDeferred>
+      <RefColNames>id</RefColNames>
+      <RefTableName>peraltas_informacoesadcionais</RefTableName>
+    </foreign-key>
+    <foreign-key id="1060" parent="540">
+      <ColNames>opcionaisgerais_id</ColNames>
+      <Deferrable>1</Deferrable>
+      <InitiallyDeferred>1</InitiallyDeferred>
+      <RefColNames>id</RefColNames>
+      <RefTableName>peraltas_opcionaisgerais</RefTableName>
+    </foreign-key>
+    <index id="1061" parent="540" name="peraltas_informacoesadcionais_opcionais_geral_informacoesadcionais_id_opcionaisgerais_id_6b661e76_uniq">
+      <ColNames>informacoesadcionais_id
+opcionaisgerais_id</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <index id="1062" parent="540" name="peraltas_informacoesadcionais_opcionais_geral_informacoesadcionais_id_ed2686b8">
+      <ColNames>informacoesadcionais_id</ColNames>
+    </index>
+    <index id="1063" parent="540" name="peraltas_informacoesadcionais_opcionais_geral_opcionaisgerais_id_0f5cfa64">
+      <ColNames>opcionaisgerais_id</ColNames>
+    </index>
+    <key id="1064" parent="540">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="1065" parent="541" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="1066" parent="541" name="informacoesadcionais_id">
+      <DataType>bigint|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="1067" parent="541" name="atividadeseco_id">
+      <DataType>bigint|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <foreign-key id="1068" parent="541">
+      <ColNames>informacoesadcionais_id</ColNames>
+      <Deferrable>1</Deferrable>
+      <InitiallyDeferred>1</InitiallyDeferred>
+      <RefColNames>id</RefColNames>
+      <RefTableName>peraltas_informacoesadcionais</RefTableName>
+    </foreign-key>
+    <foreign-key id="1069" parent="541">
       <ColNames>atividadeseco_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_atividadeseco</RefTableName>
     </foreign-key>
-    <index id="1025" parent="534" name="peraltas_informacoesadcionais_quais_atividades_informacoesadcionais_id_atividadeseco_id_1e0d79e3_uniq">
+    <index id="1070" parent="541" name="peraltas_informacoesadcionais_quais_atividades_informacoesadcionais_id_atividadeseco_id_1e0d79e3_uniq">
       <ColNames>informacoesadcionais_id
 atividadeseco_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="1026" parent="534" name="peraltas_informacoesadcionais_quais_atividades_informacoesadcionais_id_4c0f6a21">
+    <index id="1071" parent="541" name="peraltas_informacoesadcionais_quais_atividades_informacoesadcionais_id_4c0f6a21">
       <ColNames>informacoesadcionais_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="1027" parent="534" name="peraltas_informacoesadcionais_quais_atividades_atividadeseco_id_c28ea276">
+    <index id="1072" parent="541" name="peraltas_informacoesadcionais_quais_atividades_atividadeseco_id_c28ea276">
       <ColNames>atividadeseco_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="1028" parent="534">
+    <key id="1073" parent="541">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1029" parent="535" name="id">
+    <column id="1074" parent="542" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1030" parent="535" name="telefone">
+    <column id="1075" parent="542" name="telefone">
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1031" parent="535" name="nota">
+    <column id="1076" parent="542" name="nota">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1032" parent="535" name="usuario_id">
+    <column id="1077" parent="542" name="usuario_id">
       <DataType>integer|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="1033" parent="535" name="n_avaliacoes">
+    <column id="1078" parent="542" name="n_avaliacoes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <foreign-key id="1034" parent="535">
+    <foreign-key id="1079" parent="542">
       <ColNames>usuario_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <index id="1035" parent="535" name="sqlite_autoindex_peraltas_monitor_1">
+    <index id="1080" parent="542" name="sqlite_autoindex_peraltas_monitor_1">
       <ColNames>usuario_id</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="1036" parent="535">
+    <key id="1081" parent="542">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="1037" parent="535">
+    <key id="1082" parent="542">
       <ColNames>usuario_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_monitor_1</UnderlyingIndexName>
     </key>
-    <column id="1038" parent="536" name="id">
+    <column id="1083" parent="543" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1039" parent="536" name="opcional_formatura">
+    <column id="1084" parent="543" name="opcional_formatura">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <key id="1040" parent="536">
+    <key id="1085" parent="543">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1041" parent="537" name="id">
+    <column id="1086" parent="544" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1042" parent="537" name="opcional_geral">
+    <column id="1087" parent="544" name="opcional_geral">
       <DataType>varchar(100)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <key id="1043" parent="537">
+    <key id="1088" parent="544">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1044" parent="538" name="id">
+    <column id="1089" parent="545" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1045" parent="538" name="fase">
+    <column id="1090" parent="545" name="fase">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1046" parent="538" name="ano">
+    <column id="1091" parent="545" name="ano">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1047" parent="538" name="idade">
+    <column id="1092" parent="545" name="idade">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <key id="1048" parent="538">
+    <key id="1093" parent="545">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1049" parent="539" name="id">
+    <column id="1094" parent="546" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1050" parent="539" name="produto">
+    <column id="1095" parent="546" name="produto">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1051" parent="539" name="pernoite">
+    <column id="1096" parent="546" name="pernoite">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1052" parent="539" name="colegio">
+    <column id="1097" parent="546" name="colegio">
       <DataType>bool|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <key id="1053" parent="539">
+    <key id="1098" parent="546">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1054" parent="540" name="id">
+    <column id="1099" parent="547" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1055" parent="540" name="cliente_id">
+    <column id="1100" parent="547" name="cliente_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <foreign-key id="1056" parent="540">
+    <foreign-key id="1101" parent="547">
       <ColNames>cliente_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_clientecolegio</RefTableName>
     </foreign-key>
-    <index id="1057" parent="540" name="peraltas_relacaoclienteresponsavel_cliente_id_a488f376">
+    <index id="1102" parent="547" name="peraltas_relacaoclienteresponsavel_cliente_id_a488f376">
       <ColNames>cliente_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="1058" parent="540">
+    <key id="1103" parent="547">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1059" parent="541" name="id">
+    <column id="1104" parent="548" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1060" parent="541" name="relacaoclienteresponsavel_id">
+    <column id="1105" parent="548" name="relacaoclienteresponsavel_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1061" parent="541" name="responsavel_id">
+    <column id="1106" parent="548" name="responsavel_id">
       <DataType>bigint|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <foreign-key id="1062" parent="541">
+    <foreign-key id="1107" parent="548">
       <ColNames>relacaoclienteresponsavel_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_relacaoclienteresponsavel</RefTableName>
     </foreign-key>
-    <foreign-key id="1063" parent="541">
+    <foreign-key id="1108" parent="548">
       <ColNames>responsavel_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>peraltas_responsavel</RefTableName>
     </foreign-key>
-    <index id="1064" parent="541" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_responsavel_id_2ff56303_uniq">
+    <index id="1109" parent="548" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_responsavel_id_2ff56303_uniq">
       <ColNames>relacaoclienteresponsavel_id
 responsavel_id</ColNames>
-      <ColumnCollations>
-</ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="1065" parent="541" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_91343eb5">
+    <index id="1110" parent="548" name="peraltas_relacaoclienteresponsavel_responsavel_relacaoclienteresponsavel_id_91343eb5">
       <ColNames>relacaoclienteresponsavel_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <index id="1066" parent="541" name="peraltas_relacaoclienteresponsavel_responsavel_responsavel_id_be0f46a0">
+    <index id="1111" parent="548" name="peraltas_relacaoclienteresponsavel_responsavel_responsavel_id_be0f46a0">
       <ColNames>responsavel_id</ColNames>
-      <ColumnCollations></ColumnCollations>
     </index>
-    <key id="1067" parent="541">
+    <key id="1112" parent="548">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1068" parent="542" name="id">
+    <column id="1113" parent="549" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1069" parent="542" name="nome">
+    <column id="1114" parent="549" name="nome">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1070" parent="542" name="cargo">
+    <column id="1115" parent="549" name="cargo">
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1071" parent="542" name="fone">
+    <column id="1116" parent="549" name="fone">
       <DataType>varchar(16)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="1072" parent="542" name="email_responsavel_evento">
+    <column id="1117" parent="549" name="email_responsavel_evento">
       <DataType>varchar(254)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <key id="1073" parent="542">
+    <key id="1118" parent="549">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="1074" parent="543" name="id">
+    <column id="1119" parent="550" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="1075" parent="543" name="telefone">
+    <column id="1120" parent="550" name="telefone">
       <DataType>varchar(11)|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="1076" parent="543" name="nota">
+    <column id="1121" parent="550" name="nota">
       <DataType>real|0s</DataType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="1077" parent="543" name="usuario_id">
+    <column id="1122" parent="550" name="usuario_id">
       <DataType>integer|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="1078" parent="543" name="n_avaliacoes">
+    <column id="1123" parent="550" name="n_avaliacoes">
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <foreign-key id="1079" parent="543">
+    <foreign-key id="1124" parent="550">
       <ColNames>usuario_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
       <RefColNames>id</RefColNames>
       <RefTableName>auth_user</RefTableName>
     </foreign-key>
-    <index id="1080" parent="543" name="sqlite_autoindex_peraltas_vendedor_1">
+    <index id="1125" parent="550" name="sqlite_autoindex_peraltas_vendedor_1">
       <ColNames>usuario_id</ColNames>
-      <ColumnCollations></ColumnCollations>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="1081" parent="543">
+    <key id="1126" parent="550">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="1082" parent="543">
+    <key id="1127" parent="550">
       <ColNames>usuario_id</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_peraltas_vendedor_1</UnderlyingIndexName>
     </key>
-    <column id="1083" parent="544" name="type">
+    <column id="1128" parent="551" name="type">
       <DataType>text|0s</DataType>
       <Position>1</Position>
     </column>
-    <column id="1084" parent="544" name="name">
+    <column id="1129" parent="551" name="name">
       <DataType>text|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="1085" parent="544" name="tbl_name">
+    <column id="1130" parent="551" name="tbl_name">
       <DataType>text|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="1086" parent="544" name="rootpage">
+    <column id="1131" parent="551" name="rootpage">
       <DataType>int|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="1087" parent="544" name="sql">
+    <column id="1132" parent="551" name="sql">
       <DataType>text|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="1088" parent="545" name="name">
+    <column id="1133" parent="552" name="name">
       <Position>1</Position>
     </column>
-    <column id="1089" parent="545" name="seq">
+    <column id="1134" parent="552" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

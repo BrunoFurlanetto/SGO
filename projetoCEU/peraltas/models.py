@@ -271,9 +271,17 @@ class DisponibilidadeHotelaria(models.Model):
     n_dias = models.IntegerField()
 
 
+class DiaLimiteAcampamento(models.Model):
+    dia_limite_acampamento = models.PositiveIntegerField()
+
+
 class EscalaAcampamneto(models.Model):
     monitores_acampamento = models.CharField(max_length=255)
     data = models.DateField()
+
+
+class DiaLimiteHotelaria(models.Model):
+    dia_limite_acampamento = models.PositiveIntegerField()
 
 
 class EscalaHotelaria(models.Model):

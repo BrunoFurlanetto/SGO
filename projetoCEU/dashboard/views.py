@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
-from escala.models import Escala
+from escala.models import Escala, DiaLimite
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas
 
 from ceu.models import Professores
@@ -98,10 +98,10 @@ def dashboardCeu(request):
         return JsonResponse({'dados': dados,})
 
     # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
-
     mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
+    dia_limite = DiaLimite.objects.get(id=1)
     depois_25 = False
-    if datetime.now().day > 25:
+    if datetime.now().day > dia_limite.dia_limite:
         depois_25 = True
 
     if request.method != 'POST':

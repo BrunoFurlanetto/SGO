@@ -33,25 +33,29 @@
       </div>
       <div class="botoes">
         {% if coordenador %}
-          <div class="row mb-1">
-            <div class="my-2" style="width: 80px">
+          <div class="row mb-1" style="margin-top: -10px">
+            <div style="width: 50%">
               <label>Professor</label>
-            </div>
-            <div class="col-5">
               <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
                 <option selected></option>
                 {% for professor in professores %}
-                  <option>{{ professor.usuario.first_name }}</option>
+                  <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
                 {% endfor %}
               </select>
             </div>
+            <div style="width: 25%">
+                <label>Dia limite</label>
+                <input class="form-control" type="number" name="dia_limite" id="dia_limite" onchange="dia_alterado()" value="{{ dia_limite.dia_limite }}">
+            </div>
+            <button id="botao_dia" type="button" class="botao mt-4" style="width: 20%; padding: 0" onCLick="alterar_dia_limite()" disabled><span>Alterar</span></button>
           </div>
         {% endif %}
+        <hr>
         <button type="button" class="botao" onClick="selecionar()">
           <span>Selecionar todos os dias</span>
         </button>
         <input id="entrada" name="datas_disponiveis" type="hidden">
-        {% if coordenador or antes_25 %}
+        {% if coordenador or antes_dia %}
           <button type="button" onClick="enviar()" class="botao mt-1">
             <span>Enviar datas disponiveis</span>
           </button>
