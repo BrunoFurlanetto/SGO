@@ -271,6 +271,16 @@ class DisponibilidadeHotelaria(models.Model):
     n_dias = models.IntegerField()
 
 
+class EscalaAcampamneto(models.Model):
+    monitores_acampamento = models.CharField(max_length=255)
+    data = models.DateField()
+
+
+class EscalaHotelaria(models.Model):
+    monitores_hotelaria = models.CharField(max_length=255)
+    data = models.DateField()
+
+
 # ------------------------------------------------ Formulários ---------------------------------------------------------
 class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(

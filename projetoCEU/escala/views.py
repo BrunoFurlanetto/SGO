@@ -182,3 +182,8 @@ def disponibilidadePeraltas(request):
             return JsonResponse({'tipo': 'erro',
                                  'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
 
+
+def verEscalaPeraltas(request):
+    edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
+
+    return render(request, 'escala/escala_peraltas.html', {'edita': edita})

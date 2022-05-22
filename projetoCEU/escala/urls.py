@@ -5,4 +5,5 @@ urlpatterns = [
     path('', views.escala, name='escala'),
     path('disponibilidade/', views.disponibilidade, name='disponibilidade'),
     path('disponibilidade_peraltas/', views.disponibilidadePeraltas, name='disponibilidadePeraltas'),
+    path('peraltas/', views.verEscalaPeraltas, name='escalaPeraltas'),
 ]
