@@ -66,7 +66,7 @@ def disponibilidade(request):
         coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
         professores = Professores.objects.all()
 
-        return render(request, 'escala/disponibilidade.html', {'antes_25': antes_dia, 'dia_limite': dia_limite,
+        return render(request, 'escala/disponibilidade.html', {'antes_dia': antes_dia, 'dia_limite': dia_limite,
                                                                'professores': professores, 'coordenador': coordenador})
 
     if is_ajax(request):
