@@ -176,3 +176,54 @@ jQuery('document').ready(function() {
 })
 
 renderCalendar_disponibilidade_acampamento();
+
+ 
+function dia_acampamento_alterado() {
+    $('#botao_alterar_dia_acampamento').prop('disabled', false)
+}
+
+function alterar_dia_limite_acampamento(){
+    let novo_dia = $('#dia_limite_acampamento').val()
+    let div_mensagem = $('#mensagem')
+
+    let ultimo_dia_mes = new Date(
+        date_disponibilidade_acampamento.getFullYear(),
+        date_disponibilidade_acampamento.getMonth() + 1,
+        0
+    ).getDate();
+
+    if(novo_dia > 0 && novo_dia <= ultimo_dia_mes){
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'setor': 'acampamento', 'novo_dia': novo_dia},
+            success: function (response) {
+
+                if(response['tipo'] === 'sucesso'){
+                    if(div_mensagem.length !== 0) {
+                        div_mensagem.empty()
+                        div_mensagem.append(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }else{
+                        $('#corpo_site').prepend(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }
+                }else{
+                    if(div_mensagem.length !== 0) {
+                        div_mensagem.empty()
+                        div_mensagem.append(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
+                    }else{
+                        $('#corpo_site').prepend(`<p id="mensagem" class="alert-danger">${response['mensagem']}</p>`)
+                    }
+                }
+
+            }
+        })
+    }else{
+        if(div_mensagem.length !== 0){
+            div_mensagem.empty()
+            div_mensagem.append(`<p id="mensagem" class="alert-danger">O dia limite deve estar entre 01 e ${ultimo_dia_mes}!</p>`)
+        }else {
+            $('#corpo_site').prepend(`<p id="mensagem" class="alert-danger">O dia limite deve estar entre 01 e ${ultimo_dia_mes}!</p>`)
+        }
+    }
+}

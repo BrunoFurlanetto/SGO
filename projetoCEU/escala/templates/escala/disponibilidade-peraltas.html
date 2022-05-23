@@ -33,29 +33,35 @@
                       <div class="days-disponibilidade-acampamento">
                       </div>
                       <div class="botoes">
-                        {% if coordenador %}
-                          <div class="row mb-1">
-                            <div class="my-2" style="width: 80px">
+                        {% if coordenador_acampamento %}
+                          <div class="row">
+                            <div style="width: 50%">
                               <label>Monitor</label>
-                            </div>
-                            <div class="col-5">
-                              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
+                              <select class="form-select" id="monitor_acampamento" name="monitor_acampamento">
                                 <option selected></option>
                                 {% for monitor in monitores %}
-                                  <option value="{{ monitor.id }}">{{ monitor.usuario.first_name }}</option>
+                                  <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
                                 {% endfor %}
                               </select>
                             </div>
+                            <div style="width: 25%">
+                                <label>Dia limite</label>
+                                <input class="form-control" type="number" id="dia_limite_acampamento" name="dia_limite_acampamento" onChange="dia_acampamento_alterado()" value="{{ dia_limite_acampamento }}">
+                            </div>
+                            <button id="botao_alterar_dia_acampamento" type="button" class="botao mt-4" style="width: 20%; padding: 0" onCLick="alterar_dia_limite_acampamento()" disabled><span>Alterar</span></button>
                           </div>
+                          <hr>
                         {% endif %}
                         <button type="button" class="botao" onClick="selecionar_acampamento()">
                           <span>Selecionar todos os dias</span>
                         </button>
                         <input id="entrada_acampamento" name="datas_disponiveis" type="hidden">
                         <input id="acampamento" name="peraltas" type="hidden" value="acampamento">
+                        {% if coordenador_acampamento or antes_dia_limite_acampamento %}
                           <button type="button" onClick="enviar_acampamento()" class="botao mt-1">
                             <span>Enviar datas disponiveis</span>
                           </button>
+                        {% endif %}
                         <div hidden>
                           <button id="enviando_acampamento" type="submit">Enviar</button>
                         </div>
@@ -96,29 +102,35 @@
                       <div class="days-disponibilidade-hotelaria">
                       </div>
                       <div class="botoes">
-                        {% if coordenador %}
-                          <div class="row mb-1">
-                            <div class="my-2" style="width: 80px">
+                        {% if coordenador_hotelaria %}
+                          <div class="row">
+                            <div style="width: 50%">
                               <label>Monitor</label>
-                            </div>
-                            <div class="col-5">
                               <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
                                 <option selected></option>
                                 {% for monitor in monitores %}
-                                  <option value="{{ monitor.id }}">{{ monitor.usuario.first_name }}</option>
+                                  <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
                                 {% endfor %}
                               </select>
                             </div>
+                            <div style="width: 25%">
+                                <label>Dia limite</label>
+                                <input class="form-control" type="number" id="dia_limite_hotelaria" name="dia_limite_hotelaria" onChange="dia_hotelaria_alterado()" value="{{ dia_limite_hotelaria }}">
+                            </div>
+                            <button id="botao_alterar_dia_hotelaria" type="button" class="botao mt-4" style="width: 20%; padding: 0" onclick="alterar_dia_limite_hotelaria()" disabled><span>Alterar</span></button>
                           </div>
+                          <hr>
                         {% endif %}
                         <button type="button" class="botao" onClick="selecionar_hotelaria()">
                           <span>Selecionar todos os dias</span>
                         </button>
                         <input id="entrada_hotelaria" name="datas_disponiveis" type="hidden">
                         <input id="acampamento" name="peraltas" type="hidden" value="hotelaria">
+                        {% if coordenar_hotelaria or antes_dia_limite_hotelaria %}
                           <button type="button" onClick="enviar_hotelaria()" class="botao mt-1">
                             <span>Enviar datas disponiveis</span>
                           </button>
+                        {% endif %}
                         <div hidden>
                           <button id="enviando_hotelaria" type="submit">Enviar</button>
                         </div>

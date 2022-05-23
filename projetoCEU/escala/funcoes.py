@@ -2,7 +2,8 @@ import datetime
 
 from ceu.models import Professores
 from escala.models import Disponibilidade
-from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor
+from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
+    DiaLimiteAcampamento
 
 
 def is_ajax(request):
@@ -73,3 +74,27 @@ def verificar_mes_e_ano(dias):
     ano = datetime.datetime.strptime(dia_referencia, '%d/%m/%Y').year
 
     return mes, ano
+
+
+def alterar_dia_limite_peraltas(dados):
+    if dados.get('setor') == 'hotelaria':
+        dia_limite_hotelaria = DiaLimiteHotelaria.objects.get(id=1)
+
+        try:
+            dia_limite_hotelaria.dia_limite_hotelaria = int(dados.get('novo_dia'))
+            dia_limite_hotelaria.save()
+        except:
+            return {'tipo': 'error', 'mensagem': 'Houve um erro inesperado, por favor tente novamente mais tarde!'}
+        else:
+            return {'tipo': 'sucesso', 'mensagem': 'Dia limite atualizado com sucesso!'}
+
+    if dados.get('setor') == 'acampamento':
+        dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)
+
+        try:
+            dia_limite_acampamento.dia_limite_acampamento = int(dados.get('novo_dia'))
+            dia_limite_acampamento.save()
+        except:
+            return {'tipo': 'error', 'mensagem': 'Houve um erro inesperado, por favor tente novamente mais tarde!'}
+        else:
+            return {'tipo': 'sucesso', 'mensagem': 'Dia limite atualizado com sucesso!'}

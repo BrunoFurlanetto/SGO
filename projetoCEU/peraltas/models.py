@@ -281,7 +281,7 @@ class EscalaAcampamneto(models.Model):
 
 
 class DiaLimiteHotelaria(models.Model):
-    dia_limite_acampamento = models.PositiveIntegerField()
+    dia_limite_hotelaria = models.PositiveIntegerField()
 
 
 class EscalaHotelaria(models.Model):

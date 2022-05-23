@@ -5,8 +5,10 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
-from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax
+from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
+    alterar_dia_limite_peraltas
 from escala.models import Escala, Disponibilidade, DiaLimite
+from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 
@@ -123,16 +125,32 @@ def disponibilidade(request):
 
 
 def disponibilidadePeraltas(request):
+    dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)
+    dia_limite_hotelaria = DiaLimiteHotelaria.objects.get(id=1)
 
     if request.method != "POST":
-        antes_25 = True if datetime.now().day < 25 else False
-        coordenador = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
+        antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
+        antes_dia_limite_hotelaria = True if datetime.now().day < dia_limite_hotelaria.dia_limite_hotelaria else False
+
+        coordenador_acampamento = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
+        coordenador_hotelaria = User.objects.filter(pk=request.user.id, groups__name='Coordenador hotelaria').exists()
         monitores = Monitor.objects.all()
 
-        return render(request, 'escala/disponibilidade-peraltas.html', {'coordenador': coordenador,
-                                                                        'monitores': monitores})
+        return render(request, 'escala/disponibilidade-peraltas.html', {
+            'coordenador_acampamento': coordenador_acampamento,
+            'coordenador_hotelaria': coordenador_hotelaria,
+            'dia_limite_acampamento': dia_limite_acampamento.dia_limite_acampamento,
+            'dia_limite_hotelaria': dia_limite_hotelaria.dia_limite_hotelaria,
+            'monitores': monitores,
+            'antes_dia_limite_acampamento': antes_dia_limite_acampamento,
+            'antes_dia_limite_hotelaria': antes_dia_limite_hotelaria,
+        })
 
     if is_ajax(request):
+        if request.POST.get('novo_dia'):
+            return JsonResponse(alterar_dia_limite_peraltas(request.POST))
+
+
         monitor = Monitor.objects.get(usuario=request.user)
         print(request.POST.get('datas_disponiveis'))
         if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
