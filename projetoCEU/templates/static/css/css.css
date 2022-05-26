@@ -445,3 +445,38 @@
     font-size: 25px;
     color: black;
 }
+#selecionar_setor{
+    width: 15%;
+    margin-left: 20px;
+    position: absolute;
+    z-index: 1;
+}
+.conteudo-escalar-monitores{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 650px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    justify-content: center;
+}
+#escalados{
+    width: 95%;
+    height: auto;
+    border: solid 1px #616565;
+    margin-left: 2%;
+    border-radius: 10px;
+}
+#nome_monitor_botao{
+    margin: 5px;
+    width: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 1px 1px 2px;
+}
+#nome_monitor_botao button{
+    background-color: transparent;
+    border: none;
+}

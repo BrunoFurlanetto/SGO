@@ -1,9 +1,11 @@
 import datetime
+from itertools import chain
 
 from ceu.models import Professores
 from escala.models import Disponibilidade
+from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
-    DiaLimiteAcampamento
+    DiaLimiteAcampamento, FichaDeEvento
 
 
 def is_ajax(request):
@@ -72,9 +74,9 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
         dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
     else:
         if peraltas == 'acampamento':  # Em caso de ser do Peraltas, verifica se a disponibildade vai pro acampamento
-            dias_cadastrados = DisponibilidadeAcampamento.objects.filter(monitor=professor, mes=mes, ano=ano)
+            dias_cadastrados = DisponibilidadeAcampamento.objects.get(monitor=professor, mes=mes, ano=ano)
         else:  # Ou se vai para a hotelaria
-            dias_cadastrados = DisponibilidadeHotelaria.objects.filter(monitor=professor, mes=mes, ano=ano)
+            dias_cadastrados = DisponibilidadeHotelaria.objects.get(monitor=professor, mes=mes, ano=ano)
 
     if dias_cadastrados:  # Primeiro verifica se o usuário já cadastrou algum dia
         lista_dias_cadastrados = dias_cadastrados.dias_disponiveis.split(', ')  # Lista de dias já cadastrado
@@ -151,3 +153,56 @@ def alterar_dia_limite_peraltas(dados):
             return {'tipo': 'error', 'mensagem': 'Houve um erro inesperado, por favor tente novamente mais tarde!'}
         else:  # Novo dia salvo com sucesso
             return {'tipo': 'sucesso', 'mensagem': 'Dia limite atualizado com sucesso!'}
+
+
+def pegar_clientes_data_selecionada(data):
+    """
+    Função responsável por pegar os colégio e as empresas que virão em uma determinada data, selecionada
+    peloe coordenador do acampamento e retornar os dados todos padronizados. Necessário pelos models da
+    ficha de evento e ordem de serviço ter nomes diferentes em relação ao cliente.
+
+    :param data: Data selecionada
+    :return: Retorna a lista de todos os clientes padronizado, id e nome fantasia
+    """
+    # ----- Primeiramente é pego os cliente que não tornaram OS e depois as fichas de evento que já tem sua OS -----
+    clientes_dia_ficha = FichaDeEvento.objects.filter(os=False).filter(check_in__date__lte=data,
+                                                                       check_out__date__gte=data)
+    clientes_dia_ordem = OrdemDeServico.objects.filter(evento_terminado=False).filter(check_in__date__lte=data,
+                                                                                      check_out__date__gte=data)
+    # Junta em uma lista pra facilitar no looping que vai pegar os dados de forma correta
+    todos_clientes = list(chain(clientes_dia_ficha, clientes_dia_ordem))
+    clientes = []  # Lista que vai receber os dados
+
+    # ----------------- Looping respoensável por pegar os dados do cliente em cada instância ---------------------
+    for cliente in todos_clientes:
+        if isinstance(cliente, FichaDeEvento):
+            clientes.append({'id': cliente.cliente.id, 'nome_fantasia': cliente.cliente.nome_fantasia})
+        else:
+            clientes.append({'id': cliente.instituicao.id, 'nome_fantasia': cliente.instituicao.nome_fantasia})
+    # ------------------------------------------------------------------------------------------------------------
+    return clientes
+
+
+def monitores_disponiveis(data):
+    print(data.strftime('%d/%m/%Y'))
+    mes = data.month
+    ano = data.year
+    monitores_diponiveis_hotelaria = []
+    monitores_disponiveis_acampamento = []
+
+    monitores_hotelaria = DisponibilidadeHotelaria.objects.filter(ano=ano).filter(mes=mes).filter(
+        dias_disponiveis__icontains=data.strftime('%d/%m/%Y'))
+    monitores_acampamento = DisponibilidadeAcampamento.objects.filter(ano=ano).filter(mes=mes).filter(
+        dias_disponiveis__icontains=data.strftime('%d/%m/%Y'))
+
+    monitores = list(chain(monitores_hotelaria, monitores_acampamento))
+
+    for monitor in monitores:
+        if isinstance(monitor, DisponibilidadeHotelaria):
+            monitores_diponiveis_hotelaria.append({'id': monitor.monitor.id,
+                                                   'nome': monitor.monitor.usuario.get_full_name()})
+        else:
+            monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
+                                                      'nome': monitor.monitor.usuario.get_full_name()})
+
+    return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento

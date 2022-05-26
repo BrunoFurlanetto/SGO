@@ -276,7 +276,8 @@ class DiaLimiteAcampamento(models.Model):
 
 
 class EscalaAcampamneto(models.Model):
-    monitores_acampamento = models.CharField(max_length=255)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    monitores_acampamento = models.ManyToManyField(Monitor)
     data = models.DateField()
 
 
@@ -285,7 +286,7 @@ class DiaLimiteHotelaria(models.Model):
 
 
 class EscalaHotelaria(models.Model):
-    monitores_hotelaria = models.CharField(max_length=255)
+    monitores_hotelaria = models.ManyToManyField(Monitor)
     data = models.DateField()
 
 

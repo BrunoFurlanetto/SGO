@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-escalar-monitores">
+        <div class="titulo-conteudo-escalar-monitores">
+            <center>
+                <h2>Escalar monitores</h2>
+            </center>
+        </div>
+        <hr>
+        <div style="width: 70%">
+            <h5 class="titulo-secao">Eventos para {{ data }}</h5>
+            <label for="cliente">Cliente</label>
+            <select class="form-select" name="cliente" id="cliente" onchange="">
+                <option selected></option>
+                {% for cliente in clientes_dia %}
+                    <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <hr class="escalar">
+        <div class="monitores-disponiveis row">
+            <h5 class="titulo-secao">Monitores disponiveis</h5>
+            <div id="hotelaria" style="width: 50%">
+                <label for="monitores_hotelaria">Para a hotelaria</label>
+                <select name="monitores_hotelaria" id="monitores_hotelaria" multiple style="width: 100%" onchange="escalado(this)">
+                    {% for monitor in monitores_hotelaria %}
+                        <option value="{{ monitor.id }}">{{ monitor.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="acampamento" style="width: 50%">
+                <label for="monitores_acampamento">Para o acampamento</label>
+                <select name="monitores_acampamento" id="monitores_acampamento" multiple style="width: 100%; overflow: hidden" onclick="escalado(this)">
+                    {% for monitor in monitores_acampamento %}
+                        <option value="{{ monitor.id }}">{{ monitor.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <hr>
+        <div class="row escalados" id="escalar">
+            {% if setor == 'acampamento' %}
+                <h5 class="titulo-secao">Escalados para o {{ setor }}</h5>
+            {% else %}
+                <h5 class="titulo-secao">Escalados para a {{ setor }}</h5>
+            {% endif %}
+            <div class="row" id="escalados"></div>
+        </div>
+    </div>
+    <script src="{% static 'js/escalar_monitores.js' %}"></script>
+{% endblock %}

@@ -1,4 +1,6 @@
 from datetime import datetime
+from itertools import chain
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -6,9 +8,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
-    alterar_dia_limite_peraltas
+    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis
 from escala.models import Escala, Disponibilidade, DiaLimite
-from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria
+from ordemDeServico.models import OrdemDeServico
+from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 
@@ -150,11 +153,10 @@ def disponibilidadePeraltas(request):
         if request.POST.get('novo_dia'):
             return JsonResponse(alterar_dia_limite_peraltas(request.POST))
 
-
         monitor = Monitor.objects.get(usuario=request.user)
         print(request.POST.get('datas_disponiveis'))
         if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
-            monitor = Monitor.objects.get(id=int(request.POST.get('minitor')))
+            monitor = Monitor.objects.get(id=int(request.POST.get('monitor')))
 
         dias = verificar_dias(request.POST.get('datas_disponiveis'),
                               Monitor.objects.get(usuario=monitor.usuario),
@@ -187,7 +189,7 @@ def disponibilidadePeraltas(request):
                         if dias[1]:
                             msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
                             return JsonResponse({'tipo': 'sucesso',
-                                                'mensagem': msg})
+                                                 'mensagem': msg})
                 else:
                     return JsonResponse({'tipo': 'aviso',
                                          'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'})
@@ -219,3 +221,16 @@ def verEscalaPeraltas(request):
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
 
     return render(request, 'escala/escala_peraltas.html', {'edita': edita})
+
+
+def escalarMonitores(request, setor, data):
+    data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
+    clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
+    monitores_hotelaria, monitores_acampamento = monitores_disponiveis(data_selecionada)
+    print(monitores_acampamento)
+
+    return render(request, 'escala/escalar_monitores.html', {'clientes_dia': clientes_dia,
+                                                             'data': data_selecionada,
+                                                             'setor': setor,
+                                                             'monitores_hotelaria': monitores_hotelaria,
+                                                             'monitores_acampamento': monitores_acampamento})

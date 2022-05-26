@@ -43,6 +43,7 @@ class OrdemDeServico(models.Model):
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)
     ficha_avaliacao = models.BooleanField(default=False)
+    evento_terminado = models.BooleanField(default=False)
 
 
 class CadastroOrdemDeServico(forms.ModelForm):
