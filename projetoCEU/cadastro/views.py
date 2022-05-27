@@ -167,6 +167,10 @@ def ordemDeServico(request):
         salvar_atividades_ceu(request.POST, ordem_de_servico)
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
+        
+        if ficha.escala:
+            form.escala = True
+
         form.save()
     except:
         messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'

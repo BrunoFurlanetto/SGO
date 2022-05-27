@@ -219,6 +219,7 @@ class FichaDeEvento(models.Model):
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)
+    escala = models.BooleanField(default=False)
     ficha_financeira = models.BooleanField(default=False)
 
     def __str__(self):
@@ -275,7 +276,7 @@ class DiaLimiteAcampamento(models.Model):
     dia_limite_acampamento = models.PositiveIntegerField()
 
 
-class EscalaAcampamneto(models.Model):
+class EscalaAcampamento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     monitores_acampamento = models.ManyToManyField(Monitor)
     data = models.DateField()

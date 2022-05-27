@@ -11,7 +11,8 @@ from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento
+from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
+    EscalaHotelaria
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 
@@ -218,19 +219,80 @@ def disponibilidadePeraltas(request):
 
 
 def verEscalaPeraltas(request):
-    edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists()
+    edita = False
+    setor = ''
 
-    return render(request, 'escala/escala_peraltas.html', {'edita': edita})
+    if User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists():
+        setor = 'acampamento'
+        edita = True
+    elif User.objects.filter(pk=request.user.id, groups__name='Coordenador hotelaria').exists():
+        setor = 'hotelaria'
+        edita = True
+
+    return render(request, 'escala/escala_peraltas.html', {'edita': edita,
+                                                           'setor': setor})
 
 
 def escalarMonitores(request, setor, data):
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
-    monitores_hotelaria, monitores_acampamento = monitores_disponiveis(data_selecionada)
-    print(monitores_acampamento)
+    monitores_disponiveis_hotelaria, monitores_disponiveis_acampamento = monitores_disponiveis(data_selecionada)
 
-    return render(request, 'escala/escalar_monitores.html', {'clientes_dia': clientes_dia,
-                                                             'data': data_selecionada,
-                                                             'setor': setor,
-                                                             'monitores_hotelaria': monitores_hotelaria,
-                                                             'monitores_acampamento': monitores_acampamento})
+    if request.method != 'POST':
+        return render(request, 'escala/escalar_monitores.html', {
+            'clientes_dia': clientes_dia,
+            'data': data_selecionada,
+            'setor': setor,
+            'monitores_hotelaria': monitores_disponiveis_hotelaria,
+            'monitores_acampamento': monitores_disponiveis_acampamento})
+
+    if setor == 'acampamento':
+        try:
+            cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
+
+            nova_escala = EscalaAcampamento.objects.create(cliente=cliente, data=data_selecionada)
+            nova_escala.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
+
+            nova_escala.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
+            return render(request, 'escala/escalar_monitores.html', {
+                'clientes_dia': clientes_dia,
+                'data': data_selecionada,
+                'setor': setor,
+                'monitores_hotelaria': monitores_disponiveis_hotelaria,
+                'monitores_acampamento': monitores_disponiveis_acampamento})
+        else:
+            ficha_cliente = FichaDeEvento.objects.get(cliente=cliente)
+            ficha_cliente.escala = True
+            ficha_cliente.save()
+
+            if ficha_cliente.os:
+                ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente)
+                ordem_cliente.escala = True
+                ordem_cliente.save()
+
+            messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
+            return render(request, 'escala/escalar_monitores.html', {
+                'clientes_dia': clientes_dia,
+                'data': data_selecionada,
+                'setor': setor,
+                'monitores_hotelaria': monitores_disponiveis_hotelaria,
+                'monitores_acampamento': monitores_disponiveis_acampamento})
+    elif setor == 'hotelaria':
+        try:
+            nova_escala = EscalaHotelaria.objects.create(data=data_selecionada)
+            nova_escala.monitores_hotelaria.set(request.POST.get('monitores_escalados').split(','))
+
+            nova_escala.save()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
+            return render(request, 'escala/escalar_monitores.html', {
+                'clientes_dia': clientes_dia,
+                'data': data_selecionada,
+                'setor': setor,
+                'monitores_hotelaria': monitores_disponiveis_hotelaria,
+                'monitores_acampamento': monitores_disponiveis_acampamento})
+        else:
+            messages.success(request, f'Escala para {data_selecionada} salva com sucesso!')
+            return redirect('escalaPeraltas')

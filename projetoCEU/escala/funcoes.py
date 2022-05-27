@@ -165,10 +165,10 @@ def pegar_clientes_data_selecionada(data):
     :return: Retorna a lista de todos os clientes padronizado, id e nome fantasia
     """
     # ----- Primeiramente é pego os cliente que não tornaram OS e depois as fichas de evento que já tem sua OS -----
-    clientes_dia_ficha = FichaDeEvento.objects.filter(os=False).filter(check_in__date__lte=data,
-                                                                       check_out__date__gte=data)
-    clientes_dia_ordem = OrdemDeServico.objects.filter(evento_terminado=False).filter(check_in__date__lte=data,
-                                                                                      check_out__date__gte=data)
+    clientes_dia_ficha = FichaDeEvento.objects.filter(os=False, escala=False).filter(check_in__date__lte=data,
+                                                                                     check_out__date__gte=data)
+    clientes_dia_ordem = OrdemDeServico.objects.filter(escala=False).filter(check_in__date__lte=data,
+                                                                            check_out__date__gte=data)
     # Junta em uma lista pra facilitar no looping que vai pegar os dados de forma correta
     todos_clientes = list(chain(clientes_dia_ficha, clientes_dia_ordem))
     clientes = []  # Lista que vai receber os dados
@@ -178,13 +178,13 @@ def pegar_clientes_data_selecionada(data):
         if isinstance(cliente, FichaDeEvento):
             clientes.append({'id': cliente.cliente.id, 'nome_fantasia': cliente.cliente.nome_fantasia})
         else:
-            clientes.append({'id': cliente.instituicao.id, 'nome_fantasia': cliente.instituicao.nome_fantasia})
+            clientes.append({'id': cliente.ficha_de_evento.cliente.id,
+                             'nome_fantasia': cliente.ficha_de_evento.cliente.nome_fantasia})
     # ------------------------------------------------------------------------------------------------------------
     return clientes
 
 
 def monitores_disponiveis(data):
-    print(data.strftime('%d/%m/%Y'))
     mes = data.month
     ano = data.year
     monitores_diponiveis_hotelaria = []
