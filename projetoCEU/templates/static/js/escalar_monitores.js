@@ -5,6 +5,7 @@ function escalado(monitor){
     let monitor_selecionado = $(`#${monitor.id} :selected`)
     let id_monitor = monitor_selecionado.val()
     let nome_monitor = monitor_selecionado.text()
+    const ja_escalado = verificar_escalado(id_monitor)
 
     $('#escalar').removeClass('none')
     monitores_escalados.push(id_monitor)
@@ -27,13 +28,25 @@ function escalado(monitor){
         }
     })
 
-    $('#escalados').append(
-    `<span id = "nome_monitor_botao" onClick = "console.log(this)" >
-        ${nome_monitor} 
-        <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-            &times
-        </button>
-    </span>`)
+    if(ja_escalado){
+        $('#escalados').append(
+            `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" onClick = "console.log(this)" style="background-color: #f8d7da" >
+                ${nome_monitor} 
+                <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                    &times
+                </button>
+            </span>`
+        )
+    }else{
+        $('#escalados').append(
+            `<span id = "nome_monitor_botao" onClick = "console.log(this)" >
+                ${nome_monitor} 
+                <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                    &times
+                </button>
+            </span>`
+        )
+    }
 }
 
 function remover_monitor_escalado(monitor){
@@ -52,6 +65,10 @@ function remover_monitor_escalado(monitor){
     monitores_escalados.splice(monitores_escalados.indexOf(id_monitor), 1)
     monitor.parentNode.remove()
 
+    if($('.ja_escalado').length === 0){
+        $('#mensagem').remove()
+    }
+
 }
 
 function salvar_monitores_escalados(){
@@ -65,4 +82,33 @@ function salvar_monitores_escalados(){
 
     $('#monitores_escalados').val(monitores_escalados)
     $('#enviar_formulario').click()
+}
+
+function verificar_escalado(id_monitor){
+    let ja_escalado = false
+
+    $.ajax({
+        type: 'POST',
+        async: false,
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_monitor': id_monitor},
+        success: function (response){
+
+            if(response['acampamento']){
+                if($('#mensagem').length === 0){
+                    $('#escalar').append('<p class="alert-danger" style="width: 98%; margin-left: 1%" id="mensagem">Monitor(es) presente(s) em escala do acampamento na data em questão!</p>')
+                }
+                ja_escalado = true
+            }
+
+            if(response['hotelaria']){
+                if($('#mensagem').length === 0) {
+                    $('#escalar').append('<p class="alert-danger" style="width: 98%; margin-left: 1%" id="mensagem">Monitor(es) presente(s) em escala da hotelaria na data em questão!</p>')
+                }
+                ja_escalado = true
+            }
+        }
+    })
+    return ja_escalado
 }

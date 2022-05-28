@@ -58,7 +58,7 @@
                                         start: "{{ escala.data | date:'Y-m-d' }}",
 
                                         {% if user == monitor.user %}
-                                            color: '#fcc607',
+                                            color: '#f36d21',
                                             textColor: 'black'
                                         {% endif %}
                                     },
@@ -120,9 +120,15 @@
                                 data: {'cliente': cliente, 'check_in_evento': check_in_evento, 'check_out_evento': check_out_evento},
                                 success: function(response) {
                                     $('#monitores_escalados_modal ul').empty()
+
                                     for(let monitor in response['escalados']){
-                                        $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${response['escalados'][monitor]}</li>`)
+                                        if(response['escalados'][monitor]['coordenador']){
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${response['escalados'][monitor]['nome']}</li>`)
+                                        }else{
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${response['escalados'][monitor]['nome']}</li>`)
+                                        }
                                     }
+
                                 }
                             })
 
@@ -168,7 +174,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-dark" data-dismiss="modal">Sair</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
         </div>

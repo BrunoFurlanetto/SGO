@@ -8,7 +8,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
-    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento
+    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
+    verificar_escalas
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -191,6 +192,9 @@ def disponibilidadePeraltas(request):
                             msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
                             return JsonResponse({'tipo': 'sucesso',
                                                  'mensagem': msg})
+                        else:
+                            return JsonResponse({'tipo': 'sucesso',
+                                                 'mensagem': 'Disponibilidade salva com sucesso!'})
                 else:
                     return JsonResponse({'tipo': 'aviso',
                                          'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'})
@@ -254,6 +258,9 @@ def escalarMonitores(request, setor, data):
             'monitores_hotelaria': monitores_disponiveis_hotelaria,
             'monitores_acampamento': monitores_disponiveis_acampamento})
 
+    if is_ajax(request):
+        return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada))
+
     if setor == 'acampamento':
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
@@ -287,12 +294,7 @@ def escalarMonitores(request, setor, data):
                 ordem_cliente.save()
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
-            return render(request, 'escala/escalar_monitores.html', {
-                'clientes_dia': clientes_dia,
-                'data': data_selecionada,
-                'setor': setor,
-                'monitores_hotelaria': monitores_disponiveis_hotelaria,
-                'monitores_acampamento': monitores_disponiveis_acampamento})
+            return redirect('escalar_monitores')
     elif setor == 'hotelaria':
         try:
             nova_escala = EscalaHotelaria.objects.create(data=data_selecionada)
@@ -308,5 +310,5 @@ def escalarMonitores(request, setor, data):
                 'monitores_hotelaria': monitores_disponiveis_hotelaria,
                 'monitores_acampamento': monitores_disponiveis_acampamento})
         else:
-            messages.success(request, f'Escala para {data_selecionada} salva com sucesso!')
-            return redirect('escalaPeraltas')
+            messages.success(request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!')
+            return redirect('escalaPeraltas', setor, data)

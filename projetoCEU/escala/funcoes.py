@@ -5,7 +5,7 @@ from ceu.models import Professores
 from escala.models import Disponibilidade
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
-    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento
+    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento, EscalaHotelaria
 
 
 def is_ajax(request):
@@ -74,18 +74,18 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
         try:
             dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
         except Disponibilidade.DoesNotExist:
-            dias_cadastrados = None
+            dias_cadastrados = False
     else:
         if peraltas == 'acampamento':  # Em caso de ser do Peraltas, verifica se a disponibildade vai pro acampamento
             try:
                 dias_cadastrados = DisponibilidadeAcampamento.objects.get(monitor=professor, mes=mes, ano=ano)
             except DisponibilidadeAcampamento.DoesNotExist:
-                dias_cadastrados = None
+                dias_cadastrados = False
         else:  # Ou se vai para a hotelaria
             try:
                 dias_cadastrados = DisponibilidadeHotelaria.objects.get(monitor=professor, mes=mes, ano=ano)
             except DisponibilidadeHotelaria.DoesNotExist:
-                dias_cadastrados = None
+                dias_cadastrados = False
 
     if dias_cadastrados:  # Primeiro verifica se o usuário já cadastrou algum dia
         lista_dias_cadastrados = dias_cadastrados.dias_disponiveis.split(', ')  # Lista de dias já cadastrado
@@ -217,6 +217,23 @@ def monitores_disponiveis(data):
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
 
+def verificar_escalas(id_monitor, data_selecionada):
+    monitor_escalado = Monitor.objects.get(id=int(id_monitor))
+
+    escalas_monitor_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento=monitor_escalado,
+                                                                   check_in_cliente__date__lte=data_selecionada,
+                                                                   check_out_cliente__date__gte=data_selecionada)
+
+    escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(monitores_hotelaria=monitor_escalado,
+                                                               data=data_selecionada)
+
+    if escalas_monitor_acampamento and not escalas_monitor_hotelaria:
+        print('Foi')
+        return {'acampamento': True, 'hotelaria': False}
+    elif escalas_monitor_hotelaria and not escalas_monitor_acampamento:
+        return {'acampamento': False, 'hotelaria': True}
+
+
 def escalados_para_o_evento(dados_evento):
     cliente = ClienteColegio.objects.get(nome_fantasia=dados_evento.get('cliente'))
     check_in_evento = datetime.datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
@@ -226,7 +243,21 @@ def escalados_para_o_evento(dados_evento):
     escala_evento_cliente = EscalaAcampamento.objects.get(cliente=cliente, check_in_cliente=check_in_evento,
                                                           check_out_cliente=check_out_evento)
 
+    try:
+        ordem_evento_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente,
+                                                          check_in=check_in_evento,
+                                                          check_out=check_out_evento)
+    except OrdemDeServico.DoesNotExist:
+        ordem_evento_cliente = False
+    else:
+        monitores_escalados.append({'nome': ordem_evento_cliente.monitor_responsavel.usuario.get_full_name(),
+                                    'coordenador': True})
+
     for monitor in escala_evento_cliente.monitores_acampamento.all():
-        monitores_escalados.append(monitor.usuario.get_full_name())
+
+        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+            continue
+        else:
+            monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
     return {'escalados': monitores_escalados}
