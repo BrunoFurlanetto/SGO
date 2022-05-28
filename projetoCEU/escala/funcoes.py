@@ -5,7 +5,7 @@ from ceu.models import Professores
 from escala.models import Disponibilidade
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
-    DiaLimiteAcampamento, FichaDeEvento
+    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento
 
 
 def is_ajax(request):
@@ -71,12 +71,21 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
     # Verifica a intancia do usuário que enviou a disponibilidade, se é professor do CEU ou do Peraltas
     # para poder pegar os dias já cadastrados pelo usuário no model correto
     if isinstance(professor, Professores):
-        dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
+        try:
+            dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
+        except Disponibilidade.DoesNotExist:
+            dias_cadastrados = None
     else:
         if peraltas == 'acampamento':  # Em caso de ser do Peraltas, verifica se a disponibildade vai pro acampamento
-            dias_cadastrados = DisponibilidadeAcampamento.objects.get(monitor=professor, mes=mes, ano=ano)
+            try:
+                dias_cadastrados = DisponibilidadeAcampamento.objects.get(monitor=professor, mes=mes, ano=ano)
+            except DisponibilidadeAcampamento.DoesNotExist:
+                dias_cadastrados = None
         else:  # Ou se vai para a hotelaria
-            dias_cadastrados = DisponibilidadeHotelaria.objects.get(monitor=professor, mes=mes, ano=ano)
+            try:
+                dias_cadastrados = DisponibilidadeHotelaria.objects.get(monitor=professor, mes=mes, ano=ano)
+            except DisponibilidadeHotelaria.DoesNotExist:
+                dias_cadastrados = None
 
     if dias_cadastrados:  # Primeiro verifica se o usuário já cadastrou algum dia
         lista_dias_cadastrados = dias_cadastrados.dias_disponiveis.split(', ')  # Lista de dias já cadastrado
@@ -206,3 +215,18 @@ def monitores_disponiveis(data):
                                                       'nome': monitor.monitor.usuario.get_full_name()})
 
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
+
+
+def escalados_para_o_evento(dados_evento):
+    cliente = ClienteColegio.objects.get(nome_fantasia=dados_evento.get('cliente'))
+    check_in_evento = datetime.datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
+    check_out_evento = datetime.datetime.strptime(dados_evento.get('check_out_evento'), '%Y-%m-%dT%H:%M')
+    monitores_escalados = []
+
+    escala_evento_cliente = EscalaAcampamento.objects.get(cliente=cliente, check_in_cliente=check_in_evento,
+                                                          check_out_cliente=check_out_evento)
+
+    for monitor in escala_evento_cliente.monitores_acampamento.all():
+        monitores_escalados.append(monitor.usuario.get_full_name())
+
+    return {'escalados': monitores_escalados}

@@ -8,7 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
-    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis
+    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -155,7 +155,7 @@ def disponibilidadePeraltas(request):
             return JsonResponse(alterar_dia_limite_peraltas(request.POST))
 
         monitor = Monitor.objects.get(usuario=request.user)
-        print(request.POST.get('datas_disponiveis'))
+
         if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
             monitor = Monitor.objects.get(id=int(request.POST.get('monitor')))
 
@@ -221,16 +221,24 @@ def disponibilidadePeraltas(request):
 def verEscalaPeraltas(request):
     edita = False
     setor = ''
+    escalas_hotelaria = EscalaHotelaria.objects.all()
+    escalas_acampamento = EscalaAcampamento.objects.all()
+
+    if is_ajax(request):
+        return JsonResponse(escalados_para_o_evento(request.POST))
 
     if User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists():
         setor = 'acampamento'
         edita = True
-    elif User.objects.filter(pk=request.user.id, groups__name='Coordenador hotelaria').exists():
+
+    if User.objects.filter(pk=request.user.id, groups__name='Coordenador hotelaria').exists():
         setor = 'hotelaria'
         edita = True
 
     return render(request, 'escala/escala_peraltas.html', {'edita': edita,
-                                                           'setor': setor})
+                                                           'setor': setor,
+                                                           'escalas_hotelaria': escalas_hotelaria,
+                                                           'escalas_acampamento': escalas_acampamento})
 
 
 def escalarMonitores(request, setor, data):
@@ -249,8 +257,14 @@ def escalarMonitores(request, setor, data):
     if setor == 'acampamento':
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
+            evento_cliente = FichaDeEvento.objects.get(escala=False, cliente=cliente)
 
-            nova_escala = EscalaAcampamento.objects.create(cliente=cliente, data=data_selecionada)
+            if evento_cliente.os:
+                evento_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente)
+
+            nova_escala = EscalaAcampamento.objects.create(cliente=cliente,
+                                                           check_in_cliente=evento_cliente.check_in,
+                                                           check_out_cliente=evento_cliente.check_out)
             nova_escala.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
 
             nova_escala.save()

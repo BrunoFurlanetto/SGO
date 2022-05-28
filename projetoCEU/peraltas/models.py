@@ -277,9 +277,10 @@ class DiaLimiteAcampamento(models.Model):
 
 
 class EscalaAcampamento(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     monitores_acampamento = models.ManyToManyField(Monitor)
-    data = models.DateField()
+    check_in_cliente = models.DateTimeField(default=datetime.timezone)
+    check_out_cliente = models.DateTimeField(default=datetime.timezone)
 
 
 class DiaLimiteHotelaria(models.Model):
@@ -289,6 +290,20 @@ class DiaLimiteHotelaria(models.Model):
 class EscalaHotelaria(models.Model):
     monitores_hotelaria = models.ManyToManyField(Monitor)
     data = models.DateField()
+
+    def separar_monitores(self):
+        monitores = []
+
+        for monitor in self.monitores_hotelaria.all():
+            monitores.append({'nome': monitor, 'user': monitor.usuario})
+
+        return monitores
+
+    @staticmethod
+    def retorna_usuario(monitor):
+        print(monitor)
+
+        return monitor
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------

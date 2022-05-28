@@ -37,7 +37,7 @@
                           <div class="row">
                             <div style="width: 50%">
                               <label>Monitor</label>
-                              <select class="form-select" id="monitor_acampamento" name="monitor_acampamento">
+                              <select class="form-select" id="monitor_acampamento" name="monitor">
                                 <option selected></option>
                                 {% for monitor in monitores %}
                                   <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
@@ -106,7 +106,7 @@
                           <div class="row">
                             <div style="width: 50%">
                               <label>Monitor</label>
-                              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
+                              <select class="form-select custom-select mr-sm-2" id="monitor_hotelaria" name="monitor">
                                 <option selected></option>
                                 {% for monitor in monitores %}
                                   <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>

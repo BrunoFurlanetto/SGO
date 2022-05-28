@@ -9,10 +9,9 @@
     <div class="conteudo-escala" style="background-color: white">
         <div id="selecionar_setor">
             <label>Setor</label>
-            <select class="form-select" name="setor" id="setor">
-                <option selected></option>
-                <option value="Acampamento">Acampamento</option>
-                <option value="Hotelaria">Hotelaria</option>
+            <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
+                <option selected value="hotelaria">Hotelaria</option>
+                <option value="acampamento">Acampamento</option>
             </select>
         </div>
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
@@ -20,96 +19,160 @@
         <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            document.addEventListener('DOMContentLoaded', function(){
-                var calendarUI = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarUI,{
+            $(document).ready(function (){
+                mostrar_calendario()
+            })
 
-                    headerToolbar: {
-                        left: '',
-                        center: 'title',
-                    },
-                    eventOrderStrict: true,
-                    locale: 'pt-br',
-                    dayMaxEvents: 3,
+            function mostrar_calendario() {
+                const calendarUI = document.getElementById('calendar');
+                if ($('#setor').val() === 'hotelaria') {
+                    $('#calendar').empty()
+                    let calendario_hotelaria = new FullCalendar.Calendar(calendarUI, {
 
-                    {% if edita %}
-                        navLinks: true,
-                        navLinkDayClick: function(date, jsEvent){
-                            console.log(date.toString())
-                            let dia = String(date.getDate()).padStart(2, '0')
-                            let mes = String(date.getMonth() + 1).padStart(2, '0')
-                            let ano = String(date.getFullYear())
-                            let data = dia + '-' + mes + '-' + ano
-
-                            window.location.href = `{{ setor }}/escalar/${data}`
+                        headerToolbar: {
+                            left: '',
+                            center: 'title',
                         },
 
-                    {% endif %}
+                        eventOrderStrict: true,
+                        locale: 'pt-br',
+                        dayMaxEvents: 3,
 
-                    events: [
-                        {% for escala in escalas %}
-                            {% for professor in escala.separar_equipe %}
+                        {% if edita %}
+                            navLinks: true,
+                            navLinkDayClick: function (date, jsEvent) {
+                                let dia = String(date.getDate()).padStart(2, '0')
+                                let mes = String(date.getMonth() + 1).padStart(2, '0')
+                                let ano = String(date.getFullYear())
+                                let data = dia + '-' + mes + '-' + ano
+
+                                window.location.href = `{{ setor }}/escalar/${data}`
+                            },
+                        {% endif %}
+
+                        events: [
+                            {% for escala in escalas_hotelaria %}
+                                {% for monitor in escala.separar_monitores %}
+                                    {
+                                        title: "{{ forloop.counter }} {{ monitor.nome }}",
+                                        start: "{{ escala.data | date:'Y-m-d' }}",
+
+                                        {% if user == monitor.user %}
+                                            color: '#fcc607',
+                                            textColor: 'black'
+                                        {% endif %}
+                                    },
+                                {% endfor %}
+                            {% endfor %}
+                        ]
+                    });
+                    calendario_hotelaria.render();
+                    calendario_hotelaria.setOption('locale', 'pt-br')
+                } else {
+                    $('#calendar').empty()
+                    let calendario_acampamento = new FullCalendar.Calendar(calendarUI, {
+
+                        headerToolbar: {
+                            left: '',
+                            center: 'title',
+                        },
+
+                        eventOrderStrict: true,
+                        locale: 'pt-br',
+                        dayMaxEvents: 3,
+
+                        {% if edita %}
+                            navLinks: true,
+                            navLinkDayClick: function (date, jsEvent) {
+                                let dia = String(date.getDate()).padStart(2, '0')
+                                let mes = String(date.getMonth() + 1).padStart(2, '0')
+                                let ano = String(date.getFullYear())
+                                let data = dia + '-' + mes + '-' + ano
+
+                                window.location.href = `{{ setor }}/escalar/${data}`
+                            },
+                        {% endif %}
+
+                        events: [
+                            {% for escala in escalas_acampamento %}
                                 {
-                                    title: "{{ forloop.counter }} {{ professor }}",
-                                    start: "{{ escala.data | date:'Y-m-d' }}",
-
-                                    {% if user.first_name == professor %}
-                                      color: '#fcc607',
-                                      textColor: 'black'
-                                    {% endif %}
+                                    title: "{{ escala.cliente }}",
+                                    start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
+                                    end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
                                 },
                             {% endfor %}
-                        {% endfor %}
-                    ]
+                        ],
 
-                });
-                calendar.render();
-                calendar.setOption('locale', 'pt-br')
-            });
+                        eventClick: function(info) {
+                            let cliente = info.event.title
+                            let check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
+                            let check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
+
+                            $('#cliente_modal').val(cliente)
+                            $('#titulo_modal').text('Escala para o evento de ' + cliente)
+                            $('#check_in_evento_modal').val(check_in_evento)
+                            $('#check_out_evento_modal').val(check_out_evento)
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {'cliente': cliente, 'check_in_evento': check_in_evento, 'check_out_evento': check_out_evento},
+                                success: function(response) {
+                                    $('#monitores_escalados_modal ul').empty()
+                                    for(let monitor in response['escalados']){
+                                        $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${response['escalados'][monitor]}</li>`)
+                                    }
+                                }
+                            })
+
+                            $('#ModalEscalaEvento').modal('show');
+                        }
+
+                    });
+                    calendario_acampamento.render();
+                    calendario_acampamento.setOption('locale', 'pt-br')
+                }
+            }
         </script>
+        <script src="{% static 'js/Moment.js' %}"></script>
+    </div>
 
-    <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Cadastro de escala</h5>
-            <button class="x-fechar-modal" data-bs-dismiss="modal" >
-              <span aria-hidden="false" >&times;</span>
-            </button>
-          </div>
-          <form action="{% url 'escala' %}" method="POST">
-            <div class="modal-body">
-                {% csrf_token %}
-                <div class="row" style="width: 90%; margin: 0">
-                    <label>Cliente</label>
-                    <select class="form-select" name="cliente" id="clientes_dia">
-                        <option selected></option>
-                    </select>
+    <div class="modal fade" id="ModalEscalaEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titulo_modal"></h5>
+                    <button class="btn btn-close" data-dismiss="modal" ></button>
                 </div>
-                <hr>
-                <div class="row">
-                    <div class="row" style="width: 50%">
+                <div class="modal-body">
+                    <h5 class="titulo-secao">Dados evento</h5>
+                    <div>
+                        <label for="cliente">Cliente</label>
+                        <input class="form-control" type="text" id="cliente_modal" disabled>
                     </div>
-                    <div style="width: 45%">
-                      <b>Monitores disponiveis na data selecionada:</b>
-                      <ul class="disponiveis"></ul>
+                    <div class="row">
+                        <div style="width: 50%">
+                            <label for="check_in_evento_modal">Check in</label>
+                            <input class="form-control" type="datetime-local" id="check_in_evento_modal" disabled>
+                        </div>
+                        <div style="width: 50%">
+                            <label for="check_out_evento_modal">Check out</label>
+                            <input class="form-control" type="datetime-local" id="check_out_evento_modal" disabled>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="titulo-secao">Monitores escalados</h5>
+                    <div class="row">
+                        <div id="monitores_escalados_modal" style="max-height: 100px; overflow-y: auto"><ul class="row"></ul></div>
                     </div>
                 </div>
-              </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">Sair</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-primary">Salvar escala</button>
-            </div>
-            <script src="{% static 'js/script_base.js' %}"></script>
-          </form>
         </div>
-      </div>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
     </div>
-
-    </div>
-
-
 
 {% endblock %}
 

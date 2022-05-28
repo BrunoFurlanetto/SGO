@@ -26,7 +26,7 @@ function escalado(monitor){
             nome.remove()
         }
     })
-    console.log(setor)
+
     $('#escalados').append(
     `<span id = "nome_monitor_botao" onClick = "console.log(this)" >
         ${nome_monitor} 
