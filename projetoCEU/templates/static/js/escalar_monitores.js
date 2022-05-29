@@ -1,5 +1,35 @@
 monitores_escalados = []
 
+function pegar_dados_evento(selecao){
+    if(selecao.value !== '') {
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'id_cliente': selecao.value},
+            success: function (response) {
+                console.log(response['disponiveis_evento'])
+                $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+
+                for(let monitor in response['disponiveis_evento']){
+
+                    if(response['disponiveis_evento'][monitor]['setor'] === 'acampamento'){
+                        $('#monitores_acampamento').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                    }else{
+                        $('#monitores_hotelaria').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                    }
+                }
+
+            }
+        })
+    }else{
+        $('#check_in').val('')
+        $('#check_out').val('')
+    }
+}
+
 function escalado(monitor){
     let setor = []
     let monitor_selecionado = $(`#${monitor.id} :selected`)

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-escalar-monitores">
+        <div class="titulo-conteudo-escalar-monitores">
+            <center>
+                <h2>Escala para o evento de {{ cliente.nome_fantasia }}</h2>
+            </center>
+        </div>
+        <hr>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-2">
+                <h5 class="titulo-secao">Dados evento</h5>
+                <label for="cliente">Cliente</label>
+                <input class="form-control" type="text" id="cliente" value="{{ cliente.nome_fantasia }}" disabled>
+                <input type="hidden" id="id_cliente" name="cliente" value="{{ cliente.id }}">
+            </div>
+            <div class="row">
+                <div style="width: 50%">
+                    <label for="check_in_cliente">Check in</label>
+                    <input class="form-control" type="datetime-local" id="check_in_cliente" value="{{ evento.check_in }}">
+                </div>
+                <div style="width: 50%">
+                    <label for="check_out_cliente">Check out</label>
+                    <input class="form-control" type="datetime-local" id="check_out_cliente" value="{{ evento.check_out }}">
+                </div>
+            </div>
+            <hr class="escalar">
+            <div class="monitores-disponiveis row">
+                <h5 class="titulo-secao">Monitores disponiveis</h5>
+                <div id="hotelaria" style="width: 50%">
+                    <label for="monitores_hotelaria">Para a hotelaria</label>
+                    <select name="monitores_hotelaria" id="monitores_hotelaria" multiple style="width: 100%" onchange="escalado(this)">
+                        {% for monitor in restante_hotelaria %}
+                            <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="acampamento" style="width: 50%">
+                    <label for="monitores_acampamento">Para o acampamento</label>
+                    <select name="monitores_acampamento" id="monitores_acampamento" multiple style="width: 100%; overflow: hidden" onclick="escalado(this)">
+                        {% for monitor in restante_acampamento %}
+                            <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <div class="row mb-2 escalados" id="escalar">
+                <h5 class="titulo-secao">Escalados para o evento</h5>
+                <div class="row" id="escalados"></div>
+                <input type="hidden" name="monitores_escalados" id="monitores_escalados">
+            </div>
+            <div class="botoes">
+                <button type="button" class="btn btn-primary" onclick="salvar_monitores_escalados()">Salvar</button>
+                <button id="enviar_formulario" class="none" type="submit"></button>
+            </div>
+        </form>
+    </div>
+    <script src="{% static 'js/escalar_monitores.js' %}"></script>
+{% endblock %}

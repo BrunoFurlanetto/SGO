@@ -38,7 +38,7 @@
                         locale: 'pt-br',
                         dayMaxEvents: 3,
 
-                        {% if edita %}
+                        {% if coordenador_hotelaria %}
                             navLinks: true,
                             navLinkDayClick: function (date, jsEvent) {
                                 let dia = String(date.getDate()).padStart(2, '0')
@@ -81,7 +81,7 @@
                         locale: 'pt-br',
                         dayMaxEvents: 3,
 
-                        {% if edita %}
+                        {% if coordenador_acampamento %}
                             navLinks: true,
                             navLinkDayClick: function (date, jsEvent) {
                                 let dia = String(date.getDate()).padStart(2, '0')
@@ -102,6 +102,8 @@
                                 },
                             {% endfor %}
                         ],
+
+                        eventColor: '#f36d21',
 
                         eventClick: function(info) {
                             let cliente = info.event.title
@@ -140,6 +142,10 @@
                     calendario_acampamento.setOption('locale', 'pt-br')
                 }
             }
+
+            function redirecionar_edicao(){
+                window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal')).format('DD-MM-yyyy')
+            }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>
     </div>
@@ -154,8 +160,9 @@
                 <div class="modal-body">
                     <h5 class="titulo-secao">Dados evento</h5>
                     <div>
-                        <label for="cliente">Cliente</label>
+                        <label for="cliente_modal">Cliente</label>
                         <input class="form-control" type="text" id="cliente_modal" disabled>
+                        <input type="hidden" id="id_cliente_modal">
                     </div>
                     <div class="row">
                         <div style="width: 50%">
@@ -174,6 +181,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    {% if coordenador_acampamento %}
+                        <button type="button" class="btn btn-primary" onclick="redirecionar_edicao()">Editar</button>
+                    {% endif %}
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
             </div>

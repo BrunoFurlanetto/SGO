@@ -193,6 +193,61 @@ def pegar_clientes_data_selecionada(data):
     return clientes
 
 
+def gerar_disponibilidade(id_cliente):
+    cliente = ClienteColegio.objects.get(id=int(id_cliente))
+    ficha_de_evento_cliente = FichaDeEvento.objects.filter(escala=False).get(cliente=cliente)
+    check_in = ficha_de_evento_cliente.check_in
+    check_out = ficha_de_evento_cliente.check_out
+
+    if ficha_de_evento_cliente.os:
+        ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente)
+        check_in = ordem_cliente.check_in
+        check_out = ordem_cliente.check_out
+
+    disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(
+        dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y'))
+    disponibilidades_hotelaria = DisponibilidadeAcampamento.objects.filter(
+        dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y'))
+
+    disponiveis_intervalo = pegar_disponiveis_intervalo(check_in,
+                                                        check_out,
+                                                        list(chain(disponibilidades_acampamento,
+                                                                   disponibilidades_hotelaria)))
+
+    return {'check_in': check_in, 'check_out': check_out, 'disponiveis_evento': disponiveis_intervalo}
+
+
+def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
+    disponiveis_intervalo = []
+    dias = check_out - check_in
+    monitores_disponiveis_intervalo = []
+
+    for disponivel in lista_disponiveis:
+        intervalo = True
+
+        for i in range(0, dias.days + 1):
+            if (check_in + datetime.timedelta(days=i)).strftime('%d/%m/%Y') in disponivel.dias_disponiveis:
+                continue
+            else:
+                intervalo = False
+                break
+
+        if intervalo and disponivel not in disponiveis_intervalo:
+            disponiveis_intervalo.append(disponivel)
+
+    for monitor in disponiveis_intervalo:
+        if isinstance(monitor, DisponibilidadeAcampamento):
+            monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
+                                                    'nome': monitor.monitor.usuario.get_full_name(),
+                                                    'setor': 'acampamento'})
+        else:
+            monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
+                                                    'nome': monitor.monitor.usuario.get_full_name(),
+                                                    'setor': 'hotelaria'})
+
+    return monitores_disponiveis_intervalo
+
+
 def monitores_disponiveis(data):
     mes = data.month
     ano = data.year
