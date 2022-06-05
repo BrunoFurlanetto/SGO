@@ -357,7 +357,7 @@ def editarEscalaMonitores(request, cliente, data):
     restante_hotelaria, id_escalados = teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria,
                                                                                escalados, id_escalados)
     escalados_evento = verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, disponiveis_hotelaria)
-    print(restante_hotelaria)
+
     if request.method != 'POST':
         return render(request, 'escala/editar_escala_monitoria.html', {'cliente': cliente_evento,
                                                                        'evento': evento,
@@ -369,6 +369,24 @@ def editarEscalaMonitores(request, cliente, data):
     if is_ajax(request):
         return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
                                               request.POST.get('cliente')))
+
+    if request.POST.get('acao') == 'Sim':
+        ficha_evento_cliete.escala = False
+        ficha_evento_cliete.save()
+
+        if ficha_evento_cliete.os:
+            ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente_evento)
+            ordem_cliente.escala = False
+            ordem_cliente.save()
+
+        try:
+            escalados.delete()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
+            return redirect('escalaPeraltas')
+        else:
+            messages.success(request, 'Escala excluida com sucesso!')
+            return redirect('escalaPeraltas')
 
     try:
         escalados.monitores_acampamento.clear()
@@ -403,6 +421,17 @@ def editarEscalaHotelaria(request, data):
     if is_ajax(request):
         return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
                                               request.POST.get('cliente')))
+
+    if request.POST.get('acao') == 'Sim':
+
+        try:
+            escalados.delete()
+        except:
+            messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
+            return redirect('escalaPeraltas')
+        else:
+            messages.success(request, 'Escala excluida com sucesso!')
+            return redirect('escalaPeraltas')
 
     try:
         escalados.monitores_hotelaria.clear()

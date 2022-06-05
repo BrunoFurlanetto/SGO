@@ -65,10 +65,34 @@
             </div>
             <div class="botoes">
                 <button type="button" id="botao_salvar_escala" class="btn btn-primary" onclick="salvar_monitores_escalados()" disabled>Salvar</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-excuir">Excluir</button>
                 <button id="enviar_formulario" class="none" type="submit"></button>
             </div>
         </form>
     </div>
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
     <script>pegar_escalados()</script>
+
+    <div class="modal fade" id="modal-excuir" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="TituloModalCentralizado">Tem certeza disso?</h5>
+                    <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Fechar">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Você tem certeza que deseja excluir a escala em questão?
+                </div>
+                <div class="modal-footer">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-danger" name="acao" value="Sim">
+                    </form>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Fechar">Não</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

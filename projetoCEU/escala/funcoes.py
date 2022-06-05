@@ -342,7 +342,7 @@ def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados
 
                     if monitor['id'] not in id_escalados:
                         id_escalados.append(monitor['id'])
-                        
+
                     adiciona = False
                     break
 
