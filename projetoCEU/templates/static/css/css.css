@@ -481,3 +481,22 @@
     border: none;
     font-size: larger
 }
+.showMenu li{
+    overflow: hidden;
+    text-overflow: clip;
+    max-width: 95%;
+}
+.showMenu .max-word:hover{
+    animation: word_scroll 2s linear infinite;
+    animation-direction: alternate;
+    position: relative;
+    right: 15%;
+}
+@keyframes word_scroll {
+    from{
+        transform: translateX(15%);
+    }
+    to {
+        transform: translateX(-5%);
+    }
+}

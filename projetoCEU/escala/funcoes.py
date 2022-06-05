@@ -442,6 +442,7 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
 def pegar_disponiveis(disponibilidades, setor):
     disponiveis_hotelaria = []
     disponiveis_acampamento = []
+    disponiveis_ceu = []
 
     if setor == 'hotelaria':
         for disponivel in disponibilidades:
@@ -456,7 +457,8 @@ def pegar_disponiveis(disponibilidades, setor):
             print(disponiveis_hotelaria)
 
         return disponiveis_hotelaria
-    else:
+
+    elif setor == 'acampamento':
         for disponivel in disponibilidades:
             datas = []
             temp = disponivel.dias_disponiveis.split(', ')
@@ -468,3 +470,16 @@ def pegar_disponiveis(disponibilidades, setor):
                                             'dias_disponiveis': datas})
 
         return disponiveis_acampamento
+
+    else:
+        for disponivel in disponibilidades:
+            datas = []
+            temp = disponivel.dias_disponiveis.split(', ')
+
+            for dia in temp:
+                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+
+            disponiveis_ceu.append({'professor': disponivel.professor.usuario.get_full_name(),
+                                    'dias_disponiveis': datas})
+
+        return disponiveis_ceu

@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.escala, name='escala'),
     path('disponibilidade/', views.disponibilidade, name='disponibilidade'),
+    path('disponibilidade/ceu/visualizar/', views.visualizarDisponibilidadeCeu, name='visualizarDisponibilidadeCeu'),
     path('disponibilidade_peraltas/', views.disponibilidadePeraltas, name='disponibilidadePeraltas'),
     path('disponibilidade_peraltas/visualizar', views.visualizarDisponibilidadePeraltas,
          name='visualizarDisponibilidadePeraltas'),

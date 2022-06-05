@@ -249,6 +249,9 @@ def verEscalaPeraltas(request):
 
 
 def escalarMonitores(request, setor, data):
+    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
+    #     return redirect('dashboardCeu')
+
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
 
     try:
@@ -333,6 +336,9 @@ def escalarMonitores(request, setor, data):
 
 
 def editarEscalaMonitores(request, cliente, data):
+    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
+    #     return redirect('dashboardCeu')
+
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
     cliente_evento = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
@@ -400,6 +406,9 @@ def editarEscalaMonitores(request, cliente, data):
 
 
 def editarEscalaHotelaria(request, data):
+    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
+    #     return redirect('dashboardCeu')
+
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
     escalados = EscalaHotelaria.objects.get(data=data_selecionada)
@@ -445,6 +454,9 @@ def editarEscalaHotelaria(request, data):
 
 
 def visualizarDisponibilidadePeraltas(request):
+    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
+    #     return redirect('dashboardCeu')
+
     disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
     disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
     eventos_ordem_de_servico = OrdemDeServico.objects.all()
@@ -478,3 +490,19 @@ def visualizarDisponibilidadePeraltas(request):
                    'coordenador_acampamento': coordenador_acampamento,
                    'setor': setor})
 
+
+def visualizarDisponibilidadeCeu(request):
+    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
+    #     return redirect('dashboardCeu')
+
+    disponiveis_ceu = Disponibilidade.objects.all()
+    eventos = OrdemDeServico.objects.all()
+
+    for evento in eventos:
+        if evento.atividades_ceu:
+            evento.check_out_ceu += timedelta(days=1)
+
+    disponiveis = pegar_disponiveis(disponiveis_ceu, 'ceu')
+
+    return render(request, 'escala/calendario_disponibilidade_ceu.html', {'disponiveis': disponiveis,
+                                                                          'eventos': eventos})
