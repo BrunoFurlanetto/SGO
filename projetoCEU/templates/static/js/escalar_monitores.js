@@ -32,15 +32,6 @@ function pegar_dados_evento(selecao){
 }
 
 function escalado(monitor){
-    if($('#monitores_escalados').val() !== ''){
-        let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
-        for (let i = 0; i < monitores.length; i++) {
-            if(monitores[i] !== '') {
-                monitores_escalados.push(monitores[i])
-            }
-        }
-    }
-
     let setor = []
     let monitor_selecionado = $(`#${monitor.id} :selected`)
     let id_monitor = monitor_selecionado.val()
@@ -95,16 +86,6 @@ function remover_monitor_escalado(monitor, editando=false){
     if(editando){
         $('#botao_salvar_escala').prop('disabled', false)
     }
-
-    if(monitores_escalados.length === 0){
-        let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
-        console.log(monitores)
-        for(let i = 0; i < monitores.length; i++){
-            monitores_escalados.push(monitores[i])
-        }
-    }
-
-    console.log(monitores_escalados)
 
     let setor = monitor.name.split(' ')
     let id_monitor = monitor.id
@@ -173,6 +154,16 @@ function verificar_escalado(id_monitor, editando=false){
         }
     })
     return ja_escalado
+}
+
+function pegar_escalados(){
+    let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
+
+    for(let i = 0; i < monitores.length; i++){
+        if(monitores[i] !== '') {
+            monitores_escalados.push(monitores[i])
+        }
+    }
 }
 
 function active_botao_salvar(){

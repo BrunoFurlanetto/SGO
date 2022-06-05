@@ -35,7 +35,7 @@
                     <label for="monitores_hotelaria">Para a hotelaria</label>
                     <select name="monitores_hotelaria" id="monitores_hotelaria" multiple style="width: 100%" onchange="escalado(this, editando=true)">
                         {% for monitor in restante_hotelaria %}
-                            <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
+                            <option value="{{ monitor.id }}">{{ monitor.nome }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -52,10 +52,10 @@
             <div class="row mb-2 escalados" id="escalar">
                 <h5 class="titulo-secao">Escalados para o evento</h5>
                 <div class="row" id="escalados">
-                    {% for monitor in escalados.monitores_acampamento.all %}
-                        <span class="ja_escalado" id = "nome_monitor_botao" >
-                            {{ monitor }}
-                            <button name = "acampamento" type = "button" id = "{{ monitor.id }}" onclick="remover_monitor_escalado(this, editando=true)">
+                    {% for monitor in escalados %}
+                        <span id = "nome_monitor_botao" >
+                            {{ monitor.nome }}
+                            <button name = "{{ monitor.setor }}" type = "button" id = "{{ monitor.id }}" onclick="remover_monitor_escalado(this, editando=true)">
                                 &times
                             </button>
                         </span>
@@ -70,4 +70,5 @@
         </form>
     </div>
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
+    <script>pegar_escalados()</script>
 {% endblock %}

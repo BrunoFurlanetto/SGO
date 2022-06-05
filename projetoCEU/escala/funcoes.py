@@ -282,14 +282,16 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
             monitores_acampamento=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
             check_out_cliente__date__gte=data_selecionada).exclude(cliente__id=int(id_cliente))
+
+        escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(monitores_hotelaria=monitor_escalado,
+                                                                   data=data_selecionada)
     else:
         escalas_monitor_acampamento = EscalaAcampamento.objects.filter(
             monitores_acampamento=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
             check_out_cliente__date__gte=data_selecionada)
 
-    escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(monitores_hotelaria=monitor_escalado,
-                                                               data=data_selecionada)
+        escalas_monitor_hotelaria = False
 
     if escalas_monitor_acampamento and not escalas_monitor_hotelaria:
         return {'acampamento': True, 'hotelaria': False}
@@ -334,16 +336,30 @@ def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados
     for monitor in disponiveis_acampamento:
         adiciona = True
 
-        for escalado in escalados.monitores_acampamento.all():
-            if monitor['id'] == escalado.id:
+        if isinstance(escalados, EscalaAcampamento):
+            for escalado in escalados.monitores_acampamento.all():
+                if monitor['id'] == escalado.id:
 
-                if monitor['id'] not in id_escalados:
-                    id_escalados.append(monitor['id'])
+                    if monitor['id'] not in id_escalados:
+                        id_escalados.append(monitor['id'])
+                        
                     adiciona = False
                     break
 
-        if adiciona:
-            restante_acampamento.append(monitor)
+            if adiciona:
+                restante_acampamento.append(monitor)
+        else:
+            for escalado in escalados.monitores_hotelaria.all():
+                if monitor['id'] == escalado.id:
+
+                    if monitor['id'] not in id_escalados:
+                        id_escalados.append(monitor['id'])
+
+                    adiciona = False
+                    break
+
+            if adiciona:
+                restante_acampamento.append(monitor)
 
     return restante_acampamento, id_escalados
 
@@ -354,15 +370,71 @@ def teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria, escalados, id
     for monitor in disponiveis_hotelaria:
         adiciona = True
 
-        for escalado in escalados.monitores_acampamento.all():
-            if monitor['id'] == escalado.id:
+        if isinstance(escalados, EscalaHotelaria):
+            for escalado in escalados.monitores_hotelaria.all():
+                if monitor['id'] == escalado.id:
 
-                if monitor['id'] not in id_escalados:
-                    id_escalados.append(monitor['id'])
+                    if monitor['id'] not in id_escalados:
+                        id_escalados.append(monitor['id'])
+
                     adiciona = False
                     break
 
-        if adiciona:
-            restante_hotelaria.append(monitor)
+            if adiciona:
+                restante_hotelaria.append(monitor)
+        else:
+            for escalado in escalados.monitores_acampamento.all():
+                if monitor['id'] == escalado.id:
+
+                    if monitor['id'] not in id_escalados:
+                        id_escalados.append(monitor['id'])
+
+                    adiciona = False
+                    break
+
+            if adiciona:
+                restante_hotelaria.append(monitor)
 
     return restante_hotelaria, id_escalados
+
+
+def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, disponiveis_hotelaria):
+    escalados_data = []
+
+    if isinstance(escalados, EscalaHotelaria):
+        for monitor in escalados.monitores_hotelaria.all():
+            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name()}
+            setor = []
+
+            for disponivel in disponiveis_acampamento:
+                if disponivel['id'] == monitor.id:
+                    setor.append('acampamento')
+                    break
+
+            for disponivel in disponiveis_hotelaria:
+                if disponivel['id'] == monitor.id:
+                    setor.append('hotelaria')
+                    break
+
+            dados_monitor['setor'] = ' '.join(setor)
+            escalados_data.append(dados_monitor)
+    else:
+        for monitor in escalados.monitores_acampamento.all():
+            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name()}
+            setor = []
+
+            for disponivel in disponiveis_acampamento:
+                if disponivel['id'] == monitor.id:
+                    setor.append('acampamento')
+                    break
+
+            for disponivel in disponiveis_hotelaria:
+                if disponivel['id'] == monitor.id:
+                    setor.append('hotelaria')
+                    break
+
+            dados_monitor['setor'] = ' '.join(setor)
+            escalados_data.append(dados_monitor)
+
+
+    return escalados_data
