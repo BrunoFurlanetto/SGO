@@ -144,7 +144,7 @@
             }
 
             function redirecionar_edicao(){
-                window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal')).format('DD-MM-yyyy')
+                window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>

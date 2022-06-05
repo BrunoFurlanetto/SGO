@@ -317,8 +317,10 @@ def listaResponsaveis(request):
     responsaveis = Responsavel.objects.all()
 
     for responsavel in responsaveis:
+        print(responsavel)
         relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
         responsavel.responsavel_por = relacao.cliente.nome_fantasia
+        print(relacao, responsavel.responsavel_por)
 
     paginacao = Paginator(responsaveis, 5)
     pagina = request.GET.get('page')

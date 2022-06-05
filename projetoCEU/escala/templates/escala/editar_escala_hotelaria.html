@@ -6,26 +6,16 @@
     <div class="conteudo-escalar-monitores">
         <div class="titulo-conteudo-escalar-monitores">
             <center>
-                <h2>Escala para o evento de {{ cliente.nome_fantasia }}</h2>
+                <h2>Escala para o dia {{ data    }}</h2>
             </center>
         </div>
         <hr>
         <form action="" method="post">
             {% csrf_token %}
-            <div class="mb-2">
-                <h5 class="titulo-secao">Dados evento</h5>
-                <label for="cliente">Cliente</label>
-                <input class="form-control" type="text" id="cliente" value="{{ cliente.nome_fantasia }}" disabled>
-                <input type="hidden" id="id_cliente" name="cliente" value="{{ cliente.id }}">
-            </div>
             <div class="row">
+                <h5 class="titulo-secao">Data</h5>
                 <div style="width: 50%">
-                    <label for="check_in_cliente">Check in</label>
-                    <input class="form-control" type="datetime-local" id="check_in_cliente" value="{{ evento.check_in }}" disabled>
-                </div>
-                <div style="width: 50%">
-                    <label for="check_out_cliente">Check out</label>
-                    <input class="form-control" type="datetime-local" id="check_out_cliente" value="{{ evento.check_out }}" disabled>
+                    <input class="form-control" type="date" id="data" value="{{ data }}" disabled>
                 </div>
             </div>
             <hr class="escalar">

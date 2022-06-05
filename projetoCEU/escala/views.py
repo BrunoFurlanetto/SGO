@@ -10,7 +10,8 @@ from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
-    verificar_escalas, gerar_disponibilidade
+    verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
+    teste_monitores_nao_escalados_hotelaria
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -249,6 +250,11 @@ def verEscalaPeraltas(request):
 
 def escalarMonitores(request, setor, data):
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
+    escalas = EscalaHotelaria.objects.get(data=data_selecionada)
+
+    if setor == 'hotelaria' and escalas:
+        return redirect('editar_escala_hotelaria', data)
+
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
     monitores_disponiveis_hotelaria, monitores_disponiveis_acampamento = monitores_disponiveis(data_selecionada)
 
@@ -262,7 +268,9 @@ def escalarMonitores(request, setor, data):
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
-            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada))
+            print(request.POST)
+            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
+                                                  request.POST.get('cliente')))
 
         if request.POST.get('id_cliente'):
             return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente')))
@@ -317,7 +325,7 @@ def escalarMonitores(request, setor, data):
                 'monitores_acampamento': monitores_disponiveis_acampamento})
         else:
             messages.success(request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!')
-            return redirect('escalaPeraltas', setor, data)
+            return redirect('escalaPeraltas')
 
 
 def editarEscalaMonitores(request, cliente, data):
@@ -326,8 +334,7 @@ def editarEscalaMonitores(request, cliente, data):
     cliente_evento = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
     ficha_evento_cliete = FichaDeEvento.objects.get(cliente=cliente_evento)
     disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
-    restante_acampamento = []
-    restante_hotelaria = []
+    id_escalados = []
 
     if ficha_evento_cliete.os:
         ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente_evento)
@@ -341,16 +348,39 @@ def editarEscalaMonitores(request, cliente, data):
         escalados = EscalaAcampamento.objects.get(cliente=cliente_evento, check_in_cliente=ficha_evento_cliete.check_in,
                                                   check_out_cliente=ficha_evento_cliete.check_out)
 
-    for monitor in escalados.monitores_acampamento.all():
-        if monitor in disponiveis_acampamento:
-            restante_acampamento.append(monitor)
-
-        if monitor in disponiveis_hotelaria:
-            restante_hotelaria.append(monitor)
+    restante_acampamento, id_escalados = teste_monitores_nao_escalados_acampamento(disponiveis_acampamento,
+                                                                                   escalados, id_escalados)
+    restante_hotelaria, id_escalados = teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria,
+                                                                               escalados, id_escalados)
 
     if request.method != 'POST':
         return render(request, 'escala/editar_escala_monitoria.html', {'cliente': cliente_evento,
                                                                        'evento': evento,
                                                                        'restante_acampamento': restante_acampamento,
                                                                        'restante_hotelaria': restante_hotelaria,
-                                                                       'escalados': escalados})
+                                                                       'escalados': escalados,
+                                                                       'id_escalados': id_escalados})
+
+    if is_ajax(request):
+        return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
+                                              request.POST.get('cliente')))
+
+    try:
+        escalados.monitores_acampamento.clear()
+        escalados.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
+    except:
+        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+        return redirect('escalaPeraltas')
+    else:
+        messages.success(request, 'Escala atualizada com sucesso')
+        return redirect('escalaPeraltas')
+
+
+def editarEscalaHotelaria(request, data):
+    data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
+    disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
+    escalas_acampamento = EscalaAcampamento.objects.filter(check_in_cliente__lte=data_selecionada,
+                                                           check_out_cliente__gte=data_selecionada)
+    id_escalados = []
+
+    return render(request, 'escala/editar_escala_hotelaria.html')

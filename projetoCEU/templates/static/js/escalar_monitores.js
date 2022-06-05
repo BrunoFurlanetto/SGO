@@ -1,6 +1,7 @@
-monitores_escalados = []
+let monitores_escalados = []
 
 function pegar_dados_evento(selecao){
+    $('#monitores_acampamento, #monitores_hotelaria').empty()
     if(selecao.value !== '') {
         $.ajax({
             type: 'POST',
@@ -9,7 +10,7 @@ function pegar_dados_evento(selecao){
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             data: {'id_cliente': selecao.value},
             success: function (response) {
-                console.log(response['disponiveis_evento'])
+
                 $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
                 $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
@@ -31,6 +32,15 @@ function pegar_dados_evento(selecao){
 }
 
 function escalado(monitor){
+    if($('#monitores_escalados').val() !== ''){
+        let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
+        for (let i = 0; i < monitores.length; i++) {
+            if(monitores[i] !== '') {
+                monitores_escalados.push(monitores[i])
+            }
+        }
+    }
+
     let setor = []
     let monitor_selecionado = $(`#${monitor.id} :selected`)
     let id_monitor = monitor_selecionado.val()
@@ -38,6 +48,7 @@ function escalado(monitor){
     const ja_escalado = verificar_escalado(id_monitor)
 
     $('#escalar').removeClass('none')
+    console.log(id_monitor)
     monitores_escalados.push(id_monitor)
 
     $('#monitores_hotelaria option').each(function (id, nome){
@@ -60,7 +71,7 @@ function escalado(monitor){
 
     if(ja_escalado){
         $('#escalados').append(
-            `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" onClick = "console.log(this)" style="background-color: #f8d7da" >
+            `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" style="background-color: #f8d7da" >
                 ${nome_monitor} 
                 <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
                     &times
@@ -79,7 +90,22 @@ function escalado(monitor){
     }
 }
 
-function remover_monitor_escalado(monitor){
+function remover_monitor_escalado(monitor, editando=false){
+
+    if(editando){
+        $('#botao_salvar_escala').prop('disabled', false)
+    }
+
+    if(monitores_escalados.length === 0){
+        let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
+        console.log(monitores)
+        for(let i = 0; i < monitores.length; i++){
+            monitores_escalados.push(monitores[i])
+        }
+    }
+
+    console.log(monitores_escalados)
+
     let setor = monitor.name.split(' ')
     let id_monitor = monitor.id
     let nome_monitor = monitor.parentNode.textContent.trim().split('\n')[0]
@@ -108,21 +134,27 @@ function salvar_monitores_escalados(){
         $('#corpo_site').prepend('<p class="alert-warning">Nenhum monitor foi selecionado</p>')
     }else{
         $('.alert-warning').empty()
+        $('#monitores_escalados').val(monitores_escalados)
+        $('#enviar_formulario').click()
     }
-
-    $('#monitores_escalados').val(monitores_escalados)
-    $('#enviar_formulario').click()
 }
 
-function verificar_escalado(id_monitor){
+function verificar_escalado(id_monitor, editando=false){
     let ja_escalado = false
+    let id_cliente
+
+    if(editando){
+        id_cliente = $('#id_cliente').val()
+    }else{
+        id_cliente = $('#cliente').val()
+    }
 
     $.ajax({
         type: 'POST',
         async: false,
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_monitor': id_monitor},
+        data: {'id_monitor': id_monitor, 'cliente': id_cliente},
         success: function (response){
 
             if(response['acampamento']){
@@ -141,4 +173,8 @@ function verificar_escalado(id_monitor){
         }
     })
     return ja_escalado
+}
+
+function active_botao_salvar(){
+    $('#botao_salvar_escala').prop('disabled', false)
 }

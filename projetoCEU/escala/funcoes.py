@@ -269,24 +269,34 @@ def monitores_disponiveis(data):
             monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
                                                       'nome': monitor.monitor.usuario.get_full_name()})
 
+    print(monitores_disponiveis_acampamento)
+
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
 
-def verificar_escalas(id_monitor, data_selecionada):
+def verificar_escalas(id_monitor, data_selecionada, id_cliente):
     monitor_escalado = Monitor.objects.get(id=int(id_monitor))
 
-    escalas_monitor_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento=monitor_escalado,
-                                                                   check_in_cliente__date__lte=data_selecionada,
-                                                                   check_out_cliente__date__gte=data_selecionada)
+    if id_cliente:
+        escalas_monitor_acampamento = EscalaAcampamento.objects.filter(
+            monitores_acampamento=monitor_escalado,
+            check_in_cliente__date__lte=data_selecionada,
+            check_out_cliente__date__gte=data_selecionada).exclude(cliente__id=int(id_cliente))
+    else:
+        escalas_monitor_acampamento = EscalaAcampamento.objects.filter(
+            monitores_acampamento=monitor_escalado,
+            check_in_cliente__date__lte=data_selecionada,
+            check_out_cliente__date__gte=data_selecionada)
 
     escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(monitores_hotelaria=monitor_escalado,
                                                                data=data_selecionada)
 
     if escalas_monitor_acampamento and not escalas_monitor_hotelaria:
-        print('Foi')
         return {'acampamento': True, 'hotelaria': False}
     elif escalas_monitor_hotelaria and not escalas_monitor_acampamento:
         return {'acampamento': False, 'hotelaria': True}
+    else:
+        return {'acampamento': False, 'hotelaria': False}
 
 
 def escalados_para_o_evento(dados_evento):
@@ -316,3 +326,43 @@ def escalados_para_o_evento(dados_evento):
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
     return {'escalados': monitores_escalados}
+
+
+def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados, id_escalados):
+    restante_acampamento = []
+
+    for monitor in disponiveis_acampamento:
+        adiciona = True
+
+        for escalado in escalados.monitores_acampamento.all():
+            if monitor['id'] == escalado.id:
+
+                if monitor['id'] not in id_escalados:
+                    id_escalados.append(monitor['id'])
+                    adiciona = False
+                    break
+
+        if adiciona:
+            restante_acampamento.append(monitor)
+
+    return restante_acampamento, id_escalados
+
+
+def teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria, escalados, id_escalados):
+    restante_hotelaria = []
+
+    for monitor in disponiveis_hotelaria:
+        adiciona = True
+
+        for escalado in escalados.monitores_acampamento.all():
+            if monitor['id'] == escalado.id:
+
+                if monitor['id'] not in id_escalados:
+                    id_escalados.append(monitor['id'])
+                    adiciona = False
+                    break
+
+        if adiciona:
+            restante_hotelaria.append(monitor)
+
+    return restante_hotelaria, id_escalados

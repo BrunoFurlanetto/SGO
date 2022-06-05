@@ -8,4 +8,5 @@ urlpatterns = [
     path('peraltas/', views.verEscalaPeraltas, name='escalaPeraltas'),
     path('peraltas/<str:setor>/escalar/<str:data>', views.escalarMonitores, name='escalar_monitores'),
     path('acampamento/editar/evento/<str:cliente>/<str:data>', views.editarEscalaMonitores, name='editar_escala'),
+    path('hotelaria/editar/<str:data>', views.editarEscalaHotelaria, name='editar_escala_hotelaria'),
 ]
