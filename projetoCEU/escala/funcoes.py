@@ -436,5 +436,35 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
             dados_monitor['setor'] = ' '.join(setor)
             escalados_data.append(dados_monitor)
 
-
     return escalados_data
+
+
+def pegar_disponiveis(disponibilidades, setor):
+    disponiveis_hotelaria = []
+    disponiveis_acampamento = []
+
+    if setor == 'hotelaria':
+        for disponivel in disponibilidades:
+            datas = []
+            temp = disponivel.dias_disponiveis.split(', ')
+
+            for dia in temp:
+                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+
+            disponiveis_hotelaria.append({'monitor': disponivel.monitor.usuario.get_full_name(),
+                                          'dias_disponiveis': datas})
+            print(disponiveis_hotelaria)
+
+        return disponiveis_hotelaria
+    else:
+        for disponivel in disponibilidades:
+            datas = []
+            temp = disponivel.dias_disponiveis.split(', ')
+
+            for dia in temp:
+                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+
+            disponiveis_acampamento.append({'monitor': disponivel.monitor.usuario.get_full_name(),
+                                            'dias_disponiveis': datas})
+
+        return disponiveis_acampamento

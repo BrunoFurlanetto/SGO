@@ -11,7 +11,7 @@ from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
-    teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade
+    teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -442,3 +442,39 @@ def editarEscalaHotelaria(request, data):
     else:
         messages.success(request, 'Escala atualizada com sucesso!')
         return redirect('escalaPeraltas')
+
+
+def visualizarDisponibilidadePeraltas(request):
+    disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
+    disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
+    eventos_ordem_de_servico = OrdemDeServico.objects.all()
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+    coordenador_hotelaria = coordenador_acampamento = False
+    setor = ''
+
+    for evento in eventos_ordem_de_servico:
+        evento.check_out += timedelta(days=1)
+
+    for ficha in fichas_de_evento:
+        ficha.check_out += timedelta(days=1)
+
+    if User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists():
+        setor = 'acampamento'
+        coordenador_acampamento = True
+
+    if User.objects.filter(pk=request.user.id, groups__name='Coordenador hotelaria').exists():
+        setor = 'hotelaria'
+        coordenador_hotelaria = True
+
+    disponiveis_hotelaria = pegar_disponiveis(disponibilidades_hotelaria, 'hotelaria')
+    disponiveis_acampamento = pegar_disponiveis(disponibilidades_acampamento, 'acampamento')
+
+    return render(request, 'escala/calendario_disponibilidade_peraltas.html',
+                  {'disponiveis_hotelaria': disponiveis_hotelaria,
+                   'disponiveis_acampamento': disponiveis_acampamento,
+                   'eventos': eventos_ordem_de_servico,
+                   'fichas_de_evento': fichas_de_evento,
+                   'coordenador_hotelaria': coordenador_hotelaria,
+                   'coordenador_acampamento': coordenador_acampamento,
+                   'setor': setor})
+
