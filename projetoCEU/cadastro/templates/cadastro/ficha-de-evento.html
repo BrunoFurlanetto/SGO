@@ -302,9 +302,17 @@
                     </div>
                 </div>
                 <hr>
-                <div class="checkbox" style="width: 15%">
+                <div class="checkbox" onchange="lista_segurados()">
                     {{ formAdicionais.seguro }}
                     <label>Seguro</label>
+                    {{ formAdicionais.lista_segurados }}
+                    <style>
+                        #id_lista_segurados{
+                            width: 60%;
+                            height: 10%;
+                            margin-left: 5%;
+                        }
+                    </style>
                 </div>
                 <hr>
                   <div class="row">

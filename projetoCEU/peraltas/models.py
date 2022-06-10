@@ -178,6 +178,7 @@ class InformacoesAdcionais(models.Model):
     tipo_veiculo = models.IntegerField(choices=veiculo, blank=True, null=True)
     endereco_embarque = models.CharField(max_length=255, blank=True)
     seguro = models.BooleanField()
+    lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
     etiquetas_embarque = models.BooleanField()
     servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
@@ -369,6 +370,7 @@ class CadastroInfoAdicionais(forms.ModelForm):
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
             'enfermaria': forms.Select(attrs={'onchange': 'horario(this)'}),
             'horario_garantia': forms.TextInput(attrs={'type': 'time'}),
+            'lista_segurados': forms.FileInput(attrs={'class': 'none'})
         }
 
 

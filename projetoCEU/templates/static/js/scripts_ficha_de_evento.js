@@ -130,6 +130,14 @@ function servicoBordo(){
     }
 }
 
+function lista_segurados(){
+    if($('#id_seguro').prop('checked')){
+        $('#id_lista_segurados').removeClass('none')
+    }else{
+        $('#id_lista_segurados').addClass('none')
+    }
+}
+
 function pegar_atividades_eco(){
     $('#biologo .MultiCheckBoxDetailBody').empty()
 
