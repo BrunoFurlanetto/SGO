@@ -95,6 +95,16 @@ class ClienteColegio(models.Model):
         return self.nome_fantasia
 
 
+class PreReserva(models.Model):
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    check_in = models.DateTimeField()
+    check_out = models.DateTimeField()
+    participantes = models.PositiveIntegerField()
+    observacoes = models.TextField(blank=True, null=True)
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    agendado = models.BooleanField(default=False)
+
+
 class Responsavel(models.Model):
     nome = models.CharField(max_length=255)
     cargo = models.CharField(max_length=255)
@@ -366,3 +376,18 @@ class CadastroCodigoApp(forms.ModelForm):
     class Meta:
         model = CodigosApp
         exclude = ()
+
+
+class CadastroPreReserva(forms.ModelForm):
+    class Meta:
+        model = PreReserva
+        exclude = ()
+
+        widgets = {
+            'cliente': forms.Select(attrs={'class': 'form-select'}),
+            'check_in': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'check_out': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'participantes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'vendedor': forms.Select(attrs={'class': 'form-select'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'})
+        }

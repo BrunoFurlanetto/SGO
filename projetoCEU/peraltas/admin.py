@@ -1,7 +1,7 @@
 from django.contrib import admin
 from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
     InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais, \
-    OpcionaisFormatura
+    OpcionaisFormatura, PreReserva
 
 from peraltas.models import Vendedor
 
@@ -90,3 +90,8 @@ class InformacoesAdicionaisAdmin(admin.ModelAdmin):
 @admin.register(CodigosApp)
 class CodigosAppAdmin(admin.ModelAdmin):
     list_display = ('cliente_pj',)
+
+
+@admin.register(PreReserva)
+class PreReservaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'cliente')

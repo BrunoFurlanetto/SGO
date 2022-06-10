@@ -1,3 +1,6 @@
+import json
+import datetime
+
 from itertools import chain
 from time import sleep
 from django.contrib import messages
@@ -11,7 +14,7 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor
+    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -189,7 +192,22 @@ def ordemDeServico(request):
 
 
 @login_required(login_url='login')
-def fichaDeEvento(request):
+def fichaDeEvento(request, cliente=''):
+    if cliente != '':
+        nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
+        pre_reserva_cliente = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
+        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
+        dados_pre_reserva = {
+            'cliente_id': pre_reserva_cliente.id,
+            'cliente_nome_fantasia': nome_fantasia_cliente,
+            'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
+            'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
+            'qtd': pre_reserva.participantes,
+            'vendedor': pre_reserva.vendedor.id
+        }
+    else:
+        dados_pre_reserva = False
+
     form = CadastroFichaDeEvento()
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
@@ -212,7 +230,8 @@ def fichaDeEvento(request):
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
                                                                  'grupo_usuario': grupo_usuario,
-                                                                 'atividades_ceu': atividades_ceu})
+                                                                 'atividades_ceu': atividades_ceu,
+                                                                 'pre_reserva': dados_pre_reserva})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -229,6 +248,10 @@ def fichaDeEvento(request):
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             return redirect('ficha_de_evento')
         else:
+            if cliente:
+                pre_reserva.agendado = True
+                pre_reserva.save()
+
             messages.success(request, 'Ficha de evento salva com sucesso')
             return redirect('dashboard')
     else:
