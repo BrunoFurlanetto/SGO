@@ -13,7 +13,7 @@ function pegar_dados_evento(selecao){
 
                 $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
                 $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-
+                console.log(response)
                 for(let monitor in response['disponiveis_evento']){
 
                     if(response['disponiveis_evento'][monitor]['setor'] === 'acampamento'){

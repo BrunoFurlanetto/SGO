@@ -206,7 +206,7 @@ def gerar_disponibilidade(id_cliente):
 
     disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(
         dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y'))
-    disponibilidades_hotelaria = DisponibilidadeAcampamento.objects.filter(
+    disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(
         dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y'))
 
     disponiveis_intervalo = pegar_disponiveis_intervalo(check_in,
@@ -269,7 +269,7 @@ def monitores_disponiveis(data):
             monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
                                                       'nome': monitor.monitor.usuario.get_full_name()})
 
-    print(monitores_disponiveis_acampamento)
+    print(monitores_diponiveis_hotelaria)
 
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
