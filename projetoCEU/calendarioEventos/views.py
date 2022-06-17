@@ -46,6 +46,8 @@ def eventos(request):
         else:
             print(request.POST)
 
+    if request.POST.get('confirmar_agendamento'):
+
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
 

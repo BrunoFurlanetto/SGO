@@ -140,48 +140,46 @@
 
     <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Dados do pré agendamento</h5>
-            <button class="btn-close" data-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-2">
-                <label for="nome_cliente">Cliente</label>
-                <input id="nome_cliente" type="text" class="form-control" disabled>
-            </div>
-            <div class="row mb-2">
-                <div style="width: 40%">
-                    <label for="check_in">Check in</label>
-                    <input type="datetime-local" id="check_in" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+          <form action="{% url 'calendario_eventos' %}" method="POST">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Dados do pré agendamento</h5>
+                <button class="btn-close" data-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-2">
+                    <label for="nome_cliente">Cliente</label>
+                    <input id="nome_cliente" type="text" class="form-control" disabled>
                 </div>
-                <div style="width: 40%">
-                    <label for="check_out">Check out</label>
-                    <input type="datetime-local" id="check_out" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+                <div class="row mb-2">
+                    <div style="width: 40%">
+                        <label for="check_in">Check in</label>
+                        <input type="datetime-local" id="check_in" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+                    </div>
+                    <div style="width: 40%">
+                        <label for="check_out">Check out</label>
+                        <input type="datetime-local" id="check_out" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+                    </div>
+                    <div style="width: 20%">
+                        <label for="participantes">QTD</label>
+                        <input type="number" id="participantes" class="form-control" disabled>
+                    </div>
                 </div>
-                <div style="width: 20%">
-                    <label for="participantes">QTD</label>
-                    <input type="number" id="participantes" class="form-control" disabled>
+                <div style="width: 50%">
+                    <label for="vendedor">Vendedor(a)</label>
+                    <input type="text" id="vendedor" class="form-control" disabled>
                 </div>
+                <div style="height: auto">
+                    <label for="observacoes">Observações</label>
+                    <textarea id="observacoes" class="form-control" style="resize: none" disabled></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="hidden" name="confirmar_agendamento">
+                  <button type="submit" class="btn btn-primary">Confirmar agendamento</button>
+              </div>
             </div>
-            <div style="width: 50%">
-                <label for="vendedor">Vendedor(a)</label>
-                <input type="text" id="vendedor" class="form-control" disabled>
-            </div>
-            <div style="height: auto">
-                <label for="observacoes">Observações</label>
-                <textarea id="observacoes" class="form-control" style="resize: none" disabled></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-              <button type="submit" class="btn btn-primary" onclick="redirecionar_ficha_evento()">Confirmar agendamento</button>
-              <script>
-                  function redirecionar_ficha_evento(){
-                      window.location.href = `/cadastro/ficha_de_evento/${$('#nome_cliente').val()}`
-                  }
-              </script>
-          </div>
-        </div>
+          </form>
       </div>
     </div>
 

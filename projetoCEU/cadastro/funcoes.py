@@ -258,9 +258,9 @@ def requests_ajax(requisicao):
 
         if requisicao.get('id_infos_adicionais'):
             info = InformacoesAdcionais.objects.get(id=int(requisicao.get('id_infos_adicionais')))
-            form = CadastroInfoAdicionais(requisicao, instance=info)
+            form = CadastroInfoAdicionais(requisicao, files=requisicao.get('outros'), instance=info)
         else:
-            form = CadastroInfoAdicionais(requisicao)
+            form = CadastroInfoAdicionais(requisicao, files=requisicao.get('outros'))
 
         if form.is_valid():
             novas_infos = form.save()

@@ -162,6 +162,7 @@ def ordemDeServico(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
+    print(request.FILES)
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     ordem_de_servico = form.save(commit=False)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
@@ -234,6 +235,7 @@ def fichaDeEvento(request, cliente=''):
                                                                  'pre_reserva': dados_pre_reserva})
 
     if is_ajax(request):
+        print(request.POST)
         return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroFichaDeEvento(request.POST)

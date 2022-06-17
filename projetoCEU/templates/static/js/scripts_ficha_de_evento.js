@@ -178,14 +178,18 @@ function pegarIdInfosAdicionais(){
 
 jQuery('document').ready(function() {
   jQuery('#infos').submit(function() {
-    var dados = jQuery(this).serialize();
+    var dados = new FormData(this);
     var url = $(this).attr('action');
+    dados.append($('#id_lista_segurados'), this.target.files[0])
+    console.log(dados)
+    alert('fggggg')
 
     $.ajax({
       url: url,
       headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
       type: "POST",
       data: dados,
+      enctype: 'multipart/form-data',
       success: function(response) {
           $('#id_informacoes_adcionais').val(response['id'])
           $('#modal-adicionais').modal('hide')
@@ -198,6 +202,18 @@ jQuery('document').ready(function() {
               $('#corpo_site').prepend(response['mensagem'])
           }
 
+      },
+      cache: false,
+      contentType: false,
+      processData: false,
+      xhr: function() { // Custom XMLHttpRequest
+          var myXhr = $.ajaxSettings.xhr();
+          if (myXhr.upload) { // Avalia se tem suporte a propriedade upload
+              myXhr.upload.addEventListener('progress', function () {
+                  /* faz alguma coisa durante o progresso do upload */
+              }, false);
+          }
+          return myXhr;
       }
     });
 

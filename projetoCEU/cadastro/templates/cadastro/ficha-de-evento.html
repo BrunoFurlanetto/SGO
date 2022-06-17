@@ -251,7 +251,7 @@
         </form>
     </div>
 
-    <form method="POST" action="{% url 'ficha_de_evento' %}" id="infos">
+    <form method="POST" action="{% url 'ficha_de_evento' %}" id="infos" enctype="multipart/form-data">
         {% csrf_token %}
         <!-- Modal -->
         <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
