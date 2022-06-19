@@ -162,7 +162,6 @@ def ordemDeServico(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    print(request.FILES)
     form = CadastroOrdemDeServico(request.POST, request.FILES)
     ordem_de_servico = form.save(commit=False)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
@@ -193,22 +192,20 @@ def ordemDeServico(request):
 
 
 @login_required(login_url='login')
-def fichaDeEvento(request, cliente=''):
-    if cliente != '':
-        nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
-        pre_reserva_cliente = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
-        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
-        dados_pre_reserva = {
-            'cliente_id': pre_reserva_cliente.id,
-            'cliente_nome_fantasia': nome_fantasia_cliente,
-            'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
-            'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
-            'qtd': pre_reserva.participantes,
-            'vendedor': pre_reserva.vendedor.id
-        }
-    else:
-        dados_pre_reserva = False
-
+def fichaDeEvento(request):
+    # if cliente != '':
+    #     nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
+    #     pre_reserva_cliente = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
+    #     pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
+    #     dados_pre_reserva = {
+    #         'cliente_id': pre_reserva_cliente.id,
+    #         'cliente_nome_fantasia': nome_fantasia_cliente,
+    #         'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
+    #         'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
+    #         'qtd': pre_reserva.participantes,
+    #         'vendedor': pre_reserva.vendedor.id
+    #     }
+    # else:
     form = CadastroFichaDeEvento()
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
@@ -231,11 +228,9 @@ def fichaDeEvento(request, cliente=''):
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
                                                                  'grupo_usuario': grupo_usuario,
-                                                                 'atividades_ceu': atividades_ceu,
-                                                                 'pre_reserva': dados_pre_reserva})
+                                                                 'atividades_ceu': atividades_ceu})
 
     if is_ajax(request):
-        print(request.POST)
         return JsonResponse(requests_ajax(request.POST))
 
     form = CadastroFichaDeEvento(request.POST)
@@ -243,6 +238,7 @@ def fichaDeEvento(request, cliente=''):
     if form.is_valid():
         novo_evento = form.save(commit=False)
         novo_evento.refeicoes = pegar_refeicoes(request.POST)
+        print(novo_evento.cliente)
 
         try:
             form.save()
@@ -250,8 +246,13 @@ def fichaDeEvento(request, cliente=''):
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             return redirect('ficha_de_evento')
         else:
-            if cliente:
+            try:
+                pre_reserva = PreReserva.objects.get(cliente=novo_evento.cliente, ficha_de_evento=False)
+            except PreReserva.DoeNotExists:
+                ...
+            else:
                 pre_reserva.agendado = True
+                pre_reserva.ficha_evento = True
                 pre_reserva.save()
 
             messages.success(request, 'Ficha de evento salva com sucesso')

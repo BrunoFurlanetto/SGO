@@ -12,14 +12,11 @@ from peraltas.models import FichaDeEvento, PreReserva, CadastroPreReserva, Clien
 def eventos(request):
     ordens = OrdemDeServico.objects.all()
     fichas_de_evento = FichaDeEvento.objects.all()
-    pre_reservas = PreReserva.objects.all()
+    pre_reservas = PreReserva.objects.filter(ficha_evento=False)
     cadastro_de_pre_reservas = CadastroPreReserva()
     professor_ceu = False
 
-    ver_ficha = User.objects.filter(pk=request.user.id, groups__name='Coordenador monitoria').exists() or \
-                User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists() or \
-                User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
-    ver_pre_reserva = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
+    comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
 
     if request.user in User.objects.filter(groups__name='CEU') and request.user in User.objects.filter(
             groups__name='Professor'):
@@ -28,26 +25,27 @@ def eventos(request):
     if request.method != 'POST':
         return render(request, 'calendarioEventos/calendario_eventos.html',
                       {'eventos': ordens, 'fichas': fichas_de_evento,
-                       'professor_ceu': professor_ceu, 'ver_ficha': ver_ficha,
-                       'ver_pre_reserva': ver_pre_reserva, 'pre_reservas': pre_reservas,
-                       'cadastro_pre_reserva': cadastro_de_pre_reservas})
+                       'professor_ceu': professor_ceu, 'comercial': comercial,
+                       'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas})
 
     if is_ajax(request):
-        if request.POST.get('cliente'):
-            print(request.POST)
-            cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
-            pre_reserva = PreReserva.objects.get(cliente=cliente)
+        cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
+        pre_reserva = PreReserva.objects.get(cliente=cliente)
 
-            return JsonResponse({
-                'qtd': pre_reserva.participantes,
-                'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
-                'observacoes': pre_reserva.observacoes
-            })
-        else:
-            print(request.POST)
+        return JsonResponse({
+            'qtd': pre_reserva.participantes,
+            'id': pre_reserva.id,
+            'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
+            'confirmado': pre_reserva.agendado,
+            'observacoes': pre_reserva.observacoes
+        })
+    print(request.POST)
+    if request.POST.get('id_pre_reserva'):
+        pre_reserva = PreReserva.objects.get(id=int(request.POST.get('id_pre_reserva')))
+        pre_reserva.agendado = True
+        pre_reserva.save()
 
-    if request.POST.get('confirmar_agendamento'):
-
+        return redirect('calendario_eventos')
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
 

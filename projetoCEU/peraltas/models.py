@@ -103,6 +103,7 @@ class PreReserva(models.Model):
     observacoes = models.TextField(blank=True, null=True)
     vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     agendado = models.BooleanField(default=False)
+    ficha_evento = models.BooleanField(default=False)
 
 
 class Responsavel(models.Model):
@@ -309,12 +310,6 @@ class EscalaHotelaria(models.Model):
             monitores.append({'nome': monitor, 'user': monitor.usuario})
 
         return monitores
-
-    @staticmethod
-    def retorna_usuario(monitor):
-        print(monitor)
-
-        return monitor
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------
