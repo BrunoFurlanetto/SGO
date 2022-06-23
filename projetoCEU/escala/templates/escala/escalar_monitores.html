@@ -42,7 +42,7 @@
                     <select name="monitores_hotelaria" id="monitores_hotelaria" multiple style="width: 100%" onchange="escalado(this)">
                         {% if setor == 'hotelaria' %}
                             {% for monitor in monitores_hotelaria %}
-                                <option value="{{ monitor.id }}">{{ monitor.nome }}</option>
+                                <option value="{{ monitor.id }}" {% if monitor.tecnica %} class="tecnica" {% endif %}>{{ monitor.nome }}</option>
                             {% endfor %}
                         {% endif %}
                     </select>
@@ -52,7 +52,7 @@
                     <select name="monitores_acampamento" id="monitores_acampamento" multiple style="width: 100%; overflow: hidden" onclick="escalado(this)">
                         {% if setor == 'hotelaria' %}
                             {% for monitor in monitores_acampamento %}
-                                <option value="{{ monitor.id }}">{{ monitor.nome }}</option>
+                                <option value="{{ monitor.id }}" {% if monitor.tecnica %} class="tecnica" {% endif %}>{{ monitor.nome }}</option>
                             {% endfor %}
                         {% endif %}
                     </select>

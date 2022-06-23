@@ -460,6 +460,12 @@
     border-radius: 15px;
     justify-content: center;
 }
+.tecnica{
+    font-weight: bolder;
+}
+#escalados .tecnica{
+    background-color: #D6D32A
+}
 #escalados{
     width: 95%;
     height: auto;

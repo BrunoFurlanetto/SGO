@@ -13,13 +13,21 @@ function pegar_dados_evento(selecao){
 
                 $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
                 $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                console.log(response)
+
                 for(let monitor in response['disponiveis_evento']){
 
                     if(response['disponiveis_evento'][monitor]['setor'] === 'acampamento'){
-                        $('#monitores_acampamento').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        if(response['disponiveis_evento'][monitor]['tecnica']){
+                            $('#monitores_acampamento').append(`<option class="tecnica" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        }else{
+                            $('#monitores_acampamento').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        }
                     }else{
-                        $('#monitores_hotelaria').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        if(response['disponiveis_evento'][monitor]['tecnica']){
+                            $('#monitores_hotelaria').append(`<option class="tecnica" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        }else{
+                            $('#monitores_hotelaria').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                        }
                     }
                 }
 
@@ -39,7 +47,7 @@ function escalado(monitor){
     const ja_escalado = verificar_escalado(id_monitor)
 
     $('#escalar').removeClass('none')
-    console.log(id_monitor)
+
     monitores_escalados.push(id_monitor)
 
     $('#monitores_hotelaria option').each(function (id, nome){
@@ -61,23 +69,47 @@ function escalado(monitor){
     })
 
     if(ja_escalado){
-        $('#escalados').append(
-            `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" style="background-color: #f8d7da" >
-                ${nome_monitor} 
-                <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                    &times
-                </button>
-            </span>`
-        )
-    }else{
-        $('#escalados').append(
-            `<span id = "nome_monitor_botao" onClick = "console.log(this)" >
-                ${nome_monitor} 
-                <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                    &times
-                </button>
-            </span>`
-        )
+        if (monitor_selecionado.attr("class") === 'tecnica') {
+            setor.push('tecnica')
+            $('#escalados').append(
+                `<span class="alert-danger ja_escalado tecnica" id = "nome_monitor_botao" style="background-color: #f8d7da">
+                    ${nome_monitor} 
+                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                        &times
+                    </button>
+                </span>`
+            )
+        } else {
+            $('#escalados').append(
+                `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" style="background-color: #f8d7da" >
+                    ${nome_monitor} 
+                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                        &times
+                    </button>
+                </span>`
+            )
+        }
+    }else {
+        if (monitor_selecionado.attr("class") === 'tecnica') {
+            setor.push('tecnica')
+            $('#escalados').append(
+                `<span class="tecnica" id = "nome_monitor_botao">
+                    ${nome_monitor} 
+                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                        &times
+                    </button>
+                </span>`
+            )
+        } else {
+            $('#escalados').append(
+                `<span id = "nome_monitor_botao" >
+                    ${nome_monitor} 
+                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                        &times
+                    </button>
+                </span>`
+            )
+        }
     }
 }
 
@@ -92,11 +124,19 @@ function remover_monitor_escalado(monitor, editando=false){
     let nome_monitor = monitor.parentNode.textContent.trim().split('\n')[0]
 
     if (setor.includes('acampamento')){
-        $('#monitores_acampamento').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
+        if(setor.includes('tecnica')){
+            $('#monitores_acampamento').append(`<option class="tecnica" value="${id_monitor}">${nome_monitor}</option>`)
+        }else {
+            $('#monitores_acampamento').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
+        }
     }
 
     if (setor.includes('hotelaria')){
-        $('#monitores_hotelaria').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
+        if(setor.includes('tecnica')){
+            $('#monitores_hotelaria').append(`<option class="tecnica" value="${id_monitor}">${nome_monitor}</option>`)
+        }else {
+            $('#monitores_hotelaria').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
+        }
     }
 
     monitores_escalados.splice(monitores_escalados.indexOf(id_monitor), 1)

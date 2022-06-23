@@ -53,7 +53,7 @@
                 <h5 class="titulo-secao">Escalados para o evento</h5>
                 <div class="row" id="escalados">
                     {% for monitor in escalados %}
-                        <span id = "nome_monitor_botao" >
+                        <span {% if monitor.tecnica %} class="tecnica" {% endif %} id = "nome_monitor_botao" >
                             {{ monitor.nome }}
                             <button name = "{{ monitor.setor }}" type = "button" id = "{{ monitor.id }}" onclick="remover_monitor_escalado(this, editando=true)">
                                 &times

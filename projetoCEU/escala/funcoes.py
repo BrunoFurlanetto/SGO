@@ -239,11 +239,13 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         if isinstance(monitor, DisponibilidadeAcampamento):
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
-                                                    'setor': 'acampamento'})
+                                                    'setor': 'acampamento',
+                                                    'tecnica': monitor.monitor.tecnica})
         else:
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
-                                                    'setor': 'hotelaria'})
+                                                    'setor': 'hotelaria',
+                                                    'tecnica': monitor.monitor.tecnica})
 
     return monitores_disponiveis_intervalo
 
@@ -264,12 +266,12 @@ def monitores_disponiveis(data):
     for monitor in monitores:
         if isinstance(monitor, DisponibilidadeHotelaria):
             monitores_diponiveis_hotelaria.append({'id': monitor.monitor.id,
-                                                   'nome': monitor.monitor.usuario.get_full_name()})
+                                                   'nome': monitor.monitor.usuario.get_full_name(),
+                                                   'tecnica': monitor.monitor.tecnica})
         else:
             monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
-                                                      'nome': monitor.monitor.usuario.get_full_name()})
-
-    print(monitores_diponiveis_hotelaria)
+                                                      'nome': monitor.monitor.usuario.get_full_name(),
+                                                      'tecnica': monitor.monitor.tecnica})
 
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
@@ -403,39 +405,56 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
 
     if isinstance(escalados, EscalaHotelaria):
         for monitor in escalados.monitores_hotelaria.all():
-            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name()}
+            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name(), 'tecnica': monitor.tecnica}
             setor = []
 
             for disponivel in disponiveis_acampamento:
                 if disponivel['id'] == monitor.id:
                     setor.append('acampamento')
+
+                    if disponivel['tecnica']:
+                        setor.append('tecnica')
+
                     break
 
             for disponivel in disponiveis_hotelaria:
                 if disponivel['id'] == monitor.id:
                     setor.append('hotelaria')
+
+                    if disponivel['tecnica']:
+                        setor.append('tecnica')
+
                     break
 
             dados_monitor['setor'] = ' '.join(setor)
             escalados_data.append(dados_monitor)
     else:
         for monitor in escalados.monitores_acampamento.all():
-            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name()}
+            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name(), 'tecnica': monitor.tecnica}
             setor = []
 
             for disponivel in disponiveis_acampamento:
+                print(disponivel['tecnica'])
                 if disponivel['id'] == monitor.id:
                     setor.append('acampamento')
+
+                    if disponivel['tecnica']:
+                        setor.append('tecnica')
+
                     break
 
             for disponivel in disponiveis_hotelaria:
                 if disponivel['id'] == monitor.id:
                     setor.append('hotelaria')
+
+                    if disponivel['tecnica']:
+                        setor.append('tecnica')
+
                     break
 
             dados_monitor['setor'] = ' '.join(setor)
             escalados_data.append(dados_monitor)
-
+            print(escalados_data)
     return escalados_data
 
 

@@ -10,6 +10,11 @@ from ceu.models import Atividades, Locaveis
 class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
+    biologo = models.BooleanField(default=False)
+    tecnica = models.BooleanField(default=False)
+    som = models.BooleanField(default=False)
+    video = models.BooleanField(default=False)
+    fotos_e_filmagens = models.BooleanField(default=False)
     nota = models.FloatField(default=0.00)
     n_avaliacoes = models.IntegerField(default=0)
 

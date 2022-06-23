@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="db.sqlite3">
-  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.39">
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.40">
     <root id="1">
       <ServerVersion>3.36.0</ServerVersion>
     </root>
@@ -1372,6 +1372,7 @@
     <key id="541" parent="473">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="542" parent="473">
       <ColNames>name</ColNames>
@@ -1421,6 +1422,7 @@ permission_id</ColNames>
     <key id="551" parent="474">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="552" parent="475" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1461,6 +1463,7 @@ codename</ColNames>
     <key id="559" parent="475">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="560" parent="476" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1525,6 +1528,7 @@ codename</ColNames>
     <key id="572" parent="476">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="573" parent="476">
       <ColNames>username</ColNames>
@@ -1574,6 +1578,7 @@ group_id</ColNames>
     <key id="582" parent="477">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="583" parent="478" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1619,6 +1624,7 @@ permission_id</ColNames>
     <key id="591" parent="478">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="592" parent="479">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
@@ -1724,6 +1730,7 @@ permission_id</ColNames>
     <key id="614" parent="479">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="615" parent="480">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
@@ -1814,6 +1821,7 @@ permission_id</ColNames>
     <key id="634" parent="480">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="635" parent="481">
       <Predicate>(JSON_VALID(&quot;atividades&quot;) OR &quot;atividades&quot; IS NULL)</Predicate>
@@ -1869,6 +1877,7 @@ permission_id</ColNames>
     <key id="646" parent="481">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="647" parent="482" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1929,6 +1938,7 @@ permission_id</ColNames>
     <key id="658" parent="482">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="659" parent="483" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1974,6 +1984,7 @@ limitacoes_id</ColNames>
     <key id="667" parent="483">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="668" parent="484" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -1999,6 +2010,7 @@ limitacoes_id</ColNames>
     <key id="672" parent="484">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="673" parent="485" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2014,6 +2026,7 @@ limitacoes_id</ColNames>
     <key id="675" parent="485">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="676" parent="486" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2041,6 +2054,7 @@ limitacoes_id</ColNames>
     <key id="680" parent="486">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="681" parent="486">
       <ColNames>local_id</ColNames>
@@ -2092,6 +2106,7 @@ limitacoes_id</ColNames>
     <key id="690" parent="487">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="691" parent="487">
       <ColNames>usuario_id</ColNames>
@@ -2146,6 +2161,7 @@ limitacoes_id</ColNames>
     <key id="701" parent="488">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="702" parent="489" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2166,6 +2182,7 @@ limitacoes_id</ColNames>
     <key id="705" parent="489">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="706" parent="490">
       <Predicate>&quot;action_flag&quot; &gt;= 0</Predicate>
@@ -2232,6 +2249,7 @@ limitacoes_id</ColNames>
     <key id="719" parent="490">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="720" parent="491" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2257,6 +2275,7 @@ model</ColNames>
     <key id="724" parent="491">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="725" parent="492" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2282,6 +2301,7 @@ model</ColNames>
     <key id="729" parent="492">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="730" parent="493" name="session_key">
       <DataType>varchar(40)|0s</DataType>
@@ -2328,6 +2348,7 @@ model</ColNames>
     <key id="739" parent="494">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="740" parent="495" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2373,6 +2394,7 @@ model</ColNames>
     <key id="748" parent="495">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="749" parent="496" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2393,6 +2415,7 @@ model</ColNames>
     <key id="752" parent="496">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="753" parent="497">
       <Predicate>(JSON_VALID(&quot;avaliacao_vendedor&quot;) OR &quot;avaliacao_vendedor&quot; IS NULL)</Predicate>
@@ -2533,6 +2556,7 @@ model</ColNames>
     <key id="782" parent="497">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="783" parent="498">
       <Predicate>(JSON_VALID(&quot;atividades_ceu&quot;) OR &quot;atividades_ceu&quot; IS NULL)</Predicate>
@@ -2682,6 +2706,7 @@ model</ColNames>
     <key id="814" parent="498">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="815" parent="499" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2727,6 +2752,7 @@ atividadeseco_id</ColNames>
     <key id="823" parent="499">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="824" parent="500" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2772,6 +2798,7 @@ atividadeperaltas_id</ColNames>
     <key id="832" parent="500">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="833" parent="501" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2787,6 +2814,7 @@ atividadeperaltas_id</ColNames>
     <key id="835" parent="501">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="836" parent="502" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2802,6 +2830,7 @@ atividadeperaltas_id</ColNames>
     <key id="838" parent="502">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="839" parent="503" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -2877,6 +2906,7 @@ atividadeperaltas_id</ColNames>
     <key id="853" parent="503">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="854" parent="503">
       <ColNames>cnpj</ColNames>
@@ -2919,6 +2949,7 @@ atividadeperaltas_id</ColNames>
     <key id="862" parent="504">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="863" parent="505">
       <Predicate>(JSON_VALID(&quot;segurados&quot;) OR &quot;segurados&quot; IS NULL)</Predicate>
@@ -2952,6 +2983,7 @@ atividadeperaltas_id</ColNames>
     <key id="869" parent="505">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="870" parent="506">
       <Predicate>&quot;dia_limite_acampamento&quot; &gt;= 0</Predicate>
@@ -2970,6 +3002,7 @@ atividadeperaltas_id</ColNames>
     <key id="873" parent="506">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="874" parent="507">
       <Predicate>&quot;dia_limite_hotelaria&quot; &gt;= 0</Predicate>
@@ -2988,6 +3021,7 @@ atividadeperaltas_id</ColNames>
     <key id="877" parent="507">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="878" parent="508" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3033,6 +3067,7 @@ atividadeperaltas_id</ColNames>
     <key id="886" parent="508">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="887" parent="509" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3078,6 +3113,7 @@ atividadeperaltas_id</ColNames>
     <key id="895" parent="509">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="896" parent="510" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3128,6 +3164,7 @@ atividadeperaltas_id</ColNames>
     <key id="905" parent="510">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="906" parent="510">
       <ColNames>cnpj</ColNames>
@@ -3167,6 +3204,7 @@ atividadeperaltas_id</ColNames>
     <key id="913" parent="511">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="914" parent="512" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3212,6 +3250,7 @@ monitor_id</ColNames>
     <key id="922" parent="512">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="923" parent="513" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3227,6 +3266,7 @@ monitor_id</ColNames>
     <key id="925" parent="513">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="926" parent="514" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3272,6 +3312,7 @@ monitor_id</ColNames>
     <key id="934" parent="514">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="935" parent="515">
       <Predicate>&quot;qtd_confirmada&quot; &gt;= 0</Predicate>
@@ -3477,6 +3518,7 @@ monitor_id</ColNames>
     <key id="982" parent="515">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="983" parent="516" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3522,6 +3564,7 @@ atividades_id</ColNames>
     <key id="991" parent="516">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="992" parent="517" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3567,6 +3610,7 @@ atividadeseco_id</ColNames>
     <key id="1000" parent="517">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1001" parent="518" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3612,6 +3656,7 @@ atividadeperaltas_id</ColNames>
     <key id="1009" parent="518">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1010" parent="519" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3657,6 +3702,7 @@ locaveis_id</ColNames>
     <key id="1018" parent="519">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1019" parent="520" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3702,6 +3748,7 @@ perfilsparticipantes_id</ColNames>
     <key id="1027" parent="520">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1028" parent="521" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3747,6 +3794,7 @@ produtosperaltas_id</ColNames>
     <key id="1036" parent="521">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1037" parent="522" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3831,6 +3879,7 @@ produtosperaltas_id</ColNames>
     <key id="1054" parent="522">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1055" parent="523" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3876,6 +3925,7 @@ opcionaisformatura_id</ColNames>
     <key id="1063" parent="523">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1064" parent="524" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3921,6 +3971,7 @@ opcionaisgerais_id</ColNames>
     <key id="1072" parent="524">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1073" parent="525" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -3966,6 +4017,7 @@ atividadeseco_id</ColNames>
     <key id="1081" parent="525">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1082" parent="526" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4007,6 +4059,7 @@ atividadeseco_id</ColNames>
     <key id="1089" parent="526">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="1090" parent="526">
       <ColNames>usuario_id</ColNames>
@@ -4026,6 +4079,7 @@ atividadeseco_id</ColNames>
     <key id="1093" parent="527">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1094" parent="528" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4041,6 +4095,7 @@ atividadeseco_id</ColNames>
     <key id="1096" parent="528">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1097" parent="529" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4066,6 +4121,7 @@ atividadeseco_id</ColNames>
     <key id="1101" parent="529">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <check id="1102" parent="530">
       <Predicate>&quot;participantes&quot; &gt;= 0</Predicate>
@@ -4138,6 +4194,7 @@ atividadeseco_id</ColNames>
     <key id="1116" parent="530">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1117" parent="531" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4163,6 +4220,7 @@ atividadeseco_id</ColNames>
     <key id="1121" parent="531">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1122" parent="532" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4188,6 +4246,7 @@ atividadeseco_id</ColNames>
     <key id="1126" parent="532">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1127" parent="533" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4233,6 +4292,7 @@ responsavel_id</ColNames>
     <key id="1135" parent="533">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1136" parent="534" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4263,6 +4323,7 @@ responsavel_id</ColNames>
     <key id="1141" parent="534">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <column id="1142" parent="535" name="id">
       <AutoIncrement>1</AutoIncrement>
@@ -4304,6 +4365,7 @@ responsavel_id</ColNames>
     <key id="1149" parent="535">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
+      <UnderlyingIndexColNames>id</UnderlyingIndexColNames>
     </key>
     <key id="1150" parent="535">
       <ColNames>usuario_id</ColNames>
