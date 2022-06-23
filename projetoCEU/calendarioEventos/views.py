@@ -14,6 +14,7 @@ def eventos(request):
     fichas_de_evento = FichaDeEvento.objects.all()
     pre_reservas = PreReserva.objects.filter(ficha_evento=False)
     cadastro_de_pre_reservas = CadastroPreReserva()
+    clientes = ClienteColegio.objects.all()
     professor_ceu = False
 
     comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
@@ -26,7 +27,8 @@ def eventos(request):
         return render(request, 'calendarioEventos/calendario_eventos.html',
                       {'eventos': ordens, 'fichas': fichas_de_evento,
                        'professor_ceu': professor_ceu, 'comercial': comercial,
-                       'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas})
+                       'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas,
+                       'clientes': clientes})
 
     if is_ajax(request):
         cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))

@@ -212,12 +212,18 @@
           <form action="{% url 'calendario_eventos' %}" method="POST">
               {% csrf_token %}
             <div class="modal-body">
-                <div class="mb-2" id="nome_cliente">
+                <div class="mb-2" id="nome_cliente" onclick="ativar_mascara()">
                     <div style="margin-bottom: -8px">
-                        <label for="id_cliente">Cliente</label>
+                        <label for="clientes">Cliente</label>
+                        {{ cadastro_pre_reserva.cliente.as_hidden }}
                     </div>
                     <div>
-                        {{ cadastro_pre_reserva.cliente }}
+                        <select name="clientes" id="clientes" onchange="pegar_id_cliente(this)">
+                            <option selected></option>
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }} ({{ cliente.cnpj }})</option>
+                            {% endfor %}
+                        </select>
                         <button class="buton-plus" type="button" onclick=window.location.href="{% url 'lista_cliente' %}">
                             <span><i class='bx bxs-plus-circle'></i></span>
                         </button>
@@ -234,10 +240,17 @@
                     </style>
                     <script>
                         $(document).ready(function() {
-                            $('#id_cliente').select2({
+                            $('#clientes').select2({
                                 dropdownParent: $("#ModalCadastroPreReserva")
                             });
                         })
+                        function ativar_mascara(){
+                            console.log('Foi')
+                            $('.select2-search__field').mask("99.999.999/9999-99")
+                        }
+                        function pegar_id_cliente(id){
+                            $('#id_cliente').val(id.value)
+                        }
                     </script>
                 </div>
                 <div class="row mb-2">
@@ -271,5 +284,7 @@
         </div>
       </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
 
 {% endblock %}

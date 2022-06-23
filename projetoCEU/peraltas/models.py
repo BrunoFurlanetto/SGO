@@ -189,7 +189,6 @@ class InformacoesAdcionais(models.Model):
     horario_garantia = models.TimeField(blank=True, null=True)
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
-    outros = models.CharField(max_length=300, blank=True)
 
     def __str__(self):
         return f'Informações adicionais id: {self.id}'

@@ -186,6 +186,13 @@
     padding: 12px;
     height: 38px;
 }
-#id_opcionais_geral, #id_opcionais_formatura{
-    width: 790px;
+#opcionais_geral .select2, #opcionais_formatura .select2{
+    width: 95% !important;
+}
+#botao_add_opcionais_geral, #botao_add_opcionais_formatura{
+    background-color: transparent;
+    width: auto;
+    height: auto;
+    border: none;
+    margin-left: -30px;
 }

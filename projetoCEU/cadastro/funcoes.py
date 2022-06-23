@@ -2,7 +2,7 @@ from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
-    CadastroCliente, RelacaoClienteResponsavel
+    CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura
 
 
 def is_ajax(request):
@@ -267,6 +267,25 @@ def requests_ajax(requisicao):
             return {'id': novas_infos.id}
         else:
             return {'mensagem': form.errors}
+
+    if requisicao.get('novo_op'):
+        if requisicao.get('novo_op') == 'geral':
+            try:
+                novo_op_geral = OpcionaisGerais.objects.create(opcional_geral=requisicao.get('nome_op'))
+                novo_op_geral.save()
+            except:
+                return {'salvo': False}
+            else:
+                return {'salvo': True, 'id': novo_op_geral.id}
+
+        if requisicao.get('novo_op') == 'formatura':
+            try:
+                novo_op_formatura = OpcionaisFormatura.objects.create(opcional_formatura=requisicao.get('nome_op'))
+                novo_op_formatura.save()
+            except:
+                return {'salvo': False}
+            else:
+                return {'salvo': True, 'id': novo_op_formatura.id}
 
     if requisicao.get('infos') == 'app':
 

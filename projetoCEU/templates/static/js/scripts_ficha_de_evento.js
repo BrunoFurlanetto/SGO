@@ -176,6 +176,64 @@ function pegarIdInfosAdicionais(){
     }
 }
 
+function adcionar_novo_op_geral(){
+    $('#adcionar_opcional_geral').removeClass('none')
+    $('#nome_novo_op_geral').val('')
+}
+
+function salvar_novo_op_geral(){
+    if($('#nome_novo_op_geral').val() !== ''){
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {'novo_op': 'geral', 'nome_op': $('#nome_novo_op_geral').val()},
+            success: function (response) {
+                if(response['salvo']){
+                    let data = {
+                        id: response['id'],
+                        text: $('#nome_novo_op_geral').val()
+                    };
+
+                    let newOption = new Option(data.text, data.id, true, true);
+                    $('#id_opcionais_geral').append(newOption).trigger('change');
+
+                    $('#adcionar_opcional_geral').addClass('none')
+                }
+            }
+        })
+    }
+}
+
+function adcionar_novo_op_formatura(){
+    $('#adcionar_opcional_formatura').removeClass('none')
+    $('#nome_novo_op_formatura').val('')
+}
+
+function salvar_novo_op_formatura(){
+    if($('#nome_novo_op_formatura').val() !== ''){
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {'novo_op': 'formatura', 'nome_op': $('#nome_novo_op_formatura').val()},
+            success: function (response) {
+                if(response['salvo']){
+                    let data = {
+                        id: response['id'],
+                        text: $('#nome_novo_op_formatura').val()
+                    };
+
+                    let newOption = new Option(data.text, data.id, true, true);
+                    $('#id_opcionais_formatura').append(newOption).trigger('change');
+
+                   $('#adcionar_opcional_formatura').addClass('none')
+                }
+            }
+        })
+    }
+}
+
 jQuery('document').ready(function() {
   jQuery('#infos').submit(function() {
     var dados = new FormData(this);
