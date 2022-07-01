@@ -44,23 +44,30 @@
                                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                     data: {'cliente': cliente, 'check_in': check_in, 'check_out': check_out},
                                     success: function (response) {
-                                        $('#nome_cliente').val(cliente)
-                                        $('#id_pre_reserva').val(response['id'])
-                                        $('#check_in').val(moment(check_in).format('yyyy-MM-DDTHH:mm'))
-                                        $('#check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
-                                        $('#participantes').val(response['qtd'])
-                                        $('#vendedor').val(response['vendedor'])
-                                        $('#observacoes').val(response['observacoes'])
+                                        $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_check_in,' +
+                                            '#ModalDadosPreReserva #id_check_out,#ModalDadosPreReserva #id_participantes, ' +
+                                            '#ModalDadosPreReserva #id_vendedor, #ModalDadosPreReserva #id_observacoes').prop('disabled', true)
+
+                                        $('#ModalDadosPreReserva #id_cliente').val(response['cliente'])
+                                        $('#ModalDadosPreReserva #id_pre_reserva').val(response['id'])
+                                        $('#ModalDadosPreReserva #id_check_in').val(moment(check_in).format('yyyy-MM-DDTHH:mm'))
+                                        $('#ModalDadosPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
+                                        $('#ModalDadosPreReserva #id_participantes').val(response['qtd'])
+                                        $('#ModalDadosPreReserva #id_vendedor').val(response['vendedor'])
+                                        $('#ModalDadosPreReserva #id_observacoes').val(response['observacoes'])
 
                                         let modal_footer = $('#modal_footer')
                                         modal_footer.empty()
 
                                         if(response['confirmado']){
-                                            modal_footer.append('<input type="hidden" name="confirmar_agendamento">')
                                             modal_footer.append('<p>Agendamento já confirmado!</p>')
                                         } else {
-                                            modal_footer.append('<input type="hidden" name="confirmar_agendamento">')
-                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
+                                            {% if comercial %}
+                                                modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
+                                            {% endif %}
+
+                                            modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
+                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary"> Confirmar agendamento</button>')
                                         }
                                     }
                                 })
@@ -139,6 +146,23 @@
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
             });
+            function salvar_editado(){
+                $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_vendedor').prop('disabled', false)
+                document.getElementById('salvar_edicao').click()
+            }
+
+            function editar_agendamento(){
+                $('#id_check_in, #id_check_out, #id_participantes, #id_observacoes').prop('disabled', false)
+
+                $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
+
+                if($('#salvar').length === 0) {
+                    $('#modal_footer').append('<button type="button" id="salvar" class="btn btn-outline-primary" onclick="salvar_editado()"> Salvar</button>',
+                        '<input type="hidden" name="editar" value="True">',
+                        '<div hidden><button id="salvar_edicao" type="submit">Salvar</button></div>')
+                }
+            }
+
         </script>
 
         <div class="legenda row">
@@ -170,30 +194,30 @@
               <div class="modal-body">
                 <div class="mb-2">
                     <label for="nome_cliente">Cliente</label>
-                    <input id="nome_cliente" type="text" class="form-control" disabled>
+                    {{ cadastro_pre_reserva.cliente }}
                     <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
                 </div>
                 <div class="row mb-2">
                     <div style="width: 40%">
                         <label for="check_in">Check in</label>
-                        <input type="datetime-local" id="check_in" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+                        {{ cadastro_pre_reserva.check_in }}
                     </div>
                     <div style="width: 40%">
                         <label for="check_out">Check out</label>
-                        <input type="datetime-local" id="check_out" class="form-control" style="padding-left: 10px; padding-right: 0" disabled>
+                        {{ cadastro_pre_reserva.check_out }}
                     </div>
                     <div style="width: 20%">
                         <label for="participantes">QTD</label>
-                        <input type="number" id="participantes" class="form-control" disabled>
+                        {{ cadastro_pre_reserva.participantes }}
                     </div>
                 </div>
                 <div style="width: 50%">
                     <label for="vendedor">Vendedor(a)</label>
-                    <input type="text" id="vendedor" class="form-control" disabled>
+                    {{ cadastro_pre_reserva.vendedor }}
                 </div>
                 <div style="height: auto">
                     <label for="observacoes">Observações</label>
-                    <textarea id="observacoes" class="form-control" style="resize: none" disabled></textarea>
+                    {{ cadastro_pre_reserva.observacoes }}
                 </div>
               </div>
               <div class="modal-footer" id="modal_footer"></div>

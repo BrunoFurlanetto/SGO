@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -36,18 +37,36 @@ def eventos(request):
 
         return JsonResponse({
             'qtd': pre_reserva.participantes,
+            'cliente': pre_reserva.cliente.id,
             'id': pre_reserva.id,
-            'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
+            'vendedor': pre_reserva.vendedor.id,
             'confirmado': pre_reserva.agendado,
             'observacoes': pre_reserva.observacoes
         })
     print(request.POST)
-    if request.POST.get('id_pre_reserva'):
-        pre_reserva = PreReserva.objects.get(id=int(request.POST.get('id_pre_reserva')))
-        pre_reserva.agendado = True
-        pre_reserva.save()
+    if request.POST.get('editar') or request.POST.get('confirmar_agendamento'):
 
-        return redirect('calendario_eventos')
+        pre_reserva = PreReserva.objects.get(id=int(request.POST.get('id_pre_reserva')))
+
+        if request.POST.get('confirmar_agendamento'):
+            try:
+                pre_reserva.agendado = True
+                pre_reserva.save()
+            except:
+                messages.warning(request, 'Pré agendamento não confirmado!')
+                messages.error(request, 'houve um erro inesperado, tente novamente mais tarde!')
+            finally:
+                return redirect('calendario_eventos')
+
+        if request.POST.get('editar'):
+            try:
+                editar_pre_reserva = CadastroPreReserva(request.POST, instance=pre_reserva)
+                editar_pre_reserva.save()
+            except:
+                messages.warning(request, 'Pré agendamento não alterado!')
+                messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
+            finally:
+                return redirect('calendario_eventos')
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
 

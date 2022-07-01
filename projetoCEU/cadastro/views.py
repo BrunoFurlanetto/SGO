@@ -238,7 +238,6 @@ def fichaDeEvento(request):
     if form.is_valid():
         novo_evento = form.save(commit=False)
         novo_evento.refeicoes = pegar_refeicoes(request.POST)
-        print(novo_evento.cliente)
 
         try:
             form.save()
