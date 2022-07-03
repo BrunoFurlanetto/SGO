@@ -43,7 +43,7 @@ def eventos(request):
             'confirmado': pre_reserva.agendado,
             'observacoes': pre_reserva.observacoes
         })
-    print(request.POST)
+
     if request.POST.get('editar') or request.POST.get('confirmar_agendamento'):
 
         pre_reserva = PreReserva.objects.get(id=int(request.POST.get('id_pre_reserva')))
@@ -69,9 +69,16 @@ def eventos(request):
                 return redirect('calendario_eventos')
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
+    nova_pre_reserva = cadastro_de_pre_reservas.save(commit=False)
+
+    cliente_salvar = ClienteColegio.objects.get(id=int(request.POST.get('clientes')))
+    nova_pre_reserva.cliente = cliente_salvar
 
     if cadastro_de_pre_reservas.is_valid():
         cadastro_de_pre_reservas.save()
 
+        return redirect('calendario_eventos')
+    else:
+        messages.warning(request, f'{cadastro_de_pre_reservas.errors}')
         return redirect('calendario_eventos')
 

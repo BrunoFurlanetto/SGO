@@ -16,14 +16,28 @@
         <form action='{% url 'ficha_de_evento' %}' method="POST">
             {% csrf_token %}
             <div class="row">
-                <div style="width: 55%; margin-right: -15px">
+                <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva %} margin-right: 10% {% endif %}">
                     <label>Cliente</label>
                     {{ form.cliente.as_hidden }}
-                    <input type="text" id="cliente" readonly onclick="pegarCliente()" required>
+
+                    {% if dados_pre_reserva %}
+                        <input type="text" id="cliente" readonly value="{{ dados_pre_reserva.cliente_nome_fantasia }}" required>
+                        <script>
+                            $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
+                            setTimeout(() => {
+                                $('.search').removeClass('none')
+                            }, 1)
+                        </script>
+                    {% else %}
+                        <input type="text" id="cliente" readonly onclick="pegarCliente()" required>
+                    {% endif %}
+
                 </div>
-                <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
-                    <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i class='bx bx-search'></i></a>
-                </div>
+                {% if not dados_pre_reserva %}
+                    <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
+                        <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i class='bx bx-search'></i></a>
+                    </div>
+                {% endif %}
                 <div style="width: 30%; margin-right: -15px">
                     <label>Responsavel</label>
                     <input type="text" id="responsavel" name="responsavel" onclick="pegarResponsavel()" readonly required>
@@ -54,6 +68,12 @@
                     <label>Check out</label>
                     {{ form.check_out }}
                 </div>
+                {% if dados_pre_reserva %}
+                    <script>
+                        $('#id_check_in').val('{{ dados_pre_reserva.check_in }}')
+                        $('#id_check_out').val('{{ dados_pre_reserva.check_out }}')
+                    </script>
+                {% endif %}
             </div>
             <hr>
             <div class="row mb-2">
@@ -61,6 +81,11 @@
                 <div style="width: 15%">
                     <label>QTD estimada</label>
                     {{ form.qtd_convidada }}
+                    {% if dados_pre_reserva %}
+                        <script>
+                            $('#id_qtd_convidada').val('{{ dados_pre_reserva.qtd }}')
+                        </script>
+                    {% endif %}
                 </div>
                 <div style="width: 15%">
                     <label>QTD reservada</label>
@@ -137,6 +162,13 @@
                     <label>Observações</label>
                     {{ form.observacoes_refeicoes }}
                 </div>
+                {% if dados_pre_reserva %}
+                    <script>
+                        setTimeout(() => {
+                            pegarDias()
+                        }, 100)
+                    </script>
+                {% endif %}
             </div>
             <hr>
             <div class="row">
@@ -211,18 +243,32 @@
                     <label for="id_vendedora">Vendedor(a)</label>
                 </div>
                 <div style="width: 35%">
-                    {{ form.vendedora }}
+                    {% if dados_pre_reserva %}
+                        <input type="text" id="vendedora" value="{{ dados_pre_reserva.vendedor }}" readonly>
+                        {{ form.vendedora.as_hidden }}
+                    {% else %}
+                        {{ form.vendedora }}
+                    {% endif %}
                 </div>
             </div>
             <hr>
             <div class="mb-3 row">
                 <h5 class="titulo-secao">Observações</h5>
                 {{ form.observacoes }}
+                {% if dados_pre_reserva %}
+                    <script>
+                        $('#id_observacoes').val('{{ dados_pre_reserva.observacoes }}')
+                    </script>
+                {% endif %}
             </div>
             {{ form.empresa.as_hidden }}
+
             <script>
                 $('#id_empresa').val('{{ grupo_usuario }}')
                 $('#id_vendedora').val('{{ form.id_vendedora}}')
+                {% if dados_pre_reserva %}
+                    $('#id_vendedora').attr('disabled', true)
+                {% endif %}
             </script>
             <button type="submit" class="btn btn-primary ml-5">Salvar</button>
         </form>

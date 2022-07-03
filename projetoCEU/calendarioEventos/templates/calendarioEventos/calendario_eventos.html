@@ -61,6 +61,7 @@
 
                                         if(response['confirmado']){
                                             modal_footer.append('<p>Agendamento já confirmado!</p>')
+                                            modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["cliente"]}'">Ficha de evento</button>`)
                                         } else {
                                             {% if comercial %}
                                                 modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
@@ -178,6 +179,14 @@
                 <div class="cor"></div>
                 <p style="margin-top: 10px"> - Ficha de Evento</p>
             </div>
+            <div class="pre-reserva" style="display: flex;  width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Pré reserva</p>
+            </div>
+            <div class="reserva-confirmada" style="display: flex;  width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Reserva confirmada</p>
+            </div>
         </div>
         <script src="{% static 'js/Moment.js' %}"></script>
     </div>
@@ -242,7 +251,7 @@
                         {{ cadastro_pre_reserva.cliente.as_hidden }}
                     </div>
                     <div>
-                        <select name="clientes" id="clientes" onchange="pegar_id_cliente(this)">
+                        <select name="clientes" id="clientes" onchange="pegar_id_cliente()" required>
                             <option selected></option>
                             {% for cliente in clientes %}
                                 <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }} ({{ cliente.cnpj }})</option>
@@ -272,21 +281,23 @@
                             console.log('Foi')
                             $('.select2-search__field').mask("99.999.999/9999-99")
                         }
-                        function pegar_id_cliente(id){
-                            $('#id_cliente').val(id.value)
+                        function pegar_id_cliente(){
+                            let data = $('#clientes').select2('data');
+                            $('#id_cliente').val(data[0].id)
+                            console.log(data[0].id)
                         }
                     </script>
                 </div>
                 <div class="row mb-2">
-                    <div style="width: 43%">
+                    <div style="width: 40%">
                         <label for="check_in">Check in</label>
                         {{ cadastro_pre_reserva.check_in }}
                     </div>
-                    <div style="width: 43%">
+                    <div style="width: 40%">
                         <label for="check_out">Check out</label>
                         {{ cadastro_pre_reserva.check_out }}
                     </div>
-                    <div style="width: 14%">
+                    <div style="width: 20%">
                         <label for="participantes">QTD</label>
                         {{ cadastro_pre_reserva.participantes }}
                     </div>

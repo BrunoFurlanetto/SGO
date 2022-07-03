@@ -192,26 +192,29 @@ def ordemDeServico(request):
 
 
 @login_required(login_url='login')
-def fichaDeEvento(request):
-    # if cliente != '':
-    #     nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
-    #     pre_reserva_cliente = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
-    #     pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
-    #     dados_pre_reserva = {
-    #         'cliente_id': pre_reserva_cliente.id,
-    #         'cliente_nome_fantasia': nome_fantasia_cliente,
-    #         'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
-    #         'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
-    #         'qtd': pre_reserva.participantes,
-    #         'vendedor': pre_reserva.vendedor.id
-    #     }
-    # else:
+def fichaDeEvento(request, id_cliente=None):
     form = CadastroFichaDeEvento()
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
     atividades_ceu = Atividades.objects.all()
-    vendedora = Vendedor.objects.get(usuario=request.user)
-    form.id_vendedora = vendedora.id
+
+    if id_cliente:
+        pre_reserva_cliente = ClienteColegio.objects.get(id=int(id_cliente))
+        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
+        dados_pre_reserva = {
+            'cliente_id': pre_reserva_cliente.id,
+            'cliente_nome_fantasia': pre_reserva_cliente.nome_fantasia,
+            'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
+            'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
+            'qtd': pre_reserva.participantes,
+            'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
+            'observacoes': pre_reserva.observacoes,
+        }
+        form.id_vendedora = pre_reserva.vendedor.id
+    else:
+        dados_pre_reserva = None
+        vendedora = Vendedor.objects.get(usuario=request.user)
+        form.id_vendedora = vendedora.id
 
     if request.user in User.objects.filter(groups__name='CEU'):
         grupo_usuario = 'CEU'
@@ -227,6 +230,7 @@ def fichaDeEvento(request):
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
+                                                                 'dados_pre_reserva': dados_pre_reserva,
                                                                  'grupo_usuario': grupo_usuario,
                                                                  'atividades_ceu': atividades_ceu})
 

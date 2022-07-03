@@ -101,7 +101,7 @@ class ClienteColegio(models.Model):
 
 
 class PreReserva(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     participantes = models.PositiveIntegerField()
