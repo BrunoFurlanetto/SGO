@@ -47,8 +47,28 @@ function escalado(monitor){
     const ja_escalado = verificar_escalado(id_monitor)
 
     $('#escalar').removeClass('none')
-
     monitores_escalados.push(id_monitor)
+
+    if(monitor_selecionado[0].classList.contains('tecnica')){
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'id_monitor': id_monitor},
+            success: function (response) {
+                if(response['video'] && $('.mensagem-tecnica-video').length === 0){
+                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-video" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de video</p>')
+                }
+                if(response['som'] && $('.mensagem-tecnica-som').length === 0){
+                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-som" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de som</p>')
+                }
+                if(response['fotos_e_filmagens'] && $('.mensagem-tecnica-fotos').length === 0){
+                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-fotos" style="width: 98%; margin-left: 1%" id="mensagem_tecnica">Técnico de fotos e filmagens</p>')
+                }
+            }
+        })
+    }
 
     $('#monitores_hotelaria option').each(function (id, nome){
         if(nome.value === id_monitor){
@@ -141,6 +161,13 @@ function remover_monitor_escalado(monitor, editando=false){
 
     monitores_escalados.splice(monitores_escalados.indexOf(id_monitor), 1)
     monitor.parentNode.remove()
+
+    if($('#escalados .tecnica').length === 0){
+        let mensagens = document.querySelectorAll('#mensagem_tecnica')
+        for(let i = 0; i <= mensagens.length; i++){
+            mensagens[i].remove()
+        }
+    }
 
     if($('.ja_escalado').length === 0){
         $('#mensagem').remove()
