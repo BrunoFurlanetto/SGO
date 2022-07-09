@@ -470,13 +470,39 @@
     z-index: 1;
 }
 .conteudo-escalar-monitores{
-    background-color: #fff;
     margin: auto auto 5%;
-    width: 650px;
+    justify-content: center;
+    display: flex;
+}
+.escalar_monitores{
+    background-color: #fff;
+    margin-right: 2%;
+    width: 560px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
-    justify-content: center;
+}
+.dados-monitores{
+    background-color: #ffffff;
+    width: 250px;
+    height: fit-content;
+    max-height: 500px;
+    overflow: hidden;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+}
+.dados-monitores .conteudo{
+    transition: max-height 0.5s;
+    color: #fff;
+    max-height: 0;
+}
+.dados-monitores:hover .conteudo{
+    border-top: 1px solid #C8C9CA;
+    height: fit-content;
+    color: #000;
+    max-height: 400px;
+    overflow: auto;
 }
 .tecnica{
     font-weight: bolder;

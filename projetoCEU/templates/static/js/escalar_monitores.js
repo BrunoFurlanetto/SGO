@@ -45,6 +45,7 @@ function escalado(monitor){
     let id_monitor = monitor_selecionado.val()
     let nome_monitor = monitor_selecionado.text()
     const ja_escalado = verificar_escalado(id_monitor)
+    $('.dados-monitores').removeClass('none')
 
     $('#escalar').removeClass('none')
     monitores_escalados.push(id_monitor)
