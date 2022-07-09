@@ -45,12 +45,10 @@ function escalado(monitor){
     let id_monitor = monitor_selecionado.val()
     let nome_monitor = monitor_selecionado.text()
     const ja_escalado = verificar_escalado(id_monitor)
-    $('.dados-monitores').removeClass('none')
 
     $('#escalar').removeClass('none')
     monitores_escalados.push(id_monitor)
 
-    if(monitor_selecionado[0].classList.contains('tecnica')){
         $.ajax({
             type: 'POST',
             async: false,
@@ -58,18 +56,26 @@ function escalado(monitor){
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             data: {'id_monitor': id_monitor},
             success: function (response) {
-                if(response['video'] && $('.mensagem-tecnica-video').length === 0){
-                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-video" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de video</p>')
+
+                if(monitor_selecionado[0].classList.contains('tecnica')) {
+                    if (response['video'] && $('.mensagem-tecnica-video').length === 0) {
+                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-video" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de video</p>')
+                    }
+                    if (response['som'] && $('.mensagem-tecnica-som').length === 0) {
+                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-som" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de som</p>')
+                    }
+                    if (response['fotos_e_filmagens'] && $('.mensagem-tecnica-fotos').length === 0) {
+                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-fotos" style="width: 98%; margin-left: 1%" id="mensagem_tecnica">Técnico de fotos e filmagens</p>')
+                    }
                 }
-                if(response['som'] && $('.mensagem-tecnica-som').length === 0){
-                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-som" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de som</p>')
-                }
-                if(response['fotos_e_filmagens'] && $('.mensagem-tecnica-fotos').length === 0){
-                    $('#escalar').append('<p class="alert-warning mensagem-tecnica-fotos" style="width: 98%; margin-left: 1%" id="mensagem_tecnica">Técnico de fotos e filmagens</p>')
-                }
+
+                $('.dados-monitores').removeClass('none')
+                $(`.${response['nivel'].split(' ')[0].toLowerCase()}`).removeClass('none')
+                $(`#${response['nivel'].toLowerCase().replaceAll(' ', '_')} .monitores`).append(`<li>${nome_monitor}</li>`)
+                $(`#${response['nivel'].toLowerCase().replaceAll(' ', '_')}`).removeClass('none')
+
             }
         })
-    }
 
     $('#monitores_hotelaria option').each(function (id, nome){
         if(nome.value === id_monitor){

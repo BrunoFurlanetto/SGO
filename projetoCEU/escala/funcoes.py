@@ -297,13 +297,16 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
 
     if escalas_monitor_acampamento and not escalas_monitor_hotelaria:
         return {'acampamento': True, 'hotelaria': False, 'video': monitor_escalado.video,
-                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som}
+                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som,
+                'nivel': monitor_escalado.nivel.nivel}
     elif escalas_monitor_hotelaria and not escalas_monitor_acampamento:
         return {'acampamento': False, 'hotelaria': True, 'video': monitor_escalado.video,
-                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som}
+                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som,
+                'nivel': monitor_escalado.nivel.nivel}
     else:
         return {'acampamento': False, 'hotelaria': False, 'video': monitor_escalado.video,
-                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som}
+                'fotos_e_filmagens': monitor_escalado.fotos_e_filmagens, 'som': monitor_escalado.som,
+                'nivel': monitor_escalado.nivel.nivel}
 
 
 def escalados_para_o_evento(dados_evento):

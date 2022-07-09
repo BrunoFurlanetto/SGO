@@ -7,9 +7,17 @@ from django.db import models
 from ceu.models import Atividades, Locaveis
 
 
+class NivelMonitoria(models.Model):
+    nivel = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nivel
+
+
 class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
+    nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)
     som = models.BooleanField(default=False)

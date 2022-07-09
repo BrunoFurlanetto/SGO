@@ -1,7 +1,7 @@
 from django.contrib import admin
 from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
     InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais, \
-    OpcionaisFormatura, PreReserva
+    OpcionaisFormatura, PreReserva, NivelMonitoria
 
 from peraltas.models import Vendedor
 
@@ -21,6 +21,11 @@ class MonitorInline(admin.StackedInline):
     can_delete = False
     verbose_name = 'Monitor(a)'
     extra = 0
+
+
+@admin.register(NivelMonitoria)
+class NivelMonitoriaAdmin(admin.ModelAdmin):
+    list_display = ('nivel',)
 
 
 @admin.register(Monitor)
