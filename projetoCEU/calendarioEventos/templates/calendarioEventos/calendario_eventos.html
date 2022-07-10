@@ -13,7 +13,11 @@
         <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            document.addEventListener('DOMContentLoaded', function(){
+            $(document).ready(function (){
+                montar_calendario()
+            })
+
+            function montar_calendario(){
                 const calendarUI = document.getElementById('calendar');
                 const calendar = new FullCalendar.Calendar(calendarUI,{
 
@@ -146,7 +150,8 @@
                 });
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
-            });
+            }
+
             function salvar_editado(){
                 $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_vendedor').prop('disabled', false)
                 document.getElementById('salvar_edicao').click()
@@ -163,7 +168,9 @@
                         '<div hidden><button id="salvar_edicao" type="submit">Salvar</button></div>')
                 }
             }
-
+            $(document).ready(function (){
+                atualizar_eventos()
+            })
         </script>
 
         <div class="legenda row">
@@ -188,7 +195,6 @@
                 <p style="margin-top: 10px"> - Reserva confirmada</p>
             </div>
         </div>
-        <script src="{% static 'js/Moment.js' %}"></script>
     </div>
 
     <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -321,5 +327,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/auto_refresh_calendar.js' %}"></script>
 
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
 from cadastro.funcoes import is_ajax
@@ -24,14 +24,15 @@ def eventos(request):
             groups__name='Professor'):
         professor_ceu = True
 
-    if request.method != 'POST':
-        return render(request, 'calendarioEventos/calendario_eventos.html',
-                      {'eventos': ordens, 'fichas': fichas_de_evento,
-                       'professor_ceu': professor_ceu, 'comercial': comercial,
-                       'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas,
-                       'clientes': clientes})
-
     if is_ajax(request):
+
+        if request.method == 'GET':
+            consulta_pre_reservas = PreReserva.objects.filter(agendado=False)
+            consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+            tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)
+
+            return HttpResponse(tamanho)
+
         cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
         pre_reserva = PreReserva.objects.get(cliente=cliente)
 
@@ -43,6 +44,13 @@ def eventos(request):
             'confirmado': pre_reserva.agendado,
             'observacoes': pre_reserva.observacoes
         })
+
+    if request.method != 'POST':
+        return render(request, 'calendarioEventos/calendario_eventos.html',
+                      {'eventos': ordens, 'fichas': fichas_de_evento,
+                       'professor_ceu': professor_ceu, 'comercial': comercial,
+                       'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas,
+                       'clientes': clientes})
 
     if request.POST.get('editar') or request.POST.get('confirmar_agendamento'):
 
