@@ -1,0 +1,161 @@
+.calendario-disponibilidade, .calendario-disponibilidade-acampamento,
+.calendario-disponibilidade-hotelaria{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+.calendar-disponibilidade, .calendar-disponibilidade-acampamento,
+.calendar-disponibilidade-hotelaria{
+  width: 400px;
+  border-radius: 15px;
+  padding-bottom: 5px;
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.4);
+}
+
+.month-disponibilidade, .month-disponibilidade-acampamento,
+.month-disponibilidade-hotelaria{
+  width: 100%;
+  height: 70px;
+  border-radius: 15px 15px 0 0;
+  background-color: #00659c;
+  margin-bottom: 10px;
+  border-bottom: solid;
+  border-width: 2px;
+  border-color: #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+  text-align: center;
+  color: #fff;
+}
+.month-disponibilidade-acampamento,
+.month-disponibilidade-hotelaria{
+  width: 100%;
+  height: 70px;
+  border-radius: 15px 15px 0 0;
+  background-color: #207bad;
+  margin-bottom: 10px;
+  border-bottom: solid;
+  border-width: 2px;
+  border-color: #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+  text-align: center;
+  color: #fff;
+}
+.month-disponibilidade i, .month-disponibilidade-acampamento i,
+.month-disponibilidade-hotelaria i{
+  font-size: 25px;
+  cursor: pointer;
+}
+
+
+.month-disponibilidade h1, .month-disponibilidade-acampamento h1,
+.month-disponibilidade-hotelaria h1{
+  font-size: 25px;
+  font-weight: 400;
+  margin-top: 15px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1px;
+  text-shadow: 0 5px 8px rgba(0, 0, 0, 0.5);
+}
+
+.weekdays-disponibilidade, .weekdays-disponibilidade-acampamento,
+.weekdays-disponibilidade-hotelaria{
+  width: 100%;
+  height: 25px;
+  padding: 0 2px;
+  display: flex;
+  align-items: center;
+}
+
+.weekdays-disponibilidade div, .weekdays-disponibilidade-acampamento div,
+.weekdays-disponibilidade-hotelaria div{
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  width: calc(400px / 7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
+  border-bottom: solid #A9A9A9 1px;
+}
+
+.days-disponibilidade, .days-disponibilidade-acampamento,
+.days-disponibilidade-hotelaria{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 3px;
+}
+
+.days-disponibilidade div, .days-disponibilidade-acampamento div,
+.days-disponibilidade-hotelaria div{
+  font-size: 17px;
+  font-weight: 500;
+  width: calc(390px / 7);
+  height: calc(250px / 5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
+  text-shadow: 0 4.8px 8px rgba(0, 0, 0, 0.5);
+}
+
+.days-disponibilidade div:hover, .days-disponibilidade-acampamento div:hover,
+.days-disponibilidade-hotelaria div:hover{
+  border: 1px solid #777;
+  cursor: pointer;
+}
+
+.prev-date-disponibilidade, .next-date-disponibilidade,
+.prev-date-disponibilidade-acampamento, .next-date-disponibilidade-acampamento,
+.prev-date-disponibilidade-hotelaria, .next-date-disponibilidade-hotelaria{
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.today-disponibilidade{
+  background-color: #00659c;
+}
+.today-disponibilidade-acampamento, .today-disponibilidade-hotelaria{
+  background-color: #cdc618;
+}
+
+.selected-disponibilidade{
+    background-color: #e8c600;
+}
+.selected-disponibilidade-acampamento,
+.selected-disponibilidade-hotelaria{
+  background-color: #f36d21;
+}
+.botao{
+    font-size: 20px;
+    color: #fff;
+    height: 35px;
+    width: 98%;
+    margin-left: 1%;
+    background-color: #00659c;
+    border-radius: 10px;
+}
+.botoes{
+    padding: 10px;
+    border-top: solid;
+    border-width: 2px;
+}
+.linha-vertical{
+  border-left: 2px solid #5c636a;
+  width: 1px;
+}
+.texto-final{
+  display: flex;
+  align-items: center;
+}

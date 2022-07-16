@@ -60,9 +60,9 @@ def eventos(request):
             try:
                 pre_reserva.agendado = True
                 pre_reserva.save()
-            except:
-                messages.warning(request, 'Pré agendamento não confirmado!')
-                messages.error(request, 'houve um erro inesperado, tente novamente mais tarde!')
+            except Exception as e:
+                messages.warning(request, f'Pré agendamento não confirmado!')
+                messages.error(request, f'{e}')
             finally:
                 return redirect('calendario_eventos')
 
