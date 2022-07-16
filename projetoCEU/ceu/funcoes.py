@@ -1,7 +1,7 @@
 import datetime
 import json
 from itertools import chain
-from tkinter import *
+# from tkinter import *
 
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas

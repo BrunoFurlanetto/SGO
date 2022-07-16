@@ -1,0 +1,48 @@
+.conteudo-publico input, .conteudo-colegio input, .conteudo-empresa input{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+.conteudo-publico select, .conteudo-colegio select, .conteudo-empresa select{
+    background-color: #fff;
+    width: 100%;
+    border-radius: 5px;
+    border-color: #ced4da;
+    padding-left: 12px;
+    height: 38px;
+ }
+.conteudo-publico textarea{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
+}
+.conteudo-colegio .switch, .conteudo-empresa .switch{
+    padding: 0px;
+    height: 15px;
+}
+.none{
+    display: none !important;
+}
+
+.buton-x-, .buton-x-loc{
+    background-color: transparent;
+    border: none;
+    font-size: 28px;
+    color: #b02a37;
+}
+.buton-plus-{
+    margin-top: -10px;
+    color: #006b1b;
+    font-size: 25px;
+    border: none;
+    background-color: #fff;
+}
