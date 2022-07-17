@@ -37,12 +37,13 @@ function verQuantidades(id_produto){
 
                 } else {
                     $('.corporativo').removeClass('none')
+                    $('#perfil_participantes').addClass('none')
                 }
             }
         })
     } else {
         $('.alunos-pernoite, .professores-pernoite, .corporativo, .professores, .outro-produto').addClass('none')
-        $('.peraltas').removeClass('none')
+        $('.peraltas, #perfil_participantes').removeClass('none')
     }
 }
 
@@ -116,9 +117,9 @@ function remover_dia_refeicao(selecao){
 
 function pegarEndereco(){
     if($('#id_transporte').prop('checked')){
-        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').removeClass('none')
+        $('#dados_embarque, #viacao, #veiculo').removeClass('none')
     } else {
-        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').addClass('none')
+        $('#dados_embarque, #viacao, #veiculo').addClass('none')
     }
 }
 
