@@ -37,12 +37,13 @@ function verQuantidades(id_produto){
 
                 } else {
                     $('.corporativo').removeClass('none')
+                    $('#perfil_participantes').addClass('none')
                 }
             }
         })
     } else {
         $('.alunos-pernoite, .professores-pernoite, .corporativo, .professores, .outro-produto').addClass('none')
-        $('.peraltas').removeClass('none')
+        $('.peraltas, #perfil_participantes').removeClass('none')
     }
 }
 
@@ -116,9 +117,9 @@ function remover_dia_refeicao(selecao){
 
 function pegarEndereco(){
     if($('#id_transporte').prop('checked')){
-        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').removeClass('none')
+        $('#dados_embarque, #viacao, #veiculo').removeClass('none')
     } else {
-        $('#endereco_embarque, #terceirizado, #viacao, #veiculo').addClass('none')
+        $('#dados_embarque, #viacao, #veiculo').addClass('none')
     }
 }
 
@@ -235,48 +236,37 @@ function salvar_novo_op_formatura(){
 }
 
 jQuery('document').ready(function() {
-  jQuery('#infos').submit(function() {
-    var dados = new FormData(this);
-    var url = $(this).attr('action');
-    dados.append($('#id_lista_segurados'), this.target.files[0])
-    console.log(dados)
-    alert('fggggg')
+    jQuery('#infos').submit(function() {
+    const dados = new FormData(this);
+    const lista = $('#id_lista_segurados').prop('files')[0]
+    const url = $(this).attr('action');
+
+    dados.append('lista_segurados', lista)
 
     $.ajax({
-      url: url,
-      headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-      type: "POST",
-      data: dados,
-      enctype: 'multipart/form-data',
-      success: function(response) {
-          $('#id_informacoes_adcionais').val(response['id'])
-          $('#modal-adicionais').modal('hide')
+        url: url,
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "POST",
+        data: dados,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            $('#id_informacoes_adcionais').val(response['id'])
+            $('#modal-adicionais').modal('hide')
 
-          if($('#id_informacoes_adcionais')){
+            if($('#id_informacoes_adcionais')){
               $('#info_adicionais_ok').prop('checked', true)
-          }
+            }
 
-          if(response['mensagem']){
+            if(response['mensagem']){
               $('#corpo_site').prepend(response['mensagem'])
-          }
+            }
 
-      },
-      cache: false,
-      contentType: false,
-      processData: false,
-      xhr: function() { // Custom XMLHttpRequest
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) { // Avalia se tem suporte a propriedade upload
-              myXhr.upload.addEventListener('progress', function () {
-                  /* faz alguma coisa durante o progresso do upload */
-              }, false);
-          }
-          return myXhr;
-      }
+        },
     });
 
     return false;
-  });
+    });
 });
 
 function pegarIdCodigosApp(){

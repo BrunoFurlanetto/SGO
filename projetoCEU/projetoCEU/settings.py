@@ -92,11 +92,13 @@ WSGI_APPLICATION = 'projetoCEU.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'user_ceu',
+        'PASSWORD': 'c4^$^3Ey*5rN',
+        'HOST': '127.0.0.1',
+        'NAME': 'ceu'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -156,9 +158,14 @@ MESSAGE_TAGS = {
     constants.INFO: 'alert alert-info',
 }
 
-# Parte de configuração de envio de email
+# Parte de configuração de envio de e-mail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER = 'no-reply@fundacaoceu.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass

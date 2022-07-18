@@ -187,10 +187,10 @@ class InformacoesAdcionais(models.Model):
     )
 
     transporte = models.BooleanField()
-    terceirizado = models.BooleanField()
     viacao = models.ForeignKey(EmpresaOnibus, on_delete=models.DO_NOTHING, blank=True, null=True)
     tipo_veiculo = models.IntegerField(choices=veiculo, blank=True, null=True)
     endereco_embarque = models.CharField(max_length=255, blank=True)
+    hora_embarque = models.TimeField(blank=True, null=True)
     seguro = models.BooleanField()
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
     etiquetas_embarque = models.BooleanField()
@@ -373,6 +373,7 @@ class CadastroInfoAdicionais(forms.ModelForm):
 
         widgets = {
             'transporte': forms.CheckboxInput(attrs={'onchange': 'pegarEndereco()'}),
+            'hora_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
             'enfermaria': forms.Select(attrs={'onchange': 'horario(this)'}),

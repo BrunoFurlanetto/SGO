@@ -9,7 +9,7 @@ def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
-def requests_ajax(requisicao):
+def requests_ajax(requisicao, files=None):
     if requisicao.get('id_ficha'):
         ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha')))
         serie = []
@@ -258,9 +258,16 @@ def requests_ajax(requisicao):
 
         if requisicao.get('id_infos_adicionais'):
             info = InformacoesAdcionais.objects.get(id=int(requisicao.get('id_infos_adicionais')))
-            form = CadastroInfoAdicionais(requisicao, files=requisicao.get('outros'), instance=info)
+
+            if files:
+                form = CadastroInfoAdicionais(requisicao, files=files, instance=info)
+            else:
+                form = CadastroInfoAdicionais(requisicao, instance=info)
         else:
-            form = CadastroInfoAdicionais(requisicao, files=requisicao.get('outros'))
+            if files:
+                form = CadastroInfoAdicionais(requisicao, files=requisicao.get('id_lista_segurados'))
+            else:
+                form = CadastroInfoAdicionais(requisicao)
 
         if form.is_valid():
             novas_infos = form.save()

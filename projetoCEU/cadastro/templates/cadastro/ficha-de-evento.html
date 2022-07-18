@@ -127,7 +127,7 @@
                 </div>
             </div>
             <hr>
-            <div class="row" style="width: 100%">
+            <div class="row" style="width: 100%" id="perfil_participantes">
                 <h5 class="titulo-secao">Perfil dos participantes</h5>
                 <div class="row perfil checkbox">
                     {{ form.perfil_participantes }}
@@ -294,10 +294,6 @@
                         {{ formAdicionais.transporte }}
                         <label>Transporte?</label>
                     </div>
-                    <div class="checkbox none" style="width: 40%" id="terceirizado">
-                        {{ formAdicionais.terceirizado }}
-                        <label>Terceirizado?</label>
-                    </div>
                 </div>
                 <div class="row mt-2">
                     <div class="checkbox none" style="width: 50%" id="viacao">
@@ -308,9 +304,15 @@
                         <label>Tipo veículos</label>
                         {{ formAdicionais.tipo_veiculo }}
                     </div>
-                    <div class="mt-2 none" style="width: 75%" id="endereco_embarque">
-                        <label>Endereço de embarque</label>
-                        {{ formAdicionais.endereco_embarque }}
+                    <div class="row mt-2 none" id="dados_embarque">
+                        <div style="width: 75%" id="endereco_embarque">
+                            <label>Endereço de embarque</label>
+                            {{ formAdicionais.endereco_embarque }}
+                        </div>
+                        <div style="width: 25%" id="horario_embarque">
+                            <label for="id_hora_embarque">Horário</label>
+                            {{ formAdicionais.hora_embarque }}
+                        </div>
                     </div>
                 </div>
                 <hr>
