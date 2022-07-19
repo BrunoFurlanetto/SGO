@@ -1,5 +1,5 @@
 from django.contrib import admin
-from escala.models import Escala, Disponibilidade
+from escala.models import Escala, Disponibilidade, DiaLimite
 from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, EscalaAcampamento, EscalaHotelaria
 
 
@@ -8,6 +8,11 @@ class EscalaAdmin(admin.ModelAdmin):
     list_display = ('equipe', 'data')
     date_hierarchy = 'data'
     list_per_page = 15
+
+
+@admin.register(DiaLimite)
+class DiaLimiteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'dia_limite')
 
 
 @admin.register(Disponibilidade)

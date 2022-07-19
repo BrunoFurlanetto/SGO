@@ -138,20 +138,17 @@
     white-space: nowrap;
 }
 .dados_dashboard{
-    display: block;
+    display: flex;
+    justify-content: space-between;
 }
-.escala{
-    margin-top: -25px;
-    text-align: right;
-}
+
 .tabela-dashboard{
     height: 400px;
 }
 .conteudo-ver-ordem{
     width: 800px;
     padding: 10px;
-    margin: auto;
-    margin-bottom: 5%;
+    margin: auto auto 5%;
     justify-content: center;
     align-items: center;
     background-color: #fff;
