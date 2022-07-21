@@ -33,11 +33,30 @@ class Monitor(models.Model):
         return self.usuario.get_full_name()
 
 
-class AtividadePeraltas(models.Model):
-    atividade = models.CharField(max_length=255)
+class TipoAtividade(models.Model):
+    tipo_atividade = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.atividade
+        return self.tipo_atividade
+
+
+class AtividadePeraltas(models.Model):
+    nome_atividade = models.CharField(max_length=255)
+    local = models.CharField(max_length=255)
+    idade_min = models.PositiveIntegerField()
+    idade_max = models.PositiveIntegerField()
+    participantes_min = models.PositiveIntegerField()
+    participantes_max = models.PositiveIntegerField()
+    monitores_min = models.PositiveIntegerField()
+    monitores_max = models.PositiveIntegerField()
+    duracao = models.DurationField(blank=True, null=True)
+    lista_materiais = models.CharField(max_length=255)
+    tipo_atividade = models.ManyToManyField(TipoAtividade)
+    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING)
+    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades/%Y/%m/%d')
+
+    def __str__(self):
+        return self.nome_atividade
 
 
 class Vendedor(models.Model):
@@ -54,10 +73,23 @@ class Vendedor(models.Model):
 
 
 class AtividadesEco(models.Model):
-    atividade = models.CharField(max_length=255)
+    nome_atividade_eco = models.CharField(max_length=255)
+    local = models.CharField(max_length=255)
+    idade_min = models.PositiveIntegerField()
+    idade_max = models.PositiveIntegerField()
+    participantes_min = models.PositiveIntegerField()
+    participantes_max = models.PositiveIntegerField()
+    monitores_min = models.PositiveIntegerField()
+    monitores_max = models.PositiveIntegerField()
+    duracao = models.DurationField(blank=True, null=True)
+    lista_materiais = models.CharField(max_length=255)
+    tipo_atividade = models.ManyToManyField(TipoAtividade)
+    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING)
+    biologo = models.BooleanField(default=False)
+    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades/%Y/%m/%d')
 
     def __str__(self):
-        return self.atividade
+        return self.nome_atividade_eco
 
 
 class ProdutosPeraltas(models.Model):
