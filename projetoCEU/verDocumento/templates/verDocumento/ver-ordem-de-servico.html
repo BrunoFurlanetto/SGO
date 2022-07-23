@@ -149,13 +149,13 @@
                     <hr style="margin-left: 3px">
                 </div>
                 <div class="cronograma-cliente none">
-                    <h5 class="titulo-secao">Cronograma do grupo</h5>
+                    <h5 class="titulo-secao">Programação do grupo</h5>
                     {{ form.cronograma_peraltas }}
                 </div>
                 {% if coordenador_grupo %}
                     <hr class="cronograma-cliente none" style="width: 100%">
                     <div class="cliente-cronograma">
-                        <h5 class="titulo-secao">Cronograma do grupo</h5>
+                        <h5 class="titulo-secao">Programação do grupo</h5>
                     </div>
                     <hr class="cliente-cronograma">
                 {% endif %}
@@ -167,7 +167,7 @@
                     </div>
                 </div>
             </fieldset>
-            {% if adm_peraltas %}
+            {% if operacional %}
                 <div class="botoes">
                     <button type="submit" class="btn btn-primary ml-5 salvar" disabled>Salvar</button>
                     <button type="button" class="btn btn-primary ml-5" onclick="edita_os()">Editar</button>

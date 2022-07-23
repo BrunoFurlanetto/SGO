@@ -131,11 +131,17 @@ function servicoBordo(){
     }
 }
 
-function lista_segurados(){
-    if($('#id_seguro').prop('checked')){
-        $('#id_lista_segurados').removeClass('none')
-    }else{
-        $('#id_lista_segurados').addClass('none')
+function lista_segurados(editando=false){
+    if(!editando) {
+        if ($('#id_seguro').prop('checked')) {
+            $('#id_lista_segurados').removeClass('none')
+        } else {
+            $('#id_lista_segurados').addClass('none')
+        }
+    } else {
+        if($('#baixar_lista')){
+            $('#id_lista_segurados').addClass('none')
+        }
     }
 }
 
@@ -171,9 +177,15 @@ function horario(selecao){
         $('#horario').addClass('none')
     }
 }
-function pegarIdInfosAdicionais(){
+
+function pegarIdInfosAdicionais(editando=false){
     if($('#id_informacoes_adcionais').val() !== ''){
         $('#infos').append(`<input type="hidden" name="id_infos_adicionais" value="${$('#id_informacoes_adcionais').val()}"/>`)
+    }
+
+    if(editando){
+        $('#id_opcionais_geral').prop('disabled', false)
+        $('#id_opcionais_formatura').prop('disabled', false)
     }
 }
 
@@ -403,6 +415,8 @@ function edita_ficha(){
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
 
     $('.perfil-participantes-ver-ficha, .observacoes-ver-ficha, #ceu :first-child, #atividades_ceu_ver_ficha, #locacoes_ceu_ver_ficha').removeClass('none')
-    $('.ceu, #atividades_peraltas_ver_ficha, #atividades_eco_ver_ficha, .peraltas :first-child, .peraltas').removeClass('none')
-    $('#lista_locacoes_ceu, #lista_atividades_ceu, #lista_atividades_peraltas, #lista_atividades_eco').addClass('none')
+    $('.ceu, #atividades_peraltas_ver_ficha, #atividades_eco_ver_ficha, .peraltas :first-child, .peraltas, #arquivo_atual_lista_editar').removeClass('none')
+    $('#lista_locacoes_ceu, #lista_atividades_ceu, #lista_atividades_peraltas, #lista_atividades_eco, #arquivo_atual_lista').addClass('none')
+
+    lista_segurados()
 }

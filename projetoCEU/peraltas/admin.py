@@ -1,19 +1,24 @@
 from django.contrib import admin
-from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
-    InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais, \
-    OpcionaisFormatura, PreReserva, NivelMonitoria
-
+from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
+                             Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
+                             FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
+                             OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade)
 from peraltas.models import Vendedor
+
+
+@admin.register(TipoAtividade)
+class TipoAtividadeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tipo_atividade')
 
 
 @admin.register(AtividadePeraltas)
 class AtividadePeraltasAdmin(admin.ModelAdmin):
-    list_display = ('id', 'atividade')
+    list_display = ('id', 'nome_atividade')
 
 
 @admin.register(AtividadesEco)
 class AtividadeEcoAdmin(admin.ModelAdmin):
-    list_display = ('atividade',)
+    list_display = ('nome_atividade_eco',)
 
 
 class MonitorInline(admin.StackedInline):

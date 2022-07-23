@@ -73,6 +73,10 @@
 
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                             modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary"> Confirmar agendamento</button>')
+
+                                            {% if comercial %}
+                                                modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                            {% endif %}
                                         }
                                     }
                                 })
@@ -90,7 +94,7 @@
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
 
                                 {% if pre_reserva.agendado %}
-                                    color: '#ED0051',
+                                    color: 'red',
                                 {% else %}
                                     color: '#b60c0c',
                                 {% endif %}
@@ -152,6 +156,20 @@
                 calendar.setOption('locale', 'pt-br')
             }
 
+            function excluir_pre_agendamento(){
+                $('document').ready(function() {
+                    const cliente = $('#id_cliente :selected').text()
+
+                    $.ajax({
+                        url: '',
+                        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                        type: "POST",
+                        data: {'excluir': true, 'cliente': cliente},
+                        async: false,
+                    });
+                });
+            }
+
             function salvar_editado(){
                 $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_vendedor').prop('disabled', false)
                 document.getElementById('salvar_edicao').click()
@@ -163,7 +181,7 @@
                 $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
 
                 if($('#salvar').length === 0) {
-                    $('#modal_footer').append('<button type="button" id="salvar" class="btn btn-outline-primary" onclick="salvar_editado()"> Salvar</button>',
+                    $('#modal_footer').append('<button type="button" id="salvar" class="btn btn-outline-primary" onclick="salvar_editado()">Salvar</button>',
                         '<input type="hidden" name="editar" value="True">',
                         '<div hidden><button id="salvar_edicao" type="submit">Salvar</button></div>')
                 }
@@ -199,7 +217,7 @@
 
     <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
-          <form action="{% url 'calendario_eventos' %}" method="POST">
+          <form id="dados_pre_reserva" action="{% url 'calendario_eventos' %}" method="POST">
             {% csrf_token %}
             <div class="modal-content">
               <div class="modal-header">

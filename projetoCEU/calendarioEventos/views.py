@@ -32,9 +32,18 @@ def eventos(request):
             tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)
 
             return HttpResponse(tamanho)
-
+        print(request.POST)
         cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
         pre_reserva = PreReserva.objects.get(cliente=cliente)
+
+        if request.POST.get('excluir'):
+            try:
+                pre_reserva.delete()
+            except Exception as e:
+                messages.error(request, f'Pré reserva não excluida: f{e}')
+                return redirect('calendario_eventos')
+            else:
+                return redirect('calendario_eventos')
 
         return JsonResponse({
             'qtd': pre_reserva.participantes,

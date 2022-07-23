@@ -44,9 +44,11 @@
     </div>
     <hr>
     <div class="dados_dashboard">
-      <div class="dados-usuario">
-        <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
-      </div>
+      {% if professor %}
+          <div class="dados-usuario">
+            <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
+          </div>
+      {% endif %}
       <div class="escala">
         <b>Escala do dia:</b>
 

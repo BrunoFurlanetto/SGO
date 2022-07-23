@@ -192,7 +192,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
     atividades_eco = []
     atividades_peraltas = []
 
-    adm_peraltas = User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists()
+    operacional = User.objects.filter(pk=request.user.id, groups__name='Operacional').exists()
 
     for atividade in ordem.atividades_eco.all():
         atividades_eco.append(atividade.atividade)
@@ -216,7 +216,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
                                                                           'atividades_eco': atividades_eco,
                                                                           'atividades_peraltas': atividades_peraltas,
                                                                           'colegio': ordem.tipo == 'Colégio',
-                                                                          'adm_peraltas': adm_peraltas})
+                                                                          'operacional': operacional})
 
     if request.POST.get('acao') == 'Sim':
         ficha = FichaDeEvento.objects.get(id=int(ordem.ficha_de_evento.id))
@@ -264,20 +264,34 @@ def verFichaDeEvento(request, id_fichaDeEvento):
     codigos_app = CadastroCodigoApp(instance=app)
 
     ficha_de_evento.id = ficha.id
-    adm_peraltas = User.objects.filter(pk=request.user.id, groups__name='Administrativo Peraltas').exists()
+    informacoes_adicionais.lista_de_segurados = ficha.informacoes_adcionais.lista_segurados
+    comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
+    operacional = User.objects.filter(pk=request.user.id, groups__name='Operacional').exists()
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
                                                                          'formAdicionais': informacoes_adicionais,
                                                                          'formApp': codigos_app,
-                                                                         'adm_peraltas': adm_peraltas})
-
+                                                                         'comercial': comercial,
+                                                                         'operacional': operacional})
 
     if is_ajax(request):
         if request.POST.get('id_ficha_de_evento'):
             return JsonResponse(requests_ajax(request.POST))
 
         return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
+
+    if request.POST.get('excluir') == 'Sim':
+        try:
+            ficha.delete()
+            informacoes.delete()
+            app.delete()
+        except Exception as e:
+            messages.error(request, f'Ficha de evento não exlcuida: {e}')
+            return redirect('verFichaDeEvento', ficha.id)
+        else:
+            messages.success(request, 'Ficha de evento excluida com sucesso!')
+            return redirect('calendario_eventos')
 
     ficha_de_evento = CadastroFichaDeEvento(request.POST, instance=ficha)
 
@@ -300,4 +314,5 @@ def verFichaDeEvento(request, id_fichaDeEvento):
         return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
                                                                          'formAdicionais': informacoes_adicionais,
                                                                          'formApp': codigos_app,
-                                                                         'adm_peraltas': adm_peraltas})
+                                                                         'comercial': comercial,
+                                                                         'operacional': operacional})
