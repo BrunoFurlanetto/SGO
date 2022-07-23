@@ -300,15 +300,17 @@
                     <div class="checkbox" onchange="lista_segurados()">
                         {{ formAdicionais.seguro }}
                         <label>Seguro</label>
+
                         {% if formAdicionais.lista_de_segurados %}
-                            <a id="baixar_lista" href="/media/{{ formAdicionais.lista_de_segurados }}" download="Lista de segurados">Lista de segurados</a>
-                            <script>
-                                function tste(){
-                                    const arquivo = {{ formAdicionais.lista_de_segurados }}
-                                    $('#id_lista_segurados').prop('files', arquivo)
-                                }
-                            </script>
+                            <div id="arquivo_atual_lista">
+                                <a id="baixar_lista" href="/media/{{ formAdicionais.lista_de_segurados }}">Lista de segurados</a>
+                            </div>
+                            <div id="arquivo_atual_lista_editar" class="none mb-2">
+                                <label for="lista_atual_de_segurados">Lista atual de segurados: </label>
+                                <a id="lista_atual_de_segurados" href="/media/{{ formAdicionais.lista_de_segurados }}">{{ formAdicionais.lista_de_segurados }}</a>
+                            </div>
                         {% endif %}
+
                         {{ formAdicionais.lista_segurados }}
                         <style>
                             #id_lista_segurados{
