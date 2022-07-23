@@ -413,9 +413,9 @@
     margin: 10px 5px 10px 20px;
     width: 65px;
     height: 20px;
-    border: solid 1px #ED0051;
+    border: solid 1px red;
     border-radius: 8px;
-    background-color: #ED0051;
+    background-color: red;
 }
 .conteudo-resumo-financeiro-ceu{
     width: 800px;

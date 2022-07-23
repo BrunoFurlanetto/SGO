@@ -503,7 +503,7 @@ function dadosVerOrdem(){
 
     //Cronograma
     if($('.cronograma-cliente').children('a').prop('href')) {
-        $('.cliente-cronograma').append(`<a href="${$('.cronograma-cliente').children('a').prop('href')}">Cronograma do grupo</a>`)
+        $('.cliente-cronograma').append(`<a href="${$('.cronograma-cliente').children('a').prop('href')}">Programação do grupo</a>`)
     } else {
         $('.cliente-cronograma').addClass('none')
     }

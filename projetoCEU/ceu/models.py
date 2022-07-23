@@ -41,7 +41,7 @@ class Limitacoes(models.Model):
 
 
 class Atividades(models.Model):
-    atividade = models.CharField(max_length=100)
+    atividade = models.CharField(max_length=100, verbose_name='Nome da atividade')
     local_da_atividade = models.ForeignKey(Estruturas, on_delete=models.DO_NOTHING, related_name='local')
     numero_de_participantes_minimo = models.IntegerField()
     numero_de_participantes_maximo = models.IntegerField()

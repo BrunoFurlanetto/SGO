@@ -1,8 +1,8 @@
 from django.contrib import admin
-from peraltas.models import Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio, Responsavel, \
-    InformacoesAdcionais, AtividadesEco, CodigosApp, FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais, \
-    OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade
-
+from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
+                             Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
+                             FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
+                             OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade)
 from peraltas.models import Vendedor
 
 

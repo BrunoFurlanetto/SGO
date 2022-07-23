@@ -41,19 +41,20 @@ class TipoAtividade(models.Model):
 
 
 class AtividadePeraltas(models.Model):
-    nome_atividade = models.CharField(max_length=255)
+    nome_atividade = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
-    idade_min = models.PositiveIntegerField()
-    idade_max = models.PositiveIntegerField()
-    participantes_min = models.PositiveIntegerField()
-    participantes_max = models.PositiveIntegerField()
-    monitores_min = models.PositiveIntegerField()
-    monitores_max = models.PositiveIntegerField()
+    idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
+    idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
+    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes')
+    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes')
+    monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores')
+    monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
     duracao = models.DurationField(blank=True, null=True)
-    lista_materiais = models.CharField(max_length=255)
-    tipo_atividade = models.ManyToManyField(TipoAtividade)
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING)
-    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades/%Y/%m/%d')
+    lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
+    tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
+    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
+    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
+                                        verbose_name='Manual')
 
     def __str__(self):
         return self.nome_atividade
@@ -73,20 +74,20 @@ class Vendedor(models.Model):
 
 
 class AtividadesEco(models.Model):
-    nome_atividade_eco = models.CharField(max_length=255)
+    nome_atividade_eco = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
-    idade_min = models.PositiveIntegerField()
-    idade_max = models.PositiveIntegerField()
-    participantes_min = models.PositiveIntegerField()
-    participantes_max = models.PositiveIntegerField()
-    monitores_min = models.PositiveIntegerField()
-    monitores_max = models.PositiveIntegerField()
+    idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
+    idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
+    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes')
+    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes')
+    monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores')
+    monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
     duracao = models.DurationField(blank=True, null=True)
-    lista_materiais = models.CharField(max_length=255)
-    tipo_atividade = models.ManyToManyField(TipoAtividade)
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING)
+    lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
+    tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo de atividade')
+    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     biologo = models.BooleanField(default=False)
-    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades/%Y/%m/%d')
+    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
 
     def __str__(self):
         return self.nome_atividade_eco

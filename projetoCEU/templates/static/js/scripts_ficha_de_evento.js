@@ -131,11 +131,17 @@ function servicoBordo(){
     }
 }
 
-function lista_segurados(){
-    if($('#id_seguro').prop('checked')){
-        $('#id_lista_segurados').removeClass('none')
-    }else{
-        $('#id_lista_segurados').addClass('none')
+function lista_segurados(editando=false){
+    if(!editando) {
+        if ($('#id_seguro').prop('checked')) {
+            $('#id_lista_segurados').removeClass('none')
+        } else {
+            $('#id_lista_segurados').addClass('none')
+        }
+    } else {
+        if($('#baixar_lista')){
+            $('#id_lista_segurados').addClass('none')
+        }
     }
 }
 
@@ -171,9 +177,15 @@ function horario(selecao){
         $('#horario').addClass('none')
     }
 }
-function pegarIdInfosAdicionais(){
+
+function pegarIdInfosAdicionais(editando=false){
     if($('#id_informacoes_adcionais').val() !== ''){
         $('#infos').append(`<input type="hidden" name="id_infos_adicionais" value="${$('#id_informacoes_adcionais').val()}"/>`)
+    }
+
+    if(editando){
+        $('#id_opcionais_geral').prop('disabled', false)
+        $('#id_opcionais_formatura').prop('disabled', false)
     }
 }
 
