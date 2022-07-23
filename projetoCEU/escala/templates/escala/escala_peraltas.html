@@ -7,13 +7,17 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
 
     <div class="conteudo-escala" style="background-color: white">
-        <div id="selecionar_setor">
-            <label>Setor</label>
-            <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
-                <option selected value="hotelaria">Hotelaria</option>
-                <option value="acampamento">Acampamento</option>
-            </select>
-        </div>
+
+        {% if coordenador_acampamento or coordenador_hotelaria %}
+            <div id="selecionar_setor">
+                <label>Setor</label>
+                <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
+                    <option selected value="hotelaria">Hotelaria</option>
+                    <option value="acampamento">Acampamento</option>
+                </select>
+            </div>
+        {% endif %}
+
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
           {% csrf_token %}
         <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->

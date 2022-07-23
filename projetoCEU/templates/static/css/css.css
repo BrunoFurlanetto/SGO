@@ -145,6 +145,19 @@
 .tabela-dashboard{
     height: 400px;
 }
+.conteudo_dashboard_peraltas_escrito{
+    height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    background-color: #B9BEC9;
+    text-shadow: 1px 1px 3px rgba(255,255,255,.5);
+    -webkit-background-clip: text;
+}
+.conteudo_dashboard_peraltas_escrito h1{
+    font-size: 300px;
+}
 .conteudo-ver-ordem{
     width: 800px;
     padding: 10px;

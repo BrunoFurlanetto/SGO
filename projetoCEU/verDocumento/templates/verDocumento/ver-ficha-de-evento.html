@@ -25,17 +25,14 @@
                     }, 100)
                 </script>
                 <div class="row">
-                    <div class="row" style="width: 55%; margin-right: -15px">
+                    <div class="row" style="width: 55%; margin-right: 120px">
                         <label>Cliente</label>
-                        <input type="text" id="cliente" readonly onclick="pegarCliente()" required>
+                        <input type="text" id="cliente" readonly required>
                         {{ form.cliente.as_hidden }}
-                    </div>
-                    <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
-                        <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i class='bx bx-search'></i></a>
                     </div>
                     <div style="width: 30%; margin-right: -15px">
                         <label>Responsavel</label>
-                        <input type="text" id="responsavel" name="responsavel" onclick="pegarResponsavel()" readonly required>
+                        <input type="text" id="responsavel" name="responsavel" readonly required>
                         {{ form.responsavel_evento.as_hidden }}
                     </div>
                     <div style="width: 5%; align-items:end; display: flex">

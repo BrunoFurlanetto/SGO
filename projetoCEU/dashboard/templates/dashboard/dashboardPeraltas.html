@@ -4,57 +4,64 @@
 
 {% block conteudo %}
 
-  <div class="conteudo-dashboard">
-    <div class="tabela-dashboard">
-      {% csrf_token %}
-      <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
-      <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
-        <thead>
-          <tr class="table-active">
-            <th width="90px"><center>Tipo</center></th>
-            <th width="400px"><center>Instituição</center></th>
-            <th width="120px"><center>Coordenador</center></th>
-            <th width="250px" ><center>Equipe</center></th>
-            <th width="210px"><center><nobr>Data de atendimento</nobr></center></th>
-          </tr>
-        </thead>
-        <tbody id="dados">
-          {% if not relatorios %}
-            <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
-          {% endif %}
+  {% if ceu  %}
+    <div class="conteudo-dashboard">
+        <div class="tabela-dashboard">
+          {% csrf_token %}
+          <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
+          <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
+            <thead>
+              <tr class="table-active">
+                <th width="90px"><center>Tipo</center></th>
+                <th width="400px"><center>Instituição</center></th>
+                <th width="120px"><center>Coordenador</center></th>
+                <th width="250px" ><center>Equipe</center></th>
+                <th width="210px"><center><nobr>Data de atendimento</nobr></center></th>
+              </tr>
+            </thead>
+            <tbody id="dados">
+              {% if not relatorios %}
+                <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
+              {% endif %}
 
-          {% for relatorio in relatorios %}
-            <tr class='clickable-row' data-href="{% url 'verRelatorio' relatorio.id %}">
-              <td>{{ relatorio.tipo }}</td>
-              <td>{{ relatorio.instituicao }}</td>
-              <td>{{ relatorio.equipe.coordenador }}</td>
-              <td>{{ relatorio.equipe_escalada }}</td>
-              <td>{{ data }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-<!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
-    </div>
-    <hr>
-    <div class="dados_dashboard">
-      <div class="dados-usuario">
-        <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
+              {% for relatorio in relatorios %}
+                <tr class='clickable-row' data-href="{% url 'verRelatorio' relatorio.id %}">
+                  <td>{{ relatorio.tipo }}</td>
+                  <td>{{ relatorio.instituicao }}</td>
+                  <td>{{ relatorio.equipe.coordenador }}</td>
+                  <td>{{ relatorio.equipe_escalada }}</td>
+                  <td>{{ data }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    <!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
+        </div>
+        <hr>
+        <div class="dados_dashboard">
+          <div class="dados-usuario">
+            <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
+          </div>
+          <div class="escala">
+            <b>Escala do dia:</b>
+
+            {% if equipe_escalada %}
+              {% for professor in equipe_escalada %}
+                {{ forloop.counter }} - {{ professor }},
+              {% endfor %}
+            {% else %}
+              Ninguém escalado para hoje!
+            {% endif %}
+
+          </div>
+        </div>
       </div>
-      <div class="escala">
-        <b>Escala do dia:</b>
-
-        {% if equipe_escalada %}
-          {% for professor in equipe_escalada %}
-            {{ forloop.counter }} - {{ professor }},
-          {% endfor %}
-        {% else %}
-          Ninguém escalado para hoje!
-        {% endif %}
-
-      </div>
+  {% else %}
+    <div class="conteudo_dashboard_peraltas_escrito">
+        <h1>SGO</h1>
     </div>
-  </div>
+  {% endif %}
+
 <!--------------------------------------------------------------------------------------------------------------------->
 <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
 <!--------------------------------------------------------------------------------------------------------------------->

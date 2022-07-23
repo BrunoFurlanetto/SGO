@@ -129,4 +129,6 @@ def dashboardPeraltas(request):
     if request.user not in User.objects.filter(groups__name='Peraltas'):
         return redirect('dashboardCeu')
 
-    return render(request, 'dashboard/dashboardPeraltas.html')
+    monitoria = User.objects.filter(pk=request.user.id, groups__name='Monitoria').exists()
+
+    return render(request, 'dashboard/dashboardPeraltas.html', {'monitoria': monitoria})
