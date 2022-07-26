@@ -236,16 +236,24 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
             disponiveis_intervalo.append(disponivel)
 
     for monitor in disponiveis_intervalo:
+        areas = []
+
+        areas.append('som') if monitor.monitor.som else ...
+        areas.append('video') if monitor.monitor.video else ...
+        areas.append('fotos_e_filmagens') if monitor.monitor.fotos_e_filmagens else ...
+
         if isinstance(monitor, DisponibilidadeAcampamento):
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
                                                     'setor': 'acampamento',
-                                                    'tecnica': monitor.monitor.tecnica})
+                                                    'tecnica': monitor.monitor.tecnica,
+                                                    'areas': areas})
         else:
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
                                                     'setor': 'hotelaria',
-                                                    'tecnica': monitor.monitor.tecnica})
+                                                    'tecnica': monitor.monitor.tecnica,
+                                                    'areas': areas})
 
     return monitores_disponiveis_intervalo
 
@@ -267,11 +275,15 @@ def monitores_disponiveis(data):
         if isinstance(monitor, DisponibilidadeHotelaria):
             monitores_diponiveis_hotelaria.append({'id': monitor.monitor.id,
                                                    'nome': monitor.monitor.usuario.get_full_name(),
-                                                   'tecnica': monitor.monitor.tecnica})
+                                                   'tecnica': monitor.monitor.tecnica,
+                                                   'areas': [monitor.monitor.som, monitor.monitor.video,
+                                                             monitor.monitor.fotos_e_filmagens]})
         else:
             monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
                                                       'nome': monitor.monitor.usuario.get_full_name(),
-                                                      'tecnica': monitor.monitor.tecnica})
+                                                      'tecnica': monitor.monitor.tecnica,
+                                                      'areas': [monitor.monitor.som, monitor.monitor.video,
+                                                                monitor.monitor.fotos_e_filmagens]})
 
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
