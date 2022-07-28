@@ -48,7 +48,7 @@ class Atividades(models.Model):
     duracao = models.DurationField()
     nota = models.FloatField(default=0.00)
     n_avaliacoes = models.IntegerField(default=0)
-    limitacao = models.ManyToManyField(Limitacoes)
+    limitacao = models.ManyToManyField(Limitacoes, blank=True, null=True)
     publico = models.BooleanField(default=False)
 
     def __str__(self):
