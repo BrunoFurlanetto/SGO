@@ -17,7 +17,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
     EscalaHotelaria
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 
 
 @login_required(login_url='login')
@@ -59,7 +59,8 @@ def escala(request):
     try:
         nova_escala = Escala(data=data, equipe=equipe)
         nova_escala.save()
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Ocorreu um erro inesperado, tente novamente mais tarde!')
     else:
         messages.success(request, f'Escala para o dia {data} com {equipe}, salva com sucesso!')
@@ -85,7 +86,8 @@ def disponibilidade(request):
         try:
             dia_limite.dia_limite = request.POST.get('novo_dia')
             dia_limite.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             return JsonResponse({'tipo': 'error',
                                  'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
         else:
@@ -131,7 +133,8 @@ def disponibilidade(request):
             dias_disponiveis.save()
             messages.success(request, 'Disponibilidade salva com sucesso')
             return redirect('dashboard')
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
         return redirect('dashboard')
 
@@ -227,7 +230,8 @@ def disponibilidadePeraltas(request):
                 dias_disponiveis.save()
                 return JsonResponse({'tipo': 'sucesso',
                                      'mensagem': 'Disponibilidade salva com sucesso'})
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             return JsonResponse({'tipo': 'erro',
                                  'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
 
@@ -268,6 +272,10 @@ def escalarMonitores(request, setor, data):
         escalas = EscalaHotelaria.objects.get(data=data_selecionada)
     except EscalaHotelaria.DoesNotExist:
         ...
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
+        messages.error(request, 'Ocorreu um erro inesperado, tente novamente mais tarde!')
+        return redirect('dashboard')
     else:
         if setor == 'hotelaria' and escalas:
             return redirect('editar_escala_hotelaria', data)
@@ -306,7 +314,8 @@ def escalarMonitores(request, setor, data):
             nova_escala.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
 
             nova_escala.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
             return render(request, 'escala/escalar_monitores.html', {
                 'clientes_dia': clientes_dia,
@@ -333,7 +342,8 @@ def escalarMonitores(request, setor, data):
             nova_escala.monitores_hotelaria.set(request.POST.get('monitores_escalados').split(','))
 
             nova_escala.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
             return render(request, 'escala/escalar_monitores.html', {
                 'clientes_dia': clientes_dia,
@@ -400,7 +410,8 @@ def editarEscalaMonitores(request, cliente, data):
 
         try:
             escalados.delete()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
             return redirect('escalaPeraltas')
         else:
@@ -410,7 +421,8 @@ def editarEscalaMonitores(request, cliente, data):
     try:
         escalados.monitores_acampamento.clear()
         escalados.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
         return redirect('escalaPeraltas')
     else:
@@ -448,7 +460,8 @@ def editarEscalaHotelaria(request, data):
 
         try:
             escalados.delete()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
             return redirect('escalaPeraltas')
         else:
@@ -458,7 +471,8 @@ def editarEscalaHotelaria(request, data):
     try:
         escalados.monitores_hotelaria.clear()
         escalados.monitores_hotelaria.set(request.POST.get('monitores_escalados').split(','))
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
         return redirect('escapaPeraltas')
     else:

@@ -13,7 +13,7 @@ import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
     CadastroInfoAdicionais, CadastroCodigoApp
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -74,7 +74,8 @@ def verRelatorioPublico(request, id_relatorio):
 
         try:
             relatorio.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             return render(request, 'verDocumento/ver-relatorios-publico.html', {'formulario': relatorio_publico,
                                                                                 'rangei': range_i,
@@ -126,7 +127,8 @@ def verRelatorioColegio(request, id_relatorio):
 
         try:
             relatorio_colegio.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
@@ -184,7 +186,8 @@ def verRelatorioEmpresa(request, id_relatorio):
 
         try:
             relatorio_empresa.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
             relatorio_empresa = RelatorioEmpresa()
             return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
@@ -257,7 +260,8 @@ def verOrdemDeServico(request, id_ordemDeServico):
             check_in_and_check_out_atividade(ordem_de_servico)
             salvar_locacoes_ceu(request.POST, ordem_de_servico)
             ordens_de_servico.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
             return redirect('dashboard')
         else:
@@ -311,6 +315,7 @@ def verFichaDeEvento(request, id_fichaDeEvento):
             informacoes.delete()
             app.delete()
         except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, f'Ficha de evento não exlcuida: {e}')
             return redirect('verFichaDeEvento', ficha.id)
         else:
@@ -326,7 +331,8 @@ def verFichaDeEvento(request, id_fichaDeEvento):
 
         try:
             ficha_de_evento.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
             return redirect('dashboard')
         else:
