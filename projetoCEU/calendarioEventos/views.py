@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from cadastro.funcoes import is_ajax
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, PreReserva, CadastroPreReserva, ClienteColegio
+from projetoCEU.utils import verificar_grupo
 
 
 @login_required(login_url='login')
@@ -17,6 +18,7 @@ def eventos(request):
     cadastro_de_pre_reservas = CadastroPreReserva()
     clientes = ClienteColegio.objects.all()
     professor_ceu = False
+    grupos = verificar_grupo(request.user.groups.all())
 
     comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
 
@@ -59,7 +61,8 @@ def eventos(request):
                       {'eventos': ordens, 'fichas': fichas_de_evento,
                        'professor_ceu': professor_ceu, 'comercial': comercial,
                        'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas,
-                       'clientes': clientes})
+                       'clientes': clientes,
+                       'grupos': grupos})
 
     if request.POST.get('editar') or request.POST.get('confirmar_agendamento'):
 

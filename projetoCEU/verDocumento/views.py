@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -12,6 +13,7 @@ import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
     CadastroInfoAdicionais, CadastroCodigoApp
+from projetoCEU.utils import verificar_grupo
 from .funcoes import is_ajax, requests_ajax
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -19,6 +21,7 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
 from ceu.models import Atividades, Professores
 
 
+@login_required(login_url='login')
 def verDocumento(request, id_documento, tipo_atendimento):
     if tipo_atendimento == 'Público':
         return redirect('verRelatorioPublico', id_documento)
@@ -32,12 +35,14 @@ def verDocumento(request, id_documento, tipo_atendimento):
         return redirect('verFichaDeEvento', id_documento)
 
 
+@login_required(login_url='login')
 def verRelatorioPublico(request, id_relatorio):
     relatorio = RelatorioDeAtendimentoPublicoCeu.objects.get(id=int(id_relatorio))
     relatorio_publico = RelatorioPublico(instance=relatorio)
     relatorio_publico.id = int(id_relatorio)
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
     editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and request.user.first_name == relatorio.equipe[
         'coordenador']
     range_i = range(1, 6)
@@ -52,7 +57,8 @@ def verRelatorioPublico(request, id_relatorio):
                                                                             'rangej': range_j,
                                                                             'atividades': atividades,
                                                                             'professores': professores,
-                                                                            'editar': editar})
+                                                                            'editar': editar,
+                                                                            'grupos': grupos})
 
     if request.POST.get('acao'):
         relatorio.delete()
@@ -75,25 +81,29 @@ def verRelatorioPublico(request, id_relatorio):
                                                                                 'rangej': range_j,
                                                                                 'atividades': atividades,
                                                                                 'professores': professores,
-                                                                                'editar': editar})
+                                                                                'editar': editar,
+                                                                                'grupos': grupos})
         else:
             messages.success(request, 'Relatório de atendimento ao público alterado com sucesso')
             return redirect('dashboard')
 
 
+@login_required(login_url='login')
 def verRelatorioColegio(request, id_relatorio):
     colegio = RelatorioDeAtendimentoColegioCeu.objects.get(id=int(id_relatorio))
     relatorio_colegio = RelatorioColegio(instance=colegio)
     relatorio_colegio.id = int(id_relatorio)
     relatorio_colegio.tipo = colegio.tipo
     professores = Professores.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
     editar = datetime.now().day - colegio.data_hora_salvo.day < 2 and request.user.first_name == colegio.equipe[
         'coordenador']
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-colegio.html', {'formulario': relatorio_colegio,
                                                                             'professores': professores,
-                                                                            'editar': editar})
+                                                                            'editar': editar,
+                                                                            'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -120,7 +130,8 @@ def verRelatorioColegio(request, id_relatorio):
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'professores': professores})
+                                                             'professores': professores,
+                                                             'grupos': grupos})
         else:
             messages.success(request, 'Relatório de atendimento atualizado com sucesso!')
             return redirect('dashboard')
@@ -128,22 +139,26 @@ def verRelatorioColegio(request, id_relatorio):
     else:
         messages.warning(request, relatorio_colegio.errors)
         return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'professores': professores})
+                                                         'professores': professores,
+                                                         'grupos': grupos})
 
 
+@login_required(login_url='login')
 def verRelatorioEmpresa(request, id_relatorio):
     empresa = RelatorioDeAtendimentoEmpresaCeu.objects.get(id=int(id_relatorio))
     relatorio_empresa = RelatorioEmpresa(instance=empresa)
     relatorio_empresa.id = int(id_relatorio)
     relatorio_empresa.tipo = empresa.tipo
     professores = Professores.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
     editar = datetime.now().day - empresa.data_hora_salvo.day < 2 and request.user.first_name == empresa.equipe[
         'coordenador']
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
                                                                             'professores': professores,
-                                                                            'editar': editar})
+                                                                            'editar': editar,
+                                                                            'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -173,16 +188,19 @@ def verRelatorioEmpresa(request, id_relatorio):
             messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
             relatorio_empresa = RelatorioEmpresa()
             return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
-                                                                                'professores': professores})
+                                                                                'professores': professores,
+                                                                                'grupos': grupos})
         else:
             messages.success(request, 'Relatório de atendimento atualizado com sucesso!')
             return redirect('dashboard')
     else:
         messages.warning(request, relatorio_empresa.errors)
         return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
-                                                                            'professores': professores, })
+                                                                            'professores': professores,
+                                                                            'grupos': grupos})
 
 
+@login_required(login_url='login')
 def verOrdemDeServico(request, id_ordemDeServico):
     ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
     ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
@@ -191,6 +209,7 @@ def verOrdemDeServico(request, id_ordemDeServico):
     coordenador_grupo = request.user == ordem.monitor_responsavel.usuario
     atividades_eco = []
     atividades_peraltas = []
+    grupos = verificar_grupo(request.user.groups.all())
 
     operacional = User.objects.filter(pk=request.user.id, groups__name='Operacional').exists()
 
@@ -216,7 +235,8 @@ def verOrdemDeServico(request, id_ordemDeServico):
                                                                           'atividades_eco': atividades_eco,
                                                                           'atividades_peraltas': atividades_peraltas,
                                                                           'colegio': ordem.tipo == 'Colégio',
-                                                                          'operacional': operacional})
+                                                                          'operacional': operacional,
+                                                                          'grupos': grupos})
 
     if request.POST.get('acao') == 'Sim':
         ficha = FichaDeEvento.objects.get(id=int(ordem.ficha_de_evento.id))
@@ -251,13 +271,16 @@ def verOrdemDeServico(request, id_ordemDeServico):
                                                                           'atividades_eco': atividades_eco,
                                                                           'atividades_peraltas': atividades_peraltas,
                                                                           'colegio': ordem.tipo == 'Colégio',
-                                                                          'adm_peraltas': adm_peraltas})
+                                                                          'operacional': operacional,
+                                                                          'grupos': grupos})
 
 
+@login_required(login_url='login')
 def verFichaDeEvento(request, id_fichaDeEvento):
     ficha = FichaDeEvento.objects.get(id=int(id_fichaDeEvento))
     informacoes = InformacoesAdcionais.objects.get(id=ficha.informacoes_adcionais.id)
     app = CodigosApp.objects.get(id=ficha.codigos_app.id)
+    grupos = verificar_grupo(request.user.groups.all())
 
     ficha_de_evento = CadastroFichaDeEvento(instance=ficha)
     informacoes_adicionais = CadastroInfoAdicionais(instance=informacoes)
@@ -273,7 +296,8 @@ def verFichaDeEvento(request, id_fichaDeEvento):
                                                                          'formAdicionais': informacoes_adicionais,
                                                                          'formApp': codigos_app,
                                                                          'comercial': comercial,
-                                                                         'operacional': operacional})
+                                                                         'operacional': operacional,
+                                                                         'grupos': grupos})
 
     if is_ajax(request):
         if request.POST.get('id_ficha_de_evento'):
@@ -315,4 +339,5 @@ def verFichaDeEvento(request, id_fichaDeEvento):
                                                                          'formAdicionais': informacoes_adicionais,
                                                                          'formApp': codigos_app,
                                                                          'comercial': comercial,
-                                                                         'operacional': operacional})
+                                                                         'operacional': operacional,
+                                                                         'grupos': grupos})

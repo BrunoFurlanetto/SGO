@@ -18,11 +18,13 @@ from fichaAvaliacao.funcoes import pegar_atividades_relatorio, pegar_professores
 from fichaAvaliacao.models import FichaDeAvaliacaoForm, FichaDeAvaliacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio
+from projetoCEU.utils import verificar_grupo
 
 
 @login_required(login_url='login')
 def fichaAvaliacao(request):
     colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=request.user.last_name)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
         return redirect('dashboard')
@@ -35,7 +37,8 @@ def fichaAvaliacao(request):
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario})
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
+                                                                      'grupos': grupos})
 
     formulario = FichaDeAvaliacaoForm(request.POST)
 
@@ -48,7 +51,8 @@ def fichaAvaliacao(request):
             formulario.save()
         except:
             messages.error(request, 'Houve um erro inesperado, por favor chame um professor!')
-            return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario})
+            return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
+                                                                          'grupos': grupos})
         else:
             ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando,
                                                        ficha_avaliacao=False)
@@ -64,7 +68,8 @@ def fichaAvaliacao(request):
             return redirect('agradecimentos')
     else:
         messages.warning(request, formulario.errors)
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario})
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
+                                                                      'grupos': grupos})
 
 
 @login_required(login_url='login')
@@ -76,14 +81,17 @@ def agradecimentos(request):
 
     if request.method != 'POST':
         ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+        grupos = verificar_grupo(request.user.groups.all())
         user = User.objects.get(pk=request.user.id)
         user.delete()
-        return render(request, 'fichaAvaliacao/agradecimento.html', {'ver': ver_icons})
+        return render(request, 'fichaAvaliacao/agradecimento.html', {'ver': ver_icons,
+                                                                     'grupos': grupos})
 
 
 @login_required(login_url='login')
 def entregues(request):
     fichas = FichaDeAvaliacao.objects.order_by('-id').all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     paginacao = Paginator(fichas, 10)
     pagina = request.GET.get('page')
@@ -104,13 +112,15 @@ def entregues(request):
         return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas})
 
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas})
+        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas,
+                                                                            'grupos': grupos})
 
 
 @login_required(login_url='login')
 def verFicha(request, id_fichaDeAvaliacao):
     ficha = FichaDeAvaliacao.objects.get(id=int(id_fichaDeAvaliacao))
     ficha_form = FichaDeAvaliacaoForm(instance=ficha)
+    grupos = verificar_grupo(request.user.groups.all())
     atividades = []
     professores = []
 
@@ -126,4 +136,5 @@ def verFicha(request, id_fichaDeAvaliacao):
     ficha_form.atividades = atividades
     ficha_form.professores = professores
 
-    return render(request, 'fichaAvaliacao/verFichaAvaliacao.html', {'form': ficha_form})
+    return render(request, 'fichaAvaliacao/verFichaAvaliacao.html', {'form': ficha_form,
+                                                                     'grupos': grupos})
