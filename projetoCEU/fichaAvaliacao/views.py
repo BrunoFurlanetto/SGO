@@ -18,7 +18,7 @@ from fichaAvaliacao.funcoes import pegar_atividades_relatorio, pegar_professores
 from fichaAvaliacao.models import FichaDeAvaliacaoForm, FichaDeAvaliacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 
 
 @login_required(login_url='login')
@@ -49,7 +49,8 @@ def fichaAvaliacao(request):
             salvar_avaliacoes_atividades(request.POST, nova_avaliacao)
             salvar_avaliacoes_professores(request.POST, nova_avaliacao)
             formulario.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor chame um professor!')
             return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
                                                                           'grupos': grupos})

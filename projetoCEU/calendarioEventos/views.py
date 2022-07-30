@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from cadastro.funcoes import is_ajax
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, PreReserva, CadastroPreReserva, ClienteColegio
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 
 
 @login_required(login_url='login')
@@ -73,6 +73,7 @@ def eventos(request):
                 pre_reserva.agendado = True
                 pre_reserva.save()
             except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
                 messages.warning(request, f'Pré agendamento não confirmado!')
                 messages.error(request, f'{e}')
             finally:
@@ -82,7 +83,8 @@ def eventos(request):
             try:
                 editar_pre_reserva = CadastroPreReserva(request.POST, instance=pre_reserva)
                 editar_pre_reserva.save()
-            except:
+            except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
                 messages.warning(request, 'Pré agendamento não alterado!')
                 messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
             finally:
