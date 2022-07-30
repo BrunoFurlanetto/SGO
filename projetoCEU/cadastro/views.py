@@ -319,6 +319,7 @@ def listaCliente(request):
 
         return render(request, 'cadastro/lista-cliente.html', {'clientes': clientes,
                                                                'form': form,
+                                                               'formResponsavel': form_responsavel,
                                                                'grupos': grupos})
 
     if request.method != 'POST':
