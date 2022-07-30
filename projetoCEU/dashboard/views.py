@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from projetoCEU.utils import verificar_grupo
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas
 
 from ceu.models import Professores
@@ -31,6 +32,7 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def dashboardCeu(request):
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.user not in User.objects.filter(groups__name='CEU'):
         return redirect('dashboardPeraltas')
@@ -120,15 +122,18 @@ def dashboardCeu(request):
                                                                'professor': professor_logado,
                                                                # 'n_atividades': n_atividades, 'n_horas': n_horas,
                                                                'mostrar_aviso': mostrar_aviso_disponibilidade,
-                                                               'depois_25': depois_25})
+                                                               'depois_25': depois_25,
+                                                               'grupos': grupos})
 
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.user not in User.objects.filter(groups__name='Peraltas'):
         return redirect('dashboardCeu')
 
     monitoria = User.objects.filter(pk=request.user.id, groups__name='Monitoria').exists()
 
-    return render(request, 'dashboard/dashboardPeraltas.html', {'monitoria': monitoria})
+    return render(request, 'dashboard/dashboardPeraltas.html', {'monitoria': monitoria,
+                                                                'grupos': grupos})

@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva
+from projetoCEU.utils import verificar_grupo
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -32,11 +33,13 @@ def publico(request):
     professores = Professores.objects.all()
     range_i = range(1, 6)
     range_j = range(1, 5)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
                                                          'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
+                                                         'professores': professores,
+                                                         'grupos': grupos})
 
     relatorio_publico = RelatorioPublico(request.POST)
     relatorio = relatorio_publico.save(commit=False)
@@ -49,7 +52,8 @@ def publico(request):
         messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
         return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
                                                          'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
+                                                         'professores': professores,
+                                                         'grupos': grupos})
     else:
         messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
         return redirect('dashboard')
@@ -60,11 +64,13 @@ def colegio(request):
     relatorio_colegio = RelatorioColegio()
     professores = Professores.objects.all()
     colegios_no_ceu = pegar_colegios_no_ceu()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                          'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+                                                         'professores': professores,
+                                                         'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -84,7 +90,8 @@ def colegio(request):
             relatorio_colegio = RelatorioColegio()
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                              'colegios': colegios_no_ceu,
-                                                             'professores': professores})
+                                                             'professores': professores,
+                                                             'grupos': grupos})
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
@@ -102,7 +109,8 @@ def colegio(request):
         messages.warning(request, relatorio_colegio.errors)
         return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
                                                          'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+                                                         'professores': professores,
+                                                         'grupos': grupos})
 
 
 @login_required(login_url='login')
@@ -110,11 +118,13 @@ def empresa(request):
     relatorio_empresa = RelatorioEmpresa()
     professores = Professores.objects.all()
     empresas = pegar_empresas_no_ceu()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
                                                          'professores': professores,
-                                                         'empresas': empresas})
+                                                         'empresas': empresas,
+                                                         'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -137,7 +147,8 @@ def empresa(request):
             relatorio_empresa = RelatorioEmpresa()
             return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
                                                              'professores': professores,
-                                                             'empresas': empresas})
+                                                             'empresas': empresas,
+                                                             'grupos': grupos})
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
@@ -147,17 +158,20 @@ def empresa(request):
         messages.warning(request, relatorio_empresa.errors)
         return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
                                                          'professores': professores,
-                                                         'empresas': empresas})
+                                                         'empresas': empresas,
+                                                         'grupos': grupos})
 
 
 @login_required(login_url='login')
 def ordemDeServico(request):
     form = CadastroOrdemDeServico()
     fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {'form': form,
-                                                                  'fichas': fichas_de_evento})
+                                                                  'fichas': fichas_de_evento,
+                                                                  'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -197,6 +211,7 @@ def fichaDeEvento(request, id_cliente=None):
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
     atividades_ceu = Atividades.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if id_cliente:
         pre_reserva_cliente = ClienteColegio.objects.get(id=int(id_cliente))
@@ -232,7 +247,8 @@ def fichaDeEvento(request, id_cliente=None):
                                                                  'formApp': form_app,
                                                                  'dados_pre_reserva': dados_pre_reserva,
                                                                  'grupo_usuario': grupo_usuario,
-                                                                 'atividades_ceu': atividades_ceu})
+                                                                 'atividades_ceu': atividades_ceu,
+                                                                 'grupos': grupos})
 
     if is_ajax(request):
 
@@ -270,7 +286,8 @@ def fichaDeEvento(request, id_cliente=None):
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
                                                                  'grupo_usuario': grupo_usuario,
-                                                                 'atividades_ceu': atividades_ceu})
+                                                                 'atividades_ceu': atividades_ceu,
+                                                                 'grupos': grupos})
 
 
 @login_required(login_url='login')
@@ -281,6 +298,7 @@ def listaCliente(request):
     paginacao = Paginator(clientes, 5)
     pagina = request.GET.get('page')
     clientes = paginacao.get_page(pagina)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -300,12 +318,15 @@ def listaCliente(request):
         clientes = paginacao.get_page(pagina)
 
         return render(request, 'cadastro/lista-cliente.html', {'clientes': clientes,
-                                                               'form': form})
+                                                               'form': form,
+                                                               'formResponsavel': form_responsavel,
+                                                               'grupos': grupos})
 
     if request.method != 'POST':
         return render(request, 'cadastro/lista-cliente.html', {'form': form,
                                                                'clientes': clientes,
-                                                               'formResponsavel': form_responsavel})
+                                                               'formResponsavel': form_responsavel,
+                                                               'grupos': grupos})
 
     if request.POST.get('update') == 'true':
         cliente = ClienteColegio.objects.get(id=int(request.POST.get('id')))
@@ -348,6 +369,7 @@ def listaResponsaveis(request):
     form = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
     responsaveis = Responsavel.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     for responsavel in responsaveis:
         print(responsavel)
@@ -387,12 +409,14 @@ def listaResponsaveis(request):
 
         return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
                                                                     'clientes': clientes,
-                                                                    'responsaveis': responsaveis})
+                                                                    'responsaveis': responsaveis,
+                                                                    'grupos': grupos})
 
     if request.method != 'POST':
         return render(request, 'cadastro/lista-responsaveis.html', {'form': form,
                                                                     'clientes': clientes,
-                                                                    'responsaveis': responsaveis})
+                                                                    'responsaveis': responsaveis,
+                                                                    'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))

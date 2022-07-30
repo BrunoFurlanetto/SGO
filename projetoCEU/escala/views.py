@@ -17,6 +17,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
     EscalaHotelaria
 from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
+from projetoCEU.utils import verificar_grupo
 
 
 @login_required(login_url='login')
@@ -25,11 +26,13 @@ def escala(request):
     escalas = Escala.objects.all()
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         return render(request, 'escala/escala.html', {'professores': professores,
                                                       'escalas': escalas,
-                                                      'ver': ver_icons, 'edita': edita})
+                                                      'ver': ver_icons, 'edita': edita,
+                                                      'grupos': grupos})
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request) and request.method == 'POST':
@@ -67,6 +70,7 @@ def escala(request):
 @login_required(login_url='login')
 def disponibilidade(request):
     dia_limite = DiaLimite.objects.get(id=1)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         antes_dia = True if datetime.now().day < dia_limite.dia_limite else False
@@ -74,7 +78,8 @@ def disponibilidade(request):
         professores = Professores.objects.all()
 
         return render(request, 'escala/disponibilidade.html', {'antes_dia': antes_dia, 'dia_limite': dia_limite,
-                                                               'professores': professores, 'coordenador': coordenador})
+                                                               'professores': professores, 'coordenador': coordenador,
+                                                               'grupos': grupos})
 
     if is_ajax(request):
         try:
@@ -131,9 +136,11 @@ def disponibilidade(request):
         return redirect('dashboard')
 
 
+@login_required(login_url='login')
 def disponibilidadePeraltas(request):
     dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)
     dia_limite_hotelaria = DiaLimiteHotelaria.objects.get(id=1)
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != "POST":
         antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
@@ -151,6 +158,7 @@ def disponibilidadePeraltas(request):
             'monitores': monitores,
             'antes_dia_limite_acampamento': antes_dia_limite_acampamento,
             'antes_dia_limite_hotelaria': antes_dia_limite_hotelaria,
+            'grupos': grupos
         })
 
     if is_ajax(request):
@@ -224,11 +232,13 @@ def disponibilidadePeraltas(request):
                                  'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
 
 
+@login_required(login_url='login')
 def verEscalaPeraltas(request):
     coordenador_hotelaria = coordenador_acampamento = False
     setor = ''
     escalas_hotelaria = EscalaHotelaria.objects.all()
     escalas_acampamento = EscalaAcampamento.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if is_ajax(request):
         return JsonResponse(escalados_para_o_evento(request.POST))
@@ -245,14 +255,14 @@ def verEscalaPeraltas(request):
                                                            'coordenador_acampamento': coordenador_acampamento,
                                                            'coordenador_hotelaria': coordenador_hotelaria,
                                                            'escalas_hotelaria': escalas_hotelaria,
-                                                           'escalas_acampamento': escalas_acampamento})
+                                                           'escalas_acampamento': escalas_acampamento,
+                                                           'grupos': grupos})
 
 
+@login_required(login_url='login')
 def escalarMonitores(request, setor, data):
-    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
-    #     return redirect('dashboardCeu')
-
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
+    grupos = verificar_grupo(request.user.groups.all())
 
     try:
         escalas = EscalaHotelaria.objects.get(data=data_selecionada)
@@ -271,7 +281,8 @@ def escalarMonitores(request, setor, data):
             'data': data_selecionada,
             'setor': setor,
             'monitores_hotelaria': monitores_disponiveis_hotelaria,
-            'monitores_acampamento': monitores_disponiveis_acampamento})
+            'monitores_acampamento': monitores_disponiveis_acampamento,
+            'grupos': grupos})
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -302,7 +313,8 @@ def escalarMonitores(request, setor, data):
                 'data': data_selecionada,
                 'setor': setor,
                 'monitores_hotelaria': monitores_disponiveis_hotelaria,
-                'monitores_acampamento': monitores_disponiveis_acampamento})
+                'monitores_acampamento': monitores_disponiveis_acampamento,
+                'grupos': grupos})
         else:
             ficha_cliente = FichaDeEvento.objects.get(cliente=cliente)
             ficha_cliente.escala = True
@@ -328,23 +340,23 @@ def escalarMonitores(request, setor, data):
                 'data': data_selecionada,
                 'setor': setor,
                 'monitores_hotelaria': monitores_disponiveis_hotelaria,
-                'monitores_acampamento': monitores_disponiveis_acampamento})
+                'monitores_acampamento': monitores_disponiveis_acampamento,
+                'grupos': grupos})
         else:
             messages.success(request,
                              f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!')
             return redirect('escalaPeraltas')
 
 
+@login_required(login_url='login')
 def editarEscalaMonitores(request, cliente, data):
-    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
-    #     return redirect('dashboardCeu')
-
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
     cliente_evento = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
     ficha_evento_cliete = FichaDeEvento.objects.get(cliente=cliente_evento)
     disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
     id_escalados = []
+    grupos = verificar_grupo(request.user.groups.all())
 
     if ficha_evento_cliete.os:
         ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente_evento)
@@ -370,7 +382,8 @@ def editarEscalaMonitores(request, cliente, data):
                                                                        'restante_acampamento': restante_acampamento,
                                                                        'restante_hotelaria': restante_hotelaria,
                                                                        'escalados': escalados_evento,
-                                                                       'id_escalados': id_escalados})
+                                                                       'id_escalados': id_escalados,
+                                                                       'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
@@ -405,14 +418,13 @@ def editarEscalaMonitores(request, cliente, data):
         return redirect('escalaPeraltas')
 
 
+@login_required(login_url='login')
 def editarEscalaHotelaria(request, data):
-    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
-    #     return redirect('dashboardCeu')
-
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
     escalados = EscalaHotelaria.objects.get(data=data_selecionada)
     id_escalados = []
+    grupos = verificar_grupo(request.user.groups.all())
 
     restante_acampamento, id_escalados = teste_monitores_nao_escalados_acampamento(disponiveis_acampamento,
                                                                                    escalados, id_escalados)
@@ -425,7 +437,8 @@ def editarEscalaHotelaria(request, data):
                                                                        'escalados': escalados_para_hoje,
                                                                        'id_escalados': id_escalados,
                                                                        'restante_acampamento': restante_acampamento,
-                                                                       'restante_hotelaria': restante_hotelaria})
+                                                                       'restante_hotelaria': restante_hotelaria,
+                                                                       'grupos': grupos})
 
     if is_ajax(request):
         return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
@@ -453,15 +466,14 @@ def editarEscalaHotelaria(request, data):
         return redirect('escalaPeraltas')
 
 
+@login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
-    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
-    #     return redirect('dashboardCeu')
-
     disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
     disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
     eventos_ordem_de_servico = OrdemDeServico.objects.all()
     fichas_de_evento = FichaDeEvento.objects.filter(os=False)
     coordenador_hotelaria = coordenador_acampamento = False
+    grupos = verificar_grupo(request.user.groups.all())
     setor = ''
 
     for evento in eventos_ordem_de_servico:
@@ -488,15 +500,15 @@ def visualizarDisponibilidadePeraltas(request):
                    'fichas_de_evento': fichas_de_evento,
                    'coordenador_hotelaria': coordenador_hotelaria,
                    'coordenador_acampamento': coordenador_acampamento,
-                   'setor': setor})
+                   'setor': setor,
+                   'grupos': grupos})
 
 
+@login_required(login_url='login')
 def visualizarDisponibilidadeCeu(request):
-    # if request.user not in User.objects.filter(groups__name='Coordenador pedagógico'):
-    #     return redirect('dashboardCeu')
-
     disponiveis_ceu = Disponibilidade.objects.all()
     eventos = OrdemDeServico.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     for evento in eventos:
         if evento.atividades_ceu:
@@ -505,4 +517,5 @@ def visualizarDisponibilidadeCeu(request):
     disponiveis = pegar_disponiveis(disponiveis_ceu, 'ceu')
 
     return render(request, 'escala/calendario_disponibilidade_ceu.html', {'disponiveis': disponiveis,
-                                                                          'eventos': eventos})
+                                                                          'eventos': eventos,
+                                                                          'grupos': grupos})
