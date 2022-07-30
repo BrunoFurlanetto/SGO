@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from itertools import chain
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -11,7 +12,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas
 
 from ceu.models import Professores
@@ -55,10 +56,14 @@ def dashboardCeu(request):
     try:  # Try necessário devido ao usuário da Gla ser do CEU e não ser professor
         usuario_logado = Professores.objects.get(usuario=request.user)
         professor_logado = True
-    except Professores.DoesNotExist:
+    except Professores.DoesNotExist as e:
         professor_logado = False
         mostrar_aviso_disponibilidade = False
         depois_25 = False
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
+        messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde')
+        return redirect('logout')
     else:
         # Relatórios de atendimento ao público
         usuario_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(

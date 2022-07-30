@@ -155,13 +155,6 @@ MESSAGE_TAGS = {
     constants.INFO: 'alert alert-info',
 }
 
-# Parte de configuração de envio de e-mail
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST_USER = 'no-reply@fundacaoceu.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-
 try:
     from .local_settings import *
 except ImportError:

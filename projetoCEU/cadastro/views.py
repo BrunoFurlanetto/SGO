@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva
-from projetoCEU.utils import verificar_grupo
+from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
@@ -48,7 +48,8 @@ def publico(request):
 
     try:
         relatorio.save()
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
         return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
                                                          'rangej': range_j, 'atividades': atividades,
@@ -85,7 +86,8 @@ def colegio(request):
 
         try:
             novo_colegio = relatorio_colegio.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
             return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
@@ -142,7 +144,8 @@ def empresa(request):
 
         try:
             relatorio_empresa.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
             relatorio_empresa = RelatorioEmpresa()
             return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
@@ -189,7 +192,8 @@ def ordemDeServico(request):
             form.escala = True
 
         form.save()
-    except:
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'
                                 'ou entre em contato com o desenvolvedor.')
         return redirect('dashboardPeraltas')
@@ -265,7 +269,8 @@ def fichaDeEvento(request, id_cliente=None):
 
         try:
             form.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             return redirect('ficha_de_evento')
         else:
@@ -273,6 +278,10 @@ def fichaDeEvento(request, id_cliente=None):
                 pre_reserva = PreReserva.objects.get(cliente=novo_evento.cliente, ficha_de_evento=False)
             except PreReserva.DoeNotExists:
                 ...
+            except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
+                messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+                return redirect('dashboard')
             else:
                 pre_reserva.agendado = True
                 pre_reserva.ficha_evento = True
@@ -336,7 +345,8 @@ def listaCliente(request):
 
             try:
                 form.save()
-            except:
+            except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
                 messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             else:
                 messages.success(request, 'Cliente atualizado com sucesso!')
@@ -352,7 +362,8 @@ def listaCliente(request):
 
         try:
             form.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
             return redirect('lista_cliente')
         else:
@@ -395,6 +406,10 @@ def listaResponsaveis(request):
             relacoes = RelacaoClienteResponsavel.objects.get(cliente=int(cliente))
         except RelacaoClienteResponsavel.DoesNotExist:
             responsaveis = []
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
+            messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
+            return redirect('lista_responsaveis')
         else:
             for responsavel in relacoes.responsavel.all():
                 responsaveis.append(Responsavel.objects.get(id=responsavel.id))
@@ -430,7 +445,8 @@ def listaResponsaveis(request):
 
             try:
                 form.save()
-            except:
+            except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
                 messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
                 return redirect('lista_responsaveis')
             else:
@@ -447,7 +463,8 @@ def listaResponsaveis(request):
 
         try:
             novo_responsavel = form.save()
-        except:
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
             return redirect('lista_responsaveis')
         else:
@@ -458,6 +475,10 @@ def listaResponsaveis(request):
                 cliente = ClienteColegio.objects.get(id=int(request.POST.get('responsavel_por')))
                 RelacaoClienteResponsavel(cliente=cliente).save()
                 relacao = RelacaoClienteResponsavel.objects.get(cliente=int(request.POST.get('responsavel_por')))
+            except Exception as e:
+                email_error(request.user.get_full_name(), e, __name__)
+                messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
+                return redirect('lista_responsaveis')
             finally:
                 relacao.responsavel.add(novo_responsavel.id)
 
