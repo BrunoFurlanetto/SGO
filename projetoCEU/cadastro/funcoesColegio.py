@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from random import randint
 from django.contrib.auth.models import User, Group
 
 from ceu.models import Professores, Atividades, Locaveis
@@ -142,10 +143,11 @@ def somar_horas_parciais(entrada, saida):
 
 # ----------------------------------------------------------------------------------------------------------------------
 def criar_usuario_colegio(dados_colegio):
-    colegio_username = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}'
+    identificacao = randint(11111, 99999)
+    colegio_username = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}_{identificacao}'
     colegio_password = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].capitalize())}'
     colegio_last_name = dados_colegio.instituicao
-    colegio_email = f'avaliacao_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}@fundacaoceu.com'
+    colegio_email = f'avaliacao_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}_{identificacao}@fundacaoceu.com'
 
     user = User.objects.create_user(username=colegio_username, email=colegio_email,
                                     password=colegio_password, first_name='Colégio',
