@@ -1,4 +1,5 @@
 let monitores_escalados = []
+const niveis =['coordenadores', 'monitores', 'auxiliares']
 
 function pegar_dados_evento(selecao){
     $('#monitores_acampamento, #monitores_hotelaria').empty()
@@ -135,6 +136,11 @@ function remover_monitor_escalado(monitor, editando= false){
     let id_monitor = monitor.id
     let nome_monitor = monitor.parentNode.textContent.trim().split('\n')[0]
 
+    if(setor.includes('alert-danger')){
+        setor.splice(setor.indexOf('alert-danger'), 1)
+        setor.splice(setor.indexOf('ja_escalado'), 1)
+    }
+
     if (setor.includes('acampamento')){
         if(setor.includes('tecnica')){
             $('#monitores_acampamento').append(`<option class="${setor.join(' ')}" value="${id_monitor}">${nome_monitor}</option>`)
@@ -168,6 +174,37 @@ function remover_monitor_escalado(monitor, editando= false){
 
     if($('.ja_escalado').length === 0){
         $('#mensagem').remove()
+    }
+
+    const lista = document.querySelectorAll('.dados-monitores .monitores')
+
+    lista.forEach(function(div){
+        if(div.parentNode.getAttribute('class') !== 'none'){
+
+            for(let i = 0; i < div.children.length; i++){
+                if(div.children[i].innerText === nome_monitor.trim()){
+                    div.children[i].remove()
+                }
+            }
+
+            if(div.children.length === 0){
+                div.parentNode.classList.add('none')
+            }
+
+        }
+    })
+
+    for(let i = 0; i <= niveis.length; i++){
+        const div_niveis = document.querySelectorAll(`.niveis-${niveis[i]}`)
+
+        div_niveis.forEach(function (div){
+            for(let j = 0; j < div.children.length; j++){
+                if(!div.children[j].classList.contains('none')){
+                    return
+                }
+            }
+            div.parentNode.classList.add('none')
+        })
     }
 
 }

@@ -1,7 +1,9 @@
 let monitores_escalados = []
+const niveis =['coordenadores', 'monitores', 'auxiliares']
 
 function pegar_dados_evento(selecao){
     $('#monitores_acampamento, #monitores_hotelaria').empty()
+
     if(selecao.value !== '') {
         $.ajax({
             type: 'POST',
@@ -10,7 +12,7 @@ function pegar_dados_evento(selecao){
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             data: {'id_cliente': selecao.value},
             success: function (response) {
-
+                console.log(response)
                 $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
                 $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
@@ -18,13 +20,15 @@ function pegar_dados_evento(selecao){
 
                     if(response['disponiveis_evento'][monitor]['setor'] === 'acampamento'){
                         if(response['disponiveis_evento'][monitor]['tecnica']){
-                            $('#monitores_acampamento').append(`<option class="tecnica" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                            const areas = response['disponiveis_evento'][monitor]['areas'].join(' ')
+                            $('#monitores_acampamento').append(`<option class="tecnica ${areas}" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
                         }else{
                             $('#monitores_acampamento').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
                         }
                     }else{
                         if(response['disponiveis_evento'][monitor]['tecnica']){
-                            $('#monitores_hotelaria').append(`<option class="tecnica" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
+                            const areas = response['disponiveis_evento'][monitor]['areas'].join(' ')
+                            $('#monitores_hotelaria').append(`<option class="tecnica ${areas}" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
                         }else{
                             $('#monitores_hotelaria').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
                         }
@@ -40,11 +44,17 @@ function pegar_dados_evento(selecao){
 }
 
 function escalado(monitor){
-    let setor = []
-    let monitor_selecionado = $(`#${monitor.id} :selected`)
-    let id_monitor = monitor_selecionado.val()
-    let nome_monitor = monitor_selecionado.text()
+    let setor
+    const monitor_selecionado = $(`#${monitor.id} :selected`)
+    const id_monitor = monitor_selecionado.val()
+    const nome_monitor = monitor_selecionado.text()
     const ja_escalado = verificar_escalado(id_monitor)
+
+    if (monitor_selecionado.attr('class') !== undefined){
+        setor = monitor_selecionado.attr('class').split(' ')
+    } else {
+        setor = []
+    }
 
     $('#escalar').removeClass('none')
     monitores_escalados.push(id_monitor)
@@ -96,63 +106,44 @@ function escalado(monitor){
     })
 
     if(ja_escalado){
-        if (monitor_selecionado.attr("class") === 'tecnica') {
-            setor.push('tecnica')
-            $('#escalados').append(
-                `<span class="alert-danger ja_escalado tecnica" id = "nome_monitor_botao" style="background-color: #f8d7da">
-                    ${nome_monitor} 
-                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                        &times
-                    </button>
-                </span>`
-            )
-        } else {
-            $('#escalados').append(
-                `<span class="alert-danger ja_escalado" id = "nome_monitor_botao" style="background-color: #f8d7da" >
-                    ${nome_monitor} 
-                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                        &times
-                    </button>
-                </span>`
-            )
-        }
+        $('#escalados').append(
+            `<span class="alert-danger ja_escalado ${setor.join(' ')}" id = "nome_monitor_botao" style="background-color: #f8d7da">
+                ${nome_monitor} 
+                <button type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                    &times
+                </button>
+            </span>`
+        )
     }else {
-        if (monitor_selecionado.attr("class") === 'tecnica') {
-            setor.push('tecnica')
-            $('#escalados').append(
-                `<span class="tecnica" id = "nome_monitor_botao">
-                    ${nome_monitor} 
-                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                        &times
-                    </button>
-                </span>`
-            )
-        } else {
-            $('#escalados').append(
-                `<span id = "nome_monitor_botao" >
-                    ${nome_monitor} 
-                    <button name = "${setor.join(' ')}" type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                        &times
-                    </button>
-                </span>`
-            )
-        }
+        $('#escalados').append(
+            `<span id = "nome_monitor_botao" class="${setor.join(' ')}">
+                ${nome_monitor} 
+                <button type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
+                    &times
+                </button>
+            </span>`
+        )
     }
 }
 
-function remover_monitor_escalado(monitor, editando=false){
+function remover_monitor_escalado(monitor, editando= false){
 
     if(editando){
         $('#botao_salvar_escala').prop('disabled', false)
     }
 
-    let setor = monitor.name.split(' ')
+    let setor = monitor.parentNode.attributes.class.value.split(' ')
     let id_monitor = monitor.id
     let nome_monitor = monitor.parentNode.textContent.trim().split('\n')[0]
 
+    if(setor.includes('alert-danger')){
+        setor.splice(setor.indexOf('alert-danger'), 1)
+        setor.splice(setor.indexOf('ja_escalado'), 1)
+    }
+
     if (setor.includes('acampamento')){
         if(setor.includes('tecnica')){
-            $('#monitores_acampamento').append(`<option class="tecnica" value="${id_monitor}">${nome_monitor}</option>`)
+            $('#monitores_acampamento').append(`<option class="${setor.join(' ')}" value="${id_monitor}">${nome_monitor}</option>`)
         }else {
             $('#monitores_acampamento').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
         }
@@ -160,7 +151,7 @@ function remover_monitor_escalado(monitor, editando=false){
 
     if (setor.includes('hotelaria')){
         if(setor.includes('tecnica')){
-            $('#monitores_hotelaria').append(`<option class="tecnica" value="${id_monitor}">${nome_monitor}</option>`)
+            $('#monitores_hotelaria').append(`<option class="${setor.join(' ')}" value="${id_monitor}">${nome_monitor}</option>`)
         }else {
             $('#monitores_hotelaria').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
         }
@@ -169,15 +160,51 @@ function remover_monitor_escalado(monitor, editando=false){
     monitores_escalados.splice(monitores_escalados.indexOf(id_monitor), 1)
     monitor.parentNode.remove()
 
-    if($('#escalados .tecnica').length === 0){
-        let mensagens = document.querySelectorAll('#mensagem_tecnica')
-        for(let i = 0; i <= mensagens.length; i++){
-            mensagens[i].remove()
-        }
+    if($('#escalados .video').length === 0){
+        $('.mensagem-tecnica-video').remove()
+    }
+
+    if ($('#escalados .som').length === 0) {
+         $('.mensagem-tecnica-som').remove()
+    }
+
+    if ($('#escalados .fotos_e_filmagens').length === 0) {
+        $('.mensagem-tecnica-fotos').remove()
     }
 
     if($('.ja_escalado').length === 0){
         $('#mensagem').remove()
+    }
+
+    const lista = document.querySelectorAll('.dados-monitores .monitores')
+
+    lista.forEach(function(div){
+        if(div.parentNode.getAttribute('class') !== 'none'){
+
+            for(let i = 0; i < div.children.length; i++){
+                if(div.children[i].innerText === nome_monitor.trim()){
+                    div.children[i].remove()
+                }
+            }
+
+            if(div.children.length === 0){
+                div.parentNode.classList.add('none')
+            }
+
+        }
+    })
+
+    for(let i = 0; i <= niveis.length; i++){
+        const div_niveis = document.querySelectorAll(`.niveis-${niveis[i]}`)
+
+        div_niveis.forEach(function (div){
+            for(let j = 0; j < div.children.length; j++){
+                if(!div.children[j].classList.contains('none')){
+                    return
+                }
+            }
+            div.parentNode.classList.add('none')
+        })
     }
 
 }
