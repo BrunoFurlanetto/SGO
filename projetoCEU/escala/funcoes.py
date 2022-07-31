@@ -367,6 +367,9 @@ def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados
                     break
 
             if adiciona:
+                if monitor['tecnica']:
+                    monitor['especialidade'] = especialidade_monitor(monitor)
+
                 restante_acampamento.append(monitor)
         else:
             for escalado in escalados.monitores_hotelaria.all():
@@ -379,6 +382,9 @@ def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados
                     break
 
             if adiciona:
+                if monitor['tecnica']:
+                    monitor['especialidade'] = especialidade_monitor(monitor)
+
                 restante_acampamento.append(monitor)
 
     return restante_acampamento, id_escalados
@@ -401,6 +407,9 @@ def teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria, escalados, id
                     break
 
             if adiciona:
+                if monitor['tecnica']:
+                    monitor['especialidade'] = especialidade_monitor(monitor)
+
                 restante_hotelaria.append(monitor)
         else:
             for escalado in escalados.monitores_acampamento.all():
@@ -413,6 +422,9 @@ def teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria, escalados, id
                     break
 
             if adiciona:
+                if monitor['tecnica']:
+                    monitor['especialidade'] = especialidade_monitor(monitor)
+
                 restante_hotelaria.append(monitor)
 
     return restante_hotelaria, id_escalados
@@ -520,3 +532,19 @@ def pegar_disponiveis(disponibilidades, setor):
                                     'dias_disponiveis': datas})
 
         return disponiveis_ceu
+
+
+def especialidade_monitor(monitor_escalado):
+    especialidades = []
+    monitor = Monitor.objects.get(id=monitor_escalado['id'])
+
+    if monitor.som:
+        especialidades.append('som')
+
+    if monitor.video:
+        especialidades.append('video')
+
+    if monitor.fotos_e_filmagens:
+        especialidades.append('fotos_e_filmagens')
+
+    return ' '.join(especialidades)
