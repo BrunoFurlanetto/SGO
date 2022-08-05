@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-resumo-financeiro-ceu">
+        <div class="titulo-resumo-ceu" align="center">
+            <h2>DETECTOR DE BOMBAS</h2>
+        </div>
+        <hr>
+        <div class="conteudo-detector">
+            <div id="pesquisa_evento">
+                {% csrf_token %}
+                <div class="row" style="width: 70%">
+                    <div>
+                        <label for="clientes">Evento:</label>
+                    </div>
+                    <div>
+                        <select class="form-select" name="clientes" id="clientes" onchange="pegar_dados_evento()">
+                            <option selected></option>
+                            {% for evento in eventos %}
+                                <option value="{{ evento.ficha_de_evento.cliente.id }}">{{ evento.instituicao }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div id="detector_de_bombas"></div>
+
+            <div class="modal fade" id="ModalProfessoresEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <form id="dados_pre_reserva" action="{% url 'detector' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"></h5>
+                                <button class="btn-close" data-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div>
+                                    ...
+                                </div>
+                            </div>
+                            <div class="modal-footer" id="modal_footer">
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
+        <script src="{% static 'js/script_detector_de_bombas.js' %}"></script><!-- Script do calendário -->
+        <script src="{% static 'js/Moment.js' %}"></script>
+    </div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -8,15 +9,15 @@ from ceu.models import Professores
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu
 from painelAdm.funcoes import contar_atividades, contar_horas, contar_diaria, verificar_anos, is_ajax, pegar_mes, \
     pegar_atividades, contar_atividades_professor
+from projetoCEU.utils import verificar_grupo
 
 
+@login_required(login_url='login')
 def painelGeral(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
     consulta = RelatorioDeAtendimentoPublicoCeu.objects.all().order_by('-data_atendimento')[:200]
     anos = verificar_anos(consulta)
     professores = Professores.objects.all()
+    grupos = verificar_grupo(request.user.groups.all())
 
     if request.method != 'POST':
         professores = Professores.objects.all()
@@ -30,12 +31,13 @@ def painelGeral(request):
 
         for professor in professores:
             professor.n_atividades = contar_atividades(professor)
-            professor.n_horas = contar_horas(professor)
-            professor.n_diaria = contar_diaria(professor)
+            # professor.n_horas = contar_horas(professor)
+            # professor.n_diaria = contar_diaria(professor)
 
         return render(request, 'paineladm/painelGeral.html', {'professores': professores, 'anos': anos,
                                                               'mesAnterior': mes_anterior,
-                                                              'meses': meses})
+                                                              'meses': meses,
+                                                              'grupos': grupos})
 
     if is_ajax(request) and request.method == 'POST':
 

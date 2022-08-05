@@ -79,12 +79,12 @@ def teste_participantes_por_atividade(dados):
 # -------------------------- Funções pra pegar a equipe escalada no atendimento -----------------------------
 def salvar_equipe(dados, relatorio):
     coordenador = Professores.objects.get(id=int(dados.get('coordenador')))
-    professores = {'coordenador': coordenador.usuario.first_name}
+    professores = {'coordenador': coordenador.id}
 
     for i in range(2, 5):
         if dados.get(f'professor_{i}') != '':
             professor = Professores.objects.get(id=int(dados.get(f'professor_{i}')))
-            professores[f'professor_{i}'] = professor.usuario.first_name
+            professores[f'professor_{i}'] = professor.id
 
     relatorio.equipe = professores
 # -----------------------------------------------------------------------------------------------------------

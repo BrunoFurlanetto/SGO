@@ -65,13 +65,34 @@
                 <li>
             {% endif %}
 
-            {% if 'Administrativo' in grupos %}
+            {% if 'Diretoria' in grupos %}
               <a href="{% url 'painelGeral' %}">
                 <i class='bx bxs-pie-chart-alt-2' ></i>
                 <span class="link_name"><nobr>Painel estatístico</nobr></span>
               </a>
               <ul class="sub-menu blank">
                 <li><a class="link_name" href="{% url 'painelGeral' %}">Painel estatístico</a></li>
+              </ul>
+            {% endif %}
+            </li>
+
+          {% if 'dashboard' in request.path %}
+                {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    <li class="item-sidebar">
+                {% else %}
+                    <li>
+                {% endif %}
+            {% else %}
+                <li>
+            {% endif %}
+
+            {% if 'Coordenador pedagógico' in grupos or 'mostrar' in grupos %}
+              <a href="{% url 'detector' %}">
+                <i class='bx bx-timer' ></i>
+                  <span class="link_name max-word"><nobr>Detector de bombas</nobr></span>
+              </a>
+              <ul class="sub-menu blank">
+                <li><a class="link_name max-word" href="{% url 'detector' %}">Detector de bombas</a></li>
               </ul>
             {% endif %}
             </li>

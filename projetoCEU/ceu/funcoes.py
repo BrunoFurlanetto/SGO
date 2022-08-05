@@ -150,3 +150,23 @@ def pegar_valor_reembolso(professor):
         return 0
     else:
         return reembolso.valor_reembolso
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------- Funções do detector de bombas -------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def pegar_dados_evento(id_cliente, ordens):
+    evento = None
+
+    for ordem in ordens:
+        if ordem.ficha_de_evento.cliente.id == id_cliente:
+            evento = ordem
+    print()
+    dados_evento = {'data_evento': evento.check_in_ceu,
+                    'dias_evento': (evento.check_out_ceu.day - evento.check_in_ceu.day) + 1,
+                    'atividades': evento.atividades_ceu,
+                    'locacoes': evento.locacao_ceu}
+
+    return dados_evento

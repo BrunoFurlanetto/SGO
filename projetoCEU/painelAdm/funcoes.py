@@ -1,8 +1,9 @@
+import json
 from datetime import timedelta, datetime
 import operator
 from django.db.models import Q
 
-from cadastro.models import RelatorioDeAtendimentoPublicoCeu
+from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu
 from ceu.models import Professores
 
 
@@ -35,11 +36,12 @@ def pegar_mes(ordens):
 
 def contar_atividades(professor):
     n_atividades = 0
-    ordens = RelatorioDeAtendimentoCeu.objects.filter(Q(coordenador=professor) | Q(professor_2=professor) |
-                                                      Q(professor_3=professor) | Q(professor_4=professor)).filter(
-        data_atendimento__month=datetime.now().month).values()
+    print(professor)
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+        data_atendimento__month=datetime.now().month).filter(
+        equipe__icontains=json.dumps(professor.usuario.first_name))
 
-    for ordem in ordens:
+    for ordem in relatorios_publico:
         for nome in ordem:
             if 'professores' in nome and 'locacao' not in nome and ordem[nome] is not None:
 
