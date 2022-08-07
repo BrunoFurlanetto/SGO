@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Atividades, Professores, Locaveis
@@ -10,38 +12,42 @@ def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
+def pegar_atividades_e_professores(dados_atividades):
+    atividades = []
+    professores = []
+
+    for atividade in dados_atividades.values():
+        atividades.append({
+            'atividade': atividade['atividade'],
+            'inicio': datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%H:%M'),
+        })
+
+        professores.append(atividade['professores'])
+
+    return atividades, professores
+
+
 def requests_ajax(requisicao):
-    if requisicao.get('id_relatorio_publico'):
-        relatorio = RelatorioDeAtendimentoPublicoCeu.objects.get(id=int(requisicao.get('id_relatorio_publico')))
-        equipe = {}
-        atividades = {}
-        horas = {}
+    if requisicao.get('campo') == 'professor':
+        professores_db = Professores.objects.all()
         professores = {}
 
-        for professor in relatorio.equipe:
-            prf = Professores.objects.get(usuario__first_name=relatorio.equipe[f'{professor}'])
-            equipe[professor] = prf.id
+        for professor in professores_db:
+            professores[professor.id] = professor.usuario.get_full_name()
 
-        for i in range(1, len(relatorio.atividades) + 1):
-            atividade = Atividades.objects.get(atividade=relatorio.atividades[f'atividade_{i}']['atividade'])
-            atividades[f'ativ{i}'] = atividade.id
-            horas[f'horaAtividade_{i}'] = relatorio.atividades[f'atividade_{i}']['data_e_hora'].split(' ')[1]
+        return professores
 
-            for j in range(len(relatorio.atividades[f'atividade_{i}']['professores'])):
-                professor = Professores.objects.get(
-                    usuario__first_name=relatorio.atividades[f'atividade_{i}']['professores'][j])
-                professores[f'prf{j + 1}atv{i}'] = professor.id
+    if requisicao.get('campo') == 'atividade':
+        if requisicao.get('publico'):
+            atividades_db = Atividades.objects.filter(publico=True)
+        else:
+            atividades_db = Atividades.objects.all()
+        atividades = {}
 
-        dados = {
-            'equipe': equipe,
-            'id_data_atendimento': relatorio.data_atendimento,
-            'atividades': atividades,
-            'horas': horas,
-            'professores': professores,
-            'observacoes': relatorio.relatorio
-        }
+        for atividade in atividades_db:
+            atividades[atividade.id] = atividade.atividade
 
-        return dados
+        return atividades
 
     if requisicao.get('id_relatorio'):
         if requisicao.get('tipo') == 'Colégio':

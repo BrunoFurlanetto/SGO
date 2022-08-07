@@ -70,6 +70,10 @@
 .titulo-publico{
     margin: 20px;
 }
+#corpo_tabela_atividade_publico .coluna_1{
+    display: flex;
+    justify-content: space-between;
+}
 /*------------------------------*/
 /* Estilos do cadastro de colégio */
 .conteudo-colegio{

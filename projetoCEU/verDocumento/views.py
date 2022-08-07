@@ -14,7 +14,7 @@ from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
     CadastroInfoAdicionais, CadastroCodigoApp
 from projetoCEU.utils import verificar_grupo, email_error
-from .funcoes import is_ajax, requests_ajax
+from .funcoes import is_ajax, requests_ajax, pegar_atividades_e_professores
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu, RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -43,17 +43,28 @@ def verRelatorioPublico(request, id_relatorio):
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
-    editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and request.user.first_name == relatorio.equipe[
-        'coordenador']
-    range_i = range(1, 6)
     range_j = range(1, 5)
+    relatorio_publico.dados_atividades, relatorio_publico.id_professores = pegar_atividades_e_professores(
+        relatorio.atividades)
+
+    try:
+        professor_logado = Professores.objects.get(usuario=request.user)
+    except Professores.DoesNotExists:
+        editar = False
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
+        messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde!')
+        return redirect('dashboard')
+    else:
+        editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and professor_logado.id == relatorio.equipe[
+            'coordenador']
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-publico.html', {'formulario': relatorio_publico,
-                                                                            'rangei': range_i,
+                                                                            'equipe': relatorio.equipe,
                                                                             'rangej': range_j,
                                                                             'atividades': atividades,
                                                                             'professores': professores,

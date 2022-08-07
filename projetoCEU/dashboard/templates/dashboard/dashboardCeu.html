@@ -26,9 +26,9 @@
             <tr class='linha-clicavel' data-href="{% url 'verDocumento' relatorio.tipo relatorio.id %}">
               <td>{{ relatorio.tipo }}</td>
               <td>{{ relatorio.instituicao }}</td>
-              <td>{{ relatorio.equipe.coordenador }}</td>
+              <td>{{ relatorio.coordenador_escalado }}</td>
               <td>{{ relatorio.equipe_escalada }}</td>
-              <td>{{ data }}</td>
+              <td>{{ data | date:'d \d\e F \d\e Y' }}</td>
             </tr>
           {% endfor %}
           <script>

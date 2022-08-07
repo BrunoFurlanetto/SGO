@@ -4,11 +4,16 @@ from json import JSONEncoder
 
 from django.db import models
 from django import forms
+from django.forms import DateField
 
+from ceu.models import Professores
 from peraltas.models import Monitor
 
 
 # ----------------------- Model para cadsatro de atendimento ao público ----------------------------------------
+from projetoCEU import settings
+
+
 class RelatorioDeAtendimentoPublicoCeu(models.Model):
     tipo = models.CharField(max_length=7, default='Público', blank=True)
     participantes_previa = models.IntegerField()
@@ -29,10 +34,16 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
     # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
         professores = []
-        for professor in self.equipe.values():
-            professores.append(professor)
+        for id_professor in self.equipe.values():
+            professor = Professores.objects.get(id=id_professor)
+            professores.append(professor.usuario.first_name)
 
         return ', '.join(professores)
+
+    def coordenador_escalado(self):
+        coordenador = Professores.objects.get(id=self.equipe['coordenador'])
+        print(coordenador.usuario.first_name)
+        return coordenador.usuario.first_name
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -44,12 +55,12 @@ class RelatorioPublico(forms.ModelForm):
 
         widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
                    'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   'data_atendimento': forms.DateTimeInput(attrs={'type': 'date'}),
+                   'data_atendimento': forms.DateInput(attrs={'type': 'date'})
                    }
 
 
 # --------------------------------------------------------------------------------------------------------------
-# --------------------------- Model para cadsatro do atendimento com comlégio -----------------------------------
+# --------------------------- Model para cadsatro do atendimento com colégio -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoColegioCeu(models.Model):
     tipo = models.CharField(max_length=7, default='Colégio', blank=True)
@@ -80,10 +91,16 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
         professores = []
-        for professor in self.equipe.values():
-            professores.append(professor)
+        for id_professor in self.equipe.values():
+            professor = Professores.objects.get(id=id_professor)
+            professores.append(professor.usuario.first_name)
 
         return ', '.join(professores)
+
+    def coordenador_escalado(self):
+        coordenador = Professores.objects.get(id=self.equipe['coordenador'])
+        print(coordenador.usuario.first_name)
+        return coordenador.usuario.first_name
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -128,10 +145,16 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     # ------------------------------ Funções para vizualização no template -----------------------------------------
     def equipe_escalada(self):
         professores = []
-        for professor in self.equipe.values():
-            professores.append(professor)
+        for id_professor in self.equipe.values():
+            professor = Professores.objects.get(id=id_professor)
+            professores.append(professor.usuario.first_name)
 
         return ', '.join(professores)
+
+    def coordenador_escalado(self):
+        coordenador = Professores.objects.get(id=self.equipe['coordenador'])
+        print(coordenador.usuario.first_name)
+        return coordenador.usuario.first_name
 # --------------------------------------------------------------------------------------------------------------
 
 

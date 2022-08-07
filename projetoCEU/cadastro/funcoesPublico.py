@@ -6,11 +6,12 @@ from ceu.models import Atividades, Professores
 def salvar_atividades(dados, relatorio):
     dados_atividade = {}
     participantes = teste_participantes_por_atividade(dados)
+    print(dados)
 
     for i in range(1, 6):
 
-        if dados.get(f'ativ{i}') != '':
-            atividade = Atividades.objects.get(id=dados.get(f'ativ{i}'))
+        if dados.get(f'ativ{i}') is not None or dados.get(f'ativ{i}') != '':
+            print(dados.get(f'ativ{i}'))
             professores = pegar_professores(dados, i)
             data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
 
@@ -37,7 +38,7 @@ def salvar_atividades(dados, relatorio):
                     participantes = int(dados.get('participantes_previa'))
 # -----------------------------------------------------------------------------------------------------------
 
-            dados_atividade[f'atividade_{i}'] = {'atividade': atividade.atividade, 'professores': professores,
+            dados_atividade[f'atividade_{i}'] = {'atividade': int(dados.get(f'ativ{i}')), 'professores': professores,
                                                  'data_e_hora': data_e_hora, 'participantes': participantes}
 
     relatorio.atividades = dados_atividade
@@ -51,7 +52,7 @@ def pegar_professores(dados, j):
     for d in dados:
         if f'atv{j}' in d and dados[d] != '':
             professor = Professores.objects.get(id=int(dados[d]))
-            professores.append(professor.usuario.first_name)
+            professores.append(professor.id)
 
     return professores
 # -----------------------------------------------------------------------------------------------------------

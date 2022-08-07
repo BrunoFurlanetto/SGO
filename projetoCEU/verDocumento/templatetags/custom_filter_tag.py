@@ -22,11 +22,4 @@ def dateTime(valor):
 
 @register.filter()
 def index(indexavel, indice):
-    try:
-        indexavel[indice]
-    except IndexError:
-        return False
-    except TypeError:
-        ...
-    else:
-        return indexavel[indice]
+    return indexavel[indice]
