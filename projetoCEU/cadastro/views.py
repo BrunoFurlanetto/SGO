@@ -22,7 +22,7 @@ from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_informacoes_cliente, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu
-from .funcoesPublico import salvar_atividades, salvar_equipe
+from .funcoesPublico import salvar_atividades, salvar_equipe, requisicao_ajax
 from django.core.paginator import Paginator
 
 
@@ -34,6 +34,9 @@ def publico(request):
     range_i = range(1, 6)
     range_j = range(1, 5)
     grupos = verificar_grupo(request.user.groups.all())
+
+    if is_ajax(request):
+        return JsonResponse(requisicao_ajax(request.POST))
 
     if request.method != 'POST':
         return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,

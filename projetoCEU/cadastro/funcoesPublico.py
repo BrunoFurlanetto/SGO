@@ -3,6 +3,29 @@ import math
 from ceu.models import Atividades, Professores
 
 
+def requisicao_ajax(requisicao):
+    if requisicao.get('campo') == 'professor':
+        professores_db = Professores.objects.all()
+        professores = {}
+
+        for professor in professores_db:
+            professores[professor.id] = professor.usuario.get_full_name()
+
+        return professores
+
+    if requisicao.get('campo') == 'atividade':
+        if requisicao.get('publico'):
+            atividades_db = Atividades.objects.filter(publico=True)
+        else:
+            atividades_db = Atividades.objects.all()
+        atividades = {}
+
+        for atividade in atividades_db:
+            atividades[atividade.id] = atividade.atividade
+
+        return atividades
+
+
 def salvar_atividades(dados, relatorio):
     dados_atividade = {}
     participantes = teste_participantes_por_atividade(dados)
@@ -10,7 +33,7 @@ def salvar_atividades(dados, relatorio):
 
     for i in range(1, 6):
 
-        if dados.get(f'ativ{i}') is not None or dados.get(f'ativ{i}') != '':
+        if dados.get(f'ativ{i}') is not None:
             print(dados.get(f'ativ{i}'))
             professores = pegar_professores(dados, i)
             data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'

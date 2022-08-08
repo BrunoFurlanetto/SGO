@@ -13,15 +13,13 @@
     <hr>
     <form action="{% url 'publico' %}" method="POST">
       {% csrf_token %}
-      <script src="{% static 'js/script_base.js' %}"></script>
-      <script src="{% static 'js/validacao.js' %}"></script>
       <div class="row">
         <div style="width: 20%" class="mb-3">
           <label>Coordenador</label>
             <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
               <option selected></option>
               {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
               {% endfor %}
             </select>
         </div>
@@ -49,7 +47,7 @@
             <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
               <option selected></option>
               {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
               {% endfor %}
             </select>
         </div>
@@ -58,7 +56,7 @@
             <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
               <option selected></option>
               {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
               {% endfor %}
             </select>
         </div>
@@ -67,56 +65,29 @@
             <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
               <option selected></option>
               {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
               {% endfor %}
             </select>
         </div>
         </div>
       <hr>
 <!-------------------------------- LINHA 3 ---------------------------->
-      <table class="table table-striped table-sm" style="caption-side: top">
-        <caption>Atividades realizadas no CEU:</caption>
-        <thead>
-          <tr>
-            <th style="width: 550px"><center>Nome dos professores</center></th>
-            <th style="width: 100px"><center>Início</center></th>
-            <th style="width: 250px"><center>Atividade</center></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for i in rangei %}
-          <tr>
-            <td>
-              <div class="row">
-                {% for j in rangej %}
-                  <div style="width: 135px; margin-right: -20px">
-                    <select class="form-select d mr-sm-2 my-1" id="prf{{ j }}atv{{ i }}" name="prf{{ j }}atv{{ i }}" onchange="validacao(this)">
-                      <option selected></option>
-                      {% for professor in professores %}
-                        <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                {% endfor %}
-              </div>
-            </td>
-            <td>
-              <center>
-                <input type="time" class="form-control my-1" style="width: 100px" id="horaAtividade_{{ i }}" name="horaAtividade_{{ i }}" onchange="validarTabelaPublico()">
-              </center>
-            </td>
-            <td>
-              <select class="form-select mr-sm-2 my-1" style="width: 100%" name="ativ{{ i }}" id="ativ{{ i }}" onchange="validarTabelaPublico()">
-                <option selected></option>
-                {% for atividade in atividades %}
-                  <option value="{{ atividade.id }}">{{ atividade.atividade }}</option>
-                {% endfor %}
-              </select>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        <table class="table table-striped table-sm" style="caption-side: top">
+            <caption>Atividades realizadas no CEU:</caption>
+            <thead>
+                <tr>
+                    <th style="width: 550px"><center>Nome dos professores</center></th>
+                    <th style="width: 100px"><center>Início</center></th>
+                    <th style="width: 250px"><center>Atividade</center></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="corpo_tabela_atividade_publico"></tbody>
+        </table>
+        <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+            <span><i class='bx bxs-plus-circle'></i></span>
+            <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+        </button>
 <!-------------------------------- RELATÓRIO FINAL ---------------------------->
       <div>
         <label>Relatório do dia:</label>
@@ -126,6 +97,9 @@
     </form>
   </div>
 
+    <script src="{% static 'js/script_base.js' %}"></script>
+    <script src="{% static 'js/validacao.js' %}"></script>
+    <script src="{% static 'js/scripts_publico.js' %}"></script>
 {% endblock %}
 
 

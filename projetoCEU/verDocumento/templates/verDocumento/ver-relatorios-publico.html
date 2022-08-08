@@ -95,7 +95,7 @@
                     <tr class="linhas" id="linha_{{ forloop.counter }}">
                         <td class="coluna_1" id="coluna_1_linha_{{ forloop.counter }}">
                             {% for j in rangej %}
-                                <select name="prf{{ j }}atv{{ forloop.parentloop.counter }}" id="prf{{ j }}atv{{ forloop.parentloop.counter }}" style="width: 23%" onchange="validacao(this)" {% if j < 2 %} required {% endif %}>
+                                <select class="professores" name="prf{{ j }}atv{{ forloop.parentloop.counter }}" id="prf{{ j }}atv{{ forloop.parentloop.counter }}" style="width: 23%" onchange="validacao(this)" {% if j < 2 %} required {% endif %}>
                                     {% if not formulario.id_professores|index:forloop.parentloop.counter0 %}
                                         <option selected></option>
                                     {% else %}
@@ -108,10 +108,10 @@
                             {% endfor %}
                         </td>
                         <td class="coluna_2" id="coluna_2_linha_{{ forloop.counter }}">
-                            <input type="time" style="width: 100px" id="horaAtividade_{{ forloop.counter }}" name="horaAtividade_{{ forloop.counter }}" onchange="validarTabelaPublico()" value="{{ ativ.inicio }}">
+                            <input class="horas" type="time" style="width: 100px" id="horaAtividade_{{ forloop.counter }}" name="horaAtividade_{{ forloop.counter }}" onchange="validarTabelaPublico()" value="{{ ativ.inicio }}">
                         </td>
                         <td class="coluna_3" id="coluna_3_linha_{{ forloop.counter }}">
-                            <select style="width: 100%" name="ativ{{ forloop.counter }}" id="ativ{{ forloop.counter }}" onchange="validarTabelaPublico()">
+                            <select class="atividades" style="width: 100%" name="ativ{{ forloop.counter }}" id="ativ{{ forloop.counter }}" onchange="validarTabelaPublico()">
                                 {% if not atividader %}
                                     <option selected></option>
                                 {% else %}
@@ -124,7 +124,7 @@
                             </select>
                         </td>
                         <td class="coluna_4" id="coluna_4_linha_{{ forloop.counter }}">
-                            <button type="button" class="btn-close" style="height: 2px; width: 1px"></button>
+                            <button type="button" id="btn_{{ forloop.counter }}" class="btn-close" style="height: 2px; width: 1px" onclick="remover_linha(this)"></button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -172,7 +172,7 @@
 
     <script src="{% static 'js/script_base.js' %}"></script>
     <script src="{% static 'js/validacao.js' %}"></script>
-    <script src="{% static 'js/scripts_verDocumento-publico.js' %}"></script>
+    <script src="{% static 'js/scripts_publico.js' %}"></script>
   </div>
 
 {% endblock %}
