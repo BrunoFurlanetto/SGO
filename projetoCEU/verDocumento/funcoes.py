@@ -17,10 +17,18 @@ def pegar_atividades_e_professores(dados_atividades):
     professores = []
 
     for atividade in dados_atividades.values():
-        atividades.append({
-            'atividade': atividade['atividade'],
-            'inicio': datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%H:%M'),
-        })
+        if isinstance(dados_atividades, RelatorioDeAtendimentoPublicoCeu):
+            atividades.append({
+                'atividade': atividade['atividade'],
+                'inicio': datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%H:%M'),
+            })
+        else:
+            atividades.append({
+                'professores': atividade['professores'],
+                'atividade': atividade['atividade'],
+                'data_e_hora': atividade['data_e_hora'],
+                'qtd': atividade['participantes']
+            })
 
         professores.append(atividade['professores'])
 

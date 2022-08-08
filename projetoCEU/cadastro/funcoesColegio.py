@@ -61,13 +61,12 @@ def salvar_atividades_colegio(dados, relatorio):
             n_atividades += 1
 
         for i in range(1, n_atividades + 1):
-            atividade = Atividades.objects.get(id=int(dados.get(f'ativ_{i}')))
             professores = pegar_professores_colegio(dados, i)
             data_e_hora = dados.get(f'data_hora_ativ_{i}')
             participantes = dados.get(f'qtd_ativ_{i}')
 
             # ------------------------------------ Salvando as atividades ----------------------------------------------
-            dados_atividade[f'atividade_{i}'] = {'atividade': atividade.atividade, 'professores': professores,
+            dados_atividade[f'atividade_{i}'] = {'atividade': int(dados.get(f'ativ_{i}')), 'professores': professores,
                                                  'data_e_hora': data_e_hora, 'participantes': participantes}
 
     relatorio.atividades = dados_atividade
@@ -113,8 +112,7 @@ def pegar_professores_colegio(dados, j):
 
     for i in range(1, 6):
         if dados.get(f'prf_{i}_ativ_{j}') is not None and dados.get(f'prf_{i}_ativ_{j}') != '':
-            professor = Professores.objects.get(id=int(dados.get(f'prf_{i}_ativ_{j}')))
-            professores.append(professor.usuario.first_name)
+            professores.append(int(dados.get(f'prf_{i}_ativ_{j}')))
 
     return professores
 

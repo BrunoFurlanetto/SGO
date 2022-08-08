@@ -89,7 +89,7 @@ def verRelatorioPublico(request, id_relatorio):
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             return render(request, 'verDocumento/ver-relatorios-publico.html', {'formulario': relatorio_publico,
-                                                                                'rangei': range_i,
+                                                                                'equipe': relatorio.equipe,
                                                                                 'rangej': range_j,
                                                                                 'atividades': atividades,
                                                                                 'professores': professores,
@@ -107,13 +107,24 @@ def verRelatorioColegio(request, id_relatorio):
     relatorio_colegio.id = int(id_relatorio)
     relatorio_colegio.tipo = colegio.tipo
     professores = Professores.objects.all()
+    atividades = Atividades.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
-    editar = datetime.now().day - colegio.data_hora_salvo.day < 2 and request.user.first_name == colegio.equipe[
+    ativ_realizadas, prof_ativs = pegar_atividades_e_professores(colegio.atividades)
+
+    try:
+        professor_logado = Professores.objects.get(usuario=request.user)
+    except Professores.DoesNotExists:
+        professor_logado = None
+
+    editar = datetime.now().day - colegio.data_hora_salvo.day < 2 and professor_logado.id == colegio.equipe[
         'coordenador']
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-colegio.html', {'formulario': relatorio_colegio,
+                                                                            'equipe': colegio.equipe,
+                                                                            'relatorio_atividades': ativ_realizadas,
                                                                             'professores': professores,
+                                                                            'atividades': atividades,
                                                                             'editar': editar,
                                                                             'grupos': grupos})
 

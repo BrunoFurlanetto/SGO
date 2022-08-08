@@ -31,7 +31,6 @@ def publico(request):
     relatorio_publico = RelatorioPublico()
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
-    range_i = range(1, 6)
     range_j = range(1, 5)
     grupos = verificar_grupo(request.user.groups.all())
 
@@ -39,7 +38,7 @@ def publico(request):
         return JsonResponse(requisicao_ajax(request.POST))
 
     if request.method != 'POST':
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
+        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
                                                          'rangej': range_j, 'atividades': atividades,
                                                          'professores': professores,
                                                          'grupos': grupos})
@@ -54,7 +53,7 @@ def publico(request):
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico, 'rangei': range_i,
+        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
                                                          'rangej': range_j, 'atividades': atividades,
                                                          'professores': professores,
                                                          'grupos': grupos})

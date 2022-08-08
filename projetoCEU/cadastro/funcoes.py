@@ -108,7 +108,7 @@ def requests_ajax(requisicao, files=None):
         professores = {}
 
         for professor in professores_db:
-            professores[professor.id] = professor.usuario.first_name
+            professores[professor.id] = professor.usuario.get_full_name()
 
         return professores
 

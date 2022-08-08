@@ -47,6 +47,11 @@ function completar_informacoes(selecao) {
 }
 
 // -------------------- Funções uteis utilizadas no resto do arquivo ------------------------
+// Função responsável por liberar a edição do relatório de colégio
+function edita(){
+    $('#formulario').prop('disabled', false)
+    $('#salvar').prop('disabled', false)
+}
 // Função para verificar se o check da locação/atividade está ativo
 function check_locacao(){
 
@@ -108,17 +113,15 @@ function validacao(selecao){
 function criar_linhas_colunas(){
     let i = document.querySelectorAll('.linhas').length// Número de linhas já existentes na tabela
 
-    $('#corpo_tabela_atividade').append(`<tr class="linhas" id="linha_${i+1}"></tr>`)
-    $(`#linha_${i+1}`).append(`<td class="div_colunas_1" id="div_coluna_1_linha_${i+1}"></td>`)
-    $(`#div_coluna_1_linha_${i+1}`).append(`<div class="row colunas_1" id="coluna_1_linha_${i+1}" style="margin-left: 2px"></div>`)
-    $(`#linha_${i+1}`).append(`<td class="div_colunas_2" id="div_coluna_2_linha_${i+1}"></td>`)
-    $(`#div_coluna_2_linha_${i+1}`).append(`<div class="colunas_2" id="coluna_2_linha_${i+1}"></div>`)
-    $(`#linha_${i+1}`).append(`<td class="div_colunas_3" id="div_coluna_3_linha_${i+1}"></td>`)
-    $(`#div_coluna_3_linha_${i+1}`).append(`<div class="colunas_3" id="coluna_3_linha_${i+1}"></div>`)
-    $(`#linha_${i+1}`).append(`<td class="div_colunas_4" id="div_coluna_4_linha_${i+1}"></td>`)
-    $(`#div_coluna_4_linha_${i+1}`).append(`<div class="colunas_4" id="coluna_4_linha_${i+1}"></div>`)
-    $(`#linha_${i+1}`).append(`<td class="div_colunas_5" id="div_coluna_5_linha_${i+1}"></td>`)
-    $(`#div_coluna_5_linha_${i+1}`).append(`<div class="colunas_5" id="coluna_5_linha_${i+1}"></div>`)
+    $('#corpo_tabela_atividade').append(
+        `<tr class="linhas" id="linha_${i+1}">
+            <td class="colunas_1" id="coluna_1_linha_${i+1}" style="display: flex; flex-wrap: wrap"></td>
+            <td class="colunas_2" id="coluna_2_linha_${i+1}"></td>
+            <td class="colunas_3" id="coluna_3_linha_${i+1}"></td>
+            <td class="colunas_4" id="coluna_4_linha_${i+1}"></td>
+            <td class="colunas_5" id="coluna_5_linha_${i+1}"></td>
+        </tr>`
+    )
 
     return i
 }
@@ -131,10 +134,10 @@ function popular_professores(i){
 
         // Faz a verificação pra poder deixar o campo requerido para 2 professores
         if(j < 1) {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
             $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
         } else {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select class="form-control professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)"></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)"></select>`)
             $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
         }
     }
@@ -165,7 +168,7 @@ function montar_tabela_atividades(dados){
         popular_professores(i) // Cria e popula os select's de professores
 
         // Coluna 2: Referênte as atividades realizadas pelo grupo
-        $(`#coluna_2_linha_${i + 1}`).append(`<select class="form-control atividades" id="ativ_${i + 1}" name="ativ_${i + 1}" onchange="verificar_n_professores()" required></select>`)
+        $(`#coluna_2_linha_${i + 1}`).append(`<select class="atividades" id="ativ_${i + 1}" name="ativ_${i + 1}" onchange="verificar_n_professores()" required></select>`)
         colocar_atividades(dados['atividades'][`atividade_${i + 1}`]['atividade'], `ativ_${i + 1}`) // Responsável pela crianção dos selects e população com as atividades
 
         // Coluna 3: Referênte a data e hora da atividade
@@ -176,7 +179,7 @@ function montar_tabela_atividades(dados){
         $(`#coluna_4_linha_${i + 1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i + 1}" name="qtd_ativ_${i + 1}" value="${dados['atividades'][`atividade_${i + 1}`]['participantes']}" required/>`)
 
         // Coluna 5: Botão para exclusão da linha da tabela
-        $(`#coluna_5_linha_${i + 1}`).append(`<button class="buton-x-" id="btn_${i + 1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x' ></span></button>`)
+        $(`#coluna_5_linha_${i + 1}`).append(`<button class="buton-x-" id="btn_${i + 1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x'></i></span></button>`)
     }
 }
 
@@ -221,7 +224,7 @@ function colocar_atividades(atividade, id) {
 // Função necessária para a remoção e renumeração das linhas da tabela de atividades
 function remover_linha(selecao){
     $(`#linha_${selecao.id.split('_')[1]}`).remove() // Remoção da linha selecionada
-
+    console.log($(`#linha_${selecao.id.split('_')[1]}`))
     // Seleção de todas as linhas, colunas e div's da tabela de atividades
     let linhas = document.querySelectorAll('.linhas')
     let colunas_1 = document.querySelectorAll('.colunas_1')
@@ -229,11 +232,6 @@ function remover_linha(selecao){
     let colunas_3 = document.querySelectorAll('.colunas_3')
     let colunas_4 = document.querySelectorAll('.colunas_4')
     let colunas_5 = document.querySelectorAll('.colunas_5')
-    let div_colunas_1 = document.querySelectorAll('.div_colunas_1')
-    let div_colunas_2 = document.querySelectorAll('.div_colunas_2')
-    let div_colunas_3 = document.querySelectorAll('.div_colunas_3')
-    let div_colunas_4 = document.querySelectorAll('.div_colunas_4')
-    let div_colunas_5 = document.querySelectorAll('.div_colunas_5')
 
     // Seleção dos elementos
     let professores = document.querySelectorAll('.professores')
@@ -252,13 +250,6 @@ function remover_linha(selecao){
         $(colunas_3[k]).attr('id', 'coluna_3_linha_' + (k + 1))
         $(colunas_4[k]).attr('id', 'coluna_4_linha_' + (k + 1))
         $(colunas_5[k]).attr('id', 'coluna_5_linha_' + (k + 1))
-
-        // Renumeração de todas as div's
-        $(div_colunas_1[k]).attr('id', 'div_coluna_1_linha_' + (k + 1))
-        $(div_colunas_2[k]).attr('id', 'div_coluna_2_linha_' + (k + 1))
-        $(div_colunas_3[k]).attr('id', 'div_coluna_3_linha_' + (k + 1))
-        $(div_colunas_4[k]).attr('id', 'div_coluna_4_linha_' + (k + 1))
-        $(div_colunas_5[k]).attr('id', 'div_coluna_5_linha_' + (k + 1))
 
         // Renumeração dos atributos dos professores. É necessário toda uma lógica para
         // que a renumeração seja feita corretamente, devido há presença de 4 selects por linha
@@ -280,7 +271,7 @@ function add_linha_atividade() {
     popular_professores(i) // Cria e popula os select's de professores
 
     // Crianção dos elementos da atividade, data/hora, quantidade e botão
-    $(`#coluna_2_linha_${i+1}`).append(`<select class="form-control atividades" id="ativ_${i+1}" name="ativ_${i+1}" onchange="verificar_n_professores()" required></select>`)
+    $(`#coluna_2_linha_${i+1}`).append(`<select class="atividades" id="ativ_${i+1}" name="ativ_${i+1}" onchange="verificar_n_professores()" required></select>`)
     $(`#coluna_3_linha_${i+1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i+1}" name="data_hora_ativ_${i+1}" required/>`)
     $(`#coluna_4_linha_${i+1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i+1}" name="qtd_ativ_${i+1}" required/>`)
     $(`#coluna_5_linha_${i+1}`).append(`<button class="buton-x-" id="btn_${i+1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x' ></span></button>`)

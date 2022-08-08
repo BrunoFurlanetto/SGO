@@ -34,7 +34,6 @@ def salvar_atividades(dados, relatorio):
     for i in range(1, 6):
 
         if dados.get(f'ativ{i}') is not None:
-            print(dados.get(f'ativ{i}'))
             professores = pegar_professores(dados, i)
             data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
 
