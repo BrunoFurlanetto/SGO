@@ -33,7 +33,7 @@ def fichaAvaliacao(request):
     formulario.dados_colegio = pegar_dados_colegio(colegio_avaliando)
     formulario.dados_avaliador = pegar_dados_avaliador(colegio_avaliando)
     formulario.atividades = pegar_atividades_relatorio(colegio_avaliando)
-    formulario.professores = pegar_professores_relatorio(colegio_avaliando)
+    professores = formulario.professores = pegar_professores_relatorio(colegio_avaliando)
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':
@@ -47,7 +47,7 @@ def fichaAvaliacao(request):
             nova_avaliacao = formulario.save(commit=False)
             salvar_avaliacoes_vendedor(request.POST, nova_avaliacao)
             salvar_avaliacoes_atividades(request.POST, nova_avaliacao)
-            salvar_avaliacoes_professores(request.POST, nova_avaliacao)
+            salvar_avaliacoes_professores(request.POST, nova_avaliacao, professores)
             formulario.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)

@@ -44,7 +44,8 @@ def pegar_atividades_relatorio(colegio):
 
     for i in range(1, len(relatorio_colegio.atividades) + 1):
         if relatorio_colegio.atividades[f'atividade_{i}']['atividade'] not in atividades:
-            atividades.append(relatorio_colegio.atividades[f'atividade_{i}']['atividade'])
+            atividade = Atividades.objects.get(id=relatorio_colegio.atividades[f'atividade_{i}']['atividade'])
+            atividades.append(atividade)
 
     return atividades
 
@@ -56,7 +57,8 @@ def pegar_professores_relatorio(colegio):
     professores = []
 
     for i in relatorio_colegio.equipe:
-        professores.append(relatorio_colegio.equipe[i])
+        professor = Professores.objects.get(id=relatorio_colegio.equipe[i])
+        professores.append({'nome': professor, 'id': professor.id})
 
     return professores
 
@@ -103,18 +105,12 @@ def salvar_avaliacoes_atividades(dados, ficha):
     ficha.avaliacoes_atividades = avaliacoes
 
 
-def salvar_avaliacoes_professores(dados, ficha):
-    teste_professores = 0
+def salvar_avaliacoes_professores(dados, ficha, dados_professores):
     avaliacoes = {}
 
-    for chave in dados:
-        if 'professor' in chave:
-            teste_professores += 1
-
-    n_professores = int((teste_professores - 1) / 4)
-
-    for i in range(1, n_professores + 1):
-        professor = Professores.objects.get(usuario__first_name=dados.get(f'professor_{i}'))
+    for i, dado_professor in enumerate(dados_professores, start=1):
+        print(i)
+        professor = Professores.objects.get(id=dado_professor['id'])
         media = (int(dados.get(f'dominio_professor_{i}')) +
                  int(dados.get(f'cordialidade_professor_{i}')) +
                  int(dados.get(f'desenvoltura_professor_{i}'))) / 3
@@ -130,3 +126,4 @@ def salvar_avaliacoes_professores(dados, ficha):
                                         'media': media}
 
     ficha.avaliacoes_professores = avaliacoes
+    print(ficha.avaliacoes_professores)
