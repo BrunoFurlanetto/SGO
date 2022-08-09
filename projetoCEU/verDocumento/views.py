@@ -18,7 +18,7 @@ from .funcoes import is_ajax, requests_ajax, pegar_atividades_e_professores
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu, RelatorioPublico, RelatorioColegio, RelatorioEmpresa
-from ceu.models import Atividades, Professores
+from ceu.models import Atividades, Professores, Locaveis
 
 
 @login_required(login_url='login')
@@ -44,8 +44,7 @@ def verRelatorioPublico(request, id_relatorio):
     professores = Professores.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
     range_j = range(1, 5)
-    relatorio_publico.dados_atividades, relatorio_publico.id_professores = pegar_atividades_e_professores(
-        relatorio.atividades)
+    relatorio_publico.dados_atividades = pegar_atividades_e_professores(relatorio.atividades, 'publico')
 
     try:
         professor_logado = Professores.objects.get(usuario=request.user)
@@ -108,8 +107,12 @@ def verRelatorioColegio(request, id_relatorio):
     relatorio_colegio.tipo = colegio.tipo
     professores = Professores.objects.all()
     atividades = Atividades.objects.all()
+    locaveis = Locaveis.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
-    ativ_realizadas, prof_ativs = pegar_atividades_e_professores(colegio.atividades)
+    ativ_realizadas = pegar_atividades_e_professores(colegio.atividades, 'colegio')
+    relatorio_colegio.locacoes_realizadas = pegar_atividades_e_professores(dados_atividades=None,
+                                                                           tipo_relatorio='empresa',
+                                                                           dados_locacoes=colegio.locacoes)
 
     try:
         professor_logado = Professores.objects.get(usuario=request.user)
@@ -125,6 +128,7 @@ def verRelatorioColegio(request, id_relatorio):
                                                                             'relatorio_atividades': ativ_realizadas,
                                                                             'professores': professores,
                                                                             'atividades': atividades,
+                                                                            'locaveis': locaveis,
                                                                             'editar': editar,
                                                                             'grupos': grupos})
 
@@ -147,24 +151,35 @@ def verRelatorioColegio(request, id_relatorio):
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_atividades_colegio(request.POST, relatorio)
 
+        if request.POST.get('loc_1'):
+            salvar_locacoes_empresa(request.POST, relatorio)
+
         try:
             relatorio_colegio.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
-            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'professores': professores,
-                                                             'grupos': grupos})
+            return render(request, 'verDocumento/ver-relatorios-colegio.html', {'formulario': relatorio_colegio,
+                                                                                'equipe': colegio.equipe,
+                                                                                'relatorio_atividades': ativ_realizadas,
+                                                                                'professores': professores,
+                                                                                'atividades': atividades,
+                                                                                'editar': editar,
+                                                                                'grupos': grupos})
         else:
             messages.success(request, 'Relatório de atendimento atualizado com sucesso!')
             return redirect('dashboard')
 
     else:
         messages.warning(request, relatorio_colegio.errors)
-        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'professores': professores,
-                                                         'grupos': grupos})
+        return render(request, 'verDocumento/ver-relatorios-colegio.html', {'formulario': relatorio_colegio,
+                                                                            'equipe': colegio.equipe,
+                                                                            'relatorio_atividades': ativ_realizadas,
+                                                                            'professores': professores,
+                                                                            'atividades': atividades,
+                                                                            'editar': editar,
+                                                                            'grupos': grupos})
 
 
 @login_required(login_url='login')
@@ -174,13 +189,30 @@ def verRelatorioEmpresa(request, id_relatorio):
     relatorio_empresa.id = int(id_relatorio)
     relatorio_empresa.tipo = empresa.tipo
     professores = Professores.objects.all()
+    locaveis = Locaveis.objects.all()
+    atividades = Atividades.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
-    editar = datetime.now().day - empresa.data_hora_salvo.day < 2 and request.user.first_name == empresa.equipe[
+    print(empresa.locacoes)
+    relatorio_empresa.relatorio_atividades = pegar_atividades_e_professores(dados_atividades=empresa.atividades,
+                                                                            tipo_relatorio='empresa')
+    relatorio_empresa.locacoes_realizadas = pegar_atividades_e_professores(dados_atividades=None,
+                                                                           tipo_relatorio='empresa',
+                                                                           dados_locacoes=empresa.locacoes)
+
+    try:
+        professor_logado = Professores.objects.get(usuario=request.user)
+    except Professores.DoesNotExists:
+        professor_logado = None
+
+    editar = datetime.now().day - empresa.data_hora_salvo.day < 2 and professor_logado.id == empresa.equipe[
         'coordenador']
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
+                                                                            'equipe': empresa.equipe,
                                                                             'professores': professores,
+                                                                            'locaveis': locaveis,
+                                                                            'atividades': atividades,
                                                                             'editar': editar,
                                                                             'grupos': grupos})
 

@@ -181,22 +181,63 @@
             <span class="text-black-50" style="font-size: 15px">O colégio realizou locações no CEU?</span>
           </div>
     <!------------------------------------------------------------------------------------->
-
+        {% if formulario.locacoes_realizadas %}
+            <script>
+                $('#checkAtividade').prop('checked', true)
+                setTimeout(() => {
+                    check_locacao()
+                }, 1)
+            </script>
+        {% endif %}
     <!-------------------------------------- TABELA LOCAÇÃO --------------------------------------->
           <div class="none" id="tabela">
             <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
-              <caption>Locações do colégio no CEU:</caption>
+              <caption>Locações da empresa no CEU:</caption>
               <thead>
                 <tr>
-                  <th><center>Professor</center></th>
-                  <th><center>Local</center></th>
-                  <th><center>Check in</center></th>
-                  <th><center>Check out</center></th>
-                  <th><center>QTD</center></th>
+                  <th style="width: 20%"><center>Professor</center></th>
+                  <th style="width: 20%"><center>Local</center></th>
+                  <th style="width: 20%"><center>Check in</center></th>
+                  <th style="width: 20%"><center>Check out</center></th>
+                  <th style="width: 10%"><center>QTD</center></th>
                   <th><center></center></th>
                 </tr>
               </thead>
-              <tbody id="corpo_tabela_locacao"></tbody>
+              <tbody id="corpo_tabela_locacao">
+                {% for locacao in formulario.locacoes_realizadas %}
+                    <tr class="linhas_loc" id="linha_loc_{{ forloop.counter }}">
+                        <td class="colunas_loc_1" id="coluna_1_linha_loc_{{ forloop.counter }}">
+                            <select class="escalados professores_loc" id="prof_loc_{{ forloop.counter }}" name="prf_loc_{{ forloop.counter }}" onchange="validacao(this)" required>
+                                <option></option>
+                                {% for professor in professores %}
+                                    <option value="{{ professor.id }}" {% if professor.id == locacao.professor %} selected {% endif %}>{{ professor }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="colunas_loc_2" id="coluna_2_linha_loc_{{ forloop.counter }}">
+                            <select class="locacoes" id="loc_{{ forloop.counter }}" name="loc_{{ forloop.counter }}">
+                                <option></option>
+                                {% for espaco in locaveis %}
+                                    <option value="{{ espaco.id }}" {% if espaco.id == locacao.espaco %} selected {% endif %}>{{ espaco }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="colunas_loc_3" id="coluna_3_linha_loc_{{ forloop.counter }}">
+                            <input class="check_in" type="datetime-local" id="check_in_{{ forloop.counter }}" name="check_in_{{ forloop.counter }}" style="width: 200px" value="{{ locacao.check_in }}" required/>
+                        </td>
+                        <td class="colunas_loc_4" id="coluna_4_linha_loc_{{ forloop.counter }}">
+                            <input class="check_out" type="datetime-local" id="check_out_{{ forloop.counter }}" name="check_out_{{ forloop.counter }}" style="width: 200px" value="{{ locacao.check_out }}" required/>
+                        </td>
+                        <td class="colunas_loc_5" id="coluna_5_linha_loc_{{ forloop.counter }}">
+                            <input class="qtds_loc" type="number" id="qtd_loc{{ forloop.counter }}" name="qtd_loc_{{ forloop.counter }}" value="{{ locacao.qtd }}"/>
+                        </td>
+                        <td class="colunas_loc_6" id="coluna_6_linha_loc_{{ forloop.counter }}">
+                            <button class="buton-x-loc" id="btn-loc_{{ forloop.counter }}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x'></i></span></button>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+              </tbody>
             </table>
             <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
               <span><i class='bx bxs-plus-circle'></i></span>

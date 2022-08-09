@@ -12,27 +12,39 @@ def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
-def pegar_atividades_e_professores(dados_atividades):
+def pegar_atividades_e_professores(dados_atividades, tipo_relatorio, dados_locacoes=None):
     atividades = []
-    professores = []
+    locacoes = []
 
-    for atividade in dados_atividades.values():
-        if isinstance(dados_atividades, RelatorioDeAtendimentoPublicoCeu):
-            atividades.append({
-                'atividade': atividade['atividade'],
-                'inicio': datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%H:%M'),
+    if dados_atividades:
+        for atividade in dados_atividades.values():
+            if tipo_relatorio == 'publico':
+                atividades.append({
+                    'professores': atividade['professores'],
+                    'atividade': atividade['atividade'],
+                    'inicio': datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%H:%M'),
+                })
+            else:
+                atividades.append({
+                    'professores': atividade['professores'],
+                    'atividade': atividade['atividade'],
+                    'data_e_hora': atividade['data_e_hora'],
+                    'qtd': atividade['participantes']
+                })
+
+        return atividades
+
+    if dados_locacoes:
+        for locacao in dados_locacoes.values():
+            locacoes.append({
+                'professor': locacao['professor'],
+                'espaco': locacao['espaco'],
+                'check_in': locacao['check_in'],
+                'check_out': locacao['check_out'],
+                'qtd': locacao['participantes']
             })
-        else:
-            atividades.append({
-                'professores': atividade['professores'],
-                'atividade': atividade['atividade'],
-                'data_e_hora': atividade['data_e_hora'],
-                'qtd': atividade['participantes']
-            })
 
-        professores.append(atividade['professores'])
-
-    return atividades, professores
+        return locacoes
 
 
 def requests_ajax(requisicao):

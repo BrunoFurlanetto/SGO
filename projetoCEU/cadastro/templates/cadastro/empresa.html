@@ -40,7 +40,7 @@
           <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" required>
             <option selected></option>
             {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor }}</option>
             {% endfor %}
           </select>
         </div>
@@ -70,7 +70,7 @@
           <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
             <option selected></option>
             {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor }}</option>
             {% endfor %}
           </select>
         </div>
@@ -79,7 +79,7 @@
           <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
             <option selected></option>
             {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor }}</option>
             {% endfor %}
           </select>
         </div>
@@ -88,7 +88,7 @@
           <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
             <option selected></option>
             {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor }}</option>
             {% endfor %}
           </select>
         </div>
@@ -97,7 +97,7 @@
           <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
             <option selected></option>
             {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor.usuario.first_name }}</option>
+              <option value="{{ professor.id }}">{{ professor }}</option>
             {% endfor %}
           </select>
         </div>

@@ -57,7 +57,7 @@ def salvar_atividades_colegio(dados, relatorio):
     n_atividades = 0
 
     for campo in dados:
-        if 'qtd' in campo:
+        if 'qtd_ativ' in campo:
             n_atividades += 1
 
         for i in range(1, n_atividades + 1):
@@ -80,12 +80,10 @@ def salvar_locacoes_empresa(dados, relatorio):
     n_locacoes = 0
 
     for campo in dados:
-        if 'qtd' in campo:
+        if 'qtd_loc' in campo:
             n_locacoes += 1
 
         for i in range(1, n_locacoes + 1):
-            local = Locaveis.objects.get(id=int(dados.get(f'loc_{i}')))
-            professor = Professores.objects.get(id=dados.get(f'prf_loc_{i}'))
             check_in = dados.get(f'check_in_{i}')
             check_out = dados.get(f'check_out_{i}')
             horas_parciais = somar_horas_parciais(check_in, check_out)
@@ -94,12 +92,13 @@ def salvar_locacoes_empresa(dados, relatorio):
             participantes = dados.get(f'qtd_loc_{i}')
 
             # ------------------------------------ Salvando as atividades ----------------------------------------------
-            dados_locacoes[f'locacao_{i}'] = {'espaco': local.local.estrutura,
-                                              'professor': professor.usuario.first_name,
+            dados_locacoes[f'locacao_{i}'] = {'espaco': int(dados.get(f'loc_{i}')),
+                                              'professor': int(dados.get(f'prf_loc_{i}')),
                                               'check_in': check_in,
                                               'check_out': check_out,
                                               'soma_horas': str(horas_parciais),
-                                              'participantes': participantes}
+                                              'participantes': participantes
+                                              }
 
     relatorio.horas_totais_locacoes = horas_totais
     relatorio.locacoes = dados_locacoes

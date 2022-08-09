@@ -286,19 +286,16 @@ function add_linha_atividade() {
 function criar_linhas_colunas_locacao(){
     let i = document.querySelectorAll('.linhas_loc').length
 
-    $('#corpo_tabela_locacao').append(`<tr class="linhas_loc" id="linha_loc_${i+1}"></tr>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_1" id="div_coluna_1_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_1_linha_loc_${i+1}`).append(`<div class="colunas_loc_1" id="coluna_1_linha_loc_${i+1}"></div>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_2" id="div_coluna_2_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_2_linha_loc_${i+1}`).append(`<div class="colunas_loc_2" id="coluna_2_linha_loc_${i+1}"></div>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_3" id="div_coluna_3_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_3_linha_loc_${i+1}`).append(`<div class="colunas_loc_3" id="coluna_3_linha_loc_${i+1}"></div>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_4" id="div_coluna_4_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_4_linha_loc_${i+1}`).append(`<div class="colunas_loc_4" id="coluna_4_linha_loc_${i+1}"></div>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_5" id="div_coluna_5_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_5_linha_loc_${i+1}`).append(`<div class="colunas_loc_5" id="coluna_5_linha_loc_${i+1}"></div>`)
-    $(`#linha_loc_${i+1}`).append(`<td class="div_colunas_loc_6" id="div_coluna_6_linha_loc_${i+1}"></td>`)
-    $(`#div_coluna_6_linha_loc_${i+1}`).append(`<div class="colunas_loc_6" id="coluna_6_linha_loc_${i+1}"></div>`)
+    $('#corpo_tabela_locacao').append(
+        `<tr class="linhas_loc" id="linha_loc_${i+1}">
+            <td class="colunas_loc_1" id="coluna_1_linha_loc_${i+1}"></td>
+            <td class="colunas_loc_2" id="coluna_2_linha_loc_${i+1}"></td>
+            <td class="colunas_loc_3" id="coluna_3_linha_loc_${i+1}"></td>
+            <td class="colunas_loc_4" id="coluna_4_linha_loc_${i+1}"></td>
+            <td class="colunas_loc_5" id="coluna_5_linha_loc_${i+1}"></td>
+            <td class="colunas_loc_6" id="coluna_6_linha_loc_${i+1}"></td>
+        </tr>`
+    )
 
     return i
 }
@@ -307,7 +304,7 @@ function criar_linhas_colunas_locacao(){
 function popular_professores_locacao(i){
 
     // Nesse caso é apenas um professor por locação
-    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="prf_loc_${i + 1}" style="width: 110px" onchange="validacao(this)" required></select>`)
+    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="prf_loc_${i + 1}" onchange="validacao(this)" required></select>`)
     $(`#prof_loc_${i+1}`).append(`<option selected></option>`)
 
     $.ajax({
@@ -364,14 +361,14 @@ function colocar_locacoes(local, id){
 // Responsável pea adção individual de uma nova linha na tabla de locação e criação de todos os elementos
 // Semelhante a sua respectiva função da tabela atividades
 function add_linha_locacao(){
-     let i = criar_linhas_colunas_locacao()
+    let i = criar_linhas_colunas_locacao()
     popular_professores_locacao(i)
 
-    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" style="width: 110px"></select>`)
-    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" style="width: 210px"/>`)
-    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" style="width: 210px"/>`)
+    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"></select>`)
+    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}"/>`)
+    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}"/>`)
     $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}"/>`)
-    $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x' ></span></button>`)
+    $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x'></i></span></button>`)
 
     colocar_locacoes(null, `loc_${i+1}`)
 }
@@ -383,13 +380,13 @@ function montar_tabela_locacoes(dados) {
         criar_linhas_colunas_locacao()
         popular_professores_locacao(i)
 
-        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" style="width: 110px" required></select>`)
+        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"required></select>`)
         colocar_locacoes(dados['locacoes'][`locacao_${i + 1}`]['espaco'], `loc_${i + 1}`)
 
         let check_in = dados['locacoes'][`locacao_${i + 1}`]['check_in'].replace(' ', 'T')
         let check_out = dados['locacoes'][`locacao_${i + 1}`]['check_out'].replace(' ', 'T')
-        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" value="${check_in}" style="width: 210px" required/>`)
-        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" value="${check_out}" style="width: 210px" required/>`)
+        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" style="width: 200px" value="${check_in}" required/>`)
+        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" style="width: 200px" value="${check_out}" required/>`)
         $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}" value="${dados['locacoes'][`locacao_${i + 1}`]['participantes']}" required/>`)
         $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x' ></span></button>`)
     }
@@ -408,12 +405,6 @@ function remover_linha_locacao(selecao){
     let colunas_4 = document.querySelectorAll('.colunas_loc_4')
     let colunas_5 = document.querySelectorAll('.colunas_loc_5')
     let colunas_6 = document.querySelectorAll('.colunas_loc_6')
-    let div_colunas_1 = document.querySelectorAll('.div_colunas_loc_1')
-    let div_colunas_2 = document.querySelectorAll('.div_colunas_loc_2')
-    let div_colunas_3 = document.querySelectorAll('.div_colunas_loc_3')
-    let div_colunas_4 = document.querySelectorAll('.div_colunas_loc_4')
-    let div_colunas_5 = document.querySelectorAll('.div_colunas_loc_5')
-    let div_colunas_6 = document.querySelectorAll('.div_colunas_loc_6')
 
     let professores = document.querySelectorAll('.professores_loc')
     let locacoes = document.querySelectorAll('.locacoes')
@@ -432,17 +423,9 @@ function remover_linha_locacao(selecao){
             $(colunas_4[i]).attr('id', 'coluna_4_linha_loc_' + (k + 1))
             $(colunas_5[i]).attr('id', 'coluna_5_linha_loc_' + (k + 1))
             $(colunas_6[i]).attr('id', 'coluna_6_linha_loc_' + (k + 1))
-
-            $(div_colunas_1[i]).attr('id', 'div_coluna_1_linha_loc_' + (k + 1))
-            $(div_colunas_2[i]).attr('id', 'div_coluna_2_linha_loc_' + (k + 1))
-            $(div_colunas_3[i]).attr('id', 'div_coluna_3_linha_loc_' + (k + 1))
-            $(div_colunas_4[i]).attr('id', 'div_coluna_4_linha_loc_' + (k + 1))
-            $(div_colunas_5[i]).attr('id', 'div_coluna_5_linha_loc_' + (k + 1))
-            $(div_colunas_6[i]).attr('id', 'div_coluna_6_linha_loc_' + (k + 1))
         }
 
         $(professores[k]).attr('id', `prf_loc_${k+1}`).attr('name', `prf_loc_${k+1}`)
-
         $(locacoes[k]).attr('id', `loc_${k+1}`).attr('name', `loc_${k+1}`)
         $(check_in[k]).attr('id', `check_in_${k+1}`).attr('name', `check_in_${k+1}`)
         $(check_out[k]).attr('id', `check_out_${k+1}`).attr('name', `check_out_${k+1}`)

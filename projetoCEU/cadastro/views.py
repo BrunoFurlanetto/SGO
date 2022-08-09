@@ -86,6 +86,9 @@ def colegio(request):
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_atividades_colegio(request.POST, relatorio)
 
+        if request.POST.get('loc_1'):
+            salvar_locacoes_empresa(request.POST, relatorio)
+
         try:
             novo_colegio = relatorio_colegio.save()
         except Exception as e:
