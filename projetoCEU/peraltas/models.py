@@ -273,6 +273,7 @@ class FichaDeEvento(models.Model):
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
+    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)

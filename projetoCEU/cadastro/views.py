@@ -261,7 +261,7 @@ def fichaDeEvento(request, id_cliente=None):
         else:
             return JsonResponse(requests_ajax(request.POST))
 
-    form = CadastroFichaDeEvento(request.POST)
+    form = CadastroFichaDeEvento(request.POST. request.FILES)
 
     if form.is_valid():
         novo_evento = form.save(commit=False)

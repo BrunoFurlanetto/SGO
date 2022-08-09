@@ -47,6 +47,7 @@ def requests_ajax(requisicao, files=None):
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
+            'embarque_sao_paulo': ficha_de_evento.informacoes_adcionais.transporte,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
             'id_n_professores': ficha_de_evento.qtd_professores,

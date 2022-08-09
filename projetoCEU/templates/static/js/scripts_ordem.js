@@ -15,6 +15,14 @@ function completar_dados_os(selecao){
                 $(`#${i}`).val(response[i])
             }
 
+            if(response['embarque_sao_paulo']){
+                $('#monitor_embarque').removeClass('none')
+                $('#id_monitor_embarque').prop('required', true)
+            }else{
+                $('#monitor_embarque').addClass('none')
+                $('#id_monitor_embarque').prop('required', false)
+            }
+
             $('#id_check_in').val(moment(response['id_check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
@@ -467,7 +475,13 @@ function dadosVerOrdem(){
             $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
 
+            if(response['monitor_embarque']) {
+                $('#monitor_embarque').removeClass('none')
+                $('#id_monitor_embarque').prop('required', true)
+            }
+
             let j = 1
+
             if(response['atividades_ceu']){
                 for(let i in response['atividades_ceu']){
                     add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])

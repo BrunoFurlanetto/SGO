@@ -85,7 +85,8 @@ def requests_ajax(requisicao):
 
         if ordem_de_servico.atividades_ceu:
             for i in range(1, len(ordem_de_servico.atividades_ceu) + 1):
-                atividade = Atividades.objects.get(atividade=ordem_de_servico.atividades_ceu[f'atividade_{i}']['atividade'])
+                atividade = Atividades.objects.get(
+                    atividade=ordem_de_servico.atividades_ceu[f'atividade_{i}']['atividade'])
                 ordem_de_servico.atividades_ceu[f'atividade_{i}'][f'id_atividade'] = atividade.id
 
         if ordem_de_servico.locacao_ceu:
@@ -97,7 +98,8 @@ def requests_ajax(requisicao):
             'check_in': ordem_de_servico.check_in,
             'check_out': ordem_de_servico.check_out,
             'atividades_ceu': ordem_de_servico.atividades_ceu,
-            'locacoes_ceu': ordem_de_servico.locacao_ceu
+            'locacoes_ceu': ordem_de_servico.locacao_ceu,
+            'monitor_embarque': ordem_de_servico.monitor_embarque is not None
         }
 
         return dados_ordem_de_servico
