@@ -1,16 +1,30 @@
+from datetime import datetime
+
 from django.db import models
+from django import forms
+
 from ceu.models import Professores
+from peraltas.models import ClienteColegio
 
 
 class Escala(models.Model):
-    equipe = models.CharField(max_length=300)
-    data = models.DateField()
+    tipo_escala_choice = (
+        (1, 'Público'),
+        (2, 'Grupo'),
+    )
+
+    tipo_escala = models.IntegerField(choices=tipo_escala_choice, default=1)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
+    equipe = models.JSONField()  # {'coordenador': ,'professor_1: , 'professor_2': , 'professor_3':...}
+    check_in_grupo = models.DateTimeField(default=datetime.now, blank=True)
+    check_out_grupo = models.DateTimeField(default=datetime.now, blank=True)
 
     def __str__(self):
-        return self.equipe
+        return f'Escala de(o) {self.cliente}'
 
     def separar_equipe(self):
-        return self.equipe.split(', ')
+        for key in self.equipe:
+            return self.equipe[key]
 
 
 class Disponibilidade(models.Model):
@@ -55,3 +69,10 @@ class Disponibilidade(models.Model):
 
 class DiaLimite(models.Model):
     dia_limite = models.PositiveIntegerField()
+
+
+# ------------------------------------ Formulários ----------------------------------------------------------
+class FormularioEscalaCeu(forms.ModelForm):
+    class Meta:
+        model = Escala
+        exclude = ()

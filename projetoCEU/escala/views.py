@@ -12,7 +12,7 @@ from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
     teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis
-from escala.models import Escala, Disponibilidade, DiaLimite
+from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
     EscalaHotelaria
@@ -137,6 +137,17 @@ def disponibilidade(request):
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
         return redirect('dashboard')
+
+
+@login_required(login_url='login')
+def MontarEscalaCeu(request):
+    form_escala = FormularioEscalaCeu()
+    clientes = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).exclude(atividades_ceu=None,
+                                                                                   locacao_ceu=None)
+
+    if request.method != 'POST':
+        return render(request, 'escala/escalar_professores.html', {'formulario': form_escala,
+                                                                   'clientes': clientes})
 
 
 @login_required(login_url='login')

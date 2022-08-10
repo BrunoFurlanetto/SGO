@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-escalar-professores">
+        <div class="titulo-conteudo-escalar-professores">
+            <center>
+                <h2>Escalar professores</h2>
+            </center>
+        </div>
+        <hr>
+        <div>
+            <form action="{% url 'montarEscala' %}">
+                {% csrf_token %}
+                <div class="mb-2" style="width: 50%">
+                    <label for="id_tipo_escala">Tipo de escala</label>
+                    {{ formulario.tipo_escala }}
+                </div>
+                <div>
+                    <label for="id_cliente">Cliente</label>
+                    <select name="cliente" id="id_cliente">
+                        <option></option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.instituicao }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="row">
+                    <div style="width: 50%">
+                        <label for="id_check_in_grupo">Check_in</label>
+                        {{ formulario.check_in_grupo }}
+                    </div>
+                    <div style="width: 50%">
+                        <label for="id_check_out_grupo">Check_out</label>
+                        {{ formulario.check_out_grupo }}
+                    </div>
+                </div>
+                <hr>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'js/escalar_monitores.js' %}"></script>
+{% endblock %}

@@ -4,165 +4,188 @@
 
 {% block conteudo %}
 
-<!-------------------------------- LINHA 1 ---------------------------->
-  <div class="row conteudo-empresa">
-    <div class="titulo-empresa">
-      <center>
-        <h2>RELATÓRIO DE ATENDIMENTO DA EMPRESA</h2>
-      </center>
+    <!-------------------------------- LINHA 1 ---------------------------->
+    <div class="row conteudo-empresa">
+        <div class="titulo-empresa">
+            <center>
+                <h2>RELATÓRIO DE ATENDIMENTO DA EMPRESA</h2>
+            </center>
+        </div>
+        <hr>
+        <form action="{% url 'empresa' %}" method="POST">
+            {% csrf_token %}
+            <script src="{% static 'js/script_base.js' %}"></script>
+            <script src="{% static 'js/jquery.js' %}"></script>
+            <script src="{% static 'js/scripts_colegio.js' %}"></script>
+            <div class="row">
+                <div style="width: 66%">
+                    <label for="empresa">Empresa</label>
+                    <select class="select-control d mr-sm-2" id="empresa" name="empresa"
+                            onchange="completar_informacoes(this)">
+                        <option selected></option>
+                        {% for empresa in empresas %}
+                            <option value="{{ empresa.id }}">{{ empresa.instituicao }}</option>
+                        {% endfor %}
+                    </select>
+                    {{ formulario.instituicao.as_hidden }}
+                    {{ formulario.check_in.as_hidden }}
+                    {{ formulario.check_out.as_hidden }}
+                    <input type="hidden" name="id_ordem" id="id_ordem">
+                </div>
+            </div>
+            <hr>
+            <!------------------------------------------------------------------------------>
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label for="coordenador">Coordenador</label>
+                    <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" required>
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 300px">
+                    <center>
+                        <label>Participantes: </label>
+                    </center>
+                    <div class="row">
+                        <div style="width: 120px">
+                            {{ formulario.participantes_previa }}
+                        </div>
+                        <div style="width: 170px">
+                            {{ formulario.participantes_confirmados }}
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 322px">
+                    <label>Coordenador peraltas</label>
+                    {{ formulario.coordenador_peraltas }}
+                </div>
+            </div>
+
+            <!-------------------------------- LINHA 2 ---------------------------->
+            <div class="row mb-3">
+                <div style="width: 25%">
+                    <label>Professor 2: </label>
+                    <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 25%">
+                    <label>Professor 3: </label>
+                    <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 25%">
+                    <label>Professor 4: </label>
+                    <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 25%">
+                    <label>Professor 5: </label>
+                    <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <hr>
+
+            <h5>Atividades ralizadas no CEU</h5>
+            <div>
+                <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
+                    <caption>Locações da empresa no CEU:</caption>
+                    <thead>
+                    <tr>
+                        <th>
+                            <center>Professor</center>
+                        </th>
+                        <th>
+                            <center>Local</center>
+                        </th>
+                        <th>
+                            <center>Check in</center>
+                        </th>
+                        <th>
+                            <center>Check out</center>
+                        </th>
+                        <th>
+                            <center>QTD</center>
+                        </th>
+                        <th>
+                            <center></center>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpo_tabela_locacao"></tbody>
+                </table>
+                <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                    <span class="text-black-50" style="font-size: 15px">Adcionar locacao</span>
+                </button>
+            </div>
+
+            <!------------------------------------------------------------------------------------->
+            <div class="form-group form-check form-switch mb-3 mt-3" id="div_check">
+                <input type="checkbox" class="form-check-input switch" id="checkAtividade" onChange="check_locacao()">
+                <label class="form-check-label">A empresa realizou atividades no CEU?</label>
+            </div>
+            <!------------------------------------------------------------------------------------->
+
+            <!-------------------------------- TABELA ATIVIDADES ---------------------------->
+            <div class="none" id="tabela">
+                <table class="table table-striped table-sm" style="caption-side: top">
+                    <caption>Atividades da empresa no CEU:</caption>
+                    <thead>
+                    <tr>
+                        <th style="width: 25%">
+                            <center>Nome dos professores</center>
+                        </th>
+                        <th style="width: 25%">
+                            <center>Atividade</center>
+                        </th>
+                        <th style="width: 20%">
+                            <center>Data e Hora</center>
+                        </th>
+                        <th style="width: 10%">
+                            <center>QTD</center>
+                        </th>
+                        <th style="width: 5%">
+                            <center></center>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="auto" id="corpo_tabela_atividade"></tbody>
+                </table>
+                <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                    <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+                </button>
+            </div>
+
+            <!-------------------------------- RELATÓRIO FINAL ---------------------------->
+            <div class="form-group">
+                <label>Relatório do dia:</label>
+                <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
+                <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
+                <script src="{% static 'js/script_base.js' %}"></script>
+            </div>
+
+        </form>
     </div>
-    <hr>
-    <form action="{% url 'empresa' %}" method="POST">
-      {% csrf_token %}
-      <script src="{% static 'js/script_base.js' %}"></script>
-      <script src="{% static 'js/jquery.js' %}"></script>
-      <script src="{% static 'js/scripts_colegio.js' %}"></script>
-      <div class="row">
-        <div style="width: 66%">
-          <label for="empresa">Empresa</label>
-          <select class="select-control d mr-sm-2" id="empresa" name="empresa" onchange="completar_informacoes(this)">
-            <option selected></option>
-            {% for empresa in empresas %}
-              <option value="{{ empresa.id }}">{{ empresa.instituicao }}</option>
-            {% endfor %}
-          </select>
-          {{ formulario.instituicao.as_hidden }}
-          {{ formulario.check_in.as_hidden }}
-          {{ formulario.check_out.as_hidden }}
-          <input type="hidden" name="id_ordem" id="id_ordem">
-        </div>
-      </div>
-      <hr>
-<!------------------------------------------------------------------------------>
-      <div class="row mb-2">
-        <div class="col-3">
-          <label for="coordenador">Coordenador</label>
-          <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" required>
-            <option selected></option>
-            {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div style="width: 300px">
-          <center>
-            <label>Participantes: </label>
-          </center>
-          <div class="row">
-            <div style="width: 120px">
-              {{ formulario.participantes_previa }}
-            </div>
-            <div style="width: 170px">
-              {{ formulario.participantes_confirmados }}
-            </div>
-          </div>
-        </div>
-        <div style="width: 322px">
-          <label>Coordenador peraltas</label>
-          {{ formulario.coordenador_peraltas }}
-        </div>
-      </div>
-
-<!-------------------------------- LINHA 2 ---------------------------->
-      <div class="row mb-3">
-        <div style="width: 25%">
-          <label>Professor 2: </label>
-          <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
-            <option selected></option>
-            {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div style="width: 25%">
-          <label>Professor 3: </label>
-          <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
-            <option selected></option>
-            {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div style="width: 25%">
-          <label>Professor 4: </label>
-          <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
-            <option selected></option>
-            {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div style="width: 25%">
-          <label>Professor 5: </label>
-          <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
-            <option selected></option>
-            {% for professor in professores %}
-              <option value="{{ professor.id }}">{{ professor }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-      <hr>
-
-      <h5>Atividades ralizadas no CEU</h5>
-      <div>
-        <table id="locacao" class="table table-striped table-sm" style="caption-side: top">
-          <caption>Locações da empresa no CEU:</caption>
-          <thead>
-            <tr>
-              <th><center>Professor</center></th>
-              <th><center>Local</center></th>
-              <th><center>Check in</center></th>
-              <th><center>Check out</center></th>
-              <th><center>QTD</center></th>
-              <th><center></center></th>
-            </tr>
-          </thead>
-          <tbody id="corpo_tabela_locacao"></tbody>
-        </table>
-        <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
-          <span><i class='bx bxs-plus-circle'></i></span>
-          <span class="text-black-50" style="font-size: 15px">Adcionar locacao</span>
-        </button>
-      </div>
-
-<!------------------------------------------------------------------------------------->
-      <div class="form-group form-check form-switch mb-3 mt-3" id="div_check">
-        <input type="checkbox" class="form-check-input switch" id="checkAtividade" onChange="check_locacao()">
-        <label class="form-check-label">A empresa realizou atividades no CEU?</label>
-      </div>
-<!------------------------------------------------------------------------------------->
-
-<!-------------------------------- TABELA ATIVIDADES ---------------------------->
-      <div class="none" id="tabela">
-        <table class="table table-striped table-sm" style="caption-side: top">
-          <caption>Atividades da empresa no CEU:</caption>
-          <thead>
-            <tr>
-              <th style="width: 25%"><center>Nome dos professores</center></th>
-              <th style="width: 25%"><center>Atividade</center></th>
-              <th style="width: 20%"><center>Data e Hora</center></th>
-              <th style="width: 10%"><center>QTD</center></th>
-              <th style="width: 5%"><center></center></th>
-            </tr>
-          </thead>
-          <tbody class="auto" id="corpo_tabela_atividade"></tbody>
-        </table>
-        <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
-          <span><i class='bx bxs-plus-circle'></i></span>
-          <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
-        </button>
-      </div>
-
-<!-------------------------------- RELATÓRIO FINAL ---------------------------->
-      <div class="form-group">
-        <label>Relatório do dia:</label>
-        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
-        <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
-        <script src="{% static 'js/script_base.js' %}"></script>
-      </div>
-
-    </form>
-  </div>
 
 {% endblock %}

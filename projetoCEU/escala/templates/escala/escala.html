@@ -27,27 +27,7 @@
                     {% if edita %}
                         navLinks: true,
                         navLinkDayClick: function(date, jsEvent){
-                            $("#ModalCadastro").modal('show');
-                            $.ajax({
-                              headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                              type: 'POST',
-                              url: '',
-                              data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
-                              success: function(response){
-                                var professores_disponiveis = response.split(', ')
-
-                                $('.d').empty()
-                                $('.disponiveis').empty()
-                                $('.d').append(`<option selected></option>`)
-                                for (let i in professores_disponiveis){
-                                  $('.disponiveis').append('<li>' + professores_disponiveis[i] + '</li>');
-                                  $('.d').append('<option>' + professores_disponiveis[i] + '</option>');
-                                }
-
-                              }
-                            });
-
-                            $("#data").val(date.toLocaleDateString('pt-BR'))
+                            window.location.href = '{% url 'montarEscala' %}'
                         },
 
                     {% endif %}
