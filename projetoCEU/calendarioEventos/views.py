@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -34,9 +36,16 @@ def eventos(request):
             tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)
 
             return HttpResponse(tamanho)
-        print(request.POST)
-        cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
-        pre_reserva = PreReserva.objects.get(cliente=cliente)
+
+        check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
+        check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%dT%H:%M')
+        nome_cliente = request.POST.get('cliente')
+
+        if ' - VT' in nome_cliente:
+            nome_cliente = nome_cliente[:-5]
+
+        cliente = ClienteColegio.objects.get(nome_fantasia=nome_cliente)
+        pre_reserva = PreReserva.objects.get(cliente=cliente, check_in=check_in, check_out=check_out)
 
         if request.POST.get('excluir'):
             try:
@@ -52,6 +61,7 @@ def eventos(request):
             'cliente': pre_reserva.cliente.id,
             'id': pre_reserva.id,
             'vendedor': pre_reserva.vendedor.id,
+            'vt': pre_reserva.vt,
             'confirmado': pre_reserva.agendado,
             'observacoes': pre_reserva.observacoes
         })

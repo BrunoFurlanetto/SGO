@@ -149,6 +149,7 @@ class PreReserva(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     agendado = models.BooleanField(default=False)
     ficha_evento = models.BooleanField(default=False)
+    vt = models.BooleanField(default=False)
 
 
 class Responsavel(models.Model):
@@ -198,8 +199,9 @@ class OpcionaisFormatura(models.Model):
 
 class InformacoesAdcionais(models.Model):
     veiculo = (
-        (1, 'Ônibus'),
-        (1, 'Micro ônibus')
+        (1, 'Micro ônibus'),
+        (2, 'Ônibus 46 lugares'),
+        (3, 'Ônibus 50 lugares')
     )
 
     servicos_de_bordo = (
@@ -209,8 +211,8 @@ class InformacoesAdcionais(models.Model):
 
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
-        (2, '1/2 monitoria (dentro de quarto - 1/20'),
-        (3, 'Monitoria completa (em quarto - 1/10)')
+        (2, '1/2 monitoria (dentro de quarto - 1/20)'),
+        (3, 'Monitoria completa (em quarto - 1/12)')
     )
 
     tipos_enfermaria = (
