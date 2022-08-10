@@ -50,6 +50,7 @@ class AtividadePeraltas(models.Model):
     duracao = models.DurationField(blank=True, null=True)
     lista_materiais = models.CharField(max_length=255, blank=True, null=True, verbose_name='Lista de materiais')
     # tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
+    
     # nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     manual_atividade = models.FileField(blank=True, null=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
                                         verbose_name='Manual')
