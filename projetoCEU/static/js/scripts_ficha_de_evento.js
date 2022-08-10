@@ -391,7 +391,7 @@ function completar_visualizacao_ficha(id_ficha){
                 })
                 $('#ceu').append(`<div id="lista_atividades_ceu"><h5 class="titulo-secao">Atividades no CEU</h5><p>${atividades_ceu}</p><hr></div>`)
             }
-            console.log(response)
+
             if(Object.keys(response['locacoes_ceu']).length !== 0){
                 let locacoes_ceu = []
                 $('.name').each(function (index, value){
@@ -405,6 +405,13 @@ function completar_visualizacao_ficha(id_ficha){
                 $('#ceu').append(`<div id="lista_locacoes_ceu"><h5 class="titulo-secao">Locacoes no CEU</h5><p>${locacoes_ceu}</p><hr></div>`)
             }
 
+            if($('.arquivo').children('a').prop('href')) {
+                $('.arquivo, #material_apoio-clear_id, .arquivo label').addClass('none')
+                $('#link_arquivo').append(`<a href="${$('.arquivo').children('a').prop('href')}">Material de apoio</a>`)
+            } else {
+                $('.arquivo').addClass('none')
+            }
+
         }
     })
 }
@@ -414,9 +421,9 @@ function edita_ficha(){
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
 
-    $('.perfil-participantes-ver-ficha, .observacoes-ver-ficha, #ceu :first-child, #atividades_ceu_ver_ficha, #locacoes_ceu_ver_ficha').removeClass('none')
+    $('.perfil-participantes-ver-ficha, .observacoes-ver-ficha, #ceu :first-child, #atividades_ceu_ver_ficha, #locacoes_ceu_ver_ficha, .arquivo').removeClass('none')
     $('.ceu, #atividades_peraltas_ver_ficha, #atividades_eco_ver_ficha, .peraltas :first-child, .peraltas, #arquivo_atual_lista_editar').removeClass('none')
-    $('#lista_locacoes_ceu, #lista_atividades_ceu, #lista_atividades_peraltas, #lista_atividades_eco, #arquivo_atual_lista').addClass('none')
+    $('#lista_locacoes_ceu, #lista_atividades_ceu, #lista_atividades_peraltas, #lista_atividades_eco, #link_arquivo').addClass('none')
 
     lista_segurados()
 }

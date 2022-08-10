@@ -33,7 +33,7 @@
                       <div class="days-disponibilidade-acampamento">
                       </div>
                       <div class="botoes">
-                        {% if coordenador_acampamento %}
+                        {% if coordenador_acampamento or coordenador_hotelaria %}
                           <div class="row">
                             <div style="width: 50%">
                               <label>Monitor</label>
@@ -102,7 +102,7 @@
                       <div class="days-disponibilidade-hotelaria">
                       </div>
                       <div class="botoes">
-                        {% if coordenador_hotelaria %}
+                        {% if coordenador_hotelaria or coordenador_acampamento %}
                           <div class="row">
                             <div style="width: 50%">
                               <label>Monitor</label>
