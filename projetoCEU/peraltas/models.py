@@ -1,9 +1,7 @@
 import datetime
-
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
-
 from ceu.models import Atividades, Locaveis
 
 
@@ -45,15 +43,15 @@ class AtividadePeraltas(models.Model):
     local = models.CharField(max_length=255)
     idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
     idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
-    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes')
-    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes')
+    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes', blank=True, null=True)
+    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes', blank=True, null=True)
     monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores')
     monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
     duracao = models.DurationField(blank=True, null=True)
-    lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
-    tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
-    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
+    lista_materiais = models.CharField(max_length=255, blank=True, null=True, verbose_name='Lista de materiais')
+    # tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
+    # nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
+    manual_atividade = models.FileField(blank=True, null=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
                                         verbose_name='Manual')
 
     def __str__(self):
@@ -273,6 +271,7 @@ class FichaDeEvento(models.Model):
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
+    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)

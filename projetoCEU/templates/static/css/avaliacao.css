@@ -244,3 +244,9 @@ option[value=""][disabled][selected] {
         margin-bottom: 0;
     }
 }
+
+.legenda{
+    font-size: small;
+    margin-bottom: -15px;
+    margin-top: 5px;
+}

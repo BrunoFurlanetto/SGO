@@ -10,7 +10,7 @@
             <h2>Ficha de Evento</h2>
             <hr>
         </div>
-        <form action='' method="POST">
+        <form action='' method="POST" enctype="multipart/form-data">
             <fieldset id="form_ficha" disabled="disabled">
                 {% csrf_token %}
                 <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
@@ -211,6 +211,14 @@
                     </button>
                 </div>
                 {{ form.codigos_app.as_hidden }}
+                <hr>
+                <div class="material-apoio">
+                    <h5 class="titulo-secao">Material de apoio</h5>
+                    <div class="arquivo">
+                        {{ form.material_apoio }}
+                    </div>
+                    <div id="link_arquivo"></div>
+                </div>
                 <hr class="observacoes-ver-ficha">
                 <div class="mb-3 row observacoes-ver-ficha">
                     <h5 class="titulo-secao">Observações</h5>
