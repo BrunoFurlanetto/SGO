@@ -11,36 +11,51 @@
         </div>
         <hr>
         <div>
-            <form action="{% url 'montarEscala' %}">
+            <form action="{% url 'montarEscala' %}" method="POST">
                 {% csrf_token %}
                 <div class="mb-2" style="width: 50%">
                     <label for="id_tipo_escala">Tipo de escala</label>
                     {{ formulario.tipo_escala }}
                 </div>
-                <div>
+                <hr>
+                <div class="publico none" style="width: 50%">
+                    <h5 class="titulo-secao">Público</h5>
+                    <label for="id_data_publico">Data do público</label>
+                    <input type="date" name="data_publico" id="id_data_publico" value="{{ data }}">
+                </div>
+                <div class="grupo none">
+                    <h5 class="titulo-secao">Informações do grupo</h5>
                     <label for="id_cliente">Cliente</label>
-                    <select name="cliente" id="id_cliente">
+                    <select name="cliente" id="id_cliente" onchange="pegar_dados_grupo(this)">
                         <option></option>
                         {% for cliente in clientes %}
                             <option value="{{ cliente.id }}">{{ cliente.instituicao }}</option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="row">
-                    <div style="width: 50%">
-                        <label for="id_check_in_grupo">Check_in</label>
-                        {{ formulario.check_in_grupo }}
+                    <div class="row datas none">
+                        <div style="width: 50%">
+                            <label for="id_check_in_grupo">Check_in</label>
+                            {{ formulario.check_in_grupo }}
+                        </div>
+                        <div style="width: 50%">
+                            <label for="id_check_out_grupo">Check_out</label>
+                            {{ formulario.check_out_grupo }}
+                        </div>
                     </div>
-                    <div style="width: 50%">
-                        <label for="id_check_out_grupo">Check_out</label>
-                        {{ formulario.check_out_grupo }}
-                    </div>
                 </div>
-                <hr>
+                <hr class="escala none">
+                <div class="escala none">
+                    <h5 class="titulo-secao">Escala</h5>
+                    {{ formulario.equipe }}
+                </div>
+                <br>
+                <div class="botoes none">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
             </form>
         </div>
     </div>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
-    <script src="{% static 'js/escalar_monitores.js' %}"></script>
+    <script src="{% static 'js/scripts_escalar_professores.js' %}"></script>
 {% endblock %}

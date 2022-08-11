@@ -29,18 +29,11 @@
                     eventOrderStrict: true,
                     locale: 'pt-br',
                     dayMaxEvents: 3,
+                    navLinks: true,
 
-                    {% if coordenador_acampamento %}
-                        navLinks: true,
-                        navLinkDayClick: function (date, jsEvent) {
-                            let dia = String(date.getDate()).padStart(2, '0')
-                            let mes = String(date.getMonth() + 1).padStart(2, '0')
-                            let ano = String(date.getFullYear())
-                            let data = dia + '-' + mes + '-' + ano
-
-                            window.location.href = `/escala/peraltas/{{ setor }}/escalar/${data}`
-                        },
-                    {% endif %}
+                    navLinkDayClick: function (date, jsEvent) {
+                        window.location.href = `/escala/montar_escala/${moment(date).tz('America/Sao_Paulo').format('yyyy-MM-DD')}`
+                    },
 
                     events: [
                         {% for evento in eventos %}
@@ -80,5 +73,7 @@
         </script>
     </div>
 
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
 {% endblock %}
 

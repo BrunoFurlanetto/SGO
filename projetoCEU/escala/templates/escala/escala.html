@@ -27,7 +27,7 @@
                     {% if edita %}
                         navLinks: true,
                         navLinkDayClick: function(date, jsEvent){
-                            window.location.href = '{% url 'montarEscala' %}'
+                            window.location.href = `montar_escala/${moment(date).tz('America/Sao_Paulo').format('yyyy-MM-DD')}`
                         },
 
                     {% endif %}
@@ -127,7 +127,7 @@
 
     </div>
 
-
-
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
 {% endblock %}
 

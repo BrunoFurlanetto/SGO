@@ -9,15 +9,16 @@ from peraltas.models import ClienteColegio
 
 class Escala(models.Model):
     tipo_escala_choice = (
+        (0, ''),
         (1, 'Público'),
         (2, 'Grupo'),
     )
 
-    tipo_escala = models.IntegerField(choices=tipo_escala_choice, default=1)
+    tipo_escala = models.IntegerField(choices=tipo_escala_choice, default=0)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
-    equipe = models.JSONField()  # {'coordenador': ,'professor_1: , 'professor_2': , 'professor_3':...}
-    check_in_grupo = models.DateTimeField(default=datetime.now, blank=True)
-    check_out_grupo = models.DateTimeField(default=datetime.now, blank=True)
+    equipe = models.ManyToManyField(Professores)  # {'coordenador': ,'professor_1: , 'professor_2': , 'professor_3':...}
+    check_in_grupo = models.DateTimeField(blank=True)
+    check_out_grupo = models.DateTimeField(blank=True)
 
     def __str__(self):
         return f'Escala de(o) {self.cliente}'
@@ -76,3 +77,9 @@ class FormularioEscalaCeu(forms.ModelForm):
     class Meta:
         model = Escala
         exclude = ()
+
+        widgets = {
+            'check_in_grupo': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'check_out_grupo': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'tipo_escala': forms.Select(attrs={'onChange': 'ver_tipo_escala(this)'}),
+        }

@@ -11,7 +11,8 @@ from ceu.models import Professores
 from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
-    teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis
+    teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
+    retornar_dados_grupo, verificar_disponiveis
 from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -140,13 +141,49 @@ def disponibilidade(request):
 
 
 @login_required(login_url='login')
-def MontarEscalaCeu(request):
+def MontarEscalaCeu(request, data_enviada=None):
+    grupos = verificar_grupo(request.user.groups.all())
     form_escala = FormularioEscalaCeu()
-    clientes = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).exclude(atividades_ceu=None,
-                                                                                   locacao_ceu=None)
+
+    if data_enviada:
+        clientes = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).filter(
+            check_in__date=data_enviada).exclude(atividades_ceu=None, locacao_ceu=None)
+    else:
+        clientes = OrdemDeServico.objects.filter(
+            relatorio_ceu_entregue=False).filter(
+            check_in__month=datetime.now().month
+            ).exclude(atividades_ceu=None, locacao_ceu=None)
+
+    if is_ajax(request):
+        if request.POST.get('grupo'):
+            grupo = retornar_dados_grupo(clientes, request.POST.get('grupo'))
+            return JsonResponse({'check_in': grupo.check_in_ceu,
+                                 'check_out': grupo.check_out_ceu})
+
+        if request.POST.get('data'):
+            return JsonResponse({'disponiveis': verificar_disponiveis(request.POST.get('data'))})
 
     if request.method != 'POST':
-        return render(request, 'escala/escalar_professores.html', {'formulario': form_escala,
+        return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
+                                                                   'data': data_enviada,
+                                                                   'formulario': form_escala,
+                                                                   'clientes': clientes})
+
+    form_escala = FormularioEscalaCeu(request.POST)
+    nova_escala = form_escala.save(commit=False)
+
+    if form_escala.is_valid():
+        if nova_escala.tipo_escala == 1:
+            check_in_publico = request.POST.get('data_publico') + ' 20:30'
+            check_out_publico = request.POST.get('data_publico') + ' 23:00'
+            nova_escala.check_in_grupo = datetime.strptime(check_in_publico, '%Y-%m-%d %H:%M')
+            nova_escala.check_out_grupo = datetime.strptime(check_out_publico, '%Y-%m-%d %H:%M')
+        form_escala.save()
+    else:
+        messages.warning(request, form_escala.errors)
+        return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
+                                                                   'data': data_enviada,
+                                                                   'formulario': form_escala,
                                                                    'clientes': clientes})
 
 

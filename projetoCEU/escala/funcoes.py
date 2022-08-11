@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from itertools import chain
 
 from ceu.models import Professores
@@ -17,6 +17,25 @@ def is_ajax(request):
     """
 
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
+def retornar_dados_grupo(clientes, id_grupo):
+    for cliente in clientes:
+        if cliente.id == int(id_grupo):
+            return cliente
+
+
+def verificar_disponiveis(data):
+    professores_disponiveis = []
+    data_formatada = datetime.strptime(data, '%Y-%m-%d').strftime('%d/%m/%Y')
+    print(data_formatada)
+    disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data_formatada)
+
+    for disponivel in disponiveis:
+        professores_disponiveis.append({'id': disponivel.professor.id,
+                                        'nome': disponivel.professor.usuario.get_full_name()})
+
+    return professores_disponiveis
 
 
 def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):

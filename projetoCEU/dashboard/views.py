@@ -93,12 +93,12 @@ def dashboardCeu(request):
             depois_25 = True
 
     # ----------- Seleção da escala do dia -------------
-    escalas = Escala.objects.filter(data=datetime.now())
-    equipe_escalada = None
-
-    if len(escalas) > 0:
-        for escala in escalas:
-            equipe_escalada = escala.equipe.split(', ')
+    # escalas = Escala.objects.filter(data=datetime.now())
+    # equipe_escalada = None
+    #
+    # if len(escalas) > 0:
+    #     for escala in escalas:
+    #         equipe_escalada = escala.equipe.split(', ')
 
     # ------------ Ajax enviado para construir as linhas da tabela para a data selecionada ----------------
     if is_ajax(request) and request.method == 'POST':
@@ -123,7 +123,7 @@ def dashboardCeu(request):
         professores = Professores.objects.all()
 
         return render(request, 'dashboard/dashboardCeu.html', {'professores': professores, 'relatorios': dados_iniciais,
-                                                               'data': data_hoje, 'equipe_escalada': equipe_escalada,
+                                                               'data': data_hoje,# 'equipe_escalada': equipe_escalada,
                                                                'professor': professor_logado,
                                                                # 'n_atividades': n_atividades, 'n_horas': n_horas,
                                                                'mostrar_aviso': mostrar_aviso_disponibilidade,
