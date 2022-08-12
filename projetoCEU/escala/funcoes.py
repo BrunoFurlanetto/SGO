@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 from ceu.models import Professores
@@ -38,6 +38,28 @@ def verificar_disponiveis(data):
     return professores_disponiveis
 
 
+def verificar_disponiveis_grupo(check_in, check_out):
+    check_out = datetime.strptime(check_out, '%Y-%m-%dT%H:%M').date()
+    check_in = datetime.strptime(check_in, '%Y-%m-%dT%H:%M').date()
+    disponiveis = Disponibilidade.objects.filter(mes=check_in.month, ano=check_in.year)
+    disponiveis_grupo = []
+
+    for disponivel in disponiveis:
+        check_in_teste = check_in
+
+        while check_in_teste <= check_out:
+            if check_in_teste.strftime('%d/%m/%Y') not in disponivel.dias_disponiveis:
+                break
+
+            if check_in_teste == check_out:
+                disponiveis_grupo.append({'id': disponivel.professor.id,
+                                          'nome': disponivel.professor.usuario.get_full_name()})
+
+            check_in_teste += timedelta(days=1)
+
+    return {'disponiveis': disponiveis_grupo}
+
+
 def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):
     """
     Função que verifica os professores fornecidos e  monta a escala.
@@ -49,6 +71,7 @@ def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):
     :return: Retorna um string com a seguência dos professores.
     """
 
+    equipe = [coodenador]  # A equipe escala sempre terá um coordenaor
     equipe = [coodenador]  # A equipe escala sempre terá um coordenaor
 
     # Início da verificação dos professores que foram fornecidos
@@ -82,8 +105,8 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
     """
     lista_dias = dias_enviados.split(', ')  # Transforma a string que vem com os dias em uma lista
     # ----------------------------- Verifica o mês e o ano das datas enviadas -----------------------------
-    mes = datetime.datetime.strptime(dias_enviados.split(', ')[0], '%d/%m/%Y').month
-    ano = datetime.datetime.strptime(dias_enviados.split(', ')[0], '%d/%m/%Y').year
+    mes = datetime.strptime(dias_enviados.split(', ')[0], '%d/%m/%Y').month
+    ano = datetime.strptime(dias_enviados.split(', ')[0], '%d/%m/%Y').year
     dias_ja_cadastrados = []  # Lista para os dias já presentes na base de dados
     dias_a_cadastrar = []  # Lista para os dias que serão salvos na base de dados
 
@@ -142,8 +165,8 @@ def verificar_mes_e_ano(dias):
     :return: Retorna o mês e o ano das datas
     """
 
-    mes = datetime.datetime.strptime(dias.split(', ')[0], '%d/%m/%Y').month
-    ano = datetime.datetime.strptime(dias.split(', ')[0], '%d/%m/%Y').year
+    mes = datetime.strptime(dias.split(', ')[0], '%d/%m/%Y').month
+    ano = datetime.strptime(dias.split(', ')[0], '%d/%m/%Y').year
 
     return mes, ano
 
@@ -342,8 +365,8 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
 
 def escalados_para_o_evento(dados_evento):
     cliente = ClienteColegio.objects.get(nome_fantasia=dados_evento.get('cliente'))
-    check_in_evento = datetime.datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
-    check_out_evento = datetime.datetime.strptime(dados_evento.get('check_out_evento'), '%Y-%m-%dT%H:%M')
+    check_in_evento = datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
+    check_out_evento = datetime.strptime(dados_evento.get('check_out_evento'), '%Y-%m-%dT%H:%M')
     monitores_escalados = []
 
     escala_evento_cliente = EscalaAcampamento.objects.get(cliente=cliente, check_in_cliente=check_in_evento,
@@ -518,7 +541,7 @@ def pegar_disponiveis(disponibilidades, setor):
             temp = disponivel.dias_disponiveis.split(', ')
 
             for dia in temp:
-                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+                datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
 
             disponiveis_hotelaria.append({'monitor': disponivel.monitor.usuario.get_full_name(),
                                           'dias_disponiveis': datas})
@@ -532,7 +555,7 @@ def pegar_disponiveis(disponibilidades, setor):
             temp = disponivel.dias_disponiveis.split(', ')
 
             for dia in temp:
-                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+                datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
 
             disponiveis_acampamento.append({'monitor': disponivel.monitor.usuario.get_full_name(),
                                             'dias_disponiveis': datas})
@@ -545,7 +568,7 @@ def pegar_disponiveis(disponibilidades, setor):
             temp = disponivel.dias_disponiveis.split(', ')
 
             for dia in temp:
-                datas.append(datetime.datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+                datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
 
             disponiveis_ceu.append({'professor': disponivel.professor.usuario.get_full_name(),
                                     'dias_disponiveis': datas})

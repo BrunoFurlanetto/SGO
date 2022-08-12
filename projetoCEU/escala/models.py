@@ -24,8 +24,9 @@ class Escala(models.Model):
         return f'Escala de(o) {self.cliente}'
 
     def separar_equipe(self):
-        for key in self.equipe:
-            return self.equipe[key]
+        for professor in self.equipe.all():
+            print(professor)
+            return professor
 
 
 class Disponibilidade(models.Model):

@@ -12,7 +12,7 @@ from escala.funcoes import escalar, contar_dias, verificar_mes_e_ano, verificar_
     alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
     teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
-    retornar_dados_grupo, verificar_disponiveis
+    retornar_dados_grupo, verificar_disponiveis, verificar_disponiveis_grupo
 from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -28,7 +28,7 @@ def escala(request):
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
     grupos = verificar_grupo(request.user.groups.all())
-
+    print(escalas)
     if request.method != 'POST':
         return render(request, 'escala/escala.html', {'professores': professores,
                                                       'escalas': escalas,
@@ -152,7 +152,7 @@ def MontarEscalaCeu(request, data_enviada=None):
         clientes = OrdemDeServico.objects.filter(
             relatorio_ceu_entregue=False).filter(
             check_in__month=datetime.now().month
-            ).exclude(atividades_ceu=None, locacao_ceu=None)
+        ).exclude(atividades_ceu=None, locacao_ceu=None)
 
     if is_ajax(request):
         if request.POST.get('grupo'):
@@ -162,6 +162,10 @@ def MontarEscalaCeu(request, data_enviada=None):
 
         if request.POST.get('data'):
             return JsonResponse({'disponiveis': verificar_disponiveis(request.POST.get('data'))})
+
+        if request.POST.get('check_in'):
+            return JsonResponse(
+                verificar_disponiveis_grupo(request.POST.get('check_in'), request.POST.get('check_out')))
 
     if request.method != 'POST':
         return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
@@ -178,6 +182,12 @@ def MontarEscalaCeu(request, data_enviada=None):
             check_out_publico = request.POST.get('data_publico') + ' 23:00'
             nova_escala.check_in_grupo = datetime.strptime(check_in_publico, '%Y-%m-%d %H:%M')
             nova_escala.check_out_grupo = datetime.strptime(check_out_publico, '%Y-%m-%d %H:%M')
+            print(request.POST)
+            return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
+                                                                       'data': data_enviada,
+                                                                       'formulario': form_escala,
+                                                                       'clientes': clientes})
+
         form_escala.save()
     else:
         messages.warning(request, form_escala.errors)
@@ -185,6 +195,8 @@ def MontarEscalaCeu(request, data_enviada=None):
                                                                    'data': data_enviada,
                                                                    'formulario': form_escala,
                                                                    'clientes': clientes})
+
+    return redirect('visualizarDisponibilidadeCeu')
 
 
 @login_required(login_url='login')

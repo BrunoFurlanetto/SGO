@@ -21,7 +21,7 @@
                 <div class="publico none" style="width: 50%">
                     <h5 class="titulo-secao">Público</h5>
                     <label for="id_data_publico">Data do público</label>
-                    <input type="date" name="data_publico" id="id_data_publico" value="{{ data }}">
+                    <input type="date" name="data_publico" id="id_data_publico" {% if data %} value="{{ data }}" {% endif %} onchange="pegar_professores_disponiveis(this.value)">
                 </div>
                 <div class="grupo none">
                     <h5 class="titulo-secao">Informações do grupo</h5>
