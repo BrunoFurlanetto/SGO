@@ -1,6 +1,6 @@
 
 function chamar_select2(){
-    $('#id_equipe').select2().on("select2:select", function (evt) {
+    $('#id_equipe_escalada').select2().on("select2:select", function (evt) {
         let element = evt.params.data.element;
         let $element = $(element);
 
@@ -11,7 +11,6 @@ function chamar_select2(){
 }
 
 function ver_tipo_escala(escolha){
-    $('#id_equipe').empty()
     const data = $('#id_data_publico').val()
 
     if(escolha.value === '1'){
@@ -61,7 +60,7 @@ function pegar_dados_grupo(selecao){
 }
 
 function pegar_professores_disponiveis(data){
-    $('#id_equipe').empty()
+    $('#id_equipe_escalada').empty()
     $.ajax({
         type: 'POST',
         url: '',
@@ -69,14 +68,14 @@ function pegar_professores_disponiveis(data){
         data: {'data': data},
         success: function (response) {
             for(let professor in response['disponiveis']){
-                $('#id_equipe').append(`<option value="${response['disponiveis'][professor]['id']}">${response['disponiveis'][professor]['nome']}</option>`)
+                $('#id_equipe_escalada').append(`<option value="${response['disponiveis'][professor]['id']}">${response['disponiveis'][professor]['nome']}</option>`)
             }
         }
     })
 }
 
 function pegar_professores_disponiveis_grupo(check_in, check_out){
-    $('#id_equipe').empty()
+    $('#id_equipe_escalada').empty()
     $.ajax({
         type: 'POST',
         url: '',
@@ -84,7 +83,7 @@ function pegar_professores_disponiveis_grupo(check_in, check_out){
         data: {'check_in': check_in, 'check_out': check_out},
         success: function (response) {
             for(let professor in response['disponiveis']){
-                $('#id_equipe').append(`<option value="${response['disponiveis'][professor]['id']}">${response['disponiveis'][professor]['nome']}</option>`)
+                $('#id_equipe_escalada').append(`<option value="${response['disponiveis'][professor]['id']}">${response['disponiveis'][professor]['nome']}</option>`)
             }
         }
     })

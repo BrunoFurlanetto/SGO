@@ -28,8 +28,8 @@
                     <label for="id_cliente">Cliente</label>
                     <select name="cliente" id="id_cliente" onchange="pegar_dados_grupo(this)">
                         <option></option>
-                        {% for cliente in clientes %}
-                            <option value="{{ cliente.id }}">{{ cliente.instituicao }}</option>
+                        {% for ordem in ordens %}
+                            <option value="{{ ordem.ficha_de_evento.cliente.id }}">{{ ordem.instituicao }}</option>
                         {% endfor %}
                     </select>
                     <div class="row datas none">
@@ -46,7 +46,7 @@
                 <hr class="escala none">
                 <div class="escala none">
                     <h5 class="titulo-secao">Escala</h5>
-                    {{ formulario.equipe }}
+                    <select name="equipe_escalada" id="id_equipe_escalada" multiple></select>
                 </div>
                 <br>
                 <div class="botoes none">

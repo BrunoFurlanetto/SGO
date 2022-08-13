@@ -23,50 +23,44 @@ from projetoCEU.utils import verificar_grupo, email_error
 
 @login_required(login_url='login')
 def escala(request):
-    professores = Professores.objects.all()
     escalas = Escala.objects.all()
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
     edita = User.objects.filter(pk=request.user.id, groups__name='Coordenador pedagógico').exists()
     grupos = verificar_grupo(request.user.groups.all())
-    print(escalas)
+    user_logado = request.user.get_full_name()
+
     if request.method != 'POST':
-        return render(request, 'escala/escala.html', {'professores': professores,
+        return render(request, 'escala/escala.html', {'user_logado': user_logado,
                                                       'escalas': escalas,
                                                       'ver': ver_icons, 'edita': edita,
                                                       'grupos': grupos})
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request) and request.method == 'POST':
-        mes = datetime.strptime(request.POST.get('data_selecionada'), '%d/%m/%Y').month
-        mes_selecao = Disponibilidade.objects.filter(mes=mes)
-        disponibilidade = Disponibilidade()
-        professores_disponiveis = disponibilidade.verificar_dias(mes_selecao, request.POST.get('data_selecionada'))
+        atividades_grupo = []
+        locacoes_grupo = []
+        escala_grupo = Escala.objects.get(cliente__nome_fantasia=request.POST.get('grupo'),
+                                          check_in_grupo=request.POST.get('check_in'),
+                                          check_out_grupo=request.POST.get('check_out'))
 
-        return HttpResponse(professores_disponiveis)
-    # ----------------------------------------------------------------------------------------------------
+        ordem_grupo = OrdemDeServico.objects.get(escala_ceu=True,
+                                                 instituicao=request.POST.get('grupo'),
+                                                 check_in_ceu=request.POST.get('check_in'),
+                                                 check_out_ceu=request.POST.get('check_out'))
 
-    # # ------------------- Pegando respostas do fomulário e montado a equipe ----------------------
-    data_post = request.POST.get('data_escala')
-    data = datetime.strptime(data_post, '%d/%m/%Y').date()
-    coordenador = request.POST.get('coordenador')
-    professor_2 = request.POST.get('professor_2')
-    professor_3 = request.POST.get('professor_3')
-    professor_4 = request.POST.get('professor_4')
-    professor_5 = request.POST.get('professor_5')
+        if ordem_grupo.atividades_ceu:
+            for atividade in ordem_grupo.atividades_ceu:
 
-    equipe = escalar(coordenador, professor_2, professor_3, professor_4, professor_5)
+                if ordem_grupo.atividades_ceu[atividade]['atividade'] not in atividades_grupo:
+                    atividades_grupo.append(ordem_grupo.atividades_ceu[atividade]['atividade'])
+        else:
+            for espaco in ordem_grupo.locacao_ceu:
 
-    # ------------------- Salvando a escala ----------------------
-    try:
-        nova_escala = Escala(data=data, equipe=equipe)
-        nova_escala.save()
-    except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Ocorreu um erro inesperado, tente novamente mais tarde!')
-    else:
-        messages.success(request, f'Escala para o dia {data} com {equipe}, salva com sucesso!')
-    finally:
-        return redirect('escala')
+                if ordem_grupo.locacao_ceu[espaco]['espaco'] not in atividades_grupo:
+                    locacoes_grupo.append(ordem_grupo.locacao_ceu[espaco]['espaco'])
+
+        return JsonResponse({'escalados': escala_grupo.separar_equipe(), 'atividades': ', '.join(atividades_grupo),
+                             'locacoes': ', '.join(locacoes_grupo)})
 
 
 @login_required(login_url='login')
@@ -146,17 +140,19 @@ def MontarEscalaCeu(request, data_enviada=None):
     form_escala = FormularioEscalaCeu()
 
     if data_enviada:
-        clientes = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).filter(
-            check_in__date=data_enviada).exclude(atividades_ceu=None, locacao_ceu=None)
+        ordens = (OrdemDeServico.objects
+                  .filter(escala_ceu=False)
+                  .filter(check_in__date=data_enviada)
+                  .exclude(atividades_ceu=None, locacao_ceu=None))
     else:
-        clientes = OrdemDeServico.objects.filter(
-            relatorio_ceu_entregue=False).filter(
-            check_in__month=datetime.now().month
-        ).exclude(atividades_ceu=None, locacao_ceu=None)
+        ordens = (OrdemDeServico.objects
+                  .filter(escala_ceu=False)
+                  .filter(check_in__month=datetime.now().month)
+                  .exclude(atividades_ceu=None, locacao_ceu=None))
 
     if is_ajax(request):
         if request.POST.get('grupo'):
-            grupo = retornar_dados_grupo(clientes, request.POST.get('grupo'))
+            grupo = retornar_dados_grupo(ordens, request.POST.get('grupo'))
             return JsonResponse({'check_in': grupo.check_in_ceu,
                                  'check_out': grupo.check_out_ceu})
 
@@ -171,22 +167,23 @@ def MontarEscalaCeu(request, data_enviada=None):
         return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
                                                                    'data': data_enviada,
                                                                    'formulario': form_escala,
-                                                                   'clientes': clientes})
+                                                                   'ordens': ordens})
 
     form_escala = FormularioEscalaCeu(request.POST)
     nova_escala = form_escala.save(commit=False)
 
     if form_escala.is_valid():
+        nova_escala.equipe = {'professores_escalados': list(map(int, request.POST.getlist("equipe_escalada")))}
+
         if nova_escala.tipo_escala == 1:
             check_in_publico = request.POST.get('data_publico') + ' 20:30'
             check_out_publico = request.POST.get('data_publico') + ' 23:00'
             nova_escala.check_in_grupo = datetime.strptime(check_in_publico, '%Y-%m-%d %H:%M')
             nova_escala.check_out_grupo = datetime.strptime(check_out_publico, '%Y-%m-%d %H:%M')
-            print(request.POST)
-            return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
-                                                                       'data': data_enviada,
-                                                                       'formulario': form_escala,
-                                                                       'clientes': clientes})
+            # return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
+            #                                                            'data': data_enviada,
+            #                                                            'formulario': form_escala,
+            #                                                            'clientes': clientes})
 
         form_escala.save()
     else:

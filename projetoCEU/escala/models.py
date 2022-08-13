@@ -16,7 +16,7 @@ class Escala(models.Model):
 
     tipo_escala = models.IntegerField(choices=tipo_escala_choice, default=0)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
-    equipe = models.ManyToManyField(Professores)  # {'coordenador': ,'professor_1: , 'professor_2': , 'professor_3':...}
+    equipe = models.JSONField(blank=True, null=True)  # {'professores': [id_professores]}
     check_in_grupo = models.DateTimeField(blank=True)
     check_out_grupo = models.DateTimeField(blank=True)
 
@@ -24,9 +24,12 @@ class Escala(models.Model):
         return f'Escala de(o) {self.cliente}'
 
     def separar_equipe(self):
-        for professor in self.equipe.all():
-            print(professor)
-            return professor
+        professores = []
+        for id_professor in self.equipe['professores_escalados']:
+            professor = Professores.objects.get(id=id_professor)
+            professores.append(professor.usuario.get_full_name())
+
+        return professores
 
 
 class Disponibilidade(models.Model):

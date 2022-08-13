@@ -20,120 +20,112 @@
                         left: '',
                         center: 'title',
                     },
+
                     eventOrderStrict: true,
                     locale: 'pt-br',
                     dayMaxEvents: 3,
 
                     {% if edita %}
                         navLinks: true,
-                        navLinkDayClick: function (date, jsEvent) {
+                        navLinkDayClick: function (date) {
                             window.location.href = `montar_escala/${moment(date).format('yyyy-MM-DD')}`
                         },
-
                     {% endif %}
 
                     events: [
-
                         {% for escala in escalas %}
                             {% if escala.tipo_escala == 1 %}
-                                {% for professor in escala.equipe.all %}
+                                {% for professor in escala.separar_equipe %}
                                     {
-                                        title: "{{ professor }}",
+                                        title: "{{ forloop.counter }} - {{ professor }}",
                                         start: "{{ escala.check_in_grupo | date:'Y-m-d' }}",
 
-                                        {% if user.get_full_name == professor %}
-                                            color: '#fcc607',
-                                            textColor: 'black'
+                                        {% if user_logado == professor %}
+                                            color: '#0740ba',
                                         {% endif %}
                                     },
                                 {% endfor %}
                             {% else %}
-
                                 {
                                     title: "{{ escala.cliente }}",
                                     start: "{{ escala.check_in_grupo | date:'Y-m-d H:i'}}",
                                     end: "{{ escala.check_out_grupo | date:'Y-m-d H:i'}}",
+                                    color: '#fcc607',
+                                    textColor: 'black',
                                 },
-
                             {% endif %}
                         {% endfor %}
+                    ],
 
-                    ]
+                    eventClick: function (info){
+                        if(info.event.end){
+                            $('.modal-title').text(`Escala para o evento de ${info.event.title}`)
+                            $('.nome_cliente').text(info.event.title)
+                            $('.check_in_cliente').text(moment(info.event.start).format('DD/MM HH:mm'))
+                            $('.check_out_cliente').text(moment(info.event.end).format('DD/MM HH:mm'))
+                            $('#lista_escalados').empty()
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {
+                                    'grupo': info.event.title,
+                                    'check_in': moment(info.event.start).format('yyyy-MM-DDTHH:mmz'),
+                                    'check_out': moment(info.event.end).format('yyyy-MM-DDTHH:mmz')},
+                                success: function (response) {
+                                    console.log(response)
+                                    for(let professor in response['escalados']){
+                                        if (professor == 0){
+                                            $('#lista_escalados').append(`<li style="color: #FF8C00">${response['escalados'][professor]}</li>`)
+                                        } else {
+                                            $('#lista_escalados').append(`<li>${response['escalados'][professor]}</li>`)
+                                        }
+                                    }
+
+                                    if (response['atividades'] !== ''){
+                                        $('.atividade').removeClass('none')
+                                        $('.atividades_grupo').text(response['atividades'])
+                                    } else {
+                                        $('.atividade').addClass('none')
+                                    }
+
+                                }
+                            })
+
+                            $('#EscalaGrupo').modal('show')
+                        }
+                    }
 
                 });
+
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
             });
         </script>
 
-        <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="EscalaGrupo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Cadastro de escala</h5>
+                        <h5 class="modal-title"></h5>
                         <button class="x-fechar-modal" data-dismiss="modal">
                             <span aria-hidden="false">&times;</span>
                         </button>
                     </div>
-                    <form action="{% url 'escala' %}" method="POST">
-                        <div class="modal-body">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div style="width: 55%">
-                                    <div class="row">
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Data</label>
-                                            <input type="text" class="form-control" id="data" name="data_escala">
-                                        </div>
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Coordenador</label>
-                                            <select class="form-control d col-7" name="coordenador"
-                                                    onChange="retirar(this)">
-                                                <option selected></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Professor 2</label>
-                                            <select class="form-control d" name="professor_2" onChange="retirar(this)">
-                                                <option selected></option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Professor 3</label>
-                                            <select class="form-control d" name="professor_3" onChange="retirar(this)">
-                                                <option selected></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Professor 4</label>
-                                            <select class="form-control d" name="professor_4" onChange="retirar(this)">
-                                                <option selected></option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group" style="width: 50%">
-                                            <label>Professor 5</label>
-                                            <select class="form-control d" name="professor_5" onChange="retirar(this)">
-                                                <option selected></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style="width: 45%">
-                                    <b>Professores disponiveis na data selecionada:</b>
-                                    <ul class="disponiveis"></ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Salvar escala</button>
-                        </div>
-                        <script src="{% static 'js/script_base.js' %}"></script>
-                    </form>
+                    <div class="modal-body">
+                        <p>
+                            Escala para o evento de <strong class="nome_cliente"></strong>, que tem a sua primeira atividade iniciando em
+                            <strong class="check_in_cliente"></strong> e sua úlitma atividade terminando em <strong class="check_out_cliente"></strong>.
+                            E fará as seguintes <p class="atividade none">: <strong class="atividades_grupo"></strong>.</p>
+                        </p>
+                        <p>
+                            A escala para o evento é a seguinte:
+                        </p>
+                        <ul id="lista_escalados"></ul>
+                        <hr>
+                        <a id="if_detector_de_bombas"></a>
+                    </div>
                 </div>
             </div>
             <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->

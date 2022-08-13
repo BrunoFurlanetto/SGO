@@ -65,7 +65,7 @@
                 <li>
             {% endif %}
 
-            {% if 'Diretoria' in grupos %}
+            {% if 'Diretoria' in grupos or 'dev' in grupos %}
               <a href="{% url 'painelGeral' %}">
                 <i class='bx bxs-pie-chart-alt-2' ></i>
                 <span class="link_name"><nobr>Painel estatístico</nobr></span>
@@ -86,7 +86,7 @@
                 <li>
             {% endif %}
 
-            {% if 'Coordenador pedagógico' in grupos or 'mostrar' in grupos %}
+            {% if 'Coordenador pedagógico' in grupos or 'mostrar' in grupos or 'dev' in grupos %}
               <a href="{% url 'detector' %}">
                 <i class='bx bx-timer' ></i>
                   <span class="link_name max-word"><nobr>Detector de bombas</nobr></span>
@@ -107,7 +107,7 @@
                 <li>
             {% endif %}
 
-              {% if 'Professor' in grupos or 'Operacional' in grupos or 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos %}
+              {% if 'Professor' in grupos or 'Operacional' in grupos or 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
 
                   <div class="iocn-link">
                     <a href="#">
@@ -119,17 +119,17 @@
                   <ul class="sub-menu">
                     <li><a class="link_name">Cadastrar</a></li>
 
-                        {% if 'Professor' in grupos%}
+                        {% if 'Professor' in grupos or 'dev' in grupos %}
                           <li><a href="{% url 'publico' %}">Público</a></li>
                           <li><a href="{% url 'colegio' %}">Colégio</a></li>
                           <li><a href="{% url 'empresa' %}">Empresa</a></li>
                         {% endif %}
 
-                        {% if 'Operacional' in grupos or 'Diretoria' in grupos %}
+                        {% if 'Operacional' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
                             <li><a href="{% url 'ordem_de_servico' %}">Ordem de Serviço</a></li>
                         {% endif %}
 
-                        {% if 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos %}
+                        {% if 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
                           <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
                           <li><a href="{% url 'lista_cliente' %}">Cliente</a></li>
                           <li><a class="max-word" href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
@@ -159,32 +159,32 @@
             {% endif %}
 
               <ul class="sub-menu">
-                {% if 'CEU' in grupos or 'Monitoria' in grupos %}
+                {% if 'CEU' in grupos or 'Monitoria' in grupos or 'dev' in grupos %}
                     <li><a class="link_name">Escala</a></li>
                 {% endif %}
 
-                {% if 'CEU' in grupos %}
+                {% if 'CEU' in grupos or 'dev' in grupos %}
                     <li><a href="{% url 'escala' %}">Visualizar</a></li>
                 {% endif %}
 
-                {% if 'Professor' in grupos %}
+                {% if 'Professor' in grupos or 'dev' in grupos %}
                     <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
                 {% endif %}
 
-                {% if 'Coordenador pedagógico' in grupos %}
+                {% if 'Coordenador pedagógico' in grupos or 'dev' in grupos %}
                     <li><a class="max-word" href="{% url 'visualizarDisponibilidadeCeu' %}">Mapa de disponibilidade</a></li>
                     <li><a href="{% url 'montarEscala' %}">Montar escala</a></li>
                 {% endif %}
 
-                {% if 'Monitoria' in grupos %}
+                {% if 'Monitoria' in grupos or 'dev' in grupos %}
                     <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
                 {% endif %}
 
-                {% if 'Monitoria' in grupos %}
+                {% if 'Monitoria' in grupos or 'dev' in grupos %}
                     <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
                 {% endif %}
 
-                {% if 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos %}
+                {% if 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'dev' in grupos %}
                     <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de disponibilidade</a></li>
                 {% endif %}
               </ul>
@@ -200,7 +200,7 @@
                 <li>
             {% endif %}
 
-            {% if 'CEU' in grupos or 'Comercial' or 'Diretoria' in grupos in grupos or 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'Operacional' in grupos %}
+            {% if 'CEU' in grupos or 'Comercial' or 'Diretoria' in grupos in grupos or 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'Operacional' in grupos or 'dev' in grupos %}
               <a href="{% url 'calendario_eventos' %}">
                 <i class='bx bx-calendar'></i>
                 <span class="link_name">Eventos</span>

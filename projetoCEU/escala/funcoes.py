@@ -19,10 +19,10 @@ def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
-def retornar_dados_grupo(clientes, id_grupo):
-    for cliente in clientes:
-        if cliente.id == int(id_grupo):
-            return cliente
+def retornar_dados_grupo(ordens, id_grupo):
+    for ordem in ordens:
+        if ordem.ficha_de_evento.id == int(id_grupo):
+            return ordem
 
 
 def verificar_disponiveis(data):
