@@ -23,7 +23,7 @@ def index(request):
         messages.error(request, 'Email e/ou senha inválidos')
         return render(request, 'home/index.html')
     except Exception as e:
-        email_error(usuario='unknown', erro=e, view=__name__)
+        email_error(usuario=f'{request.POST.get("email")}', erro=e, view=__name__)
         messages.error(request, 'Email e/ou senha inválidos')
         return render(request, 'home/index.html')
     else:
