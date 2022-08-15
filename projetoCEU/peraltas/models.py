@@ -45,12 +45,15 @@ class AtividadePeraltas(models.Model):
     idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
     participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes', blank=True, null=True)
     participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes', blank=True, null=True)
-    monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores')
-    monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
+    monitores_min = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número mínimo de monitores')
+    monitores_max = models.PositiveIntegerField(blank=True, null=True,verbose_name='Número máximo de monitores')
     duracao = models.DurationField(blank=True, null=True)
     lista_materiais = models.CharField(max_length=255, blank=True, null=True, verbose_name='Lista de materiais')
     # tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
+<<<<<<< HEAD
 
+=======
+>>>>>>> 01b7330b002523cc01f38c9a4edcdb873235210b
     # nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     manual_atividade = models.FileField(blank=True, null=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
                                         verbose_name='Manual')
@@ -77,16 +80,16 @@ class AtividadesEco(models.Model):
     local = models.CharField(max_length=255)
     idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
     idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
-    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes')
-    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes')
-    monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores')
-    monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
+    participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes', blank=True, null=True)
+    participantes_max = models.PositiveIntegerField(verbose_name='Número máximo de participantes', blank=True, null=True)
+    monitores_min = models.PositiveIntegerField(verbose_name='Número mínimo de monitores', blank=True, null=True)
+    monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores', blank=True, null=True)
     duracao = models.DurationField(blank=True, null=True)
-    lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
-    tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo de atividade')
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
+    lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais', blank=True, null=True)
+    # tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo de atividade')
+    # nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     biologo = models.BooleanField(default=False)
-    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
+    manual_atividade = models.FileField(blank=True, null=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
 
     def __str__(self):
         return self.nome_atividade_eco
@@ -149,6 +152,7 @@ class PreReserva(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     agendado = models.BooleanField(default=False)
     ficha_evento = models.BooleanField(default=False)
+    vt = models.BooleanField(default=False)
 
 
 class Responsavel(models.Model):
@@ -198,8 +202,9 @@ class OpcionaisFormatura(models.Model):
 
 class InformacoesAdcionais(models.Model):
     veiculo = (
-        (1, 'Ônibus'),
-        (1, 'Micro ônibus')
+        (1, 'Micro ônibus'),
+        (2, 'Ônibus 46 lugares'),
+        (3, 'Ônibus 50 lugares')
     )
 
     servicos_de_bordo = (
@@ -209,8 +214,8 @@ class InformacoesAdcionais(models.Model):
 
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
-        (2, '1/2 monitoria (dentro de quarto - 1/20'),
-        (3, 'Monitoria completa (em quarto - 1/10)')
+        (2, '1/2 monitoria (dentro de quarto - 1/20)'),
+        (3, 'Monitoria completa (em quarto - 1/12)')
     )
 
     tipos_enfermaria = (

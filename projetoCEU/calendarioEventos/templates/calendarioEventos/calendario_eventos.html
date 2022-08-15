@@ -46,7 +46,7 @@
                                     type: 'POST',
                                     url: '',
                                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                    data: {'cliente': cliente, 'check_in': check_in, 'check_out': check_out},
+                                    data: {'cliente': cliente, 'check_in': moment(check_in).format('yyyy-MM-DDTHH:mm'), 'check_out': moment(check_out).format('yyyy-MM-DDTHH:mm')},
                                     success: function (response) {
                                         $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_check_in,' +
                                             '#ModalDadosPreReserva #id_check_out,#ModalDadosPreReserva #id_participantes, ' +
@@ -58,6 +58,7 @@
                                         $('#ModalDadosPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
                                         $('#ModalDadosPreReserva #id_participantes').val(response['qtd'])
                                         $('#ModalDadosPreReserva #id_vendedor').val(response['vendedor'])
+                                        $('#ModalDadosPreReserva #id_vt').prop('checked', response['vt'])
                                         $('#ModalDadosPreReserva #id_observacoes').val(response['observacoes'])
 
                                         let modal_footer = $('#modal_footer')
@@ -89,7 +90,11 @@
                     events: [
                         {% for pre_reserva in pre_reservas %}
                             {
-                                title: "{{ pre_reserva.cliente }}",
+                                {% if pre_reserva.vt %}
+                                    title: "{{ pre_reserva.cliente }} - VT",
+                                {% else %}
+                                    title: "{{ pre_reserva.cliente }}",
+                                {% endif %}
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
 
@@ -159,13 +164,15 @@
             function excluir_pre_agendamento(){
                 $('document').ready(function() {
                     const cliente = $('#id_cliente :selected').text()
+                    const check_in = $('#id_check_in').val()
+                    const check_out = $('#id_check_out').val()
 
                     $.ajax({
                         url: '',
                         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                         type: "POST",
-                        data: {'excluir': true, 'cliente': cliente},
-                        async: false,
+                        data: {'excluir': true, 'cliente': cliente, 'check_in': check_in, 'check_out': check_out},
+                        success: function () {location.reload()}
                     });
                 });
             }
@@ -176,7 +183,7 @@
             }
 
             function editar_agendamento(){
-                $('#id_check_in, #id_check_out, #id_participantes, #id_observacoes').prop('disabled', false)
+                $('.formulario, #id_check_in, #id_check_out, #id_participantes, #id_observacoes').prop('disabled', false)
 
                 $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
 
@@ -218,43 +225,52 @@
     <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
           <form id="dados_pre_reserva" action="{% url 'calendario_eventos' %}" method="POST">
-            {% csrf_token %}
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Dados do pré agendamento</h5>
-                <button class="btn-close" data-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-2">
-                    <label for="nome_cliente">Cliente</label>
-                    {{ cadastro_pre_reserva.cliente }}
-                    <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
+                {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Dados do pré agendamento</h5>
+                    <button class="btn-close" data-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <fieldset class="formulario" disabled>
+                        <div class="mb-2">
+                            <label for="nome_cliente">Cliente</label>
+                            {{ cadastro_pre_reserva.cliente }}
+                            <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
+                        </div>
+                        <div class="row mb-2">
+                            <div style="width: 40%">
+                                <label for="check_in">Check in</label>
+                                {{ cadastro_pre_reserva.check_in }}
+                            </div>
+                            <div style="width: 40%">
+                                <label for="check_out">Check out</label>
+                                {{ cadastro_pre_reserva.check_out }}
+                            </div>
+                            <div style="width: 20%">
+                                <label for="participantes">QTD</label>
+                                {{ cadastro_pre_reserva.participantes }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div style="width: 50%">
+                                <label for="vendedor">Vendedor(a)</label>
+                                {{ cadastro_pre_reserva.vendedor }}
+                            </div>
+                            <div class="check-visita">
+                                {{ cadastro_pre_reserva.vt }}
+                                <label>VT</label>
+                            </div>
+                        </div>
+                        <div style="height: auto">
+                            <label for="observacoes">Observações</label>
+                            {{ cadastro_pre_reserva.observacoes }}
+                        </div>
+                    </fieldset>
+                  </div>
+                  <div class="modal-footer" id="modal_footer"></div>
                 </div>
-                <div class="row mb-2">
-                    <div style="width: 40%">
-                        <label for="check_in">Check in</label>
-                        {{ cadastro_pre_reserva.check_in }}
-                    </div>
-                    <div style="width: 40%">
-                        <label for="check_out">Check out</label>
-                        {{ cadastro_pre_reserva.check_out }}
-                    </div>
-                    <div style="width: 20%">
-                        <label for="participantes">QTD</label>
-                        {{ cadastro_pre_reserva.participantes }}
-                    </div>
-                </div>
-                <div style="width: 50%">
-                    <label for="vendedor">Vendedor(a)</label>
-                    {{ cadastro_pre_reserva.vendedor }}
-                </div>
-                <div style="height: auto">
-                    <label for="observacoes">Observações</label>
-                    {{ cadastro_pre_reserva.observacoes }}
-                </div>
-              </div>
-              <div class="modal-footer" id="modal_footer"></div>
-            </div>
+
           </form>
       </div>
     </div>
@@ -326,9 +342,15 @@
                         {{ cadastro_pre_reserva.participantes }}
                     </div>
                 </div>
-                <div style="width: 50%">
-                    <label for="vendedor">Vendedor(a)</label>
-                    {{ cadastro_pre_reserva.vendedor }}
+                <div class="row">
+                    <div style="width: 50%">
+                        <label for="vendedor">Vendedor(a)</label>
+                        {{ cadastro_pre_reserva.vendedor }}
+                    </div>
+                    <div class="check-visita">
+                        {{ cadastro_pre_reserva.vt }}
+                        <label>VT</label>
+                    </div>
                 </div>
                 <div style="height: auto">
                     <label for="observacoes">Observações</label>
