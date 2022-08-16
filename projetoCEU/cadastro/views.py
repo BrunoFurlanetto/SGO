@@ -237,8 +237,16 @@ def fichaDeEvento(request, id_cliente=None):
         form.id_vendedora = pre_reserva.vendedor.id
     else:
         dados_pre_reserva = None
-        vendedora = Vendedor.objects.get(usuario=request.user)
-        form.id_vendedora = vendedora.id
+
+        try:
+            vendedora = Vendedor.objects.get(usuario=request.user)
+            form.id_vendedora = vendedora.id
+        except Vendedor.DoesNotExist:
+            ...
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
+            messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
+            return redirect('dashboard')
 
     if request.user in User.objects.filter(groups__name='CEU'):
         grupo_usuario = 'CEU'

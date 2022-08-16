@@ -2,8 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django import forms
 
-from peraltas.models import ClienteColegio
-
 
 class Professores(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -76,3 +74,11 @@ class ReembolsosProfessores(models.Model):
     valores = models.CharField(max_length=255)
     valor_reembolso = models.FloatField()
     comprovante_reembolso = models.FileField(upload_to=f'comprovantes/{usuario_professor}/%Y/%m')
+
+
+class DetectorDeBombas(models.Model):
+    grupos = models.ManyToManyField('peraltas.ClienteColegio')
+    data_inicio = models.DateField(blank=True)
+    data_final = models.DateField(blank=True)
+    dados_atividades = models.JSONField()  # {'atividade_n:{'atividade: , 'check_in': , 'check_out': , 'professores': []}}
+    mostrar = models.BooleanField(default=False)

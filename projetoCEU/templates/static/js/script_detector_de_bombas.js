@@ -1,9 +1,19 @@
 function pegar_dados_evento(){
+    if ( $(`#clientes option:selected`).length === 0 ){
+        if ($('.alert-warning').length === 0) {
+            $('.grupos').prepend('<p style="margin-left: 1%; width: 98%" class="alert-warning">Nenhum grupo selecionado</p>')
+        }
+
+        return
+    } else {
+        $('.alert-warning').remove()
+    }
+
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_cliente': $(`#clientes option:selected`).val()},
+        data: {'id_grupos': $('#clientes').val()},
         success: function (response) {
             let eventos = []
             let hora_maxima = ''
@@ -49,8 +59,13 @@ function pegar_dados_evento(){
 
 }
 
-function detector_de_bombas (data_evento, dias_evento, eventos, hora_minima, hora_maxima) {
+function detector_de_bombas (eventos, hora_minima, hora_maxima) {
     const calendarUI = document.getElementById('detector_de_bombas');
+    const data_1 = moment($('#id_data_inicio').val())
+    const data_2 = moment($('#id_data_final').val())
+    var intervalo = data_2.diff(data_1);
+    var dias_evento = moment.duration(intervalo).asDays() + 1;
+
     const detector = new FullCalendar.Calendar(calendarUI, {
         headerToolbar: {
             left: '',
@@ -63,7 +78,7 @@ function detector_de_bombas (data_evento, dias_evento, eventos, hora_minima, hor
             $('#ModalProfessoresEvento').modal('show')
         },
 
-        initialDate: data_evento,
+        initialDate: $('#id_data_inicio').val(),
         initialView: 'timeGrid',
         duration: {days: dias_evento},
         eventOrderStrict: true,

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import json
 from itertools import chain
 # from tkinter import *
@@ -14,7 +14,7 @@ from random import randint
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
-from ceu.models import Professores, Valores, ReembolsosProfessores
+from ceu.models import Professores, Valores, ReembolsosProfessores, Atividades
 
 
 def pt(mm):
@@ -157,16 +157,22 @@ def pegar_valor_reembolso(professor):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def pegar_dados_evento(id_cliente, ordens):
-    evento = None
+def pegar_dados_evento(id_clientes, ordens):
+    dados_eventos = {}
+    print(ordens)
 
     for ordem in ordens:
-        if ordem.ficha_de_evento.cliente.id == id_cliente:
-            evento = ordem
-    print()
-    dados_evento = {'data_evento': evento.check_in_ceu,
-                    'dias_evento': (evento.check_out_ceu.day - evento.check_in_ceu.day) + 1,
-                    'atividades': evento.atividades_ceu,
-                    'locacoes': evento.locacao_ceu}
+        if ordem.ficha_de_evento.cliente.id in list(map(int, id_clientes)):
+            if ordem.atividades_ceu:
+                for i, nome_atividade in enumerate(ordem.atividades_ceu.all(), start=1):
+                    atividade = Atividades.objects.get(atividade=nome_atividade)
+                    print(nome_atividade)
 
-    return dados_evento
+                    dados_eventos[f'atividade_{i}'] = {
+                        'inicio-atividade': nome_atividade['data_e_hora'],
+                        'dias_evento': (ordem.check_out_ceu.day - ordem.check_in_ceu.day) + 1,
+                        'atividades': ordem.atividades_ceu,
+                        'locacoes': ordem.locacao_ceu
+                    }
+
+    return dados_eventos

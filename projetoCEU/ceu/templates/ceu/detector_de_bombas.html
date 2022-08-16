@@ -3,28 +3,54 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <div class="conteudo-resumo-financeiro-ceu">
+    <div class="conteudo-detector">
         <div class="titulo-resumo-ceu" align="center">
             <h2>DETECTOR DE BOMBAS</h2>
         </div>
         <hr>
-        <div class="conteudo-detector">
+        <div>
             <div id="pesquisa_evento">
-                {% csrf_token %}
-                <div class="row" style="width: 70%">
-                    <div>
-                        <label for="clientes">Evento:</label>
+                <form action="{% url 'detector' %}" method="GET">
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="datas" style="width: 32%">
+                                <label for="id_data_inicio">Data início</label>
+                                <input type="date" id="id_data_inicio" name="data_inicio" value="{{ request.GET.data_inicio }}" required>
+                            </div>
+                            <div class="datas" style="width: 32%">
+                                <label for="id_data_final">Data final</label>
+                                <input type="date" id="id_data_final" name="data_final" value="{{ request.GET.data_final }}" required>
+                            </div>
+                            <div class="div-botao" style="width: 10%">
+                                <button type="submit" class="buton-search">
+                                    <span><i class='bx bx-search'></i></span>
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+                {% if pesquisado %}
+                    <hr>
+                    <div class="grupos row">
+                        <div style="width: 65%">
+                            <div>
+                                <label for="clientes">Grupos:</label>
+                            </div>
+                            <div>
+                                <select name="clientes" id="clientes" multiple>
+                                    {% for evento in eventos %}
+                                        <option value="{{ evento.ficha_de_evento.cliente.id }}">{{ evento.instituicao }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="div-btn-scan">
+                            <button type="button" class="btn btn-scan" onclick="pegar_dados_evento()"><i class='bx bx-scan'></i></button>
+                        </div>
                     </div>
-                    <div>
-                        <select class="form-select" name="clientes" id="clientes" onchange="pegar_dados_evento()">
-                            <option selected></option>
-                            {% for evento in eventos %}
-                                <option value="{{ evento.ficha_de_evento.cliente.id }}">{{ evento.instituicao }}</option>
-                            {% endfor %}
-
-                        </select>
-                    </div>
-                </div>
+                    <script>$('#clientes').select2()</script>
+                {% endif %}
                 <hr>
             </div>
             <div id="detector_de_bombas"></div>

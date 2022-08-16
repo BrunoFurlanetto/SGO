@@ -1,3 +1,4 @@
+from datetime import datetime
 from itertools import chain
 
 from django.contrib.auth.decorators import login_required
@@ -20,14 +21,24 @@ def resumo_financeiro_ceu(request):
 @login_required(login_url='login')
 def detector_de_bombas(request):
     grupos = verificar_grupo(request.user.groups.all())
-    ordens_locacoes = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).exclude(locacao_ceu=None)
-    ordens_atividades = OrdemDeServico.objects.filter(relatorio_ceu_entregue=False).exclude(atividades_ceu=None)
-    ordens = list(chain(ordens_locacoes, ordens_atividades))
+    ordens_intervalo = None
+
+    if request.method == 'GET' and request.GET.get('data_inicio'):
+        data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
+        data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
+
+        ordens_intervalo = (OrdemDeServico.objects
+                            .filter(escala_ceu=True)
+                            .filter(check_in__date__gte=data_inicio, check_out__date__lte=data_final)
+                            )
+        print(ordens_intervalo)
+
+        return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos,
+                                                               'eventos': ordens_intervalo,
+                                                               'pesquisado': True})
 
     if is_ajax(request):
-        return JsonResponse(pegar_dados_evento(int(request.POST.get('id_cliente')),
-                                               ordens))
+        return JsonResponse(pegar_dados_evento(request.POST.getlist('id_grupos[]'), ordens_intervalo))
 
     if request.method != 'POST':
-        return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos,
-                                                               'eventos': ordens})
+        return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos})

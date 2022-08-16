@@ -201,8 +201,6 @@ def MontarEscalaCeu(request, data_enviada=None):
                                                                    'formulario': form_escala,
                                                                    'ordens': ordens})
 
-    return redirect('visualizarDisponibilidadeCeu')
-
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
