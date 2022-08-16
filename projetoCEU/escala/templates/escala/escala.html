@@ -63,7 +63,7 @@
                             $('.nome_cliente').text(info.event.title)
                             $('.check_in_cliente').text(moment(info.event.start).format('DD/MM HH:mm'))
                             $('.check_out_cliente').text(moment(info.event.end).format('DD/MM HH:mm'))
-                            $('#lista_escalados').empty()
+                            $('#lista_escalados, .lista-atividades, .lista-locacoes').empty()
 
                             $.ajax({
                                 type: 'POST',
@@ -74,7 +74,7 @@
                                     'check_in': moment(info.event.start).format('yyyy-MM-DDTHH:mmz'),
                                     'check_out': moment(info.event.end).format('yyyy-MM-DDTHH:mmz')},
                                 success: function (response) {
-                                    console.log(response)
+
                                     for(let professor in response['escalados']){
                                         if (professor == 0){
                                             $('#lista_escalados').append(`<li style="color: #FF8C00">${response['escalados'][professor]}</li>`)
@@ -83,11 +83,16 @@
                                         }
                                     }
 
-                                    if (response['atividades'] !== ''){
-                                        $('.atividade').removeClass('none')
-                                        $('.atividades_grupo').text(response['atividades'])
-                                    } else {
-                                        $('.atividade').addClass('none')
+                                    if (response['atividades'].length !== 0){
+                                        for (let i = 0; i < response['atividades'].length; i++){
+                                            $('.lista-atividades').append(`<li>${response['atividades'][i]}</li>`)
+                                        }
+                                    }
+
+                                    if (response['locacoes'].length !== 0){
+                                        for (let i = 0; i < response['locacoes'].length; i++){
+                                            $('.lista-locacoes').append(`<li>${response['locacoes'][i]}</li>`)
+                                        }
                                     }
 
                                 }
@@ -109,22 +114,31 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title"></h5>
-                        <button class="x-fechar-modal" data-dismiss="modal">
-                            <span aria-hidden="false">&times;</span>
-                        </button>
+                        <button class="btn btn-close" aria-hidden="false" data-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <p>
                             Escala para o evento de <strong class="nome_cliente"></strong>, que tem a sua primeira atividade iniciando em
                             <strong class="check_in_cliente"></strong> e sua úlitma atividade terminando em <strong class="check_out_cliente"></strong>.
-                            E fará as seguintes <p class="atividade none">: <strong class="atividades_grupo"></strong>.</p>
+                            E fará as seguintes atividades e/ou locações:
                         </p>
+                        <div class="listas-atividades-locacoes">
+                            <div class="div-lista-atividades">
+                                <h5 class="titulo-secao">Atividades</h5>
+                                <ul class="lista-atividades"></ul>
+                            </div>
+                            <div class="div-lista-locacoes">
+                                <h5 class="titulo-secao">Locacoes</h5>
+                                <ul class="lista-locacoes"></ul>
+                            </div>
+                        </div>
+                        <hr>
                         <p>
                             A escala para o evento é a seguinte:
                         </p>
                         <ul id="lista_escalados"></ul>
-                        <hr>
-                        <a id="if_detector_de_bombas"></a>
+                        <hr class="if_detector_de_bombas none">
+                        <a class="if_detector_de_bombas none"></a>
                     </div>
                 </div>
             </div>

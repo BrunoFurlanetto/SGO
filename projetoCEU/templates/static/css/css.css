@@ -583,7 +583,7 @@
     margin: auto auto 5%;
     justify-content: center;
 }
-select {
+.conteudo-escalar-professores select {
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -591,7 +591,7 @@ select {
     padding-left: 12px;
     height: 38px;
 }
-input{
+.conteudo-escalar-professores input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -599,4 +599,23 @@ input{
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+.listas-atividades-locacoes{
+    display: flex;
+    margin-top: 25px
+}
+.listas-atividades-locacoes h5{
+    text-align: center;
+}
+.listas-atividades-locacoes .div-lista-atividades{
+    width: 50%;
+    padding-right: 10px;
+    border-right: solid 1px;
+    display: flex;
+    flex-direction: column;
+}
+.listas-atividades-locacoes .div-lista-locacoes{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
 }

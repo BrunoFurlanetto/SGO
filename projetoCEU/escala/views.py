@@ -56,11 +56,11 @@ def escala(request):
         else:
             for espaco in ordem_grupo.locacao_ceu:
 
-                if ordem_grupo.locacao_ceu[espaco]['espaco'] not in atividades_grupo:
+                if ordem_grupo.locacao_ceu[espaco]['espaco'] not in locacoes_grupo:
                     locacoes_grupo.append(ordem_grupo.locacao_ceu[espaco]['espaco'])
 
-        return JsonResponse({'escalados': escala_grupo.separar_equipe(), 'atividades': ', '.join(atividades_grupo),
-                             'locacoes': ', '.join(locacoes_grupo)})
+        return JsonResponse({'escalados': escala_grupo.separar_equipe(), 'atividades': atividades_grupo,
+                             'locacoes': locacoes_grupo})
 
 
 @login_required(login_url='login')
@@ -173,25 +173,33 @@ def MontarEscalaCeu(request, data_enviada=None):
     nova_escala = form_escala.save(commit=False)
 
     if form_escala.is_valid():
-        nova_escala.equipe = {'professores_escalados': list(map(int, request.POST.getlist("equipe_escalada")))}
+        try:
+            nova_escala.equipe = {'professores_escalados': list(map(int, request.POST.getlist("equipe_escalada")))}
 
-        if nova_escala.tipo_escala == 1:
-            check_in_publico = request.POST.get('data_publico') + ' 20:30'
-            check_out_publico = request.POST.get('data_publico') + ' 23:00'
-            nova_escala.check_in_grupo = datetime.strptime(check_in_publico, '%Y-%m-%d %H:%M')
-            nova_escala.check_out_grupo = datetime.strptime(check_out_publico, '%Y-%m-%d %H:%M')
-            # return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
-            #                                                            'data': data_enviada,
-            #                                                            'formulario': form_escala,
-            #                                                            'clientes': clientes})
+            if nova_escala.tipo_escala == 1:
+                check_in_publico = request.POST.get('data_publico') + ' 20:30'
+                check_out_publico = request.POST.get('data_publico') + ' 23:00'
+                nova_escala.check_in_grupo = datetime.strptime(check_in_publico, '%Y-%m-%d %H:%M')
+                nova_escala.check_out_grupo = datetime.strptime(check_out_publico, '%Y-%m-%d %H:%M')
 
-        form_escala.save()
+            form_escala.save()
+        except Exception as e:
+            email_error(request.user.get_full_name(), e, __name__)
+            messages.error(request, f'Houve um erro inesperado, tente novamente mais tarde! {e}')
+            return redirect('dashboard')
+        else:
+            ordem = OrdemDeServico.objects.get(ficha_de_evento__cliente__id=int(request.POST.get('cliente')))
+            ordem.escala_ceu = True
+            ordem.save()
+
+            messages.success(request, f'Escala para o vento de {ordem.instituicao} salva com sucesso!')
+            return redirect('visualizarDisponibilidadeCeu')
     else:
         messages.warning(request, form_escala.errors)
         return render(request, 'escala/escalar_professores.html', {'grupos': grupos,
                                                                    'data': data_enviada,
                                                                    'formulario': form_escala,
-                                                                   'clientes': clientes})
+                                                                   'ordens': ordens})
 
     return redirect('visualizarDisponibilidadeCeu')
 

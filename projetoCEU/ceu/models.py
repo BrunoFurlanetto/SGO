@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django import forms
 
+from peraltas.models import ClienteColegio
+
 
 class Professores(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
