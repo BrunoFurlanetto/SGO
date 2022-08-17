@@ -13,59 +13,71 @@ function pegar_dados_evento(){
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_grupos': $('#clientes').val()},
+        data: {'id_grupos': $('#clientes').val(), 'data_inicio': $('#id_data_inicio').val(), 'data_final': $('#id_data_final').val()},
         success: function (response) {
             let eventos = []
-            let hora_maxima = ''
-            let hora_minima = ''
+            let classes_select_selecionados = $('.select2-selection__choice')
 
-            for(let atividade in response['atividades']){
-               if(hora_maxima === ''){
-                   let hora = parseInt(response['atividades'][atividade]['data_e_hora'].split(' ')[1]) + 2
-                   hora_maxima = String(hora + ':00:00')
-               } else {
-                   let hora = parseInt(response['atividades'][atividade]['data_e_hora'].split(' ')[1]) + 2
+            if (response['atividades'].length > 0){
+                for (let i = 0; i < response['atividades'].length; i++){
+                    eventos.push(pegar_dados_atividades(response['atividades'][i]))
 
-                   if(hora > hora_maxima.split(':')[0]){
-                       hora_maxima = String(hora + ':00:00')
-                   }
-               }
+                    for (let j = 0; j < classes_select_selecionados.length; j++){
+                        if (classes_select_selecionados[j].title == response['atividades'][i]['grupo']){
+                            classes_select_selecionados[j].style.backgroundColor = response['atividades'][i]['color']
+                            classes_select_selecionados[j].style.borderColor = response['atividades'][i]['color']
+                            classes_select_selecionados[j].style.color = '#fff'
+                        }
+                    }
 
-                if(hora_minima === ''){
-                   let hora = parseInt(response['atividades'][atividade]['data_e_hora'].split(' ')[1]) - 1
-                   hora_minima = String(hora + ':00:00')
-               } else {
-                   let hora = parseInt(response['atividades'][atividade]['data_e_hora'].split(' ')[1]) - 1
-
-                   if(hora > hora_maxima.split(':')[0]){
-                       hora_minima = String(hora + ':00:00')
-                   }
-               }
-
-                eventos.push({
-                    title: response['atividades'][atividade]['atividade'],
-                    start: response['atividades'][atividade]['data_e_hora'],
-                })
+                }
             }
 
-            detector_de_bombas(
-                response['data_evento'].split('T')[0],
-                response['dias_evento'], eventos,
-                hora_minima,
-                hora_maxima
-            )
+            if (response['locacoes'].length > 0){
+                for (let i = 0; i < response['locacoes'].length; i++){
+                    eventos.push(pegar_dados_locacoes(response['locacoes'][i]))
+
+                    for (let j = 0; j < classes_select_selecionados.length; j++){
+                        if (classes_select_selecionados[j].title == response['locacoes'][i]['grupo']){
+                            classes_select_selecionados[j].style.backgroundColor = response['locacoes'][i]['color']
+                            classes_select_selecionados[j].style.borderColor = response['locacoes'][i]['color']
+                            classes_select_selecionados[j].style.color = '#fff'
+                        }
+                    }
+                }
+            }
+
+            detector_de_bombas(eventos)
         }
     })
 
 }
 
-function detector_de_bombas (eventos, hora_minima, hora_maxima) {
+function pegar_dados_atividades(dados_atividade) {
+    return {
+        title: dados_atividade['atividade'],
+        start: dados_atividade['inicio_atividade'],
+        end: dados_atividade['fim_atividade'],
+        color: dados_atividade['color']
+    }
+}
+
+
+function pegar_dados_locacoes(dados_locacao){
+    return {
+        title: dados_locacao['local'],
+        start: dados_locacao['check_in'],
+        end: dados_locacao['check_out'],
+        color: dados_locacao['color']
+    }
+}
+
+function detector_de_bombas (eventos) {
     const calendarUI = document.getElementById('detector_de_bombas');
     const data_1 = moment($('#id_data_inicio').val())
     const data_2 = moment($('#id_data_final').val())
     var intervalo = data_2.diff(data_1);
     var dias_evento = moment.duration(intervalo).asDays() + 1;
-
     const detector = new FullCalendar.Calendar(calendarUI, {
         headerToolbar: {
             left: '',
@@ -74,7 +86,8 @@ function detector_de_bombas (eventos, hora_minima, hora_maxima) {
         },
 
         eventClick: function(info){
-            $('#ModalProfessoresEvento .modal-title').text(`Professores para: ${info.event.title} (${moment(info.event.start).format('DD/MM')} as ${moment(info.event.start).format('HH:mm')})`)
+
+            $('#ModalProfessoresEvento .modal-title').text(`Professores para: ${info.event.title} (${moment(info.event.start).format('DD/MM [às] HH:mm)')}`)
             $('#ModalProfessoresEvento').modal('show')
         },
 
@@ -84,8 +97,7 @@ function detector_de_bombas (eventos, hora_minima, hora_maxima) {
         eventOrderStrict: true,
         locale: 'pt-br',
         allDaySlot: false,
-        slotMinTime: hora_minima,
-        slotMaxTime: hora_maxima,
+        slotMinTime: '07:00:00',
         nowIndicator: true,
         slotDuration: '00:15:00',
         slotEventOverlap: false,

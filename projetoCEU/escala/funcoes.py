@@ -21,7 +21,7 @@ def is_ajax(request):
 
 def retornar_dados_grupo(ordens, id_grupo):
     for ordem in ordens:
-        if ordem.ficha_de_evento.id == int(id_grupo):
+        if ordem.ficha_de_evento.cliente.id == int(id_grupo):
             return ordem
 
 

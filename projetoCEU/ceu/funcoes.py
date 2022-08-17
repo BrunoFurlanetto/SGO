@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 from itertools import chain
-# from tkinter import *
+from random import sample
 
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
@@ -15,6 +15,7 @@ from random import randint
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Professores, Valores, ReembolsosProfessores, Atividades
+from ordemDeServico.models import OrdemDeServico
 
 
 def pt(mm):
@@ -157,22 +158,44 @@ def pegar_valor_reembolso(professor):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def pegar_dados_evento(id_clientes, ordens):
-    dados_eventos = {}
-    print(ordens)
+def pegar_dados_evento(dados_detector):
+    lista_id_clientes = list(map(int, dados_detector.getlist('id_grupos[]')))
+    lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
+    cores_escolhids = sample(lista_cores, k=len(lista_id_clientes))
+    atividades = []
+    locacoes = []
 
-    for ordem in ordens:
-        if ordem.ficha_de_evento.cliente.id in list(map(int, id_clientes)):
+    for i, id_cliente in enumerate(lista_id_clientes):
+        ordens = (OrdemDeServico.objects.filter(escala_ceu=True)
+                  .filter(ficha_de_evento__cliente__id=id_cliente)
+                  .filter(check_in__date__gte=dados_detector.get('data_inicio'),
+                          check_in__date__lte=dados_detector.get('data_final'))
+                  )
+
+        for ordem in ordens:
             if ordem.atividades_ceu:
-                for i, nome_atividade in enumerate(ordem.atividades_ceu.all(), start=1):
-                    atividade = Atividades.objects.get(atividade=nome_atividade)
-                    print(nome_atividade)
+                for atividade in ordem.atividades_ceu.values():
+                    atividade_bd = Atividades.objects.get(atividade=atividade['atividade'])
+                    tempo_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M') + atividade_bd.duracao
+                    print(ordem, id_cliente)
+                    atividades.append({
+                        'atividade': atividade['atividade'],
+                        'inicio_atividade': atividade['data_e_hora'],
+                        'fim_atividade': tempo_atividade.strftime('%Y-%m-%d %H:%M'),
+                        'color': cores_escolhids[i],
+                        'grupo': ordem.ficha_de_evento.cliente.nome_fantasia
+                    })
 
-                    dados_eventos[f'atividade_{i}'] = {
-                        'inicio-atividade': nome_atividade['data_e_hora'],
-                        'dias_evento': (ordem.check_out_ceu.day - ordem.check_in_ceu.day) + 1,
-                        'atividades': ordem.atividades_ceu,
-                        'locacoes': ordem.locacao_ceu
-                    }
+            if ordem.locacao_ceu:
+                for espaco in ordem.locacao_ceu.values():
+                    locacoes.append({
+                        'local': espaco['espaco'],
+                        'check_in': espaco['check_in'],
+                        'check_out': espaco['check_out'],
+                        'color': cores_escolhids[i],
+                        'grupo': ordem.ficha_de_evento.cliente.nome_fantasia
+                    })
+
+    dados_eventos = {'atividades': atividades, 'locacoes': locacoes}
 
     return dados_eventos

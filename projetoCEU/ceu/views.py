@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.http import FileResponse, JsonResponse
 
 from ceu.funcoes import criar_pdf_relatorio, pegar_dados_evento
+from ceu.models import Professores
 from dashboard.funcoes import is_ajax
 from ordemDeServico.models import OrdemDeServico
 from projetoCEU.utils import verificar_grupo
@@ -21,24 +22,27 @@ def resumo_financeiro_ceu(request):
 @login_required(login_url='login')
 def detector_de_bombas(request):
     grupos = verificar_grupo(request.user.groups.all())
-    ordens_intervalo = None
+    professores = Professores.objects.all()
 
-    if request.method == 'GET' and request.GET.get('data_inicio'):
-        data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
-        data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
+    if request.method == 'GET':
+        if request.GET.get('data_inicio'):
+            data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
+            data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
 
-        ordens_intervalo = (OrdemDeServico.objects
-                            .filter(escala_ceu=True)
-                            .filter(check_in__date__gte=data_inicio, check_out__date__lte=data_final)
-                            )
-        print(ordens_intervalo)
+            ordens_intervalo = (OrdemDeServico.objects
+                                .filter(escala_ceu=True)
+                                .filter(check_in__date__gte=data_inicio, check_in__date__lte=data_final)
+                                )
 
-        return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos,
-                                                               'eventos': ordens_intervalo,
-                                                               'pesquisado': True})
+            return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos,
+                                                                   'eventos': ordens_intervalo,
+                                                                   'pesquisado': True,
+                                                                   'professores': professores
+                                                                   })
 
     if is_ajax(request):
-        return JsonResponse(pegar_dados_evento(request.POST.getlist('id_grupos[]'), ordens_intervalo))
+        print(request.POST)
+        return JsonResponse(pegar_dados_evento(request.POST))
 
     if request.method != 'POST':
         return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos})

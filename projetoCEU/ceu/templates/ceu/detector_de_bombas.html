@@ -48,12 +48,22 @@
                         <div class="div-btn-scan">
                             <button type="button" class="btn btn-scan" onclick="pegar_dados_evento()"><i class='bx bx-scan'></i></button>
                         </div>
+                        <div class="div-btn-escalar-professores" style="width: 30%">
+                            <button type="button" class="btn btn-outline-dark">Escalar professores</button>
+                        </div>
                     </div>
                     <script>$('#clientes').select2()</script>
                 {% endif %}
                 <hr>
             </div>
             <div id="detector_de_bombas"></div>
+            <div class="escala-por-atividades none">
+                <hr>
+                <h5 class="titulo-secao">Escala para as atividades</h5>
+                <form action="{% url 'detector' %}" method="POST">
+                    <fieldset id="formulario-escala-professores-atividades"></fieldset>
+                </form>
+            </div>
 
             <div class="modal fade" id="ModalProfessoresEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -65,12 +75,32 @@
                                 <button class="btn-close" data-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <div>
-                                    ...
+                                <div class="row">
+                                    <label for="id_professores_atividade">Professores para a atividade</label>
+                                    <select name="professores_atividade" id="id_professores_atividade" multiple>
+                                        <option></option>
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="modal-footer" id="modal_footer">
+                                <script>
+                                    $(document).ready(function() {
+                                        $('#id_professores_atividade').select2({
+                                            dropdownParent: $("#ModalProfessoresEvento")
+                                        })
+                                            .on("select2:select", function (evt) {
+                                            let element = evt.params.data.element;
+                                            let $element = $(element);
 
+                                            $element.detach();
+                                            $(this).append($element);
+                                            $(this).trigger("change");
+                                        });
+                                    })
+                                </script>
                             </div>
                         </div>
                     </form>

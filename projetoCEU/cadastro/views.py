@@ -253,11 +253,6 @@ def fichaDeEvento(request, id_cliente=None):
     else:
         grupo_usuario = 'Peraltas'
 
-    # send_mail('TESTE', 'Mensagem de Teste',
-    #           'no-reply@fundaceoceu.com',
-    #           ['bruno.furlanetto@hotmail.com'],
-    #           fail_silently=False)
-
     if request.method != 'POST':
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
                                                                  'formAdicionais': form_adicionais,
@@ -288,12 +283,12 @@ def fichaDeEvento(request, id_cliente=None):
             return redirect('ficha_de_evento')
         else:
             try:
-                pre_reserva = PreReserva.objects.get(cliente=novo_evento.cliente, ficha_de_evento=False)
-            except PreReserva.DoeNotExists:
+                pre_reserva = PreReserva.objects.get(cliente=novo_evento.cliente, ficha_evento=False)
+            except PreReserva.DoesNotExist:
                 ...
             except Exception as e:
                 email_error(request.user.get_full_name(), e, __name__)
-                messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+                messages.error(request, f'Houve um erro inesperado: {e}. por favor tente mais tarde')
                 return redirect('dashboard')
             else:
                 pre_reserva.agendado = True

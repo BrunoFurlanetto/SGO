@@ -1,0 +1,80 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CssUnknownProperty" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myCustomPropertiesEnabled" value="true" />
+      <option name="myIgnoreVendorSpecificProperties" value="false" />
+      <option name="myCustomPropertiesList">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="align" />
+            <item index="1" class="java.lang.String" itemvalue="font-heigth" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="93" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="ES6ConvertVarToLetConst" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="JSEqualityComparisonWithCoercion" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="JSJQueryEfficiency" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E501" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N806" />
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="cadastro.models.OrdemDeServico.*" />
+          <option value="cadastro.models.Tipo.*" />
+          <option value="escala.models.Escala.*" />
+          <option value="cadastro.models.Professores.objects" />
+          <option value="cadastro.models.Atividades.objects" />
+          <option value="escala.models.Disponibilidade.objects" />
+          <option value="cadastro.models.Professores.*" />
+          <option value="django.db.models.fields.related.OneToOneField.*" />
+          <option value="ceu.models.Atividades.*" />
+          <option value="ceu.models.Professores.*" />
+          <option value="ceu.models.Tipo.*" />
+          <option value="django.db.models.fields.json.JSONField.*" />
+          <option value="cadastro.models.RelatorioDeAtendimentoCeu.*" />
+          <option value="cadastro.models.RelatorioDeAtendimentoPublicoCeu.*" />
+          <option value="cadastro.models.RelatorioDeAtendimentoColegioCeu.*" />
+          <option value="cadastro.models.RelatorioDeAtendimentoEmpresaCeu.*" />
+          <option value="ceu.models.Locaveis.*" />
+          <option value="ordemDeServico.models.OrdemDeServico.*" />
+          <option value="peraltas.models.Vendedor.*" />
+          <option value="peraltas.models.ProdutosPeraltas.*" />
+          <option value="peraltas.models.ClienteColegio.*" />
+          <option value="peraltas.models.InformacoesAdcionais.*" />
+          <option value="peraltas.models.ResumoFinanceiro.*" />
+          <option value="peraltas.models.CodigosApp.*" />
+          <option value="peraltas.models.FichaDeEvento.*" />
+          <option value="peraltas.models.Responsavel.*" />
+          <option value="peraltas.models.AtividadesEco.*" />
+          <option value="peraltas.models.AtividadePeraltas.*" />
+          <option value="fichaAvaliacao.models.FichaDeAvaliacao.objects" />
+          <option value="peraltas.models.Monitor.*" />
+          <option value="peraltas.models.DisponibilidadeAcampamento.*" />
+          <option value="peraltas.models.DisponibilidadeHotelaria.*" />
+          <option value="peraltas.models.DiaLimiteAcampamento.*" />
+          <option value="peraltas.models.DiaLimiteHotelaria.*" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

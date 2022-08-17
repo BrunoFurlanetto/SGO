@@ -142,7 +142,7 @@ def MontarEscalaCeu(request, data_enviada=None):
     if data_enviada:
         ordens = (OrdemDeServico.objects
                   .filter(escala_ceu=False)
-                  .filter(check_in__date=data_enviada)
+                  .filter(check_in_ceu__date=data_enviada)
                   .exclude(atividades_ceu=None, locacao_ceu=None))
     else:
         ordens = (OrdemDeServico.objects
