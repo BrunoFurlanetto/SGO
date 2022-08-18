@@ -9,7 +9,7 @@
         </div>
         <hr>
         <div>
-            <div id="pesquisa_evento">
+            <section id="pesquisa_evento">
                 <form action="{% url 'detector' %}" method="GET">
                     <fieldset>
                         {% csrf_token %}
@@ -46,66 +46,27 @@
                             </div>
                         </div>
                         <div class="div-btn-scan">
-                            <button type="button" class="btn btn-scan" onclick="pegar_dados_evento()"><i class='bx bx-scan'></i></button>
+                            <button type="button" class="btn btn-scan" onclick="pegar_dados_eventos()"><i class='bx bx-scan'></i></button>
                         </div>
-                        <div class="div-btn-escalar-professores" style="width: 30%">
-                            <button type="button" class="btn btn-outline-dark">Escalar professores</button>
+                        <div class="div-btn-escalar-professores none" style="width: 30%">
+                            <button type="button" class="btn btn-outline-dark" onclick="mostrar_por_atividade()">Escalar professores</button>
                         </div>
                     </div>
                     <script>$('#clientes').select2()</script>
                 {% endif %}
                 <hr>
-            </div>
-            <div id="detector_de_bombas"></div>
-            <div class="escala-por-atividades none">
+            </section>
+
+            <section id="detector_de_bombas"></section>
+
+            <section class="escala-por-atividades">
                 <hr>
                 <h5 class="titulo-secao">Escala para as atividades</h5>
                 <form action="{% url 'detector' %}" method="POST">
                     <fieldset id="formulario-escala-professores-atividades"></fieldset>
                 </form>
-            </div>
+            </section>
 
-            <div class="modal fade" id="ModalProfessoresEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <form id="dados_pre_reserva" action="{% url 'detector' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title"></h5>
-                                <button class="btn-close" data-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <label for="id_professores_atividade">Professores para a atividade</label>
-                                    <select name="professores_atividade" id="id_professores_atividade" multiple>
-                                        <option></option>
-                                        {% for professor in professores %}
-                                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer" id="modal_footer">
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#id_professores_atividade').select2({
-                                            dropdownParent: $("#ModalProfessoresEvento")
-                                        })
-                                            .on("select2:select", function (evt) {
-                                            let element = evt.params.data.element;
-                                            let $element = $(element);
-
-                                            $element.detach();
-                                            $(this).append($element);
-                                            $(this).trigger("change");
-                                        });
-                                    })
-                                </script>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
         <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
         <script src="{% static 'js/script_detector_de_bombas.js' %}"></script><!-- Script do calendário -->

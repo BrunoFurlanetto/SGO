@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 from django.http import FileResponse, JsonResponse
 
-from ceu.funcoes import criar_pdf_relatorio, pegar_dados_evento
+from ceu.funcoes import criar_pdf_relatorio, pegar_dados_evento, pegar_escalas
 from ceu.models import Professores
 from dashboard.funcoes import is_ajax
 from ordemDeServico.models import OrdemDeServico
@@ -42,7 +42,9 @@ def detector_de_bombas(request):
 
     if is_ajax(request):
         print(request.POST)
-        return JsonResponse(pegar_dados_evento(request.POST))
+        atividades_eventos = pegar_dados_evento(request.POST)
+        escalas = pegar_escalas(request.POST)
+        return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
 
     if request.method != 'POST':
         return render(request, 'ceu/detector_de_bombas.html', {'grupos': grupos})

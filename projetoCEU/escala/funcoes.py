@@ -268,7 +268,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         intervalo = True
 
         for i in range(0, dias.days + 1):
-            if (check_in + datetime.timedelta(days=i)).strftime('%d/%m/%Y') in disponivel.dias_disponiveis:
+            if (check_in + timedelta(days=i)).strftime('%d/%m/%Y') in disponivel.dias_disponiveis:
                 continue
             else:
                 intervalo = False

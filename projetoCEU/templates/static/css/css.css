@@ -649,3 +649,14 @@
     margin-top: 15px;
     align-items: center;
 }
+.conteudo-detector .btn-mostrar-atividades-locacoes{
+    background: #fff;
+    border: none;
+    font-size: 25px;
+    margin-top: -20px;
+    margin-left: 10px;
+}
+
+.escala-por-atividades .atividades .select2-container, .escala-por-atividades .locacoes .select2-container{
+    width: 100% !important;
+}

@@ -80,5 +80,5 @@ class DetectorDeBombas(models.Model):
     grupos = models.ManyToManyField('peraltas.ClienteColegio')
     data_inicio = models.DateField(blank=True)
     data_final = models.DateField(blank=True)
-    dados_atividades = models.JSONField()  # {'atividade_n:{'atividade: , 'check_in': , 'check_out': , 'professores': []}}
+    dados_atividades = models.JSONField()  # {'grupo: {'atividade_n: {'atividade: , 'check_in': , 'check_out': , 'professores': []}}}
     mostrar = models.BooleanField(default=False)

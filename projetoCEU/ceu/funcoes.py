@@ -15,7 +15,9 @@ from random import randint
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Professores, Valores, ReembolsosProfessores, Atividades
+from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
+from peraltas.models import ClienteColegio
 
 
 def pt(mm):
@@ -176,8 +178,8 @@ def pegar_dados_evento(dados_detector):
             if ordem.atividades_ceu:
                 for atividade in ordem.atividades_ceu.values():
                     atividade_bd = Atividades.objects.get(atividade=atividade['atividade'])
-                    tempo_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M') + atividade_bd.duracao
-                    print(ordem, id_cliente)
+                    tempo_atividade = datetime.strptime(atividade['data_e_hora'],
+                                                        '%Y-%m-%d %H:%M') + atividade_bd.duracao
                     atividades.append({
                         'atividade': atividade['atividade'],
                         'inicio_atividade': atividade['data_e_hora'],
@@ -199,3 +201,24 @@ def pegar_dados_evento(dados_detector):
     dados_eventos = {'atividades': atividades, 'locacoes': locacoes}
 
     return dados_eventos
+
+
+def pegar_escalas(dados_eventos):
+    escalados = []
+    n_grupos = list(map(int, dados_eventos.getlist('id_grupos[]')))
+    data_inicio = datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d').date()
+    data_final = datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d').date()
+
+    for id_grupo in n_grupos:
+        dados_professor = []
+        escala = Escala.objects.get(tipo_escala=2, cliente__id=id_grupo,
+                                    check_in_grupo__date__gte=data_inicio,
+                                    check_in_grupo__date__lte=data_final)
+        for id_professor in escala.equipe['professores_escalados']:
+            professor = Professores.objects.get(id=id_professor)
+
+            dados_professor.append({'nome': professor.usuario.get_full_name(), 'id': id_professor})
+
+        escalados.append({'grupo': escala.cliente.nome_fantasia, 'escalados': dados_professor})
+
+    return escalados
