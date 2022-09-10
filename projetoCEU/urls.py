@@ -30,5 +30,6 @@ urlpatterns = [
     path('painel-geral/', include('painelAdm.urls')),
     path('ordem-de-servico/', include('ordemDeServico.urls')),
     path('calendario-eventos/', include('calendarioEventos.urls')),
+    path('detector-de-bombas/', include('detector.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

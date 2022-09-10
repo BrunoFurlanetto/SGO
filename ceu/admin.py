@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from ceu.models import Professores, Atividades, Locaveis, Limitacoes, Estruturas, ReembolsosProfessores, \
-    DetectorDeBombas
+from ceu.models import Professores, Atividades, Locaveis, Limitacoes, Estruturas, ReembolsosProfessores
 from peraltas.admin import VendedorInline, MonitorInline
 
 
@@ -39,11 +38,6 @@ class LocaveisAdmin(admin.ModelAdmin):
 @admin.register(ReembolsosProfessores)
 class ReembolsosProfessoresAdmin(admin.ModelAdmin):
     list_display = ('usuario_professor', 'valor_reembolso')
-
-
-@admin.register(DetectorDeBombas)
-class DetectorDeBombasAdmin(admin.ModelAdmin):
-    list_display = ('id', 'data_inicio', 'data_final')
 
 
 admin.site.register(Limitacoes)

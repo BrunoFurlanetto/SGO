@@ -27,15 +27,13 @@ def retornar_dados_grupo(ordens, id_grupo):
 
 def verificar_disponiveis(data):
     professores_disponiveis = []
-    data_formatada = datetime.strptime(data, '%Y-%m-%d').strftime('%d/%m/%Y')
-    print(data_formatada)
-    disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data_formatada)
+    disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data)
 
     for disponivel in disponiveis:
         professores_disponiveis.append({'id': disponivel.professor.id,
                                         'nome': disponivel.professor.usuario.get_full_name()})
 
-    return professores_disponiveis
+    return {'disponiveis': professores_disponiveis}
 
 
 def verificar_disponiveis_grupo(check_in, check_out):

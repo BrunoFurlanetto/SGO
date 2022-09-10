@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from itertools import chain
 from random import sample
@@ -14,7 +14,7 @@ from random import randint
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
-from ceu.models import Professores, Valores, ReembolsosProfessores, Atividades
+from ceu.models import Professores, Valores, ReembolsosProfessores, Atividades, Locaveis
 from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio
@@ -153,72 +153,3 @@ def pegar_valor_reembolso(professor):
         return 0
     else:
         return reembolso.valor_reembolso
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------------- Funções do detector de bombas -------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def pegar_dados_evento(dados_detector):
-    lista_id_clientes = list(map(int, dados_detector.getlist('id_grupos[]')))
-    lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
-    cores_escolhids = sample(lista_cores, k=len(lista_id_clientes))
-    atividades = []
-    locacoes = []
-
-    for i, id_cliente in enumerate(lista_id_clientes):
-        ordens = (OrdemDeServico.objects.filter(escala_ceu=True)
-                  .filter(ficha_de_evento__cliente__id=id_cliente)
-                  .filter(check_in__date__gte=dados_detector.get('data_inicio'),
-                          check_in__date__lte=dados_detector.get('data_final'))
-                  )
-
-        for ordem in ordens:
-            if ordem.atividades_ceu:
-                for atividade in ordem.atividades_ceu.values():
-                    atividade_bd = Atividades.objects.get(atividade=atividade['atividade'])
-                    tempo_atividade = datetime.strptime(atividade['data_e_hora'],
-                                                        '%Y-%m-%d %H:%M') + atividade_bd.duracao
-                    atividades.append({
-                        'atividade': atividade['atividade'],
-                        'inicio_atividade': atividade['data_e_hora'],
-                        'fim_atividade': tempo_atividade.strftime('%Y-%m-%d %H:%M'),
-                        'color': cores_escolhids[i],
-                        'grupo': ordem.ficha_de_evento.cliente.nome_fantasia
-                    })
-
-            if ordem.locacao_ceu:
-                for espaco in ordem.locacao_ceu.values():
-                    locacoes.append({
-                        'local': espaco['espaco'],
-                        'check_in': espaco['check_in'],
-                        'check_out': espaco['check_out'],
-                        'color': cores_escolhids[i],
-                        'grupo': ordem.ficha_de_evento.cliente.nome_fantasia
-                    })
-
-    dados_eventos = {'atividades': atividades, 'locacoes': locacoes}
-
-    return dados_eventos
-
-
-def pegar_escalas(dados_eventos):
-    escalados = []
-    n_grupos = list(map(int, dados_eventos.getlist('id_grupos[]')))
-    data_inicio = datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d').date()
-    data_final = datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d').date()
-
-    for id_grupo in n_grupos:
-        dados_professor = []
-        escala = Escala.objects.get(tipo_escala=2, cliente__id=id_grupo,
-                                    check_in_grupo__date__gte=data_inicio,
-                                    check_in_grupo__date__lte=data_final)
-        for id_professor in escala.equipe['professores_escalados']:
-            professor = Professores.objects.get(id=id_professor)
-
-            dados_professor.append({'nome': professor.usuario.get_full_name(), 'id': id_professor})
-
-        escalados.append({'grupo': escala.cliente.nome_fantasia, 'escalados': dados_professor})
-
-    return escalados

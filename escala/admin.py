@@ -5,8 +5,8 @@ from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria
 
 @admin.register(Escala)
 class EscalaAdmin(admin.ModelAdmin):
-    list_display = ('check_in_grupo', 'cliente')
-    date_hierarchy = 'check_in_grupo'
+    list_display = ('data_escala', 'pegar_equipe')
+    list_filter = ('ano', 'mes')
     list_per_page = 15
 
 

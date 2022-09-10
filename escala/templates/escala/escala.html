@@ -9,137 +9,124 @@
     <div class="conteudo-escala">
         <div id="calendar" class="card" style="padding: 10px"></div>
         {% csrf_token %}
-        <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
-
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                var calendarUI = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarUI, {
+                let calendarUI = document.getElementById('calendar');
+                let calendar = new FullCalendar.Calendar(calendarUI, {
 
                     headerToolbar: {
                         left: '',
                         center: 'title',
                     },
-
                     eventOrderStrict: true,
                     locale: 'pt-br',
                     dayMaxEvents: 3,
 
                     {% if edita %}
                         navLinks: true,
-                        navLinkDayClick: function (date) {
-                            window.location.href = `montar_escala/${moment(date).format('yyyy-MM-DD')}`
+                        navLinkDayClick: function (date, jsEvent) {
+                            $("#ModalCadastro").modal('show');
+                            escalados = []
+
+                            $.ajax({
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                type: 'GET',
+                                url: '',
+                                data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
+                                success: function (response) {
+                                    let professores_disponiveis = response['disponiveis']
+                                    let selects_professores = $('.professores-disponiveis')
+                                    let lista_disponiveis = $('.disponiveis')
+
+                                    selects_professores.empty().append(`<option></option>`)
+                                    lista_disponiveis.empty()
+                                    $('#mensagem_erro').empty()
+
+                                    for (let i in professores_disponiveis) {
+                                        lista_disponiveis.append('<li>' + professores_disponiveis[i]['nome'] + '</li>');
+                                        selects_professores.append(`<option value="${professores_disponiveis[i]['id']}"> ${professores_disponiveis[i]['nome']} </option>`);
+                                    }
+
+                                }
+                            });
+
+                            $("#id_data").val(moment(date).format('YYYY-MM-DD'))
                         },
+
                     {% endif %}
 
                     events: [
                         {% for escala in escalas %}
-                            {% if escala.tipo_escala == 1 %}
-                                {% for professor in escala.separar_equipe %}
-                                    {
-                                        title: "{{ forloop.counter }} - {{ professor }}",
-                                        start: "{{ escala.check_in_grupo | date:'Y-m-d' }}",
-
-                                        {% if user_logado == professor %}
-                                            color: '#0740ba',
-                                        {% endif %}
-                                    },
-                                {% endfor %}
-                            {% else %}
+                            {% for professor in escala.separar_equipe %}
                                 {
-                                    title: "{{ escala.cliente }}",
-                                    start: "{{ escala.check_in_grupo | date:'Y-m-d H:i'}}",
-                                    end: "{{ escala.check_out_grupo | date:'Y-m-d H:i'}}",
-                                    color: '#fcc607',
-                                    textColor: 'black',
+                                    title: "{{ forloop.counter }} {{ professor }}",
+                                    start: "{{ escala.data_escala | date:'Y-m-d' }}",
+
+                                    {% if user.get_full_name == professor %}
+                                        color: '#fcc607',
+                                        textColor: 'black'
+                                    {% endif %}
                                 },
-                            {% endif %}
+                            {% endfor %}
                         {% endfor %}
-                    ],
-
-                    eventClick: function (info){
-                        if(info.event.end){
-                            $('.modal-title').text(`Escala para o evento de ${info.event.title}`)
-                            $('.nome_cliente').text(info.event.title)
-                            $('.check_in_cliente').text(moment(info.event.start).format('DD/MM HH:mm'))
-                            $('.check_out_cliente').text(moment(info.event.end).format('DD/MM HH:mm'))
-                            $('#lista_escalados, .lista-atividades, .lista-locacoes').empty()
-
-                            $.ajax({
-                                type: 'POST',
-                                url: '',
-                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                data: {
-                                    'grupo': info.event.title,
-                                    'check_in': moment(info.event.start).format('yyyy-MM-DDTHH:mmz'),
-                                    'check_out': moment(info.event.end).format('yyyy-MM-DDTHH:mmz')},
-                                success: function (response) {
-
-                                    for(let professor in response['escalados']){
-                                        if (professor == 0){
-                                            $('#lista_escalados').append(`<li style="color: #FF8C00">${response['escalados'][professor]}</li>`)
-                                        } else {
-                                            $('#lista_escalados').append(`<li>${response['escalados'][professor]}</li>`)
-                                        }
-                                    }
-
-                                    if (response['atividades'].length !== 0){
-                                        for (let i = 0; i < response['atividades'].length; i++){
-                                            $('.lista-atividades').append(`<li>${response['atividades'][i]}</li>`)
-                                        }
-                                    }
-
-                                    if (response['locacoes'].length !== 0){
-                                        for (let i = 0; i < response['locacoes'].length; i++){
-                                            $('.lista-locacoes').append(`<li>${response['locacoes'][i]}</li>`)
-                                        }
-                                    }
-
-                                }
-                            })
-
-                            $('#EscalaGrupo').modal('show')
-                        }
-                    }
+                    ]
 
                 });
-
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
             });
         </script>
 
-        <div class="modal fade" id="EscalaGrupo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title"></h5>
-                        <button class="btn btn-close" aria-hidden="false" data-dismiss="modal"></button>
+                        <h5 class="modal-title">Cadastro de escala</h5>
+                        <button class="x-fechar-modal" data-dismiss="modal">
+                            <span aria-hidden="false">&times;</span>
+                        </button>
                     </div>
-                    <div class="modal-body">
-                        <p>
-                            Escala para o evento de <strong class="nome_cliente"></strong>, que tem a sua primeira atividade iniciando em
-                            <strong class="check_in_cliente"></strong> e sua úlitma atividade terminando em <strong class="check_out_cliente"></strong>.
-                            E fará as seguintes atividades e/ou locações:
-                        </p>
-                        <div class="listas-atividades-locacoes">
-                            <div class="div-lista-atividades">
-                                <h5 class="titulo-secao">Atividades</h5>
-                                <ul class="lista-atividades"></ul>
+                    <form action="{% url 'escala' %}" method="POST">
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            <div>
+                                <b>Professores disponiveis na data selecionada:</b>
+                                <ul class="disponiveis"></ul>
                             </div>
-                            <div class="div-lista-locacoes">
-                                <h5 class="titulo-secao">Locacoes</h5>
-                                <ul class="lista-locacoes"></ul>
+                            <hr>
+                            <div class="lista-professores">
+                                <div id="mensagem_erro"></div>
+                                <div class="selecao-professores">
+                                    <label for="id_data">Data</label>
+                                    <input type="date" id="id_data" name="data_escala" readonly>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_coordenador">Coordenador</label>
+                                    <select class="professores-disponiveis" name="coordenador" id="id_coordenador" onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_2">Professor 2</label>
+                                    <select class="professores-disponiveis" name="professor_2" id="id_professor_2" onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_3">Professor 3</label>
+                                    <select class="professores-disponiveis" name="professor_3" id="id_professor_3" onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_4">Professor 4</label>
+                                    <select class="professores-disponiveis" name="professor_4" id="id_professor_4" onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_5">Professor 5</label>
+                                    <select class="professores-disponiveis" name="professor_5" id="id_professor_5" onChange="verificarDuplicata(this)"> </select>
+                                </div>
                             </div>
                         </div>
-                        <hr>
-                        <p>
-                            A escala para o evento é a seguinte:
-                        </p>
-                        <ul id="lista_escalados"></ul>
-                        <hr class="if_detector_de_bombas none">
-                        <a class="if_detector_de_bombas none"></a>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Salvar escala</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
@@ -149,5 +136,7 @@
 
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
+    <script src="{% static 'js/script_base.js' %}"></script>
 {% endblock %}
 

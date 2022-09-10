@@ -5,6 +5,10 @@ from email.message import EmailMessage
 from datetime import datetime
 
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 def verificar_grupo(grupos_usuario):
     grupos = []
 

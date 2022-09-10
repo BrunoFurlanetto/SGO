@@ -30,33 +30,28 @@ function verificarProfessor(selecao){
 
 }
 /* Remove professor já escalado no modal do cadastro de escala */
-var removidos = []
-function retirar(selecao) {
-    var valorSelecao = selecao.value;
-    var opcoes = $('.d')[0]
-    var remover = true
+let escalados = []
+function verificarDuplicata(selecao) {
+    let professor_escolhido = selecao.value;
+    let div_mensagem = $('#mensagem_erro')
 
-    for (let i = (1 + removidos.length); i < 5; i++){
-        for (let j = 1; j < opcoes.length + removidos.length; j++){
-            if (valorSelecao == $(".d")[i][j].value){
-
-                if (remover){
-                    removidos.push(valorSelecao)
-                    remover = false
-                }
-
-                $('.d')[i][j].remove()
-                break
-            }
+    if (!escalados.includes(professor_escolhido)){
+        escalados.push(professor_escolhido)
+        div_mensagem.empty()
+    } else {
+        if(div_mensagem.is(':empty')){
+            div_mensagem.prepend(`<p class="alert-warning">Professor já escalado para essa data!</p>`)
         }
-    }
 
+        selecao.value = ''
+    }
 }
+
 /* Da o início a animação na ficha de avaliação */
 function animacao(){
-    var home_section = document.getElementsByClassName('home-section')
-    var formulario = document.getElementsByClassName('conteudo-avaliacao')
-    var conteudo_inicio = document.getElementsByClassName('conteudo-inicio')
+    let home_section = document.getElementsByClassName('home-section')
+    let formulario = document.getElementsByClassName('conteudo-avaliacao')
+    let conteudo_inicio = document.getElementsByClassName('conteudo-inicio')
 
     home_section[0].classList.add('animado')
     formulario[0].classList.remove('hide')

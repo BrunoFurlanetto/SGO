@@ -74,11 +74,3 @@ class ReembolsosProfessores(models.Model):
     valores = models.CharField(max_length=255)
     valor_reembolso = models.FloatField()
     comprovante_reembolso = models.FileField(upload_to=f'comprovantes/{usuario_professor}/%Y/%m')
-
-
-class DetectorDeBombas(models.Model):
-    grupos = models.ManyToManyField('peraltas.ClienteColegio')
-    data_inicio = models.DateField(blank=True)
-    data_final = models.DateField(blank=True)
-    dados_atividades = models.JSONField()  # {'grupo: {'atividade_n: {'atividade: , 'check_in': , 'check_out': , 'professores': []}}}
-    mostrar = models.BooleanField(default=False)

@@ -29,38 +29,38 @@ def escala(request):
     grupos = verificar_grupo(request.user.groups.all())
     user_logado = request.user.get_full_name()
 
+    # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
+    if is_ajax(request):
+        return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
+
     if request.method != 'POST':
         return render(request, 'escala/escala.html', {'user_logado': user_logado,
                                                       'escalas': escalas,
                                                       'ver': ver_icons, 'edita': edita,
                                                       'grupos': grupos})
 
-    # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
-    if is_ajax(request) and request.method == 'POST':
-        atividades_grupo = []
-        locacoes_grupo = []
-        escala_grupo = Escala.objects.get(cliente__nome_fantasia=request.POST.get('grupo'),
-                                          check_in_grupo=request.POST.get('check_in'),
-                                          check_out_grupo=request.POST.get('check_out'))
+    # ------------------------ Savando a nova escalaa -------------------------
+    equipe = {}
+    data_escala = datetime.strptime(request.POST.get('data_escala'), '%Y-%m-%d')
+    for i in range(1, 6):
+        if i == 1:
+            equipe['coordenador'] = int(request.POST.get('coordenador'))
+        elif i > 1 and request.POST.get(f'professor_{i}') != '':
+            equipe[f'professor_{i}'] = request.POST.get(f'professor_{i}')
 
-        ordem_grupo = OrdemDeServico.objects.get(escala_ceu=True,
-                                                 instituicao=request.POST.get('grupo'),
-                                                 check_in_ceu=request.POST.get('check_in'),
-                                                 check_out_ceu=request.POST.get('check_out'))
-
-        if ordem_grupo.atividades_ceu:
-            for atividade in ordem_grupo.atividades_ceu:
-
-                if ordem_grupo.atividades_ceu[atividade]['atividade'] not in atividades_grupo:
-                    atividades_grupo.append(ordem_grupo.atividades_ceu[atividade]['atividade'])
-        else:
-            for espaco in ordem_grupo.locacao_ceu:
-
-                if ordem_grupo.locacao_ceu[espaco]['espaco'] not in locacoes_grupo:
-                    locacoes_grupo.append(ordem_grupo.locacao_ceu[espaco]['espaco'])
-
-        return JsonResponse({'escalados': escala_grupo.separar_equipe(), 'atividades': atividades_grupo,
-                             'locacoes': locacoes_grupo})
+    try:
+        nova_escala = Escala.objects.create(
+            data_escala=data_escala,
+            equipe=equipe,
+            mes=data_escala.month,
+            ano=data_escala.year
+        )
+        nova_escala.save()
+    except Exception as e:
+        messages.error(f'Houve um erro inesperado: {e}')
+        return redirect('escala')
+    else:
+        return redirect('escala')
 
 
 @login_required(login_url='login')

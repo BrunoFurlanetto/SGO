@@ -8,28 +8,46 @@ from peraltas.models import ClienteColegio
 
 
 class Escala(models.Model):
-    tipo_escala_choice = (
-        (0, ''),
-        (1, 'Público'),
-        (2, 'Grupo'),
-    )
+    meses = {
+        (1, 'Janeiro'),
+        (2, 'Fevereiro'),
+        (3, 'Março'),
+        (4, 'Abril'),
+        (5, 'Maio'),
+        (6, 'Junho'),
+        (7, 'Julho'),
+        (8, 'Agosto'),
+        (9, 'Setembro'),
+        (10, 'Outubro'),
+        (11, 'Novembro'),
+        (12, 'Dezembro'),
+    }
 
-    tipo_escala = models.IntegerField(choices=tipo_escala_choice, default=0)
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
     equipe = models.JSONField(blank=True, null=True)  # {'professores': [id_professores]}
-    check_in_grupo = models.DateTimeField(blank=True)
-    check_out_grupo = models.DateTimeField(blank=True)
+    data_escala = models.DateField(null=True)
+    mes = models.IntegerField(choices=meses, default=datetime.now().month + 1)
+    ano = models.IntegerField(default=datetime.now().year)
 
     def __str__(self):
-        return f'Escala de(o) {self.cliente}'
+        return f'Escala do dia {self.data_escala}'
 
     def separar_equipe(self):
         professores = []
-        for id_professor in self.equipe['professores_escalados']:
-            professor = Professores.objects.get(id=id_professor)
+
+        for valor in self.equipe.values():
+            professor = Professores.objects.get(id=valor)
             professores.append(professor.usuario.get_full_name())
 
         return professores
+
+    def pegar_equipe(self):
+        lista_equipe = []
+
+        for valor in self.equipe.values():
+            professor = Professores.objects.get(id=valor)
+            lista_equipe.append(professor.usuario.get_full_name())
+
+        return ', '.join(lista_equipe)
 
 
 class Disponibilidade(models.Model):
