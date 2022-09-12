@@ -215,8 +215,8 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
             `
                 <label>${dados_eventos['atividades'][i]['atividade']['nome']} - ${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividades'][i]['atividade']['qtd']} participantes (${dados_eventos['atividades'][i]['grupo']['nome']})</label>
                 <input type="hidden" name="${nome_input_atividade}" value="${dados_eventos['atividades'][i]['atividade']['id']}">
-                <input type="hidden" name="${nome_input_data}" value="${dados_eventos['atividades'][i]['inicio_atividade']}">
-                <select name="${nome_id_select}" id="${nome_id_select}" multiple></select>
+                <input type="hidden" name="${nome_input_data}" id="${nome_input_data}" class="data_e_hora" value="${dados_eventos['atividades'][i]['inicio_atividade']}">
+                <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
             `
         )
 
@@ -272,7 +272,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
                 <input type="hidden" name="${nome_input_local}" value="${dados_eventos['locacoes'][i]['local']['id']}">
                 <input type="hidden" name="${nome_input_check_in}" value="${dados_eventos['locacoes'][i]['check_in']}">
                 <input type="hidden" name="${nome_input_check_out}" value="${dados_eventos['locacoes'][i]['check_out']}">
-                <select name="${nome_id_select}" id="${nome_id_select}" multiple></select>
+                <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao()" multiple></select>
             `
         )
 
@@ -410,4 +410,30 @@ function excluir_detector(selecao){
 function edtar_detector(selecao){
     const id_detector = parseInt(selecao.id.split('_')[2])
     window.location.href = `/detector-de-bombas/${id_detector}`
+}
+
+function validacao(selecao){
+    const data_e_hora_atividade = moment($(`#${selecao.id.replace('professores', 'data_e_hora')}`).val()).format('Y-MM-DD HH:mm')
+    const inputs_data_e_hora = $('.data_e_hora')
+
+    for (let i = 0; i < inputs_data_e_hora.length; i++){
+        const data_teste = moment(inputs_data_e_hora[i].value).format('Y-MM-DD HH:mm')
+        const data_teste_somado_uma_hora = moment(inputs_data_e_hora[i].value).add(1, 'hours').format('Y-MM-DD HH:mm')
+
+        if (selecao.id.replace('professores', 'data_e_hora') !== inputs_data_e_hora[i].id){
+            if (data_e_hora_atividade >= data_teste && data_e_hora_atividade < data_teste_somado_uma_hora){
+                const professores_selecionados =  $(`#${inputs_data_e_hora[i].id.replace('data_e_hora', 'professores')}`).val()
+                let professor_selecionado = $(`#${selecao.id}`).val()
+
+                for (let j = 0; j < professores_selecionados.length; j++){
+                    if (professor_selecionado.includes(professores_selecionados[j])){
+                        professor_selecionado.splice(professor_selecionado.indexOf(professor_selecionado[j]), 1)
+                        $(`#${selecao.id}`).val(professor_selecionado).trigger('change')
+                    }
+                }
+            }
+        }
+
+    }
+
 }
