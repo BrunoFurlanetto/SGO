@@ -714,3 +714,17 @@
     background: transparent;
     margin: 0;
 }
+.btn-observacoes{
+    border: 1px solid;
+    width: auto;
+    height: 40px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+#area_observacoes{
+    resize: none;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+}

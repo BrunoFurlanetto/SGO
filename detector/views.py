@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -36,14 +36,32 @@ def detector_de_bombas(request, id_detector=None):
                                                                         })
 
     if is_ajax(request):
-
         if request.method == 'POST':
+            if request.POST.get('data'):
+                detector_selecionado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
+                print(request.POST.get('data'))
+                return HttpResponse(request.POST.get('data') in detector_selecionado.observacoes)
+
+            if request.POST.get('id_detector') and request.POST.get('observacoes'):
+                try:
+                    detector_selecionado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
+                    detector_selecionado.observacoes += f"\n{request.POST.get('data_observacao')}: " \
+                                                        f"{request.POST.get('observacoes')}"
+                    detector_selecionado.save()
+                except Exception as e:
+                    return JsonResponse({'tipo': 'error',
+                                         'msg': f'Houve um erro inesperado: {e}. Tente novamente mais tarde'})
+                else:
+                    return JsonResponse({'tipo': 'seccess',
+                                         'msg': 'Observações salvas com sucesso'})
+
             atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'))
             escalas = pegar_escalas(request.POST)
             return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
 
-        detector_selecionado = DetectorDeBombas.objects.get(id=int(request.GET.get('id_detector')))
-        return JsonResponse(tratar_dados_detector_selecionado(detector_selecionado))
+        if request.GET.get('id_detector'):
+            detector_selecionado = DetectorDeBombas.objects.get(id=int(request.GET.get('id_detector')))
+            return JsonResponse(tratar_dados_detector_selecionado(detector_selecionado))
 
     if request.method != 'POST':
         if not id_detector:

@@ -167,21 +167,49 @@
                     </button>
                 </div>
                 <form action="{% url 'detector' %}" method="POST">
-                    <div class="modal-body">
-                        <p>Você tem certeza que deseja excluir o detector em questão?</p>
-                        {% csrf_token %}
-                        <input type="hidden" id="id_detector_excluir" name="detector_excluir">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Sim</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Fechar">Não</button>
-                    </div>
+                    <fieldset id="form_excluir_detector">
+                        <div class="modal-body">
+                            <p>Você tem certeza que deseja excluir o detector em questão?</p>
+                            {% csrf_token %}
+                            <input type="hidden" id="id_detector_excluir" name="detector_excluir">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Sim</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Fechar">Não</button>
+                        </div>
+                    </fieldset>
                 </form>
             </div>
         </div>
     </div>
 
-    <script src="{% static 'fullcalendar/lib/main.js' %}"></script><!-- Script para o calendário da escala -->
+    <div class="modal fade" id="modal-adicionar-obs" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="TituloModalCentralizado"></h5>
+                    <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Fechar">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="form_observacoes_dia" action="{% url 'detector' %}"  method="POST">
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <input type="hidden" name="id_detector" id="id_detector_modal">
+                            <input type="hidden" name="data_observacao" id="id_data_observacao">
+                            <textarea name="observacoes" id="area_observacoes" rows="10"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
     <script src="{% static 'js/script_detector_de_bombas.js' %}"></script><!-- Script do calendário -->
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>

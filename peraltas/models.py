@@ -17,6 +17,7 @@ class NivelMonitoria(models.Model):
 class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
+    cidade_horigem = models.CharField(max_length=255, verbose_name='Moradia', blank=True)
     nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)

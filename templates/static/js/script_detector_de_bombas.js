@@ -109,6 +109,35 @@ function detector_de_bombas(eventos) {
     let intervalo = data_2.diff(data_1);
     let dias_evento = moment.duration(intervalo).asDays() + 1;
 
+    if (!isNaN(parseInt(window.location.href.split('/')[4]))){
+        const hoje = new Date(Date.now())
+        const id_detector = parseInt(window.location.href.split('/')[4])
+
+        if (hoje.getHours() >= 22 || hoje.getHours() <= 2){
+            if(hoje.getHours() >= 0 && hoje.getHours() <= 2){
+                hoje.setDate(hoje.getDate() - 1)
+            }
+
+            $('#id_detector_modal').val(id_detector)
+            $('#id_data_observacao').val(hoje.toLocaleDateString())
+            $('#modal-adicionar-obs .modal-title').text(`Observações do dia: ${hoje.toLocaleDateString()}`)
+
+            $.ajax({
+                type: 'POST',
+                url: '',
+                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                data: {'data': hoje.toLocaleDateString(), 'id_detector': id_detector},
+                success: function (response) {
+                    console.log(response)
+                    if (response === 'False') {
+                        $('.grupos').append(`<button type="button" class="btn btn-primary btn-observacoes" data-toggle="modal" data-target="#modal-adicionar-obs">Observações do dia ${hoje.getDate().toLocaleString()}<button`)
+                    }
+                }
+            })
+        }
+
+    }
+
     const detector = new FullCalendar.Calendar(calendarUI, {
         headerToolbar: {
             left: '',
@@ -437,3 +466,22 @@ function validacao(selecao){
     }
 
 }
+
+$('document').ready(function() {
+    jQuery('#form_observacoes_dia').submit(function () {
+        let dados = jQuery(this).serialize();
+        let url = $(this).attr('action');
+        $.ajax({
+            url: url,
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: dados,
+            success: function(response) {
+                $('#modal-adicionar-obs').modal('hide')
+                $('.btn-observacoes').remove()
+                console.log(response)
+            }
+        })
+        return false
+    })
+})

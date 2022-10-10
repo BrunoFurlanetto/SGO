@@ -8,6 +8,7 @@ class DetectorDeBombas(models.Model):
     data_inicio = models.DateField(blank=True)
     data_final = models.DateField(blank=True)
     dados_atividades = models.JSONField()
+    observacoes = models.TextField(blank=True)
 
     def mostrar_grupos(self):
         lista_grupos = []
