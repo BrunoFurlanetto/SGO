@@ -39,6 +39,7 @@ function pegar_dados_eventos(editando=false) {
         success: function (response) {
             let eventos = []
             let classes_select_selecionados = $('.select2-selection__choice')
+            let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
 
             if (response['atividades_eventos']['atividades'].length > 0) {
                 for (let i = 0; i < response['atividades_eventos']['atividades'].length; i++) {
@@ -74,8 +75,15 @@ function pegar_dados_eventos(editando=false) {
             if (editando){
                 mostrar_por_atividade(response['atividades_eventos'], response['escalas'], editando=true, response['atividades_eventos']['professores'])
             } else {
-                console.log(response['atividades_eventos'])
                 mostrar_por_atividade(response['atividades_eventos'], response['escalas'])
+            }
+
+            for (let i = 0; i < colunas_agenda.length; i++){
+                try {
+                    if (response['escalas'][response['escalas'].length - 1]['datas_sem'].includes(colunas_agenda[i].attributes[2].value)){
+                        colunas_agenda[i].classList.add('sem-monitor')
+                    }
+                }catch (e){}
             }
 
         }

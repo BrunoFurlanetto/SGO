@@ -67,13 +67,34 @@ def pegar_dados_evento(dados_detector, editando):
             if 'professor' in key:
                 professores_atividades[key] = value
 
-        dados_eventos = {'atividades': atividades, 'locacoes': locacoes, 'professores': professores_atividades}
+        dados_eventos = {
+            'atividades': atividades,
+            'locacoes': locacoes,
+            'professores': professores_atividades
+        }
 
         return dados_eventos
 
-    dados_eventos = {'atividades': atividades, 'locacoes': locacoes}
+    dados_eventos = {
+        'atividades': atividades,
+        'locacoes': locacoes
+    }
 
     return dados_eventos
+
+
+def veririficar_escalas(data_inicio, data_final):
+    datas_sem = []
+    dias_evento = data_final.day - data_inicio.day
+
+    for dia in range(0, dias_evento + 1):
+        data_teste = data_inicio + timedelta(days=dia)
+        escala = Escala.objects.filter(data_escala=data_teste)
+
+        if len(escala) == 0:
+            datas_sem.append(data_teste.strftime('%Y-%m-%d'))
+
+    return datas_sem
 
 
 def juntar_dados_detector(dados):
@@ -106,6 +127,10 @@ def pegar_escalas(dados_eventos):
     escalados = []
     data_inicio = datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d').date()
     data_final = datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d').date()
+    datas_sem_professor = veririficar_escalas(
+        datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d'),
+        datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d')
+    )
     data = data_inicio
 
     while data <= data_final:
@@ -122,6 +147,8 @@ def pegar_escalas(dados_eventos):
         escalados.append({'data': data, 'escalados': professores_escalados})
 
         data += timedelta(days=1)
+
+    escalados.append({'datas_sem': datas_sem_professor})
 
     return escalados
 
