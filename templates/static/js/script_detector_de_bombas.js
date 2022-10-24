@@ -8,6 +8,44 @@ function selecionar_tudo() {
     }
 }
 
+function mostrar_atividade_local_novo(switchButton){
+    const id_switchButton = switchButton.id
+
+    if (id_switchButton === 'id_adicionar_locacao'){
+        if ($(`#${id_switchButton}`).prop('checked')) {
+            $('#dados_locacao_novo').removeClass('none')
+            $('#div_switch_add_atividade, #dados_locacao_novo .div-titulo-btn .btn').addClass('none')
+            $('#id_adicionar_atividade').prop('checked', false)
+        } else {
+            $('#dados_locacao_novo').addClass('none')
+            $('#div_switch_add_atividade, #dados_locacao_novo .div-titulo-btn .btn').removeClass('none')
+        }
+    } else {
+        if ($(`#${id_switchButton}`).prop('checked')) {
+            $('#dados_nova_atividade').removeClass('none')
+            $('#dados_locacao_novo').css({'margin-top': '40px'})
+            $('#div_switch_add_locacao, #dados_nova_atividade .div-titulo-btn .btn').addClass('none')
+            $('#id_adicionar_locacao').prop('checked', false)
+        } else {
+            $('#dados_nova_atividade').addClass('none')
+            $('#dados_locacao_novo').css({'margin-top': '0px'})
+            $('#div_switch_add_locacao, #dados_nova_atividade .div-titulo-btn .btn').removeClass('none')
+        }
+    }
+}
+
+function excluir_atividade(btn){
+    const id_btn = btn.id
+
+    if (id_btn === 'btn_excluir_atv'){
+        $('#atividade_excluida').val('true')
+        $('#inputs_atividade_nova').addClass('none')
+    } else if (id_btn === 'btn_excluir_loc'){
+        $('#locacao_excluida').val('true')
+        $('#inputs_locacao_nova').addClass('none')
+    }
+}
+
 function pegar_dados_eventos(editando=false) {
     let id_detector
 
@@ -15,7 +53,6 @@ function pegar_dados_eventos(editando=false) {
         if ($('.alert-warning').length === 0) {
             $('.grupos').prepend('<p style="margin-left: 1%; width: 98%" class="alert-warning">Nenhum grupo selecionado</p>')
         }
-
         return
     } else {
         $('.alert-warning').remove()
@@ -110,6 +147,28 @@ function pegar_dados_locacoes(dados_locacao) {
     }
 }
 
+function pegar_select_atividade_locacao(atividade, hora_atividade) {
+    const labels = $(`#${moment(hora_atividade).format('yyyy-MM-DD')} label`)
+
+    for (let i = 0; i < labels.length; i++){
+        if (labels[i].textContent.includes(atividade) && labels[i].textContent.includes(moment(hora_atividade).format('HH:mm'))){
+            const label = labels[i]
+            let elemento = label
+            $('#atividade_locacao_alterada').val(label.nextElementSibling.name)
+
+            while (true){
+                elemento = elemento.nextElementSibling
+
+                if (elemento.tagName === 'SELECT'){
+                    $('#id_professores_atividade_nova').empty().append($(`#${elemento.id} option`))
+                    break
+                }
+            }
+
+        }
+    }
+}
+
 function detector_de_bombas(eventos) {
     const calendarUI = document.getElementById('detector_de_bombas');
     const data_1 = moment($('#id_data_inicio').val())
@@ -165,6 +224,47 @@ function detector_de_bombas(eventos) {
         slotDuration: '00:15:00',
         slotEventOverlap: false,
         events: eventos,
+
+        eventClick: function (info){
+            if (!isNaN(parseInt(window.location.href.split('/')[4]))){
+                const atividade_local = info.event.title
+                const start = info.event.start
+                const end = info.event.end
+                console.log(window.location.href.split('/')[4])
+                $('#id_atividade_atual, #id_atividade_nova, #id_data_hora_atividade_atual, #id_data_hora_atividade_nova, #id_observacoes_alteracao').val('')
+                $('#id_espaco_atual, #id_espaco_novo, #id_check_out_atual, #id_check_out_novo, #atividade_locacao_alterada').val('')
+                $('#id_adicionar_atividade, #id_adicionar_locacao').prop('checked', false)
+                $('#div_switch_add_atividade, #div_switch_add_locacao').removeClass('none')
+                $('#alerta_dados_iguais').remove()
+                $('#atividade_excluida, #locacao_excluida').val('false')
+                $('#id_professores_atividade_nova').select2({dropdownParent: $("#modal_trocar_atividade")})
+                $('#form_alteração_de_atividade #id_detector').val(window.location.href.split('/')[4])
+                pegar_select_atividade_locacao(atividade_local, start)
+
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'atividade_local': atividade_local},
+                    success: function (response) {
+                        if (response['id_atividade']){
+                            $('#dados_locacao_atual, #dados_locacao_novo').addClass('none')
+                            $('#dados_atividade_atual, #dados_nova_atividade').removeClass('none')
+                            $('#id_atividade_atual, #id_atividade_nova').val(response['id_atividade'])
+                            $('#id_data_hora_atividade_atual, #id_data_hora_atividade_nova').val(moment(start).format('yyyy-MM-DDTHH:mm'))
+                        } else {
+                            $('#dados_locacao_atual, #dados_locacao_novo').removeClass('none')
+                            $('#dados_atividade_atual, #dados_nova_atividade').addClass('none')
+                            $('#id_espaco_atual, #id_espaco_novo').val(response['id_local'])
+                            $('#id_check_in_atual, #id_check_in_novo').val(moment(start).format('yyyy-MM-DDTHH:mm'))
+                            $('#id_check_out_atual, #id_check_out_novo').val(moment(end).format('yyyy-MM-DDTHH:mm'))
+                        }
+                    }
+                })
+
+                $('#modal_trocar_atividade').modal('show')
+            }
+        }
 
     })
 
@@ -246,6 +346,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
 
         let nome_id_select = `professores_atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
         let nome_input_data = `data_e_hora_atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
+        let nome_input_qtd = `qtd_atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
         let nome_input_atividade = `atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
 
         $(`#${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-DD')} .atividades`).append(
@@ -253,6 +354,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
                 <label>${dados_eventos['atividades'][i]['atividade']['nome']} - ${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividades'][i]['atividade']['qtd']} participantes (${dados_eventos['atividades'][i]['grupo']['nome']})</label>
                 <input type="hidden" name="${nome_input_atividade}" value="${dados_eventos['atividades'][i]['atividade']['id']}">
                 <input type="hidden" name="${nome_input_data}" id="${nome_input_data}" class="data_e_hora" value="${dados_eventos['atividades'][i]['inicio_atividade']}">
+                <input type="hidden" name="${nome_input_qtd}" id="${nome_input_qtd}" class="qtd" value="${dados_eventos['atividades'][i]['atividade']['qtd']}">
                 <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
             `
         )
@@ -487,9 +589,48 @@ $('document').ready(function() {
             success: function(response) {
                 $('#modal-adicionar-obs').modal('hide')
                 $('.btn-observacoes').remove()
-                console.log(response)
             }
         })
         return false
     })
 })
+
+$('#btn_salvar_alteracao').on('click', function(e) {
+    const form = $('#form_alteração_de_atividade');
+
+    // validação para o caso de ser atividades sendo alteradas e os dados forem iguais
+    const atividade_atual = $('#id_atividade_atual').val()
+    const inicio_atividade_atual = $('#id_data_hora_atividade_atual').val()
+    const nova_atividade = $('#id_atividade_nova').val()
+    const inicio_atividade_nova = $('#id_data_hora_atividade_nova').val()
+
+    if (atividade_atual !== '' && $('#atividade_excluida').val() === 'false') {
+        if (atividade_atual === nova_atividade && inicio_atividade_atual === inicio_atividade_nova) {
+            $('#alerta_dados_iguais').remove()
+            $('#dados_nova_atividade').prepend('<p id="alerta_dados_iguais" class="alert-warning">Dados da nova atividade igual da atual!</p>')
+            e.preventDefault()
+            return false
+        }
+    }
+
+    // Validação para o caso de dados de locações repetidos
+    const locacao_atual = $('#id_espaco_atual').val()
+    const check_in_atual = $('#id_check_in_atual').val()
+    const check_out_atual = $('#id_check_out_atual').val()
+    const locacao_nova = $('#id_espaco_novo').val()
+    const check_in_novo = $('#id_check_in_novo').val()
+    const check_out_novo = $('#id_check_out_novo').val()
+
+    if (locacao_atual !== '' && $('#locacao_excluida').val() === 'false') {
+        if (locacao_atual === locacao_nova && check_in_atual === check_in_novo && check_out_atual === check_out_novo) {
+            $('#alerta_dados_iguais').remove()
+            $('#dados_locacao_novo').prepend('<p id="alerta_dados_iguais" class="alert-warning">Dados da nova locacação igual da atual!</p>')
+            e.preventDefault()
+            return false
+        }
+    }
+
+    $('body').css({'cursor': 'wait'})
+    $('.alert-warning').remove()
+    $(form).submit()
+});

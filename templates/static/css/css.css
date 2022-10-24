@@ -583,7 +583,8 @@
     margin: auto auto 5%;
     justify-content: center;
 }
-.conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select{
+.conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
+#modal_trocar_atividade select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -591,7 +592,13 @@
     padding-left: 12px;
     height: 38px;
 }
-.conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input{
+#modal_trocar_atividade select[readonly] {
+  background: #eee;
+  pointer-events: none;
+  touch-action: none;
+}
+.conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input,
+#modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local]{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -599,6 +606,16 @@
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+#modal_trocar_atividade #id_observacoes_alteracao{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
 }
 .listas-atividades-locacoes{
     display: flex;
@@ -730,4 +747,20 @@
 }
 .sem-monitor{
     background: #f5dcdd;
+}
+.div-titulo-btn{
+    display: flex;
+    justify-content: space-between;
+}
+.div-titulo-btn .btn{
+    margin-top: -12px;
+    font-size: 13px;
+}
+#professores_atividade{
+    display: flex;
+    flex-direction: column;
+}
+#modal_trocar_atividade .select2-dropdown{
+    position: fixed;
+    left: 225px;
 }

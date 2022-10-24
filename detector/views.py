@@ -6,8 +6,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from ceu.models import Professores
-from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, tratar_dados_detector_selecionado
+from ceu.models import Professores, Atividades, Locaveis
+from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, \
+    tratar_dados_detector_selecionado, salvar_alteracoes_de_atividade_locacao
 from detector.models import DetectorDeBombas
 from ordemDeServico.models import OrdemDeServico
 from projetoCEU.utils import verificar_grupo, is_ajax, email_error
@@ -18,6 +19,8 @@ def detector_de_bombas(request, id_detector=None):
     grupos = verificar_grupo(request.user.groups.all())
     professores = Professores.objects.all()
     detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__lte=datetime.now())
+    atividades = Atividades.objects.all()
+    espacos = Locaveis.objects.all()
 
     if request.method == 'GET':
         if request.GET.get('data_inicio'):
@@ -55,6 +58,15 @@ def detector_de_bombas(request, id_detector=None):
                     return JsonResponse({'tipo': 'seccess',
                                          'msg': 'Observações salvas com sucesso'})
 
+            if request.POST.get('atividade_local'):
+                try:
+                    atividade = Atividades.objects.get(atividade=request.POST.get('atividade_local'))
+                except Atividades.DoesNotExist:
+                    espaco = Locaveis.objects.get(local__estrutura=request.POST.get('atividade_local'))
+                    return JsonResponse({'id_local': espaco.id})
+                else:
+                    return JsonResponse({'id_atividade': atividade.id})
+
             atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'))
             escalas = pegar_escalas(request.POST)
             return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
@@ -77,6 +89,8 @@ def detector_de_bombas(request, id_detector=None):
                                                                     'id_detector': detector_editando.id,
                                                                     'data_inicio': data_inicio,
                                                                     'data_final': data_final,
+                                                                    'atividades': atividades,
+                                                                    'espacos': espacos,
                                                                     'eventos': detector_editando.grupos.all()})
 
     if request.POST.get('detector_excluir'):
@@ -90,6 +104,11 @@ def detector_de_bombas(request, id_detector=None):
         else:
             messages.success(request, 'Detector de bombas, excluído com sucesso!!')
             return redirect('detector')
+
+    if request.POST.get('observacoes_da_alteracao'):
+        salvar_alteracoes_de_atividade_locacao(request.POST)
+
+        return redirect('detector')
 
     try:
         data_inicio = datetime.strptime(request.POST.get('inicio'), '%Y-%m-%d')
@@ -109,7 +128,6 @@ def detector_de_bombas(request, id_detector=None):
             detector_editado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
             detector_editado.dados_atividades = dados_atividades
             detector_editado.save()
-
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, f'Houve um erro inesperado: {e}')

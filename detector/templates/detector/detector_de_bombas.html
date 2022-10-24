@@ -209,9 +209,133 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modal_trocar_atividade" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="TituloModalCentralizado">Alteração de atividade</h5>
+                    <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Fechar">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="form_alteração_de_atividade" action="{% url 'detector' %}"  method="POST">
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div id="dados_atividade_atual">
+                                <h5 class="titulo-secao">Dados atividade atual</h5>
+                                <label for="id_atividade_atual">Atividade</label>
+                                <select name="altividade_atual" id="id_atividade_atual" readonly="readonly">
+                                    <option></option>
+                                    {% for atividade in atividades %}
+                                        <option value="{{ atividade.id }}">{{ atividade.atividade }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div style="display: flex; flex-direction: column">
+                                    <label for="id_data_hora_atividade_atual">Inicío da atividade</label>
+                                    <input type="datetime-local" name="data_hora_atividade_atual" id="id_data_hora_atividade_atual" style="width: 50%" readonly>
+                                </div>
+                            </div>
+                            <div id="dados_locacao_atual">
+                                <h5 class="titulo-secao">Dados locação atual</h5>
+                                <label for="id_espaco_atual">Espaço</label>
+                                <select name="espaco_atual" id="id_espaco_atual" readonly="readonly">
+                                    <option></option>
+                                    {% for espaco in espacos %}
+                                        <option value="{{ espaco.id }}">{{ espaco.local }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div id="check_in_check_out_atual" class="row">
+                                    <div id="div_check_in_atual" style="width: 50%">
+                                        <label for="id_check_in_atual">Check in</label>
+                                        <input type="datetime-local" name="check_in_atual" id="id_check_in_atual" readonly>
+                                    </div>
+                                    <div id="div_check_out_atual" style="width: 50%">
+                                        <label for="id_check_out_atual">Check out</label>
+                                        <input type="datetime-local" name="check_out_atual" id="id_check_out_atual" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="dados_nova_atividade">
+                                <div id="inputs_atividade_nova">
+                                    <div class="div-titulo-btn">
+                                        <h5 class="titulo-secao">Dados da nova atividade</h5>
+                                        <button type="button" class="btn btn-close" name="btn_excluir_atv" id="btn_excluir_atv" onclick="excluir_atividade(this)"></button>
+                                    </div>
+                                    <label for="id_atividade_nova">Atividade</label>
+                                    <select name="altividade_nova" id="id_atividade_nova">
+                                        <option></option>
+                                        {% for atividade in atividades %}
+                                            <option value="{{ atividade.id }}">{{ atividade.atividade }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div style="display: flex; flex-direction: column">
+                                        <label for="id_data_hora_atividade_nova">Inicío da atividade</label>
+                                        <input type="datetime-local" name="data_hora_atividade_nova" id="id_data_hora_atividade_nova" style="width: 50%">
+                                    </div>
+                                </div>
+                                <div id="div_switch_add_locacao" class="form-check form-switch mt-2 mb-3">
+                                    <input class="form-check-input" type="checkbox" id="id_adicionar_locacao" onclick="mostrar_atividade_local_novo(this)">
+                                    <label class="form-check-label" for="id_adicionar_locacao">Adicionar locação</label>
+                                </div>
+                            </div>
+                            <div id="dados_locacao_novo">
+                                <div id="inputs_locacao_nova">
+                                    <div class="div-titulo-btn">
+                                        <h5 class="titulo-secao">Dados da nova locação</h5>
+                                        <button type="button" class="btn btn-close" name="btn_excluir_loc" id="btn_excluir_loc" onclick="excluir_atividade(this)"></button>
+                                    </div>
+                                    <label for="id_espaco_novo">Espaço</label>
+                                    <select name="espaco_novo" id="id_espaco_novo">
+                                        <option></option>
+                                        {% for espaco in espacos %}
+                                            <option value="{{ espaco.id }}">{{ espaco.local }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div id="check_in_check_out_novo" class="row">
+                                        <div id="div_check_in_novo" style="width: 50%">
+                                            <label for="id_check_in_novo">Check in</label>
+                                            <input type="datetime-local" name="check_in_novo" id="id_check_in_novo">
+                                        </div>
+                                        <div id="div_check_out_novo" style="width: 50%">
+                                            <label for="id_check_out_novo">Check out</label>
+                                            <input type="datetime-local" name="check_out_novo" id="id_check_out_novo">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="div_switch_add_atividade" class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="id_adicionar_atividade" onclick="mostrar_atividade_local_novo(this)">
+                                    <label class="form-check-label" for="id_adicionar_atividade">Adicionar atividade</label>
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="professores_atividade">
+                                <label for="id_professores_atividade_nova">Professor(es) escalado(s)</label>
+                                <select name="professores_atividade_nova" id="id_professores_atividade_nova" multiple></select>
+                            </div>
+                            <hr>
+                            <label for="id_observacoes_alteracao">Motivo das alterações</label>
+                            <textarea name="observacoes_da_alteracao" id="id_observacoes_alteracao" rows="10" required></textarea>
+                            <input type="hidden" name="atividade_excluida" id="atividade_excluida" value="false">
+                            <input type="hidden" name="locacao_excluida" id="locacao_excluida" value="false">
+                            <input type="hidden" name="atividade_locacao_alterada" id="atividade_locacao_alterada">
+                            <input type="hidden" name="id_detector" id="id_detector">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" id="btn_salvar_alteracao" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
     <script src="{% static 'js/script_detector_de_bombas.js' %}"></script><!-- Script do calendário -->
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.js" integrity="sha256-xLhce0FUawd11QSwrvXSwST0oHhOolNoH9cUXAcsIAg=" crossorigin="anonymous"></script>
+
 {% endblock %}
