@@ -52,7 +52,9 @@ def pegar_dados_evento(dados_detector, editando):
                         local_bd = Locaveis.objects.get(local__estrutura=espaco['espaco'])
 
                         locacoes.append({
-                            'local': {'id': local_bd.id, 'nome': espaco['espaco']},
+                            'local': {'id': local_bd.id,
+                                      'nome': espaco['espaco'],
+                                      'qtd': espaco['participantes']},
                             'check_in': espaco['check_in'],
                             'check_out': espaco['check_out'],
                             'color': cores_escolhidas[i],
@@ -68,13 +70,67 @@ def pegar_dados_evento(dados_detector, editando):
         return dados_eventos
     else:
         detector = DetectorDeBombas.objects.get(id=int(dados_detector.get('id_detector')))
+        dados_atividades = detector.dados_atividades
         professores_atividades = {}
 
-        for grupo_n, id_grupo in enumerate(detector.grupos.all(), start=1):
-            try:
-                ...
-            except:
-                ...
+        for grupo_n, grupo in enumerate(detector.grupos.all(), start=1):
+            atividade_i = 1
+            local_i = 1
+
+            while True:
+                try:
+                    id_atividade = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['id_atividade']
+                except KeyError:
+                    id_atividade = None
+
+                try:
+                    id_local = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['id_espaco']
+                except KeyError:
+                    id_local = None
+
+                if id_atividade is None and id_local is None:
+                    break
+
+                if id_atividade:
+                    atividade = Atividades.objects.get(id=id_atividade)
+                    cliente = ClienteColegio.objects.get(id=grupo.id)
+                    qtd = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['participantes']
+                    atividades.append({
+                        'atividade': {'id': id_atividade,
+                                      'nome': atividade.atividade,
+                                      'qtd': qtd},
+                        'inicio_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['inicio'],
+                        'fim_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['fim'],
+                        'color': cores_escolhidas[grupo_n - 1],
+                        'grupo': {'id': grupo.id,
+                                  'nome': cliente.nome_fantasia}
+                    })
+
+                    professores_atividades[
+                        f'professores_atividade_{atividade_i}_grupo_{grupo_n}'
+                    ] = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['professores']
+
+                    atividade_i += 1
+
+                if id_local:
+                    espaco = Locaveis.objects.get(id=id_local)
+                    cliente = ClienteColegio.objects.get(id=grupo.id)
+                    locacoes.append({
+                        'local': {'id': id_local,
+                                  'nome': espaco.local.estrutura,
+                                  'qtd': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['participantes']},
+                        'check_in': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_in'],
+                        'check_out': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_out'],
+                        'color': cores_escolhidas[grupo_n - 1],
+                        'grupo': {'id': grupo.id,
+                                  'nome': cliente.nome_fantasia}
+                    })
+
+                    professores_atividades[
+                        f'professores_locacao_{local_i}_grupo_{grupo_n}'
+                    ] = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['professores']
+
+                    local_i += 1
 
         dados_eventos = {
             'atividades': atividades,
@@ -83,8 +139,6 @@ def pegar_dados_evento(dados_detector, editando):
         }
 
         return dados_eventos
-
-
 
 
 def veririficar_escalas(data_inicio, data_final):
@@ -144,6 +198,7 @@ def juntar_dados_detector(dados):
                     'id_espaco': int(dados.get(chave)),
                     'check_in': dados.get(f'check_in_{chave}'),
                     'check_out': dados.get(f'check_out_{chave}'),
+                    'participantes': dados.get(f'qtd_{chave}'),
                     'professores': lista_professores[0] if len(lista_professores) == 1 else lista_professores
                 }
 
@@ -212,17 +267,7 @@ def tratar_dados_detector_selecionado(detector_selecionado):
             if id_atividade:
                 atividade_bd = Atividades.objects.get(id=id_atividade)
                 lista_professores = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['professores']
-                professores = []
-
-                try:
-                    len(lista_professores)
-                except TypeError:
-                    professor = Professores.objects.get(id=lista_professores)
-                    professores = [professor.usuario.get_full_name()]
-                else:
-                    for id_professor in lista_professores:
-                        professor = Professores.objects.get(id=id_professor)
-                        professores.append(professor.usuario.get_full_name())
+                professores = retornar_nome_de_professores(lista_professores)
 
                 atividades.append({
                     'title': atividade_bd.atividade,
@@ -235,17 +280,7 @@ def tratar_dados_detector_selecionado(detector_selecionado):
             if id_espaco:
                 espaco = Locaveis.objects.get(id=id_espaco)
                 lista_professores = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['professores']
-                professores = []
-
-                try:
-                    len(lista_professores)
-                except TypeError:
-                    professor = Professores.objects.get(id=lista_professores)
-                    professores = [professor.usuario.get_full_name()]
-                else:
-                    for id_professor in lista_professores:
-                        professor = Professores.objects.get(id=id_professor)
-                        professores.append(professor.usuario.get_full_name())
+                professores = retornar_nome_de_professores(lista_professores)
 
                 atividades.append({
                     'title': espaco.local.estrutura,
@@ -261,65 +296,73 @@ def tratar_dados_detector_selecionado(detector_selecionado):
     return dados_detector
 
 
-def professores_atividade(id_professores):
-    professores = []
-
-    if isinstance(id_professores, list):
-        for id_professor in id_professores:
-            professor = Professores.objects.get(id=id_professor)
-            professores.append(professor.usuario.get_full_name())
-    else:
-        professor = Professores.objects.get(id=id_professores)
-        professores.append(professor.usuario.get_full_name())
-
-    return professores
-
-
 def salvar_alteracoes_de_atividade_locacao(dados):
     detector_alterado = DetectorDeBombas.objects.get(id=int(dados.get('id_detector')))
     dados_ativ = detector_alterado.dados_atividades
+    atividade_alterada_fatiada = dados.get("atividade_locacao_alterada").split("_")
+    grupo_alterado = f'grupo_{atividade_alterada_fatiada[3]}'
+    atividade_alterada = f'{atividade_alterada_fatiada[0]}_{atividade_alterada_fatiada[1]}'
+    lista_professores = list(map(int, dados.getlist('professores_atividade_nova')))
 
     if dados.get('atividade_excluida') == 'true':
-        dados_ativ.pop(dados.get('atividade_locacao_alterada'))
+        dados_ativ[grupo_alterado].pop(atividade_alterada)
         atividade_excluida(dados_ativ, detector_alterado, dados)
         detector_alterado.observacoes += dados.get("observacoes_da_alteracao")
         # detector_alterado.save()
         return
 
     if dados.get('locacao_excluida') == 'true':
-        dados_ativ.pop(dados.get('atividade_locacao_alterada'))
+        dados_ativ[grupo_alterado].pop(atividade_alterada)
         locacao_excluida(dados_ativ, detector_alterado, dados)
         detector_alterado.observacoes += dados.get("observacoes_da_alteracao")
         # detector_alterado.save()
         return
 
     if dados.get('altividade_nova') != '':
-        atividade = Atividades.objects.get(id=int(dados.get('altividade_atual')))
-        data_hora_atividade = datetime.strptime(dados.get('data_hora_atividade_atual'), '%Y-%m-%dT%H:%M')
-        data_e_hora_formatada = data_hora_atividade.strftime('%x %X')
-        detector_alterado.observacoes += f'\nAlteração de {atividade.atividade} de {data_e_hora_formatada} : '
-        detector_alterado.dados_atividades[dados.get('atividade_locacao_alterada')] = dados.get('altividade_nova')
-        detector_alterado.dados_atividades[f'data_e_hora_{dados.get("atividade_locacao_alterada")}'] = dados.get('data_hora_atividade_nova')
+        # Dados da atividade antiga
+        atividade_velha = Atividades.objects.get(id=int(dados.get('altividade_atual')))
+        inicio_atividade_velha = datetime.strptime(dados.get('data_hora_atividade_atual'), '%Y-%m-%dT%H:%M')
+        inicio_velha_formatado = inicio_atividade_velha.strftime('%x %X')
+        detector_alterado.observacoes += f'\nAlteração de {atividade_velha.atividade} de {inicio_velha_formatado} para '
+        # Dados da atividade nova
+        atividade_nova = Atividades.objects.get(id=int(dados.get('altividade_nova')))
+        inicio_atividade_nova = datetime.strptime(dados.get('data_hora_atividade_nova'), '%Y-%m-%dT%H:%M')
+        inicio_nova_formatado = inicio_atividade_nova.strftime('%x %X')
+        fim_atividade_nova = (inicio_atividade_nova + atividade_nova.duracao).strftime('%Y-%m-%d %H:%M')
+        detector_alterado.observacoes += f'{atividade_nova.atividade} com início às {inicio_nova_formatado}: '
+        # Salvando as alterações no banco
+        atividade_banco = dados_ativ[grupo_alterado][atividade_alterada]
+        atividade_banco['id_atividade'] = int(dados.get('altividade_nova'))
+        atividade_banco['inicio'] = inicio_atividade_nova.strftime('%Y-%m-%d %H:%M')
+        atividade_banco['fim'] = fim_atividade_nova
+        atividade_banco['professores'] = lista_professores[0] if len(lista_professores) == 1 else lista_professores
 
     if dados.get('espaco_novo') != '':
-        espaco = Locaveis.objects.get(id=int(dados.get('espaco_atual')))
-        check_in_locacao = datetime.strptime(dados.get('check_in_atual'), '%Y-%m-%dT%H:%M')
-        check_in_formatada = check_in_locacao.strftime('%x %X')
-        detector_alterado.observacoes += f'\nLocação do(a) {espaco.local.estrutura} de {check_in_formatada} alterado: '
-        dados_ativ[dados.get('atividade_locacao_alterada')] = dados.get('altividade_nova')
-        dados_ativ[f'check_in_{dados.get("atividade_locacao_alterada")}'] = dados.get('check_in_novo')
-        dados_ativ[f'chekc_out_{dados.get("atividade_locacao_alterada")}'] = dados.get('check_out_novo')
+        # Dados da locação antiga
+        espaco_antigo = Locaveis.objects.get(id=int(dados.get('espaco_atual')))
+        check_in_locacao_antiga = datetime.strptime(dados.get('check_in_atual'), '%Y-%m-%dT%H:%M')
+        check_out_locacao_antiga = datetime.strptime(dados.get('check_out_atual'), '%Y-%m-%dT%H:%M')
+        check_in_formatada_antiga = check_in_locacao_antiga.strftime('%x %X')
+        check_out_formatada_antiga = check_out_locacao_antiga.strftime('%x %X')
+        detector_alterado.observacoes += f'\nLocação do(a) {espaco_antigo.local.estrutura} com check in às '
+        detector_alterado.observacoes += f'{check_in_formatada_antiga} e check out às {check_out_formatada_antiga} '
+        # Dados da nova locação
+        espaco_novo = Locaveis.objects.get(id=int(dados.get('espaco_novo')))
+        check_in_locacao_novo = datetime.strptime(dados.get('check_in_novo'), '%Y-%m-%dT%H:%M')
+        check_out_locacao_novo = datetime.strptime(dados.get('check_in_novo'), '%Y-%m-%dT%H:%M')
+        check_in_formatada_novo = check_in_locacao_novo.strftime('%x %X')
+        check_out_formatada_novo = check_out_locacao_novo.strftime('%x %X')
+        detector_alterado.observacoes += f'alterado para {espaco_novo.local.estrutura} com check in às '
+        detector_alterado.observacoes += f'{check_in_formatada_novo} e check out às {check_out_formatada_novo}: '
+        # Salvando as alterações no banco
+        locacao_banco = dados_ativ[grupo_alterado][atividade_alterada]
+        locacao_banco['id_espaco'] = int(dados.get('espaco_novo'))
+        locacao_banco['check_in'] = check_in_locacao_novo.strftime('%Y-%m-%d %H:%M')
+        locacao_banco['check_out'] = check_out_locacao_novo.strftime('%Y-%m-%d %H:%M')
+        locacao_banco['professores'] = lista_professores[0] if len(lista_professores) == 1 else lista_professores
 
     detector_alterado.observacoes += dados.get("observacoes_da_alteracao")
-
-    if len(list(map(int, dados.get('professores_atividade_nova')))) != 1:
-        dados_ativ[f'professores_{dados.get("atividade_locacao_alterada")}'] = list(map(
-            int, dados.getlist('professores_atividade_nova')))
-    else:
-        dados_ativ[f'professores_{dados.get("atividade_locacao_alterada")}'] = dados.get('professores_atividade_nova')
-
     detector_alterado.save()
-    return
 
 
 def atividade_excluida(dados_ativ, detector_alterado, dados):
@@ -327,28 +370,32 @@ def atividade_excluida(dados_ativ, detector_alterado, dados):
     data_hora_atividade = datetime.strptime(dados.get('data_hora_atividade_atual'), '%Y-%m-%dT%H:%M')
     data_e_hora_formatada = data_hora_atividade.strftime('%x %X')
     detector_alterado.observacoes += f'\n{atividade.atividade} de {data_e_hora_formatada} excluída: '
+    lista_teste = dados.get('atividade_locacao_alterada').split('_')[3]
+    grupo = f'grupo_{lista_teste}'
 
     if dados.get('espaco_novo') != '':
         n_locacao = 0
-        lista_teste = dados.get('atividade_locacao_alterada').split('_')
-        grupo = f'{lista_teste[2]}_{lista_teste[3]}'
 
-        for key in dados_ativ.keys():
-            if re.search(f'^locacao.*{grupo}$', key):
+        for key in dados_ativ[grupo].keys():
+            if 'locacao_' in key:
                 n_locacao += 1
 
         if n_locacao == 0:
-            dados_ativ[f'locacao_1_{grupo}'] = dados.get('espaco_novo')
-            dados_ativ[f'check_in_locacao_1_{grupo}'] = dados.get('check_in_novo')
-            dados_ativ[f'check_out_locacao_1_{grupo}'] = dados.get('check_out_novo')
-            dados_ativ[f'professores_locacao_1_{grupo}'] = dados.get('professores_atividade_nova')
+            dados_ativ[grupo][f'locacao_1'] = {
+                'id_espaco': int(dados.get('espaco_novo')),
+                'check_in': dados.get('check_in_novo').replace('T', ' '),
+                'check_out': dados.get('check_out_novo').replace('T', ' '),
+                'professores': dados.get('professores_atividade_nova')
+            }
         else:
-            dados_ativ[f'locacao_{n_locacao + 1}_{grupo}'] = dados.get('espaco_novo')
-            dados_ativ[f'check_in_locacao_{n_locacao + 1}_{grupo}'] = dados.get('check_in_novo')
-            dados_ativ[f'check_out_locacao_{n_locacao + 1}_{grupo}'] = dados.get('check_out_novo')
-            dados_ativ[f'professores_locacao_{n_locacao + 1}_{grupo}'] = dados.get('professores_atividade_nova')
+            dados_ativ[grupo][f'locacao_{n_locacao + 1}'] = {
+                'id_espaco': int(dados.get('espaco_novo')),
+                'check_in': dados.get('check_in_novo').replace('T', ' '),
+                'check_out': dados.get('check_out_novo').replace('T', ' '),
+                'professores': dados.get('professores_atividade_nova')
+            }
 
-        renumerar_atividades(dados_ativ, grupo, 'atividade')
+    renumerar_atividades(dados_ativ, grupo, 'atividade')
 
     return
 
@@ -359,23 +406,32 @@ def locacao_excluida(dados_ativ, detector_alterado, dados):
     check_in_formatada = check_in_locacao.strftime('%x %X')
     detector_alterado.observacoes += f'\nLocação do(a) {espaco.local.estrutura} de {check_in_formatada} excluída: '
 
+    atividade = Atividades.objects.get(id=int(dados.get('altividade_nova')))
+    inicio = datetime.strptime(dados.get('data_hora_atividade_nova'), '%Y-%m-%dT%H:%M')
+
     if dados.get('altividade_nova') != '':
         n_atividade = 0
         lista_teste = dados.get('atividade_locacao_alterada').split('_')
         grupo = f'{lista_teste[2]}_{lista_teste[3]}'
 
-        for key in dados_ativ.keys():
-            if re.search(f'^atividade.*{grupo}$', key):
+        for key in dados_ativ[grupo].keys():
+            if 'atividade' in key:
                 n_atividade += 1
 
         if n_atividade == 0:
-            dados_ativ[f'atividade_1_{grupo}'] = dados.get('altividade_nova')
-            dados_ativ[f'data_e_hora_atividade_1_{grupo}'] = dados.get('data_hora_atividade_nova')
-            dados_ativ[f'professores_atividade_1_{grupo}'] = dados.get('professores_atividade_nova')
+            dados_ativ[grupo]['atividade_1'] = {
+                'id_atividade': int(dados.get('altividade_nova')),
+                'inicio': inicio.strftime('%Y-%m-%d %H:%M'),
+                'fim': (inicio + atividade.duracao).strftime('%Y-%m-%d %H:%M'),
+                'qtd': dados.get('qtd_atividade')
+            }
         else:
-            dados_ativ[f'atividade_{n_atividade + 1}_{grupo}'] = dados.get('altividade_nova')
-            dados_ativ[f'data_e_hora_atividade_{n_atividade + 1}_{grupo}'] = dados.get('data_hora_atividade_nova')
-            dados_ativ[f'professores_atividade_{n_atividade + 1}_{grupo}'] = dados.get('professores_atividade_nova')
+            dados_ativ[grupo][f'atividade_{n_atividade + 1}'] = {
+                'id_atividade': int(dados.get('altividade_nova')),
+                'inicio': inicio.strftime('%Y-%m-%d %H:%M'),
+                'fim': (inicio + atividade.duracao).strftime('%Y-%m-%d %H:%M'),
+                'qtd': dados.get('qtd_atividade')
+            }
 
         renumerar_atividades(dados_ativ, grupo, 'locacao')
 
@@ -383,16 +439,27 @@ def locacao_excluida(dados_ativ, detector_alterado, dados):
 
 
 def renumerar_atividades(dados_ativ, grupo, atividade_locacao):
-    n_atividade = 0
+    atividades = []
 
-    for key in dados_ativ.keys():
-        if re.search(f'^{atividade_locacao}.*{grupo}$', key):
-            n_atividade += 1
-            dados_ativ[f'{atividade_locacao}_{n_atividade}_{grupo}'] = dados_ativ.pop(key)
-            dados_ativ[f'professores_{atividade_locacao}_{n_atividade}_{grupo}'] = dados_ativ.pop(f'profesores_{key}')
+    for chave in dados_ativ[grupo].keys():
+        if f'{atividade_locacao}_' in chave:
+            atividades.append(chave)
 
-            if atividade_locacao == 'atividade':
-                dados_ativ[f'data_e_hora_atividade_{n_atividade}_{grupo}'] = dados_ativ.pop(f'data_e_hora_{key}')
-            else:
-                dados_ativ[f'check_in_locacao_{n_atividade}_{grupo}'] = dados_ativ.pop(f'check_in_{key}')
-                dados_ativ[f'check_out_locacao_{n_atividade}_{grupo}'] = dados_ativ.pop(f'check_out_{key}')
+    for atividade_n, atividade in enumerate(atividades, start=1):
+        dados_ativ[grupo][f'{atividade_locacao}_{atividade_n}'] = dados_ativ[grupo].pop(atividade)
+
+
+def retornar_nome_de_professores(lista_de_professores):
+    professores = []
+
+    try:
+        len(lista_de_professores)
+    except TypeError:
+        professor = Professores.objects.get(id=lista_de_professores)
+        professores = [professor.usuario.get_full_name()]
+    else:
+        for id_professor in lista_de_professores:
+            professor = Professores.objects.get(id=id_professor)
+            professores.append(professor.usuario.get_full_name())
+    finally:
+        return professores
