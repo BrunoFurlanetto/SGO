@@ -47,7 +47,7 @@ def detector_de_bombas(request, id_detector=None):
             if request.POST.get('id_detector') and request.POST.get('observacoes'):
                 try:
                     detector_selecionado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
-                    detector_selecionado.observacoes += f"\n{request.POST.get('data_observacao')}: " \
+                    detector_selecionado.observacoes += f"\n\nObservação de {request.POST.get('data_observacao')}: " \
                                                         f"{request.POST.get('observacoes')}"
                     detector_selecionado.save()
                 except Exception as e:

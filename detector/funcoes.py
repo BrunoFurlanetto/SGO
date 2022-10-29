@@ -8,7 +8,6 @@ from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio
 
-
 lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
 
 
@@ -211,18 +210,15 @@ def pegar_escalas(dados_eventos):
     escalados = []
     data_inicio = datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d').date()
     data_final = datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d').date()
-    datas_sem_professor = veririficar_escalas(
-        datetime.strptime(dados_eventos.get('data_inicio'), '%Y-%m-%d'),
-        datetime.strptime(dados_eventos.get('data_final'), '%Y-%m-%d')
-    )
     data = data_inicio
+    datas_sem_professor = []
 
     while data <= data_final:
         professores_escalados = []
         try:
             escala = Escala.objects.get(data_escala=data)
         except Escala.DoesNotExist:
-            ...
+            datas_sem_professor.append(data.strftime('%Y-%m-%d'))
         else:
             for id_professor in escala.equipe.values():
                 professor = Professores.objects.get(id=id_professor)
@@ -308,26 +304,26 @@ def salvar_alteracoes_de_atividade_locacao(dados):
         dados_ativ[grupo_alterado].pop(atividade_alterada)
         atividade_excluida(dados_ativ, detector_alterado, dados)
         detector_alterado.observacoes += dados.get("observacoes_da_alteracao")
-        # detector_alterado.save()
+        detector_alterado.save()
         return
 
     if dados.get('locacao_excluida') == 'true':
         dados_ativ[grupo_alterado].pop(atividade_alterada)
         locacao_excluida(dados_ativ, detector_alterado, dados)
         detector_alterado.observacoes += dados.get("observacoes_da_alteracao")
-        # detector_alterado.save()
+        detector_alterado.save()
         return
 
     if dados.get('altividade_nova') != '':
         # Dados da atividade antiga
         atividade_velha = Atividades.objects.get(id=int(dados.get('altividade_atual')))
         inicio_atividade_velha = datetime.strptime(dados.get('data_hora_atividade_atual'), '%Y-%m-%dT%H:%M')
-        inicio_velha_formatado = inicio_atividade_velha.strftime('%x %X')
-        detector_alterado.observacoes += f'\nAlteração de {atividade_velha.atividade} de {inicio_velha_formatado} para '
+        inicio_velha_formatado = inicio_atividade_velha.strftime('%d/%m/%y às %H:%M')
+        detector_alterado.observacoes += f'\n\nAlteração de {atividade_velha.atividade} de {inicio_velha_formatado} para '
         # Dados da atividade nova
         atividade_nova = Atividades.objects.get(id=int(dados.get('altividade_nova')))
         inicio_atividade_nova = datetime.strptime(dados.get('data_hora_atividade_nova'), '%Y-%m-%dT%H:%M')
-        inicio_nova_formatado = inicio_atividade_nova.strftime('%x %X')
+        inicio_nova_formatado = inicio_atividade_nova.strftime('%d/%m/%y às %H:%M')
         fim_atividade_nova = (inicio_atividade_nova + atividade_nova.duracao).strftime('%Y-%m-%d %H:%M')
         detector_alterado.observacoes += f'{atividade_nova.atividade} com início às {inicio_nova_formatado}: '
         # Salvando as alterações no banco
@@ -342,16 +338,16 @@ def salvar_alteracoes_de_atividade_locacao(dados):
         espaco_antigo = Locaveis.objects.get(id=int(dados.get('espaco_atual')))
         check_in_locacao_antiga = datetime.strptime(dados.get('check_in_atual'), '%Y-%m-%dT%H:%M')
         check_out_locacao_antiga = datetime.strptime(dados.get('check_out_atual'), '%Y-%m-%dT%H:%M')
-        check_in_formatada_antiga = check_in_locacao_antiga.strftime('%x %X')
-        check_out_formatada_antiga = check_out_locacao_antiga.strftime('%x %X')
-        detector_alterado.observacoes += f'\nLocação do(a) {espaco_antigo.local.estrutura} com check in às '
+        check_in_formatada_antiga = check_in_locacao_antiga.strftime('%d/%m/%y às %H:%M')
+        check_out_formatada_antiga = check_out_locacao_antiga.strftime('%d/%m/%y às %H:%M')
+        detector_alterado.observacoes += f'\n\nLocação do(a) {espaco_antigo.local.estrutura} com check in às '
         detector_alterado.observacoes += f'{check_in_formatada_antiga} e check out às {check_out_formatada_antiga} '
         # Dados da nova locação
         espaco_novo = Locaveis.objects.get(id=int(dados.get('espaco_novo')))
         check_in_locacao_novo = datetime.strptime(dados.get('check_in_novo'), '%Y-%m-%dT%H:%M')
-        check_out_locacao_novo = datetime.strptime(dados.get('check_in_novo'), '%Y-%m-%dT%H:%M')
-        check_in_formatada_novo = check_in_locacao_novo.strftime('%x %X')
-        check_out_formatada_novo = check_out_locacao_novo.strftime('%x %X')
+        check_out_locacao_novo = datetime.strptime(dados.get('check_out_novo'), '%Y-%m-%dT%H:%M')
+        check_in_formatada_novo = check_in_locacao_novo.strftime('%d/%m/%y às %H:%M')
+        check_out_formatada_novo = check_out_locacao_novo.strftime('%d/%m/%y às %H:%M')
         detector_alterado.observacoes += f'alterado para {espaco_novo.local.estrutura} com check in às '
         detector_alterado.observacoes += f'{check_in_formatada_novo} e check out às {check_out_formatada_novo}: '
         # Salvando as alterações no banco
@@ -368,8 +364,8 @@ def salvar_alteracoes_de_atividade_locacao(dados):
 def atividade_excluida(dados_ativ, detector_alterado, dados):
     atividade = Atividades.objects.get(id=int(dados.get('altividade_atual')))
     data_hora_atividade = datetime.strptime(dados.get('data_hora_atividade_atual'), '%Y-%m-%dT%H:%M')
-    data_e_hora_formatada = data_hora_atividade.strftime('%x %X')
-    detector_alterado.observacoes += f'\n{atividade.atividade} de {data_e_hora_formatada} excluída: '
+    data_e_hora_formatada = data_hora_atividade.strftime('%d/%m/%y às %H:%M')
+    detector_alterado.observacoes += f'\n\n{atividade.atividade} de {data_e_hora_formatada} excluída: '
     lista_teste = dados.get('atividade_locacao_alterada').split('_')[3]
     grupo = f'grupo_{lista_teste}'
 
@@ -403,8 +399,8 @@ def atividade_excluida(dados_ativ, detector_alterado, dados):
 def locacao_excluida(dados_ativ, detector_alterado, dados):
     espaco = Locaveis.objects.get(id=int(dados.get('espaco_atual')))
     check_in_locacao = datetime.strptime(dados.get('check_in_atual'), '%Y-%m-%dT%H:%M')
-    check_in_formatada = check_in_locacao.strftime('%x %X')
-    detector_alterado.observacoes += f'\nLocação do(a) {espaco.local.estrutura} de {check_in_formatada} excluída: '
+    check_in_formatada = check_in_locacao.strftime('%d/%m/%y às %H:%M')
+    detector_alterado.observacoes += f'\n\nLocação do(a) {espaco.local.estrutura} de {check_in_formatada} excluída: '
 
     atividade = Atividades.objects.get(id=int(dados.get('altividade_nova')))
     inicio = datetime.strptime(dados.get('data_hora_atividade_nova'), '%Y-%m-%dT%H:%M')

@@ -156,7 +156,6 @@ function pegar_select_atividade_locacao(atividade, hora_atividade) {
             let elemento = label
             const atividade_alterada = label.nextElementSibling.name
             $('#atividade_locacao_alterada').val(atividade_alterada)
-            console.log(atividade_alterada)
             $('#qtd_atividade').val($(`#qtd_${atividade_alterada}`).val())
 
             while (true){
@@ -164,7 +163,7 @@ function pegar_select_atividade_locacao(atividade, hora_atividade) {
 
                 if (elemento.tagName === 'SELECT'){
                     console.log('Foi')
-                    $('#id_professores_atividade_nova').empty().append($(`#${elemento.id} option`))
+                    $('#id_professores_atividade_nova').empty().append($(`#${elemento.id} option`).clone())
                     break
                 }
             }
@@ -178,35 +177,6 @@ function detector_de_bombas(eventos) {
     const data_2 = moment($('#id_data_final').val())
     let intervalo = data_2.diff(data_1);
     let dias_evento = moment.duration(intervalo).asDays() + 1;
-
-    if (!isNaN(parseInt(window.location.href.split('/')[4]))){
-        const hoje = new Date(Date.now())
-        const id_detector = parseInt(window.location.href.split('/')[4])
-
-        if (hoje.getHours() >= 22 || hoje.getHours() <= 2){
-            if(hoje.getHours() >= 0 && hoje.getHours() <= 2){
-                hoje.setDate(hoje.getDate() - 1)
-            }
-
-            $('#id_detector_modal').val(id_detector)
-            $('#id_data_observacao').val(hoje.toLocaleDateString())
-            $('#modal-adicionar-obs .modal-title').text(`Observações do dia: ${hoje.toLocaleDateString()}`)
-
-            $.ajax({
-                type: 'POST',
-                url: '',
-                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                data: {'data': hoje.toLocaleDateString(), 'id_detector': id_detector},
-                success: function (response) {
-                    console.log(response)
-                    if (response === 'False') {
-                        $('.grupos').append(`<button type="button" class="btn btn-primary btn-observacoes" data-toggle="modal" data-target="#modal-adicionar-obs">Observações do dia ${hoje.getDate().toLocaleString()}<button`)
-                    }
-                }
-            })
-        }
-
-    }
 
     const detector = new FullCalendar.Calendar(calendarUI, {
         headerToolbar: {
@@ -273,6 +243,40 @@ function detector_de_bombas(eventos) {
 
     detector.render();
     detector.setOption('locale', 'pt-br')
+
+    if (!isNaN(parseInt(window.location.href.split('/')[4]))){
+        const hoje = new Date(Date.now())
+        const id_detector = parseInt(window.location.href.split('/')[4])
+        let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
+        let datas_colunas = []
+
+        for (let i = 1; i < colunas_agenda.length; i++){
+            datas_colunas.push(colunas_agenda[i].attributes[2].value)
+        }
+
+        if ((datas_colunas.includes(moment(hoje).format('Y-m-d'))) && (hoje.getHours() >= 22 || hoje.getHours() <= 2)){
+            if(hoje.getHours() >= 0 && hoje.getHours() <= 2){
+                hoje.setDate(hoje.getDate() - 1)
+            }
+
+            $('#id_detector_modal').val(id_detector)
+            $('#id_data_observacao').val(hoje.toLocaleDateString())
+            $('#modal-adicionar-obs .modal-title').text(`Observações do dia: ${hoje.toLocaleDateString()}`)
+
+            $.ajax({
+                type: 'POST',
+                url: '',
+                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                data: {'data': hoje.toLocaleDateString(), 'id_detector': id_detector},
+                success: function (response) {
+                    if (response === 'False') {
+                        $('.grupos').append(`<button type="button" class="btn btn-primary btn-observacoes" data-toggle="modal" data-target="#modal-adicionar-obs">Observações do dia ${hoje.getDate().toLocaleString()}<button`)
+                    }
+                }
+            })
+        }
+
+    }
 }
 
 function mostrar_por_atividade(dados_eventos, escalados, editando=false, professores=null) {
@@ -301,7 +305,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
             formulario_detector.append(
                 `
                 <hr>
-                <div id="${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-D')}" class="atividades-locacoes-grupo row">
+                <div id="${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-DD')}" class="atividades-locacoes-grupo row">
                     <div class="titulo-botao" style="display: flex">
                         <h5 class="titulo-secao">${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('LL')}</h5>
                         <button type="button" class="btn-mostrar-atividades-locacoes" onclick="mostrar_esconder_tividades(this)"><i class='bx bx-plus'></i></button>
