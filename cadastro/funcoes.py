@@ -130,6 +130,15 @@ def requests_ajax(requisicao, files=None):
 
         return locais
 
+    if requisicao.get('campo') == 'professor':
+        professores_db = Professores.objects.all()
+        professores = {}
+
+        for professor in professores_db:
+            professores[professor.id] = professor.usuario.get_full_name()
+
+        return professores
+
     if requisicao.get('cnpj') and not requisicao.get('novo'):
         cliente_bd = ClienteColegio.objects.get(cnpj=requisicao.get('cnpj'))
 

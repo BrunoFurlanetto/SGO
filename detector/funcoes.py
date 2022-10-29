@@ -22,7 +22,7 @@ def pegar_dados_evento(dados_detector, editando):
 
     if editando == 'false':
         for i, id_cliente in enumerate(lista_id_clientes):
-            ordens = (OrdemDeServico.objects.filter(escala_ceu=True)
+            ordens = (OrdemDeServico.objects
                       .filter(ficha_de_evento__cliente__id=id_cliente)
                       .filter(check_in_ceu__date__gte=dados_detector.get('data_inicio'),
                               check_in_ceu__date__lte=dados_detector.get('data_final'))
@@ -66,7 +66,7 @@ def pegar_dados_evento(dados_detector, editando):
             'atividades': atividades,
             'locacoes': locacoes
         }
-
+        print(dados_eventos)
         return dados_eventos
     else:
         detector = DetectorDeBombas.objects.get(id=int(dados_detector.get('id_detector')))

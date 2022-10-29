@@ -13,8 +13,8 @@ function pegar_dados_evento(selecao){
             data: {'id_cliente': selecao.value},
             success: function (response) {
                 console.log(response)
-                $('#check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                $('#check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                $('#check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
+                $('#check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
 
                 for(let monitor in response['disponiveis_evento']){
 

@@ -283,7 +283,10 @@ def verOrdemDeServico(request, id_ordemDeServico):
         if request.POST.get('tipo'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
-        return JsonResponse(requests_ajax(request.POST))
+        if request.POST.get('id_ordem_de_servico'):
+            return JsonResponse(requests_ajax(request.POST))
+
+        return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,

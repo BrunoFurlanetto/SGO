@@ -337,8 +337,8 @@ function completar_visualizacao_ficha(id_ficha){
             $('#cliente').val(response['cliente'])
             $('#responsavel').val(response['responsavel'])
 
-            $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
             pegarDias()
 
             if(!response['perfil']){

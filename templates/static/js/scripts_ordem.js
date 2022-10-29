@@ -15,8 +15,8 @@ function completar_dados_os(selecao){
                 $(`#${i}`).val(response[i])
             }
 
-            $('#id_check_in').val(moment(response['id_check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['id_check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
             if($('#id_serie').val() === ''){
                 $('.colegios').addClass('none')
@@ -71,7 +71,7 @@ function completar_dados_os(selecao){
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_=''){
+function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_='', data_=''){
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
@@ -100,7 +100,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
             let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
             let label_serie = `<label>Serie</label>`
@@ -311,7 +311,8 @@ function dividar_atividade(indicie, limite){
 // ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
 // Função responsável por adicionar uma nova locação
-function add_locacao(id_local_=parseInt(''), local_='', qtd_=parseInt('')){
+function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
+                     check_out_='', local_coffee_='', hora_coffee_=''){
     // Ajax responsável por puxar todas as estruturas do banco de dados
 
     if(isNaN(qtd_)){
@@ -342,15 +343,15 @@ function add_locacao(id_local_=parseInt(''), local_='', qtd_=parseInt('')){
             $(`#div_pai_loc_${i}`).append(div_locacao, div_entrada, div_saida, div_icone_loc, div_local_coffee, div_hora_coffee, div_participantes_loc, `<hr class="barra" style="margin-left: 10px">`)
 
             let label_locacao = `<label>Locação</label>`
-            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value=""></select>`
+            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" name="saida_${i}" onchange="verificar_lotacao(this)" required/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
             let label_local_coffee = `<label>Local do coffee</label>`
-            let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}"/>`
+            let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}" value="${local_coffee_}"/>`
             let label_hora_coffee = `<label>Hora</label>`
-            let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)"/>`
+            let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)" value="${hora_coffee_}"/>`
             let label_participantes_loc = `<label>QTD</label>`
             let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required value="${qtd_}"/>`
 
@@ -464,35 +465,31 @@ function dadosVerOrdem(){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_ordem_de_servico': $('#id_ordem').val()},
         success: function (response) {
-            $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-
+            $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
+            console.log(response)
             let j = 1
             if(response['atividades_ceu']){
                 for(let i in response['atividades_ceu']){
-                    add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
-                    setTimeout(() => {
-                        console.log(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                        $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                        j++
-                    }, 600)
+                    add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'], response['atividades_ceu'][i]['data_e_hora'])
+                    j++
                 }
             } else {
                 $('.atividade-ceu').addClass('none')
             }
-
+            console.log(response)
             if(response['locacoes_ceu']){
                 let j = 1
                 for (let i in response['locacoes_ceu']) {
-                    add_locacao()
-                    setTimeout(() => {
-                        $(`#loc_${j}`).val(response['locacoes_ceu'][i]['id_espaco'])
-                        $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
-                        $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
-                        $(`#local-coffee_${j}`).val(response['locacoes_ceu'][i]['local_coffee'])
-                        $(`#hora-coffee_${j}`).val(response['locacoes_ceu'][i]['hora_coffee'])
-                        j++
-                    }, 150)
+                    add_locacao(
+                        response['locacoes_ceu'][i]['id_espaco'],
+                        response['locacoes_ceu'][i]['participantes'],
+                        moment(response['locacoes_ceu'][i]['check_in']).format('yyyy-MM-DDTHH:mm'),
+                        moment(response['locacoes_ceu'][i]['check_out']).format('yyyy-MM-DDTHH:mm'),
+                        response['locacoes_ceu'][i]['local_coffee'],
+                        response['locacoes_ceu'][i]['hora_coffee']
+                    )
+                    j++
                 }
 
             } else {

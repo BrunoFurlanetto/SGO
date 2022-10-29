@@ -15,8 +15,8 @@ function completar_dados_os(selecao){
                 $(`#${i}`).val(response[i])
             }
 
-            $('#id_check_in').val(moment(response['id_check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['id_check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
             if($('#id_serie').val() === ''){
                 $('.colegios').addClass('none')
@@ -464,16 +464,15 @@ function dadosVerOrdem(){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_ordem_de_servico': $('#id_ordem').val()},
         success: function (response) {
-            $('#id_check_in').val(moment(response['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
+            $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
 
             let j = 1
             if(response['atividades_ceu']){
                 for(let i in response['atividades_ceu']){
                     add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
                     setTimeout(() => {
-                        console.log(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
-                        $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm'))
+                        $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).format('yyyy-MM-DDTHH:mm'))
                         j++
                     }, 600)
                 }
@@ -487,8 +486,8 @@ function dadosVerOrdem(){
                     add_locacao()
                     setTimeout(() => {
                         $(`#loc_${j}`).val(response['locacoes_ceu'][i]['id_espaco'])
-                        $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
-                        $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).tz('America/Sao_Paulo').format('yyyy-MM-DDTHH:mm')))
+                        $(`#entrada_${j}`).val((moment(response['locacoes_ceu'][i]['check_in']).format('yyyy-MM-DDTHH:mm')))
+                        $(`#saida_${j}`).val((moment(response['locacoes_ceu'][i]['check_out']).format('yyyy-MM-DDTHH:mm')))
                         $(`#local-coffee_${j}`).val(response['locacoes_ceu'][i]['local_coffee'])
                         $(`#hora-coffee_${j}`).val(response['locacoes_ceu'][i]['hora_coffee'])
                         j++

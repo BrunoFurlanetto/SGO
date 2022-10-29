@@ -18,7 +18,7 @@ from projetoCEU.utils import verificar_grupo, is_ajax, email_error
 def detector_de_bombas(request, id_detector=None):
     grupos = verificar_grupo(request.user.groups.all())
     professores = Professores.objects.all()
-    detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__lte=datetime.now())
+    detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
 
@@ -28,8 +28,7 @@ def detector_de_bombas(request, id_detector=None):
             data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
 
             ordens_intervalo = (OrdemDeServico.objects
-                                .filter(escala_ceu=True)
-                                .filter(check_in__date__gte=data_inicio, check_in__date__lte=data_final)
+                                .filter(check_in_ceu__date__gte=data_inicio, check_in_ceu__date__lte=data_final)
                                 )
 
             return render(request, 'detector/detector_de_bombas.html', {'grupos': grupos,
