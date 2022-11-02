@@ -203,7 +203,13 @@ function detector_de_bombas(eventos) {
                 const atividade_local = info.event.title
                 const start = info.event.start
                 const end = info.event.end
-                console.log(window.location.href.split('/')[4])
+                // const hoje = new Date(2022, 10, 16, 9, 30, 0, 0)
+                const hoje = new Date(Date.now())
+
+                if (((hoje - start) / (1000 * 60 * 60)) >= 24){
+                    return
+                }
+
                 $('#id_atividade_atual, #id_atividade_nova, #id_data_hora_atividade_atual, #id_data_hora_atividade_nova, #id_observacoes_alteracao').val('')
                 $('#id_espaco_atual, #id_espaco_novo, #id_check_out_atual, #id_check_out_novo, #atividade_locacao_alterada').val('')
                 $('#id_adicionar_atividade, #id_adicionar_locacao').prop('checked', false)
@@ -391,7 +397,15 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
             }
         }
 
-        $(`#${nome_id_select}`).select2()
+        const inicio_atividade = new Date(dados_eventos['atividades'][i]['inicio_atividade'])
+        // const hoje = new Date(2022, 10, 16, 15, 0, 0, 0)
+        const hoje = new Date(Date.now())
+
+        if (((hoje - inicio_atividade) / (1000 * 60 * 60)) >= 24) {
+            $(`#${nome_id_select}`).select2({disabled:'readonly'})
+        } else {
+            $(`#${nome_id_select}`).select2()
+        }
     }
 
     for (let i = 0; i < dados_eventos['locacoes'].length; i++) {
@@ -448,7 +462,15 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
             }
         }
 
-        $(`#${nome_id_select}`).select2()
+        const check_in_atividade = new Date(dados_eventos['locacoes'][i]['check_in'])
+        // const hoje = new Date(2022, 10, 16, 9, 30, 0, 0)
+        const hoje = new Date(Date.now())
+
+        if (((hoje - check_in_atividade) / (1000 * 60 * 60)) >= 24) {
+            $(`#${nome_id_select}`).select2({disabled:'readonly'})
+        } else {
+            $(`#${nome_id_select}`).select2()
+        }
     }
 
     formulario_detector.append('<hr><button type="submit" id="btn_salvar" class="btn btn-primary">Salvar detector</button>')
@@ -561,7 +583,7 @@ function excluir_detector(selecao){
     $('#modal-excluir-detector').modal('show')
 }
 
-function edtar_detector(selecao){
+function editar_detector(selecao){
     const id_detector = parseInt(selecao.id.split('_')[2])
     window.location.href = `/detector-de-bombas/${id_detector}`
 }
