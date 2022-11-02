@@ -117,10 +117,10 @@ class PerfilsParticipantes(models.Model):
 
 
 class CodigosApp(models.Model):
-    cliente_pj = models.CharField(max_length=20, blank=True)
-    cliente_pf = models.CharField(max_length=20, blank=True)
-    evento = models.CharField(max_length=20, blank=True)
-    reserva = models.CharField(max_length=20, blank=True)
+    cliente_pj = models.IntegerField()
+    cliente_pf = models.IntegerField()
+    evento = models.IntegerField()
+    reserva = models.IntegerField()
 
     def __str__(self):
         return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
@@ -420,6 +420,13 @@ class CadastroCodigoApp(forms.ModelForm):
     class Meta:
         model = CodigosApp
         exclude = ()
+
+        widgets = {
+            'cliente_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'cliente_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'evento': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+        }
 
 
 class CadastroPreReserva(forms.ModelForm):
