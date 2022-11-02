@@ -418,6 +418,13 @@
     border-radius: 8px;
     background-color: #8B008B;
 }
+#id_material_apoio{
+    border: none;
+    height: auto;
+    margin-top: -20px;
+    margin-left: -10px;
+    background: transparent;
+}
 .pre-reserva .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;

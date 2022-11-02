@@ -200,8 +200,9 @@ class OpcionaisFormatura(models.Model):
 
 class InformacoesAdcionais(models.Model):
     veiculo = (
-        (1, 'Ônibus'),
-        (1, 'Micro ônibus')
+        (1, 'Micro ônibus'),
+        (2, 'Ônibus 46 lugares'),
+        (3, 'Ônibus 50 lugares')
     )
 
     servicos_de_bordo = (
@@ -212,7 +213,7 @@ class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
         (2, '1/2 monitoria (dentro de quarto - 1/20'),
-        (3, 'Monitoria completa (em quarto - 1/10)')
+        (3, 'Monitoria completa (em quarto - 1/12)')
     )
 
     tipos_enfermaria = (
@@ -274,6 +275,7 @@ class FichaDeEvento(models.Model):
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
+    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)

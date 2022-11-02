@@ -13,7 +13,7 @@
             </center>
             <hr>
         </div>
-        <form action='{% url 'ficha_de_evento' %}' method="POST">
+        <form action='{% url 'ficha_de_evento' %}' method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
                 <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva %} margin-right: 10% {% endif %}">
@@ -250,6 +250,11 @@
                         {{ form.vendedora }}
                     {% endif %}
                 </div>
+            </div>
+            <hr>
+            <div>
+                <h5 class="titulo-secao">Material de apoio</h5>
+                {{ form.material_apoio }}
             </div>
             <hr>
             <div class="mb-3 row">

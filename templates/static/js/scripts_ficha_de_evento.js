@@ -405,6 +405,13 @@ function completar_visualizacao_ficha(id_ficha){
                 $('#ceu').append(`<div id="lista_locacoes_ceu"><h5 class="titulo-secao">Locacoes no CEU</h5><p>${locacoes_ceu}</p><hr></div>`)
             }
 
+            if($('.arquivo').children('a').prop('href')) {
+                $('.arquivo, #material_apoio-clear_id, .arquivo label').addClass('none')
+                $('#link_arquivo').append(`<a href="${$('.arquivo').children('a').prop('href')}">Material de apoio</a>`)
+            } else {
+                $('.arquivo').addClass('none')
+            }
+
         }
     })
 }
