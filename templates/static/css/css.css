@@ -437,9 +437,9 @@
     margin: 10px 5px 10px 20px;
     width: 65px;
     height: 20px;
-    border: solid 1px red;
+    border: solid 1px #008000;
     border-radius: 8px;
-    background-color: red;
+    background-color: #008000;
 }
 .conteudo-resumo-financeiro-ceu, .conteudo-detector{
     width: 800px;
@@ -766,8 +766,4 @@
 #professores_atividade{
     display: flex;
     flex-direction: column;
-}
-#modal_trocar_atividade .select2-dropdown{
-    position: fixed;
-    left: 225px;
 }

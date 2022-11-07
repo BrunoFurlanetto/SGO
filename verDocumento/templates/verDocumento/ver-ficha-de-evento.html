@@ -3,8 +3,8 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
-    <link rel="stylesheet" href="{% static 'css/MultiSelect.css' %}"> <!-- Estilização da parte das Ficha de evento -->
+    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}">
+    <!-- Estilização da parte das Ficha de evento -->
 
     <div class="row ver-conteudo-ficha">
         <div class="titulo-os" align="center">
@@ -16,7 +16,6 @@
                 {% csrf_token %}
                 <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
                 <script src="{% static 'js/scripts_cliente.js' %}"></script>
-                <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
                 <script src="{% static 'js/Moment.js' %}"></script>
                 <script src="{% static 'js/Moment_timezone.js' %}"></script>
                 <script>
@@ -37,7 +36,8 @@
                         {{ form.responsavel_evento.as_hidden }}
                     </div>
                     <div style="width: 5%; align-items:end; display: flex">
-                        <a class="none search"  href="{% url 'lista_responsaveis' %}" target="_blank" ><i class='bx bx-search'></i></a>
+                        <a class="none search" href="{% url 'lista_responsaveis' %}" target="_blank"><i
+                                class='bx bx-search'></i></a>
                     </div>
                 </div>
                 <hr>
@@ -54,11 +54,11 @@
                 <div class="row mb-2">
                     <h5 class="titulo-secao">Período de viagem</h5>
                     <div style="width: 35%">
-                        <label>Check in</label>
+                        <label>Check in (data/horário)</label>
                         {{ form.check_in }}
                     </div>
                     <div style="width: 35%">
-                        <label>Check out</label>
+                        <label>Check out (data/horário)</label>
                         {{ form.check_out }}
                     </div>
                 </div>
@@ -121,19 +121,20 @@
                     <h5 class="titulo-secao">Refeições</h5>
                     <table class="table">
                         <thead>
-                            <td style="width: 5px">Data</td>
-                            <td style="width: 5px"><small>Café</small></td>
-                            <td style="width: 5px"><small>Coffe manhã</small></td>
-                            <td style="width: 5px"><small>Almoço</small></td>
-                            <td style="width: 5px"><small>Lanche tarde</small></td>
-                            <td style="width: 5px"><small>Coffe tarde</small></td>
-                            <td style="width: 5px"><small>Jantar</small></td>
-                            <td style="width: 5px"><small>Lanche noite</small></td>
-                            <td style="width: 2px"><small></small></td>
+                        <td style="width: 5px">Data</td>
+                        <td style="width: 5px"><small>Café</small></td>
+                        <td style="width: 5px"><small>Coffe manhã</small></td>
+                        <td style="width: 5px"><small>Almoço</small></td>
+                        <td style="width: 5px"><small>Lanche tarde</small></td>
+                        <td style="width: 5px"><small>Coffe tarde</small></td>
+                        <td style="width: 5px"><small>Jantar</small></td>
+                        <td style="width: 5px"><small>Lanche noite</small></td>
+                        <td style="width: 2px"><small></small></td>
                         </thead>
                         <tbody id="corpo-tabela-refeicao"></tbody>
                     </table>
-                    <button class="buton-plus" type="button" onclick="add_refeicao()" style="margin-left: 5px; margin-top: -15px">
+                    <button class="buton-plus" type="button" onclick="add_refeicao()"
+                            style="margin-left: 5px; margin-top: -15px">
                         <span><i class='bx bxs-plus-circle'></i></span>
                     </button>
                     <div class="form-group form-check form-switch mb-3 mt-3">
@@ -147,67 +148,60 @@
                 </div>
                 <hr>
                 <div id="ceu" class="row">
-                    <h5 class="titulo-secao none">CEU</h5>
-                    <div id="atividades_ceu_ver_ficha" class="none" style="width: 40%">
+                    <h5 class="titulo-secao">CEU</h5>
+                    <div id="atividades_ceu_ver_ficha" style="width: 60%">
                         <label>Atividades</label>
                         {{ form.atividades_ceu }}
-                        <script src="{% static 'js/MultiSelect.js' %}"></script>
                         <script>
-                            $(document).ready(function () {
-                                $("#id_atividades_ceu").CreateMultiCheckBox({ width: '250px',
-                                    defaultText : 'Selecione as atividades', height:'250px' });
-                            });
+                            $(document).ready($("#id_atividades_ceu").select2({'disabled': 'readonly'}))
                         </script>
                     </div>
-                    <div id="locacoes_ceu_ver_ficha" class="none" style="width: 40%">
+                    <div id="locacoes_ceu_ver_ficha" style="width: 40%">
                         <label>Locações</label>
                         {{ form.locacoes_ceu }}
                         <script>
-                            $(document).ready(function () {
-                                $("#id_locacoes_ceu").CreateMultiCheckBox({ width: '250px',
-                                    defaultText : 'Selecione o local', height:'250px' });
-                            });
+                            $(document).ready($("#id_locacoes_ceu").select2({'disabled': 'readonly'}))
                         </script>
                     </div>
                 </div>
-                <hr class="ceu none">
+                <hr>
                 <div id="atividades_peraltas_ficha" class="row peraltas">
-                    <h5 class="titulo-secao none">Peraltas</h5>
-                    <div id="atividades_eco_ver_ficha" class="none" style="width: 40%">
+                    <h5 class="titulo-secao">Peraltas</h5>
+                    <div id="atividades_eco_ver_ficha" style="width: 50%">
                         <label>Ecoturismo</label>
                         {{ form.atividades_eco }}
                         <script>
-                            $(document).ready(function () {
-                              $("#id_atividades_eco").CreateMultiCheckBox({ width: '250px',
-                                 defaultText : 'Selecione as atividades', height:'250px' });
-                            });
+                            $(document).ready($("#id_atividades_eco").select2({'disabled': 'readonly'}))
                         </script>
                     </div>
-                    <div id="atividades_peraltas_ver_ficha" class="none" style="width: 40%">
+                    <div id="atividades_peraltas_ver_ficha" style="width: 50%">
                         <label>Acampamento</label>
                         {{ form.atividades_peraltas }}
                         <script>
-                            $(document).ready(function () {
-                                $("#id_atividades_peraltas").CreateMultiCheckBox({ width: '250px',
-                                    defaultText : 'Selecione as atividades', height:'250px' });
-                            });
+                            $(document).ready($("#id_atividades_peraltas").select2({'disabled': 'readonly'}))
                         </script>
                     </div>
                 </div>
-                <hr class="peraltas none">
+                <hr class="peraltas">
                 <div class="form-check">
-                    <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok" name="info_adicionais_ok" disabled required>
-                    <label class="my-1">Informações adicionais</label>
-                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais(editando=true)" style="margin-left: 5px; margin-top: -15px">
+                    <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
+                           name="info_adicionais_ok" disabled required>
+                    <label for="add_infos" class="my-1">Informações adicionais</label>
+                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+                            data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais(editando=true)"
+                            style="margin-left: 5px; margin-top: -15px">
                         <span><i class='bx bxs-plus-circle'></i></span>
                     </button>
                 </div>
                 {{ form.informacoes_adcionais.as_hidden }}
                 <hr>
                 <div class="form-check">
-                    <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="codigos_app_ok" disabled>
+                    <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok"
+                           name="codigos_app_ok" disabled>
                     <label class="my-1">Códigos APP</label>
-                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal" data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()" style="margin-left: 5px; margin-top: -15px">
+                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+                            data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
+                            style="margin-left: 5px; margin-top: -15px">
                         <span><i class='bx bxs-plus-circle'></i></span>
                     </button>
                 </div>
@@ -232,7 +226,9 @@
                 <div class="botoes">
                     <button id="salvar" type="submit" class="btn btn-primary ml-5" disabled>Salvar</button>
                     <button type="button" class="btn btn-primary ml-5" onclick="edita_ficha()">Editar</button>
-                    <button id="excluir" type="button" class="btn btn-danger ml-5" data-toggle="modal" data-target="#excluir_ficha_evento" disabled>Excluir</button>
+                    <button id="excluir" type="button" class="btn btn-danger ml-5" data-toggle="modal"
+                            data-target="#excluir_ficha_evento" disabled>Excluir
+                    </button>
                 </div>
             {% endif %}
         </form>
@@ -243,187 +239,222 @@
         <fieldset id="form_adicionais" disabled="disabled">
             {% csrf_token %}
             <!-- Modal -->
-            <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Informações Adicionais</h5>
-                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="row">
-                        <h5 class="titulo-secao">Transporte</h5>
-                        <input type="hidden" name="infos" value="adicionais">
-                        <div class="checkbox" style="width: 20%">
-                            {{ formAdicionais.transporte }}
-                            <label>Transporte?</label>
+            <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Informações Adicionais</h5>
+                            <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                        <script>
-                            setTimeout(() => {
-                                pegarEndereco()
-                            }, 1)
-                        </script>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="checkbox none" style="width: 50%" id="viacao">
-                            <label>Viação</label>
-                            {{ formAdicionais.viacao }}
-                        </div>
-                        <div class="checkbox none" style="width: 25%" id="veiculo">
-                            <label>Tipo veículos</label>
-                            {{ formAdicionais.tipo_veiculo }}
-                        </div>
-                        <div class="row mt-2 none" id="dados_embarque">
-                            <div style="width: 75%" id="endereco_embarque">
-                                <label>Endereço de embarque</label>
-                                {{ formAdicionais.endereco_embarque }}
+                        <div class="modal-body">
+                            <div class="row">
+                                <h5 class="titulo-secao">Transporte</h5>
+                                <input type="hidden" name="infos" value="adicionais">
+                                <div class="checkbox" style="width: 20%">
+                                    {{ formAdicionais.transporte }}
+                                    <label>Transporte?</label>
+                                </div>
+                                <script>
+                                    setTimeout(() => {
+                                        pegarEndereco()
+                                    }, 1)
+                                </script>
                             </div>
-                            <div style="width: 25%" id="horario_embarque">
-                                <label for="id_hora_embarque">Horário</label>
-                                {{ formAdicionais.hora_embarque }}
+                            <div class="row mt-2">
+                                <div class="checkbox none" style="width: 50%" id="viacao">
+                                    <label>Viação</label>
+                                    {{ form_transporte.empresa_onibus }}
+                                </div>
+                                <div class="none" style="width: 20%" id="horario_embarque">
+                                    <label for="id_hora_embarque">Horário</label>
+                                    {{ form_transporte.horario_embarque }}
+                                </div>
+                                <div class="row mt-2 none" id="dados_embarque">
+                                    <div style="width: 75%" id="endereco_embarque">
+                                        <label>Endereço de embarque</label>
+                                        {{ form_transporte.endereco_embarque }}
+                                    </div>
+                                </div>
+                                <div class="row mt-3 none" id="dados_veiculos">
+                                    {% for veiculo in transporte.valor_veiculos %}
+                                        {% if veiculo.veiculo == 'micro' %}
+                                            <div class="row" style="width: 33%">
+                                                <div style="width: auto">
+                                                    <label class="py-1">Micro ônibus:</label>
+                                                </div>
+                                                <div style="width: 30%">
+                                                    <input type="number" name="n_micro" placeholder="n" value="{{ veiculo.n }}">
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if veiculo.veiculo == '46' %}
+                                            <div class="row" style="width: 33%">
+                                                <div style="width: auto">
+                                                    <label class="py-1">Ônibus 46 lugares:</label>
+                                                </div>
+                                                <div style="width: 30%">
+                                                    <input type="number" name="n_46" placeholder="n" value="{{ veiculo.n }}">
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if veiculo.veiculo == '50' %}
+                                            <div class="row" style="width: 33%">
+                                                <div style="width: auto">
+                                                    <label class="py-1">Ônibus 50 lugares:</label>
+                                                </div>
+                                                <div style="width: 30%">
+                                                    <input type="number" name="n_50" placeholder="n" value="{{ veiculo.n }}">
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="checkbox">
-                            {{ formAdicionais.etiquetas_embarque }}
-                            <label>Etiquetas de embarque?</label>
-                        </div>
-                        <div class="mt-2 none" style="width: 30%" id="servico_de_bordo">
-                            <label>Serviço de bordo</label>
-                            {{ formAdicionais.servico_bordo }}
-                        </div>
-                    </div>
-                    <script>
-                        setTimeout(() => {
-                            servicoBordo()
-                        }, 1)
-                    </script>
-                    <hr>
-                    <div class="checkbox" onchange="lista_segurados()">
-                        {{ formAdicionais.seguro }}
-                        <label>Seguro</label>
-
-                        {% if formAdicionais.lista_de_segurados %}
-                            <div id="arquivo_atual_lista">
-                                <a id="baixar_lista" href="/media/{{ formAdicionais.lista_de_segurados }}">Lista de segurados</a>
+                            <hr>
+                            <div class="row">
+                                <div class="checkbox">
+                                    {{ formAdicionais.etiquetas_embarque }}
+                                    <label>Etiquetas de embarque?</label>
+                                </div>
+                                <div class="mt-2 none" style="width: 30%" id="servico_de_bordo">
+                                    <label>Serviço de bordo</label>
+                                    {{ formAdicionais.servico_bordo }}
+                                </div>
                             </div>
-                            <div id="arquivo_atual_lista_editar" class="none mb-2">
-                                <label for="lista_atual_de_segurados">Lista atual de segurados: </label>
-                                <a id="lista_atual_de_segurados" href="/media/{{ formAdicionais.lista_de_segurados }}">{{ formAdicionais.lista_de_segurados }}</a>
-                            </div>
-                        {% endif %}
-
-                        {{ formAdicionais.lista_segurados }}
-                        <style>
-                            #id_lista_segurados{
-                                width: 60%;
-                                height: 10%;
-                                margin-left: 5%;
-                            }
-                        </style>
-                    </div>
-                    <script>
-                        setTimeout(() => {
-                            lista_segurados(editando=true)
-                        }, 1)
-                    </script>
-                    <hr>
-                      <div class="row">
-                        <h5 class="titulo-secao">Monitoria</h5>
-                        <div class="mb-2" style="width: 60%">
-                            <label>Tipo</label>
-                            {{ formAdicionais.monitoria }}
-                        </div>
-                        <div class="checkbox" style="width: 40%; margin-top: 35px">
-                            {{ formAdicionais.biologo }}
-                            <label>Biólogo?</label>
-                        </div>
-                        <div id="biologo" class="mt-2 none" style="width: 50%">
-                            <label>Em quais atividades</label>
-                            {{ formAdicionais.quais_atividades }}
                             <script>
-                                $(document).ready(function () {
-                                  $("#id_quais_atividades").CreateMultiCheckBox({ width: '250px',
-                                     defaultText : 'Selecione as atividades', height:'250px' });
-                                });
+                                setTimeout(() => {
+                                    servicoBordo()
+                                }, 1)
                             </script>
+                            <hr>
+                            <div class="checkbox" onchange="lista_segurados()">
+                                {{ formAdicionais.seguro }}
+                                <label>Seguro</label>
+
+                                {% if formAdicionais.lista_de_segurados %}
+                                    <div id="arquivo_atual_lista">
+                                        <a id="baixar_lista" href="/media/{{ formAdicionais.lista_de_segurados }}">Lista
+                                            de segurados</a>
+                                    </div>
+                                    <div id="arquivo_atual_lista_editar" class="none mb-2">
+                                        <label for="lista_atual_de_segurados">Lista atual de segurados: </label>
+                                        <a id="lista_atual_de_segurados"
+                                           href="/media/{{ formAdicionais.lista_de_segurados }}">{{ formAdicionais.lista_de_segurados }}</a>
+                                    </div>
+                                {% endif %}
+
+                                {{ formAdicionais.lista_segurados }}
+                                <style>
+                                    #id_lista_segurados {
+                                        width: 60%;
+                                        height: 10%;
+                                        margin-left: 5%;
+                                    }
+                                </style>
+                            </div>
+                            <script>
+                                setTimeout(() => {
+                                    lista_segurados(editando = true)
+                                }, 1)
+                            </script>
+                            <hr>
+                            <div class="row" id="monitoria_peraltas">
+                                <h5 class="titulo-secao">Monitoria</h5>
+                                <div class="mb-2" style="width: 60%">
+                                    <label>Tipo</label>
+                                    {{ formAdicionais.monitoria }}
+                                </div>
+                                <div class="checkbox" style="width: 40%; margin-top: 35px">
+                                    {{ formAdicionais.biologo }}
+                                    <label>Biólogo?</label>
+                                </div>
+                                <div id="biologo" class="mt-2 none" style="width: 50%">
+                                    <label>Em quais atividades</label>
+                                    {{ formAdicionais.quais_atividades }}
+                                </div>
+                                <script>
+                                    setTimeout(() => {
+                                        quaisAtividades()
+                                    }, 1)
+                                </script>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <h5 class="titulo-secao">Enfermaria</h5>
+                                <div style="width: 30%">
+                                    <label>Tipo</label>
+                                    {{ formAdicionais.enfermaria }}
+                                </div>
+                                <div class="mb-2 none" style="width: 30%" id="horario">
+                                    <label>Horário</label>
+                                    {{ formAdicionais.horario_garantia }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="opcionais_geral" class="row mb-2">
+                                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+                                <h5 class="titulo-secao">Opcionais gerais</h5>
+                                {{ formAdicionais.opcionais_geral }}
+                                <button id="botao_add_opcionais_geral" type="button" onclick="adcionar_novo_op_geral()">
+                                    <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
+                                </button>
+                                <div class="mt-2 row none" id="adcionar_opcional_geral">
+                                    <div style="width: 50%;">
+                                        <label for="nome_novo_op_geral">Novo opcional</label>
+                                        <input id="nome_novo_op_geral" type="text" class="form-control">
+                                    </div>
+                                    <div style="width: 50%; margin-top: 23px">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                onclick="salvar_novo_op_geral()">Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="opcionais_formatura" class="row">
+                                <h5 class="titulo-secao">Formatura</h5>
+                                {{ formAdicionais.opcionais_formatura }}
+                                <button id="botao_add_opcionais_formatura" type="button"
+                                        onclick="adcionar_novo_op_formatura()">
+                                    <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
+                                </button>
+                                <div class="mt-2 row none" id="adcionar_opcional_formatura">
+                                    <div style="width: 50%;">
+                                        <label for="nome_novo_op_formatura">Novo opcional</label>
+                                        <input id="nome_novo_op_formatura" type="text" class="form-control">
+                                    </div>
+                                    <div style="width: 50%; margin-top: 23px">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                onclick="salvar_novo_op_formatura()">Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <script>
-                            setTimeout(() => {
-                                quaisAtividades()
-                            }, 1)
-                        </script>
-                      </div>
-                    <hr>
-                    <div class="row">
-                        <h5 class="titulo-secao">Enfermaria</h5>
-                        <div style="width: 30%">
-                            <label>Tipo</label>
-                            {{ formAdicionais.enfermaria }}
-                        </div>
-                        <div class="mb-2 none" style="width: 30%" id="horario">
-                            <label>Horário</label>
-                            {{ formAdicionais.horario_garantia }}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary" id="salvar_infos">Salvar informações</button>
                         </div>
                     </div>
-                    <hr>
-                    <div id="opcionais_geral" class="row mb-2">
-                        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                        <h5 class="titulo-secao">Opcionais gerais</h5>
-                        {{ formAdicionais.opcionais_geral }}
-                        <button id="botao_add_opcionais_geral" type="button" onclick="adcionar_novo_op_geral()">
-                            <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
-                        </button>
-                        <div class="mt-2 row none" id="adcionar_opcional_geral">
-                            <div style="width: 50%;">
-                                <label for="nome_novo_op_geral">Novo opcional</label>
-                                <input id="nome_novo_op_geral" type="text" class="form-control">
-                            </div>
-                            <div style="width: 50%; margin-top: 23px">
-                                <button type="button" class="btn btn-outline-primary" onclick="salvar_novo_op_geral()">Salvar</button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div id="opcionais_formatura" class="row">
-                        <h5 class="titulo-secao">Formatura</h5>
-                        {{ formAdicionais.opcionais_formatura }}
-                        <button id="botao_add_opcionais_formatura" type="button" onclick="adcionar_novo_op_formatura()">
-                            <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
-                        </button>
-                        <div class="mt-2 row none" id="adcionar_opcional_formatura">
-                            <div style="width: 50%;">
-                                <label for="nome_novo_op_formatura">Novo opcional</label>
-                                <input id="nome_novo_op_formatura" type="text" class="form-control">
-                            </div>
-                            <div style="width: 50%; margin-top: 23px">
-                                <button type="button" class="btn btn-outline-primary" onclick="salvar_novo_op_formatura()">Salvar</button>
-                            </div>
-                        </div>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary" id="salvar_infos">Salvar informações</button>
-                  </div>
                 </div>
-              </div>
-                <script>
-                    $('#id_opcionais_geral, #id_opcionais_formatura').prop('disabled', true)
-                </script>
             </div>
             <script>
-                $(document).ready(function() {
+                $(document).ready(function () {
                     $('#id_opcionais_geral').select2({
-                        dropdownParent: $("#modal-adicionais")
+                        'disabled': 'readonly',
+                        dropdownParent: $("#modal-adicionais .modal-content"),
                     });
                     $('#id_opcionais_formatura').select2({
-                        dropdownParent: $("#modal-adicionais")
+                        'disabled': 'readonly',
+                        dropdownParent: $("#modal-adicionais .modal-content")
                     });
+                    $("#id_quais_atividades").select2({
+                        'disabled': 'readonly',
+                        dropdownParent: $("#modal-adicionais .modal-content")
+                    })
                 });
             </script>
         </fieldset>
@@ -475,25 +506,25 @@
 
     <!--  Modal para excluir ficha de evento  -->
     <div class="modal fade" id="excluir_ficha_evento" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
-                            <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body app">
-                            <p>Tem ceteza que deseja excluir a ficha de evento em questão?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
-                            <form action="" method="POST">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-primary" name="excluir" value="Sim"/>
-                            </form>
-                        </div>
-                    </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body app">
+                    <p>Tem ceteza que deseja excluir a ficha de evento em questão?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" name="excluir" value="Sim"/>
+                    </form>
                 </div>
             </div>
+        </div>
+    </div>
 {% endblock %}

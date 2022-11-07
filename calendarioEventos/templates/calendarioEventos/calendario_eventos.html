@@ -9,17 +9,17 @@
 
     <div class="conteudo-calendario-eventos">
         <div id="calendar" class="card" style="padding: 10px"></div>
-          {% csrf_token %}
+        {% csrf_token %}
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            $(document).ready(function (){
+            $(document).ready(function () {
                 montar_calendario()
             })
 
-            function montar_calendario(){
+            function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
-                const calendar = new FullCalendar.Calendar(calendarUI,{
+                const calendar = new FullCalendar.Calendar(calendarUI, {
 
                     headerToolbar: {
                         left: '',
@@ -35,8 +35,8 @@
                             $('#ModalCadastroPreReserva').modal('show');
                         },
 
-                        eventClick: function(info){
-                            if(info.el.l){
+                        eventClick: function (info) {
+                            if (info.el.l) {
                                 let cliente = info.event.title
                                 let check_in = info.event.start
                                 let check_out = info.event.end
@@ -45,7 +45,11 @@
                                     type: 'POST',
                                     url: '',
                                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                    data: {'cliente': cliente, 'check_in': check_in, 'check_out': check_out},
+                                    data: {
+                                        'cliente': cliente,
+                                        'check_in': moment(check_in).format('yyyy-MM-DD HH:mm'),
+                                        'check_out': moment(check_out).format('yyyy-MM-DD HH:mm')
+                                    },
                                     success: function (response) {
                                         $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_check_in,' +
                                             '#ModalDadosPreReserva #id_check_out,#ModalDadosPreReserva #id_participantes, ' +
@@ -62,7 +66,7 @@
                                         let modal_footer = $('#modal_footer')
                                         modal_footer.empty()
 
-                                        if(response['confirmado']){
+                                        if (response['confirmado']) {
                                             modal_footer.append('<p>Agendamento já confirmado!</p>')
                                             modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["cliente"]}'">Ficha de evento</button>`)
                                         } else {
@@ -93,7 +97,7 @@
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
 
                                 {% if pre_reserva.agendado %}
-                                    color: 'red',
+                                    color: '#008000',
                                 {% else %}
                                     color: '#b60c0c',
                                 {% endif %}
@@ -115,8 +119,8 @@
                                 {% endif %}
 
                                 {% if evento.tipo == 'Empresa' %}
-                                  color: '#fcc607',
-                                  textColor: 'black',
+                                    color: '#fcc607',
+                                    textColor: 'black',
                                 {% endif %}
 
                                 {% if evento.tipo == 'Colégio' %}
@@ -155,8 +159,8 @@
                 calendar.setOption('locale', 'pt-br')
             }
 
-            function excluir_pre_agendamento(){
-                $('document').ready(function() {
+            function excluir_pre_agendamento() {
+                $('document').ready(function () {
                     const cliente = $('#id_cliente :selected').text()
 
                     $.ajax({
@@ -169,23 +173,24 @@
                 });
             }
 
-            function salvar_editado(){
+            function salvar_editado() {
                 $('#ModalDadosPreReserva #id_cliente, #ModalDadosPreReserva #id_vendedor').prop('disabled', false)
                 document.getElementById('salvar_edicao').click()
             }
 
-            function editar_agendamento(){
+            function editar_agendamento() {
                 $('#id_check_in, #id_check_out, #id_participantes, #id_observacoes').prop('disabled', false)
 
                 $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
 
-                if($('#salvar').length === 0) {
+                if ($('#salvar').length === 0) {
                     $('#modal_footer').append('<button type="button" id="salvar" class="btn btn-outline-primary" onclick="salvar_editado()">Salvar</button>',
                         '<input type="hidden" name="editar" value="True">',
                         '<div hidden><button id="salvar_edicao" type="submit">Salvar</button></div>')
                 }
             }
-            $(document).ready(function (){
+
+            $(document).ready(function () {
                 atualizar_eventos()
             })
         </script>
@@ -214,136 +219,149 @@
         </div>
     </div>
 
-    <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-          <form id="dados_pre_reserva" action="{% url 'calendario_eventos' %}" method="POST">
-            {% csrf_token %}
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Dados do pré agendamento</h5>
-                <button class="btn-close" data-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-2">
-                    <label for="nome_cliente">Cliente</label>
-                    {{ cadastro_pre_reserva.cliente }}
-                    <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
-                </div>
-                <div class="row mb-2">
-                    <div style="width: 40%">
-                        <label for="check_in">Check in</label>
-                        {{ cadastro_pre_reserva.check_in }}
+    <div class="modal fade" id="ModalDadosPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="dados_pre_reserva" action="{% url 'calendario_eventos' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Dados do pré agendamento</h5>
+                        <button class="btn-close" data-dismiss="modal"></button>
                     </div>
-                    <div style="width: 40%">
-                        <label for="check_out">Check out</label>
-                        {{ cadastro_pre_reserva.check_out }}
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label for="nome_cliente">Cliente</label>
+                            {{ cadastro_pre_reserva.cliente }}
+                            <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
+                        </div>
+                        <div class="row mb-2">
+                            <div style="width: 50%">
+                                <label for="check_in">Check in (Data/horário)</label>
+                                {{ cadastro_pre_reserva.check_in }}
+                            </div>
+                            <div style="width: 50%">
+                                <label for="check_out">Check out (Data/horário)</label>
+                                {{ cadastro_pre_reserva.check_out }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div style="width: 20%">
+                                <label for="participantes">QTD</label>
+                                {{ cadastro_pre_reserva.participantes }}
+                            </div>
+                            <div style="width: 50%">
+                                <label for="vendedor">Vendedor(a)</label>
+                                {{ cadastro_pre_reserva.vendedor }}
+                            </div>
+                        </div>
+                        <div style="height: auto">
+                            <label for="observacoes">Observações</label>
+                            {{ cadastro_pre_reserva.observacoes }}
+                        </div>
                     </div>
-                    <div style="width: 20%">
-                        <label for="participantes">QTD</label>
-                        {{ cadastro_pre_reserva.participantes }}
-                    </div>
+                    <div class="modal-footer" id="modal_footer"></div>
                 </div>
-                <div style="width: 50%">
-                    <label for="vendedor">Vendedor(a)</label>
-                    {{ cadastro_pre_reserva.vendedor }}
-                </div>
-                <div style="height: auto">
-                    <label for="observacoes">Observações</label>
-                    {{ cadastro_pre_reserva.observacoes }}
-                </div>
-              </div>
-              <div class="modal-footer" id="modal_footer"></div>
-            </div>
-          </form>
-      </div>
-    </div>
-
-    <div class="modal fade" id="ModalCadastroPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Cadastro de pré agendamento</h5>
-            <button class="btn-close" data-dismiss="modal"></button>
-          </div>
-          <form action="{% url 'calendario_eventos' %}" method="POST">
-              {% csrf_token %}
-            <div class="modal-body">
-                <div class="mb-2" id="nome_cliente" onclick="ativar_mascara()">
-                    <div style="margin-bottom: -8px">
-                        <label for="clientes">Cliente</label>
-                        {{ cadastro_pre_reserva.cliente.as_hidden }}
-                    </div>
-                    <div>
-                        <select name="clientes" id="clientes" onchange="pegar_id_cliente()" required>
-                            <option selected></option>
-                            {% for cliente in clientes %}
-                                <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }} ({{ cliente.cnpj }})</option>
-                            {% endfor %}
-                        </select>
-                        <button class="buton-plus" type="button" onclick=window.location.href="{% url 'lista_cliente' %}">
-                            <span><i class='bx bxs-plus-circle'></i></span>
-                        </button>
-                    </div>
-                    <style>
-                        #nome_cliente .select2 {
-                            width: 90% !important;
-                            margin-right: 15px;
-                            margin-top: -10px;
-                        }
-                        #id_observacoes{
-                            resize: none;
-                        }
-                    </style>
-                    <script>
-                        $(document).ready(function() {
-                            $('#clientes').select2({
-                                dropdownParent: $("#ModalCadastroPreReserva")
-                            });
-                        })
-                        function ativar_mascara(){
-                            console.log('Foi')
-                            $('.select2-search__field').mask("99.999.999/9999-99")
-                        }
-                        function pegar_id_cliente(){
-                            let data = $('#clientes').select2('data');
-                            $('#id_cliente').val(data[0].id)
-                            console.log(data[0].id)
-                        }
-                    </script>
-                </div>
-                <div class="row mb-2">
-                    <div style="width: 40%">
-                        <label for="check_in">Check in</label>
-                        {{ cadastro_pre_reserva.check_in }}
-                    </div>
-                    <div style="width: 40%">
-                        <label for="check_out">Check out</label>
-                        {{ cadastro_pre_reserva.check_out }}
-                    </div>
-                    <div style="width: 20%">
-                        <label for="participantes">QTD</label>
-                        {{ cadastro_pre_reserva.participantes }}
-                    </div>
-                </div>
-                <div style="width: 50%">
-                    <label for="vendedor">Vendedor(a)</label>
-                    {{ cadastro_pre_reserva.vendedor }}
-                </div>
-                <div style="height: auto">
-                    <label for="observacoes">Observações</label>
-                    {{ cadastro_pre_reserva.observacoes }}
-                </div>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-success" onclick="window.location.href='{% url 'ficha_de_evento' %}'">Ficha de evento</button>
-                  <button type="submit" class="btn btn-primary">Salvar pré agendamento</button>
-              </div>
-          </form>
+            </form>
         </div>
-      </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+    <div class="modal fade" id="ModalCadastroPreReserva" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastro de pré agendamento</h5>
+                    <button class="btn-close" data-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'calendario_eventos' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-2" id="nome_cliente" onclick="ativar_mascara()">
+                            <div style="margin-bottom: -8px">
+                                <label for="clientes">Cliente</label>
+                                {{ cadastro_pre_reserva.cliente.as_hidden }}
+                            </div>
+                            <div>
+                                <select name="clientes" id="clientes" onchange="pegar_id_cliente()" required>
+                                    <option selected></option>
+                                    {% for cliente in clientes %}
+                                        <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }} ({{ cliente.cnpj }})</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="buton-plus" type="button"
+                                        onclick=window.location.href="{% url 'lista_cliente' %}">
+                                    <span><i class='bx bxs-plus-circle'></i></span>
+                                </button>
+                            </div>
+                            <style>
+                                #nome_cliente .select2 {
+                                    width: 90% !important;
+                                    margin-right: 15px;
+                                    margin-top: -10px;
+                                }
+
+                                #id_observacoes {
+                                    resize: none;
+                                }
+                            </style>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#clientes').select2({
+                                        dropdownParent: $("#ModalCadastroPreReserva")
+                                    });
+                                })
+
+                                function ativar_mascara() {
+                                    console.log('Foi')
+                                    $('.select2-search__field').mask("99.999.999/9999-99")
+                                }
+
+                                function pegar_id_cliente() {
+                                    let data = $('#clientes').select2('data');
+                                    $('#id_cliente').val(data[0].id)
+                                    console.log(data[0].id)
+                                }
+                            </script>
+                        </div>
+                        <<div class="row mb-2">
+                            <div style="width: 50%">
+                                <label for="check_in">Check in (Data/horário)</label>
+                                {{ cadastro_pre_reserva.check_in }}
+                            </div>
+                            <div style="width: 50%">
+                                <label for="check_out">Check out (Data/horário)</label>
+                                {{ cadastro_pre_reserva.check_out }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div style="width: 20%">
+                                <label for="participantes">QTD</label>
+                                {{ cadastro_pre_reserva.participantes }}
+                            </div>
+                            <div style="width: 50%">
+                                <label for="vendedor">Vendedor(a)</label>
+                                {{ cadastro_pre_reserva.vendedor }}
+                            </div>
+                        </div>
+                        <div style="height: auto">
+                            <label for="observacoes">Observações</label>
+                            {{ cadastro_pre_reserva.observacoes }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success"
+                                onclick="window.location.href='{% url 'ficha_de_evento' %}'">Ficha de evento
+                        </button>
+                        <button type="submit" class="btn btn-primary">Salvar pré agendamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+    <!-- Máscaras -->
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/auto_refresh_calendar.js' %}"></script>
 

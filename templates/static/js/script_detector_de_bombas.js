@@ -203,7 +203,6 @@ function detector_de_bombas(eventos) {
                 const atividade_local = info.event.title
                 const start = info.event.start
                 const end = info.event.end
-                // const hoje = new Date(2022, 10, 16, 9, 30, 0, 0)
                 const hoje = new Date(Date.now())
 
                 if (((hoje - start) / (1000 * 60 * 60)) >= 24){
@@ -216,7 +215,7 @@ function detector_de_bombas(eventos) {
                 $('#div_switch_add_atividade, #div_switch_add_locacao').removeClass('none')
                 $('#alerta_dados_iguais').remove()
                 $('#atividade_excluida, #locacao_excluida').val('false')
-                $('#id_professores_atividade_nova').select2({dropdownParent: $("#modal_trocar_atividade")})
+                $('#id_professores_atividade_nova').select2({dropdownParent: $("#modal_trocar_atividade .modal-content")})
                 $('#form_alteração_de_atividade #id_detector').val(window.location.href.split('/')[4])
                 pegar_select_atividade_locacao(atividade_local, start)
 
@@ -398,7 +397,6 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
         }
 
         const inicio_atividade = new Date(dados_eventos['atividades'][i]['inicio_atividade'])
-        // const hoje = new Date(2022, 10, 16, 15, 0, 0, 0)
         const hoje = new Date(Date.now())
 
         if (((hoje - inicio_atividade) / (1000 * 60 * 60)) >= 24) {

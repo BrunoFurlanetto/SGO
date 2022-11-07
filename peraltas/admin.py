@@ -2,13 +2,19 @@ from django.contrib import admin
 from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
-                             OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade)
+                             OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade, GrupoAtividade,
+                             DadosTransporte)
 from peraltas.models import Vendedor
 
 
 @admin.register(TipoAtividade)
 class TipoAtividadeAdmin(admin.ModelAdmin):
     list_display = ('id', 'tipo_atividade')
+
+
+@admin.register(GrupoAtividade)
+class GrupoAtividadeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'grupo')
 
 
 @admin.register(AtividadePeraltas)
@@ -90,6 +96,11 @@ class OpcionaisGeraisAdmin(admin.ModelAdmin):
 @admin.register(OpcionaisFormatura)
 class OpcionaisFormaturaAdmin(admin.ModelAdmin):
     list_display = ('id', 'opcional_formatura')
+
+
+@admin.register(DadosTransporte)
+class DadosTransporteAdmin(admin.ModelAdmin):
+    list_display = ('id', )
 
 
 @admin.register(InformacoesAdcionais)

@@ -11,7 +11,7 @@
 .conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
 #id_endereco_embarque, #id_quais_atividades, #id_horario_garantia,
 #id_valor, #id_valor_por_participantes, .app input, #vencimentos input,
-#id_outro_produto, #id_outros{
+#id_outro_produto, #id_outros, #dados_veiculos input{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -19,6 +19,11 @@
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+#dados_veiculos input[type='number']{
+    height: 30px;
+    padding: 5px;
+    margin-left: -15px;
 }
 .conteudo-ficha select, .modal-body select, #id_contrato, .ver-conteudo-ficha select{
     background-color: #fff;
@@ -187,7 +192,7 @@
     padding: 12px;
     height: 38px;
 }
-#opcionais_geral .select2, #opcionais_formatura .select2{
+#opcionais_geral .select2, #opcionais_formatura .select2, #monitoria_peraltas .select2{
     width: 95% !important;
 }
 #botao_add_opcionais_geral, #botao_add_opcionais_formatura{
@@ -196,4 +201,12 @@
     height: auto;
     border: none;
     margin-left: -30px;
+}
+#btn_limpar_dados_cliente{
+    border: none;
+    background: transparent;
+    margin-top: 5px;
+}
+#btn_limpar_dados_cliente:hover{
+    color: #c00303;
 }

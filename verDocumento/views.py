@@ -12,7 +12,7 @@ from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
 import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
-    CadastroInfoAdicionais, CadastroCodigoApp
+    CadastroInfoAdicionais, CadastroCodigoApp, GrupoAtividade, DadosTransporte, CadastroDadosTransporte
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_atividades_e_professores
 
@@ -339,13 +339,20 @@ def verOrdemDeServico(request, id_ordemDeServico):
 @login_required(login_url='login')
 def verFichaDeEvento(request, id_fichaDeEvento):
     ficha = FichaDeEvento.objects.get(id=int(id_fichaDeEvento))
+    grupos_atividade = GrupoAtividade.objects.all()
     informacoes = InformacoesAdcionais.objects.get(id=ficha.informacoes_adcionais.id)
     app = CodigosApp.objects.get(id=ficha.codigos_app.id)
     grupos = verificar_grupo(request.user.groups.all())
-
     ficha_de_evento = CadastroFichaDeEvento(instance=ficha)
     informacoes_adicionais = CadastroInfoAdicionais(instance=informacoes)
     codigos_app = CadastroCodigoApp(instance=app)
+
+    if informacoes.transporte:
+        transporte = DadosTransporte.objects.get(id=informacoes.informacoes_transporte.id)
+        form_transporte = CadastroDadosTransporte(instance=transporte)
+    else:
+        transporte = None
+        form_transporte = CadastroDadosTransporte()
 
     ficha_de_evento.id = ficha.id
     informacoes_adicionais.lista_de_segurados = ficha.informacoes_adcionais.lista_segurados
@@ -354,7 +361,10 @@ def verFichaDeEvento(request, id_fichaDeEvento):
 
     if request.method != 'POST':
         return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
+                                                                         'transporte': transporte,
+                                                                         'form_transporte': form_transporte,
                                                                          'formAdicionais': informacoes_adicionais,
+                                                                         'grupos_atividade': grupos_atividade,
                                                                          'formApp': codigos_app,
                                                                          'comercial': comercial,
                                                                          'operacional': operacional,
@@ -379,7 +389,7 @@ def verFichaDeEvento(request, id_fichaDeEvento):
             messages.success(request, 'Ficha de evento excluida com sucesso!')
             return redirect('calendario_eventos')
 
-    ficha_de_evento = CadastroFichaDeEvento(request.POST, instance=ficha)
+    ficha_de_evento = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha)
 
     if ficha_de_evento.is_valid():
 
@@ -399,7 +409,10 @@ def verFichaDeEvento(request, id_fichaDeEvento):
     else:
         messages.warning(request, ficha_de_evento.errors)
         return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
+                                                                         'transporte': transporte,
+                                                                         'form_transporte': form_transporte,
                                                                          'formAdicionais': informacoes_adicionais,
+                                                                         'grupos_atividade': grupos_atividade,
                                                                          'formApp': codigos_app,
                                                                          'comercial': comercial,
                                                                          'operacional': operacional,

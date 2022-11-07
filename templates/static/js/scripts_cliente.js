@@ -18,9 +18,9 @@ function encaminhamento(){
 }
 
 function completa_dados_cliente(selecao) {
-
     let cnpj = selecao.children[0].textContent.trim()
     let encaminhado = localStorage.getItem('encaminhado')
+    $('#responsavel_evento').empty().append('<option></option>')
 
     if(!encaminhado){
         $('#btn_selecionar_cliente').addClass('none')
@@ -83,16 +83,18 @@ function manter_botao(){
     }, 1)
 }
 
+function limpar_dados(){
+    $('.search').addClass('none')
+    $('#responsavel').val('')
+    $('#id_responsavel_evento').val('')
+}
+
 function pegarCliente(){
     $('#id_cliente').val(localStorage.getItem('id'))
     $('#cliente').val(localStorage.getItem('fantasia'))
 
     if($('#id_cliente').val() !== ''){
         $('.search').removeClass('none')
-    } else {
-        $('.search').addClass('none')
-        $('#responsavel').val('')
-        $('#id_responsavel_evento').val('')
     }
 
     localStorage.removeItem('id')

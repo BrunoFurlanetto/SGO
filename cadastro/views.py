@@ -14,7 +14,8 @@ from django.core.mail import send_mail
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
-    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva
+    CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva, \
+    GrupoAtividade, CadastroDadosTransporte
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -217,9 +218,11 @@ def ordemDeServico(request):
 @login_required(login_url='login')
 def fichaDeEvento(request, id_cliente=None):
     form = CadastroFichaDeEvento()
+    form_transporte = CadastroDadosTransporte()
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
     atividades_ceu = Atividades.objects.all()
+    grupos_atividade = GrupoAtividade.objects.all()
     grupos = verificar_grupo(request.user.groups.all())
 
     if id_cliente:
@@ -255,10 +258,12 @@ def fichaDeEvento(request, id_cliente=None):
 
     if request.method != 'POST':
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+                                                                 'form_transporte': form_transporte,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
                                                                  'dados_pre_reserva': dados_pre_reserva,
                                                                  'grupo_usuario': grupo_usuario,
+                                                                 'grupos_atividade': grupos_atividade,
                                                                  'atividades_ceu': atividades_ceu,
                                                                  'grupos': grupos})
 
@@ -300,9 +305,12 @@ def fichaDeEvento(request, id_cliente=None):
     else:
         messages.warning(request, form.errors)
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+                                                                 'form_transporte': form_transporte,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
+                                                                 'dados_pre_reserva': dados_pre_reserva,
                                                                  'grupo_usuario': grupo_usuario,
+                                                                 'grupos_atividade': grupos_atividade,
                                                                  'atividades_ceu': atividades_ceu,
                                                                  'grupos': grupos})
 

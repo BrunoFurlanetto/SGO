@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -41,9 +42,17 @@ class TipoAtividade(models.Model):
         return self.tipo_atividade
 
 
+class GrupoAtividade(models.Model):
+    grupo = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.grupo
+
+
 class AtividadePeraltas(models.Model):
     nome_atividade = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
+    grupo = models.ForeignKey(GrupoAtividade, on_delete=models.CASCADE, null=True)
     idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
     idade_max = models.PositiveIntegerField(verbose_name='Idade máxima')
     participantes_min = models.PositiveIntegerField(verbose_name='Número mínimo de participantes')
@@ -85,8 +94,6 @@ class AtividadesEco(models.Model):
     monitores_max = models.PositiveIntegerField(verbose_name='Número máximo de monitores')
     duracao = models.DurationField(blank=True, null=True)
     lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
-    tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo de atividade')
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     biologo = models.BooleanField(default=False)
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
 
@@ -121,6 +128,7 @@ class CodigosApp(models.Model):
     cliente_pf = models.IntegerField()
     evento = models.IntegerField()
     reserva = models.IntegerField()
+    pagamento = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
@@ -130,8 +138,8 @@ class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
-    codigo_app_pj = models.CharField(max_length=10, unique=True)
-    codigo_app_pf = models.CharField(max_length=10, unique=True)
+    codigo_app_pj = models.IntegerField(unique=True)
+    codigo_app_pf = models.IntegerField(unique=True)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
@@ -176,12 +184,18 @@ class EmpresaOnibus(models.Model):
         return self.viacao
 
 
-class DadosSegurado(models.Model):
-    grupo = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
-    segurados = models.JSONField()  # {{'cpf_responsavel': , 'nome_crianca': , 'data_nascimento': , 'rg_crianca'}}
+class DadosTransporte(models.Model):
+    empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE)
+    endereco_embarque = models.CharField(max_length=255)
+    horario_embarque = models.TimeField()
+    dados_veiculos = models.JSONField(blank=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
 
-    def __str__(self):
-        return f'lista de segurados de {self.grupo}.'
+    def valor_veiculos(self):
+        return [
+            {'veiculo': 'micro', 'n': self.dados_veiculos['micro_onibus']},
+            {'veiculo': '46', 'n': self.dados_veiculos['onibus_46']},
+            {'veiculo': '50', 'n': self.dados_veiculos['onibus_50']}
+        ]
 
 
 class OpcionaisGerais(models.Model):
@@ -199,12 +213,6 @@ class OpcionaisFormatura(models.Model):
 
 
 class InformacoesAdcionais(models.Model):
-    veiculo = (
-        (1, 'Micro ônibus'),
-        (2, 'Ônibus 46 lugares'),
-        (3, 'Ônibus 50 lugares')
-    )
-
     servicos_de_bordo = (
         (1, 'Padrão'),
         (2, 'Diferenciado')
@@ -217,15 +225,13 @@ class InformacoesAdcionais(models.Model):
     )
 
     tipos_enfermaria = (
-        (1, 'Padrão'),
-        (2, 'Garantia')
+        (2, '8h às 22h'),
+        (3, '8h às 8h (24h)'),
+        (1, 'Sem enfermeira')
     )
 
     transporte = models.BooleanField()
-    viacao = models.ForeignKey(EmpresaOnibus, on_delete=models.DO_NOTHING, blank=True, null=True)
-    tipo_veiculo = models.IntegerField(choices=veiculo, blank=True, null=True)
-    endereco_embarque = models.CharField(max_length=255, blank=True)
-    hora_embarque = models.TimeField(blank=True, null=True)
+    informacoes_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
     seguro = models.BooleanField()
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
     etiquetas_embarque = models.BooleanField()
@@ -233,8 +239,7 @@ class InformacoesAdcionais(models.Model):
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
     quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
-    enfermaria = models.IntegerField(choices=tipos_enfermaria, blank=True, null=True)
-    horario_garantia = models.TimeField(blank=True, null=True)
+    enfermaria = models.IntegerField(choices=tipos_enfermaria, default=1)
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
 
@@ -272,7 +277,7 @@ class FichaDeEvento(models.Model):
     atividades_ceu = models.ManyToManyField(Atividades, blank=True)
     locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
-    atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
+    atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
@@ -395,11 +400,26 @@ class CadastroCliente(forms.ModelForm):
         model = ClienteColegio
         exclude = ()
 
+        widgets = {
+            'codigo_app_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'codigo_app_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+        }
+
 
 class CadastroResponsavel(forms.ModelForm):
     class Meta:
         model = Responsavel
         exclude = ()
+
+
+class CadastroDadosTransporte(forms.ModelForm):
+    class Meta:
+        model = DadosTransporte
+        exclude = ()
+
+        widgets = {
+            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        }
 
 
 class CadastroInfoAdicionais(forms.ModelForm):
@@ -409,11 +429,8 @@ class CadastroInfoAdicionais(forms.ModelForm):
 
         widgets = {
             'transporte': forms.CheckboxInput(attrs={'onchange': 'pegarEndereco()'}),
-            'hora_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
-            'enfermaria': forms.Select(attrs={'onchange': 'horario(this)'}),
-            'horario_garantia': forms.TextInput(attrs={'type': 'time'}),
             'lista_segurados': forms.FileInput(attrs={'class': 'none'})
         }
 

@@ -3,7 +3,6 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/MultiSelect.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     <div id="ver_os" class="row conteudo-ver-os">
         <div class="titulo-os">
             <center>
@@ -17,7 +16,6 @@
                 <script src="{% static 'js/scripts_ordem.js' %}"></script>
                 <script src="{% static 'js/Moment.js' %}"></script>
                 <script src="{% static 'js/Moment_timezone.js' %}"></script>
-                <script src="{% static 'js/MultiSelect.js' %}"></script>
                 <script>setTimeout(() => {
                     dadosVerOrdem()
                 }, 100)</script>

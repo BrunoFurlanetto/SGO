@@ -2,7 +2,8 @@ from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
-    CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura
+    CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, CadastroDadosTransporte, \
+    DadosTransporte
 
 
 def is_ajax(request):
@@ -33,10 +34,10 @@ def requests_ajax(requisicao, files=None):
             locacoes_ceu[local.id] = local.local.estrutura
 
         for atividade in ficha_de_evento.atividades_eco.all():
-            atividades_eco[atividade.id] = atividade.atividade
+            atividades_eco[atividade.id] = atividade.nome_atividade_eco
 
-        for atividade in ficha_de_evento.atividades_peraltas.all():
-            atividades_peraltas[atividade.id] = atividade.atividade
+        for grupo in ficha_de_evento.atividades_peraltas.all():
+            atividades_peraltas[grupo.id] = grupo.grupo
 
         for produto in ficha_de_evento.produto.all():
 
@@ -265,18 +266,40 @@ def requests_ajax(requisicao, files=None):
 
     if requisicao.get('infos') == 'adicionais':
 
-        if requisicao.get('id_infos_adicionais'):
-            info = InformacoesAdcionais.objects.get(id=int(requisicao.get('id_infos_adicionais')))
+        if requisicao.get('infos_adicionais'):
+            info = InformacoesAdcionais.objects.get(id=int(requisicao.get('infos_adicionais')))
+            transporte = DadosTransporte.objects.get(id=info.informacoes_transporte.id) if info.transporte else None
 
             if files:
                 form = CadastroInfoAdicionais(requisicao, files=files, instance=info)
             else:
                 form = CadastroInfoAdicionais(requisicao, instance=info)
         else:
+            transporte = None
+
             if files:
                 form = CadastroInfoAdicionais(requisicao, files=requisicao.get('id_lista_segurados'))
             else:
                 form = CadastroInfoAdicionais(requisicao)
+
+        if requisicao.get('transporte'):
+            novas_infos = form.save(commit=False)
+
+            if transporte:
+                form_dados_transporte = CadastroDadosTransporte(requisicao, instance=transporte)
+            else:
+                form_dados_transporte = CadastroDadosTransporte(requisicao)
+
+            dados_transporte = form_dados_transporte.save(commit=False)
+
+            dados_transporte.dados_veiculos = {
+                'micro_onibus': int(requisicao.get('n_micro')) if requisicao.get('n_micro') else 0,
+                'onibus_46': int(requisicao.get('n_46')) if requisicao.get('n_46') else 0,
+                'onibus_50': int(requisicao.get('n_50')) if requisicao.get('n_50') else 0,
+            }
+
+            form_dados_transporte.save()
+            novas_infos.informacoes_transporte = dados_transporte
 
         if form.is_valid():
             novas_infos = form.save()

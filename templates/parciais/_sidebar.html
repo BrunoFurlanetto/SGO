@@ -37,7 +37,7 @@
 
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -56,7 +56,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -65,7 +65,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'Diretoria' in grupos or 'dev' in grupos %}
+                {% if 'DEV' in grupos or 'Diretoria' in grupos %}
                     <a href="{% url 'painelGeral' %}">
                         <i class='bx bxs-pie-chart-alt-2'></i>
                         <span class="link_name"><nobr>Painel estatístico</nobr></span>
@@ -77,7 +77,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -86,7 +86,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'Coordenador pedagógico' in grupos or 'mostrar' in grupos or 'dev' in grupos %}
+                {% if 'DEV' in grupos or 'Coordenador pedagógico' in grupos or 'mostrar' in grupos %}
                     <a href="{% url 'detector' %}">
                         <i class='bx bx-timer'></i>
                         <span class="link_name max-word"><nobr>Detector de bombas</nobr></span>
@@ -98,7 +98,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -107,7 +107,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'Professor' in grupos or 'Operacional' in grupos or 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
+                {% if 'DEV' in grupos or 'Professor' in grupos or 'Operacional' in grupos or 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
 
                     <div class="iocn-link">
                         <a href="#">

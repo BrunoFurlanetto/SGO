@@ -162,10 +162,10 @@ def requests_ajax(requisicao):
             locacoes_ceu[locacao.local.id] = locacao.local.estrutura
 
         for atividade in ficha_de_evento.atividades_eco.all():
-            atividades_eco[atividade.id] = atividade.atividade
+            atividades_eco[atividade.id] = atividade.nome_atividade_eco
 
-        for atividade in ficha_de_evento.atividades_peraltas.all():
-            atividades_peraltas[atividade.id] = atividade.atividade
+        for grupo in ficha_de_evento.atividades_peraltas.all():
+            atividades_peraltas[grupo.id] = grupo.grupo
 
         dados_ficha = {
             'cliente': ficha_de_evento.cliente.nome_fantasia,

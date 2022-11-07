@@ -3,7 +3,6 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/MultiSelect.css' %}"> <!-- Estilização da parte das Ficha de evento -->
     <div class="row conteudo-os">
         <div class="titulo-os">
             <center>
@@ -16,7 +15,6 @@
             <script src="{% static 'js/scripts_ordem.js' %}"></script>
             <script src="{% static 'js/Moment.js' %}"></script>
             <script src="{% static 'js/Moment_timezone.js' %}"></script>
-            <script src="{% static 'js/MultiSelect.js' %}"></script>
             <div style="width: 50%">
                 <label>Ficha de evento</label>
                 <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
