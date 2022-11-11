@@ -145,6 +145,7 @@ class ClienteColegio(models.Model):
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=10)
+    responsavel_alteracao = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return self.nome_fantasia
@@ -161,9 +162,16 @@ class PreReserva(models.Model):
     ficha_evento = models.BooleanField(default=False)
 
 
+class ListaDeCargos(models.Model):
+    cargo = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.cargo
+
+
 class Responsavel(models.Model):
     nome = models.CharField(max_length=255)
-    cargo = models.CharField(max_length=255)
+    cargo = models.ManyToManyField(ListaDeCargos)
     fone = models.CharField(max_length=16)
     email_responsavel_evento = models.EmailField()
 
@@ -392,6 +400,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
+            'atividades_eco': forms.SelectMultiple(attrs={'onchange': 'pegar_atividades_eco(this)'})
         }
 
 

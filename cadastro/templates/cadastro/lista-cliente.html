@@ -4,19 +4,21 @@
 {% load custom_filter_tag %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
+    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}">
+    <!-- Estilização da parte das Ficha de evento -->
     <div class="row conteudo-cliente">
         <div class="titulo-cliente">
             <h4>Busca de cliente</h4>
         </div>
         <hr>
-        <div id="busca" class="busca mb-3">
+        <div id="busca" class="busca mb-3 {% if request.POST.cnpj %} none {% endif %}">
             <form method="GET" action="{% url 'lista_cliente' %}" enctype='multipart/form-data'>
                 <fieldset>
                     <script src="{% static 'js/scripts_cliente.js' %}"></script>
                     <div class="row">
                         <label>CNPJ</label>
-                        <input class="form-control" type="text" value="{{ request.GET.termo }}" id="search-input" name="termo" style="width: 50%; margin-left: 10px">
+                        <input class="form-control" type="text" value="{{ request.GET.termo }}" id="search-input"
+                               name="termo" style="width: 50%; margin-left: 10px">
                         <button type="submit" class="buton-search">
                             <span><i class='bx bx-search'></i></span>
                         </button>
@@ -24,47 +26,68 @@
                             <span><i class='bx bxs-plus-circle'></i></span>
                         </button>
                     </div>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+                    <!-- Máscaras -->
                 </fieldset>
             </form>
             <hr>
         </div>
 
-        <div class="lista-clientes">
+        <div class="lista-clientes {% if request.POST.cnpj %} none {% endif %}">
             <table class="table">
                 <thead>
-                    <th style="width: 35%">CNPJ</th>
-                    <th>NOME FANTASIA</th>
+                <th style="width: 35%">CNPJ</th>
+                <th>NOME FANTASIA</th>
                 </thead>
                 <tbody>
-                    {% for cliente in clientes %}
-                        <tr>
-                            <td>
-                                <button type="button" class="button-cliente" onclick="completa_dados_cliente(this)">
+                {% for cliente in clientes %}
+                    <tr>
+                        <td>
+                            <button type="button" class="button-cliente" onclick="completa_dados_cliente(this)">
                                     <span>
                                         {{ cliente.cnpj }}
                                     </span>
-                                </button>
-                            </td>
-                            <td>{{ cliente.nome_fantasia }}</td>
-                        </tr>
-                    {% endfor %}
+                            </button>
+                        </td>
+                        <td>{{ cliente.nome_fantasia }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
 
             <nav aria-label="...">
                 <ul class="pagination justify-content-end">
-                    {% for pagina in clientes.paginator.page_range %}
-                        {% if clientes.number == pagina %}
-                            <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
-                                {{ pagina }}
-                            </a></li>
-                        {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
-                                {{ pagina }}
-                            </a></li>
+                    {% if clientes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ clientes.previous_page_number }}">&lsaquo;</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in clientes.paginator.page_range %}
+
+                        {% if clientes.number == num %}
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% elif num > clientes.number|add:'-3' and num < clientes.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
                         {% endif %}
+
                     {% endfor %}
+
+                    {% if clientes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ clientes.next_page_number }}">&rsaquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ clientes.paginator.num_pages }}">&raquo;</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
@@ -73,6 +96,8 @@
             <form method="POST" action="{% url 'lista_cliente' %}" onchange="put()" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
+                    {{ form.codigo_app_pj.as_hidden }}
+                    {{ form.codigo_app_pf.as_hidden }}
                     <div>
                         <label>Razão social</label>
                         {{ form.razao_social }}
@@ -111,7 +136,8 @@
                     <div class="row">
                         <div style="width: 50%">
                             <label>Responsavel</label>
-                            <select class="form-select" name="responsavel_pelo_evento" id="responsavel_evento" onchange="manter_botao()">
+                            <select class="form-select" name="responsavel_pelo_evento" id="responsavel_evento"
+                                    onchange="manter_botao()">
                                 <option selected></option>
                             </select>
                         </div>
@@ -119,14 +145,16 @@
                     <hr>
                     <input type="hidden" name="update" value="true">
                     <input type="hidden" id="id_id" name="id">
-                    <button type="button" class="btn btn-primary ml-5" id="btn_selecionar_cliente" onclick="salvarCliente()">Seleconar cliente</button>
+                    <button type="button" class="btn btn-primary ml-5" id="btn_selecionar_cliente"
+                            onclick="salvarCliente()">Seleconar cliente
+                    </button>
                     <button type="submit" class="btn btn-primary btn-update" disabled>Salvar</button>
                 </fieldset>
             </form>
         </div>
 
-        <div class="cadastro-novo none" id="cadastro">
-            <form method="POST" action="{% url 'lista_cliente' %}" id="cadastro_cliente" enctype='multipart/form-data'>
+        <div class="cadastro-novo {% if not request.POST.cnpj %} none {% endif %} " id="cadastro">
+            <form method="POST" action="{% url 'lista_cliente' %}" id="cadastro_cliente">
                 <fieldset>
                     {% csrf_token %}
                     <input type="hidden" name="novo" value="cliente">
@@ -176,7 +204,7 @@
                             <label>CEP</label>
                             {{ form.cep }}
                             <script>
-                                $(document).ready(function() {
+                                $(document).ready(function () {
                                     $('#update #id_cep, #cadastro #id_cep').mask('99999-999');
                                 })
                             </script>
@@ -188,12 +216,13 @@
                     </div>
                     <div id="add_responsavel">
                         <label>Adicionar responsavel</label>
-                        <button class="buton-plus" type="button" style="margin-left: 0px" data-toggle="modal" data-target="#novo_responsavel">
+                        <button class="buton-plus" type="button" style="margin-left: 0" data-toggle="modal"
+                                data-target="#novo_responsavel">
                             <span><i class='bx bxs-plus-circle'></i></span>
                         </button>
                     </div>
                     <hr>
-                    <button type="submit" class="btn btn-primary ml-5" >Salvar</button>
+                    <button type="submit" class="btn btn-primary ml-5">Salvar</button>
                 </fieldset>
             </form>
         </div>
@@ -206,8 +235,9 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Cadastro de novo responsável</h5>
-                                <button type="button" class="close x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                                <button type="button" class="close x-fechar-modal" data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
@@ -222,8 +252,8 @@
                                             {{ formResponsavel.fone }}
                                             <script>
                                                 $('#id_fone').mask('(00) 0 0000-00009');
-                                                $('#id_fone').blur(function(event) {
-                                                    if($(this).val().length == 16){ // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
+                                                $('#id_fone').blur(function (event) {
+                                                    if ($(this).val().length == 16) { // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
                                                         $(this).mask('(00) 0 0000-0009');
                                                     } else {
                                                         $(this).mask('(00) 0000-0000');
@@ -231,17 +261,30 @@
                                                 });
                                             </script>
                                         </div>
-                                        <div style="width: 30%">
-                                            <label>Cargo</label>
-                                            {{ formResponsavel.cargo }}
-                                        </div>
                                         <div style="width: 70%">
                                             <label>Email</label>
                                             {{ formResponsavel.email_responsavel_evento }}
                                         </div>
+                                        <div style="margin-top: 5px">
+                                            <label>Cargo</label>
+                                            {{ formResponsavel.cargo }}
+                                            <script>
+                                                $(document).ready(function () {
+                                                    $('#id_cargo').select2({
+                                                        dropdownParent: $("#novo_responsavel")
+                                                    });
+                                                })
+                                            </script>
+                                            <style>
+                                                .select2 {
+                                                    width: 100% !important;
+                                                }
+                                            </style>
+                                        </div>
                                         <input type="hidden" name="novo" value="responsavel">
                                     </div>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+                                    <!-- Máscaras -->
                                 </div>
                             </div>
                             <div class="modal-footer">

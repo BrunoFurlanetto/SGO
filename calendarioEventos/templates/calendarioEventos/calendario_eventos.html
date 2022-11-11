@@ -71,14 +71,18 @@
                                             modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["cliente"]}'">Ficha de evento</button>`)
                                         } else {
                                             {% if comercial %}
-                                                modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
+                                                if (response['editar']){
+                                                    modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
+                                                }
                                             {% endif %}
 
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                             modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary"> Confirmar agendamento</button>')
 
                                             {% if comercial %}
-                                                modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                                if (response['editar']){
+                                                    modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                                }
                                             {% endif %}
                                         }
                                     }

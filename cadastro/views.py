@@ -319,7 +319,7 @@ def fichaDeEvento(request, id_cliente=None):
 def listaCliente(request):
     form = CadastroCliente()
     form_responsavel = CadastroResponsavel()
-    clientes = ClienteColegio.objects.all()
+    clientes = ClienteColegio.objects.all().order_by('-id')
     paginacao = Paginator(clientes, 5)
     pagina = request.GET.get('page')
     clientes = paginacao.get_page(pagina)
@@ -328,7 +328,7 @@ def listaCliente(request):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    # ---------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     if request.GET.get('termo'):
         termo = request.GET.get('termo')
 
@@ -365,6 +365,8 @@ def listaCliente(request):
                 email_error(request.user.get_full_name(), e, __name__)
                 messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             else:
+                cliente.responsavel_alteracao = request.user
+                cliente.save()
                 messages.success(request, 'Cliente atualizado com sucesso!')
                 return redirect('lista_cliente')
 
@@ -375,20 +377,33 @@ def listaCliente(request):
     form = CadastroCliente(request.POST)
 
     if form.is_valid():
-
         try:
+            novo_cliente = form.save(commit=False)
+            novo_cliente.responsavel_alteracao = request.user
             form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
+
+            if request.POST.get('id_responsavel') != '':
+                responsavel = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
+                responsavel.delete()
+
             return redirect('lista_cliente')
         else:
+            nova_relacao = RelacaoClienteResponsavel.objects.create(cliente=novo_cliente)
+            nova_relacao.responsavel.add(request.POST.get('id_responsavel'))
+            nova_relacao.save()
             messages.success(request, 'Cliente salvo com sucesso')
             return redirect('lista_cliente')
-
     else:
+        responsavel_com_erro = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
+        responsavel_com_erro.delete()
         messages.warning(request, form.errors)
-        return redirect('lista_cliente')
+        return render(request, 'cadastro/lista-cliente.html', {'form': form,
+                                                               'clientes': clientes,
+                                                               'formResponsavel': form_responsavel,
+                                                               'grupos': grupos})
 
 
 @login_required(login_url='login')
@@ -399,10 +414,12 @@ def listaResponsaveis(request):
     grupos = verificar_grupo(request.user.groups.all())
 
     for responsavel in responsaveis:
-        print(responsavel)
-        relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
-        responsavel.responsavel_por = relacao.cliente.nome_fantasia
-        print(relacao, responsavel.responsavel_por)
+        try:
+            relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+        except RelacaoClienteResponsavel.DoesNotExist:
+            messages.warning(request, f'Responsável {responsavel.nome} cadastrado, mas sem cliente na ficha')
+        else:
+            responsavel.responsavel_por = relacao.cliente.nome_fantasia
 
     paginacao = Paginator(responsaveis, 5)
     pagina = request.GET.get('page')
@@ -454,6 +471,7 @@ def listaResponsaveis(request):
 
     if request.POST.get('update') == 'true':
         responsavel = Responsavel.objects.get(id=int(request.POST.get('id')))
+        cliente = ClienteColegio.objects.get(id=int(request.POST.get('responsavel_por')))
 
         form = CadastroResponsavel(request.POST, instance=responsavel)
 
@@ -466,6 +484,12 @@ def listaResponsaveis(request):
                 messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
                 return redirect('lista_responsaveis')
             else:
+                try:
+                    relacao_existente = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+                except RelacaoClienteResponsavel.DoesNotExist:
+                    nova_relacao = RelacaoClienteResponsavel.objects.create(cliente=cliente)
+                    nova_relacao.responsavel.add(responsavel.id)
+
                 messages.success(request, 'Dados do responsável atualizada com sucesso!')
                 return redirect('lista_responsaveis')
 

@@ -14,13 +14,13 @@ from projetoCEU.utils import verificar_grupo, email_error
 
 @login_required(login_url='login')
 def eventos(request):
-    ordens = OrdemDeServico.objects.all()
-    fichas_de_evento = FichaDeEvento.objects.all()
     pre_reservas = PreReserva.objects.filter(ficha_evento=False)
-    cadastro_de_pre_reservas = CadastroPreReserva()
-    clientes = ClienteColegio.objects.all()
-    professor_ceu = False
     grupos = verificar_grupo(request.user.groups.all())
+    cadastro_de_pre_reservas = CadastroPreReserva()
+    fichas_de_evento = FichaDeEvento.objects.all()
+    clientes = ClienteColegio.objects.all()
+    ordens = OrdemDeServico.objects.all()
+    professor_ceu = False
 
     comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
 
@@ -56,6 +56,7 @@ def eventos(request):
             'cliente': pre_reserva.cliente.id,
             'id': pre_reserva.id,
             'vendedor': pre_reserva.vendedor.id,
+            'editar': pre_reserva.vendedor.usuario.id == request.user.id,
             'confirmado': pre_reserva.agendado,
             'observacoes': pre_reserva.observacoes
         })

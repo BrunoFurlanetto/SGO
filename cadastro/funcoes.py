@@ -148,6 +148,8 @@ def requests_ajax(requisicao, files=None):
         except RelacaoClienteResponsavel.DoesNotExist:
             cliente = {
                 'id': cliente_bd.id,
+                'codigo_app_pj': cliente_bd.codigo_app_pj,
+                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -164,6 +166,8 @@ def requests_ajax(requisicao, files=None):
 
             cliente = {
                 'id': cliente_bd.id,
+                'codigo_app_pj': cliente_bd.codigo_app_pj,
+                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -198,16 +202,32 @@ def requests_ajax(requisicao, files=None):
 
     if requisicao.get('id_selecao'):
         responsavel_bd = Responsavel.objects.get(id=int(requisicao.get('id_selecao')))
-        relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel_bd)
+        cargos = []
 
-        responsavel = {
-            'id': responsavel_bd.id,
-            'nome': responsavel_bd.nome,
-            'cargo': responsavel_bd.cargo,
-            'fone': responsavel_bd.fone,
-            'email_responsavel_evento': responsavel_bd.email_responsavel_evento,
-            'responsavel_por': relacao.cliente.id
-        }
+        for cargo in responsavel_bd.cargo.all():
+            cargos.append(cargo.id)
+
+        try:
+            relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel_bd)
+        except RelacaoClienteResponsavel.DoesNotExist:
+            clientes = ClienteColegio.objects.all()
+            responsavel = {
+                'id': responsavel_bd.id,
+                'nome': responsavel_bd.nome,
+                'cargo': cargos,
+                'fone': responsavel_bd.fone,
+                'email_responsavel_evento': responsavel_bd.email_responsavel_evento,
+                'responsavel_por': [{'nome': cliente.nome_fantasia, 'id': cliente.id} for cliente in clientes]
+            }
+        else:
+            responsavel = {
+                'id': responsavel_bd.id,
+                'nome': responsavel_bd.nome,
+                'cargo': cargos,
+                'fone': responsavel_bd.fone,
+                'email_responsavel_evento': responsavel_bd.email_responsavel_evento,
+                'responsavel_por': {'nome': relacao.cliente.nome_fantasia, 'id': relacao.cliente.id}
+            }
 
         return responsavel
 

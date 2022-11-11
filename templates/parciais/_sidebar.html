@@ -125,13 +125,13 @@
                             <li><a href="{% url 'empresa' %}">Empresa</a></li>
                         {% endif %}
 
-                        {% if 'Operacional' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
+                        {% if 'Operacional' in grupos or 'Diretoria' in grupos or 'DEV' in grupos %}
                             <li><a href="{% url 'ordem_de_servico' %}">Ordem de Serviço</a></li>
                         {% endif %}
 
-                        {% if 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
+                        {% if 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'DEV' in grupos %}
                             <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
-                            <li><a href="{% url 'lista_cliente' %}">Cliente</a></li>
+                            <li><a href="{% url 'lista_cliente' %}" onclick="localStorage.removeItem('encaminhado')">Cliente</a></li>
                             <li><a class="max-word" href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
                         {% endif %}
                     </ul>

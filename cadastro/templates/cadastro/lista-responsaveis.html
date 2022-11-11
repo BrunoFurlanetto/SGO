@@ -4,7 +4,8 @@
 {% load custom_filter_tag %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}"> <!-- Estilização da parte das Ficha de evento -->
+    <link rel="stylesheet" href="{% static 'css/cadastro_ficha.css' %}">
+    <!-- Estilização da parte das Ficha de evento -->
     {% csrf_token %}
     <div class="row conteudo-responsaveis">
         <div class="titulo-responsaveis">
@@ -16,9 +17,10 @@
             <form method="GET" action="{% url 'lista_responsaveis' %}">
                 <fieldset>
                     <div class="row">
-                        <div class="mb-3 selecao-cliente" style="width: 50%" >
+                        <div class="mb-3 selecao-cliente" style="width: 50%">
                             <label>Selecione o cliente/empresa</label>
-                            <select class="clientes form-select" name="cliente" id="search-cliente" value="{{ request.GET.cliente }}" onchange="salvarIdCliente()">
+                            <select class="clientes form-select" name="cliente" id="search-cliente"
+                                    value="{{ request.GET.cliente }}" onchange="salvarIdCliente()">
                                 <option selected></option>
                                 {% for cliente in clientes %}
                                     <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
@@ -32,35 +34,36 @@
                         </div>
                     </div>
 
-                        <script>
-                            $(document).ready(function() {
-                                $('.clientes').select2();
-                            });
-                        </script>
+                    <script>
+                        $(document).ready(function () {
+                            $('.clientes').select2();
+                        });
+                    </script>
                 </fieldset>
             </form>
             <table class="table responsaveis">
                 <thead>
-                    <th style="width: 25%">NOME</th>
-                    <th style="width: 25%">TELEFONE</th>
-                    <th style="width: 25%">EMAIL</th>
-                    <th style="width: 30%">CLIENTE</th>
+                <th style="width: 25%">NOME</th>
+                <th style="width: 25%">TELEFONE</th>
+                <th style="width: 25%">EMAIL</th>
+                <th style="width: 30%">CLIENTE</th>
                 </thead>
                 <tbody id="corpo-tabela-responsaveis">
-                    {% for responsavel in responsaveis %}
-                        <tr>
-                            <td>
-                                <button type="button" id="{{ responsavel.id }}" class="button-responsavel" onclick="completa_dados_responsavel(this)">
+                {% for responsavel in responsaveis %}
+                    <tr>
+                        <td>
+                            <button type="button" id="{{ responsavel.id }}" class="button-responsavel"
+                                    onclick="completa_dados_responsavel(this)">
                                     <span>
                                         {{ responsavel.nome }}
                                     </span>
-                                </button>
-                            </td>
-                            <td>{{ responsavel.fone }}</td>
-                            <td>{{ responsavel.email_responsavel_evento }}</td>
-                            <td>{{ responsavel.responsavel_por }}</td>
-                        </tr>
-                    {% endfor %}
+                            </button>
+                        </td>
+                        <td>{{ responsavel.fone }}</td>
+                        <td>{{ responsavel.email_responsavel_evento }}</td>
+                        <td>{{ responsavel.responsavel_por }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
             {% if request.GET.cliente and request.GET.cliente != '' %}
@@ -71,19 +74,37 @@
 
             <nav aria-label="...">
                 <ul class="pagination justify-content-end">
-                    {% for pagina in responsaveis.paginator.page_range %}
+                    {% if responsaveis.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ responsaveis.previous_page_number }}">&lsaquo;</a>
+                        </li>
+                    {% endif %}
 
-                        {% if responsaveis.number == pagina %}
-                            <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&cliente={{ request.GET.cliente }}">
-                                {{ pagina }}
-                            </a></li>
-                        {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ pagina }}&cliente={{ request.GET.cliente }}">
-                                {{ pagina }}
-                            </a></li>
+                    {% for num in responsaveis.paginator.page_range %}
+
+                        {% if responsaveis.number == num %}
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% elif num > responsaveis.number|add:'-3' and num < responsaveis.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
                         {% endif %}
 
                     {% endfor %}
+
+                    {% if responsaveis.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ responsaveis.next_page_number }}">&rsaquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ responsaveis.paginator.num_pages }}">&raquo;</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </nav>
 
@@ -103,19 +124,29 @@
                             <label>Telefone</label>
                             {{ form.fone }}
                         </div>
-                        <div style="width: 30%">
-                            <label>Cargo</label>
-                            {{ form.cargo }}
-                        </div>
                         <div style="width: 70%">
                             <label>Email</label>
                             {{ form.email_responsavel_evento }}
                         </div>
+                        <div style="margin-top: 5px">
+                            <label>Cargo</label>
+                            {{ form.cargo }}
+                            <style>
+                                .select2 {
+                                    width: 100% !important;
+                                }
+                            </style>
+                        </div>
+                        <div id="div_responsavel_por">
+                            <label>Responsável pelos eventos de:</label>
+                            <input type="text" name="responsavel_por" id="id_responsavel_por" readonly>
+                        </div>
                         <input type="hidden" id="id_id" name="id">
                         <input type="hidden" name="update" value="true">
-                        {{ form.responsavel_por.as_hidden }}
                     </div>
-                    <button type="button" class="btn btn-primary ml-5" id="btn_selecionar" onclick="salvarResponsavel()">Seleconar responsável</button>
+                    <button type="button" class="btn btn-primary ml-5" id="btn_selecionar"
+                            onclick="salvarResponsavel()">Seleconar responsável
+                    </button>
                     <button type="submit" class="btn btn-primary btn-update" disabled>Salvar</button>
                 </fieldset>
             </form>
@@ -140,22 +171,29 @@
                             <label>Telefone</label>
                             {{ form.fone }}
                         </div>
-                        <div style="width: 30%">
-                            <label>Cargo</label>
-                            {{ form.cargo }}
-                        </div>
                         <div style="width: 70%">
                             <label>Email</label>
                             {{ form.email_responsavel_evento }}
                         </div>
+                        <div style="margin-top: 5px">
+                            <label>Cargo</label>
+                            {{ form.cargo }}
+                            <style>
+                                #id_cargo {
+                                    width: 100%
+                                }
+                            </style>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" onclick="limpar_dados_salvos()">Salvar</button>
-                    <script src="{% static 'js/scripts_cliente.js' %}"></script>
-{#                    <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>#}
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
                 </fieldset>
             </form>
         </div>
 
     </div>
+
+    <script src="{% static 'js/scripts_cliente.js' %}"></script>
+    {#                    <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+    <!-- Máscaras -->
 {% endblock %}

@@ -21,8 +21,7 @@
                     {{ form.cliente.as_hidden }}
 
                     {% if dados_pre_reserva %}
-                        <input type="text" id="cliente" readonly value="{{ dados_pre_reserva.cliente_nome_fantasia }}"
-                               required>
+                        <input type="text" id="cliente" readonly value="{{ dados_pre_reserva.cliente_nome_fantasia }}" required>
                         <script>
                             $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
                             setTimeout(() => {
@@ -51,7 +50,7 @@
                        target="_blank"><i class='bx bx-search'></i></a>
                 </div>
             </div>
-            <button type="button" id="btn_limpar_dados_cliente">Limpar dados cliente</button>
+            <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente</button>
             <hr>
             <div class="row produtos-peraltas checkbox form-group" style="width: 100%" onchange="teste()">
                 <h5 class="titulo-secao">Produto Peraltas</h5>
@@ -197,7 +196,7 @@
             <hr>
             <div class="row peraltas">
                 <h5 class="titulo-secao">Peraltas</h5>
-                <div id="atividades_ecoturismo" onchange="pegar_atividades_eco()" style="width: 50%;">
+                <div id="atividades_ecoturismo" style="width: 50%;">
                     <label>Ecoturismo</label>
                     {{ form.atividades_eco }}
                     <script>
@@ -379,6 +378,9 @@
                             <div id="biologo" class="mt-2 none" style="width: 50%">
                                 <label>Em quais atividades</label>
                                 {{ formAdicionais.quais_atividades }}
+                                <script>
+                                    $('#id_quais_atividades').empty()
+                                </script>
                             </div>
                         </div>
                         <hr>
@@ -395,7 +397,6 @@
                         </div>
                         <hr>
                         <div id="opcionais_geral" class="row mb-2">
-                            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
                             <h5 class="titulo-secao">Opcionais gerais</h5>
                             {{ formAdicionais.opcionais_geral }}
                             <button id="botao_add_opcionais_geral" type="button" onclick="adcionar_novo_op_geral()">
@@ -497,7 +498,7 @@
             </div>
         </div>
     </form>
-
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/scripts_cliente.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>

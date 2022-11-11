@@ -34,7 +34,7 @@ function completa_dados_cliente(selecao) {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'cnpj': cnpj},
         success: function (response) {
-
+            console.log(response)
             for(let i in response){
                 $(`#id_${i}`).val(response[i])
             }
@@ -62,7 +62,6 @@ function salvarCliente(){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'cnpj': $('#id_cnpj').val()},
         success: function (response) {
-            console.log(response['id'])
             localStorage.setItem('id', response['id'])
 
             if($('#responsavel_evento').val() !== ''){
@@ -85,15 +84,21 @@ function manter_botao(){
 
 function limpar_dados(){
     $('.search').addClass('none')
-    $('#responsavel').val('')
-    $('#id_responsavel_evento').val('')
+    $('#responsavel, #id_responsavel_evento, #id_cliente, #cliente').val('')
 }
 
 function pegarCliente(){
-    $('#id_cliente').val(localStorage.getItem('id'))
-    $('#cliente').val(localStorage.getItem('fantasia'))
+    const id_cliente = $('#id_cliente')
+    const nome_fantasia = $('#cliente')
 
-    if($('#id_cliente').val() !== ''){
+    if (localStorage.getItem('id') === null){
+        return
+    }
+
+    id_cliente.val(localStorage.getItem('id'))
+    nome_fantasia.val(localStorage.getItem('fantasia'))
+
+    if(id_cliente.val() !== ''){
         $('.search').removeClass('none')
     }
 
@@ -104,10 +109,9 @@ function pegarCliente(){
             url: '',
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
-            data: {'id_cliente_app': $('#id_cliente').val()},
+            data: {'id_cliente_app': id_cliente.val()},
             success: function (response) {
                 for(let i in response){
-                    console.log(i, response[i])
                     $(`#${i}`).val(response[i]).prop('readonly', true)
                 }
             }
@@ -155,8 +159,9 @@ function pegarDadosResponsaveis(selecao){
     })
 }
 
-function completa_dados_responsavel(selecao){
+function completa_dados_responsavel(selecao) {
     let id = parseInt(selecao.id)
+    $('#id_cargo').select2()
     $('.dados-responsavel').removeClass('none')
     $('.lista-responsaveis').addClass('none')
 
@@ -168,20 +173,48 @@ function completa_dados_responsavel(selecao){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_selecao': id},
         success: function (response) {
-            console.log(response)
-             for(let j in response){
-                $(`#id_${j}`).val(response[j])
+            $('#responsavel_por').val(response['responsavel_por']['id'])
+
+            if (typeof response['responsavel_por']['nome'] === 'string') {
+                for (let j in response) {
+                    if (j === 'responsavel_por'){
+                        $(`#id_${j}`).val(response[j]['nome'])
+                    }else{
+                        $(`#id_${j}`).val(response[j])
+                    }
+                }
+            } else {
+                for (let j in response) {
+                    if (j !== 'responsavel_por') {
+                        $(`#id_${j}`).val(response[j])
+                    }
+                }
+
+                $('#id_responsavel_por').remove()
+                $('#div_responsavel_por').append('<select name="responsavel_por" id="id_responsavel_por" required><option></option></select>')
+
+                for (let i = 0; i < response['responsavel_por'].length; i++) {
+                    $('#id_responsavel_por').append(`<option value="${response['responsavel_por'][i]['id']}">${response['responsavel_por'][i]['nome']}</option>`)
+                }
+
+                $('#id_responsavel_por').select2()
+                $('#btn_selecionar').prop('disabled', true)
+            }
+
+            if (response['cargo'].length > 0){
+                $(`#id_cargo`).val(response['cargo']).trigger('change')
             }
 
         }
     })
 }
 
+
 function novo_responsavel(){
     $('.cadastro-responsavel').removeClass('none')
     $('.dados-responsavel').remove()
     $('.lista-responsaveis').addClass('none')
-
+    $('#id_cargo').select2()
     $('#id_responsavel_por').val(localStorage.getItem('id_cliente'))
     $('#nome_fantasia_cliente').val(localStorage.getItem('fantasia_cliente'))
 
@@ -244,6 +277,9 @@ $('document').ready(function() {
         let div_responsavel = $('#responsavel-evento')
         let dados = jQuery(this).serialize();
         let url = $(this).attr('action');
+        $('#mensagem').remove()
+        $('html, body').animate({scrollTop : 0},50)
+
         $.ajax({
             url: url,
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -258,55 +294,56 @@ $('document').ready(function() {
                 $('#novo_responsavel').modal('hide')
             },
             error: function(response){
-                div_responsavel.append(`<p class="alert-alert">${response['mensagem']}</p>`)
+                div_responsavel.append(`<p id="mensagem" class="alert-alert">${response['mensagem']}</p>`)
             }
         });
         return false;
     });
-});
 
-$('document').ready(function() {
-    if(localStorage.getItem('encaminhado')) {
-        jQuery('#cadastro_cliente').submit(function () {
-            let dados = jQuery(this).serialize();
-            let url = $(this).attr('action');
-            $.ajax({
-                url: url,
-                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                type: "POST",
-                data: dados,
-                success: function (response) {
-                    if(typeof response['mensagem'] === 'object'){
-                        for(let i in response['mensagem']){
-                            for(let j = 0; j < Object.keys(response['mensagem'][i]).length; j++){
-                                $('#corpo_site').prepend(`<p class="alert-warning">${response['mensagem'][i][j]}</p>`)
-                            }
+    jQuery('#cadastro_cliente').submit(function () {
+        let dados = jQuery(this).serialize();
+        let url = $(this).attr('action');
+        $('#mensagem').remove()
+        $('html, body').animate({scrollTop : 0},50)
+
+        $.ajax({
+            url: url,
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: dados,
+            success: function (response) {
+                if(typeof response['mensagem'] === 'object'){
+                    for(let i in response['mensagem']){
+                        for(let j = 0; j < Object.keys(response['mensagem'][i]).length; j++){
+                            $('#corpo_site').prepend(`<p id="mensagem" class="alert-warning">${response['mensagem'][i][j]}</p>`)
                         }
-                        return
-                    } else {
-                        $('#corpo_site').prepend(`<p class="alert-success">${response['mensagem']}</p>`)
                     }
-
-                    localStorage.removeItem('encaminhado')
-                    localStorage.setItem('id', response['id_cliente'])
-                    localStorage.setItem('id_cliente_responsavel', response['id_cliente'])
-                    localStorage.setItem('fantasia', response['nome_fantasia'])
-
-                    if($('#nome_do_resposavel')){
-                        localStorage.setItem('nome_responsavel', $('#nome_do_responsavel').val())
-                        localStorage.setItem('id_responsavel', $('#id_responsavel').val())
-                    }
-                    setTimeout( () => {
-                        window.close()
-                    }, 3000)
-                },
-                error: function (response) {
-                    $('#corpo_site').prepend(response['mensagem'])
+                    return
+                } else {
+                    $('#corpo_site').prepend(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
                 }
-            });
-            return false;
+
+                localStorage.removeItem('encaminhado')
+                localStorage.setItem('id', response['id_cliente'])
+                localStorage.setItem('id_cliente_responsavel', response['id_cliente'])
+                localStorage.setItem('fantasia', response['nome_fantasia'])
+
+                if($('#nome_do_resposavel')){
+                    localStorage.setItem('nome_responsavel', $('#nome_do_responsavel').val())
+                    localStorage.setItem('id_responsavel', $('#id_responsavel').val())
+                }
+
+                setTimeout( () => {
+                    window.close()
+                }, 3000)
+
+            },
+            error: function (response) {
+                $('#corpo_site').prepend(response['mensagem'])
+            }
         });
-    }
+        return false;
+    });
 });
 // ------------------------- Mascaras ---------------------
 $(document).ready(function() {

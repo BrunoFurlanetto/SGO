@@ -145,20 +145,13 @@ function lista_segurados(editando = false) {
     }
 }
 
-function pegar_atividades_eco() {
-    $('#biologo .MultiCheckBoxDetailBody').empty()
+function pegar_atividades_eco(selecao) {
+    const texto_escolhido = $('#id_atividades_eco option:selected').text()
+    const id_escolhido = selecao.value
 
-    $('#atividades_ecoturismo .cont').each(function (index, value) {
-
-        if (value.children[0].children[0].checked) {
-            let div_nova = $(value).clone()
-
-            $('#biologo .MultiCheckBoxDetailBody').append(div_nova)
-            $('#biologo .cont').children('div').children().prop('checked', false)
-
-        }
-
-    })
+    if (selecao.value !== ''){
+        $('#id_quais_atividades').append(`<option value="${id_escolhido}">${texto_escolhido}</option>`)
+    }
 
 }
 
