@@ -12,10 +12,7 @@
         </div>
         <form action="{% url 'ordem_de_servico' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <script src="{% static 'js/scripts_ordem.js' %}"></script>
-            <script src="{% static 'js/Moment.js' %}"></script>
-            <script src="{% static 'js/Moment_timezone.js' %}"></script>
-            <div style="width: 50%">
+            <div style="width: 75%">
                 <label>Ficha de evento</label>
                 <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
                     <option selected></option>
@@ -24,15 +21,10 @@
                     {% endfor %}
                 </select>
                 {{ form.ficha_de_evento.as_hidden }}
-                <script>
-                    $(document).ready(function() {
-                        $('#ficha_de_evento').select2();
-                    });
-                </script>
             </div>
             <hr>
             <div class="row">
-                <h5>Informações do grupo</h5>
+                <h5 class="titulo-secao">Informações do grupo</h5>
                 <div class="mb-2" style="width: 70%">
                     <label>Instituição</label>
                     {{ form.instituicao }}
@@ -54,7 +46,6 @@
                     {{ form.tipo }}
                 </div>
             </div>
-            <hr>
             <div class="row colegios">
                 <div style="width: 45%">
                     <label>Série</label>
@@ -67,7 +58,7 @@
             </div>
             <hr class="colegios">
             <div class="row mb-2">
-                <h5>Informações internas</h5>
+                <h5 class="titulo-secao">Informações internas</h5>
                 <div style="width: 39%">
                     <label>Check in</label>
                     {{ form.check_in }}
@@ -91,59 +82,68 @@
                         <label>Empresa</label>
                         {{ form.empresa }}
                     </div>
-                </div>
-            </div>
-            <hr>
-            <div class="row form-group" style="width: 100%">
-                <div class="row checkbox">
-                      <h5 class="titulo-secao">Atividades Ecoturismo</h5>
-                    {{ form.atividades_eco }}
-                <script>
-                    $(document).ready(function () {
-                      $("#id_atividades_peraltas").CreateMultiCheckBox({ width: '250px',
-                         defaultText : 'Selecione as atividades', height:'250px' });
-                    });
-                </script>
+                    <div id="monitor_embarque" class="none" style="width: 30%">
+                        <label for="id_monitor_embarque">Monitor embarque</label>
+                        {{ form.monitor_embarque }}
+                    </div>
                 </div>
             </div>
             <hr>
             <div class="row">
                 <h5 class="titulo-secao">Atividades Peraltas</h5>
                 {{ form.atividades_peraltas }}
-                <script>
-                    $(document).ready(function () {
-                      $("#id_atividades_eco").CreateMultiCheckBox({ width: '250px',
-                         defaultText : 'Selecione as atividades', height:'250px' });
-                    });
-                </script>
+            </div>
+            <hr>
+            <div class="atividades-eco">
+                <div class="head">
+                    <h5>Atividades Ecoturismo</h5>
+                    <button type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                            onclick="mostrar_conteudo(this)"><i class="bx bx-plus"></i></button>
+                </div>
+                <div class="content none">
+                    <div class="row ecoturismo"></div>
+                    <button class="buton-plus" type="button" onclick="add_atividade_eco()" style="margin-left: 0">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
+                </div>
             </div>
             <hr>
             <div class="atividade-ceu">
-                <h5>Atividades no CEU</h5>
-                <div class="row atividades"></div>
-                <button class="buton-plus" type="button" onclick="add_atividade()" style="margin-left: 0">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-                <hr style="margin-left: 3px">
+                <div class="head">
+                    <h5>Atividades no CEU</h5>
+                    <button type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                            onclick="mostrar_conteudo(this)"><i class="bx bx-plus"></i></button>
+                </div>
+                <div class="content none">
+                    <div class="row atividades"></div>
+                    <button class="buton-plus" type="button" onclick="add_atividade()" style="margin-left: 0">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
+                </div>
             </div>
-            <div class="center locacao-ceu">
-                <h5>Locacoes no CEU</h5>
-                <div class="row locacoes"></div>
-                <button class="buton-plus" type="button" onclick="add_locacao()" style="margin-left: 0">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-                <hr style="margin-left: 3px">
+            <hr>
+            <div class="locacao-ceu">
+                <div class="head">
+                    <h5>Locacoes no CEU</h5>
+                    <button type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                            onclick="mostrar_conteudo(this)"><i class="bx bx-plus"></i></button>
+                </div>
+                <div class="content none">
+                    <div class="row locacoes"></div>
+                    <button class="buton-plus" type="button" onclick="add_locacao()" style="margin-left: 0">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
+                </div>
             </div>
-
-
+            <hr>
             <div style="width: 70%">
-                <h5>Programação do grupo</h5>
+                <h5 class="titulo-secao">Programação do grupo</h5>
                 {{ form.cronograma_peraltas }}
             </div>
             <hr>
             <div>
                 <div class="row mb-3">
-                    <h5>Outras observações</h5>
+                    <h5 class="titulo-secao">Outras observações</h5>
                     {{ form.observacoes }}
                 </div>
             </div>
@@ -151,4 +151,7 @@
         </form>
     </div>
 
+    <script src="{% static 'js/scripts_ordem.js' %}"></script>
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
 {% endblock %}

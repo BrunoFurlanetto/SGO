@@ -1,6 +1,5 @@
 import os.path
 
-import form as form
 from django import forms
 from django.db import models
 
@@ -33,9 +32,11 @@ class OrdemDeServico(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
+                                         related_name='monitor_embarque')
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
-    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
+    atividades_eco = models.JSONField(blank=True, null=True)
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
     atividades_ceu = models.JSONField(blank=True, null=True)
     locacao_ceu = models.JSONField(blank=True, null=True)
@@ -59,4 +60,3 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'tipo': forms.Select(attrs={'onchange': 'verifica_colegio_empresa(this)', 'onclick': 'mostrar_check()'})
         }
-

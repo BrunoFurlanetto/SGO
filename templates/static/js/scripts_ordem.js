@@ -1,3 +1,13 @@
+$(document).ready(function() {
+    $('#id_atividades_peraltas, #ficha_de_evento').select2()
+
+})
+
+function mostrar_conteudo(btn){
+    const head = btn.closest('[class=head]')
+    $(head).siblings('.content').toggleClass('none')
+    $(btn).toggleClass('open')
+}
 
 function completar_dados_os(selecao){
     $('.atividades').empty()
@@ -10,17 +20,25 @@ function completar_dados_os(selecao){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_ficha': selecao.value},
         success: function (response) {
-
+            console.log(response)
             for(let i in response){
                 $(`#${i}`).val(response[i])
+            }
+
+            if(response['embarque_sao_paulo']){
+                $('#monitor_embarque').removeClass('none')
+                $('#id_monitor_embarque').prop('required', true)
+            }else{
+                $('#monitor_embarque').addClass('none')
+                $('#id_monitor_embarque').prop('required', false)
             }
 
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
-            if($('#id_serie').val() === ''){
-                $('.colegios').addClass('none')
-            }
+            // if($('#id_serie').val() === ''){
+            //     $('.colegios').addClass('none')
+            // }
 
             if(response['corporativo']){
                 $('#id_tipo').val('Empresa')
@@ -128,7 +146,6 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
 
         }
     })
-
 }
 // Função responsável pela remoção de uma atividade já iniciada e
 // renumeração dos id's e nomes dos elementos pai e filho
@@ -165,7 +182,7 @@ function remover_atividade(selecao){
         $(hora_atividade[k]).attr('name', 'data_hora_'+(k+1));
         $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1));
         $(icone[k]).attr('id', 'btn_'+(k+1));
-        $(serie[k]).attr('name', 'serie_participantes_'+(k+1));
+        $(serie[k]).attr('name', 'serie_participantes_'+(k+1)).attr('id', 'serie_' + (k+1));
     }
 
 }
@@ -521,24 +538,217 @@ function edita_os(){
     atividades_eco_peraltas_selecionadas()
 }
 
-function atividades_eco_peraltas_selecionadas(){
-    let atividades_eco = $('#atividades_ecoturismo_os').text().split(', ')
-    let atividades_peraltas = $('#atividades_peraltas_os').text().split(', ')
+// ----------------------------------------- Final das funções que trabalham com as locações ------------------------------------
 
-    $('.name').each(function (index, value){
-        for (let i = 0; i < atividades_eco.length; i++){
-            if(value.textContent === atividades_eco[i]){
-                value.parentElement.children[0].children[0].checked = true
+// ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
+// Função responsável pela adição de uma nova atividade de ecoturismo
+function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_='', data_=''){
+    /* Ajax responsável por puxar as atividades do banco de dados */
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'tipo': 'ecoturismo'},
+        success: function(response){
+            // Variável responsável pelo indicie da nova atividade
+            // a 'div_pai' é a div que ira receber todos os elementos relacionado a mesma atividade
+            let i = document.querySelectorAll('.div_pai_eco').length + 1
+
+            // Adição da div pai na div de atividades no CEU
+            $('.ecoturismo').append(`<div class="row div_pai_eco" id="div_pai_eco_${i}"></div>`)
+
+            // As div's de cada dado que precisára ser informad no momento do cadas
+            let div_atividade = `<div class="mb-2 div-atividade_eco" id="div_atividade_eco_${i}" style="width: 45%"></div>`
+            let div_data_hora = `<div class="mb-2 div-data_eco" id="div_data_hora_atividade_eco_${i}" style="width: 35%"></div>`
+            let div_participantes = `<div class="mb-2 div-participantes_eco" id="div_participantes_eco_${i}" style="width: 15%"></div>`
+            let div_icone = `<div class="my-0 div-icone_eco" id="div_icone_eco_${i}" style="width: 5%"></div>`
+            let div_serie = `<div class="mb-2 colegios div_serie_eco" id="div_serie_eco_${i}" style="width: 50%"></div>`;
+
+            // Adição das div's na div pai
+            $(`#div_pai_eco_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, `<hr class="barra" style="margin-left: 10px">`)
+
+            //Criação dos elementos html necessários par o cadastro de uma nova atividade contratada pelo cliente
+            let label_atividade = `<label>Atividade</label>`
+            let select_atividade = `<select class="atividade_eco" id="ativ_eco_${i}" name="atividade_eco_${i}" onchange="verificar_limitacoes_eco(this)" required></select>`
+            let label_data = `<label>Data e hora</label>`
+            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
+            let label_participantes = `<label>QTD</label>`
+            let participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${participantes_}"/>`
+            let label_serie = `<label>Serie</label>`
+            let serie = `<input class="serie_participantes_eco" id="serie_eco_${i}" type="text" name="serie_participantes_eco_${i}" value="${serie_}"/>`
+
+            // Adição dos elemntos em suas respectivas div's
+            $(`#div_atividade_eco_${i}`).append(label_atividade, select_atividade)
+            $(`#div_data_hora_atividade_eco_${i}`).append(label_data, data_hora_atividade)
+            $(`#div_participantes_eco_${i}`).append(label_participantes, participantes)
+            $(`#div_serie_eco_${i}`).append(label_serie, serie)
+
+            // Todas as atividades que serão dcionadas no select da atividade
+            for (let j in response['dados']) {
+                if(response['dados'][j] != atividade_) {
+                    $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
+                }
             }
-        }
-        for (let i = 0; i < atividades_peraltas.length; i++){
-            if(value.textContent === atividades_peraltas[i]){
-                value.parentElement.children[0].children[0].checked = true
-            }
+
+            // Adição das opções no select
+            $(`#ativ_eco_${i}`).prepend(`<option selected value="${atividade_id_}">${atividade_}</option>`)
+
+            // Criação e adição do botão responsável por excluir uma atividade iniciada
+            $(`#div_icone_eco_${i}`).append(`<button class="buton-x buton-eco" id="btn-eco_${i}" type="button" onClick="remover_atividade_eco(this)">`)
+            $(`#btn-eco_${i}`).append(`<span id="spn_${i}"><i class='bx bx-x'></i></span>`)
+
         }
     })
 }
-function teste(){
+// Função responsável pela remoção de uma atividade já iniciada e
+// renumeração dos id's e nomes dos elementos pai e filho
+function remover_atividade_eco(selecao){
+    $(`#div_pai_eco_${selecao.id.split('_')[1]}`).remove() // Remoção do elemento selecionado
 
-    // $('.cont').children('div').children('input').prop('checked', true)
+    // Seleção de todas as div's a ser renumeradas/renomeadas
+    let divs_pai = document.querySelectorAll('.div_pai_eco')
+    let divs_atividades = document.querySelectorAll('.div-atividade_eco')
+    let divs_data = document.querySelectorAll('.div-data_eco')
+    let divs_participantes = document.querySelectorAll('.div-participantes_eco')
+    let divs_icones = document.querySelectorAll('.div-icone_eco')
+    let divs_serie = document.querySelectorAll('.div_serie_eco')
+
+    // Seleção dos elementos que serão renumerados/renomeados
+    let select_atividade = document.querySelectorAll('.atividade_eco')
+    let hora_atividade = document.querySelectorAll('.hora_atividade_eco')
+    let qtd_atividade = document.querySelectorAll('.qtd_participantes_eco')
+    let icone = document.querySelectorAll('.buton-x')
+    let serie = document.querySelectorAll('.serie_participantes_eco')
+
+    // Renumeração/renomeação das div's e elementos antes selecionados
+    for(let k = 0; k <= divs_pai.length; k++) {
+        // Começa trabalhando em cima das div's
+        $(divs_pai[k]).attr('id', 'div_pai_eco_'+(k+1));
+        $(divs_atividades[k]).attr('id', 'div_atividade_eco_'+(k+1));
+        $(divs_data[k]).attr('id', 'div_data_hora_atividade_eco_'+(k+1));
+        $(divs_participantes[k]).attr('id', 'div_participantes_eco_'+(k+1));
+        $(divs_icones[k]).attr('id', 'div_icone_eco_'+(k+1));
+        $(divs_serie[k]).attr('id', 'div_serie_eco_'+(k+1));
+
+        // Então passa a renumeração/renomeação dos elementos
+        $(select_atividade[k]).attr('id', `ativ_eco_${k+1}`).attr('name', `atividade_eco_${k+1}`);
+        $(hora_atividade[k]).attr('name', 'data_hora_eco_'+(k+1));
+        $(qtd_atividade[k]).attr('name', 'participantes_eco_'+(k+1));
+        $(icone[k]).attr('id', 'btn-eco_'+(k+1));
+        $(serie[k]).attr('name', 'serie_participantes_eco_'+(k+1)).attr('id', 'serie_eco_'+(k+1));
+    }
+}
+// Função responsável por verificar as limitações da atividades sendo cadastrada.
+// Verifica tanto número de participantes máximo e mínimo para a atividade acontecer,
+// quanto o horário que ela ta sendo cadastrada, necessário por haver atividades que
+// não podem acontecer durante a noite ou durante o dia.
+function verificar_limitacoes_eco(selecao) {
+    // Seleção dos valores necessários para as verificações
+    const indice = selecao.id.split('_')[2]
+    const participantes = $(`#participantes_eco_${indice}`).val()
+    const atividade = $(`#ativ_eco_${indice}`).val()
+    const data_atividade = $(`#data_eco_${indice}`).val()
+
+    // É preciso ter selecionado a atividade antes de prosseguir com a verificação
+    // isso porque o ajax vai mandar a atividade para receber todas as limitações e números de participantes
+    if (atividade !== '') {
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {"atividade_ecoturismo": atividade},
+            success: function (response) {
+                // Participante máximo da atividade em questão
+                const limite = response['participantes_maximo']
+                console.log(response)
+                // A primeira verificação é do horário
+                if(data_atividade !== ''){
+
+                    // Horário informado durante o cadastro da atividade
+                    let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
+
+                    // Verificando se o horário informado é durante a noite. Como o sol se põe e nasce em horários
+                    // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
+                    if (hora_atividade < 9.00 || hora_atividade >= 14.30) {
+                        if(hora_atividade >= 16 || (hora_atividade >= 0 && hora_atividade <= 7 )){
+                            $(`#alert_noite_eco_${indice}`).remove()
+                            $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger"  id="alert_noite_eco_${indice}" style="margin-left: 10px">A atividade não pode ser realizada no horário informado!</p>`)
+                            $(`#data_eco_${indice}`).val('')
+                        } else {
+                            $(`#alert_noite_eco_${indice}`).remove()
+                            $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-warning"  id="alert_noite_eco_${indice}" style="margin-left: 10px">Verificar se atividade pode ser realizada no horário informado!</p>`)
+                        }
+                    } else {
+                        $(`#alert_noite_eco_${indice}`).remove()
+                    }
+                }
+
+                // Verificação de número de participantes
+                if(participantes !== ''){
+
+                    // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
+                    // É lançado apenas um aviso.
+                    if(participantes < response['participantes_minimo']){
+                        $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger" id="alert_participantes_eco_${indice}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
+                    } else {
+                        $(`#alert_participantes_eco_${indice}`).remove()
+                    }
+
+                    // Verifica se o número de participantes está acimsa do limite de lotação.
+                    // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
+                    if(participantes > limite){
+                        dividar_atividade_eco(indice, limite)
+                        $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
+                    }
+                }
+            }
+        })
+    }
+}
+
+// Função responsável pela divisão das turmas caso a lotação máxima seja excedida
+function dividar_atividade_eco(indicie, limite){
+    let participantes_apx, k, aproximado, sobra;
+    // Pegando os valores necessários para a divisão
+    let qtd = $(`#participantes_eco_${indicie}`)
+    let atividade_ = $(`#ativ_eco_${indicie} :selected`).text()
+    let atividade_value_ = $(`#ativ_eco_${indicie}`).val()
+    let serie_ = $(`#serie_eco_${indicie}`).val()
+
+    // Aqui é feito uma verificação do número de turmas necessário
+    for(k = 2; k > 1; k++){
+
+        // Vê se o número e turmas já é o suficiente
+        if(qtd.val() / k <= limite){
+            // Aproximação necessária para não haver número fracionado
+            participantes_apx = Math.trunc(qtd.val() / k)
+            // Booleano para dizer se houve aproximação
+            aproximado = qtd.val() / k !== participantes_apx
+            // Paticipantes sobrando devido a aproximação, caso tenha acontecido
+            sobra = qtd.val() - (participantes_apx * k)
+            break
+        }
+
+    }
+
+    // Troca do número de participantes da atividade já inicado
+    if (aproximado){
+        qtd.val(participantes_apx + 1)
+    } else {
+        qtd.val(participantes_apx)
+    }
+
+    // Looping para adcionar o número de turmas que faltam
+    for (let j = 1; j < k; j++) {
+        // Variável do número de participantes das turmas
+        let participantes_ = participantes_apx
+
+        // Caso haja participantes sobrando pelo arredondamento é adcionado nas primeiras turmas
+        if(j < sobra){
+            participantes_ = participantes_apx + 1
+        }
+        // Chama a função para adcionar atividades e manda os vlores da turma
+        add_atividade_eco(participantes_, atividade_value_, atividade_, serie_)
+    }
+
 }

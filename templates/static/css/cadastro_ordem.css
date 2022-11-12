@@ -77,3 +77,16 @@
     padding: 0;
     border: 1px solid #ced4da;
 }
+.btn-mostrar-atividades-locacoes{
+    background: transparent;
+    border: none;
+    font-size: 25px;
+    margin-top: -5px;
+    transition-delay: 0.2s;
+    transition: all 0.2s ease;
+}
+.open{
+    transition-delay: 0.2s;
+    transition: all 0.2s ease;
+    transform: rotate(45deg);
+}

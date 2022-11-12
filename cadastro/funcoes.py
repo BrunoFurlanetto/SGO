@@ -3,7 +3,7 @@ from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, CadastroDadosTransporte, \
-    DadosTransporte
+    DadosTransporte, AtividadesEco
 
 
 def is_ajax(request):
@@ -21,6 +21,7 @@ def requests_ajax(requisicao, files=None):
         corporativo = False
         produto_corporativo = ProdutosPeraltas.objects.get(produto='Corporativo (Empresa)')
 
+        print(ficha_de_evento.perfil_participantes.all())
         for perfil in ficha_de_evento.perfil_participantes.all():
             if perfil.ano != '':
                 serie.append(perfil.ano)
@@ -48,6 +49,7 @@ def requests_ajax(requisicao, files=None):
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
+            'embarque_sao_paulo': ficha_de_evento.informacoes_adcionais.transporte,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
             'id_n_professores': ficha_de_evento.qtd_professores,
@@ -83,8 +85,17 @@ def requests_ajax(requisicao, files=None):
 
         return locaveis
 
+    if requisicao.get('tipo') == 'ecoturismo':
+        atividades_eco_bd = AtividadesEco.objects.all()
+        atividades = {}
+
+        for atividade in atividades_eco_bd:
+            atividades[atividade.id] = atividade.nome_atividade_eco
+
+        return {'dados': atividades}
+
     if requisicao.get('atividade'):
-        atividade_selecionada = Atividades.objects.get(id=requisicao.get('atividade'))
+        atividade_selecionada = Atividades.objects.get(id=int(requisicao.get('atividade')))
         limtacoes = []
 
         for limite in atividade_selecionada.limitacao.all():
@@ -95,9 +106,15 @@ def requests_ajax(requisicao, files=None):
                 'participantes_maximo': atividade_selecionada.numero_de_participantes_maximo}
 
     if requisicao.get('local'):
-        local_selecionado = Locaveis.objects.get(id=requisicao.POST.get('local'))
+        local_selecionado = Locaveis.objects.get(id=int(requisicao.get('local')))
 
         return {'lotacao': local_selecionado.lotacao}
+
+    if requisicao.get('atividade_ecoturismo'):
+        atividade = AtividadesEco.objects.get(id=int(requisicao.get('atividade_ecoturismo')))
+
+        return {'participantes_minimo': atividade.participantes_min,
+                'participantes_maximo': atividade.participantes_max}
 
     if requisicao.get('cliente'):
         info_cliente = pegar_informacoes_cliente(requisicao.get('cliente'))
