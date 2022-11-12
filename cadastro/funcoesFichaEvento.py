@@ -1,14 +1,15 @@
 import datetime
 
 from ceu.models import Atividades, Locaveis
+from peraltas.models import AtividadesEco
 
 
-def salvar_atividades_ceu(dados, ficha_de_evento):
+def slavar_atividades_ecoturismo(dados, ordem_de_servico):
     dados_atividade = {}
     n_atividades = 0
 
     for chave in dados.keys():
-        if 'atividade_' in chave:
+        if 'atividade_eco_' in chave:
             n_atividades += 1
 
     if n_atividades == 0:
@@ -16,7 +17,30 @@ def salvar_atividades_ceu(dados, ficha_de_evento):
 
     for i in range(1, n_atividades + 1):
         dados_atividade[f'atividade_{i}'] = {
-            'atividade': str(Atividades.objects.get(pk=dados.get(f'atividade_{i}'))),
+            'atividade': AtividadesEco.objects.get(id=int(dados.get(f'atividade_eco_{i}'))).id,
+            'data_e_hora': dados.get(f'data_hora_eco_{i}').replace('T', ' '),
+            'participantes': int(dados.get(f'participantes_eco_{i}')),
+            'serie': dados.get(f'serie_participantes_eco_{i}')
+        }
+    print(dados_atividade)
+    ordem_de_servico.atividades_eco = dados_atividade
+    return
+
+
+def salvar_atividades_ceu(dados, ficha_de_evento):
+    dados_atividade = {}
+    n_atividades = 0
+
+    for chave in dados.keys():
+        if 'atividade_' in chave and 'eco' not in chave:
+            n_atividades += 1
+
+    if n_atividades == 0:
+        return
+
+    for i in range(1, n_atividades + 1):
+        dados_atividade[f'atividade_{i}'] = {
+            'atividade': str(Atividades.objects.get(id=int(dados.get(f'atividade_{i}')))),
             'data_e_hora': dados.get(f'data_hora_{i}').replace('T', ' '),
             'participantes': int(dados.get(f'participantes_{i}')),
             'serie': dados.get(f'serie_participantes_{i}')
@@ -29,10 +53,10 @@ def salvar_atividades_ceu(dados, ficha_de_evento):
 def check_in_and_check_out_atividade(ficha_de_evento):
 
     if ficha_de_evento.atividades_ceu is not None:
-
         # --------------------- Verificar a data e hora de check in e chek out no CEU ----------------------------------
         check_in = datetime
         check_out = []
+
         for i in range(1, len(ficha_de_evento.atividades_ceu) + 1):
             data = datetime.datetime.strptime(ficha_de_evento.atividades_ceu[f'atividade_{i}']['data_e_hora'],
                                               '%Y-%m-%d %H:%M')
