@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva, \
-    GrupoAtividade, CadastroDadosTransporte
+    GrupoAtividade, CadastroDadosTransporte, AtividadesEco, AtividadePeraltas
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -173,20 +173,47 @@ def empresa(request):
 
 
 @login_required(login_url='login')
-def ordemDeServico(request):
-    form = CadastroOrdemDeServico()
-    fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+def ordemDeServico(request, id_ordem_de_servico=None):
     grupos = verificar_grupo(request.user.groups.all())
+    atividades_acampamento = AtividadePeraltas.objects.all()
+    grupos_atividades_acampamento = GrupoAtividade.objects.all()
+
+    if id_ordem_de_servico:
+        ordem_servico = OrdemDeServico.objects.get(id=int(id_ordem_de_servico))
+        form = CadastroOrdemDeServico(instance=ordem_servico)
+        ficha_de_evento = FichaDeEvento.objects.get(id=ordem_servico.ficha_de_evento.id)
+        atividades_eco = AtividadesEco.objects.all()
+        atividades_ceu = Atividades.objects.all()
+        espacos = Locaveis.objects.all()
+        fichas_de_evento = None
+    else:
+        form = CadastroOrdemDeServico()
+        fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+        ficha_de_evento = ordem_servico = None
+        atividades_eco = atividades_ceu = espacos = None
 
     if request.method != 'POST':
-        return render(request, 'cadastro/ordem_de_servico.html', {'form': form,
-                                                                  'fichas': fichas_de_evento,
-                                                                  'grupos': grupos})
+        return render(request, 'cadastro/ordem_de_servico.html', {
+            'form': form,
+            'fichas': fichas_de_evento,
+            'ficha': ficha_de_evento,
+            'ordem_servico': ordem_servico,
+            'grupos': grupos,
+            'atividades_acampamento': atividades_acampamento,
+            'grupos_atividades_acampamento': grupos_atividades_acampamento,
+            'atividades_eco': atividades_eco,
+            'atividades_ceu': atividades_ceu,
+            'espacos': espacos
+        })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    form = CadastroOrdemDeServico(request.POST, request.FILES)
+    if id_ordem_de_servico:
+        form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
+    else:
+        form = CadastroOrdemDeServico(request.POST, request.FILES)
+
     ordem_de_servico = form.save(commit=False)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
 
@@ -204,6 +231,7 @@ def ordemDeServico(request):
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'
                                 'ou entre em contato com o desenvolvedor.')
+
         return redirect('dashboardPeraltas')
     else:
         ficha.os = True

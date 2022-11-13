@@ -108,7 +108,7 @@ def requests_ajax(requisicao, files=None):
     if requisicao.get('local'):
         local_selecionado = Locaveis.objects.get(id=int(requisicao.get('local')))
 
-        return {'lotacao': local_selecionado.lotacao}
+        return {'lotacao': local_selecionado.local.lotacao}
 
     if requisicao.get('atividade_ecoturismo'):
         atividade = AtividadesEco.objects.get(id=int(requisicao.get('atividade_ecoturismo')))

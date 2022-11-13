@@ -3,7 +3,7 @@ import os.path
 from django import forms
 from django.db import models
 
-from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade
 
 from peraltas.models import Vendedor
 
@@ -47,6 +47,30 @@ class OrdemDeServico(models.Model):
     escala_ceu = models.BooleanField(default=False)
     escala = models.BooleanField(default=False)
 
+    def dividir_atividades_ceu(self):
+        atividades = []
+
+        for atividade in self.atividades_ceu.values():
+            atividades.append(atividade)
+
+        return atividades
+
+    def dividir_locacoes_ceu(self):
+        locacoes = []
+
+        for locacao in self.locacao_ceu.values():
+            locacoes.append(locacao)
+
+        return locacoes
+
+    def dividir_atividades_eco(self):
+        atividades = []
+
+        for atividade in self.atividades_eco.values():
+            atividades.append(atividade)
+
+        return atividades
+
 
 class CadastroOrdemDeServico(forms.ModelForm):
     class Meta:
@@ -60,3 +84,27 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'tipo': forms.Select(attrs={'onchange': 'verifica_colegio_empresa(this)', 'onclick': 'mostrar_check()'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CadastroOrdemDeServico, self).__init__(*args, **kwargs)
+        self.fields['atividades_peraltas'].choices = self.opt_groups()
+        self.fields['instituicao'].widget.attrs['readonly'] = True
+        self.fields['cidade'].widget.attrs['readonly'] = True
+        self.fields['responsavel_grupo'].widget.attrs['readonly'] = True
+
+    @staticmethod
+    def opt_groups():
+        grupos = []
+
+        for grupo in GrupoAtividade.objects.all():
+            novo_grupo = []
+            sub_grupo = []
+
+            for atividade in AtividadePeraltas.objects.all():
+                if atividade.grupo == grupo:
+                    sub_grupo.append([atividade.id, atividade.nome_atividade])
+
+            novo_grupo = [grupo, sub_grupo]
+            grupos.append(novo_grupo)
+
+        return grupos

@@ -114,12 +114,12 @@
                                     title: "{{ evento.instituicao }}",
                                     start: "{{ evento.check_in_ceu | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
-                                    url: '{% url 'verDocumento' 'ordem' evento.id %}',
+                                    url: '{% url 'ver_ordem_de_servico' evento.id %}',
                                 {% else %}
                                     title: "{{ evento.instituicao }}",
                                     start: "{{ evento.check_in | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out | date:'Y-m-d H:i'}}",
-                                    url: '{% url 'verDocumento' 'ordem' evento.id %}',
+                                    url: '{% url 'ver_ordem_de_servico' evento.id %}',
                                 {% endif %}
 
                                 {% if evento.tipo == 'Empresa' %}

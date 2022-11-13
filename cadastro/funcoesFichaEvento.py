@@ -17,12 +17,12 @@ def slavar_atividades_ecoturismo(dados, ordem_de_servico):
 
     for i in range(1, n_atividades + 1):
         dados_atividade[f'atividade_{i}'] = {
-            'atividade': AtividadesEco.objects.get(id=int(dados.get(f'atividade_eco_{i}'))).id,
+            'atividade': int(dados.get(f'atividade_eco_{i}')),
             'data_e_hora': dados.get(f'data_hora_eco_{i}').replace('T', ' '),
             'participantes': int(dados.get(f'participantes_eco_{i}')),
             'serie': dados.get(f'serie_participantes_eco_{i}')
         }
-    print(dados_atividade)
+
     ordem_de_servico.atividades_eco = dados_atividade
     return
 
@@ -40,7 +40,7 @@ def salvar_atividades_ceu(dados, ficha_de_evento):
 
     for i in range(1, n_atividades + 1):
         dados_atividade[f'atividade_{i}'] = {
-            'atividade': str(Atividades.objects.get(id=int(dados.get(f'atividade_{i}')))),
+            'atividade': int(dados.get(f'atividade_{i}')),
             'data_e_hora': dados.get(f'data_hora_{i}').replace('T', ' '),
             'participantes': int(dados.get(f'participantes_{i}')),
             'serie': dados.get(f'serie_participantes_{i}')
@@ -74,8 +74,7 @@ def check_in_and_check_out_atividade(ficha_de_evento):
         # --------------------------------------------------------------------------------------------------------------
 
         ficha_de_evento.check_in_ceu = check_in
-        print(ficha_de_evento.check_in_ceu)
-        atividade_cadastrada = Atividades.objects.get(atividade=check_out[1])
+        atividade_cadastrada = Atividades.objects.get(id=int(check_out[1]))
         duracao = atividade_cadastrada.duracao
         ficha_de_evento.check_out_ceu = check_out[0] + duracao
     else:
@@ -95,7 +94,7 @@ def salvar_locacoes_ceu(dados, ordem_de_servico):
 
     for i in range(1, n_locacoes + 1):
         dados_locacao[f'locacao_{i}'] = {
-            'espaco': str(Locaveis.objects.get(id=int(dados.get(f'locacao_{i}')))),
+            'espaco': int(dados.get(f'locacao_{i}')),
             'check_in': dados.get(f'entrada_{i}').replace('T', ' '),
             'check_out': dados.get(f'saida_{i}').replace('T', ' '),
             'local_coffee': dados.get(f'local-coffee_{i}'),

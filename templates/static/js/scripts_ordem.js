@@ -1,5 +1,10 @@
 $(document).ready(function() {
-    $('#id_atividades_peraltas, #ficha_de_evento').select2()
+    if (window.location.href.split('/')[5] !== ''){
+        $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled:'readonly'})
+        $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
+    } else {
+        $('#id_atividades_peraltas, #ficha_de_evento').select2()
+    }
 
 })
 
@@ -48,29 +53,14 @@ function completar_dados_os(selecao){
             }
 
             if(response['atividades_eco'] !== ''){
-                $('.name').each(function (index, value){
-                    for (let i in response['atividades_eco']){
-                        if(value.textContent === response['atividades_eco'][i]){
-                            value.parentElement.children[0].children[0].checked = true
-                        }
-                    }
-                })
-            }
-
-            if(response['atividades_peraltas'] !== ''){
-                $('.name').each(function (index, value){
-                    for (let i in response['atividades_peraltas']){
-                        if(value.textContent === response['atividades_peraltas'][i]){
-                            value.parentElement.children[0].children[0].checked = true
-                        }
-                    }
-                })
+                for(let i in response['atividades_eco']){
+                    add_atividade_eco(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_eco'][i], response['id_serie'])
+                }
             }
 
             if(response['atividades_ceu'] !== ''){
                 for(let i in response['atividades_ceu']){
                     add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
-                    let j = document.querySelectorAll('.div_pai').length
                 }
             }
 
@@ -179,9 +169,9 @@ function remover_atividade(selecao){
 
         // Então passa a renumeração/renomeação dos elementos
         $(select_atividade[k]).attr('id', `ativ_${k+1}`).attr('name', `atividade_${k+1}`);
-        $(hora_atividade[k]).attr('name', 'data_hora_'+(k+1));
-        $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1));
-        $(icone[k]).attr('id', 'btn_'+(k+1));
+        $(hora_atividade[k]).attr('name', 'data_hora_'+(k+1)).attr('id', 'data_' + (k+1));
+        $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1)).attr('id', 'participantes_' + (k+1));
+        $(icone[k]).attr('id', 'btn_'+(k+1)).attr('id', 'btn_' + (k+1));
         $(serie[k]).attr('name', 'serie_participantes_'+(k+1)).attr('id', 'serie_' + (k+1));
     }
 
@@ -383,9 +373,9 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
                 $(`#loc_${i}`).append(`<option value="${j}">${response[j]}</option>`)
             }
 
-            $(`#loc_${i}`).prepend(`<option selected value="${id_local_}">${local_}</option>`)
+            $(`#loc_${i}`).prepend(`<option selected value="${id_local_}"></option>`)
 
-            $(`#div_icone_loc_${i}`).append(`<button class="buton-x buton-loc" id="btn-loc_${i}" type="button" onClick="remover_locacao(this)">`)
+            $(`#div_icone_loc_${i}`).append(`<button class="buton-x buton-loc" id="btn-loc_${i}" type="button" onClick="remover_locacao(this)"></button>`)
             $(`#btn-loc_${i}`).append(`<span id="spn_loc${i}"><i class='bx bx-x'></i></span>`)
 
         }
@@ -395,7 +385,6 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
 
 // Função semelhante a de remover atividade, mas para a parte de locação
 function remover_locacao(selecao){
-    console.log(selecao.id.split('_')[1])
     $(`#div_pai_loc_${selecao.id.split('_')[1]}`).remove()
 
     let divs_pai_loc = document.querySelectorAll('.div_pai_loc')
@@ -453,10 +442,11 @@ function verificar_lotacao(selecao){
 
                 // Verifica se a lotação informada excede 70% da lotação máxima do prédio e lança
                 // um alerta para pedindo a verificação de uma nova lotação caso haja uma disposição
-                // de mesas e cadeiras diferente
+                // de mesas e cadeiras diferentes
                 if(participantes > (response['lotacao'] * 0.7)){
 
                     if(participantes > response['lotacao']){
+                        $(`#alert_participantes_loc_${selecao.id.split('_')[1]}`).remove()
                         $(`#div_pai_loc_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_loc_${selecao.id.split('_')[1]}" style="margin-left: 10px">Lotação máxima da sala ultrapassada!</p>`)
                         $(`#participantes-loc_${selecao.id.split('_')[1]}`).empty()
                     } else {
@@ -472,77 +462,12 @@ function verificar_lotacao(selecao){
     })
 }
 
-// Scripts da parte de visialização da ordem de serviço
-
-function dadosVerOrdem(){
-
-    $.ajax({
-        type: 'POST',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_ordem_de_servico': $('#id_ordem').val()},
-        success: function (response) {
-            $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
-            console.log(response)
-            let j = 1
-            if(response['atividades_ceu']){
-                for(let i in response['atividades_ceu']){
-                    add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'], response['atividades_ceu'][i]['data_e_hora'])
-                    j++
-                }
-            } else {
-                $('.atividade-ceu').addClass('none')
-            }
-            console.log(response)
-            if(response['locacoes_ceu']){
-                let j = 1
-                for (let i in response['locacoes_ceu']) {
-                    add_locacao(
-                        response['locacoes_ceu'][i]['id_espaco'],
-                        response['locacoes_ceu'][i]['participantes'],
-                        moment(response['locacoes_ceu'][i]['check_in']).format('yyyy-MM-DDTHH:mm'),
-                        moment(response['locacoes_ceu'][i]['check_out']).format('yyyy-MM-DDTHH:mm'),
-                        response['locacoes_ceu'][i]['local_coffee'],
-                        response['locacoes_ceu'][i]['hora_coffee']
-                    )
-                    j++
-                }
-
-            } else {
-                $('.locacao-ceu').addClass('none')
-            }
-        }
-    })
-
-    //Cronograma
-    if($('.cronograma-cliente').children('a').prop('href')) {
-        $('.cliente-cronograma').append(`<a href="${$('.cronograma-cliente').children('a').prop('href')}">Programação do grupo</a>`)
-    } else {
-        $('.cliente-cronograma').addClass('none')
-    }
-
-    //Observações
-    if($('#id_observacoes').val() === ''){
-        $('.observacoes').addClass('none')
-    }
-}
-
-function edita_os(){
-    let ver_os = $('#ver_os')
-    $('#fieldset_form, .salvar, #excluir').prop('disabled', false)
-    ver_os.removeClass('conteudo-ver-os')
-    ver_os.addClass('conteudo-os')
-    $('.atividades_eco_os, .buton-plus, .atividade-ceu, .atividades_peraltas_os, .cronograma-cliente, .locacao-ceu, .observacoes').removeClass('none')
-    $('.cliente-cronograma, .p-atividades-eco, .p-atividades-peraltas').addClass('none')
-    atividades_eco_peraltas_selecionadas()
-}
-
 // ----------------------------------------- Final das funções que trabalham com as locações ------------------------------------
 
 // ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
 // Função responsável pela adição de uma nova atividade de ecoturismo
-function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_='', data_=''){
+function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt(''),
+                           atividade_='', serie_='', data_=''){
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
