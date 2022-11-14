@@ -225,10 +225,14 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.DO_NOTHING, to='peraltas.responsavel'),
             preserve_default=False,
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
             model_name='fichadeavaliacao',
             name='avaliacao_vendedor',
-            field=models.JSONField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='fichadeavaliacao',
+            name='avaliacao_vendedor',
+            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)
         ),
         migrations.AlterField(
             model_name='fichadeavaliacao',
