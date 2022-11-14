@@ -438,6 +438,7 @@ def listaCliente(request):
 
 @login_required(login_url='login')
 def listaResponsaveis(request):
+    responsavel_sem_cliente = []
     form = CadastroResponsavel()
     clientes = ClienteColegio.objects.all()
     responsaveis = Responsavel.objects.all()
@@ -447,9 +448,12 @@ def listaResponsaveis(request):
         try:
             relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
         except RelacaoClienteResponsavel.DoesNotExist:
-            messages.warning(request, f'Responsável {responsavel.nome} cadastrado, mas sem cliente na ficha')
+            responsavel_sem_cliente.append(responsavel.nome)
         else:
             responsavel.responsavel_por = relacao.cliente.nome_fantasia
+
+    if len(responsavel_sem_cliente) > 0:
+        messages.warning(request, f'Responsáveis sem cliente cadastrado na ficha: {", ".join(responsavel_sem_cliente)}')
 
     paginacao = Paginator(responsaveis, 5)
     pagina = request.GET.get('page')

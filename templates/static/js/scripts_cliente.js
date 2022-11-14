@@ -70,10 +70,14 @@ function salvarCliente(){
                 localStorage.setItem('id_cliente_responsavel', response['id'])
             }
 
+            $('#update').prepend(`<p class="alert-success">Redirecionando para a ficha de evento</p>`)
+
         }
     })
 
-    setTimeout(() => {  window.close(); }, 100);
+    setTimeout(() => {
+        window.close()
+    }, 3000);
 }
 
 function manter_botao(){
