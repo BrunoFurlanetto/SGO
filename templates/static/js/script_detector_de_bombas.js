@@ -162,7 +162,6 @@ function pegar_select_atividade_locacao(atividade, hora_atividade) {
                 elemento = elemento.nextElementSibling
 
                 if (elemento.tagName === 'SELECT'){
-                    console.log('Foi')
                     $('#id_professores_atividade_nova').empty().append($(`#${elemento.id} option`).clone())
                     break
                 }
@@ -471,7 +470,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
         }
     }
 
-    formulario_detector.append('<hr><button type="submit" id="btn_salvar" class="btn btn-primary">Salvar detector</button>')
+    formulario_detector.append('<div class="botoes"><button type="submit" id="btn_salvar" class="btn btn-primary">Salvar detector</button></div>')
     $('.escala-por-atividades').removeClass('none')
 }
 

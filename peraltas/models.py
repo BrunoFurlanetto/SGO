@@ -400,7 +400,6 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
-            'atividades_eco': forms.SelectMultiple(attrs={'onchange': 'pegar_atividades_eco(this)'})
         }
 
 

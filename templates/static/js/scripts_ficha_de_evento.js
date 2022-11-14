@@ -145,16 +145,6 @@ function lista_segurados(editando = false) {
     }
 }
 
-function pegar_atividades_eco(selecao) {
-    const texto_escolhido = $('#id_atividades_eco option:selected').text()
-    const id_escolhido = selecao.value
-
-    if (selecao.value !== ''){
-        $('#id_quais_atividades').append(`<option value="${id_escolhido}">${texto_escolhido}</option>`)
-    }
-
-}
-
 function quaisAtividades() {
     if ($('#id_biologo').prop('checked')) {
         $('#biologo').removeClass('none')
