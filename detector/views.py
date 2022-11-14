@@ -6,11 +6,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+import detector.views
 from ceu.models import Professores, Atividades, Locaveis
 from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, \
     tratar_dados_detector_selecionado, salvar_alteracoes_de_atividade_locacao
 from detector.models import DetectorDeBombas
 from ordemDeServico.models import OrdemDeServico
+from peraltas.models import Monitor
 from projetoCEU.utils import verificar_grupo, is_ajax, email_error
 
 
@@ -18,6 +20,7 @@ from projetoCEU.utils import verificar_grupo, is_ajax, email_error
 def detector_de_bombas(request, id_detector=None):
     grupos = verificar_grupo(request.user.groups.all())
     professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
     detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
