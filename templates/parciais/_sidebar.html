@@ -177,15 +177,15 @@
                         <li><a href="{% url 'montarEscala' %}">Montar escala</a></li>
                     {% endif %}
 
-                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
                         <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
                     {% endif %}
 
-                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
                         <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
                     {% endif %}
 
-                    {% if 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                    {% if 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
                         <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de
                             disponibilidade</a></li>
                     {% endif %}
