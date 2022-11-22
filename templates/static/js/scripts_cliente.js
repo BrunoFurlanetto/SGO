@@ -327,7 +327,10 @@ $('document').ready(function() {
                     $('#corpo_site').prepend(`<p id="mensagem" class="alert-success">${response['mensagem']}</p>`)
                 }
 
-                localStorage.removeItem('encaminhado')
+                if (localStorage.getItem('encaminhado') !== null){
+                    $('#corpo_site').prepend(`<p id="mensagem" class="alert-success">Redirecionando para a ficha de evento!</p>`)
+                }
+
                 localStorage.setItem('id', response['id_cliente'])
                 localStorage.setItem('id_cliente_responsavel', response['id_cliente'])
                 localStorage.setItem('fantasia', response['nome_fantasia'])
@@ -340,6 +343,14 @@ $('document').ready(function() {
                 setTimeout( () => {
                     window.close()
                 }, 3000)
+
+                if (localStorage.getItem('encaminhado') !== null) {
+                    localStorage.removeItem('encaminhado')
+                } else {
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 500)
+                }
 
             },
             error: function (response) {

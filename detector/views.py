@@ -6,7 +6,6 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-import detector.views
 from ceu.models import Professores, Atividades, Locaveis
 from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, \
     tratar_dados_detector_selecionado, salvar_alteracoes_de_atividade_locacao
@@ -24,7 +23,7 @@ def detector_de_bombas(request, id_detector=None):
     detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
-
+    print(request.user.has_perm('detector.add_DetectorDeBombas'))
     if request.method == 'GET':
         if request.GET.get('data_inicio'):
             data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')

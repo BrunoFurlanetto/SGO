@@ -294,7 +294,7 @@ def requests_ajax(requisicao, files=None):
                     relacao = RelacaoClienteResponsavel.objects.get(cliente=int(novo_cliente.id))
                     relacao.responsavel.add(responsavel.id)
 
-                return {'mensagem': 'Cliente salvo com sucesso, redirecionando novamente para a ficha de evento',
+                return {'mensagem': 'Cliente salvo com sucesso',
                         'id_cliente': novo_cliente.id,
                         'nome_fantasia': novo_cliente.nome_fantasia}
 

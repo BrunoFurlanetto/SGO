@@ -427,13 +427,17 @@ def listaCliente(request):
             messages.success(request, 'Cliente salvo com sucesso')
             return redirect('lista_cliente')
     else:
-        responsavel_com_erro = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
-        responsavel_com_erro.delete()
-        messages.warning(request, form.errors)
-        return render(request, 'cadastro/lista-cliente.html', {'form': form,
-                                                               'clientes': clientes,
-                                                               'formResponsavel': form_responsavel,
-                                                               'grupos': grupos})
+        try:
+            responsavel_com_erro = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
+            responsavel_com_erro.delete()
+            messages.warning(request, form.errors)
+        except Responsavel.DoesNotExist:
+            ...
+        finally:
+            return render(request, 'cadastro/lista-cliente.html', {'form': form,
+                                                                   'clientes': clientes,
+                                                                   'formResponsavel': form_responsavel,
+                                                                   'grupos': grupos})
 
 
 @login_required(login_url='login')
