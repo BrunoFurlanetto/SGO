@@ -10,7 +10,7 @@
         <div id="selecionar_setor">
             <label>Setor</label>
             <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
-                <option selected value="hotelaria">Hotelaria</option>
+                <option value="hotelaria">Hotelaria</option>
                 <option value="acampamento">Acampamento</option>
             </select>
         </div>
@@ -46,7 +46,7 @@
                                 let ano = String(date.getFullYear())
                                 let data = dia + '-' + mes + '-' + ano
 
-                                window.location.href = `/escala/peraltas/{{ setor }}/escalar/${data}`
+                                window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
                             },
                         {% endif %}
 
@@ -108,7 +108,7 @@
                                 let ano = String(date.getFullYear())
                                 let data = dia + '-' + mes + '-' + ano
 
-                                window.location.href = `/escala/peraltas/{{ setor }}/escalar/${data}`
+                                window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
                             },
                         {% endif %}
 
