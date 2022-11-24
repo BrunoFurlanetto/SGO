@@ -25,8 +25,8 @@ class Escala(models.Model):
 
     equipe = models.JSONField(blank=True, null=True)  # {'professores': [id_professores]}
     data_escala = models.DateField(null=True)
-    mes = models.IntegerField(choices=meses, default=datetime.now().month + 1)
-    ano = models.IntegerField(default=datetime.now().year)
+    mes = models.IntegerField(choices=meses)
+    ano = models.IntegerField()
 
     def __str__(self):
         return f'Escala do dia {self.data_escala}'
