@@ -17,13 +17,12 @@ from projetoCEU.utils import verificar_grupo, is_ajax, email_error
 
 @login_required(login_url='login')
 def detector_de_bombas(request, id_detector=None):
-    grupos = verificar_grupo(request.user.groups.all())
     professores = Professores.objects.all()
     monitores = Monitor.objects.all()
     detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
-    print(request.user.has_perm('detector.add_DetectorDeBombas'))
+
     if request.method == 'GET':
         if request.GET.get('data_inicio'):
             data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
@@ -33,8 +32,7 @@ def detector_de_bombas(request, id_detector=None):
                                 .filter(check_in_ceu__date__gte=data_inicio, check_in_ceu__date__lte=data_final)
                                 )
 
-            return render(request, 'detector/detector_de_bombas.html', {'grupos': grupos,
-                                                                        'eventos': ordens_intervalo,
+            return render(request, 'detector/detector_de_bombas.html', {'eventos': ordens_intervalo,
                                                                         'pesquisado': True,
                                                                         'professores': professores
                                                                         })
@@ -78,15 +76,13 @@ def detector_de_bombas(request, id_detector=None):
 
     if request.method != 'POST':
         if not id_detector:
-            return render(request, 'detector/detector_de_bombas.html', {'grupos': grupos,
-                                                                        'detectores': detectores_salvos})
+            return render(request, 'detector/detector_de_bombas.html', {'detectores': detectores_salvos})
 
         detector_editando = DetectorDeBombas.objects.get(id=id_detector)
         data_inicio = detector_editando.data_inicio.strftime('%Y-%m-%d')
         data_final = detector_editando.data_final.strftime('%Y-%m-%d')
 
-        return render(request, 'detector/detector_de_bombas.html', {'grupos': grupos,
-                                                                    'editar': True,
+        return render(request, 'detector/detector_de_bombas.html', {'editar': True,
                                                                     'id_detector': detector_editando.id,
                                                                     'data_inicio': data_inicio,
                                                                     'data_final': data_final,

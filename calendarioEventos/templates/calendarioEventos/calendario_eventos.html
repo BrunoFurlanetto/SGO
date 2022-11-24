@@ -312,19 +312,17 @@
                             <script>
                                 $(document).ready(function () {
                                     $('#clientes').select2({
-                                        dropdownParent: $("#ModalCadastroPreReserva")
+                                        dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                     });
                                 })
 
                                 function ativar_mascara() {
-                                    console.log('Foi')
                                     $('.select2-search__field').mask("99.999.999/9999-99")
                                 }
 
                                 function pegar_id_cliente() {
                                     let data = $('#clientes').select2('data');
                                     $('#id_cliente').val(data[0].id)
-                                    console.log(data[0].id)
                                 }
                             </script>
                         </div>

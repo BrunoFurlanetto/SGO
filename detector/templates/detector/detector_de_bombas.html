@@ -18,7 +18,7 @@
                                 <th style="width: 165px">Data inicio</th>
                                 <th style="width: 165px">Data final</th>
                                 <th>Grupos</th>
-                                {% if 'Coordenador pedagógico' in grupos %}
+                                {% if perms.detector.add_detectordebombas %}
                                     <th style="width: 10px"></th>
                                 {% endif %}
                             </tr>
@@ -37,7 +37,7 @@
                                             {{ detector.mostrar_grupos }}
                                         </button>
                                     </td>
-                                    {% if 'Coordenador pedagógico' in grupos %}
+                                    {% if perms.detector.change_detectordebombas %}
                                         <td>
                                             <button type="button" id="editar_detector_{{ detector.id }}" class="btn-edit" onclick="editar_detector(this)"><i class='bx bxs-edit-alt'></i></button>
                                             <button type="button" id="excluir_detector_{{ detector.id }}" class="btn btn-close" onclick="excluir_detector(this)"></button>
@@ -48,7 +48,7 @@
                         </tbody>
                     </table>
                     <hr>
-                    {% if 'Coordenador pedagógico' in grupos %}
+                    {% if perms.detector.add_detectordebombas %}
                         <div id="div_bt_adicionar">
                             <label for="btn_adicionar_detector" style="margin-top: -5px">Adicionar novo detector</label>
                             <button type="button" class="buton-plus-" id="btn_adicionar_detector" onclick="novo_detector()"><i class='bx bx-plus'></i></button>

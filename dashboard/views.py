@@ -21,23 +21,16 @@ from ceu.models import Professores
 @login_required(login_url='login')
 def dashboard(request):
 
-    if request.user in User.objects.filter(groups__name='CEU'):
+    if request.user.has_perm('cadastro.view_relatoriodeatendimentopublicoceu'):
         return redirect('dashboardCeu')
-
-    if request.user in User.objects.filter(groups__name='Peraltas'):
+    elif not request.user.has_perm('fichaAvaliacao.add_fichadeavaliacao'):
         return redirect('dashboardPeraltas')
-
-    if User.objects.filter(pk=request.user.id, groups__name='Colégio').exists():
+    else:
         return redirect('fichaAvaliacao')
 
 
 @login_required(login_url='login')
 def dashboardCeu(request):
-    grupos = verificar_grupo(request.user.groups.all())
-
-    if request.user not in User.objects.filter(groups__name='CEU'):
-        return redirect('dashboardPeraltas')
-
     # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
     # Relatórios de atendimento ao público
     dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
@@ -56,7 +49,7 @@ def dashboardCeu(request):
     try:  # Try necessário devido ao usuário da Gla ser do CEU e não ser professor
         usuario_logado = Professores.objects.get(usuario=request.user)
         professor_logado = True
-    except Professores.DoesNotExist as e:
+    except Professores.DoesNotExist:
         professor_logado = False
         mostrar_aviso_disponibilidade = False
         depois_25 = False
@@ -127,18 +120,11 @@ def dashboardCeu(request):
                                                                'professor': professor_logado,
                                                                # 'n_atividades': n_atividades, 'n_horas': n_horas,
                                                                'mostrar_aviso': mostrar_aviso_disponibilidade,
-                                                               'depois_25': depois_25,
-                                                               'grupos': grupos})
+                                                               'depois_25': depois_25
+                                                               })
 
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
-    grupos = verificar_grupo(request.user.groups.all())
 
-    if request.user not in User.objects.filter(groups__name='Peraltas'):
-        return redirect('dashboardCeu')
-
-    monitoria = User.objects.filter(pk=request.user.id, groups__name='Monitoria').exists()
-
-    return render(request, 'dashboard/dashboardPeraltas.html', {'monitoria': monitoria,
-                                                                'grupos': grupos})
+    return render(request, 'dashboard/dashboardPeraltas.html')
