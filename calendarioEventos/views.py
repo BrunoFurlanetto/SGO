@@ -15,21 +15,14 @@ from projetoCEU.utils import verificar_grupo, email_error
 @login_required(login_url='login')
 def eventos(request):
     pre_reservas = PreReserva.objects.filter(ficha_evento=False)
-    grupos = verificar_grupo(request.user.groups.all())
     cadastro_de_pre_reservas = CadastroPreReserva()
     fichas_de_evento = FichaDeEvento.objects.all()
     clientes = ClienteColegio.objects.all()
     ordens = OrdemDeServico.objects.all()
-    professor_ceu = False
-
-    comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
-
-    if request.user in User.objects.filter(groups__name='CEU') and request.user in User.objects.filter(
-            groups__name='Professor'):
-        professor_ceu = True
+    professor_ceu = request.user.has_perm('cadastro.add__relatoriodeatendimentopublicoceu')
+    comercial = request.user.has_perm('peraltas.add_prereserva')
 
     if is_ajax(request):
-
         if request.method == 'GET':
             consulta_pre_reservas = PreReserva.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
@@ -66,8 +59,7 @@ def eventos(request):
                       {'eventos': ordens, 'fichas': fichas_de_evento,
                        'professor_ceu': professor_ceu, 'comercial': comercial,
                        'pre_reservas': pre_reservas, 'cadastro_pre_reserva': cadastro_de_pre_reservas,
-                       'clientes': clientes,
-                       'grupos': grupos})
+                       'clientes': clientes})
 
     if request.POST.get('editar') or request.POST.get('confirmar_agendamento'):
 

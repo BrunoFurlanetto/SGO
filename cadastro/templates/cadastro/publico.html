@@ -3,99 +3,105 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-<!-------------------------------- LINHA 1 ---------------------------->
-  <div class="row conteudo-publico">
-    <div class="titulo-publico">
-      <center>
-        <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
-      </center>
-    </div>
-    <hr>
-    <form action="{% url 'publico' %}" method="POST">
-      {% csrf_token %}
-      <div class="row">
-        <div style="width: 20%" class="mb-3">
-          <label>Coordenador</label>
-            <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
-              <option selected></option>
-              {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-              {% endfor %}
-            </select>
+    <!-------------------------------- LINHA 1 ---------------------------->
+    <div class="row conteudo-publico">
+        <div class="titulo-publico">
+            <center>
+                <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
+            </center>
         </div>
-        <div style="width: 35%">
-          <label class="participantes" style="margin-left: 80px">Participantes: </label>
-          <div class="row">
-            <div style="width: 40%">
-              {{ formulario.participantes_previa }}
+        <hr>
+        <form action="{% url 'publico' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div style="width: 20%" class="mb-3">
+                    <label>Coordenador</label>
+                    <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 35%">
+                    <label class="participantes" style="margin-left: 80px">Participantes: </label>
+                    <div class="row">
+                        <div style="width: 40%">
+                            {{ formulario.participantes_previa }}
+                        </div>
+                        <div style="width: 60%">
+                            {{ formulario.participantes_confirmados }}
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 26%">
+                    <label>Data do atendimento</label>
+                    {{ formulario.data_atendimento }}
+                </div>
             </div>
-            <div style="width: 60%">
-              {{ formulario.participantes_confirmados }}
-            </div>
-          </div>
-        </div>
-        <div style="width: 26%">
-          <label>Data do atendimento</label>
-          {{ formulario.data_atendimento }}
-        </div>
-      </div>
 
-      <!-------------------------------- LINHA 2 ---------------------------->
-      <div class="row">
-        <div style="width: 20%">
-          <label>Professor 2: </label>
-            <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
-              <option selected></option>
-              {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-              {% endfor %}
-            </select>
-        </div>
-        <div style="width: 20%">
-          <label>Professor 3: </label>
-            <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
-              <option selected></option>
-              {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-              {% endfor %}
-            </select>
-        </div>
-        <div style="width: 20%">
-          <label>Professor 4: </label>
-            <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
-              <option selected></option>
-              {% for professor in professores %}
-                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-              {% endfor %}
-            </select>
-        </div>
-        </div>
-      <hr>
-<!-------------------------------- LINHA 3 ---------------------------->
-        <table class="table table-striped table-sm" style="caption-side: top">
-            <caption>Atividades realizadas no CEU:</caption>
-            <thead>
+            <!-------------------------------- LINHA 2 ---------------------------->
+            <div class="row">
+                <div style="width: 20%">
+                    <label>Professor 2: </label>
+                    <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 20%">
+                    <label>Professor 3: </label>
+                    <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 20%">
+                    <label>Professor 4: </label>
+                    <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <!-------------------------------- LINHA 3 ---------------------------->
+            <table class="table table-striped table-sm" style="caption-side: top">
+                <caption>Atividades realizadas no CEU:</caption>
+                <thead>
                 <tr>
-                    <th style="width: 550px"><center>Nome dos professores</center></th>
-                    <th style="width: 100px"><center>Início</center></th>
-                    <th style="width: 250px"><center>Atividade</center></th>
+                    <th style="width: 550px">
+                        <center>Nome dos professores</center>
+                    </th>
+                    <th style="width: 100px">
+                        <center>Início</center>
+                    </th>
+                    <th style="width: 250px">
+                        <center>Atividade</center>
+                    </th>
                     <th></th>
                 </tr>
-            </thead>
-            <tbody id="corpo_tabela_atividade_publico"></tbody>
-        </table>
-        <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
-            <span><i class='bx bxs-plus-circle'></i></span>
-            <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
-        </button>
-<!-------------------------------- RELATÓRIO FINAL ---------------------------->
-      <div>
-        <label>Relatório do dia:</label>
-        {{ formulario.relatorio }}
-        <button type="submit" class="btn btn-primary ml-5">Salvar</button>
-      </div>
-    </form>
-  </div>
+                </thead>
+                <tbody id="corpo_tabela_atividade_publico"></tbody>
+            </table>
+            <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+                <span><i class='bx bxs-plus-circle'></i></span>
+                <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+            </button>
+            <!-------------------------------- RELATÓRIO FINAL ---------------------------->
+            <div>
+                <label>Relatório do dia:</label>
+                {{ formulario.relatorio }}
+                <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+            </div>
+        </form>
+    </div>
 
     <script src="{% static 'js/script_base.js' %}"></script>
     <script src="{% static 'js/validacao.js' %}"></script>

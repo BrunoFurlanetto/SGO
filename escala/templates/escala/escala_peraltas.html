@@ -50,7 +50,7 @@
                                 let ano = String(date.getFullYear())
                                 let data = dia + '-' + mes + '-' + ano
 
-                                window.location.href = `{{ setor }}/escalar/${data}`
+                                window.location.href = `${('#setor').val()}/escalar/${data}`
                             },
                         {% endif %}
 

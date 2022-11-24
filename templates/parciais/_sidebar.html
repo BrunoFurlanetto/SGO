@@ -16,7 +16,7 @@
         {% if not ver %}
             <ul class="nav-links">
 
-                {% if 'Professor' in grupos or 'Monitoria' in grupos or 'Administrativo CEU' in grupos %}
+                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                     {% if 'dashboard' in request.path %}
                         <li>
                             <a>
@@ -35,7 +35,7 @@
 
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -54,7 +54,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -63,19 +63,19 @@
                     <li>
                 {% endif %}
 
-                {% if 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
-                    <a href="{% url 'painelGeral' %}">
-                        <i class='bx bxs-pie-chart-alt-2'></i>
-                        <span class="link_name"><nobr>Painel estatístico</nobr></span>
-                    </a>
-                    <ul class="sub-menu blank">
-                        <li><a class="link_name" href="{% url 'painelGeral' %}">Painel estatístico</a></li>
-                    </ul>
-                {% endif %}
+{#                {% if perms.peraltas.add_listadecargos %}#}
+{#                    <a href="{% url 'painelGeral' %}">#}
+{#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
+{#                        <span class="link_name"><nobr>Painel estatístico</nobr></span>#}
+{#                    </a>#}
+{#                    <ul class="sub-menu blank">#}
+{#                        <li><a class="link_name" href="{% url 'painelGeral' %}">Painel estatístico</a></li>#}
+{#                    </ul>#}
+{#                {% endif %}#}
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -84,7 +84,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'DEV' in grupos or 'ADMIN' in grupos or 'Coordenador pedagógico' in grupos or 'mostrar' in grupos %}
+                {% if perms.detector.view_detectordebombas %}
                     <a href="{% url 'detector' %}">
                         <i class='bx bx-timer'></i>
                         <span class="link_name max-word"><nobr>Detector de bombas</nobr></span>
@@ -96,7 +96,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'DEV' in grupos or 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -105,7 +105,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'DEV' in grupos or 'ADMIN' in grupos or 'Professor' in grupos or 'Operacional' in grupos or 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'dev' in grupos %}
+                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.ordemDeServico.add_ordemdeservico or perms.peraltas.add_fichadeevento %}
 
                     <div class="iocn-link">
                         <a href="#">
@@ -117,17 +117,17 @@
                     <ul class="sub-menu">
                         <li><a class="link_name">Cadastrar</a></li>
 
-                        {% if 'Professor' in grupos or 'dev' in grupos or 'ADMIN' in grupos %}
+                        {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                             <li><a href="{% url 'publico' %}">Público</a></li>
                             <li><a href="{% url 'colegio' %}">Colégio</a></li>
                             <li><a href="{% url 'empresa' %}">Empresa</a></li>
                         {% endif %}
 
-                        {% if 'Operacional' in grupos or 'Diretoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                        {% if perms.ordemDeServico.add_ordemdeservico %}
                             <li><a href="{% url 'ordem_de_servico' %}">Ordem de Serviço</a></li>
                         {% endif %}
 
-                        {% if 'Comercial' in grupos or 'Administrativo CEU' in grupos or 'Diretoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                        {% if perms.peraltas.add_fichadeevento %}
                             <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
                             <li><a href="{% url 'lista_cliente' %}" onclick="localStorage.removeItem('encaminhado')">Cliente</a></li>
                             <li><a class="max-word" href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
@@ -137,7 +137,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -146,7 +146,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'CEU' in grupos or 'Monitoria' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
+                {% if perms.escala.view_escala or perms.peraltas.view_escalaacampamento %}
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-table'></i>
@@ -157,41 +157,34 @@
                 {% endif %}
 
                 <ul class="sub-menu">
-                    {% if 'CEU' in grupos or 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                    {% if perms.escala.view_escala or perms.peraltas.view_escalaacampamento %}
                         <li><a class="link_name">Escala</a></li>
                     {% endif %}
 
-                    {% if 'CEU' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
+                    {% if perms.escala.view_escala %}
                         <li><a href="{% url 'escala' %}">Visualizar</a></li>
-                    {% endif %}
-
-                    {% if 'Professor' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
                         <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
+
+                        {% if perms.escala.add_escala %}
+                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadeCeu' %}">Mapa de disponibilidade</a></li>
+                        {% endif %}
+
                     {% endif %}
 
-                    {% if 'Coordenador pedagógico' in grupos or 'DEV' in grupos or 'ADMIN' in grupos %}
-                        <li><a class="max-word" href="{% url 'visualizarDisponibilidadeCeu' %}">Mapa de
-                            disponibilidade</a></li>
-                        <li><a href="{% url 'montarEscala' %}">Montar escala</a></li>
-                    {% endif %}
-
-                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
+                    {% if perms.peraltas.view_escalaacampamento %}
                         <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
-                    {% endif %}
-
-                    {% if 'Monitoria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
                         <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
-                    {% endif %}
 
-                    {% if 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'DEV' in grupos or 'ADMIN' in grupos or 'Diretoria' in grupos %}
-                        <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de
-                            disponibilidade</a></li>
+                        {% if perms.peraltas.add_escalaacampamento %}
+                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de disponibilidade</a></li>
+                        {% endif %}
+
                     {% endif %}
                 </ul>
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -200,7 +193,7 @@
                     <li>
                 {% endif %}
 
-                {% if 'CEU' in grupos or 'ADMIN' in grupos or 'Comercial' or 'Diretoria' in grupos in grupos or 'Coordenador monitoria' in grupos or 'Coordenador hotelaria' in grupos or 'Operacional' in grupos or 'DEV' in grupos %}
+                {% if perms.peraltas.view_prereserva %}
                     <a href="{% url 'calendario_eventos' %}">
                         <i class='bx bx-calendar'></i>
                         <span class="link_name">Eventos</span>
@@ -213,7 +206,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if 'Professor' in grupos or 'Administrativo CEU' in grupos or 'Monitoria' in grupos %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -222,13 +215,33 @@
                     <li>
                 {% endif %}
 
-                {% if 'CEU' in grupos or 'ADMIN' in grupos or 'DEV' in grupos or 'Comercial' in grupos or 'Diretoria' in grupos %}
+                {% if perms.fichaAvaliacao.view_fichadeavaliacao %}
                     <a href="{% url 'entregues' %}">
                         <i class='bx bxs-report'></i>
                         <span class="link_name">Avaliações</span>
                     </a>
                     <ul class="sub-menu blank">
                         <li><a class="link_name" href="{% url 'entregues' %}">Avaliações</a></li>
+                    </ul>
+                {% endif %}
+
+                </li>{% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+
+                {% if request.user.is_staff %}
+                    <a href="/admin/">
+                        <i class='bx bx-cog'></i>
+                        <span class="link_name">Área administrativa</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="/admin/">Área administrativa</a></li>
                     </ul>
                 {% endif %}
 

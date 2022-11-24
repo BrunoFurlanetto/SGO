@@ -31,8 +31,6 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def dashboardCeu(request):
-    grupos = verificar_grupo(request.user.groups.all())
-
     # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
     # Relatórios de atendimento ao público
     dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
@@ -122,15 +120,11 @@ def dashboardCeu(request):
                                                                'professor': professor_logado,
                                                                # 'n_atividades': n_atividades, 'n_horas': n_horas,
                                                                'mostrar_aviso': mostrar_aviso_disponibilidade,
-                                                               'depois_25': depois_25,
-                                                               'grupos': grupos})
+                                                               'depois_25': depois_25
+                                                               })
 
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
-    grupos = verificar_grupo(request.user.groups.all())
 
-    monitoria = User.objects.filter(pk=request.user.id, groups__name='Monitoria').exists()
-
-    return render(request, 'dashboard/dashboardPeraltas.html', {'monitoria': monitoria,
-                                                                'grupos': grupos})
+    return render(request, 'dashboard/dashboardPeraltas.html')
