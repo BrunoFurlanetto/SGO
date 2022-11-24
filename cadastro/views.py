@@ -276,7 +276,6 @@ def fichaDeEvento(request, id_cliente=None):
                                                                  'atividades_ceu': atividades_ceu})
 
     if is_ajax(request):
-
         if request.FILES != {}:
             return JsonResponse(requests_ajax(request.POST, request.FILES))
         else:

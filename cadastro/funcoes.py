@@ -370,7 +370,7 @@ def requests_ajax(requisicao, files=None):
             form = CadastroCodigoApp(requisicao, instance=codigo)
         else:
             form = CadastroCodigoApp(requisicao)
-
+        print(form.is_valid())
         if form.is_valid():
             novo_codigo = form.save()
             return {'id': novo_codigo.id}

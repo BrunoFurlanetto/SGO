@@ -127,8 +127,8 @@ class PerfilsParticipantes(models.Model):
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
-    evento = models.IntegerField()
-    reserva = models.IntegerField()
+    evento = models.CharField(max_length=255)
+    reserva = models.CharField(max_length=255)
     pagamento = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
