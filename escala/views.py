@@ -61,7 +61,6 @@ def escala(request):
 
 @login_required(login_url='login')
 def disponibilidade(request):
-
     try:
         dia_limite = DiaLimite.objects.get(id=1)
     except DiaLimite.DoesNotExist:
@@ -133,7 +132,6 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-
     try:
         dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)
     except DisponibilidadeAcampamento.DoesNotExist:
@@ -166,10 +164,10 @@ def disponibilidadePeraltas(request):
         if request.POST.get('novo_dia'):
             return JsonResponse(alterar_dia_limite_peraltas(request.POST))
 
-        monitor = Monitor.objects.get(usuario=request.user)
-
         if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
             monitor = Monitor.objects.get(id=int(request.POST.get('monitor')))
+        else:
+            monitor = Monitor.objects.get(usuario=request.user)
 
         dias = verificar_dias(request.POST.get('datas_disponiveis'),
                               Monitor.objects.get(usuario=monitor.usuario),
@@ -251,7 +249,7 @@ def verEscalaPeraltas(request):
 
 
 @login_required(login_url='login')
-def escalarMonitores(request, setor, data):
+def escalarMonitores(request, setor, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
 
     try:
@@ -270,12 +268,54 @@ def escalarMonitores(request, setor, data):
     monitores_disponiveis_hotelaria, monitores_disponiveis_acampamento = monitores_disponiveis(data_selecionada)
 
     if request.method != 'POST':
+        if request.GET.get('cliente'):
+            cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
+            inicio_evento = termino_evento = None
+
+            try:
+                ficha_de_evento = FichaDeEvento.objects.get(cliente=cliente,
+                                                            check_in__date__lte=data_selecionada,
+                                                            check_out__date__gte=data_selecionada
+                                                            )
+            except FichaDeEvento.DoesNotExist:
+                ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente,
+                                                              check_in__date__lte=data_selecionada,
+                                                              check_out__date__gte=data_selecionada
+                                                              )
+                ficha_de_evento = ordem_de_servico.ficha_de_evento
+                inicio_evento = ordem_de_servico.check_in
+                termino_evento = ordem_de_servico.check_out
+            else:
+                if ficha_de_evento.os:
+                    ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+                    inicio_evento = ordem_de_servico.check_in
+                    termino_evento = ordem_de_servico.check_out
+                else:
+                    inicio_evento = ficha_de_evento.check_in
+                    termino_evento = ficha_de_evento.check_out
+
+            return render(request, 'escala/escalar_monitores.html', {
+                'clientes_dia': clientes_dia,
+                'data': data_selecionada,
+                'setor': setor,
+                'biologo': ficha_de_evento.informacoes_adcionais.biologo,
+                'embarque': ficha_de_evento.informacoes_adcionais.transporte,
+                'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
+                'monitores_hotelaria': monitores_disponiveis_hotelaria,
+                'monitores_acampamento': monitores_disponiveis_acampamento,
+                'id_cliente': cliente.id,
+                'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
+                'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
+                'disponiveis': gerar_disponibilidade(cliente.id)
+            })
+
         return render(request, 'escala/escalar_monitores.html', {
             'clientes_dia': clientes_dia,
             'data': data_selecionada,
             'setor': setor,
             'monitores_hotelaria': monitores_disponiveis_hotelaria,
-            'monitores_acampamento': monitores_disponiveis_acampamento})
+            'monitores_acampamento': monitores_disponiveis_acampamento
+        })
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):

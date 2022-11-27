@@ -63,7 +63,7 @@ class EmpresaOnibusAdmin(admin.ModelAdmin):
 
 @admin.register(FichaDeEvento)
 class FichaDeEventoAdmin(admin.ModelAdmin):
-    list_display = ('vendedora',)
+    list_display = ('vendedora', 'cliente')
 
 
 @admin.register(ProdutosPeraltas)

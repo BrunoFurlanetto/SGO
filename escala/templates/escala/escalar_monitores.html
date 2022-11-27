@@ -11,69 +11,119 @@
                 </center>
             </div>
             <hr>
-            <form action="{% url 'escalar_monitores' setor data|date:'d-m-Y' %}" method="post">
-                {% csrf_token %}
-                {% if setor == 'acampamento' %}
+            {% if setor == 'acampamento' %}
+                <form id="form_evento" action="{% url 'escalar_monitores' setor data|date:'d-m-Y' %}" method="get">
                     <div class="mb-2">
                         <h5 class="titulo-secao">Eventos para {{ data }}</h5>
                         <label for="cliente">Cliente</label>
-                        <select class="form-select" name="cliente" id="cliente" onchange="pegar_dados_evento(this)" required>
+                        <select class="form-select" name="cliente" id="cliente" required>
                             <option selected></option>
                             {% for cliente in clientes_dia %}
-                                <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
+                                <option value="{{ cliente.id }}" {% if id_cliente and id_cliente == cliente.id %} selected {% endif %}>{{ cliente.nome_fantasia }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="row">
+                    <div class="row mb-3">
                         <div style="width: 50%">
                             <label for="check_in">Check in</label>
-                            <input class="form-control" type="datetime-local" id="check_in">
+                            <input type="datetime-local" id="check_in" {% if inicio %} value="{{ inicio }}" {% endif %} readonly>
                         </div>
                         <div style="width: 50%">
                             <label for="check_out">Check out</label>
-                            <input class="form-control" type="datetime-local" id="check_out">
+                            <input type="datetime-local" id="check_out" {% if final %} value="{{ final }}" {% endif %} readonly>
                         </div>
                     </div>
+                    <button type="submit" class="btn btn-primary">Procurar disponibilidade</button>
                     <hr class="escalar">
+                </form>
+            {% endif %}
+            {% if biologo or enfermaria > 1 or embarque %}
+                <div>
+                    <h5 class="titulo-secao">Dados importantes</h5>
+                    <ul>
+                        {% if biologo %}
+                            <li class="biologo_1">Ao menos 1 biologo</li>
+                        {% endif %}
+
+                        {% if embarque %}
+                            <li class="embarque_1">Ao menos um monitor para embarque</li>
+                        {% endif %}
+
+                        {% if enfermaria == 2 %}
+                            <li class="enfermeira_2">Enfermeira das 8h às 22h, necessário 2 enfermeiras</li>
+                        {% endif %}
+
+                        {% if enfermaria == 3 %}
+                            <li class="enfermeira_3">Enfermeira das 08h às 8h, necessário 3 enfermeiras</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <hr>
+            {% endif %}
+            <div class="row mb-1">
+                <h5 class="titulo-secao">Monitores disponiveis</h5>
+                {% if enfermaria > 1 %}
+                    <div id="enfermeiras">
+                        <label for="monitores_hotelaria">Enfermeiras</label>
+                        <div id="monitores_hotelaria" class="monitores_disponiveis espacos" ondrop="escalado(this)">
+                            {% for disponivel in disponiveis %}
+                                {% if disponivel.setor == 'hotelaria' %}
+                                    <div id="{{ disponivel.id }}" class="card-monitor hotelaria {% if disponivel.tecnica %} tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}" draggable="true">{{ disponivel.nome }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
                 {% endif %}
-                <div class="monitores-disponiveis row">
-                    <h5 class="titulo-secao">Monitores disponiveis</h5>
-                    <div id="hotelaria" style="width: 50%">
-                        <label for="monitores_hotelaria">Para a hotelaria</label>
-                        <select name="monitores_hotelaria" id="monitores_hotelaria" multiple style="width: 100%" onchange="escalado(this)">
-                            {% if setor == 'hotelaria' %}
-                                {% for monitor in monitores_hotelaria %}
-                                    <option value="{{ monitor.id }}" {% if monitor.tecnica %} class="tecnica" {% endif %}>{{ monitor.nome }}</option>
-                                {% endfor %}
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div id="acampamento" style="width: 50%">
-                        <label for="monitores_acampamento">Para o acampamento</label>
-                        <select name="monitores_acampamento" id="monitores_acampamento" multiple style="width: 100%; overflow: hidden" onclick="escalado(this)">
-                            {% if setor == 'hotelaria' %}
-                                {% for monitor in monitores_acampamento %}
-                                    <option value="{{ monitor.id }}" {% if monitor.tecnica %} class="tecnica" {% endif %}>{{ monitor.nome }}</option>
-                                {% endfor %}
-                            {% endif %}
-                        </select>
+                <div id="hotelaria" style="width: 50%">
+                    <label for="monitores_hotelaria">Para a hotelaria</label>
+                    <div id="monitores_hotelaria" class="monitores_disponiveis espacos" ondrop="escalado(this)">
+                        {% for disponivel in disponiveis %}
+                            {% if disponivel.setor == 'hotelaria' %}
+                                <div id="{{ disponivel.id }}" class="card-monitor hotelaria {% if disponivel.tecnica %} tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}" draggable="true">{{ disponivel.nome }}</div>
+                            {% endif %} 
+                        {% endfor %}
                     </div>
                 </div>
-                <hr class="monitores-disponiveis">
-                <div class="row mb-2 escalados none" id="escalar">
-                    {% if setor == 'acampamento' %}
-                        <h5 class="titulo-secao">Escalados para o evento</h5>
-                    {% else %}
-                        <h5 class="titulo-secao">Escalados para a {{ setor }}</h5>
-                    {% endif %}
-                    <div class="row" id="escalados"></div>
-                    <input type="hidden" name="monitores_escalados" id="monitores_escalados">
+                <div id="acampamento" style="width: 50%">
+                    <label for="monitores_acampamento">Para o acampamento</label>
+                    <div id="monitores_acampamento" class="monitores_disponiveis espacos" ondrop="escalado(this)">
+                        {% for disponivel in disponiveis %}
+                            {% if disponivel.setor == 'acampamento' %}
+                                <div id="{{ disponivel.id }}" class="card-monitor acampamento {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}" draggable="true">{{ disponivel.nome }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="botoes">
-                    <button type="button" class="btn btn-primary" onclick="salvar_monitores_escalados()">Salvar</button>
-                    <button id="enviar_formulario" class="none" type="submit"></button>
+            </div>
+            <div id="legenda" style="display: flex">
+                <div class="tecnica">Técnica</div>
+                <div class="biologo">Biologo</div>
+            </div>
+            <hr>
+            <div class="row mb-2 escalados" id="escalar">
+                {% if setor == 'acampamento' %}
+                    <h5 class="titulo-secao">Escalados para o evento</h5>
+                {% else %}
+                    <h5 class="titulo-secao">Escalados para a {{ setor }}</h5>
+                {% endif %}
+                <div class="mb-2" id="div_monitores_escalados">
+                    <label>Monitores</label>
+                    <div class="monitores_escalados espacos" id="monitores_escalados" style="display: flex; flex-wrap: wrap" ondrop="escalado(this)"></div>
                 </div>
-            </form>
+                <div style="width: 50%">
+                    <label>Monitor embarque</label>
+                    <div class="monitores_escalados espacos" id="monitor_embarque" ondrop="escalado(this)"></div>
+                </div>
+                <div style="width: 50%">
+                    <label>Enfermeira</label>
+                    <div class="monitores_escalados espacos" id="enfermagem" ondrop="escalado(this)"></div>
+                </div>
+            </div>
+
+            <div class="botoes">
+                <button type="button" class="btn btn-primary" onclick="salvar_monitores_escalados()">Salvar</button>
+                <button id="enviar_formulario" class="none" type="submit"></button>
+            </div>
         </div>
         {% comment %}<div class="dados-monitores none">
             <h5 style="text-align: center; padding: 0">Dados dos monitores</h5>

@@ -254,7 +254,7 @@ def gerar_disponibilidade(id_cliente):
                                                         list(chain(disponibilidades_acampamento,
                                                                    disponibilidades_hotelaria)))
 
-    return {'check_in': check_in, 'check_out': check_out, 'disponiveis_evento': disponiveis_intervalo}
+    return disponiveis_intervalo
 
 
 def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
@@ -281,19 +281,22 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         areas.append('som') if monitor.monitor.som else ...
         areas.append('video') if monitor.monitor.video else ...
         areas.append('fotos_e_filmagens') if monitor.monitor.fotos_e_filmagens else ...
+        biologo = 'biologo' if monitor.monitor.biologo else ''
 
         if isinstance(monitor, DisponibilidadeAcampamento):
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
                                                     'setor': 'acampamento',
                                                     'tecnica': monitor.monitor.tecnica,
-                                                    'areas': areas})
+                                                    'areas': '-'.join(areas),
+                                                    'biologo': biologo})
         else:
             monitores_disponiveis_intervalo.append({'id': monitor.monitor.id,
                                                     'nome': monitor.monitor.usuario.get_full_name(),
                                                     'setor': 'hotelaria',
                                                     'tecnica': monitor.monitor.tecnica,
-                                                    'areas': areas})
+                                                    'areas': '-'.join(areas),
+                                                    'biologo': biologo})
 
     return monitores_disponiveis_intervalo
 
@@ -387,7 +390,7 @@ def escalados_para_o_evento(dados_evento):
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
-    return {'escalados': monitores_escalados}
+    return {'escalados': monitores_escalados, 'id_cliente': cliente.id}
 
 
 def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados, id_escalados):

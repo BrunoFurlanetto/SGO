@@ -1,233 +1,176 @@
-let monitores_escalados = []
-const niveis =['coordenadores', 'monitores', 'auxiliares']
+let id_escalados = []
+const niveis = ['coordenadores', 'monitores', 'auxiliares']
+let areas = []
 
-function pegar_dados_evento(selecao){
-    $('#monitores_acampamento, #monitores_hotelaria').empty()
+const arrastaveis = document.querySelectorAll('[draggable=true]')
+const espacos = document.querySelectorAll('.espacos')
 
-    if(selecao.value !== '') {
-        $.ajax({
-            type: 'POST',
-            async: false,
-            url: '',
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-            data: {'id_cliente': selecao.value},
-            success: function (response) {
-                console.log(response)
-                $('#check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
-                $('#check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
+espacos.forEach((espaco) => {
+    espaco.addEventListener('dragover', (e) => {
+        const arrastando = document.querySelector('.arrastando')
+        const nova_posicao = pegar_nova_posicao(espaco, e.clientY)
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
 
-                for(let monitor in response['disponiveis_evento']){
+        if (nova_posicao) {
+            nova_posicao.insertAdjacentElement('afterend', arrastando)
+        } else {
+            espaco.prepend(arrastando)
+        }
+    })
+})
 
-                    if(response['disponiveis_evento'][monitor]['setor'] === 'acampamento'){
-                        if(response['disponiveis_evento'][monitor]['tecnica']){
-                            const areas = response['disponiveis_evento'][monitor]['areas'].join(' ')
-                            $('#monitores_acampamento').append(`<option class="tecnica ${areas}" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
-                        }else{
-                            $('#monitores_acampamento').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
-                        }
-                    }else{
-                        if(response['disponiveis_evento'][monitor]['tecnica']){
-                            const areas = response['disponiveis_evento'][monitor]['areas'].join(' ')
-                            $('#monitores_hotelaria').append(`<option class="tecnica ${areas}" value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
-                        }else{
-                            $('#monitores_hotelaria').append(`<option value="${response['disponiveis_evento'][monitor]['id']}">${response['disponiveis_evento'][monitor]['nome']}</option>`)
-                        }
-                    }
-                }
+document.addEventListener('dragstart', (e) => {
+    e.target.classList.add('arrastando')
+})
 
+document.addEventListener('dragend', (e) => {
+    e.target.classList.remove('arrastando');
+})
+
+function pegar_nova_posicao(local, posY) {
+    const cards_monitor = local.querySelectorAll('.card-monitor:not(.arrastando)')
+    let resultado
+
+    for (let card_referencia of cards_monitor) {
+        const box = card_referencia.getBoundingClientRect()
+        const centro_do_box = box.y + box.height / 2
+
+        if (posY >= centro_do_box) resultado = card_referencia
+    }
+
+    return resultado
+}
+
+function escalado(espaco) {
+    const tipo_escalacao = espaco.id
+    let monitores = espaco.querySelectorAll('.card-monitor')
+
+
+    // ---------------------------------este pra retorno na disponibilidade correta ------------------------------------
+    if (tipo_escalacao === 'monitores_hotelaria') {
+        verificar_escalados(false)
+
+        for (let monitor of monitores) {
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+
+            if (monitor.classList.contains('acampamento')) {
+                $('#monitores_acampamento').append(monitor)
             }
-        })
-    }else{
-        $('#check_in').val('')
-        $('#check_out').val('')
+        }
+    }
+
+    if (tipo_escalacao === 'monitores_acampamento') {
+        verificar_escalados(false)
+
+        for (let monitor of monitores) {
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+
+            if (monitor.classList.contains('hotelaria')) {
+                $('#monitores_hotelaria').append(monitor)
+            }
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    if (tipo_escalacao === 'monitores_escalados') {
+        verificar_escalados(true)
+
+        for (let monitor of monitores) {
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+        }
+    }
+
+    if (tipo_escalacao === 'enfermagem'){
+        verificar_escalados(false)
+
+        for (let monitor of monitores){
+            if (!monitor.classList.contains('enfermeira')) verificar_enfermeira(monitor)
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+        }
+    }
+
+    if (tipo_escalacao === 'monitor_embarque'){
+        verificar_escalados(false)
+
+        for (let monitor of monitores){
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+        }
     }
 }
 
-function escalado(monitor){
-    let setor
-    const monitor_selecionado = $(`#${monitor.id} :selected`)
-    const id_monitor = monitor_selecionado.val()
-    const nome_monitor = monitor_selecionado.text()
-    const ja_escalado = verificar_escalado(id_monitor)
+function verificar_escalados(escalando){
+    const monitores_escalados = $('#monitores_escalados').children()
+    let id_monitores = []
 
-    if (monitor_selecionado.attr('class') !== undefined){
-        setor = monitor_selecionado.attr('class').split(' ')
+    for (let monitor of monitores_escalados){
+        id_monitores.push(monitor.id)
+
+        if (escalando){
+            if (!id_escalados.includes(monitor.id)){
+                id_escalados.push(monitor.id)
+            }
+        }
+    }
+
+    if (!escalando){
+        for (let id of id_escalados){
+            if (!id_monitores.includes(id)) id_escalados.splice(id_escalados.indexOf(id), 1)
+        }
+    }
+    console.log(id_escalados)
+}
+
+function verificar_tecnica() {
+    const monitores_escalados = $('#monitores_escalados').children()
+    let areas = []
+
+    for (let monitor of monitores_escalados) {
+        if (monitor.classList.contains('tecnica')) {
+            let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
+
+            areas_monitor.forEach(area => {
+                if (!areas.includes(area)) {
+                    areas.push(area)
+                }
+            })
+        }
+    }
+
+    if (areas.length !== 0 ){
+        $('#mensagem_tecnica').remove()
+        $('#div_monitores_escalados').append(`<p class="alert-info" id="mensagem_tecnica">Técnico(s) de ${areas.join(', ')} escalado(s)</p>`)
     } else {
-        setor = []
-    }
-
-    $('#escalar').removeClass('none')
-    monitores_escalados.push(id_monitor)
-
-        $.ajax({
-            type: 'POST',
-            async: false,
-            url: '',
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-            data: {'id_monitor': id_monitor},
-            success: function (response) {
-
-                if(monitor_selecionado[0].classList.contains('tecnica')) {
-                    if (response['video'] && $('.mensagem-tecnica-video').length === 0) {
-                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-video" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de video</p>')
-                    }
-                    if (response['som'] && $('.mensagem-tecnica-som').length === 0) {
-                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-som" style="width: 98%; margin-left: 1%; margin-bottom: -5px" id="mensagem_tecnica">Técnico de som</p>')
-                    }
-                    if (response['fotos_e_filmagens'] && $('.mensagem-tecnica-fotos').length === 0) {
-                        $('#escalar').append('<p class="alert-warning mensagem-tecnica-fotos" style="width: 98%; margin-left: 1%" id="mensagem_tecnica">Técnico de fotos e filmagens</p>')
-                    }
-                }
-
-                $('.dados-monitores').removeClass('none')
-                $(`.${response['nivel'].split(' ')[0].toLowerCase()}`).removeClass('none')
-                $(`#${response['nivel'].toLowerCase().replaceAll(' ', '_')} .monitores`).append(`<li>${nome_monitor}</li>`)
-                $(`#${response['nivel'].toLowerCase().replaceAll(' ', '_')}`).removeClass('none')
-
-            }
-        })
-
-    $('#monitores_hotelaria option').each(function (id, nome){
-        if(nome.value === id_monitor){
-            if(nome.parentNode.name !== setor){
-                setor.push(nome.parentNode.name.split('_')[1])
-            }
-            nome.remove()
-        }
-    })
-
-    $('#monitores_acampamento option').each(function (id, nome){
-        if(nome.value === id_monitor){
-            if(nome.parentNode.name !== setor){
-                setor.push(nome.parentNode.name.split('_')[1])
-            }
-            nome.remove()
-        }
-    })
-
-    if(ja_escalado){
-        $('#escalados').append(
-            `<span class="alert-danger ja_escalado ${setor.join(' ')}" id = "nome_monitor_botao" style="background-color: #f8d7da">
-                ${nome_monitor} 
-                <button type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                    &times
-                </button>
-            </span>`
-        )
-    }else {
-        $('#escalados').append(
-            `<span id = "nome_monitor_botao" class="${setor.join(' ')}">
-                ${nome_monitor} 
-                <button type = "button" id = "${id_monitor}" onclick="remover_monitor_escalado(this)">
-                    &times
-                </button>
-            </span>`
-        )
+        $('#mensagem_tecnica').remove()
     }
 }
 
-function remover_monitor_escalado(monitor, editando= false){
-
-    if(editando){
-        $('#botao_salvar_escala').prop('disabled', false)
+function verificar_enfermeira(monitor){
+    if (monitor.classList.contains('acampamento')) {
+        $('#monitores_acampamento').append(monitor)
+    } else {
+        $('#monitores_hotelaria').append(monitor)
     }
-
-    let setor = monitor.parentNode.attributes.class.value.split(' ')
-    let id_monitor = monitor.id
-    let nome_monitor = monitor.parentNode.textContent.trim().split('\n')[0]
-
-    if(setor.includes('alert-danger')){
-        setor.splice(setor.indexOf('alert-danger'), 1)
-        setor.splice(setor.indexOf('ja_escalado'), 1)
-    }
-
-    if (setor.includes('acampamento')){
-        if(setor.includes('tecnica')){
-            $('#monitores_acampamento').append(`<option class="${setor.join(' ')}" value="${id_monitor}">${nome_monitor}</option>`)
-        }else {
-            $('#monitores_acampamento').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
-        }
-    }
-
-    if (setor.includes('hotelaria')){
-        if(setor.includes('tecnica')){
-            $('#monitores_hotelaria').append(`<option class="${setor.join(' ')}" value="${id_monitor}">${nome_monitor}</option>`)
-        }else {
-            $('#monitores_hotelaria').append(`<option value="${id_monitor}">${nome_monitor}</option>`)
-        }
-    }
-
-    monitores_escalados.splice(monitores_escalados.indexOf(id_monitor), 1)
-    monitor.parentNode.remove()
-
-    if($('#escalados .video').length === 0){
-        $('.mensagem-tecnica-video').remove()
-    }
-
-    if ($('#escalados .som').length === 0) {
-         $('.mensagem-tecnica-som').remove()
-    }
-
-    if ($('#escalados .fotos_e_filmagens').length === 0) {
-        $('.mensagem-tecnica-fotos').remove()
-    }
-
-    if($('.ja_escalado').length === 0){
-        $('#mensagem').remove()
-    }
-
-    const lista = document.querySelectorAll('.dados-monitores .monitores')
-
-    lista.forEach(function(div){
-        if(div.parentNode.getAttribute('class') !== 'none'){
-
-            for(let i = 0; i < div.children.length; i++){
-                if(div.children[i].innerText === nome_monitor.trim()){
-                    div.children[i].remove()
-                }
-            }
-
-            if(div.children.length === 0){
-                div.parentNode.classList.add('none')
-            }
-
-        }
-    })
-
-    for(let i = 0; i <= niveis.length; i++){
-        const div_niveis = document.querySelectorAll(`.niveis-${niveis[i]}`)
-
-        div_niveis.forEach(function (div){
-            for(let j = 0; j < div.children.length; j++){
-                if(!div.children[j].classList.contains('none')){
-                    return
-                }
-            }
-            div.parentNode.classList.add('none')
-        })
-    }
-
 }
 
-function salvar_monitores_escalados(){
+function salvar_monitores_escalados() {
 
-    if(monitores_escalados.length === 0){
+    if (monitores_escalados.length === 0) {
         $('.alert-warning').empty()
         $('#corpo_site').prepend('<p class="alert-warning">Nenhum monitor foi selecionado</p>')
-    }else{
+    } else {
         $('.alert-warning').empty()
         $('#monitores_escalados').val(monitores_escalados)
         $('#enviar_formulario').click()
     }
 }
 
-function verificar_escalado(id_monitor, editando=false){
+function verificar_escalado(id_monitor, editando = false) {
     let ja_escalado = false
     let id_cliente
 
-    if(editando){
+    if (editando) {
         id_cliente = $('#id_cliente').val()
-    }else{
+    } else {
         id_cliente = $('#cliente').val()
     }
 
@@ -237,17 +180,17 @@ function verificar_escalado(id_monitor, editando=false){
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_monitor': id_monitor, 'cliente': id_cliente},
-        success: function (response){
+        success: function (response) {
 
-            if(response['acampamento']){
-                if($('#mensagem').length === 0){
+            if (response['acampamento']) {
+                if ($('#mensagem').length === 0) {
                     $('#escalar').append('<p class="alert-danger" style="width: 98%; margin-left: 1%" id="mensagem">Monitor(es) presente(s) em escala do acampamento na data em questão!</p>')
                 }
                 ja_escalado = true
             }
 
-            if(response['hotelaria']){
-                if($('#mensagem').length === 0) {
+            if (response['hotelaria']) {
+                if ($('#mensagem').length === 0) {
                     $('#escalar').append('<p class="alert-danger" style="width: 98%; margin-left: 1%" id="mensagem">Monitor(es) presente(s) em escala da hotelaria na data em questão!</p>')
                 }
                 ja_escalado = true
@@ -257,16 +200,32 @@ function verificar_escalado(id_monitor, editando=false){
     return ja_escalado
 }
 
-function pegar_escalados(){
+function pegar_escalados() {
     let monitores = $('#monitores_escalados').val().replace('[', '').replace(']', '').split(', ')
 
-    for(let i = 0; i < monitores.length; i++){
-        if(monitores[i] !== '') {
+    for (let i = 0; i < monitores.length; i++) {
+        if (monitores[i] !== '') {
             monitores_escalados.push(monitores[i])
         }
     }
 }
 
-function active_botao_salvar(){
+function active_botao_salvar() {
     $('#botao_salvar_escala').prop('disabled', false)
 }
+
+$('document').ready(function () {
+    jQuery('#form_evento').submit(function () {
+        let dados = jQuery(this).serialize();
+        //aqui voce pega o conteudo do atributo action do form
+        let url = $(this).attr('action');
+        $.ajax({
+            url: url,
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: dados,
+            success: function (response) {
+            }
+        })
+    });
+});

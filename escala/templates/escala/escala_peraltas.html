@@ -135,6 +135,8 @@
                                         }
                                     }
 
+                                    $('#id_cliente_modal').val(response['id_cliente'])
+
                                 }
                             })
 
@@ -148,7 +150,7 @@
             }
 
             function redirecionar_edicao(){
-                window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')
+                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')}/${$('#id_cliente_modal').val()}`
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>

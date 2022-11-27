@@ -503,6 +503,41 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
+.monitores_disponiveis{
+    border: solid 1px #ced4da;
+    border-radius: 5px;
+    min-height: 100px;
+    height: auto;
+    max-height: 250px;
+    overflow-y: auto;
+}
+.espacos:hover{
+    border-color: #ffc107;
+}
+.card-monitor{
+    border: solid 1px;
+    border-radius: 10px;
+    padding: 2px 8px 2px 8px;
+    margin: 5px 5px 10px 5px;
+    width: fit-content;
+    height: fit-content;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    box-shadow: 2px 2px 2px;
+    cursor: grab;
+}
+.arrastando:active{
+    cursor: grabbing;
+}
+#legenda .tecnica, #legenda .biologo{
+    padding: 5px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 10px;
+    margin: 5px;
+}
 .dados-monitores{
     background-color: #ffffff;
     width: 250px;
@@ -527,16 +562,22 @@
 }
 .tecnica{
     font-weight: bolder;
+    background: #c3a06e;
+}
+.biologo{
+    font-weight: bolder;
+    background: #03bb85;
 }
 #escalados .tecnica{
     background-color: #D6D32A
 }
-#escalados{
-    width: 95%;
+.monitores_escalados{
+    border: solid 1px #ced4da;
+    border-radius: 5px;
+    min-height: 100px;
     height: auto;
-    border: solid 1px #616565;
-    margin-left: 2%;
-    border-radius: 10px;
+    max-height: 250px;
+    overflow-y: auto;
 }
 #nome_monitor_botao{
     margin: 5px;
@@ -605,7 +646,8 @@
   touch-action: none;
 }
 .conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input,
-#modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local]{
+#modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
+#form_evento input[type=datetime-local]{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
