@@ -352,7 +352,9 @@ class DiaLimiteAcampamento(models.Model):
 
 class EscalaAcampamento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
-    monitores_acampamento = models.ManyToManyField(Monitor)
+    monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
+    monitores_embarque = models.ManyToManyField(Monitor, blank=True, related_name='monitores_embarque')
+    enfermeiras = models.ManyToManyField(Monitor, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
 
