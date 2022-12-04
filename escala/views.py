@@ -255,7 +255,7 @@ def verEscalaPeraltas(request):
 def escalarMonitores(request, setor, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
-    escala_editada = []
+    escala_editada = None
     escalado = []
     disponiveis = []
 
@@ -302,7 +302,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
             if id_cliente:
                 try:
-                    escala_editada = EscalaAcampamento.objects.get(cliente__id=int(id_cliente))
+                    escala_editada = EscalaAcampamento.objects.get(
+                        cliente__id=int(id_cliente),
+                        check_in_cliente__date__lte=data_selecionada,
+                        check_out_cliente__date__gte=data_selecionada
+                    )
                 except EscalaAcampamento.DoesNotExist:
                     ...
                 else:
@@ -333,15 +337,34 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 check_in = escala_editada.check_in_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
                 check_out = escala_editada.check_out_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
 
+                try:
+                    ficha_de_evento = FichaDeEvento.objects.get(
+                        cliente_id=id_cliente,
+                        check_in__date__lte=data_selecionada,
+                        check_out__date__gte=data_selecionada,
+                    )
+                except FichaDeEvento.DoesNotExist:
+                    ordem_de_servico = OrdemDeServico.objects.get(
+                        ficha_de_evento__cliente__id=id_cliente,
+                        check_in__date__lte=data_selecionada,
+                        check_out__date__gte=data_selecionada,
+                    )
+
+                    ficha_de_evento = ordem_de_servico.ficha_de_evento
+
                 return render(request, 'escala/escalar_monitores.html', {
                     'inicio': check_in,
                     'final': check_out,
                     'id_cliente': id_cliente,
+                    'biologo': ficha_de_evento.informacoes_adcionais.biologo,
+                    'embarque': ficha_de_evento.informacoes_adcionais.transporte,
+                    'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'cliente': escala_editada.cliente.nome_fantasia,
                     'data': data_selecionada,
                     'setor': setor,
                     'disponiveis': disponiveis,
-                    'escalados': escalado
+                    'escalados': escalado,
+                    'id_escala': escala_editada.id
                 })
 
             return render(request, 'escala/escalar_monitores.html', {
@@ -387,7 +410,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'data': data_selecionada,
                     'setor': setor,
                     'disponiveis': disponiveis,
-                    'escalados': escalado
+                    'escalados': escalado,
+                    'id_escala': escala_hotelaria.id
                 })
 
     if is_ajax(request):
@@ -404,8 +428,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
             check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%dT%H:%M')
 
-            if id_cliente:
-                editando_escala = EscalaAcampamento.objects.get(cliente=cliente)
+            if request.POST.get('id_escala') != '':
+                editando_escala = EscalaAcampamento.objects.get(id=int(request.POST.get('id_escala')))
                 editando_escala.monitores_acampamento.set(request.POST.getlist('id_monitores[]'))
                 editando_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
@@ -421,16 +445,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
-            return render(request, 'escala/escalar_monitores.html', {
-                'inicio': check_in,
-                'final': check_out,
-                'id_cliente': id_cliente,
-                'cliente': escala_editada.cliente.nome_fantasia,
-                'data': data_selecionada,
-                'setor': setor,
-                'disponiveis': disponiveis,
-                'escalados': escalado
-            })
+            return redirect('escalaPeraltas')
         else:
             ficha_cliente = FichaDeEvento.objects.get(cliente=cliente)
             ficha_cliente.escala = True
@@ -450,14 +465,13 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             for posicao, id_monitor in enumerate(request.POST.getlist('id_monitores[]'), start=1):
                 escala_dia[posicao] = int(id_monitor)
 
-            try:
-                escala_hotelaria = EscalaHotelaria.objects.get(data=data_selecionada)
-            except EscalaHotelaria.DoesNotExist:
-                nova_escala = EscalaHotelaria.objects.create(data=data_selecionada, monitores_hotelaria=escala_dia)
-                nova_escala.save()
-            else:
+            if request.POST.get('id_escala'):
+                escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
                 escala_hotelaria.save()
+            else:
+                nova_escala = EscalaHotelaria.objects.create(data=data_selecionada, monitores_hotelaria=escala_dia)
+                nova_escala.save()
 
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)

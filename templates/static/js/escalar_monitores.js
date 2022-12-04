@@ -275,26 +275,84 @@ function verificar_ja_escalado(id_monitor) {
 }
 
 function salvar_monitores_escalados(btn, editando = false) {
+    const monitores_escalados = $('#monitores_escalados').children()
+    const monitores_escalados_embarque = $('#monitor_embarque').children()
+    const enfermeiras_escaladas = $('#enfermagem').children()
     $('#mensagem_sem_monitor').remove()
+    let erro_sem_alteracao = false
+    let erro_biologo = false
+    let erro_monitor_embarque = false
+    let erro_2_enfermeiras = false
+    let erro_3_enfermeiras = false
 
-    if (id_escalados.length === 0) {
-        window.scroll({top: 0, behavior: 'smooth'});
-
+    if ((id_escalados.length + id_monitores_embarque.length) === 0) {
         if (editando) {
             $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
         } else {
             $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
         }
+        erro_sem_alteracao = true
+    }
+
+    if ($('#obrigatoriedades')) {
+        if ($('#obrigatoriedades .biologo_1').length > 0) {
+            let biologo = false
+
+            for (let monitor of monitores_escalados) {
+                if (monitor.classList.contains('biologo')) biologo = true
+            }
+
+            for (let monitor of monitores_escalados_embarque) {
+                if (monitor.classList.contains('biologo')) biologo = true
+            }
+
+            if (!biologo) {
+                window.scroll({top: 0, behavior: 'smooth'});
+                $('.biologo_1').css({'color': 'red'})
+                erro_biologo = true
+            } else {
+                $('.biologo_1').css({'color': 'black'})
+                erro_biologo = false
+            }
+        }
+
+        if ($('#obrigatoriedades .embarque_1').length > 0 && monitores_escalados_embarque.length === 0) {
+            $('.embarque_1').css({'color': 'red'})
+            erro_monitor_embarque = true
+        } else {
+            $('.embarque_1').css({'color': 'black'})
+            erro_monitor_embarque = false
+        }
+
+        if ($('#obrigatoriedades .enfermeira_2').length > 0 && enfermeiras_escaladas.length < 2) {
+            $('.enfermeira_2').css({'color': 'red'})
+            erro_2_enfermeiras = true
+        } else {
+            $('.enfermeira_2').css({'color': 'black'})
+            erro_2_enfermeiras = false
+        }
+
+        if ($('#obrigatoriedades .enfermeira_3').length > 0 && enfermeiras_escaladas.length < 3) {
+            $('.enfermeira_3').css({'color': 'red'})
+            erro_3_enfermeiras = true
+        } else {
+            $('.enfermeira_3').css({'color': 'black'})
+            erro_3_enfermeiras = false
+        }
+    }
+
+    if (erro_sem_alteracao || erro_biologo || erro_monitor_embarque || erro_2_enfermeiras || erro_3_enfermeiras) {
+        window.scroll({top: 0, behavior: 'smooth'});
 
         return
     }
-
     $.ajax({
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         async: false,
         type: "POST",
         data: {
+            'id_escala': $('#escala_editada').val(),
             'id_monitores': id_escalados,
             'id_monitores_embarque': id_monitores_embarque,
             'id_enfermeiras': id_enfermeiras,

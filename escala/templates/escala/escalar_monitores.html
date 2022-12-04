@@ -46,7 +46,7 @@
                 </form>
             {% endif %}
             {% if biologo or enfermaria > 1 or embarque %}
-                <div>
+                <div id="obrigatoriedades">
                     <h5 class="titulo-secao">Dados importantes</h5>
                     <ul>
                         {% if biologo %}
@@ -154,8 +154,8 @@
                         </div>
                     </div>
                 {% endif %}
+                <input id="escala_editada" type="hidden" value="{{ id_escala }}">
             </div>
-
             <div class="botoes">
                 <button type="button" class="btn btn-primary" {% if id_cliente %} onclick="salvar_monitores_escalados(this, true)" {% else %} onclick="salvar_monitores_escalados(this)" {% endif %}>Salvar</button>
             </div>
@@ -233,5 +233,8 @@
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
-    <script>verificar_tecnica()</script>
+    <script>
+        verificar_tecnica()
+        verificar_escalados()
+    </script>
 {% endblock %}

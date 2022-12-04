@@ -365,7 +365,11 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
 
     if id_cliente:
         try:
-            escala_monitor_escalado = EscalaAcampamento.objects.get(cliente__id=int(id_cliente))
+            escala_monitor_escalado = EscalaAcampamento.objects.get(
+                cliente__id=int(id_cliente),
+                check_in_cliente__date__lte=data_selecionada,
+                check_out_cliente__date__gte=data_selecionada,
+            )
         except EscalaAcampamento.DoesNotExist:
             check_in = check_out = None
         else:
@@ -377,7 +381,6 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
             monitores_embarque=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
             check_out_cliente__date__gte=data_selecionada).exclude(cliente__id=int(id_cliente))
-
         if check_in:
             for soma_dia in range(0, (check_out.day - check_in.day) + 1):
                 dia = check_in + timedelta(days=soma_dia)
