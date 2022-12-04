@@ -364,14 +364,17 @@ class DiaLimiteHotelaria(models.Model):
 
 
 class EscalaHotelaria(models.Model):
-    monitores_hotelaria = models.ManyToManyField(Monitor)
+    monitores_hotelaria = models.JSONField(null=True)
+    monitores_escalados = models.ManyToManyField(Monitor)
     data = models.DateField()
 
     def separar_monitores(self):
         monitores = []
 
-        for monitor in self.monitores_hotelaria.all():
-            monitores.append({'nome': monitor, 'user': monitor.usuario})
+        for id_monitor in self.monitores_hotelaria.values():
+            monitor = Monitor.objects.get(id=id_monitor)
+
+            monitores.append({'nome': monitor.usuario.get_full_name(), 'user': monitor.usuario})
 
         return monitores
 

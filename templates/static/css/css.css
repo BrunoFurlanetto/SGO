@@ -571,6 +571,9 @@
 #escalados .tecnica{
     background-color: #D6D32A
 }
+.escalado{
+    background: rgba(239, 61, 61, 0.78);
+}
 .monitores_escalados{
     border: solid 1px #ced4da;
     border-radius: 5px;

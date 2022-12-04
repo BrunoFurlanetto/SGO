@@ -11,9 +11,9 @@
                 </center>
             </div>
             <hr>
+            {% csrf_token %}
             {% if setor == 'acampamento' %}
                 <form id="form_evento" action="{% url 'escalar_monitores' setor data|date:'d-m-Y' %}" method="get">
-                    {% csrf_token %}
                     <div class="mb-2">
                         <h5 class="titulo-secao">Eventos para {{ data }}</h5>
                         <label for="cliente">Cliente</label>
@@ -70,7 +70,7 @@
             {% endif %}
             <div class="row mb-1">
                 <h5 class="titulo-secao">Monitores disponiveis</h5>
-                {% if enfermaria > 1 %}
+                {% if setor == 'acampamento' and enfermaria > 1 %}
                     <div id="enfermeiras">
                         <label for="monitores_hotelaria">Enfermeiras</label>
                         <div id="enfermeiras" class="monitores_disponiveis espacos" ondrop="escalado(this)">
@@ -97,7 +97,7 @@
                     <div id="monitores_acampamento" class="monitores_disponiveis espacos" ondrop="escalado(this)">
                         {% for disponivel in disponiveis %}
                             {% if 'acampamento' in disponivel.setor %}
-                                <div id="{{ disponivel.id }}" class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}" draggable="true">{{ disponivel.nome }}</div>
+                                <div id="{{ disponivel.id }}" class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {% if setor == 'acampamento' %} {{ disponivel.biologo }} {% endif %}"  draggable="true">{{ disponivel.nome }}</div>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -105,7 +105,9 @@
             </div>
             <div id="legenda" style="display: flex">
                 <div class="tecnica">Técnica</div>
-                <div class="biologo">Biologo</div>
+                {% if setor == 'acampamento' %}
+                    <div class="biologo">Biologo</div>
+                {% endif %}
             </div>
             <hr>
             <div class="row mb-2 escalados" id="escalar">
@@ -119,43 +121,53 @@
                     <div class="monitores_escalados espacos" id="monitores_escalados" style="display: flex; flex-wrap: wrap" ondrop="escalado(this)">
                         {% if escalados %}
                             {% for escalado in escalados %}
-                                {% if 'acampamento' in escalado.tipo_escalacao %}
+                                {% if setor in escalado.tipo_escalacao %}
                                     <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
                                 {% endif %} 
                             {% endfor %}
                         {% endif %}
                     </div>
                 </div>
-                <div style="width: 50%">
-                    <label>Monitor embarque</label>
-                    <div class="monitores_escalados espacos" id="monitor_embarque" ondrop="escalado(this)">
-                        {% if escalados %}
-                            {% for escalado in escalados %}
-                                {% if 'embarque' in escalado.tipo_escalacao %}
-                                    <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
+                {% if setor == 'acampamento' %}
+                    <div style="width: 50%">
+                        <label>Monitor embarque</label>
+                        <div class="monitores_escalados espacos" id="monitor_embarque" ondrop="escalado(this)">
+                            {% if escalados %}
+                                {% for escalado in escalados %}
+                                    {% if 'embarque' in escalado.tipo_escalacao %}
+                                        <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-                <div style="width: 50%">
-                    <label>Enfermeira</label>
-                    <div class="monitores_escalados espacos" id="enfermagem" ondrop="escalado(this)">
-                        {% if escalados %}
-                            {% for escalado in escalados %}
-                                {% if 'enfermeira' in escalado.tipo_escalacao %}
-                                    <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
+                    <div style="width: 50%">
+                        <label>Enfermeira</label>
+                        <div class="monitores_escalados espacos" id="enfermagem" ondrop="escalado(this)">
+                            {% if escalados %}
+                                {% for escalado in escalados %}
+                                    {% if 'enfermeira' in escalado.tipo_escalacao %}
+                                        <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
 
             <div class="botoes">
                 <button type="button" class="btn btn-primary" {% if id_cliente %} onclick="salvar_monitores_escalados(this, true)" {% else %} onclick="salvar_monitores_escalados(this)" {% endif %}>Salvar</button>
             </div>
-            <div id="disponibilidade_duplicada" class="none"></div>
+            <div id="disponibilidade_duplicada" class="none">
+                {% if escalados %}
+                    {% for escalado in escalados %}
+                        {% if escalado.setor == 'acampamento hotelaria' or escalado.setor == 'hotelaria acampamento' %}
+                            <div id="{{ escalado.id }}" class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}" draggable="true">{{ escalado.nome }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
         {% comment %}<div class="dados-monitores none">
             <h5 style="text-align: center; padding: 0">Dados dos monitores</h5>

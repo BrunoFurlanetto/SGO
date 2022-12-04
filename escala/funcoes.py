@@ -361,22 +361,40 @@ def monitores_disponiveis(data):
 
 def verificar_escalas(id_monitor, data_selecionada, id_cliente):
     monitor_escalado = Monitor.objects.get(id=int(id_monitor))
+    escalas_monitor_hotelaria = None
 
     if id_cliente:
+        try:
+            escala_monitor_escalado = EscalaAcampamento.objects.get(cliente__id=int(id_cliente))
+        except EscalaAcampamento.DoesNotExist:
+            check_in = check_out = None
+        else:
+            check_in = escala_monitor_escalado.check_in_cliente
+            check_out = escala_monitor_escalado.check_out_cliente
+
         escalas_monitor_acampamento = EscalaAcampamento.objects.filter(
             monitores_acampamento=monitor_escalado,
+            monitores_embarque=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
             check_out_cliente__date__gte=data_selecionada).exclude(cliente__id=int(id_cliente))
 
-        escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(monitores_hotelaria=monitor_escalado,
-                                                                   data=data_selecionada)
+        if check_in:
+            for soma_dia in range(0, (check_out.day - check_in.day) + 1):
+                dia = check_in + timedelta(days=soma_dia)
+
+                escalas_monitor_hotelaria = EscalaHotelaria.objects.filter(
+                    monitores_escalados=monitor_escalado,
+                    data=dia
+                )
+
+                if len(escalas_monitor_hotelaria) > 0:
+                    break
     else:
         escalas_monitor_acampamento = EscalaAcampamento.objects.filter(
             monitores_acampamento=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
-            check_out_cliente__date__gte=data_selecionada)
-
-        escalas_monitor_hotelaria = False
+            check_out_cliente__date__gte=data_selecionada
+        )
 
     if escalas_monitor_acampamento and not escalas_monitor_hotelaria:
         return {'acampamento': True, 'hotelaria': False}
@@ -529,7 +547,6 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
             setor = []
 
             for disponivel in disponiveis_acampamento:
-                print(disponivel['tecnica'])
                 if disponivel['id'] == monitor.id:
                     setor.append('acampamento')
 
@@ -549,7 +566,6 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
 
             dados_monitor['setor'] = ' '.join(setor)
             escalados_data.append(dados_monitor)
-            print(escalados_data)
     return escalados_data
 
 
@@ -568,7 +584,6 @@ def pegar_disponiveis(disponibilidades, setor):
 
             disponiveis_hotelaria.append({'monitor': disponivel.monitor.usuario.get_full_name(),
                                           'dias_disponiveis': datas})
-            print(disponiveis_hotelaria)
 
         return disponiveis_hotelaria
 
@@ -627,7 +642,7 @@ def salvar_escala(dados):
         nova_escala.save()
 
 
-def pegar_escalacoes(escala):
+def pegar_escalacoes(escala, acampamento=True):
     escalados = []
 
     for monitor in escala.monitores_acampamento.all():
