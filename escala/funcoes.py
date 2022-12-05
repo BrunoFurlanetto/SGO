@@ -412,6 +412,8 @@ def escalados_para_o_evento(dados_evento):
     check_in_evento = datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
     check_out_evento = datetime.strptime(dados_evento.get('check_out_evento'), '%Y-%m-%dT%H:%M')
     monitores_escalados = []
+    monitores_embarque = []
+    enfermeiras = []
 
     escala_evento_cliente = EscalaAcampamento.objects.get(cliente=cliente, check_in_cliente=check_in_evento,
                                                           check_out_cliente=check_out_evento)
@@ -422,18 +424,30 @@ def escalados_para_o_evento(dados_evento):
                                                           check_out=check_out_evento)
     except OrdemDeServico.DoesNotExist:
         ordem_evento_cliente = False
-    else:
-        monitores_escalados.append({'nome': ordem_evento_cliente.monitor_responsavel.usuario.get_full_name(),
-                                    'coordenador': True})
 
     for monitor in escala_evento_cliente.monitores_acampamento.all():
-
         if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
-            continue
+            monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
-    return {'escalados': monitores_escalados, 'id_cliente': cliente.id}
+    for monitor in escala_evento_cliente.monitores_embarque.all():
+        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+            monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
+        else:
+            monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
+
+    for enfermeira in escala_evento_cliente.enfermeiras.all():
+        enfermeiras.append({'nome': enfermeira.usuario.get_full_name(), 'coordenador': False})
+
+    return {
+        'escalados': {
+            'acampamento': monitores_escalados,
+            'embarque': monitores_embarque,
+            'enfermeiras': enfermeiras
+        },
+        'id_cliente': cliente.id
+    }
 
 
 def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados, id_escalados):

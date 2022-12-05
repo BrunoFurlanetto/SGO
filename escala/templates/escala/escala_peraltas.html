@@ -114,6 +114,8 @@
                             let check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
                             let check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
 
+                            $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
+                            $('#div_embarque, #div_enfermeiras').addClass('none')
                             $('#cliente_modal').val(cliente)
                             $('#titulo_modal').text('Escala para o evento de ' + cliente)
                             $('#check_in_evento_modal').val(check_in_evento)
@@ -124,14 +126,32 @@
                                 url: '',
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                 data: {'cliente': cliente, 'check_in_evento': check_in_evento, 'check_out_evento': check_out_evento},
-                                success: function(response) {
-                                    $('#monitores_escalados_modal ul').empty()
-
-                                    for(let monitor in response['escalados']){
-                                        if(response['escalados'][monitor]['coordenador']){
-                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${response['escalados'][monitor]['nome']}</li>`)
+                                success: function(response){
+                                    for(let monitor of response['escalados']['acampamento']){
+                                        if(monitor['coordenador']){
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${monitor['nome']}</li>`)
                                         }else{
-                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${response['escalados'][monitor]['nome']}</li>`)
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${monitor['nome']}</li>`)
+                                        }
+                                    }
+
+                                    if (response['escalados']['embarque'].length > 0){
+                                        for(let monitor of response['escalados']['embarque']){
+                                            $('#div_embarque').removeClass('none')
+
+                                            if(monitor['coordenador']){
+                                                $('#monitores_escalados_embarque_modal ul').append(`<li style="color: #f36d21">${monitor['nome']}</li>`)
+                                            }else{
+                                                $('#monitores_escalados_embarque_modal ul').append(`<li>${monitor['nome']}</li>`)
+                                            }
+                                        }
+                                    }
+
+                                    if (response['escalados']['enfermeiras'].length > 0){
+                                        $('#div_enfermeiras').removeClass('none')
+
+                                        for(let enfermeira of response['escalados']['enfermeiras']){
+                                            $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
                                         }
                                     }
 
@@ -173,17 +193,29 @@
                     <div class="row">
                         <div style="width: 50%">
                             <label for="check_in_evento_modal">Check in</label>
-                            <input class="form-control" type="datetime-local" id="check_in_evento_modal" disabled>
+                            <input class="form-control" type="datetime-local" id="check_in_evento_modal" readonly>
                         </div>
                         <div style="width: 50%">
                             <label for="check_out_evento_modal">Check out</label>
-                            <input class="form-control" type="datetime-local" id="check_out_evento_modal" disabled>
+                            <input class="form-control" type="datetime-local" id="check_out_evento_modal" readonly>
                         </div>
                     </div>
                     <hr>
                     <h5 class="titulo-secao">Monitores escalados</h5>
                     <div class="row">
-                        <div id="monitores_escalados_modal" style="max-height: 100px; overflow-y: auto"><ul class="row"></ul></div>
+                        <div>
+                            <label><b>Acampamento</b></label>
+                            <div id="monitores_escalados_modal" style="max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul class="row"></ul></div>
+                        </div>
+                        <div class="barra"></div>
+                        <div id="div_embarque" class="none" style="width: 50%">
+                            <label><b>Embarque</b></label>
+                            <div id="monitores_escalados_embarque_modal" style="max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul></ul></div>
+                        </div>
+                        <div id="div_enfermeiras" style="width: 50%" class="none">
+                            <label><b>Enfermeiras</b></label>
+                            <div id="enfermeiras_escaladas_modal" style="width:50%; max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul></ul></div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
