@@ -8,67 +8,73 @@
         <div class="conteudo-disponibilidade-acampamento">
             <h5>Disponibilidade acampamento</h5>
             <form method="POST" action="{% url 'disponibilidadePeraltas' %}" id="acampamento">
-               <fieldset>
-                  {% csrf_token %}
-                  <div>
-                    <div class="calendar-disponibilidade-acampamento">
-                      <div class="month-disponibilidade-acampamento">
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-                          <i class="fas fa-angle-left prev-disponibilidade-acampamento"></i>
-                        <div class="date-disponibilidade-acampamento">
-                          <h1></h1>
-                          <p></p>
-                        </div>
-                          <i class="fas fa-angle-right next-disponibilidade-acampamento"></i>
-                      </div>
-                      <div class="weekdays-disponibilidade-acampamento">
-                        <div>Dom</div>
-                        <div>Seg</div>
-                        <div>Ter</div>
-                        <div>Qua</div>
-                        <div>Qui</div>
-                        <div>Sex</div>
-                        <div>Sab</div>
-                      </div>
-                      <div class="days-disponibilidade-acampamento">
-                      </div>
-                      <div class="botoes">
-                        {% if coordenador_acampamento %}
-                          <div class="row">
-                            <div style="width: 50%">
-                              <label>Monitor</label>
-                              <select class="form-select" id="monitor_acampamento" name="monitor">
-                                <option selected></option>
-                                {% for monitor in monitores %}
-                                  <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
-                                {% endfor %}
-                              </select>
+                <fieldset>
+                    {% csrf_token %}
+                    <div>
+                        <div class="calendar-disponibilidade-acampamento">
+                            <div class="month-disponibilidade-acampamento">
+                                <link rel="stylesheet"
+                                      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+                                <i class="fas fa-angle-left prev-disponibilidade-acampamento"></i>
+                                <div class="date-disponibilidade-acampamento">
+                                    <h1></h1>
+                                    <p></p>
+                                </div>
+                                <i class="fas fa-angle-right next-disponibilidade-acampamento"></i>
                             </div>
-                            <div style="width: 25%">
-                                <label>Dia limite</label>
-                                <input class="form-control" type="number" id="dia_limite_acampamento" name="dia_limite_acampamento" onChange="dia_acampamento_alterado()" value="{{ dia_limite_acampamento }}">
+                            <div class="weekdays-disponibilidade-acampamento">
+                                <div>Dom</div>
+                                <div>Seg</div>
+                                <div>Ter</div>
+                                <div>Qua</div>
+                                <div>Qui</div>
+                                <div>Sex</div>
+                                <div>Sab</div>
                             </div>
-                            <button id="botao_alterar_dia_acampamento" type="button" class="botao mt-4" style="width: 20%; padding: 0" onCLick="alterar_dia_limite_acampamento()" disabled><span>Alterar</span></button>
-                          </div>
-                          <hr>
-                        {% endif %}
-                        <button type="button" class="botao" onClick="selecionar_acampamento()">
-                          <span>Selecionar todos os dias</span>
-                        </button>
-                        <input id="entrada_acampamento" name="datas_disponiveis" type="hidden">
-                        <input id="acampamento" name="peraltas" type="hidden" value="acampamento">
-                        {% if coordenador_acampamento or antes_dia_limite_acampamento %}
-                          <button type="button" onClick="enviar_acampamento()" class="botao mt-1">
-                            <span>Enviar datas disponiveis</span>
-                          </button>
-                        {% endif %}
-                        <div hidden>
-                          <button id="enviando_acampamento" type="submit">Enviar</button>
+                            <div class="days-disponibilidade-acampamento">
+                            </div>
+                            <div class="botoes">
+                                {% if coordenador_acampamento %}
+                                    <div class="row">
+                                        <div style="width: 50%">
+                                            <label>Monitor</label>
+                                            <select class="form-select" id="monitor_acampamento" name="monitor">
+                                                <option selected></option>
+                                                {% for monitor in monitores %}
+                                                    <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div style="width: 25%">
+                                            <label>Dia limite</label>
+                                            <input class="form-control" type="number" id="dia_limite_acampamento" min="1" max="28"
+                                                   name="dia_limite_acampamento" onChange="dia_acampamento_alterado()"
+                                                   value="{{ dia_limite_acampamento }}">
+                                        </div>
+                                        <button id="botao_alterar_dia_acampamento" type="button" class="botao mt-4"
+                                                style="width: 20%; padding: 0"
+                                                onCLick="alterar_dia_limite_acampamento()" disabled><span>Alterar</span>
+                                        </button>
+                                    </div>
+                                    <hr>
+                                {% endif %}
+                                <button type="button" class="botao" onClick="selecionar_acampamento()">
+                                    <span>Selecionar todos os dias</span>
+                                </button>
+                                <input id="entrada_acampamento" name="datas_disponiveis" type="hidden">
+                                <input id="acampamento" name="peraltas" type="hidden" value="acampamento">
+                                {% if coordenador_acampamento or antes_dia_limite_acampamento %}
+                                    <button type="button" onClick="enviar_acampamento()" class="botao mt-1">
+                                        <span>Enviar datas disponiveis</span>
+                                    </button>
+                                {% endif %}
+                                <div hidden>
+                                    <button id="enviando_acampamento" type="submit">Enviar</button>
+                                </div>
+                            </div>
                         </div>
-                      </div>
                     </div>
-                  </div>
-               </fieldset>
+                </fieldset>
             </form>
         </div>
 
@@ -77,69 +83,75 @@
         <div class="conteudo-disponibilidade-hotelaria">
             <h5>Disponibilidade hotelaria</h5>
             <form method="POST" action="{% url 'disponibilidadePeraltas' %}" id="hotelaria">
-               <fieldset>
-                  {% csrf_token %}
-                  <div>
-                    <div class="calendar-disponibilidade-hotelaria">
-                      <div class="month-disponibilidade-hotelaria">
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-                          <i class="fas fa-angle-left prev-disponibilidade-hotelaria"></i>
-                        <div class="date-disponibilidade-hotelaria">
-                          <h1></h1>
-                          <p></p>
-                        </div>
-                          <i class="fas fa-angle-right next-disponibilidade-hotelaria"></i>
-                      </div>
-                      <div class="weekdays-disponibilidade-hotelaria">
-                        <div>Dom</div>
-                        <div>Seg</div>
-                        <div>Ter</div>
-                        <div>Qua</div>
-                        <div>Qui</div>
-                        <div>Sex</div>
-                        <div>Sab</div>
-                      </div>
-                      <div class="days-disponibilidade-hotelaria">
-                      </div>
-                      <div class="botoes">
-                        {% if coordenador_hotelaria %}
-                          <div class="row">
-                            <div style="width: 50%">
-                              <label>Monitor</label>
-                              <select class="form-select custom-select mr-sm-2" id="monitor_hotelaria" name="monitor">
-                                <option selected></option>
-                                {% for monitor in monitores %}
-                                  <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
-                                {% endfor %}
-                              </select>
+                <fieldset>
+                    {% csrf_token %}
+                    <div>
+                        <div class="calendar-disponibilidade-hotelaria">
+                            <div class="month-disponibilidade-hotelaria">
+                                <link rel="stylesheet"
+                                      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+                                <i class="fas fa-angle-left prev-disponibilidade-hotelaria"></i>
+                                <div class="date-disponibilidade-hotelaria">
+                                    <h1></h1>
+                                    <p></p>
+                                </div>
+                                <i class="fas fa-angle-right next-disponibilidade-hotelaria"></i>
                             </div>
-                            <div style="width: 25%">
-                                <label>Dia limite</label>
-                                <input class="form-control" type="number" id="dia_limite_hotelaria" name="dia_limite_hotelaria" onChange="dia_hotelaria_alterado()" value="{{ dia_limite_hotelaria }}">
+                            <div class="weekdays-disponibilidade-hotelaria">
+                                <div>Dom</div>
+                                <div>Seg</div>
+                                <div>Ter</div>
+                                <div>Qua</div>
+                                <div>Qui</div>
+                                <div>Sex</div>
+                                <div>Sab</div>
                             </div>
-                            <button id="botao_alterar_dia_hotelaria" type="button" class="botao mt-4" style="width: 20%; padding: 0" onclick="alterar_dia_limite_hotelaria()" disabled><span>Alterar</span></button>
-                          </div>
-                          <hr>
-                        {% endif %}
-                        <button type="button" class="botao" onClick="selecionar_hotelaria()">
-                          <span>Selecionar todos os dias</span>
-                        </button>
-                        <input id="entrada_hotelaria" name="datas_disponiveis" type="hidden">
-                        <input id="acampamento" name="peraltas" type="hidden" value="hotelaria">
-                        {% if coordenador_hotelaria or antes_dia_limite_hotelaria %}
-                          <button type="button" onClick="enviar_hotelaria()" class="botao mt-1">
-                            <span>Enviar datas disponiveis</span>
-                          </button>
-                        {% endif %}
-                        <div hidden>
-                          <button id="enviando_hotelaria" type="submit">Enviar</button>
+                            <div class="days-disponibilidade-hotelaria">
+                            </div>
+                            <div class="botoes">
+                                {% if coordenador_hotelaria %}
+                                    <div class="row">
+                                        <div style="width: 50%">
+                                            <label>Monitor</label>
+                                            <select class="form-select custom-select mr-sm-2" id="monitor_hotelaria"
+                                                    name="monitor">
+                                                <option selected></option>
+                                                {% for monitor in monitores %}
+                                                    <option value="{{ monitor.id }}">{{ monitor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div style="width: 25%">
+                                            <label>Dia limite</label>
+                                            <input class="form-control" type="number" id="dia_limite_hotelaria" min="1" max="28"
+                                                   name="dia_limite_hotelaria" onChange="dia_hotelaria_alterado()"
+                                                   value="{{ dia_limite_hotelaria }}">
+                                        </div>
+                                        <button id="botao_alterar_dia_hotelaria" type="button" class="botao mt-4"
+                                                style="width: 20%; padding: 0" onclick="alterar_dia_limite_hotelaria()"
+                                                disabled><span>Alterar</span></button>
+                                    </div>
+                                    <hr>
+                                {% endif %}
+                                <button type="button" class="botao" onClick="selecionar_hotelaria()">
+                                    <span>Selecionar todos os dias</span>
+                                </button>
+                                <input id="entrada_hotelaria" name="datas_disponiveis" type="hidden">
+                                <input id="acampamento" name="peraltas" type="hidden" value="hotelaria">
+                                {% if coordenador_hotelaria or antes_dia_limite_hotelaria %}
+                                    <button type="button" onClick="enviar_hotelaria()" class="botao mt-1">
+                                        <span>Enviar datas disponiveis</span>
+                                    </button>
+                                {% endif %}
+                                <div hidden>
+                                    <button id="enviando_hotelaria" type="submit">Enviar</button>
+                                </div>
+                                <script src="{% static 'js/calendario_script_diponibilidade_acampamento.js' %}"></script>
+                                <script src="{% static 'js/calendario_script_diponibilidade_hotelaria.js' %}"></script>
+                            </div>
                         </div>
-                        <script src="{% static 'js/calendario_script_diponibilidade_acampamento.js' %}"></script>
-                        <script src="{% static 'js/calendario_script_diponibilidade_hotelaria.js' %}"></script>
-                      </div>
                     </div>
-                  </div>
-               </fieldset>
+                </fieldset>
             </form>
         </div>
     </div>
