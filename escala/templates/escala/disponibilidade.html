@@ -5,69 +5,74 @@
 {% block conteudo %}
 
 
-<div class="conteudo-disponibilidade">
+    <div class="conteudo-disponibilidade">
 
-<form method="POST">
-  {% csrf_token %}
-  <div>
-    <div class="calendar-disponibilidade">
-      <div class="month-disponibilidade">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-          <i class="fas fa-angle-left prev-disponibilidade"></i>
-        <div class="date-disponibilidade">
-          <h1></h1>
-          <p></p>
-        </div>
-          <i class="fas fa-angle-right next-disponibilidade"></i>
-      </div>
-      <div class="weekdays-disponibilidade">
-        <div>Dom</div>
-        <div>Seg</div>
-        <div>Ter</div>
-        <div>Qua</div>
-        <div>Qui</div>
-        <div>Sex</div>
-        <div>Sab</div>
-      </div>
-      <div class="days-disponibilidade">
-      </div>
-      <div class="botoes">
-        {% if coordenador %}
-          <div class="row mb-1" style="margin-top: -10px">
-            <div style="width: 50%">
-              <label>Professor</label>
-              <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)" name="professor">
-                <option selected></option>
-                {% for professor in professores %}
-                  <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                {% endfor %}
-              </select>
+        <form method="POST">
+            {% csrf_token %}
+            <div>
+                <div class="calendar-disponibilidade">
+                    <div class="month-disponibilidade">
+                        <link rel="stylesheet"
+                              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+                        <i class="fas fa-angle-left prev-disponibilidade"></i>
+                        <div class="date-disponibilidade">
+                            <h1></h1>
+                            <p></p>
+                        </div>
+                        <i class="fas fa-angle-right next-disponibilidade"></i>
+                    </div>
+                    <div class="weekdays-disponibilidade">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sab</div>
+                    </div>
+                    <div class="days-disponibilidade">
+                    </div>
+                    <div class="botoes">
+                        {% if coordenador %}
+                            <div class="row mb-1" style="margin-top: -10px">
+                                <div style="width: 50%">
+                                    <label>Professor</label>
+                                    <select class="form-select custom-select mr-sm-2" id="p2" onChange="equipe(this)"
+                                            name="professor">
+                                        <option selected></option>
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="width: 25%">
+                                    <label>Dia limite</label>
+                                    <input class="form-control" type="number" name="dia_limite" id="dia_limite"
+                                           onchange="dia_alterado()" min="1" max="28"
+                                           value="{{ dia_limite.dia_limite }}">
+                                </div>
+                                <button id="botao_dia" type="button" class="botao mt-4" style="width: 20%; padding: 0"
+                                        onCLick="alterar_dia_limite()" disabled><span>Alterar</span></button>
+                            </div>
+                        {% endif %}
+                        <hr>
+                        <button type="button" class="botao" onClick="selecionar()">
+                            <span>Selecionar todos os dias</span>
+                        </button>
+                        <input id="entrada" name="datas_disponiveis" type="hidden">
+                        {% if coordenador or antes_dia %}
+                            <button type="button" onClick="enviar()" class="botao mt-1">
+                                <span>Enviar datas disponiveis</span>
+                            </button>
+                        {% endif %}
+                        <div hidden>
+                            <button id="enviando" type="submit">Enviar</button>
+                        </div>
+                        <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
+                    </div>
+                </div>
             </div>
-            <div style="width: 25%">
-                <label>Dia limite</label>
-                <input class="form-control" type="number" name="dia_limite" id="dia_limite" onchange="dia_alterado()" min="1" max="28" value="{{ dia_limite.dia_limite }}">
-            </div>
-            <button id="botao_dia" type="button" class="botao mt-4" style="width: 20%; padding: 0" onCLick="alterar_dia_limite()" disabled><span>Alterar</span></button>
-          </div>
-        {% endif %}
-        <hr>
-        <button type="button" class="botao" onClick="selecionar()">
-          <span>Selecionar todos os dias</span>
-        </button>
-        <input id="entrada" name="datas_disponiveis" type="hidden">
-        {% if coordenador or antes_dia %}
-          <button type="button" onClick="enviar()" class="botao mt-1">
-            <span>Enviar datas disponiveis</span>
-          </button>
-        {% endif %}
-        <div hidden>
-          <button id="enviando" type="submit">Enviar</button>
-        </div>
-        <script src="{% static 'js/calendario_script_diponibilidade.js' %}"></script>
-      </div>
+        </form>
     </div>
-  </div>
-</form>
-</div>
 
 {% endblock %}
