@@ -16,7 +16,8 @@ class OrdemDeServico(models.Model):
 
     empresa_choices = (
         ('Peraltas', 'Peraltas'),
-        ('CEU', 'Fundação CEU')
+        ('CEU', 'Fundação CEU'),
+        ('Peraltas CEU', 'Peraltas + Fundação CEU')
     )
 
     tipo = models.CharField(choices=tipo_choice, max_length=7)
@@ -82,7 +83,8 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_in_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'tipo': forms.Select(attrs={'onchange': 'verifica_colegio_empresa(this)', 'onclick': 'mostrar_check()'})
+            'tipo': forms.Select(attrs={'onchange': 'verifica_colegio_empresa(this)', 'onclick': 'mostrar_check()'}),
+            'empresa': forms.Select(attrs={'onchange': 'verificar_atividades(this)'}),
         }
 
     def __init__(self, *args, **kwargs):

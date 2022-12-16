@@ -18,10 +18,7 @@ def requests_ajax(requisicao, files=None):
         locacoes_ceu = {}
         atividades_eco = {}
         atividades_peraltas = {}
-        corporativo = False
-        produto_corporativo = ProdutosPeraltas.objects.get(produto='Corporativo (Empresa)')
 
-        print(ficha_de_evento.perfil_participantes.all())
         for perfil in ficha_de_evento.perfil_participantes.all():
             if perfil.ano != '':
                 serie.append(perfil.ano)
@@ -40,11 +37,6 @@ def requests_ajax(requisicao, files=None):
         for grupo in ficha_de_evento.atividades_peraltas.all():
             atividades_peraltas[grupo.id] = grupo.grupo
 
-        for produto in ficha_de_evento.produto.all():
-
-            if produto == produto_corporativo:
-                corporativo = True
-
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
@@ -62,7 +54,7 @@ def requests_ajax(requisicao, files=None):
             'atividades_eco': atividades_eco,
             'atividades_peraltas': atividades_peraltas,
             'id_observacoes': ficha_de_evento.observacoes,
-            'corporativo': corporativo
+            'corporativo': not ficha_de_evento.produto.colegio
         }
 
         return dados_ficha
@@ -383,7 +375,9 @@ def requests_ajax(requisicao, files=None):
             'pernoite': produto.pernoite,
             'vt': produto.produto == 'Visita Técnica',
             'outro': produto.produto == 'Outro',
-            'so_ceu': produto.produto == 'Só CEU'
+            'so_ceu': produto.produto == 'Só CEU',
+            'hora_check_in_padrao': produto.hora_padrao_check_in,
+            'hora_check_out_padrao': produto.hora_padrao_check_out,
         }
 
 

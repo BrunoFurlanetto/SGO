@@ -1,65 +1,104 @@
+let hora_padrao_check_in, hora_padrao_check_out
+let evento_corporativo
+
 function encaminhamento() {
     localStorage.setItem("encaminhado", true)
 }
 
-function teste() {
-    for (let i = 0; i < $('#id_produto').children('div').length; i++) {
-        verQuantidades($(`#id_produto_${i}`))
-    }
-}
+function verQuantidades(produto) {
+    console.log(produto)
+    const id_produto = produto.value
+    $('#id_check_in, #id_check_out').val('')
+    $('#corpo-tabela-refeicao').empty()
+    $.ajax({
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "POST",
+        data: {'id_produto': id_produto},
+        success: function (response) {
+            hora_padrao_check_in = response['hora_check_in_padrao']
+            hora_padrao_check_out = response['hora_check_out_padrao']
 
-function verQuantidades(id_produto) {
-    if (id_produto.is(':checked')) {
-        $.ajax({
-            url: '',
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-            type: "POST",
-            data: {'id_produto': id_produto.val()},
-            success: function (response) {
-
-                if (response['so_ceu']) {
-                    $('.peraltas').addClass('none')
-                }
-
-                if (response['colegio']) {
-                    $('.professores').removeClass('none')
-                    if (response['outro']) {
-                        $('.outro-produto').removeClass('none')
-                    }
-
-                    if (response['pernoite']) {
-                        $('.alunos-pernoite, .professores-pernoite').removeClass('none')
-                    }
-
-                    if (response['vt']) {
-                        $('.alunos-pernoite').addClass('none')
-                    }
-
-                } else {
-                    $('.corporativo').removeClass('none')
-                    $('#perfil_participantes').addClass('none')
-                }
+            if (response['so_ceu']) {
+                $('.peraltas').addClass('none')
+            } else {
+                $('.peraltas').removeClass('none')
             }
-        })
-    } else {
-        $('.alunos-pernoite, .professores-pernoite, .corporativo, .professores, .outro-produto').addClass('none')
-        $('.peraltas, #perfil_participantes').removeClass('none')
-    }
+
+            if (response['colegio']) {
+                evento_corporativo = false
+                $('.professores, #perfil_participantes, .lanches').removeClass('none')
+                $('.corporativo, .coffees, #div_locacao_ceu').addClass('none')
+
+                if (response['outro']) {
+                    $('.outro-produto').removeClass('none')
+                } else {
+                    $('.outro-produto').addClass('none')
+                }
+
+                if (response['pernoite']) {
+                    $('.alunos-pernoite, .professores-pernoite').removeClass('none')
+                } else {
+                    $('.alunos-pernoite, .professores-pernoite').addClass('none')
+                }
+
+                if (response['vt']) {
+                    $('.alunos-pernoite, #perfil_participantes').addClass('none')
+                }
+
+            } else {
+                evento_corporativo = true
+                $('.corporativo, .coffees, #div_locacao_ceu').removeClass('none')
+                $('#perfil_participantes, .professores, .alunos-pernoite, .lanches').addClass('none')
+            }
+        }
+    })
+
 }
 
-function pegarDias() {
-    if ($('#id_check_in').val() !== '' && $('#id_check_out').val() !== '') {
-        const data_1 = $('#id_check_in').val().split('T')[0]
-        const data_2 = $('#id_check_out').val().split('T')[0]
-        var intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"));
-        var dias = moment.duration(intervalo).asDays();
+function pegarDias(editando=false) {
+    const check_in = $('#id_check_in').val()
+    const check_out = $('#id_check_out').val()
+
+    if ((check_in !== '' && check_out !== '') && (check_out < check_in)) {
+        $('#id_check_in, #id_check_out').val('')
+
+        return
+    }
+
+    if (!editando) pegar_horario_padrao(check_in, check_out)
+
+    if (check_in !== '' && check_out !== '') {
+        const data_1 = check_in.split('T')[0]
+        const data_2 = check_out.split('T')[0]
+        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"));
+
+        let dias = moment.duration(intervalo).asDays();
 
         $('#corpo-tabela-refeicao').empty()
-
         for (let i = 0; i <= dias; i++) {
             add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
+
+        }
+    } else if (check_in !== '') {
+        $('#id_data_final_inscricao').val(moment(check_in).subtract(15, 'days').format('YYYY-MM-DD'))
+    }
+}
+
+function pegar_horario_padrao(check_in, check_out) {
+    $('#aviso_produto_n_selecionado').remove()
+
+    if (!$('#check_editar_horarios').prop('checked')){
+        if (hora_padrao_check_in === undefined) {
+            $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+        } else if (hora_padrao_check_in === null){
+            return
         }
 
+        const data_check_in = check_in.split('T')[0]
+        $('#id_check_in').val(`${data_check_in}T${hora_padrao_check_in}`)
+
+        if (check_out !== '') $('#id_check_out').val(`${check_out.split('T')[0]}T${hora_padrao_check_out}`)
     }
 }
 
@@ -76,12 +115,12 @@ function add_refeicao(data = null) {
 
     $(linha).append(`<td><input type="date" class="data" name="data_refeicao_${i + 1}" style="width:  180px" value="${data}"></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input cafe" id="cafe_${i + 1}" name="cafe_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i + 1}" name="coffee_m_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i + 1}" name="coffee_m_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input almoco" id="almoco_${i + 1}" name="almoco_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_t" id="lanche_t_${i + 1}" name="lanche_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i + 1}" name="coffee_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (!evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_t" id="lanche_t_${i + 1}" name="lanche_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i + 1}" name="coffee_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input jantar" id="jantar_${i + 1}" name="jantar_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i + 1}" name="lanche_n_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (!evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i + 1}" name="lanche_n_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><button class="buton-x-ref" id="btn-ref_${i + 1}" type="button" onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x' ></span></button></center></td>`)
 }
 
@@ -266,9 +305,9 @@ function pegarIdCodigosApp() {
 
 $('document').ready(function () {
     jQuery('#codigos_app').submit(function () {
-        var dados = jQuery(this).serialize();
+        let dados = jQuery(this).serialize();
         //aqui voce pega o conteudo do atributo action do form
-        var url = $(this).attr('action');
+        let url = $(this).attr('action');
         $.ajax({
             url: url,
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -308,7 +347,7 @@ function completar_visualizacao_ficha(id_ficha) {
 
             $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
-            pegarDias()
+            pegarDias(true)
 
             if (!response['perfil']) {
                 $('.perfil-participantes-ver-ficha').addClass('none')

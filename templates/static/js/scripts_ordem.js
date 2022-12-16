@@ -1,5 +1,8 @@
+let corporativo
+
 $(document).ready(function() {
-    if (window.location.href.split('/')[5] !== ''){
+    console.log(window.location.href.split('/'))
+    if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha'){
         $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled:'readonly'})
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
     } else {
@@ -12,6 +15,35 @@ function mostrar_conteudo(btn){
     const head = btn.closest('[class=head]')
     $(head).siblings('.content').toggleClass('none')
     $(btn).toggleClass('open')
+}
+
+function verificar_atividades(selecao){
+    if (selecao.value === 'Peraltas') {
+        $('.atividade-ceu, .locacao-ceu').addClass('none')
+        $('.atividades-eco, #ativs_peraltas').removeClass('none')
+    }
+
+    if (selecao.value === 'CEU') {
+        $('.atividades-eco, #ativs_peraltas').addClass('none')
+
+        if (corporativo) {
+            $('.locacao-ceu, .atividade-ceu').removeClass('none')
+        } else {
+            $('.locacao-ceu').addClass('none')
+            $('.atividades-ceu').removeClass('none')
+        }
+    }
+
+    if (selecao.value === 'Peraltas CEU') {
+        $('.atividade-ceu, .locacao-ceu, .atividades-eco, #ativs_peraltas').removeClass('none')
+
+        if (corporativo) {
+            $('.locacao-ceu, .atividade-ceu').removeClass('none')
+        } else {
+            $('.locacao-ceu').addClass('none')
+            $('.atividades-ceu').removeClass('none')
+        }
+    }
 }
 
 function completar_dados_os(selecao){
@@ -41,15 +73,14 @@ function completar_dados_os(selecao){
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
-            // if($('#id_serie').val() === ''){
-            //     $('.colegios').addClass('none')
-            // }
-
             if(response['corporativo']){
                 $('#id_tipo').val('Empresa')
-
+                $('.locacao-ceu').removeClass('none')
+                corporativo = true
             } else {
                 $('#id_tipo').val('Colégio')
+                $('.locacao-ceu').addClass('none')
+                corporativo = false
             }
 
             if(response['atividades_eco'] !== ''){
@@ -69,9 +100,12 @@ function completar_dados_os(selecao){
                     add_locacao(parseInt(i), response['locacoes_ceu'][i], parseInt(response['id_n_participantes']))
                 }
             }
-
         }
     })
+    setTimeout(() => {
+        $('.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
+        $('#id_empresa').trigger('change')
+    }, 600)
 }
 
 //  ------------------------------------------------- Fim das funcionalidades gerais da página ---------------------------------------------------------

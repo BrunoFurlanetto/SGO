@@ -52,7 +52,7 @@
             </div>
             <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente</button>
             <hr>
-            <div class="row produtos-peraltas checkbox form-group" style="width: 100%" onchange="teste()">
+            <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                 <h5 class="titulo-secao">Produto Peraltas</h5>
                 {{ form.produto }}
                 <div class="mt-2 outro-produto none" style="width: 50%" onchange="verQuantidades(this)">
@@ -62,7 +62,7 @@
             </div>
 
             <hr>
-            <div class="row mb-2">
+            <div id="sessao_periodo_viagem" class="row mb-2">
                 <h5 class="titulo-secao">Período de viagem</h5>
                 <div style="width: 35%">
                     <label>Check in (data/horário)</label>
@@ -71,6 +71,10 @@
                 <div style="width: 35%">
                     <label>Check out (data/horário)</label>
                     {{ form.check_out }}
+                </div>
+                <div id="div_editar_horarios" class="checkbox">
+                    <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios" style="margin-right: 5px; padding: 0">
+                    <label for="check_editar_horarios">Editar horários</label>
                 </div>
                 {% if dados_pre_reserva %}
                     <script>
@@ -145,12 +149,12 @@
                     <thead>
                     <td style="width: 5px">Data</td>
                     <td style="width: 5px"><small>Café</small></td>
-                    <td style="width: 5px"><small>Coffe manhã</small></td>
+                    <td style="width: 5px" class="coffees"><small>Coffe manhã</small></td>
                     <td style="width: 5px"><small>Almoço</small></td>
-                    <td style="width: 5px"><small>Lanche tarde</small></td>
-                    <td style="width: 5px"><small>Coffe tarde</small></td>
+                    <td style="width: 5px" class="lanches"><small>Lanche tarde</small></td>
+                    <td style="width: 5px" class="coffees"><small>Coffe tarde</small></td>
                     <td style="width: 5px"><small>Jantar</small></td>
-                    <td style="width: 5px"><small>Lanche noite</small></td>
+                    <td style="width: 5px" class="lanches"><small>Lanche noite</small></td>
                     <td style="width: 2px"><small></small></td>
                     </thead>
                     <tbody id="corpo-tabela-refeicao"></tbody>
@@ -185,7 +189,7 @@
                         $(document).ready($("#id_atividades_ceu").select2())
                     </script>
                 </div>
-                <div style="width: 40%">
+                <div style="width: 40%" id="div_locacao_ceu">
                     <label>Locações</label>
                     {{ form.locacoes_ceu }}
                     <script>
@@ -197,7 +201,7 @@
             <div class="row peraltas">
                 <h5 class="titulo-secao">Peraltas</h5>
                 <div id="atividades_ecoturismo" style="width: 50%;">
-                    <label>Ecoturismo</label>
+                    <label>Atividades extra</label>
                     {{ form.atividades_eco }}
                     <script>
                         $(document).ready($("#id_atividades_eco").select2())
@@ -246,6 +250,13 @@
                     {% else %}
                         {{ form.vendedora }}
                     {% endif %}
+                </div>
+            </div>
+            <hr>
+            <div>
+                <div style="width: 30%">
+                    <label>Data final de inscrição</label>
+                    {{ form.data_final_inscricao }}
                 </div>
             </div>
             <hr>
@@ -341,17 +352,6 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="row">
-                            <div class="checkbox">
-                                {{ formAdicionais.etiquetas_embarque }}
-                                <label>Etiquetas de embarque?</label>
-                            </div>
-                            <div class="mt-2 none" style="width: 30%" id="servico_de_bordo">
-                                <label>Serviço de bordo</label>
-                                {{ formAdicionais.servico_bordo }}
-                            </div>
-                        </div>
-                        <hr>
                         <div class="checkbox" onchange="lista_segurados()">
                             {{ formAdicionais.seguro }}
                             <label>Seguro</label>
@@ -390,6 +390,18 @@
                             <div class="mb-2 none" style="width: 30%" id="horario">
                                 <label>Horário</label>
                                 {{ formAdicionais.horario_garantia }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div id="cantina_roupa_cama" class="row">
+                            <h5 class="titulo-secao">Cantina e roupa de cama</h5>
+                            <div id="div_cantina" style="width: 20%">
+                                <label for="id_cantina">Cantina</label>
+                                {{ formAdicionais.cantina }}
+                            </div>
+                            <div style="width: 20%">
+                                <label for="id_roupa_de_cama">Roupa de cama</label>
+                                {{ formAdicionais.roupa_de_cama }}
                             </div>
                         </div>
                         <hr>

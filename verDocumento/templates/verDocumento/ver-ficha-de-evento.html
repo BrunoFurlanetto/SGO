@@ -20,7 +20,6 @@
                 <script src="{% static 'js/Moment_timezone.js' %}"></script>
                 <script>
                     setTimeout(() => {
-                        teste()
                         completar_visualizacao_ficha({{ form.id }})
                     }, 100)
                 </script>
@@ -60,6 +59,11 @@
                     <div style="width: 35%">
                         <label>Check out (data/horário)</label>
                         {{ form.check_out }}
+                    </div>
+                    <div id="div_editar_horarios" class="checkbox">
+                        <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
+                               style="margin-right: 5px; padding: 0">
+                        <label for="check_editar_horarios">Editar horários</label>
                     </div>
                 </div>
                 <hr>
@@ -123,12 +127,12 @@
                         <thead>
                         <td style="width: 5px">Data</td>
                         <td style="width: 5px"><small>Café</small></td>
-                        <td style="width: 5px"><small>Coffe manhã</small></td>
+                        <td style="width: 5px" class="coffees"><small>Coffe manhã</small></td>
                         <td style="width: 5px"><small>Almoço</small></td>
-                        <td style="width: 5px"><small>Lanche tarde</small></td>
-                        <td style="width: 5px"><small>Coffe tarde</small></td>
+                        <td style="width: 5px" class="lanches"><small>Lanche tarde</small></td>
+                        <td style="width: 5px" class="coffees"><small>Coffe tarde</small></td>
                         <td style="width: 5px"><small>Jantar</small></td>
-                        <td style="width: 5px"><small>Lanche noite</small></td>
+                        <td style="width: 5px" class="lanches"><small>Lanche noite</small></td>
                         <td style="width: 2px"><small></small></td>
                         </thead>
                         <tbody id="corpo-tabela-refeicao"></tbody>
@@ -168,7 +172,7 @@
                 <div id="atividades_peraltas_ficha" class="row peraltas">
                     <h5 class="titulo-secao">Peraltas</h5>
                     <div id="atividades_eco_ver_ficha" style="width: 50%">
-                        <label>Ecoturismo</label>
+                        <label>Atividades extra</label>
                         {{ form.atividades_eco }}
                         <script>
                             $(document).ready($("#id_atividades_eco").select2({'disabled': 'readonly'}))
@@ -214,6 +218,13 @@
                     </div>
                     <div id="link_arquivo"></div>
                 </div>
+                <hr>
+                <div>
+                    <div style="width: 30%">
+                        <label>Data final de inscrição</label>
+                        {{ form.data_final_inscricao }}
+                    </div>
+                </div>
                 <hr class="observacoes-ver-ficha">
                 <div class="mb-3 row observacoes-ver-ficha">
                     <h5 class="titulo-secao">Observações</h5>
@@ -222,13 +233,16 @@
                 {{ form.vendedora.as_hidden }}
                 {{ form.empresa.as_hidden }}
             </fieldset>
-            {% if comercial or operacional %}
+            {% if perms.cadastro.edit_fichadeevento %}
                 <div class="botoes">
                     <button id="salvar" type="submit" class="btn btn-primary ml-5" disabled>Salvar</button>
                     <button type="button" class="btn btn-primary ml-5" onclick="edita_ficha()">Editar</button>
                     <button id="excluir" type="button" class="btn btn-danger ml-5" data-toggle="modal"
                             data-target="#excluir_ficha_evento" disabled>Excluir
                     </button>
+                    {% if perms.ordemDeServico.create_ordemdeservico %}
+                        <button type="button" class="btn btn-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' form.id %}'">Ordem de serviço</button>
+                    {% endif %}
                 </div>
             {% endif %}
         </form>
@@ -286,7 +300,8 @@
                                                     <label class="py-1">Micro ônibus:</label>
                                                 </div>
                                                 <div style="width: 30%">
-                                                    <input type="number" name="n_micro" placeholder="n" value="{{ veiculo.n }}">
+                                                    <input type="number" name="n_micro" placeholder="n"
+                                                           value="{{ veiculo.n }}">
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -296,7 +311,8 @@
                                                     <label class="py-1">Ônibus 46 lugares:</label>
                                                 </div>
                                                 <div style="width: 30%">
-                                                    <input type="number" name="n_46" placeholder="n" value="{{ veiculo.n }}">
+                                                    <input type="number" name="n_46" placeholder="n"
+                                                           value="{{ veiculo.n }}">
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -306,29 +322,14 @@
                                                     <label class="py-1">Ônibus 50 lugares:</label>
                                                 </div>
                                                 <div style="width: 30%">
-                                                    <input type="number" name="n_50" placeholder="n" value="{{ veiculo.n }}">
+                                                    <input type="number" name="n_50" placeholder="n"
+                                                           value="{{ veiculo.n }}">
                                                 </div>
                                             </div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
-                            <hr>
-                            <div class="row">
-                                <div class="checkbox">
-                                    {{ formAdicionais.etiquetas_embarque }}
-                                    <label>Etiquetas de embarque?</label>
-                                </div>
-                                <div class="mt-2 none" style="width: 30%" id="servico_de_bordo">
-                                    <label>Serviço de bordo</label>
-                                    {{ formAdicionais.servico_bordo }}
-                                </div>
-                            </div>
-                            <script>
-                                setTimeout(() => {
-                                    servicoBordo()
-                                }, 1)
-                            </script>
                             <hr>
                             <div class="checkbox" onchange="lista_segurados()">
                                 {{ formAdicionais.seguro }}
@@ -388,9 +389,17 @@
                                     <label>Tipo</label>
                                     {{ formAdicionais.enfermaria }}
                                 </div>
-                                <div class="mb-2 none" style="width: 30%" id="horario">
-                                    <label>Horário</label>
-                                    {{ formAdicionais.horario_garantia }}
+                            </div>
+                            <hr>
+                            <div id="cantina_roupa_cama" class="row">
+                                <h5 class="titulo-secao">Cantina e roupa de cama</h5>
+                                <div id="div_cantina" style="width: 20%">
+                                    <label for="id_cantina">Cantina</label>
+                                    {{ formAdicionais.cantina }}
+                                </div>
+                                <div style="width: 20%">
+                                    <label for="id_roupa_de_cama">Roupa de cama</label>
+                                    {{ formAdicionais.roupa_de_cama }}
                                 </div>
                             </div>
                             <hr>
@@ -527,4 +536,16 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const div_produtos = document.getElementsByName('produto')
+        let produto_checked
+
+        Object(div_produtos).forEach(function (produto){
+                if (produto.checked) produto_checked = produto
+            }
+        )
+
+        verQuantidades(produto_checked)
+    </script>
 {% endblock %}

@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from ceu.models import Atividades, Locaveis
 
@@ -106,6 +107,8 @@ class ProdutosPeraltas(models.Model):
     produto = models.CharField(max_length=255)
     pernoite = models.BooleanField(default=True)
     colegio = models.BooleanField(default=True)
+    hora_padrao_check_in = models.TimeField(blank=True, null=True)
+    hora_padrao_check_out = models.TimeField(blank=True, null=True)
 
     def __str__(self):
         return self.produto
@@ -194,10 +197,10 @@ class EmpresaOnibus(models.Model):
 
 
 class DadosTransporte(models.Model):
-    empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE)
-    endereco_embarque = models.CharField(max_length=255)
-    horario_embarque = models.TimeField()
-    dados_veiculos = models.JSONField(blank=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
+    empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE, blank=True, null=True)
+    endereco_embarque = models.CharField(max_length=255, blank=True, null=True)
+    horario_embarque = models.TimeField(blank=True, null=True)
+    dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
 
     def valor_veiculos(self):
         return [
@@ -222,11 +225,6 @@ class OpcionaisFormatura(models.Model):
 
 
 class InformacoesAdcionais(models.Model):
-    servicos_de_bordo = (
-        (1, 'Padrão'),
-        (2, 'Diferenciado')
-    )
-
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
         (2, '1/2 monitoria (dentro de quarto - 1/20'),
@@ -239,16 +237,22 @@ class InformacoesAdcionais(models.Model):
         (1, 'Sem enfermeira')
     )
 
+    sim_nao = (
+        ('', ''),
+        (0, 'Não'),
+        (1, 'Sim')
+    )
+
     transporte = models.BooleanField()
     informacoes_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
     seguro = models.BooleanField()
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
-    etiquetas_embarque = models.BooleanField()
-    servico_bordo = models.IntegerField(choices=servicos_de_bordo, blank=True, null=True)
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
     quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
     enfermaria = models.IntegerField(choices=tipos_enfermaria, default=1)
+    cantina = models.IntegerField(choices=sim_nao, default='')
+    roupa_de_cama = models.IntegerField(choices=sim_nao, default='')
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
 
@@ -264,7 +268,7 @@ class RelacaoClienteResponsavel(models.Model):
 class FichaDeEvento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE)
-    produto = models.ManyToManyField(ProdutosPeraltas)
+    produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
     outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
@@ -288,6 +292,7 @@ class FichaDeEvento(models.Model):
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
@@ -388,12 +393,13 @@ class CadastroFichaDeEvento(forms.ModelForm):
     )
     perfil_participantes.widget.attrs['class'] = 'form-check-input'
 
-    produto = forms.ModelMultipleChoiceField(
+    produto = forms.ModelChoiceField(
         queryset=ProdutosPeraltas.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.RadioSelect,
         required=True
     )
     produto.widget.attrs['class'] = 'form-check-input'
+    produto.widget.attrs['onclick'] = 'verQuantidades(this)'
 
     class Meta:
         model = FichaDeEvento
@@ -404,6 +410,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
             'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
+            'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
         }

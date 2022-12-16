@@ -155,7 +155,7 @@ def empresa(request):
 
 
 @login_required(login_url='login')
-def ordemDeServico(request, id_ordem_de_servico=None):
+def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
 
@@ -169,15 +169,18 @@ def ordemDeServico(request, id_ordem_de_servico=None):
         fichas_de_evento = None
     else:
         form = CadastroOrdemDeServico()
-        fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+        fichas_de_evento = FichaDeEvento.objects.filter(os=False).order_by('check_in')
         ficha_de_evento = ordem_servico = None
         atividades_eco = atividades_ceu = espacos = None
+
+    if id_ficha_de_evento:
+        ficha_de_evento = FichaDeEvento.objects.get(id=int(id_ficha_de_evento))
 
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {
             'form': form,
             'fichas': fichas_de_evento,
-            'ficha': ficha_de_evento,
+            'ficha_de_evento': ficha_de_evento,
             'ordem_servico': ordem_servico,
             'atividades_acampamento': atividades_acampamento,
             'grupos_atividades_acampamento': grupos_atividades_acampamento,

@@ -19,7 +19,7 @@
                         <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
                             <option selected></option>
                             {% for ficha in fichas %}
-                                <option value="{{ ficha.id }}">{{ ficha.cliente.nome_fantasia }}</option>
+                                <option value="{{ ficha.id }}" {% if ficha_de_evento and ficha_de_evento.id == ficha.id %} selected {% endif %}>{{ ficha.cliente.nome_fantasia }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -92,14 +92,14 @@
                     </div>
                 </div>
                 <hr>
-                <div class="row">
+                <div class="row" id="ativs_peraltas">
                     <h5 class="titulo-secao">Atividades Peraltas</h5>
                     {{ form.atividades_peraltas }}
                 </div>
                 <hr>
                 <div class="atividades-eco">
                     <div class="head">
-                        <h5>Atividades Ecoturismo</h5>
+                        <h5>Atividades extra</h5>
                         <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes" onclick="mostrar_conteudo(this)">
                             <i class="bx bx-plus"></i>
                         </a>
@@ -283,4 +283,9 @@
     <script src="{% static 'js/scripts_ordem.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
+
+    <script>
+        $('#ficha_de_evento,.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
+        $('#id_empresa').trigger('change')
+    </script>
 {% endblock %}
