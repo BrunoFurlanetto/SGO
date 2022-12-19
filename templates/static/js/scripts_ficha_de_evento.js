@@ -156,17 +156,11 @@ function remover_dia_refeicao(selecao) {
 
 function pegarEndereco() {
     if ($('#id_transporte').prop('checked')) {
-        $('#dados_embarque, #viacao, #veiculo, #horario_embarque, #dados_veiculos').removeClass('none')
+        $('#dados_transporte').removeClass('none')
+        $('#id_transporte_fechado_internamente, #id_empresa_onibus, #id_horario_embarque, #id_endereco_embarque').prop('required', true)
     } else {
-        $('#dados_embarque, #viacao, #veiculo, #horario_embarque, #dados_veiculos').addClass('none')
-    }
-}
-
-function servicoBordo() {
-    if ($('#id_etiquetas_embarque').prop('checked')) {
-        $('#servico_de_bordo').removeClass('none')
-    } else {
-        $('#servico_de_bordo').addClass('none')
+        $('#dados_transporte').addClass('none')
+        $('#id_transporte_fechado_internamente, #id_empresa_onibus, #id_horario_embarque, #id_endereço_embarque').prop('required', false)
     }
 }
 

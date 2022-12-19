@@ -197,6 +197,13 @@ class EmpresaOnibus(models.Model):
 
 
 class DadosTransporte(models.Model):
+    sim_nao = (
+        ('', ''),
+        (0, 'Não'),
+        (1, 'Sim'),
+    )
+
+    transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='', blank=True, null=True)
     empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE, blank=True, null=True)
     endereco_embarque = models.CharField(max_length=255, blank=True, null=True)
     horario_embarque = models.TimeField(blank=True, null=True)
@@ -266,6 +273,12 @@ class RelacaoClienteResponsavel(models.Model):
 
 
 class FichaDeEvento(models.Model):
+    empresa_choices = (
+        ('Peraltas', 'Peraltas'),
+        ('CEU', 'Fundação CEU'),
+        ('Peraltas CEU', 'Peraltas + Fundação CEU')
+    )
+
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE)
     produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
@@ -293,7 +306,7 @@ class FichaDeEvento(models.Model):
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
     vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     data_final_inscricao = models.DateField(blank=True, null=True)
-    empresa = models.CharField(max_length=100, blank=True, null=True)
+    empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -439,6 +452,7 @@ class CadastroDadosTransporte(forms.ModelForm):
         exclude = ()
 
         widgets = {
+            'transporte_fechado_internamente': forms.Select(attrs={'style': 'width: 100px'}),
             'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
         }
 

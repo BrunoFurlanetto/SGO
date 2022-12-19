@@ -10,7 +10,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva, \
     GrupoAtividade, CadastroDadosTransporte, AtividadesEco, AtividadePeraltas
 from projetoCEU.utils import verificar_grupo, email_error
-from .funcoes import is_ajax, requests_ajax, pegar_refeicoes
+from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
@@ -289,6 +289,7 @@ def fichaDeEvento(request, id_cliente=None):
     if form.is_valid():
         novo_evento = form.save(commit=False)
         novo_evento.refeicoes = pegar_refeicoes(request.POST)
+        novo_evento.empresa = ver_empresa_atividades(request.POST)
 
         try:
             form.save()

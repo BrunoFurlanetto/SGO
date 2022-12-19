@@ -277,7 +277,6 @@
             {{ form.empresa.as_hidden }}
 
             <script>
-                $('#id_empresa').val('{{ grupo_usuario }}')
                 $('#id_vendedora').val('{{ form.id_vendedora}}')
                 {% if dados_pre_reserva %}
                     $('#id_vendedora').attr('disabled', true)
@@ -309,22 +308,26 @@
                                 <label>Transporte?</label>
                             </div>
                         </div>
-                        <div class="row mt-2">
-                            <div class="checkbox none" style="width: 50%" id="viacao">
+                        <div id="dados_transporte" class="row mt-2 none">
+                            <div class="mb-2" style="display: flex; flex-direction: column">
+                                <label>Fechado internamente?</label>
+                                {{ form_transporte.transporte_fechado_internamente }}
+                            </div>
+                            <div class="checkbox" style="width: 50%" id="viacao">
                                 <label>Viação</label>
                                 {{ form_transporte.empresa_onibus }}
                             </div>
-                            <div class="none" style="width: 20%" id="horario_embarque">
+                            <div style="width: 20%" id="horario_embarque">
                                 <label for="id_hora_embarque">Horário</label>
                                 {{ form_transporte.horario_embarque }}
                             </div>
-                            <div class="row mt-2 none" id="dados_embarque">
+                            <div class="row mt-2" id="dados_embarque">
                                 <div style="width: 75%" id="endereco_embarque">
                                     <label>Endereço de embarque</label>
                                     {{ form_transporte.endereco_embarque }}
                                 </div>
                             </div>
-                            <div class="row mt-3 none" id="dados_veiculos">
+                            <div class="row mt-3" id="dados_veiculos">
                                 <div class="row" style="width: 33%">
                                     <div style="width: auto">
                                         <label class="py-1">Micro ônibus:</label>

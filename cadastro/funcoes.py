@@ -419,3 +419,17 @@ def pegar_refeicoes(dados):
         refeicoes[dados.get(f'data_refeicao_{j}')] = refeicao_data
 
     return refeicoes
+
+
+def ver_empresa_atividades(dados):
+    atividades_ceu = dados.get('atividades_ceu')
+    locacoes_ceu = dados.get('locacoes_ceu')
+    atividades_exta = dados.get('atividades_eco')
+    atividades_peraltas = dados.get('atividades_peraltas')
+
+    if (atividades_ceu or locacoes_ceu) and (atividades_exta or atividades_peraltas):
+        return 'Peraltas CEU'
+    elif not (atividades_ceu or locacoes_ceu):
+        return 'Peraltas'
+    else:
+        return 'CEU'

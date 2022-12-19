@@ -35,6 +35,7 @@ class OrdemDeServico(models.Model):
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
                                          related_name='monitor_embarque')
+    nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)

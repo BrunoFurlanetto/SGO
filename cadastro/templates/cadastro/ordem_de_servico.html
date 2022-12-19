@@ -85,9 +85,13 @@
                             <label>Empresa</label>
                             {{ form.empresa }}
                         </div>
-                        <div id="monitor_embarque" class="none" style="width: 30%">
+                        <div id="monitor_embarque" {% if not ordem_servico.monitor_embarque %} class="none" {% endif %} style="width: 30%">
                             <label for="id_monitor_embarque">Monitor embarque</label>
                             {{ form.monitor_embarque }}
+                        </div>
+                        <div id="nome_motorista" {% if not ordem_servico.nome_motorista %} class="none" {% endif %} style="width: 60%">
+                            <label>Motorista</label>
+                            {{ form.nome_motorista }}
                         </div>
                     </div>
                 </div>
@@ -97,6 +101,7 @@
                     {{ form.atividades_peraltas }}
                 </div>
                 <hr>
+                <div id="mensagens_preenchimento_atividades"></div>
                 <div class="atividades-eco">
                     <div class="head">
                         <h5>Atividades extra</h5>
@@ -105,7 +110,7 @@
                         </a>
                     </div>
                     <div class="content none">
-                        <div class="row ecoturismo">
+                        <div id="atividades_extra" class="row ecoturismo">
                             {% if ordem_servico.atividades_eco %}
                                 {% for atividade in ordem_servico.dividir_atividades_eco %}
                                     <div class="row div_pai_eco" id="div_pai_eco_{{ forloop.counter }}">
@@ -145,7 +150,7 @@
                         </button>
                     </div>
                 </div>
-                <hr>
+                <hr class="atividades-eco">
                 <div class="atividade-ceu">
                     <div class="head">
                         <h5>Atividades no CEU</h5>
@@ -154,7 +159,7 @@
                         </a>
                     </div>
                     <div class="content none">
-                        <div class="row atividades">
+                        <div id="atividades_ceu" class="row atividades">
                             {% if ordem_servico.atividades_ceu %}
                                 {% for atividade in ordem_servico.dividir_atividades_ceu %}
                                     <div class="row div_pai" id="div_pai_{{ forloop.counter }}">
@@ -194,7 +199,7 @@
                         </button>
                     </div>
                 </div>
-                <hr>
+                <hr class="atividade-ceu">
                 <div class="locacao-ceu">
                     <div class="head">
                         <h5>Locacoes no CEU</h5>
@@ -203,7 +208,7 @@
                         </a>
                     </div>
                     <div class="content none">
-                        <div class="row locacoes">
+                        <div id="locacoes_ceu" class="row locacoes">
                             {% if ordem_servico.locacao_ceu %}
                                 {% for locacao in ordem_servico.dividir_locacoes_ceu %}
                                     <div class="row div_pai_loc" id="div_pai_loc_{{ forloop.counter }}">
@@ -251,7 +256,7 @@
                         </button>
                     </div>
                 </div>
-                <hr>
+                <hr class="locacao-ceu">
                 <div style="width: 70%">
                     <h5 class="titulo-secao">Programação do grupo</h5>
                     {{ form.cronograma_peraltas }}
@@ -273,7 +278,7 @@
                 {% endif %}
             {% else %}
                 <div class="botoes">
-                    <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+                    <button id="btn_salvar_os" type="submit" class="btn btn-primary ml-5">Salvar</button>
                 </div>
             {% endif %}
         </form>
@@ -285,7 +290,7 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
 
     <script>
-        $('#ficha_de_evento,.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
+        $('#ficha_de_evento, .qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
         $('#id_empresa').trigger('change')
     </script>
 {% endblock %}

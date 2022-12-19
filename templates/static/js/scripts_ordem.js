@@ -13,6 +13,7 @@ $(document).ready(function() {
 
 function mostrar_conteudo(btn){
     const head = btn.closest('[class=head]')
+    $('.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
     $(head).siblings('.content').toggleClass('none')
     $(btn).toggleClass('open')
 }
@@ -30,7 +31,7 @@ function verificar_atividades(selecao){
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
         } else {
             $('.locacao-ceu').addClass('none')
-            $('.atividades-ceu').removeClass('none')
+            $('.atividade-ceu').removeClass('none')
         }
     }
 
@@ -41,14 +42,13 @@ function verificar_atividades(selecao){
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
         } else {
             $('.locacao-ceu').addClass('none')
-            $('.atividades-ceu').removeClass('none')
+            $('.atividade-ceu').removeClass('none')
         }
     }
 }
 
 function completar_dados_os(selecao){
-    $('.atividades').empty()
-    $('.locacoes').empty()
+    $('.atividades, .locacoes, .ecoturismo').empty()
     $('#id_ficha_de_evento').val(selecao.value)
 
     $.ajax({
@@ -57,17 +57,17 @@ function completar_dados_os(selecao){
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_ficha': selecao.value},
         success: function (response) {
-            console.log(response)
+
             for(let i in response){
                 $(`#${i}`).val(response[i])
             }
 
             if(response['embarque_sao_paulo']){
-                $('#monitor_embarque').removeClass('none')
-                $('#id_monitor_embarque').prop('required', true)
+                $('#monitor_embarque, #nome_motorista').removeClass('none')
+                $('#id_monitor_embarque, #id_nome_motorista').prop('required', true)
             }else{
-                $('#monitor_embarque').addClass('none')
-                $('#id_monitor_embarque').prop('required', false)
+                $('#monitor_embarque, #nome_motorista').addClass('none')
+                $('#id_monitor_embarque, #id_nome_motorista').prop('required', false)
             }
 
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
@@ -103,7 +103,6 @@ function completar_dados_os(selecao){
         }
     })
     setTimeout(() => {
-        $('.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
         $('#id_empresa').trigger('change')
     }, 600)
 }
@@ -709,5 +708,53 @@ function dividar_atividade_eco(indicie, limite){
         // Chama a função para adcionar atividades e manda os vlores da turma
         add_atividade_eco(participantes_, atividade_value_, atividade_, serie_)
     }
-
 }
+
+$('#btn_salvar_os').on('click', function (e){
+    const lista_divs_atividades = [
+        $('#atividades_extra').children(),
+        $('#atividades_ceu').children(),
+        $('#locacoes_ceu').children()
+    ]
+    const lista_divs_pai_atividades = [
+        $('.div_pai_eco').children(),
+        $('.div_pai').children(),
+        $('.div_pai_loc').children(),
+    ]
+    const div_de_mensagem = $('#mensagens_preenchimento_atividades')
+    div_de_mensagem.empty()
+
+    for (let i in lista_divs_atividades){
+        if (lista_divs_pai_atividades[i].length > 0){
+            let valores = []
+
+            for (let atividades of lista_divs_pai_atividades[i]){
+                try {
+                    console.log(typeof atividades.children[1].value)
+                    if (atividades.children[1].value !== '' && atividades.children[1].value !== 'NaN') {
+                        valores.push(atividades.children[1].value)
+                    }
+                } catch (e){}
+            }
+            console.log(valores)
+            if (valores.length < lista_divs_pai_atividades[i].length - 3){
+                switch (i){
+                    case '0':
+                        div_de_mensagem.append('<p class="mensgem_atividade alert-warning">Por favor verificar as informações das atividades extra!</p>')
+                        e.preventDefault()
+                        break
+                    case '1':
+                        div_de_mensagem.append('<p class="mensagem_atividade alert-warning">Por favor verificar as informações das atividades do CEU!</p>')
+                        e.preventDefault()
+                        break
+                    case '2':
+                         div_de_mensagem.append('<p class="mensagem_atividade alert-warning">Por favor verificar as informações das locações do CEU!</p>')
+                        e.preventDefault()
+                        break
+                }
+
+                window.scroll({top: 500, behavior: 'smooth'});
+            }
+        }
+    }
+})
