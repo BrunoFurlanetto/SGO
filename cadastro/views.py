@@ -239,7 +239,7 @@ def fichaDeEvento(request, id_cliente=None):
 
     if id_cliente:
         pre_reserva_cliente = ClienteColegio.objects.get(id=int(id_cliente))
-        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente)
+        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente, agendado=True)
         dados_pre_reserva = {
             'cliente_id': pre_reserva_cliente.id,
             'cliente_nome_fantasia': pre_reserva_cliente.nome_fantasia,
