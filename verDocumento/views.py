@@ -29,8 +29,6 @@ def verDocumento(request, id_documento, tipo_atendimento):
         return redirect('verRelatorioColegio', id_documento)
     elif tipo_atendimento == 'Empresa':
         return redirect('verRelatorioEmpresa', id_documento)
-    elif tipo_atendimento == 'ordem':
-        return redirect('verOrdemDeServico', id_documento)
     elif tipo_atendimento == 'ficha':
         return redirect('verFichaDeEvento', id_documento)
 
@@ -255,85 +253,6 @@ def verRelatorioEmpresa(request, id_relatorio):
         return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
                                                                             'professores': professores,
                                                                             'grupos': grupos})
-
-
-@login_required(login_url='login')
-def verOrdemDeServico(request, id_ordemDeServico):
-    ordem = OrdemDeServico.objects.get(id=int(id_ordemDeServico))
-    ordens_de_servico = CadastroOrdemDeServico(instance=ordem)
-    ordens_de_servico.id = ordem.id
-    id_ficha_de_evento = ordem.ficha_de_evento.id
-    coordenador_grupo = request.user == ordem.monitor_responsavel.usuario
-    atividades_eco = []
-    atividades_peraltas = []
-    grupos = verificar_grupo(request.user.groups.all())
-
-    operacional = User.objects.filter(pk=request.user.id, groups__name='Operacional').exists()
-
-    for atividade in ordem.atividades_eco.all():
-        atividades_eco.append(atividade.atividade)
-
-    for atividade in ordem.atividades_peraltas.all():
-        atividades_peraltas.append(atividade.atividade)
-
-    atividades_eco = ', '.join(atividades_eco)
-    atividades_peraltas = ', '.join(atividades_peraltas)
-
-    if is_ajax(request):
-        if request.POST.get('tipo'):
-            return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
-
-        if request.POST.get('id_ordem_de_servico'):
-            return JsonResponse(requests_ajax(request.POST))
-
-        return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
-
-    if request.method != 'POST':
-        return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
-                                                                          'coordenador_grupo': coordenador_grupo,
-                                                                          'id_ficha': id_ficha_de_evento,
-                                                                          'atividades_eco': atividades_eco,
-                                                                          'atividades_peraltas': atividades_peraltas,
-                                                                          'colegio': ordem.tipo == 'Colégio',
-                                                                          'operacional': operacional,
-                                                                          'grupos': grupos})
-
-    if request.POST.get('acao') == 'Sim':
-        ficha = FichaDeEvento.objects.get(id=int(ordem.ficha_de_evento.id))
-        ficha.os = False
-        ficha.save()
-
-        ordem.delete()
-        messages.success(request, 'Ordem de serviço excluida com sucesso!')
-        return redirect('dashboard')
-
-    ordens_de_servico = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem)
-
-    if ordens_de_servico.is_valid():
-        ordem_de_servico = ordens_de_servico.save(commit=False)
-
-        try:
-            salvar_atividades_ceu(request.POST, ordem_de_servico)
-            check_in_and_check_out_atividade(ordem_de_servico)
-            salvar_locacoes_ceu(request.POST, ordem_de_servico)
-            ordens_de_servico.save()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
-            return redirect('dashboard')
-        else:
-            messages.success(request, 'Ordem de serviço atualizada com sucesso!')
-            return redirect('verOrdemDeServico', ordem.id)
-
-    else:
-        messages.warning(request, ordens_de_servico.errors)
-        return render(request, 'verDocumento/ver-ordem-de-servico.html', {'form': ordens_de_servico,
-                                                                          'id_ficha': id_ficha_de_evento,
-                                                                          'atividades_eco': atividades_eco,
-                                                                          'atividades_peraltas': atividades_peraltas,
-                                                                          'colegio': ordem.tipo == 'Colégio',
-                                                                          'operacional': operacional,
-                                                                          'grupos': grupos})
 
 
 @login_required(login_url='login')

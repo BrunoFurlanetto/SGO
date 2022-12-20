@@ -77,7 +77,7 @@
                                             {% endif %}
 
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
-                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary"> Confirmar agendamento</button>')
+                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
 
                                             {% if comercial %}
                                                 if (response['editar']){
@@ -142,13 +142,13 @@
                                             title: "{{ ficha.cliente }}",
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
-                                            url: '{% url 'verDocumento' 'ficha' ficha.id %}',
+                                            url: '{% url 'ver_ficha_de_evento' ficha.id %}',
                                         {% endif %}
                                     {% else %}
                                         title: "{{ ficha.cliente}}",
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
-                                        url: '{% url 'verDocumento' 'ficha' ficha.id %}',
+                                        url: '{% url 'ver_ficha_de_evento' ficha.id %}',
                                     {% endif %}
 
                                     color: '#8B008B',

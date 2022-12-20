@@ -229,13 +229,14 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
 
 @login_required(login_url='login')
-def fichaDeEvento(request, id_cliente=None):
+def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
     form = CadastroFichaDeEvento()
     form_transporte = CadastroDadosTransporte()
     form_adicionais = CadastroInfoAdicionais()
     form_app = CadastroCodigoApp()
     atividades_ceu = Atividades.objects.all()
     grupos_atividade = GrupoAtividade.objects.all()
+    dados_pre_reserva = ficha_de_evento = None
 
     if id_cliente:
         pre_reserva_cliente = ClienteColegio.objects.get(id=int(id_cliente))
@@ -250,23 +251,20 @@ def fichaDeEvento(request, id_cliente=None):
             'observacoes': pre_reserva.observacoes,
         }
         form.id_vendedora = pre_reserva.vendedor.id
-    else:
-        dados_pre_reserva = None
 
-        try:
-            vendedora = Vendedor.objects.get(usuario=request.user)
-            form.id_vendedora = vendedora.id
-        except Vendedor.DoesNotExist:
-            ...
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
-            return redirect('dashboard')
+    if id_ficha_de_evento:
+        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
+        form = CadastroFichaDeEvento(instance=ficha_de_evento)
 
-    if request.user in User.objects.filter(groups__name='CEU'):
-        grupo_usuario = 'CEU'
-    else:
-        grupo_usuario = 'Peraltas'
+    try:
+        vendedora = Vendedor.objects.get(usuario=request.user)
+        form.id_vendedora = vendedora.id
+    except Vendedor.DoesNotExist:
+        ...
+    except Exception as e:
+        email_error(request.user.get_full_name(), e, __name__)
+        messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
+        return redirect('dashboard')
 
     if request.method != 'POST':
         return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
@@ -274,7 +272,6 @@ def fichaDeEvento(request, id_cliente=None):
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,
                                                                  'dados_pre_reserva': dados_pre_reserva,
-                                                                 'grupo_usuario': grupo_usuario,
                                                                  'grupos_atividade': grupos_atividade,
                                                                  'atividades_ceu': atividades_ceu})
 
