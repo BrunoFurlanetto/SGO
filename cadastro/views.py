@@ -8,7 +8,8 @@ from django.shortcuts import render, redirect
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, PreReserva, \
-    GrupoAtividade, CadastroDadosTransporte, AtividadesEco, AtividadePeraltas
+    GrupoAtividade, CadastroDadosTransporte, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, \
+    DadosTransporte
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -255,6 +256,9 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
     if id_ficha_de_evento:
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
         form = CadastroFichaDeEvento(instance=ficha_de_evento)
+        form_adicionais = CadastroInfoAdicionais(instance=ficha_de_evento.informacoes_adcionais)
+        form_app = CadastroCodigoApp(instance=ficha_de_evento.codigos_app)
+        form_transporte = CadastroDadosTransporte(instance=ficha_de_evento.informacoes_adcionais.informacoes_transporte)
 
     try:
         vendedora = Vendedor.objects.get(usuario=request.user)
@@ -267,7 +271,8 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if request.method != 'POST':
-        return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
+        return render(request, 'cadastro/ficha-de-evento.html', {'ficha_de_evento': ficha_de_evento,
+                                                                 'form': form,
                                                                  'form_transporte': form_transporte,
                                                                  'formAdicionais': form_adicionais,
                                                                  'formApp': form_app,

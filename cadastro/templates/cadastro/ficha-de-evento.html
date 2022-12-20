@@ -16,41 +16,44 @@
         <form action='{% url 'ficha_de_evento' %}' method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
-                <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva %} margin-right: 10% {% endif %}">
-                    <label>Cliente</label>
+                <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
+                    <label for="cliente">Cliente</label>
                     {{ form.cliente.as_hidden }}
 
                     {% if dados_pre_reserva %}
                         <input type="text" id="cliente" readonly value="{{ dados_pre_reserva.cliente_nome_fantasia }}" required>
-                        <script>
+                        <script> <!-- TODO: Colocar no arquivo .js-->
                             $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
                             setTimeout(() => {
                                 $('.search').removeClass('none')
                             }, 1)
                         </script>
-                    {% else %}
-                        <input type="text" id="cliente" readonly onclick="pegarCliente()" required>
+                    {% elif ficha_de_evento %}
+                        <input type="text" id="cliente" value="{{ ficha_de_evento.cliente.nome_fantasia }}" readonly required>
                     {% endif %}
 
                 </div>
-                {% if not dados_pre_reserva %}
+                {% if not dados_pre_reserva and not ficha_de_evento %}
                     <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
-                        <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i
-                                class='bx bx-search'></i></a>
+                        <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i class='bx bx-search'></i></a>
                     </div>
                 {% endif %}
                 <div style="width: 30%; margin-right: -15px">
                     <label>Responsavel</label>
-                    <input type="text" id="responsavel" name="responsavel" onclick="pegarResponsavel()" readonly
-                           required>
+                    {% if ficha_de_evento %}
+                        <input type="text" id="responsavel" name="responsavel" value="{{ ficha_de_evento.responsavel_evento.nome }}" readonly required>
+                    {% else %}
+                        <input type="text" id="responsavel" name="responsavel" {% if dados_pre_reserva %} onclick="pegarResponsavel()" {% endif %} readonly required>
+                    {% endif %}
                     {{ form.responsavel_evento.as_hidden }}
                 </div>
                 <div style="width: 5%; align-items:end; display: flex">
-                    <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}"
-                       target="_blank"><i class='bx bx-search'></i></a>
+                    <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}" target="_blank"><i class='bx bx-search'></i></a>
                 </div>
             </div>
-            <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente</button>
+            {% if not dados_pre_reserva and not ficha_de_evento %}
+                <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente</button>
+            {% endif %}
             <hr>
             <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                 <h5 class="titulo-secao">Produto Peraltas</h5>
@@ -99,37 +102,37 @@
                     <label>QTD reservada</label>
                     {{ form.qtd_confirmada }}
                 </div>
-                <div class="alunos-pernoite none" style="width: 15%">
+                <div class="alunos-pernoite {% if form.qtd_meninas.value == None  %} none {% endif %}" style="width: 15%">
                     <label>QTD meninas</label>
                     {{ form.qtd_meninas }}
                 </div>
-                <div class="alunos-pernoite none" style="width: 15%">
+                <div class="alunos-pernoite {% if form.qtd_meninos.value == None %} none {% endif %}" style="width: 15%">
                     <label>QTD meninos</label>
                     {{ form.qtd_meninos }}
                 </div>
-                <div class="corporativo none" style="width: 15%;">
+                <div class="corporativo {% if form.qtd_homens.value == None %} none {% endif %}" style="width: 15%;">
                     <label>QTD homens</label>
                     {{ form.qtd_homens }}
                 </div>
-                <div class="corporativo none" style="width: 15%">
+                <div class="corporativo {% if form.qtd_mulheres.value == None %} none {% endif %}" style="width: 15%">
                     <label>QTD mulheres</label>
                     {{ form.qtd_mulheres }}
                 </div>
             </div>
-            <div class="row professores none">
+            <div class="row professores {% if form.qtd_professores.value == None %} none {% endif %}">
                 <div style="width: 16%">
                     <label>QTD professores</label>
                     {{ form.qtd_professores }}
                 </div>
-                <div class="professores-pernoite none" style="width: 15%">
+                <div class="professores-pernoite {% if form.qtd_profs_homens.value == None %} none {% endif %}" style="width: 15%">
                     <label>QTD homens</label>
                     {{ form.qtd_profs_homens }}
                 </div>
-                <div class="professores-pernoite none" style="width: 15%">
+                <div class="professores-pernoite {% if form.qtd_profs_mulheres.value == None %} none {% endif %}" style="width: 15%">
                     <label>QTD mulheres</label>
                     {{ form.qtd_profs_mulheres }}
                 </div>
-                <div class="mt-2 professores-pernoite none">
+                <div class="mt-2 professores-pernoite">
                     {{ form.professores_com_alunos }}
                     <label class="my-1">Professores dormirão com os alunos?</label>
                 </div>
@@ -139,23 +142,25 @@
                 <h5 class="titulo-secao">Perfil dos participantes</h5>
                 <div class="row perfil checkbox">
                     {{ form.perfil_participantes }}
-                    <script>$('#id_perfil_participantes').removeClass('form-check-input')</script>
                 </div>
             </div>
             <hr>
             <div>
                 <h5 class="titulo-secao">Refeições</h5>
+                {{ ficha_de_evento.tabelar_refeicoes }}
                 <table class="table">
                     <thead>
-                    <td style="width: 5px">Data</td>
-                    <td style="width: 5px"><small>Café</small></td>
-                    <td style="width: 5px" class="coffees"><small>Coffe manhã</small></td>
-                    <td style="width: 5px"><small>Almoço</small></td>
-                    <td style="width: 5px" class="lanches"><small>Lanche tarde</small></td>
-                    <td style="width: 5px" class="coffees"><small>Coffe tarde</small></td>
-                    <td style="width: 5px"><small>Jantar</small></td>
-                    <td style="width: 5px" class="lanches"><small>Lanche noite</small></td>
-                    <td style="width: 2px"><small></small></td>
+                        <tr>
+                            <th style="width: 5px">Data</th>
+                            <th style="width: 5px"><small>Café</small></th>
+                            <th style="width: 5px" class="coffees"><small>Coffe manhã</small></th>
+                            <th style="width: 5px"><small>Almoço</small></th>
+                            <th style="width: 5px" class="lanches"><small>Lanche tarde</small></th>
+                            <th style="width: 5px" class="coffees"><small>Coffe tarde</small></th>
+                            <th style="width: 5px"><small>Jantar</small></th>
+                            <th style="width: 5px" class="lanches"><small>Lanche noite</small></th>
+                            <th style="width: 2px"><small></small></th>
+                        </tr>
                     </thead>
                     <tbody id="corpo-tabela-refeicao"></tbody>
                 </table>

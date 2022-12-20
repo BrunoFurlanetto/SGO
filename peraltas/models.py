@@ -308,7 +308,7 @@ class FichaDeEvento(models.Model):
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
-    data_preenchimento = models.DateField(default=datetime.datetime.now, blank=True, null=True)
+    data_preenchimento = models.DateField(blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     os = models.BooleanField(default=False)
     escala = models.BooleanField(default=False)
@@ -316,6 +316,26 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+    def tabelar_refeicoes(self):
+        dados = {}
+
+        for dia in self.refeicoes:
+            dados_refeicoes = []
+
+            dados_refeicoes = [
+                'Café' in self.refeicoes[dia],
+                'Coffee manhã' in self.refeicoes[dia],
+                'Almoço' in self.refeicoes[dia],
+                'Lanche tarde' in self.refeicoes[dia],
+                'Coffee tarde' in self.refeicoes[dia],
+                'Jantar' in self.refeicoes[dia],
+                'Lanche tarde' in self.refeicoes[dia],
+            ]
+
+            dados[dia] = dados_refeicoes
+
+        print(dados)
 
 
 class DisponibilidadeAcampamento(models.Model):
@@ -419,8 +439,6 @@ class CadastroFichaDeEvento(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'cliente': forms.TextInput(attrs={'readolny': 'readonly'}),
-            'responsavel_evento': forms.TextInput(attrs={'readolny': 'readonly'}),
             'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
