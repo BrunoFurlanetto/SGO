@@ -318,7 +318,7 @@ class FichaDeEvento(models.Model):
         return f'Ficha de evento de {self.cliente}'
 
     def tabelar_refeicoes(self):
-        dados = {}
+        dados = []
 
         for dia in self.refeicoes:
             dados_refeicoes = []
@@ -330,12 +330,12 @@ class FichaDeEvento(models.Model):
                 'Lanche tarde' in self.refeicoes[dia],
                 'Coffee tarde' in self.refeicoes[dia],
                 'Jantar' in self.refeicoes[dia],
-                'Lanche tarde' in self.refeicoes[dia],
+                'Lanche noite' in self.refeicoes[dia],
             ]
 
-            dados[dia] = dados_refeicoes
+            dados.append({'dia': dia, 'refeicoes': dados_refeicoes})
 
-        print(dados)
+        return dados
 
 
 class DisponibilidadeAcampamento(models.Model):
@@ -484,7 +484,6 @@ class CadastroInfoAdicionais(forms.ModelForm):
             'transporte': forms.CheckboxInput(attrs={'onchange': 'pegarEndereco()'}),
             'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
-            'lista_segurados': forms.FileInput(attrs={'class': 'none'})
         }
 
 

@@ -94,13 +94,15 @@ function limpar_dados(){
 function pegarCliente(){
     const id_cliente = $('#id_cliente')
     const nome_fantasia = $('#cliente')
-
-    if (localStorage.getItem('id') === null){
+    console.log('Foi')
+    if (localStorage.getItem('id') === null && id_cliente.val() === '' ){
         return
     }
 
-    id_cliente.val(localStorage.getItem('id'))
-    nome_fantasia.val(localStorage.getItem('fantasia'))
+    if (id_cliente.val() === '' && localStorage.getItem('id') !== null){
+        id_cliente.val(localStorage.getItem('id'))
+        nome_fantasia.val(localStorage.getItem('fantasia'))
+    }
 
     if(id_cliente.val() !== ''){
         $('.search').removeClass('none')
@@ -110,16 +112,16 @@ function pegarCliente(){
     localStorage.removeItem('fantasia')
 
     $.ajax({
-            url: '',
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-            type: "POST",
-            data: {'id_cliente_app': id_cliente.val()},
-            success: function (response) {
-                for(let i in response){
-                    $(`#${i}`).val(response[i]).prop('readonly', true)
-                }
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "POST",
+        data: {'id_cliente_app': id_cliente.val()},
+        success: function (response) {
+            for(let i in response){
+                $(`#${i}`).val(response[i]).prop('readonly', true)
             }
-        })
+        }
+    })
 }
 
 function salvarIdCliente(){
@@ -183,6 +185,7 @@ function completa_dados_responsavel(selecao) {
                 for (let j in response) {
                     if (j === 'responsavel_por'){
                         $(`#id_${j}`).val(response[j]['nome'])
+                        $(`#id_id_responsavel_por`).val(response[j]['id'])
                     }else{
                         $(`#id_${j}`).val(response[j])
                     }
@@ -199,6 +202,7 @@ function completa_dados_responsavel(selecao) {
 
                 for (let i = 0; i < response['responsavel_por'].length; i++) {
                     $('#id_responsavel_por').append(`<option value="${response['responsavel_por'][i]['id']}">${response['responsavel_por'][i]['nome']}</option>`)
+
                 }
 
                 $('#id_responsavel_por').select2()

@@ -13,511 +13,603 @@
             </center>
             <hr>
         </div>
-        <form action='{% url 'ficha_de_evento' %}' method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="row">
-                <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
-                    <label for="cliente">Cliente</label>
-                    {{ form.cliente.as_hidden }}
 
-                    {% if dados_pre_reserva %}
-                        <input type="text" id="cliente" readonly value="{{ dados_pre_reserva.cliente_nome_fantasia }}" required>
-                        <script> <!-- TODO: Colocar no arquivo .js-->
-                            $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
-                            setTimeout(() => {
-                                $('.search').removeClass('none')
-                            }, 1)
-                        </script>
-                    {% elif ficha_de_evento %}
-                        <input type="text" id="cliente" value="{{ ficha_de_evento.cliente.nome_fantasia }}" readonly required>
+        <form action='{% if ficha_de_evento %} {% url 'ver_ficha_de_evento' ficha_de_evento.id %} {% else %} {% url 'ficha_de_evento' %} {% endif %}'
+              method="POST" enctype="multipart/form-data">
+            <fieldset id="form_ficha" {% if ficha_de_evento %} disabled {% endif %}>
+                {% csrf_token %}
+                <div class="row">
+                    <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
+                        <label for="cliente">Cliente</label>
+                        {{ form.cliente.as_hidden }}
+
+                        {% if dados_pre_reserva %}
+                            <input type="text" id="cliente" readonly
+                                   value="{{ dados_pre_reserva.cliente_nome_fantasia }}" onclick="pegarCliente()"
+                                   required>
+                        {% elif ficha_de_evento %}
+                            <input type="text" id="cliente" value="{{ ficha_de_evento.cliente.nome_fantasia }}" readonly
+                                   required>
+                        {% else %}
+                            <input type="text" id="cliente" onclick="pegarCliente()" readonly required>
+                        {% endif %}
+
+                    </div>
+                    {% if not dados_pre_reserva and not ficha_de_evento %}
+                        <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
+                            <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i
+                                    class='bx bx-search'></i></a>
+                        </div>
                     {% endif %}
-
+                    <div style="width: 30%; margin-right: -15px">
+                        <label>Responsavel</label>
+                        {% if ficha_de_evento %}
+                            <input type="text" id="responsavel" name="responsavel"
+                                   value="{{ ficha_de_evento.responsavel_evento.nome }}" readonly required>
+                        {% else %}
+                            <input type="text" id="responsavel" name="responsavel"
+                                   onclick="pegarResponsavel()" readonly required>
+                        {% endif %}
+                        {{ form.responsavel_evento.as_hidden }}
+                    </div>
+                    <div style="width: 5%; align-items:end; display: flex">
+                        <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}"
+                           target="_blank"><i class='bx bx-search'></i></a>
+                    </div>
                 </div>
                 {% if not dados_pre_reserva and not ficha_de_evento %}
-                    <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
-                        <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i class='bx bx-search'></i></a>
+                    <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente
+                    </button>
+                {% endif %}
+                <hr>
+                <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
+                    <h5 class="titulo-secao">Produto Peraltas</h5>
+                    {{ form.produto }}
+                    <div class="mt-2 outro-produto none" style="width: 50%" onchange="verQuantidades(this)">
+                        <label>Qual?</label>
+                        {{ form.outro_produto }}
                     </div>
-                {% endif %}
-                <div style="width: 30%; margin-right: -15px">
-                    <label>Responsavel</label>
-                    {% if ficha_de_evento %}
-                        <input type="text" id="responsavel" name="responsavel" value="{{ ficha_de_evento.responsavel_evento.nome }}" readonly required>
-                    {% else %}
-                        <input type="text" id="responsavel" name="responsavel" {% if dados_pre_reserva %} onclick="pegarResponsavel()" {% endif %} readonly required>
-                    {% endif %}
-                    {{ form.responsavel_evento.as_hidden }}
                 </div>
-                <div style="width: 5%; align-items:end; display: flex">
-                    <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}" target="_blank"><i class='bx bx-search'></i></a>
-                </div>
-            </div>
-            {% if not dados_pre_reserva and not ficha_de_evento %}
-                <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente</button>
-            {% endif %}
-            <hr>
-            <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
-                <h5 class="titulo-secao">Produto Peraltas</h5>
-                {{ form.produto }}
-                <div class="mt-2 outro-produto none" style="width: 50%" onchange="verQuantidades(this)">
-                    <label>Qual?</label>
-                    {{ form.outro_produto }}
-                </div>
-            </div>
 
-            <hr>
-            <div id="sessao_periodo_viagem" class="row mb-2">
-                <h5 class="titulo-secao">Período de viagem</h5>
-                <div style="width: 35%">
-                    <label>Check in (data/horário)</label>
-                    {{ form.check_in }}
+                <hr>
+                <div id="sessao_periodo_viagem" class="row mb-2">
+                    <h5 class="titulo-secao">Período de viagem</h5>
+                    <div style="width: 35%">
+                        <label>Check in (data/horário)</label>
+                        {{ form.check_in }}
+                    </div>
+                    <div style="width: 35%">
+                        <label>Check out (data/horário)</label>
+                        {{ form.check_out }}
+                    </div>
+                    <div id="div_editar_horarios" class="checkbox">
+                        <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
+                               style="margin-right: 5px; padding: 0">
+                        <label for="check_editar_horarios">Editar horários</label>
+                    </div>
                 </div>
-                <div style="width: 35%">
-                    <label>Check out (data/horário)</label>
-                    {{ form.check_out }}
+                <hr>
+                <div class="row mb-2">
+                    <h5 class="titulo-secao">Quantidades</h5>
+                    <div style="width: 15%">
+                        <label>QTD estimada</label>
+                        {{ form.qtd_convidada }}
+                    </div>
+                    <div style="width: 15%">
+                        <label>QTD reservada</label>
+                        {{ form.qtd_confirmada }}
+                    </div>
+                    <div class="alunos-pernoite {% if form.qtd_meninas.value == None %} none {% endif %}"
+                         style="width: 15%">
+                        <label>QTD meninas</label>
+                        {{ form.qtd_meninas }}
+                    </div>
+                    <div class="alunos-pernoite {% if form.qtd_meninos.value == None %} none {% endif %}"
+                         style="width: 15%">
+                        <label>QTD meninos</label>
+                        {{ form.qtd_meninos }}
+                    </div>
+                    <div class="corporativo {% if form.qtd_homens.value == None %} none {% endif %}"
+                         style="width: 15%;">
+                        <label>QTD homens</label>
+                        {{ form.qtd_homens }}
+                    </div>
+                    <div class="corporativo {% if form.qtd_mulheres.value == None %} none {% endif %}"
+                         style="width: 15%">
+                        <label>QTD mulheres</label>
+                        {{ form.qtd_mulheres }}
+                    </div>
                 </div>
-                <div id="div_editar_horarios" class="checkbox">
-                    <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios" style="margin-right: 5px; padding: 0">
-                    <label for="check_editar_horarios">Editar horários</label>
+                <div class="row professores {% if form.qtd_professores.value == None %} none {% endif %}">
+                    <div style="width: 16%">
+                        <label>QTD professores</label>
+                        {{ form.qtd_professores }}
+                    </div>
+                    <div class="professores-pernoite {% if form.qtd_profs_homens.value == None %} none {% endif %}"
+                         style="width: 15%">
+                        <label>QTD homens</label>
+                        {{ form.qtd_profs_homens }}
+                    </div>
+                    <div class="professores-pernoite {% if form.qtd_profs_mulheres.value == None %} none {% endif %}"
+                         style="width: 15%">
+                        <label>QTD mulheres</label>
+                        {{ form.qtd_profs_mulheres }}
+                    </div>
+                    <div class="mt-2 professores-pernoite">
+                        {{ form.professores_com_alunos }}
+                        <label class="my-1">Professores dormirão com os alunos?</label>
+                    </div>
                 </div>
-                {% if dados_pre_reserva %}
-                    <script>
-                        $('#id_check_in').val('{{ dados_pre_reserva.check_in }}')
-                        $('#id_check_out').val('{{ dados_pre_reserva.check_out }}')
-                    </script>
-                {% endif %}
-            </div>
-            <hr>
-            <div class="row mb-2">
-                <h5 class="titulo-secao">Quantidades</h5>
-                <div style="width: 15%">
-                    <label>QTD estimada</label>
-                    {{ form.qtd_convidada }}
-                    {% if dados_pre_reserva %}
-                        <script>
-                            $('#id_qtd_convidada').val('{{ dados_pre_reserva.qtd }}')
-                        </script>
-                    {% endif %}
+                <hr>
+                <div class="row" style="width: 100%" id="perfil_participantes">
+                    <h5 class="titulo-secao">Perfil dos participantes</h5>
+                    <div class="row perfil checkbox">
+                        {{ form.perfil_participantes }}
+                    </div>
                 </div>
-                <div style="width: 15%">
-                    <label>QTD reservada</label>
-                    {{ form.qtd_confirmada }}
-                </div>
-                <div class="alunos-pernoite {% if form.qtd_meninas.value == None  %} none {% endif %}" style="width: 15%">
-                    <label>QTD meninas</label>
-                    {{ form.qtd_meninas }}
-                </div>
-                <div class="alunos-pernoite {% if form.qtd_meninos.value == None %} none {% endif %}" style="width: 15%">
-                    <label>QTD meninos</label>
-                    {{ form.qtd_meninos }}
-                </div>
-                <div class="corporativo {% if form.qtd_homens.value == None %} none {% endif %}" style="width: 15%;">
-                    <label>QTD homens</label>
-                    {{ form.qtd_homens }}
-                </div>
-                <div class="corporativo {% if form.qtd_mulheres.value == None %} none {% endif %}" style="width: 15%">
-                    <label>QTD mulheres</label>
-                    {{ form.qtd_mulheres }}
-                </div>
-            </div>
-            <div class="row professores {% if form.qtd_professores.value == None %} none {% endif %}">
-                <div style="width: 16%">
-                    <label>QTD professores</label>
-                    {{ form.qtd_professores }}
-                </div>
-                <div class="professores-pernoite {% if form.qtd_profs_homens.value == None %} none {% endif %}" style="width: 15%">
-                    <label>QTD homens</label>
-                    {{ form.qtd_profs_homens }}
-                </div>
-                <div class="professores-pernoite {% if form.qtd_profs_mulheres.value == None %} none {% endif %}" style="width: 15%">
-                    <label>QTD mulheres</label>
-                    {{ form.qtd_profs_mulheres }}
-                </div>
-                <div class="mt-2 professores-pernoite">
-                    {{ form.professores_com_alunos }}
-                    <label class="my-1">Professores dormirão com os alunos?</label>
-                </div>
-            </div>
-            <hr>
-            <div class="row" style="width: 100%" id="perfil_participantes">
-                <h5 class="titulo-secao">Perfil dos participantes</h5>
-                <div class="row perfil checkbox">
-                    {{ form.perfil_participantes }}
-                </div>
-            </div>
-            <hr>
-            <div>
-                <h5 class="titulo-secao">Refeições</h5>
-                {{ ficha_de_evento.tabelar_refeicoes }}
-                <table class="table">
-                    <thead>
+                <hr>
+                <div>
+                    <h5 class="titulo-secao">Refeições</h5>
+                    <table class="table">
+                        <thead>
                         <tr>
                             <th style="width: 5px">Data</th>
                             <th style="width: 5px"><small>Café</small></th>
-                            <th style="width: 5px" class="coffees"><small>Coffe manhã</small></th>
+                            <th style="width: 5px"
+                                class="coffees {% if form.qtd_professores.value != None %} none {% endif %}"><small>Coffe
+                                manhã</small></th>
                             <th style="width: 5px"><small>Almoço</small></th>
-                            <th style="width: 5px" class="lanches"><small>Lanche tarde</small></th>
-                            <th style="width: 5px" class="coffees"><small>Coffe tarde</small></th>
+                            <th style="width: 5px"
+                                class="lanches {% if form.qtd_professores.value == None %} none {% endif %}"><small>Lanche
+                                tarde</small></th>
+                            <th style="width: 5px"
+                                class="coffees {% if form.qtd_professores.value != None %} none {% endif %}"><small>Coffe
+                                tarde</small></th>
                             <th style="width: 5px"><small>Jantar</small></th>
-                            <th style="width: 5px" class="lanches"><small>Lanche noite</small></th>
+                            <th style="width: 5px"
+                                class="lanches {% if form.qtd_professores.value == None %} none {% endif %}"><small>Lanche
+                                noite</small></th>
                             <th style="width: 2px"><small></small></th>
                         </tr>
-                    </thead>
-                    <tbody id="corpo-tabela-refeicao"></tbody>
-                </table>
-                <button class="buton-plus" type="button" onclick="add_refeicao()"
-                        style="margin-left: 5px; margin-top: -15px">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-                <div class="form-group form-check form-switch mb-3 mt-3">
-                    <input type="checkbox" class="form-check-input switch" onChange="obs()">
-                    <label class="form-check-label">Observações</label>
+                        </thead>
+                        <tbody id="corpo-tabela-refeicao">
+                        {% for dados_refeicoes in ficha_de_evento.tabelar_refeicoes %}
+                            <tr class="linha" id="linha_{{ forloop.counter }}">
+                                <td><input type="date" class="data" name="data_refeicao_{{ forloop.counter }}"
+                                           style="width:  180px" value="{{ dados_refeicoes.dia }}">
+                                </td>
+                                <td><input type="checkbox" class="form-check-input cafe" id="cafe_{{ forloop.counter }}"
+                                           name="cafe_{{ forloop.counter }}" {% if dados_refeicoes.refeicoes.0 %}
+                                           checked {% endif %} style="width: 5px; height: 5px">
+                                </td>
+                                {% if form.qtd_professores.value == None %}
+                                    <td><input type="checkbox" class="form-check-input coffee_m"
+                                               id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.1 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                <td><input type="checkbox" class="form-check-input almoco"
+                                           id="almoco_{{ forloop.counter }}" name="almoco_{{ forloop.counter }}"
+                                        {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
+                                           style="width: 5px; height: 5px">
+                                </td>
+                                {% if form.qtd_professores.value != None %}
+                                    <td><input type="checkbox" class="form-check-input lanche_t"
+                                               id="lanche_t_{{ forloop.counter }}" name="lanche_t_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                {% if form.qtd_professores.value == None %}
+                                    <td><input type="checkbox" class="form-check-input coffee_t"
+                                               id="coffee_t_{{ forloop.counter }}" name="coffee_t_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td> {% endif %}
+                                <td><input type="checkbox" class="form-check-input jantar"
+                                           id="jantar_{{ forloop.counter }}" name="jantar_{{ forloop.counter }}"
+                                        {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
+                                           style="width: 5px; height: 5px">
+                                </td>
+                                {% if form.qtd_professores.value != None %}
+                                    <td><input type="checkbox" class="form-check-input lanche_n"
+                                               id="lanche_n_{{ forloop.counter }}" name="lanche_n_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    <button class="buton-x-ref" id="btn-ref_{{ forloop.counter }}" type="button"
+                                            onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x'></i></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button class="buton-plus" type="button" onclick="add_refeicao()"
+                            style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
+                    <div class="form-group form-check form-switch mb-3 mt-3">
+                        <input type="checkbox" class="form-check-input switch"
+                                {% if ficha_de_evento and ficha_de_evento.observacoes_refeicoes.value %}
+                               checked {% endif %} onChange="obs()">
+                        <label class="form-check-label">Observações</label>
+                    </div>
+                    <div id="observacoes_refeicoes"
+                            {% if not ficha_de_evento or not ficha_de_evento.observacoes_refeicoes.value %}
+                         class="none" {% endif %}>
+                        <label>Observações</label>
+                        {{ form.observacoes_refeicoes }}
+                    </div>
                 </div>
-                <div id="observacoes_refeicoes" class="none">
-                    <label>Observações</label>
-                    {{ form.observacoes_refeicoes }}
+                <hr>
+                <div class="row ceu">
+                    <h5 class="titulo-secao">CEU</h5>
+                    <div style="width: 60%">
+                        <label>Atividades</label>
+                        {{ form.atividades_ceu }}
+                    </div>
+                    <div style="width: 40%" id="div_locacao_ceu">
+                        <label>Locações</label>
+                        {{ form.locacoes_ceu }}
+                    </div>
                 </div>
-                {% if dados_pre_reserva %}
-                    <script>
-                        setTimeout(() => {
-                            pegarDias()
-                        }, 100)
-                    </script>
-                {% endif %}
-            </div>
-            <hr>
-            <div class="row ceu">
-                <h5 class="titulo-secao">CEU</h5>
-                <div style="width: 60%">
-                    <label>Atividades</label>
-                    {{ form.atividades_ceu }}
-                    <script>
-                        $(document).ready($("#id_atividades_ceu").select2())
-                    </script>
+                <hr>
+                <div class="row peraltas">
+                    <h5 class="titulo-secao">Peraltas</h5>
+                    <div id="atividades_ecoturismo" style="width: 50%;">
+                        <label>Atividades extra</label>
+                        {{ form.atividades_eco }}
+                    </div>
+                    <div style="width: 50%">
+                        <label>Acampamento</label>
+                        {{ form.atividades_peraltas }}
+                    </div>
                 </div>
-                <div style="width: 40%" id="div_locacao_ceu">
-                    <label>Locações</label>
-                    {{ form.locacoes_ceu }}
-                    <script>
-                        $(document).ready($("#id_locacoes_ceu").select2())
-                    </script>
+                <hr class="peraltas">
+                <div class="form-check">
+                    <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
+                           name="info_adicionais_ok" {% if ficha_de_evento %} checked {% endif %} required>
+                    <label for="add_infos" class="my-1">Informações adicionais</label>
+                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+                            data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()"
+                            style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
                 </div>
-            </div>
-            <hr>
-            <div class="row peraltas">
-                <h5 class="titulo-secao">Peraltas</h5>
-                <div id="atividades_ecoturismo" style="width: 50%;">
-                    <label>Atividades extra</label>
-                    {{ form.atividades_eco }}
-                    <script>
-                        $(document).ready($("#id_atividades_eco").select2())
-                    </script>
+                {{ form.informacoes_adcionais.as_hidden }}
+                <hr>
+                <div class="form-check">
+                    <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok"
+                           name="codigos_app_ok" {% if ficha_de_evento %} checked {% endif %} required>
+                    <label class="my-1">Códigos APP</label>
+                    <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+                            data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
+                            style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
                 </div>
-                <div style="width: 50%">
-                    <label>Acampamento</label>
-                    {{ form.atividades_peraltas }}
-                    <script>
-                        $(document).ready($("#id_atividades_peraltas").select2())</script>
+                {{ form.codigos_app.as_hidden }}
+                <hr>
+                <div class="row">
+                    <div>
+                        <label for="id_vendedora">Vendedor(a)</label>
+                    </div>
+                    <div style="width: 35%">
+                        {% if dados_pre_reserva %}
+                            <input type="text" id="vendedora" value="{{ dados_pre_reserva.vendedor }}" readonly>
+                            {{ form.vendedora.as_hidden }}
+                        {% else %}
+                            {{ form.vendedora }}
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-            <hr class="peraltas">
-            <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
-                       name="info_adicionais_ok" required>
-                <label for="add_infos" class="my-1">Informações adicionais</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
-                        data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()"
-                        style="margin-left: 5px; margin-top: -15px">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-            </div>
-            {{ form.informacoes_adcionais.as_hidden }}
-            <hr>
-            <div class="form-check">
-                <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok" name="codigos_app_ok"
-                       required>
-                <label class="my-1">Códigos APP</label>
-                <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
-                        data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
-                        style="margin-left: 5px; margin-top: -15px">
-                    <span><i class='bx bxs-plus-circle'></i></span>
-                </button>
-            </div>
-            {{ form.codigos_app.as_hidden }}
-            <hr>
-            <div class="row">
+                <hr>
                 <div>
-                    <label for="id_vendedora">Vendedor(a)</label>
+                    <div style="width: 30%">
+                        <label>Data final de inscrição</label>
+                        {{ form.data_final_inscricao }}
+                    </div>
                 </div>
-                <div style="width: 35%">
-                    {% if dados_pre_reserva %}
-                        <input type="text" id="vendedora" value="{{ dados_pre_reserva.vendedor }}" readonly>
-                        {{ form.vendedora.as_hidden }}
-                    {% else %}
-                        {{ form.vendedora }}
-                    {% endif %}
+                <hr>
+                <div>
+                    <h5 class="titulo-secao">Material de apoio</h5>
+                    {{ form.material_apoio }}
                 </div>
-            </div>
-            <hr>
-            <div>
-                <div style="width: 30%">
-                    <label>Data final de inscrição</label>
-                    {{ form.data_final_inscricao }}
+                <hr>
+                <div class="mb-3 row">
+                    <h5 class="titulo-secao">Observações</h5>
+                    {{ form.observacoes }}
                 </div>
-            </div>
-            <hr>
-            <div>
-                <h5 class="titulo-secao">Material de apoio</h5>
-                {{ form.material_apoio }}
-            </div>
-            <hr>
-            <div class="mb-3 row">
-                <h5 class="titulo-secao">Observações</h5>
-                {{ form.observacoes }}
-                {% if dados_pre_reserva %}
-                    <script>
-                        $('#id_observacoes').val('{{ dados_pre_reserva.observacoes }}')
-                    </script>
-                {% endif %}
-            </div>
-            {{ form.empresa.as_hidden }}
+                {{ form.empresa.as_hidden }}
+            </fieldset>
+            <div class="botoes">
+                {% if not ficha_de_evento %}
+                    <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+                {% elif perms.peraltas.change_fichadeevento %}
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
+                    <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
+                    <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
+                            data-target="#excluir_ficha_evento" disabled>Excluir
+                    </button>
 
-            <script>
-                $('#id_vendedora').val('{{ form.id_vendedora}}')
-                {% if dados_pre_reserva %}
-                    $('#id_vendedora').attr('disabled', true)
+                    {% if perms.ordemDeServico.add_ordemdeservico %}
+                        <button type="button" class="btn btn-outline-primary ml-5">Ordem de serviço</button>
+                    {% endif %}
                 {% endif %}
-            </script>
-            <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+            </div>
         </form>
     </div>
 
     <form method="POST" action="{% url 'ficha_de_evento' %}" id="infos" enctype="multipart/form-data">
-        {% csrf_token %}
-        <!-- Modal -->
-        <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Informações Adicionais</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <h5 class="titulo-secao">Transporte</h5>
-                            <input type="hidden" name="infos" value="adicionais">
-                            <div class="checkbox" style="width: 20%">
-                                {{ formAdicionais.transporte }}
-                                <label>Transporte?</label>
-                            </div>
-                        </div>
-                        <div id="dados_transporte" class="row mt-2 none">
-                            <div class="mb-2" style="display: flex; flex-direction: column">
-                                <label>Fechado internamente?</label>
-                                {{ form_transporte.transporte_fechado_internamente }}
-                            </div>
-                            <div class="checkbox" style="width: 50%" id="viacao">
-                                <label>Viação</label>
-                                {{ form_transporte.empresa_onibus }}
-                            </div>
-                            <div style="width: 20%" id="horario_embarque">
-                                <label for="id_hora_embarque">Horário</label>
-                                {{ form_transporte.horario_embarque }}
-                            </div>
-                            <div class="row mt-2" id="dados_embarque">
-                                <div style="width: 75%" id="endereco_embarque">
-                                    <label>Endereço de embarque</label>
-                                    {{ form_transporte.endereco_embarque }}
-                                </div>
-                            </div>
-                            <div class="row mt-3" id="dados_veiculos">
-                                <div class="row" style="width: 33%">
-                                    <div style="width: auto">
-                                        <label class="py-1">Micro ônibus:</label>
-                                    </div>
-                                    <div style="width: 30%">
-                                        <input type="number" name="n_micro" placeholder="n" min="0">
-                                    </div>
-                                </div>
-                                <div class="row" style="width: 36%">
-                                    <div style="width: auto">
-                                        <label class="py-1" >Ônibus 46 lugares:</label>
-                                    </div>
-                                    <div style="width: 30%">
-                                        <input type="number" name="n_46" placeholder="n" min="0">
-                                    </div>
-                                </div>
-                                <div class="row" style="width: 36%">
-                                    <div style="width: auto">
-                                        <label class="py-1">Ônibus 50 lugares:</label>
-                                    </div>
-                                    <div style="width: 30%">
-                                        <input type="number" name="n_50" placeholder="n" min="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="checkbox" onchange="lista_segurados()">
-                            {{ formAdicionais.seguro }}
-                            <label>Seguro</label>
-                            {{ formAdicionais.lista_segurados }}
-                            <style>
-                                #id_lista_segurados {
-                                    width: 60%;
-                                    height: 10%;
-                                    margin-left: 5%;
-                                }
-                            </style>
-                        </div>
-                        <hr>
-                        <div class="row" id="monitoria_peraltas">
-                            <h5 class="titulo-secao">Monitoria</h5>
-                            <div class="mb-2" style="width: 60%">
-                                <label>Tipo</label>
-                                {{ formAdicionais.monitoria }}
-                            </div>
-                            <div class="checkbox" style="width: 40%; margin-top: 35px">
-                                {{ formAdicionais.biologo }}
-                                <label>Biólogo?</label>
-                            </div>
-                            <div id="biologo" class="mt-2 none" style="width: 50%">
-                                <label>Em quais atividades</label>
-                                {{ formAdicionais.quais_atividades }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <h5 class="titulo-secao">Enfermaria</h5>
-                            <div style="width: 30%">
-                                <label>Tipo</label>
-                                {{ formAdicionais.enfermaria }}
-                            </div>
-                            <div class="mb-2 none" style="width: 30%" id="horario">
-                                <label>Horário</label>
-                                {{ formAdicionais.horario_garantia }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div id="cantina_roupa_cama" class="row">
-                            <h5 class="titulo-secao">Cantina e roupa de cama</h5>
-                            <div id="div_cantina" style="width: 20%">
-                                <label for="id_cantina">Cantina</label>
-                                {{ formAdicionais.cantina }}
-                            </div>
-                            <div style="width: 20%">
-                                <label for="id_roupa_de_cama">Roupa de cama</label>
-                                {{ formAdicionais.roupa_de_cama }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div id="opcionais_geral" class="row mb-2">
-                            <h5 class="titulo-secao">Opcionais gerais</h5>
-                            {{ formAdicionais.opcionais_geral }}
-                            <button id="botao_add_opcionais_geral" type="button" onclick="adcionar_novo_op_geral()">
-                                <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
+        <fieldset id="form_adicionais" {% if ficha_de_evento %} disabled {% endif %}>
+            {% csrf_token %}
+            <!-- Modal -->
+            <div class="modal fade" id="modal-adicionais" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Informações Adicionais</h5>
+                            <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
                             </button>
-                            <div class="mt-2 row none" id="adcionar_opcional_geral">
-                                <div style="width: 50%;">
-                                    <label for="nome_novo_op_geral">Novo opcional</label>
-                                    <input id="nome_novo_op_geral" type="text" class="form-control">
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <h5 class="titulo-secao">Transporte</h5>
+                                <input type="hidden" name="infos" value="adicionais">
+                                <div class="checkbox" style="width: 20%">
+                                    {{ formAdicionais.transporte }}
+                                    <label>Transporte?</label>
                                 </div>
-                                <div style="width: 50%; margin-top: 23px">
-                                    <button type="button" class="btn btn-outline-primary"
-                                            onclick="salvar_novo_op_geral()">Salvar
-                                    </button>
+                            </div>
+                            <div id="dados_transporte"
+                                 class="row mt-2 {% if not formAdicionais.transporte.value %} none {% endif %}">
+                                <div class="mb-2" style="display: flex; flex-direction: column">
+                                    <label>Fechado internamente?</label>
+                                    {{ form_transporte.transporte_fechado_internamente }}
+                                </div>
+                                <div class="checkbox" style="width: 50%" id="viacao">
+                                    <label>Viação</label>
+                                    {{ form_transporte.empresa_onibus }}
+                                </div>
+                                <div style="width: 20%" id="horario_embarque">
+                                    <label for="id_hora_embarque">Horário</label>
+                                    {{ form_transporte.horario_embarque }}
+                                </div>
+                                <div class="row mt-2" id="dados_embarque">
+                                    <div style="width: 75%" id="endereco_embarque">
+                                        <label>Endereço de embarque</label>
+                                        {{ form_transporte.endereco_embarque }}
+                                    </div>
+                                </div>
+                                <div class="row mt-3" id="dados_veiculos">
+                                    <div class="row" style="width: 33%">
+                                        <div style="width: auto">
+                                            <label class="py-1">Micro ônibus:</label>
+                                        </div>
+                                        <div style="width: 30%">
+                                            <input type="number" name="n_micro" placeholder="n" min="0"
+                                                   value="{{ dados_transporte.valor_veiculos.1.n }}">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="width: 36%">
+                                        <div style="width: auto">
+                                            <label class="py-1">Ônibus 46 lugares:</label>
+                                        </div>
+                                        <div style="width: 30%">
+                                            <input type="number" name="n_46" placeholder="n" min="0"
+                                                   value="{{ dados_transporte.valor_veiculos.1.n }}">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="width: 36%">
+                                        <div style="width: auto">
+                                            <label class="py-1">Ônibus 50 lugares:</label>
+                                        </div>
+                                        <div style="width: 30%">
+                                            <input type="number" name="n_50" placeholder="n" min="0"
+                                                   value="{{ dados_transporte.valor_veiculos.2.n }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="checkbox row" onchange="lista_segurados()">
+                                <div style="width: 15%">
+                                    {{ formAdicionais.seguro }}
+                                    <label>Seguro</label>
+                                </div>
+                                <div id="div_lista_segurads" {% if not formAdicionais.seguro.value %}
+                                     class="none" {% endif %} style="width: 80%">
+                                    {{ formAdicionais.lista_segurados }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row" id="monitoria_peraltas">
+                                <h5 class="titulo-secao">Monitoria</h5>
+                                <div class="mb-2" style="width: 60%">
+                                    <label>Tipo</label>
+                                    {{ formAdicionais.monitoria }}
+                                </div>
+                                <div class="checkbox" style="width: 40%; margin-top: 35px">
+                                    {{ formAdicionais.biologo }}
+                                    <label>Biólogo?</label>
+                                </div>
+                                <div id="biologo" class="mt-2 {% if formAdicionais.biologo.value == None %} none {% endif %}"
+                                     style="width: 50%">
+                                    <label>Em quais atividades</label>
+                                    {{ formAdicionais.quais_atividades }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <h5 class="titulo-secao">Enfermaria</h5>
+                                <div style="width: 30%">
+                                    <label>Tipo</label>
+                                    {{ formAdicionais.enfermaria }}
+                                </div>
+                                <div class="mb-2 none" style="width: 30%" id="horario">
+                                    <label>Horário</label>
+                                    {{ formAdicionais.horario_garantia }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="cantina_roupa_cama" class="row">
+                                <h5 class="titulo-secao">Cantina e roupa de cama</h5>
+                                <div id="div_cantina" style="width: 20%">
+                                    <label for="id_cantina">Cantina</label>
+                                    {{ formAdicionais.cantina }}
+                                </div>
+                                <div style="width: 20%">
+                                    <label for="id_roupa_de_cama">Roupa de cama</label>
+                                    {{ formAdicionais.roupa_de_cama }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="opcionais_geral" class="row mb-2">
+                                <h5 class="titulo-secao">Opcionais gerais</h5>
+                                {{ formAdicionais.opcionais_geral }}
+                                <button id="botao_add_opcionais_geral" type="button" onclick="adcionar_novo_op_geral()">
+                                    <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
+                                </button>
+                                <div class="mt-2 row none" id="adcionar_opcional_geral">
+                                    <div style="width: 50%;">
+                                        <label for="nome_novo_op_geral">Novo opcional</label>
+                                        <input id="nome_novo_op_geral" type="text" class="form-control">
+                                    </div>
+                                    <div style="width: 50%; margin-top: 23px">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                onclick="salvar_novo_op_geral()">Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="opcionais_formatura" class="row">
+                                <h5 class="titulo-secao">Formatura</h5>
+                                {{ formAdicionais.opcionais_formatura }}
+                                <button id="botao_add_opcionais_formatura" type="button"
+                                        onclick="adcionar_novo_op_formatura()">
+                                    <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
+                                </button>
+                                <div class="mt-2 row none" id="adcionar_opcional_formatura">
+                                    <div style="width: 50%;">
+                                        <label for="nome_novo_op_formatura">Novo opcional</label>
+                                        <input id="nome_novo_op_formatura" type="text" class="form-control">
+                                    </div>
+                                    <div style="width: 50%; margin-top: 23px">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                onclick="salvar_novo_op_formatura()">Salvar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div id="opcionais_formatura" class="row">
-                            <h5 class="titulo-secao">Formatura</h5>
-                            {{ formAdicionais.opcionais_formatura }}
-                            <button id="botao_add_opcionais_formatura" type="button"
-                                    onclick="adcionar_novo_op_formatura()">
-                                <i class='bx bx-plus' style="width: 5%; font-size: 25px"></i>
-                            </button>
-                            <div class="mt-2 row none" id="adcionar_opcional_formatura">
-                                <div style="width: 50%;">
-                                    <label for="nome_novo_op_formatura">Novo opcional</label>
-                                    <input id="nome_novo_op_formatura" type="text" class="form-control">
-                                </div>
-                                <div style="width: 50%; margin-top: 23px">
-                                    <button type="button" class="btn btn-outline-primary"
-                                            onclick="salvar_novo_op_formatura()">Salvar
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary" id="salvar_infos">Salvar informações</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary" id="salvar_infos">Salvar informações</button>
                     </div>
                 </div>
             </div>
-        </div>
-        <script>
-            $(document).ready(function () {
-                $('#id_opcionais_geral').select2({
-                    dropdownParent: $("#modal-adicionais .modal-content"),
-                });
-                $('#id_opcionais_formatura').select2({
-                    dropdownParent: $("#modal-adicionais .modal-content")
-                });
-                $("#id_quais_atividades").select2({
-                    dropdownParent: $("#modal-adicionais .modal-content")
-                })
-            });
-        </script>
+        </fieldset>
     </form>
 
     <form method="POST" action="{% url 'ficha_de_evento' %}" id="codigos_app">
-        {% csrf_token %}
-        <!-- Modal para o cadastro dos códigos do APP -->
-        <div class="modal fade" id="modal_codigos_app" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Códigos APP</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body app">
-                        <input type="hidden" name="infos" value="app">
-                        <div class="row">
-                            <div style="width: 25%">
-                                <label>Cliente PJ</label>
-                                {{ formApp.cliente_pj }}
-                            </div>
-                            <div style="width: 25%">
-                                <label>Cliente PF</label>
-                                {{ formApp.cliente_pf }}
-                            </div>
-                            <div style="width: 25%">
-                                <label>Evento</label>
-                                {{ formApp.evento }}
-                            </div>
-                            <div style="width: 25%">
-                                <label>Reserva</label>
-                                {{ formApp.reserva }}
+        <fieldset id="form_app" {% if ficha_de_evento %} disabled {% endif %}>
+            {% csrf_token %}
+            <!-- Modal para o cadastro dos códigos do APP -->
+            <div class="modal fade" id="modal_codigos_app" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Códigos APP</h5>
+                            <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body app">
+                            <input type="hidden" name="infos" value="app">
+                            <div class="row">
+                                <div style="width: 25%">
+                                    <label>Cliente PJ</label>
+                                    {{ formApp.cliente_pj }}
+                                </div>
+                                <div style="width: 25%">
+                                    <label>Cliente PF</label>
+                                    {{ formApp.cliente_pf }}
+                                </div>
+                                <div style="width: 25%">
+                                    <label>Evento</label>
+                                    {{ formApp.evento }}
+                                </div>
+                                <div style="width: 25%">
+                                    <label>Reserva</label>
+                                    {{ formApp.reserva }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Savar</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Savar</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </fieldset>
     </form>
+
+    <!--  Modal para excluir ficha de evento  -->
+    <div class="modal fade" id="excluir_ficha_evento" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body app">
+                    <p>Tem ceteza que deseja excluir a ficha de evento em questão?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" name="excluir" value="Sim"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/scripts_cliente.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            carregar_scripts('{{ editando }}')
 
+            {% if dados_pre_reserva %}
+                $('#material_apoio-clear_id').addClass('form-check-input')
+                $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
+                $('#id_check_in').val('{{ dados_pre_reserva.check_in }}')
+                $('#id_check_out').val('{{ dados_pre_reserva.check_out }}')
+                $('#id_qtd_convidada').val('{{ dados_pre_reserva.qtd }}')
+                $('#vendedora').attr('disabled', true)
+                $('#id_vendedora').val('{{ dados_pre_reserva.id_vendedor }}')
+                $('#id_observacoes').val('{{ dados_pre_reserva.observacoes }}')
+                $('.search').removeClass('none')
+                pegarDias()
+            {% endif %}
+        })
+        setTimeout(() => {
+            $('#cliente').trigger('click')
+        }, 100)
+    </script>
 {% endblock %}

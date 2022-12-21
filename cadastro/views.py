@@ -239,30 +239,9 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
     grupos_atividade = GrupoAtividade.objects.all()
     dados_pre_reserva = ficha_de_evento = None
 
-    if id_cliente:
-        pre_reserva_cliente = ClienteColegio.objects.get(id=int(id_cliente))
-        pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente, agendado=True)
-        dados_pre_reserva = {
-            'cliente_id': pre_reserva_cliente.id,
-            'cliente_nome_fantasia': pre_reserva_cliente.nome_fantasia,
-            'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
-            'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
-            'qtd': pre_reserva.participantes,
-            'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
-            'observacoes': pre_reserva.observacoes,
-        }
-        form.id_vendedora = pre_reserva.vendedor.id
-
-    if id_ficha_de_evento:
-        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
-        form = CadastroFichaDeEvento(instance=ficha_de_evento)
-        form_adicionais = CadastroInfoAdicionais(instance=ficha_de_evento.informacoes_adcionais)
-        form_app = CadastroCodigoApp(instance=ficha_de_evento.codigos_app)
-        form_transporte = CadastroDadosTransporte(instance=ficha_de_evento.informacoes_adcionais.informacoes_transporte)
-
     try:
         vendedora = Vendedor.objects.get(usuario=request.user)
-        form.id_vendedora = vendedora.id
+        form.vendedora = vendedora.id
     except Vendedor.DoesNotExist:
         ...
     except Exception as e:
@@ -271,14 +250,60 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if request.method != 'POST':
-        return render(request, 'cadastro/ficha-de-evento.html', {'ficha_de_evento': ficha_de_evento,
-                                                                 'form': form,
-                                                                 'form_transporte': form_transporte,
-                                                                 'formAdicionais': form_adicionais,
-                                                                 'formApp': form_app,
-                                                                 'dados_pre_reserva': dados_pre_reserva,
-                                                                 'grupos_atividade': grupos_atividade,
-                                                                 'atividades_ceu': atividades_ceu})
+        if id_cliente:
+            pre_reserva_cliente = ClienteColegio.objects.get(pk=id_cliente)
+            pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente, agendado=True)
+            dados_pre_reserva = {
+                'cliente_id': pre_reserva_cliente.id,
+                'cliente_nome_fantasia': pre_reserva_cliente.nome_fantasia,
+                'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
+                'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
+                'qtd': pre_reserva.participantes,
+                'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
+                'id_vendedor': pre_reserva.vendedor.id,
+                'observacoes': pre_reserva.observacoes,
+            }
+            print(pre_reserva.vendedor.id)
+            return render(request, 'cadastro/ficha-de-evento.html', {
+                'form': form,
+                'form_transporte': form_transporte,
+                'formAdicionais': form_adicionais,
+                'formApp': form_app,
+                'dados_pre_reserva': dados_pre_reserva,
+                'grupos_atividade': grupos_atividade,
+                'atividades_ceu': atividades_ceu,
+                'editando': False
+            })
+
+        if id_ficha_de_evento:
+            ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
+            dados_transporte = ficha_de_evento.informacoes_adcionais.informacoes_transporte
+            form = CadastroFichaDeEvento(instance=ficha_de_evento)
+            form_adicionais = CadastroInfoAdicionais(instance=ficha_de_evento.informacoes_adcionais)
+            form_app = CadastroCodigoApp(instance=ficha_de_evento.codigos_app)
+            form_transporte = CadastroDadosTransporte(instance=dados_transporte)
+
+            return render(request, 'cadastro/ficha-de-evento.html', {
+                'ficha_de_evento': ficha_de_evento,
+                'dados_transporte': dados_transporte,
+                'form': form,
+                'form_transporte': form_transporte,
+                'formAdicionais': form_adicionais,
+                'formApp': form_app,
+                'grupos_atividade': grupos_atividade,
+                'atividades_ceu': atividades_ceu,
+                'editando': True
+            })
+
+        return render(request, 'cadastro/ficha-de-evento.html', {
+            'form': form,
+            'form_transporte': form_transporte,
+            'formAdicionais': form_adicionais,
+            'formApp': form_app,
+            'grupos_atividade': grupos_atividade,
+            'atividades_ceu': atividades_ceu,
+            'editando': False
+        })
 
     if is_ajax(request):
         if request.FILES != {}:
@@ -286,7 +311,11 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         else:
             return JsonResponse(requests_ajax(request.POST))
 
-    form = CadastroFichaDeEvento(request.POST, request.FILES)
+    if id_ficha_de_evento:
+        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
+        form = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha_de_evento)
+    else:
+        form = CadastroFichaDeEvento(request.POST, request.FILES)
 
     if form.is_valid():
         novo_evento = form.save(commit=False)
@@ -301,7 +330,12 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
             return redirect('ficha_de_evento')
         else:
             try:
-                pre_reserva = PreReserva.objects.get(cliente=novo_evento.cliente, ficha_evento=False)
+                pre_reserva = PreReserva.objects.get(
+                    cliente=novo_evento.cliente,
+                    ficha_evento=False,
+                    check_in=novo_evento.check_in,
+                    check_out=novo_evento.check_out,
+                )
             except PreReserva.DoesNotExist:
                 ...
             except Exception as e:
@@ -313,18 +347,22 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
                 pre_reserva.ficha_evento = True
                 pre_reserva.save()
 
-            messages.success(request, 'Ficha de evento salva com sucesso')
+            messages.success(
+                request,
+                'Ficha de evento salva com sucesso' if not ficha_de_evento else 'Ficha de evento editada com sucesso'
+            )
             return redirect('dashboard')
     else:
         messages.warning(request, form.errors)
-        return render(request, 'cadastro/ficha-de-evento.html', {'form': form,
-                                                                 'form_transporte': form_transporte,
-                                                                 'formAdicionais': form_adicionais,
-                                                                 'formApp': form_app,
-                                                                 'dados_pre_reserva': dados_pre_reserva,
-                                                                 'grupo_usuario': grupo_usuario,
-                                                                 'grupos_atividade': grupos_atividade,
-                                                                 'atividades_ceu': atividades_ceu})
+        return render(request, 'cadastro/ficha-de-evento.html', {
+            'form': form,
+            'form_transporte': form_transporte,
+            'formAdicionais': form_adicionais,
+            'formApp': form_app,
+            'dados_pre_reserva': dados_pre_reserva,
+            'grupos_atividade': grupos_atividade,
+            'atividades_ceu': atividades_ceu
+        })
 
 
 @login_required(login_url='login')
@@ -484,7 +522,7 @@ def listaResponsaveis(request):
 
     if request.POST.get('update') == 'true':
         responsavel = Responsavel.objects.get(id=int(request.POST.get('id')))
-        cliente = ClienteColegio.objects.get(id=int(request.POST.get('responsavel_por')))
+        cliente = ClienteColegio.objects.get(id=int(request.POST.get('id_responsavel_por')))
 
         form = CadastroResponsavel(request.POST, instance=responsavel)
 

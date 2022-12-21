@@ -20,6 +20,13 @@
     padding: 12px;
     height: 38px;
 }
+#material_apoio-clear_id{
+    width: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 0;
+    height: 20px;
+}
 #div_editar_horarios{
     width: 30%;
     display: flex;
@@ -219,4 +226,9 @@
 }
 #btn_limpar_dados_cliente:hover{
     color: #c00303;
+}
+#id_lista_segurados{
+    width: 100%;
+    height: 35px;
+    border: none;
 }

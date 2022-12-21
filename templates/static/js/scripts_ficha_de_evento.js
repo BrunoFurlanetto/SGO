@@ -1,6 +1,23 @@
 let hora_padrao_check_in, hora_padrao_check_out
 let evento_corporativo
 
+function carregar_scripts(editando) {
+    if (editando === 'True') {
+        $("#id_atividades_ceu, #id_locacoes_ceu, #id_atividades_eco, #id_atividades_peraltas").select2({
+            disabled: 'readonly'
+        })
+        $('#id_opcionais_geral, #id_opcionais_formatura, #id_quais_atividades').select2({
+            dropdownParent: $("#modal-adicionais .modal-content"),
+            disabled: 'readonly'
+        })
+    } else {
+        $("#id_atividades_ceu, #id_locacoes_ceu, #id_atividades_eco, #id_atividades_peraltas").select2()
+        $('#id_opcionais_geral, #id_opcionais_formatura, #id_quais_atividades').select2({
+            dropdownParent: $("#modal-adicionais .modal-content")
+        })
+    }
+}
+
 function encaminhamento() {
     localStorage.setItem("encaminhado", true)
 }
@@ -56,7 +73,7 @@ function verQuantidades(produto) {
 
 }
 
-function pegarDias(editando=false) {
+function pegarDias(editando = false) {
     const check_in = $('#id_check_in').val()
     const check_out = $('#id_check_out').val()
 
@@ -88,10 +105,10 @@ function pegarDias(editando=false) {
 function pegar_horario_padrao(check_in, check_out) {
     $('#aviso_produto_n_selecionado').remove()
 
-    if (!$('#check_editar_horarios').prop('checked')){
+    if (!$('#check_editar_horarios').prop('checked')) {
         if (hora_padrao_check_in === undefined) {
             $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-        } else if (hora_padrao_check_in === null){
+        } else if (hora_padrao_check_in === null) {
             return
         }
 
@@ -121,7 +138,7 @@ function add_refeicao(data = null) {
     if (evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i + 1}" name="coffee_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input jantar" id="jantar_${i + 1}" name="jantar_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     if (!evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i + 1}" name="lanche_n_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    $(linha).append(`<td><center><button class="buton-x-ref" id="btn-ref_${i + 1}" type="button" onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x' ></span></button></center></td>`)
+    $(linha).append(`<td><center><button class="buton-x-ref" id="btn-ref_${i + 1}" type="button" onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x'></i></span></button></center></td>`)
 }
 
 function remover_dia_refeicao(selecao) {
@@ -167,13 +184,13 @@ function pegarEndereco() {
 function lista_segurados(editando = false) {
     if (!editando) {
         if ($('#id_seguro').prop('checked')) {
-            $('#id_lista_segurados').removeClass('none')
+            $('#div_lista_segurads').removeClass('none')
         } else {
-            $('#id_lista_segurados').addClass('none')
+            $('#div_lista_segurads').addClass('none')
         }
     } else {
         if ($('#baixar_lista')) {
-            $('#id_lista_segurados').addClass('none')
+            $('#div_lista_segurads').addClass('none')
         }
     }
 }
@@ -323,7 +340,7 @@ $('document').ready(function () {
 
 // Visualização Ficha de evento
 
-function completar_visualizacao_ficha(id_ficha) {
+/*function completar_visualizacao_ficha(id_ficha) {
     if ($('#id_observacoes').val() === '') {
         $('.observacoes-ver-ficha').addClass('none')
     }
@@ -364,9 +381,9 @@ function completar_visualizacao_ficha(id_ficha) {
 
         }
     })
-}
+}*/
 
-function edita_ficha() {
+function editar_ficha() {
     $('#form_ficha, #form_adicionais, #form_app, #salvar, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
