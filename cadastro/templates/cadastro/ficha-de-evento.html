@@ -337,7 +337,7 @@
                     </button>
 
                     {% if perms.ordemDeServico.add_ordemdeservico %}
-                        <button type="button" class="btn btn-outline-primary ml-5">Ordem de serviço</button>
+                        <button type="button" class="btn btn-outline-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">Ordem de serviço</button>
                     {% endif %}
                 {% endif %}
             </div>
@@ -578,7 +578,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
-                    <form action="" method="POST">
+                    <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST">
                         {% csrf_token %}
                         <input type="submit" class="btn btn-primary" name="excluir" value="Sim"/>
                     </form>

@@ -311,6 +311,13 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         else:
             return JsonResponse(requests_ajax(request.POST))
 
+    if request.POST.get('excluir'):
+        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
+        ficha_de_evento.delete()
+        messages.success(request, 'Ficha de evento excluída com sucesso!')
+
+        return redirect('dashboard')
+
     if id_ficha_de_evento:
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
         form = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha_de_evento)
