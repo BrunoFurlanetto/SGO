@@ -127,14 +127,14 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
-    dia_limite_acampamento = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
-    dia_limite_hotelaria = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
-
-    try:
-        monitor = Monitor.objects.get(usuario=request.user)
-    except Monitor.DoesNotExist:
-        monitor = None
-    else:
-        teste_aviso_monitoria(request.user.last_login, monitor, dia_limite_acampamento, dia_limite_hotelaria)
+    # dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
+    # dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
+    #
+    # try:
+    #     monitor = Monitor.objects.get(usuario=request.user)
+    # except Monitor.DoesNotExist:
+    #     monitor = None
+    # else:
+    #     teste_aviso_monitoria(request.user.last_login, monitor, dia_limite_acampamento, dia_limite_hotelaria)
 
     return render(request, 'dashboard/dashboardPeraltas.html')
