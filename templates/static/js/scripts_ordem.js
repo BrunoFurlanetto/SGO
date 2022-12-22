@@ -765,7 +765,5 @@ $('#btn_salvar_os').on('click', function (e){
             }
         }
     }
-
-
-    e.preventDefault()
+    
 })
