@@ -1,7 +1,6 @@
 let corporativo
 
 $(document).ready(function() {
-    console.log(window.location.href.split('/'))
     if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha'){
         $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled:'readonly'})
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
@@ -19,6 +18,8 @@ function mostrar_conteudo(btn){
 }
 
 function verificar_atividades(selecao){
+    corporativo = $('#id_tipo').val() === 'Empresa';
+
     if (selecao.value === 'Peraltas') {
         $('.atividade-ceu, .locacao-ceu').addClass('none')
         $('.atividades-eco, #ativs_peraltas').removeClass('none')
@@ -462,8 +463,6 @@ function verificar_lotacao(selecao){
     let participantes = $(`#participantes-loc_${selecao.id.split('_')[1]}`).val()
     let locacao = $(`#loc_${selecao.id.split('_')[1]}`).val()
 
-    console.log(selecao.id.split('_')[1])
-
     $.ajax({
         type: 'POST',
         url: '',
@@ -618,7 +617,6 @@ function verificar_limitacoes_eco(selecao) {
             success: function (response) {
                 // Participante máximo da atividade em questão
                 const limite = response['participantes_maximo']
-                console.log(response)
                 // A primeira verificação é do horário
                 if(data_atividade !== ''){
 
@@ -711,50 +709,63 @@ function dividar_atividade_eco(indicie, limite){
 }
 
 $('#btn_salvar_os').on('click', function (e){
-    const lista_divs_atividades = [
-        $('#atividades_extra').children(),
-        $('#atividades_ceu').children(),
-        $('#locacoes_ceu').children()
+    const inputs_atividade_extra = [
+        $('.atividade_eco'),
+        $('.hora_atividade_eco'),
+        $('.qtd_participantes_eco'),
+        $('.serie_participantes_eco'),
     ]
-    const lista_divs_pai_atividades = [
-        $('.div_pai_eco').children(),
-        $('.div_pai').children(),
-        $('.div_pai_loc').children(),
+    const inputs_atividade_ceu = [
+        $('.atividade'),
+        $('.hora_atividade'),
+        $('.qtd_participantes'),
+        $('.serie_participantes'),
     ]
-    const div_de_mensagem = $('#mensagens_preenchimento_atividades')
-    div_de_mensagem.empty()
+    const inputs_locacao_ceu = [
+        $('.locacao'),
+        $('.entrada'),
+        $('.saida'),
+        $('.qtd_participantes_loc'),
+    ]
+    const div_mensagem_erro_atividades = $('#mensagens_preenchimento_atividades')
+    div_mensagem_erro_atividades.empty()
 
-    for (let i in lista_divs_atividades){
-        if (lista_divs_pai_atividades[i].length > 0){
-            let valores = []
+    // Verificação dos campos das atividades extra
+    for (let campo of inputs_atividade_extra) {
+        for (let input of campo) {
+            if (input.value === '' || isNaN(input.value)) {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
+                e.preventDefault()
 
-            for (let atividades of lista_divs_pai_atividades[i]){
-                try {
-                    console.log(typeof atividades.children[1].value)
-                    if (atividades.children[1].value !== '' && atividades.children[1].value !== 'NaN') {
-                        valores.push(atividades.children[1].value)
-                    }
-                } catch (e){}
-            }
-            console.log(valores)
-            if (valores.length < lista_divs_pai_atividades[i].length - 3){
-                switch (i){
-                    case '0':
-                        div_de_mensagem.append('<p class="mensgem_atividade alert-warning">Por favor verificar as informações das atividades extra!</p>')
-                        e.preventDefault()
-                        break
-                    case '1':
-                        div_de_mensagem.append('<p class="mensagem_atividade alert-warning">Por favor verificar as informações das atividades do CEU!</p>')
-                        e.preventDefault()
-                        break
-                    case '2':
-                         div_de_mensagem.append('<p class="mensagem_atividade alert-warning">Por favor verificar as informações das locações do CEU!</p>')
-                        e.preventDefault()
-                        break
-                }
-
-                window.scroll({top: 500, behavior: 'smooth'});
+                return
             }
         }
     }
+
+    // Verificação dos campos das atividades CEU
+    for (let campo of inputs_atividade_ceu) {
+        for (let input of campo) {
+            if (input.value === '' || isNaN(input.value)) {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades do CEU!</p>')
+                e.preventDefault()
+
+                return
+            }
+        }
+    }
+
+    // Verificação dos campos das locacoes CEU
+    for (let campo of inputs_locacao_ceu) {
+        for (let input of campo) {
+            if (input.value === '' || isNaN(input.value)) {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das locacoes do CEU!</p>')
+                e.preventDefault()
+
+                return
+            }
+        }
+    }
+
+
+    e.preventDefault()
 })

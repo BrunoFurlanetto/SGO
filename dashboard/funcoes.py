@@ -1,3 +1,4 @@
+import pytz
 from django.contrib.auth.models import User
 from ceu.models import Professores
 from datetime import datetime, timedelta, timezone
@@ -111,5 +112,5 @@ def teste_aviso(hora_login, usuario, id_usuario):
 
 # --------------------------- Função apra testar o aviso de disponibilidade da monitoria -------------------------------
 def teste_aviso_monitoria(hora_login, monitor, dia_limite_acampamento, dia_limite_hotelaria):
-    fuso = timezone(-3)
-    print('foi', fuso)
+    from django.conf import settings
+    print('foi', pytz.timezone(settings.TIME_ZONE))
