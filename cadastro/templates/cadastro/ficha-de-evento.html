@@ -337,7 +337,7 @@
                     </button>
                 {% endif %}
 
-                {% if perms.ordemDeServico.add_ordemdeservico %}
+                {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
                     <button type="button" class="btn btn-outline-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">Ordem de serviço</button>
                 {% endif %}
 

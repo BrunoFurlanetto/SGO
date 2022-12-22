@@ -416,8 +416,17 @@ class EscalaHotelaria(models.Model):
 
         return monitores
 
+#
+# # ------------------------------------------------ Formulários ---------------------------------------------------------
+# class Prereserva(forms.ModelForm):
+#     class Meta:
+#         model = FichaDeEvento
+#         fields = [
+#             'cliente', 'responsavel_evento', 'produto', 'check_in',
+#             'check_out', 'qtd_confidada', 'qtd_confirmada'
+#         ]
 
-# ------------------------------------------------ Formulários ---------------------------------------------------------
+
 class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(
         queryset=PerfilsParticipantes.objects.all(),
