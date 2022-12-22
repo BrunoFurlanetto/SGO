@@ -12,8 +12,9 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, Monitor
 from projetoCEU.utils import verificar_grupo, email_error
-from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas
+from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
 from ceu.models import Professores
 
@@ -79,7 +80,7 @@ def dashboardCeu(request):
 
         # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
         mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
-        dia_limite = DiaLimite.objects.get(id=1)
+        dia_limite, p = DiaLimite.objects.get_or_create(id=1, defaults={'dia_limite': 25})
         depois_25 = False
 
         if datetime.now().day > dia_limite.dia_limite:
@@ -126,5 +127,14 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
+    dia_limite_acampamento = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
+    dia_limite_hotelaria = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
+
+    try:
+        monitor = Monitor.objects.get(usuario=request.user)
+    except Monitor.DoesNotExist:
+        monitor = None
+    else:
+        teste_aviso_monitoria(request.user.last_login, monitor, dia_limite_acampamento, dia_limite_hotelaria)
 
     return render(request, 'dashboard/dashboardPeraltas.html')

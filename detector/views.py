@@ -82,13 +82,15 @@ def detector_de_bombas(request, id_detector=None):
         data_inicio = detector_editando.data_inicio.strftime('%Y-%m-%d')
         data_final = detector_editando.data_final.strftime('%Y-%m-%d')
 
-        return render(request, 'detector/detector_de_bombas.html', {'editar': True,
-                                                                    'id_detector': detector_editando.id,
-                                                                    'data_inicio': data_inicio,
-                                                                    'data_final': data_final,
-                                                                    'atividades': atividades,
-                                                                    'espacos': espacos,
-                                                                    'eventos': detector_editando.grupos.all()})
+        return render(request, 'detector/detector_de_bombas.html', {
+            'editar': True,
+            'id_detector': detector_editando.id,
+            'data_inicio': data_inicio,
+            'data_final': data_final,
+            'atividades': atividades,
+            'espacos': espacos,
+            'eventos': detector_editando.grupos.all()
+        })
 
     if request.POST.get('detector_excluir'):
         try:

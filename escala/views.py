@@ -63,10 +63,7 @@ def escala(request):
 
 @login_required(login_url='login')
 def disponibilidade(request):
-    try:
-        dia_limite = DiaLimite.objects.get(id=1)
-    except DiaLimite.DoesNotExist:
-        dia_limite = 25
+    dia_limite = DiaLimite.objects.get_or_create(id=1, defaults={'dia_limite': 25})
 
     if request.method != 'POST':
         antes_dia = True if datetime.now().day < dia_limite.dia_limite else False
@@ -134,15 +131,8 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-    try:
-        dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)
-    except DisponibilidadeAcampamento.DoesNotExist:
-        dia_limite_acampamento = 25
-
-    try:
-        dia_limite_hotelaria = DiaLimiteHotelaria.objects.get(id=1)
-    except DiaLimiteHotelaria.DoesNotExist:
-        dia_limite_hotelaria = 25
+    dia_limite_acampamento = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
+    dia_limite_hotelaria = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
 
     if request.method != "POST":
         antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
