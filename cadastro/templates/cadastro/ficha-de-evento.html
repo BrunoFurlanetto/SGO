@@ -335,11 +335,12 @@
                     <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
                             data-target="#excluir_ficha_evento" disabled>Excluir
                     </button>
-
-                    {% if perms.ordemDeServico.add_ordemdeservico %}
-                        <button type="button" class="btn btn-outline-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">Ordem de serviço</button>
-                    {% endif %}
                 {% endif %}
+
+                {% if perms.ordemDeServico.add_ordemdeservico %}
+                    <button type="button" class="btn btn-outline-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">Ordem de serviço</button>
+                {% endif %}
+
             </div>
         </form>
     </div>
