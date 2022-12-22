@@ -274,6 +274,8 @@
                     <div class="botoes">
                         <button type="submit" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5" onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false)">Editar</button>
+                        <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
+                            data-target="#excluir_ordem_de_servico" disabled>Excluir</button>
                     </div>
                 {% endif %}
             {% else %}
@@ -283,6 +285,30 @@
             {% endif %}
         </form>
 
+    </div>
+
+    <!--  Modal para excluir ordem de serviço -->
+    <div class="modal fade" id="excluir_ordem_de_servico" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body app">
+                    <p>Tem ceteza que deseja excluir a ordem de serviço em questão?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+                    <form action="{% url 'ver_ordem_de_servico' ordem_servico.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" name="excluir" value="Sim"/>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="{% static 'js/scripts_ordem.js' %}"></script>

@@ -193,6 +193,16 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
+    if request.POST.get('excluir'):
+        try:
+            ordem_servico.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde')
+        else:
+            messages.success(request, 'Ordem de serviço excluída com sucesso')
+
+        return redirect('dashboard')
+
     if id_ordem_de_servico:
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
     else:
