@@ -733,7 +733,8 @@ $('#btn_salvar_os').on('click', function (e){
     // Verificação dos campos das atividades extra
     for (let campo of inputs_atividade_extra) {
         for (let input of campo) {
-            if (input.value === '' || isNaN(input.value)) {
+            console.log(input.value)
+            if (input.value === '' || input.value === 'NaN') {
                 div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
                 e.preventDefault()
 
@@ -745,7 +746,7 @@ $('#btn_salvar_os').on('click', function (e){
     // Verificação dos campos das atividades CEU
     for (let campo of inputs_atividade_ceu) {
         for (let input of campo) {
-            if (input.value === '' || isNaN(input.value)) {
+            if (input.value === '' || input.value === 'NaN') {
                 div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades do CEU!</p>')
                 e.preventDefault()
 
@@ -757,7 +758,7 @@ $('#btn_salvar_os').on('click', function (e){
     // Verificação dos campos das locacoes CEU
     for (let campo of inputs_locacao_ceu) {
         for (let input of campo) {
-            if (input.value === '' || isNaN(input.value)) {
+            if (input.value === '' || input.value === 'NaN') {
                 div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das locacoes do CEU!</p>')
                 e.preventDefault()
 

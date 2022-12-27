@@ -14,18 +14,19 @@
             <hr>
         </div>
 
-        <form action='{% if ficha_de_evento %} {% url 'ver_ficha_de_evento' ficha_de_evento.id %} {% else %} {% url 'ficha_de_evento' %} {% endif %}'
+        <form action='{% if ficha_de_evento %} {% url 'ver_ficha_de_evento' ficha_de_evento.id %} {% elif pre_reserva %} {% url 'ficha_de_evento' pre_reserva.id %} {% else %} {% url 'ficha_de_evento' %} {% endif %}'
               method="POST" enctype="multipart/form-data">
             <fieldset id="form_ficha" {% if ficha_de_evento %} disabled {% endif %}>
+                <input type="hidden" id="pre_reserva" value="{{ pre_reserva }}">
                 {% csrf_token %}
                 <div class="row">
-                    <div style="width: 55%; margin-right: -15px; {% if dados_pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
+                    <div style="width: 55%; margin-right: -15px; {% if pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
                         <label for="cliente">Cliente</label>
                         {{ form.cliente.as_hidden }}
 
-                        {% if dados_pre_reserva %}
+                        {% if pre_reserva %}
                             <input type="text" id="cliente" readonly
-                                   value="{{ dados_pre_reserva.cliente_nome_fantasia }}" onclick="pegarCliente()"
+                                   value="{{ pre_reserva.cliente.nome_fantasia }}" onclick="pegarCliente()"
                                    required>
                         {% elif ficha_de_evento %}
                             <input type="text" id="cliente" value="{{ ficha_de_evento.cliente.nome_fantasia }}" readonly
@@ -35,7 +36,7 @@
                         {% endif %}
 
                     </div>
-                    {% if not dados_pre_reserva and not ficha_de_evento %}
+                    {% if not pre_reserva and not ficha_de_evento %}
                         <div style="width: 5%; align-items:end; display: flex; margin-right: 5%;">
                             <a href="{% url 'lista_cliente' %}" onclick="encaminhamento()" target="_blank"><i
                                     class='bx bx-search'></i></a>
@@ -46,18 +47,23 @@
                         {% if ficha_de_evento %}
                             <input type="text" id="responsavel" name="responsavel"
                                    value="{{ ficha_de_evento.responsavel_evento.nome }}" readonly required>
+                        {% elif pre_reserva %}
+                            <input type="text" id="responsavel" name="responsavel"
+                                   value="{{ pre_reserva.responsavel_evento.nome }}" readonly required>
                         {% else %}
                             <input type="text" id="responsavel" name="responsavel"
                                    onclick="pegarResponsavel()" readonly required>
                         {% endif %}
                         {{ form.responsavel_evento.as_hidden }}
                     </div>
-                    <div style="width: 5%; align-items:end; display: flex">
-                        <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}"
-                           target="_blank"><i class='bx bx-search'></i></a>
-                    </div>
+                    {% if not pre_reserva %}
+                        <div style="width: 5%; align-items:end; display: flex">
+                            <a id="pesquisar_responsavel" class="none search" href="{% url 'lista_responsaveis' %}"
+                               target="_blank"><i class='bx bx-search'></i></a>
+                        </div>
+                    {% endif %}
                 </div>
-                {% if not dados_pre_reserva and not ficha_de_evento %}
+                {% if not pre_reserva and not ficha_de_evento %}
                     <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente
                     </button>
                 {% endif %}
@@ -299,12 +305,7 @@
                         <label for="id_vendedora">Vendedor(a)</label>
                     </div>
                     <div style="width: 35%">
-                        {% if dados_pre_reserva %}
-                            <input type="text" id="vendedora" value="{{ dados_pre_reserva.vendedor }}" readonly>
-                            {{ form.vendedora.as_hidden }}
-                        {% else %}
-                            {{ form.vendedora }}
-                        {% endif %}
+                        {{ form.vendedora }}
                     </div>
                 </div>
                 <hr>
@@ -338,7 +339,10 @@
                 {% endif %}
 
                 {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
-                    <button type="button" class="btn btn-outline-primary ml-5" style="float: right" onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">Ordem de serviço</button>
+                    <button type="button" class="btn btn-outline-primary ml-5" style="float: right"
+                            onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">
+                        Ordem de serviço
+                    </button>
                 {% endif %}
 
             </div>
@@ -440,7 +444,8 @@
                                     {{ formAdicionais.biologo }}
                                     <label>Biólogo?</label>
                                 </div>
-                                <div id="biologo" class="mt-2 {% if formAdicionais.biologo.value == None %} none {% endif %}"
+                                <div id="biologo"
+                                     class="mt-2 {% if formAdicionais.biologo.value == None %} none {% endif %}"
                                      style="width: 50%">
                                     <label>Em quais atividades</label>
                                     {{ formAdicionais.quais_atividades }}
@@ -598,19 +603,25 @@
         $(document).ready(function () {
             carregar_scripts('{{ editando }}')
 
-            {% if dados_pre_reserva %}
+            {% if pre_reserva %}
+                const divs_produtos = $('#id_produto .form-check-input')
+
+                for (let input of divs_produtos) {
+                    if (input.checked) {
+                        input.click()
+                    }
+                }
+
                 $('#material_apoio-clear_id').addClass('form-check-input')
-                $('#id_cliente').val('{{ dados_pre_reserva.cliente_id }}')
-                $('#id_check_in').val('{{ dados_pre_reserva.check_in }}')
-                $('#id_check_out').val('{{ dados_pre_reserva.check_out }}')
-                $('#id_qtd_convidada').val('{{ dados_pre_reserva.qtd }}')
-                $('#vendedora').attr('disabled', true)
-                $('#id_vendedora').val('{{ dados_pre_reserva.id_vendedor }}')
-                $('#id_observacoes').val('{{ dados_pre_reserva.observacoes }}')
                 $('.search').removeClass('none')
-                pegarDias()
+                $('#id_vendedora').css({'pointer-events': 'none'})
+
+                setTimeout(() => {
+                    pegarDias(false, true)
+                }, 100)
             {% endif %}
         })
+
         setTimeout(() => {
             $('#cliente').trigger('click')
         }, 100)

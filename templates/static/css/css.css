@@ -635,7 +635,7 @@
     justify-content: center;
 }
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
-#modal_trocar_atividade select{
+#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -650,7 +650,8 @@
 }
 .conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input,
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
-#form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text]{
+#form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
+#ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local]{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -658,6 +659,16 @@
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+#ModalCadastroPreReserva textarea{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
 }
 #modal_trocar_atividade #id_observacoes_alteracao{
     background-color: #fff;
@@ -811,4 +822,14 @@
 #professores_atividade{
     display: flex;
     flex-direction: column;
+}
+#ModalCadastroPreReserva #editar_horarios{
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+}
+#editar_pre_reserva{
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }

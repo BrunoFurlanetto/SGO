@@ -142,8 +142,8 @@ class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
-    codigo_app_pj = models.IntegerField(unique=True)
-    codigo_app_pf = models.IntegerField(unique=True)
+    codigo_app_pj = models.IntegerField(unique=True, blank=True, null=True)
+    codigo_app_pf = models.IntegerField(unique=True, blank=True, null=True)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
@@ -285,7 +285,7 @@ class FichaDeEvento(models.Model):
     outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
-    professores_com_alunos = models.BooleanField()
+    professores_com_alunos = models.BooleanField(default=False)
     qtd_professores = models.PositiveIntegerField(blank=True, null=True)
     qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True)
     qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True)
@@ -298,7 +298,7 @@ class FichaDeEvento(models.Model):
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True)
     refeicoes = models.JSONField(blank=True, null=True)
     observacoes_refeicoes = models.TextField(blank=True, null=True)
-    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE)
+    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True)
     observacoes = models.TextField(blank=True)
     atividades_ceu = models.ManyToManyField(Atividades, blank=True)
     locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
@@ -310,6 +310,8 @@ class FichaDeEvento(models.Model):
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
+    pre_reserva = models.BooleanField(default=False)
+    agendado = models.BooleanField(default=False)
     os = models.BooleanField(default=False)
     escala = models.BooleanField(default=False)
     ficha_financeira = models.BooleanField(default=False)
@@ -416,17 +418,8 @@ class EscalaHotelaria(models.Model):
 
         return monitores
 
-#
-# # ------------------------------------------------ Formulários ---------------------------------------------------------
-# class Prereserva(forms.ModelForm):
-#     class Meta:
-#         model = FichaDeEvento
-#         fields = [
-#             'cliente', 'responsavel_evento', 'produto', 'check_in',
-#             'check_out', 'qtd_confidada', 'qtd_confirmada'
-#         ]
 
-
+# ------------------------------------------------ Formulários ---------------------------------------------------------
 class CadastroFichaDeEvento(forms.ModelForm):
     perfil_participantes = forms.ModelMultipleChoiceField(
         queryset=PerfilsParticipantes.objects.all(),
@@ -448,8 +441,18 @@ class CadastroFichaDeEvento(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
-            'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'onchange': 'pegarDias()'}),
+            'check_in': forms.TextInput(attrs={
+                'type': 'datetime-local',
+                'onChange': 'pegarDias()',
+                'onkeyup': '$("#id_check_in").val("")',
+                'onclick': 'this.showPicker()'
+            }),
+            'check_out': forms.TextInput(attrs={
+                'type': 'datetime-local',
+                'onChange': 'pegarDias()',
+                'onkeyup': '$("#id_check_out").val("")',
+                'onclick': 'this.showPicker()'
+            }),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
@@ -511,14 +514,36 @@ class CadastroCodigoApp(forms.ModelForm):
 
 class CadastroPreReserva(forms.ModelForm):
     class Meta:
-        model = PreReserva
-        exclude = ()
+        model = FichaDeEvento
+        fields = [
+            'cliente', 'responsavel_evento', 'produto', 'check_in',
+            'check_out', 'qtd_convidada', 'observacoes',
+            'vendedora', 'pre_reserva', 'agendado'
+        ]
 
         widgets = {
-            'cliente': forms.Select(attrs={'class': 'form-select'}),
-            'check_in': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'check_out': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'participantes': forms.NumberInput(attrs={'class': 'form-control'}),
-            'vendedor': forms.Select(attrs={'class': 'form-select'}),
-            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'})
+            'cliente': forms.Select(attrs={'onChange': 'gerar_responsaveis(this)'}),
+            'produto': forms.Select(attrs={'onChange': 'verQuantidades(this)'}),
+            'check_in': forms.TextInput(attrs={
+                'type': 'datetime-local',
+                'onChange': 'pegarDias(true)',
+                'onkeyup': '$("#ModalCadastroPreReserva #id_check_in").val("")',
+                'onclick': 'this.showPicker()'
+            }),
+            'check_out': forms.TextInput(attrs={
+                'type': 'datetime-local',
+                'onChange': 'pegarDias(true)',
+                'onkeyup': '$("#ModalCadastroPreReserva #id_check_out").val("")',
+                'onclick': 'this.showPicker()'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CadastroPreReserva, self).__init__(*args, **kwargs)
+        clientes = ClienteColegio.objects.all()
+        clientes_cnpj = [('', '')]
+
+        for cliente in clientes:
+            clientes_cnpj.append((cliente.id, f'{cliente.nome_fantasia} ({cliente.cnpj})'))
+
+        self.fields['cliente'].choices = clientes_cnpj

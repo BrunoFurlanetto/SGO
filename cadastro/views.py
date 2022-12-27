@@ -240,7 +240,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
 
 @login_required(login_url='login')
-def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
+def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     form = CadastroFichaDeEvento()
     form_transporte = CadastroDadosTransporte()
     form_adicionais = CadastroInfoAdicionais()
@@ -260,26 +260,16 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if request.method != 'POST':
-        if id_cliente:
-            pre_reserva_cliente = ClienteColegio.objects.get(pk=id_cliente)
-            pre_reserva = PreReserva.objects.get(cliente=pre_reserva_cliente, agendado=True)
-            dados_pre_reserva = {
-                'cliente_id': pre_reserva_cliente.id,
-                'cliente_nome_fantasia': pre_reserva_cliente.nome_fantasia,
-                'check_in': pre_reserva.check_in.strftime('%Y-%m-%dT%H:%M'),
-                'check_out': pre_reserva.check_out.strftime('%Y-%m-%dT%H:%M'),
-                'qtd': pre_reserva.participantes,
-                'vendedor': pre_reserva.vendedor.usuario.get_full_name(),
-                'id_vendedor': pre_reserva.vendedor.id,
-                'observacoes': pre_reserva.observacoes,
-            }
-            print(pre_reserva.vendedor.id)
+        if id_pre_reserva:
+            pre_reserva = FichaDeEvento.objects.get(pk=id_pre_reserva, pre_reserva=True, agendado=True)
+            form = CadastroFichaDeEvento(instance=pre_reserva)
+
             return render(request, 'cadastro/ficha-de-evento.html', {
                 'form': form,
                 'form_transporte': form_transporte,
                 'formAdicionais': form_adicionais,
                 'formApp': form_app,
-                'dados_pre_reserva': dados_pre_reserva,
+                'pre_reserva': pre_reserva,
                 'grupos_atividade': grupos_atividade,
                 'atividades_ceu': atividades_ceu,
                 'editando': False
@@ -328,8 +318,8 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
 
         return redirect('dashboard')
 
-    if id_ficha_de_evento:
-        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
+    if id_ficha_de_evento or id_pre_reserva:
+        ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento if id_ficha_de_evento else id_pre_reserva)
         form = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha_de_evento)
     else:
         form = CadastroFichaDeEvento(request.POST, request.FILES)
@@ -338,36 +328,21 @@ def fichaDeEvento(request, id_cliente=None, id_ficha_de_evento=None):
         novo_evento = form.save(commit=False)
         novo_evento.refeicoes = pegar_refeicoes(request.POST)
         novo_evento.empresa = ver_empresa_atividades(request.POST)
+        novo_evento.pre_reserva = False
 
         try:
             form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
+
             return redirect('ficha_de_evento')
         else:
-            try:
-                pre_reserva = PreReserva.objects.get(
-                    cliente=novo_evento.cliente,
-                    ficha_evento=False,
-                    check_in=novo_evento.check_in,
-                    check_out=novo_evento.check_out,
-                )
-            except PreReserva.DoesNotExist:
-                ...
-            except Exception as e:
-                email_error(request.user.get_full_name(), e, __name__)
-                messages.error(request, f'Houve um erro inesperado: {e}. por favor tente mais tarde')
-                return redirect('dashboard')
-            else:
-                pre_reserva.agendado = True
-                pre_reserva.ficha_evento = True
-                pre_reserva.save()
-
             messages.success(
                 request,
                 'Ficha de evento salva com sucesso' if not ficha_de_evento else 'Ficha de evento editada com sucesso'
             )
+
             return redirect('dashboard')
     else:
         messages.warning(request, form.errors)

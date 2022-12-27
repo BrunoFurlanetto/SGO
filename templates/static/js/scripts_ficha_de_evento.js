@@ -23,10 +23,10 @@ function encaminhamento() {
 }
 
 function verQuantidades(produto) {
-    console.log(produto)
     const id_produto = produto.value
-    $('#id_check_in, #id_check_out').val('')
+    if ($('#pre_resserva').val() === '') $('#id_check_in, #id_check_out').val('')
     $('#corpo-tabela-refeicao').empty()
+
     $.ajax({
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -62,7 +62,6 @@ function verQuantidades(produto) {
                 if (response['vt']) {
                     $('.alunos-pernoite, #perfil_participantes').addClass('none')
                 }
-
             } else {
                 evento_corporativo = true
                 $('.corporativo, .coffees, #div_locacao_ceu').removeClass('none')
@@ -73,49 +72,60 @@ function verQuantidades(produto) {
 
 }
 
-function pegarDias(editando = false) {
-    const check_in = $('#id_check_in').val()
-    const check_out = $('#id_check_out').val()
+function pegarDias(pre_reserva = false, editando=false) {
+    let check_in = $('#id_check_in')
+    let check_out = $('#id_check_out')
 
-    if ((check_in !== '' && check_out !== '') && (check_out < check_in)) {
-        $('#id_check_in, #id_check_out').val('')
+    if (pre_reserva) {
+        check_in = $('#ModalCadastroPreReserva #id_check_in')
+        check_out = $('#ModalCadastroPreReserva #id_check_out')
+    }
+    console.log(check_in.val(), check_out.val())
+
+    if (check_out.val() !== '' && check_out.val() < check_in.val()) {
+        check_out.val('')
 
         return
     }
 
-    if (!editando) pegar_horario_padrao(check_in, check_out)
+    if (!editando) pegar_horario_padrao(check_in, check_out, pre_reserva)
 
-    if (check_in !== '' && check_out !== '') {
-        const data_1 = check_in.split('T')[0]
-        const data_2 = check_out.split('T')[0]
-        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"));
-
-        let dias = moment.duration(intervalo).asDays();
-
+    if (!pre_reserva && (check_in.val() !== '' && check_out.val() !== '')) {
+        const data_1 = check_in.val().split('T')[0]
+        const data_2 = check_out.val().split('T')[0]
+        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
+        let dias = moment.duration(intervalo).asDays()
         $('#corpo-tabela-refeicao').empty()
+
         for (let i = 0; i <= dias; i++) {
             add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
-
         }
-    } else if (check_in !== '') {
-        $('#id_data_final_inscricao').val(moment(check_in).subtract(15, 'days').format('YYYY-MM-DD'))
+    }
+
+    if (!pre_reserva && check_in.val() !== '') {
+        $('#id_data_final_inscricao').val(moment(check_in.val()).subtract(15, 'days').format('YYYY-MM-DD'))
     }
 }
 
-function pegar_horario_padrao(check_in, check_out) {
+function pegar_horario_padrao(check_in, check_out, pre_reserva) {
     $('#aviso_produto_n_selecionado').remove()
+    let check_editar = $('#ModalCadastroPreReserva #check_editar_horarios').prop('checked')
+    if (pre_reserva) check_editar = $('#editar_horarios').prop('checked')
 
-    if (!$('#check_editar_horarios').prop('checked')) {
+    if (!check_editar) {
         if (hora_padrao_check_in === undefined) {
-            $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+            if (pre_reserva){
+                $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+            } else {
+                $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+            }
         } else if (hora_padrao_check_in === null) {
             return
         }
 
-        const data_check_in = check_in.split('T')[0]
-        $('#id_check_in').val(`${data_check_in}T${hora_padrao_check_in}`)
+        check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
 
-        if (check_out !== '') $('#id_check_out').val(`${check_out.split('T')[0]}T${hora_padrao_check_out}`)
+        if (check_out.val() !== '') check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
     }
 }
 
@@ -125,9 +135,7 @@ function obs() {
 
 function add_refeicao(data = null) {
     let i = document.querySelectorAll('.linha').length
-
     $('#corpo-tabela-refeicao').append(`<tr class="linha" id="linha_${i + 1}"></tr>`)
-
     let linha = document.querySelector(`#linha_${i + 1}`)
 
     $(linha).append(`<td><input type="date" class="data" name="data_refeicao_${i + 1}" style="width:  180px" value="${data}"></td>`)
