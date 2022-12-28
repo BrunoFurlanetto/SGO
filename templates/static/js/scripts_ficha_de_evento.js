@@ -212,8 +212,25 @@ function quaisAtividades() {
 }
 
 function pegarIdInfosAdicionais(editando = false) {
-    if ($('#id_informacoes_adcionais').val() !== '') {
-        $('#infos').append(`<input type="hidden" name="id_infos_adicionais" value="${$('#id_informacoes_adcionais').val()}"/>`)
+    const id_informacoes_adicionais = $('#id_informacoes_adcionais').val()
+    const lista_atividades_eco = $('#id_atividades_eco').val()
+    const lista_atividades_biologo = $('#id_quais_atividades')
+
+    for (let atividade of lista_atividades_biologo.children()) {
+        if (!lista_atividades_eco.includes(atividade.value)){
+            atividade.setAttribute('disabled', 'disabled')
+
+            if (atividade.selected) {
+                atividade.selected = false
+                lista_atividades_biologo.trigger('change')
+            }
+        } else {
+            atividade.removeAttribute('disabled')
+        }
+    }
+
+    if (id_informacoes_adicionais !== '') {
+        $('#infos').append(`<input type="hidden" name="id_infos_adicionais" value="${id_informacoes_adicionais}"/>`)
     }
 
     if (editando) {

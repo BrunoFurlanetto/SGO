@@ -465,9 +465,17 @@ class CadastroCliente(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'codigo_app_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'codigo_app_pj': forms.TextInput(attrs={
+                'pattern': '\d*', 'minlength': '6', 'maxlength': '6',
+                'onload': 'if (this.value != "") this.prop("readonly", false)',
+            }),
             'codigo_app_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CadastroCliente, self).__init__(*args, **kwargs)
+        self.fields['codigo_app_pj'].widget.attrs['readonly'] = True
+        self.fields['codigo_app_pf'].widget.attrs['readonly'] = True
 
 
 class CadastroResponsavel(forms.ModelForm):

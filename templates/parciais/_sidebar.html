@@ -62,7 +62,6 @@
                 {% else %}
                     <li>
                 {% endif %}
-
 {#                {% if perms.peraltas.add_listadecargos %}#}
 {#                    <a href="{% url 'painelGeral' %}">#}
 {#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
@@ -193,7 +192,7 @@
                     <li>
                 {% endif %}
 
-                {% if perms.peraltas.view_prereserva %}
+                {% if perms.peraltas.view_fichadeevento %}
                     <a href="{% url 'calendario_eventos' %}">
                         <i class='bx bx-calendar'></i>
                         <span class="link_name">Eventos</span>

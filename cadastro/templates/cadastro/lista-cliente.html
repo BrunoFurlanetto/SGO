@@ -96,8 +96,16 @@
             <form method="POST" action="{% url 'lista_cliente' %}" onchange="put()" enctype='multipart/form-data'>
                 <fieldset>
                     {% csrf_token %}
-                    {{ form.codigo_app_pj.as_hidden }}
-                    {{ form.codigo_app_pf.as_hidden }}
+                    <div class="row">
+                        <div style="width: 25%">
+                            <label>Código PJ</label>
+                            {{ form.codigo_app_pj }}
+                        </div>
+                        <div style="width: 25%">
+                            <label>Código PF</label>
+                            {{ form.codigo_app_pf }}
+                        </div>
+                    </div>
                     <div>
                         <label>Razão social</label>
                         {{ form.razao_social }}

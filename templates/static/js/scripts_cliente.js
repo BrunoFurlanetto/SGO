@@ -34,7 +34,19 @@ function completa_dados_cliente(selecao) {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'cnpj': cnpj},
         success: function (response) {
-            console.log(response)
+
+            if (response['codigo_app_pj'] === null) {
+                $('#id_codigo_app_pj').attr('readonly', false).prop('required', true)
+            } else {
+                $('#id_codigo_app_pj').attr('readonly', true).prop('required', false)
+            }
+
+            if (response['codigo_app_pf'] === null) {
+                $('#id_codigo_app_pf').attr('readonly', false).prop('required', true)
+            } else {
+                $('#id_codigo_app_pf').attr('readonly', true).prop('required', false)
+            }
+
             for(let i in response){
                 $(`#id_${i}`).val(response[i])
             }
