@@ -18,7 +18,7 @@ class NivelMonitoria(models.Model):
 
 
 class Monitor(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11)
     cidade_horigem = models.CharField(max_length=255, verbose_name='Moradia', blank=True)
     nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
@@ -34,6 +34,15 @@ class Monitor(models.Model):
         return self.usuario.get_full_name()
 
     def nome_completo(self):
+        return self.usuario.get_full_name()
+
+
+class Enfermeira(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    telefone = models.CharField(max_length=11)
+    pode_pernoitar = models.BooleanField(default=False)
+
+    def __str__(self):
         return self.usuario.get_full_name()
 
 
@@ -394,7 +403,7 @@ class EscalaAcampamento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
     monitores_embarque = models.ManyToManyField(Monitor, blank=True, related_name='monitores_embarque')
-    enfermeiras = models.ManyToManyField(Monitor, blank=True, related_name='enfermeiras')
+    enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
 

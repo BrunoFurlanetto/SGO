@@ -72,10 +72,10 @@
                 <h5 class="titulo-secao">Monitores disponiveis</h5>
                 {% if setor == 'acampamento' and enfermaria > 1 %}
                     <div id="enfermeiras">
-                        <label for="monitores_hotelaria">Enfermeiras</label>
-                        <div id="enfermeiras" class="monitores_disponiveis espacos" ondrop="escalado(this)">
+                        <label for="enfermeiras">Enfermeiras</label>
+                        <div id="enfermeiras_disponiveis" class="monitores_disponiveis espacos" ondrop="escalado(this)">
                             {% for disponivel in disponiveis %}
-                                {% if disponivel.setor == 'hotelaria' %}
+                                {% if disponivel.setor == 'enfermeira' %}
                                     <div id="{{ disponivel.id }}" class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %} tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}" draggable="true">{{ disponivel.nome }}</div>
                                 {% endif %}
                             {% endfor %}

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from ceu.models import Professores, Atividades, Locaveis, Limitacoes, Estruturas, ReembolsosProfessores
-from peraltas.admin import VendedorInline, MonitorInline
+from peraltas.admin import VendedorInline, MonitorInline, EnfermeiraInline
 
 
 class ProfessorInline(admin.StackedInline):
@@ -13,7 +13,7 @@ class ProfessorInline(admin.StackedInline):
 
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (ProfessorInline, VendedorInline, MonitorInline)
+    inlines = (ProfessorInline, VendedorInline, MonitorInline, EnfermeiraInline)
 
 
 admin.site.unregister(User)

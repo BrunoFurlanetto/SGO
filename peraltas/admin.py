@@ -3,7 +3,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, PreReserva, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             DadosTransporte)
+                             DadosTransporte, Enfermeira)
 from peraltas.models import Vendedor
 
 
@@ -54,6 +54,18 @@ class VendedorInline(admin.StackedInline):
 @admin.register(Vendedor)
 class VendedorAdmin(admin.ModelAdmin):
     list_display = ('nome_completo', 'telefone')
+
+
+class EnfermeiraInline(admin.StackedInline):
+    model = Enfermeira
+    can_delete = False
+    verbose_name = 'Enfermeira'
+    extra = 0
+
+
+@admin.register(Enfermeira)
+class EnfermeiraAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'telefone')
 
 
 @admin.register(EmpresaOnibus)

@@ -63,7 +63,7 @@ def escala(request):
 
 @login_required(login_url='login')
 def disponibilidade(request):
-    dia_limite = DiaLimite.objects.get_or_create(id=1, defaults={'dia_limite': 25})
+    dia_limite, p = DiaLimite.objects.get_or_create(id=1, defaults={'dia_limite': 25})
 
     if request.method != 'POST':
         antes_dia = True if datetime.now().day < dia_limite.dia_limite else False
@@ -131,9 +131,9 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-    dia_limite_acampamento = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
-    dia_limite_hotelaria = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
-
+    dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
+    dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
+    print(dia_limite_acampamento.dia_limite_acampamento)
     if request.method != "POST":
         antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
         antes_dia_limite_hotelaria = True if datetime.now().day < dia_limite_hotelaria.dia_limite_hotelaria else False
@@ -307,17 +307,18 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                         tipo_escalacao = []
 
                         if monitor['id'] in escalados:
-                            for teste_monitor in escala_editada.monitores_acampamento.all():
-                                if monitor['id'] == teste_monitor.id:
-                                    tipo_escalacao.append(setor)
+                            if monitor['setor'] != 'enfermeira':
+                                for teste_monitor in escala_editada.monitores_acampamento.all():
+                                    if monitor['id'] == teste_monitor.id:
+                                        tipo_escalacao.append(setor)
 
-                            for teste_monitor in escala_editada.monitores_embarque.all():
-                                if monitor['id'] == teste_monitor.id:
-                                    tipo_escalacao.append('embarque')
-
-                            for teste_monitor in escala_editada.enfermeiras.all():
-                                if monitor['id'] == teste_monitor.id:
-                                    tipo_escalacao.append('enfermeira')
+                                for teste_monitor in escala_editada.monitores_embarque.all():
+                                    if monitor['id'] == teste_monitor.id:
+                                        tipo_escalacao.append('embarque')
+                            else:
+                                for teste_monitor in escala_editada.enfermeiras.all():
+                                    if monitor['id'] == teste_monitor.id:
+                                        tipo_escalacao.append('enfermeira')
 
                             monitor['tipo_escalacao'] = tipo_escalacao
                             escalado.append(monitor)

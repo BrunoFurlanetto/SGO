@@ -5,7 +5,7 @@ from ceu.models import Professores
 from escala.models import Disponibilidade
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
-    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento, EscalaHotelaria
+    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento, EscalaHotelaria, Enfermeira
 
 
 def is_ajax(request):
@@ -315,6 +315,17 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
 
             if not disponibilidade_dupla(disponibilidade, monitores_disponiveis_intervalo, 'hotelaria'):
                 monitores_disponiveis_intervalo.append(dados_monitor)
+
+    for enfermeira in Enfermeira.objects.all():
+        dados_monitor = {
+            'id': enfermeira.id,
+            'nome': enfermeira.usuario.get_full_name(),
+            'setor': 'enfermeira',
+            'tecnica': False,
+            'areas': '',
+            'biologo': False
+        }
+        monitores_disponiveis_intervalo.append(dados_monitor)
 
     return monitores_disponiveis_intervalo
 
@@ -668,7 +679,7 @@ def pegar_escalacoes(escala, acampamento=True):
     for monitor in escala.monitores_embarque.all():
         escalados.append(monitor.id)
 
-    for monitor in escala.enfermeiras.all():
-        escalados.append(monitor.id)
+    for enfermeira in escala.enfermeiras.all():
+        escalados.append(enfermeira.id)
 
     return escalados

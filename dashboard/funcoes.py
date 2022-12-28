@@ -5,11 +5,15 @@ from datetime import datetime, timedelta, timezone
 from escala.models import Disponibilidade, DiaLimite
 from unidecode import unidecode
 
+from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria
+
 
 # ------------ Função necessária para verificar se é o ajax que está mandando o POST para o servidor -------------------
 # ----------------------------------------------------------------------------------------------------------------------
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -44,10 +48,12 @@ def contar_atividades(professor_logado, relatorios):
     for relatorio in relatorios:
         if relatorio.atividades is not None:
             for i in range(len(relatorio.atividades)):
-                if professor_logado.usuario.first_name in relatorio.atividades[f'atividade_{i+1}']['professores']:
+                if professor_logado.usuario.first_name in relatorio.atividades[f'atividade_{i + 1}']['professores']:
                     n_atividades += 1
 
     return n_atividades
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,21 +66,24 @@ def contar_horas(professor_logado, relatorios):
         if relatorio.tipo != 'Público' and relatorio.locacoes is not None:
             for i in range(len(relatorio.locacoes)):
                 print(relatorio.locacoes['locacao_1'].keys())
-                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i+1}']['professor']:
-                    for j in range(int(len(relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'])/3)):
+                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i + 1}']['professor']:
+                    for j in range(int(len(relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas']) / 3)):
                         n_horas += timedelta(
                             hours=int(
-                                relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'][f'soma_horas_{j+1}'].split(':')[0]),
+                                relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas'][
+                                    f'soma_horas_{j + 1}'].split(':')[0]),
                             minutes=int(
-                                relatorio.locacoes[f'locacao_{i+1}']['entradas_e_saidas'][f'soma_horas_{j+1}'].split(':')[1]))
+                                relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas'][
+                                    f'soma_horas_{j + 1}'].split(':')[1]))
 
     return formatar_horas(n_horas)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 # ------------------------------- Formatação para o reusmo do de horas do mês ------------------------------------------
 def formatar_horas(horas):
-
     if horas != timedelta(days=0):
         h = horas.days * 24 + horas.seconds // 3600
         m = (horas.seconds % 3600) / 60
@@ -83,6 +92,8 @@ def formatar_horas(horas):
         h = horas.seconds // 3600
         m = (horas.seconds % 3600) / 60
         return f'{h}h{m:.0f}min'
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -107,10 +118,57 @@ def teste_aviso(hora_login, usuario, id_usuario):
                     return True
 
     return False
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 # --------------------------- Função apra testar o aviso de disponibilidade da monitoria -------------------------------
 def teste_aviso_monitoria(hora_login, monitor, dia_limite_acampamento, dia_limite_hotelaria):
-    from django.conf import settings
-    print('foi', pytz.timezone(settings.TIME_ZONE))
+    agora = datetime.now()
+    dia_acampamento = dia_limite_acampamento.dia_limite_acampamento
+    dia_hotelaria = dia_limite_hotelaria.dia_limite_hotelaria
+    tempo_logado = timedelta(hours=agora.hour, minutes=agora.minute, seconds=agora.second)
+    tempo_logado -= timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
+    mensagem_acampamento = mensagem_hotelaria = None
+
+    # Consultando as disponibilidadess
+    if datetime.now().month != 12:
+        consulta_acampamento = DisponibilidadeAcampamento.objects.filter(monitor=monitor, mes=agora.month + 1)
+        consulta_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor=monitor, mes=agora.month + 1)
+    else:
+        consulta_acampamento = DisponibilidadeAcampamento.objects.filter(monitor=monitor, mes=1, ano=agora.year + 1)
+        consulta_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor=monitor, mes=1, ano=agora.year + 1)
+    print()
+    # Verificando mensagem para o acampamento
+    if len(consulta_acampamento) == 0:
+        if tempo_logado.seconds < 30:
+            if dia_acampamento - 5 < agora.day < dia_acampamento:
+                mensagem_acampamento = f'''
+                    Atenção, você tem até o dia {dia_acampamento} para lançar a disponibilidade do <b>acampamento</b>
+                    para o mês seguinte. Por favor vá em <b>Escala</b> &rarr; <b>Disponibilidade</b> e informe os dias
+                    que estará disponiveis para o <b>acampamento</b>.
+                '''
+            elif agora.day > dia_acampamento:
+                mensagem_acampamento = f'''
+                    Atenção, você perdeu a data para lançar a disponibilidade do <b>acampamento</b> para o mês seguinte.
+                    Por favor entre em contato com o coordenador do seu setor, para que consiga informar a 
+                    disponibilidade do mês seguinte.
+                '''
+    # Verificando mensagem para a hotelaria
+    if len(consulta_hotelaria) == 0:
+        if tempo_logado.seconds < 30:
+            if dia_hotelaria - 5 < agora.day < dia_hotelaria:
+                mensagem_hotelaria = f'''
+                    Atenção, você tem até o dia {dia_hotelaria} para
+                    lançar a disponibi lidade da <b>hotelaria</b> para o mês seguinte. Por favor
+                    vá em <b>Escala</b> &rarr; <b>Disponibilidade</b> e informe os dias que estará
+                    disponiveis para a <b>hotelaria</b>.
+                '''
+            elif agora.day > dia_hotelaria:
+                mensagem_hotelaria = f'''
+                    Atenção, você perdeu a data para lançar a disponibilidade da <b>hotelaria</b>
+                    para o mês seguinte. Por favor entre em contato com o coordenador do seu
+                    setor, para que consiga informar a disponibilidade do mês seguinte.
+                '''
+    return mensagem_acampamento, mensagem_hotelaria

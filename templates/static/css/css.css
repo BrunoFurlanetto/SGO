@@ -510,6 +510,8 @@
     height: auto;
     max-height: 250px;
     overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
 }
 .espacos:hover{
     border-color: #ffc107;
