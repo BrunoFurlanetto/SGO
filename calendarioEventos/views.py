@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 import cadastro.funcoes
 from cadastro.funcoes import is_ajax
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import FichaDeEvento, PreReserva, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel
+from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import verificar_grupo, email_error
 
 

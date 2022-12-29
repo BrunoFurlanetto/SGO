@@ -3,7 +3,7 @@ from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, CadastroDadosTransporte, \
-    DadosTransporte, AtividadesEco
+    DadosTransporte, AtividadesEco, EscalaAcampamento
 
 
 def is_ajax(request):
@@ -13,6 +13,7 @@ def is_ajax(request):
 def requests_ajax(requisicao, files=None):
     if requisicao.get('id_ficha'):
         ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha')))
+        id_monitor_embarque = ''
         serie = []
         atividades_ceu = {}
         locacoes_ceu = {}
@@ -37,6 +38,14 @@ def requests_ajax(requisicao, files=None):
         for grupo in ficha_de_evento.atividades_peraltas.all():
             atividades_peraltas[grupo.id] = grupo.grupo
 
+        if ficha_de_evento.informacoes_adcionais.transporte:
+            try:
+                escala = EscalaAcampamento.objects.get(ficha_de_evento=ficha_de_evento)
+            except EscalaAcampamento.DoesNotExist:
+                ...
+            else:
+                id_monitor_embarque = escala.monitores_embarque.all()[0].id
+
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
@@ -44,6 +53,7 @@ def requests_ajax(requisicao, files=None):
             'embarque_sao_paulo': ficha_de_evento.informacoes_adcionais.transporte,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
+            'id_monitor_embarque': id_monitor_embarque,
             'id_n_professores': ficha_de_evento.qtd_professores,
             'id_check_in': ficha_de_evento.check_in,
             'id_check_out': ficha_de_evento.check_out,

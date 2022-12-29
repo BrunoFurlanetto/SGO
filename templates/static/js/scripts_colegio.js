@@ -1,4 +1,4 @@
-// Função principal de todo o arquivo, responável por preenchar todos os dados
+// Função principal de tod o o arquivo, responável por preenchar todos os dados
 // já existêntes na ficha de evento
 function completar_informacoes(selecao) {
     let cliente = selecao.value // Nome da empresa/colégio selecionado
@@ -300,7 +300,7 @@ function criar_linhas_colunas_locacao(){
     return i
 }
 
-// Função responsável por popular todo os selects de professores da table ade locação
+// Função responsável por popular tod o os selects de professores da table ade locação
 function popular_professores_locacao(i){
 
     // Nesse caso é apenas um professor por locação

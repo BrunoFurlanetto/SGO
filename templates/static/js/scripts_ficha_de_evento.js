@@ -185,7 +185,7 @@ function pegarEndereco() {
         $('#id_transporte_fechado_internamente, #id_empresa_onibus, #id_horario_embarque, #id_endereco_embarque').prop('required', true)
     } else {
         $('#dados_transporte').addClass('none')
-        $('#id_transporte_fechado_internamente, #id_empresa_onibus, #id_horario_embarque, #id_endereço_embarque').prop('required', false)
+        $('#id_transporte_fechado_internamente, #id_empresa_onibus, #id_horario_embarque, #id_endereco_embarque').prop('required', false)
     }
 }
 

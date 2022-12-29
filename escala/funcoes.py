@@ -233,13 +233,22 @@ def pegar_clientes_data_selecionada(data):
     return clientes
 
 
-def gerar_disponibilidade(id_cliente, editando=False):
+def gerar_disponibilidade(id_cliente, data, editando=False):
     cliente = ClienteColegio.objects.get(id=int(id_cliente))
-
+    print(data)
     if editando:
-        ficha_de_evento_cliente = FichaDeEvento.objects.get(cliente=cliente)
+        ficha_de_evento_cliente = FichaDeEvento.objects.get(
+            cliente=cliente,
+            check_out__date__lte=data,
+            check_out__date__gte=data
+        )
     else:
-        ficha_de_evento_cliente = FichaDeEvento.objects.filter(escala=False).get(cliente=cliente)
+        ficha_de_evento_cliente = FichaDeEvento.objects.get(
+            escala=False,
+            check_in__date__lte=data,
+            check_out__date__gte=data,
+            cliente=cliente
+        )
 
     check_in = ficha_de_evento_cliente.check_in
     check_out = ficha_de_evento_cliente.check_out
@@ -683,3 +692,25 @@ def pegar_escalacoes(escala, acampamento=True):
         escalados.append(enfermeira.id)
 
     return escalados
+
+
+def procurar_ficha_de_evento(cliente, data_selecionada):
+    try:
+        ficha_de_evento = FichaDeEvento.objects.get(
+            cliente=cliente,
+            check_in__date__lte=data_selecionada,
+            check_out__date__gte=data_selecionada
+        )
+    except FichaDeEvento.DoesNotExist:
+        ordem_de_servico = OrdemDeServico.objects.get(
+            ficha_de_evento__cliente=cliente,
+            check_in__date__lte=data_selecionada,
+            check_out__date__gte=data_selecionada
+        )
+
+        return ordem_de_servico.ficha_de_evento, ordem_de_servico
+    else:
+        if ficha_de_evento.os:
+            return ficha_de_evento, OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+        else:
+            return ficha_de_evento, None

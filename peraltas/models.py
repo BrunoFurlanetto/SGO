@@ -164,17 +164,6 @@ class ClienteColegio(models.Model):
         return self.nome_fantasia
 
 
-class PreReserva(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, blank=True, null=True)
-    check_in = models.DateTimeField()
-    check_out = models.DateTimeField()
-    participantes = models.PositiveIntegerField()
-    observacoes = models.TextField(blank=True, null=True)
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
-    agendado = models.BooleanField(default=False)
-    ficha_evento = models.BooleanField(default=False)
-
-
 class ListaDeCargos(models.Model):
     cargo = models.CharField(max_length=255)
 
@@ -400,7 +389,8 @@ class DiaLimiteAcampamento(models.Model):
 
 
 class EscalaAcampamento(models.Model):
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.DO_NOTHING)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
     monitores_embarque = models.ManyToManyField(Monitor, blank=True, related_name='monitores_embarque')
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')

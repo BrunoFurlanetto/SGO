@@ -13,7 +13,7 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
     teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
     retornar_dados_grupo, verificar_disponiveis, verificar_disponiveis_grupo, salvar_escala, pegar_escalacoes, \
-    pegar_disponiveis_intervalo
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento
 from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
@@ -183,7 +183,6 @@ def disponibilidadePeraltas(request):
 
         try:
             if ja_cadastrado:
-
                 if dias[0]:
                     for cadastro in ja_cadastrado:
                         ja_cadastrado.update(dias_disponiveis=cadastro.dias_disponiveis + ', ' + dias[0],
@@ -199,21 +198,23 @@ def disponibilidadePeraltas(request):
                 else:
                     return JsonResponse({'tipo': 'aviso',
                                          'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'})
-
             else:
-
                 if request.POST.get('peraltas') == 'acampamento':
-                    dias_disponiveis = DisponibilidadeAcampamento(monitor=monitor,
-                                                                  mes=mes_e_ano_cadastro[0],
-                                                                  ano=mes_e_ano_cadastro[1],
-                                                                  n_dias=n_dias,
-                                                                  dias_disponiveis=dias[0])
+                    dias_disponiveis = DisponibilidadeAcampamento(
+                        monitor=monitor,
+                        mes=mes_e_ano_cadastro[0],
+                        ano=mes_e_ano_cadastro[1],
+                        n_dias=n_dias,
+                        dias_disponiveis=dias[0]
+                    )
                 else:
-                    dias_disponiveis = DisponibilidadeHotelaria(monitor=monitor,
-                                                                mes=mes_e_ano_cadastro[0],
-                                                                ano=mes_e_ano_cadastro[1],
-                                                                n_dias=n_dias,
-                                                                dias_disponiveis=dias[0])
+                    dias_disponiveis = DisponibilidadeHotelaria(
+                        monitor=monitor,
+                        mes=mes_e_ano_cadastro[0],
+                        ano=mes_e_ano_cadastro[1],
+                        n_dias=n_dias,
+                        dias_disponiveis=dias[0]
+                    )
 
                 dias_disponiveis.save()
                 return JsonResponse({'tipo': 'sucesso',
@@ -254,28 +255,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             if request.GET.get('cliente'):
                 cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
                 inicio_evento = termino_evento = None
+                ficha_de_evento,  ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
-                try:
-                    ficha_de_evento = FichaDeEvento.objects.get(cliente=cliente,
-                                                                check_in__date__lte=data_selecionada,
-                                                                check_out__date__gte=data_selecionada
-                                                                )
-                except FichaDeEvento.DoesNotExist:
-                    ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente,
-                                                                  check_in__date__lte=data_selecionada,
-                                                                  check_out__date__gte=data_selecionada
-                                                                  )
-                    ficha_de_evento = ordem_de_servico.ficha_de_evento
+                if ordem_de_servico:
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
                 else:
-                    if ficha_de_evento.os:
-                        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
-                        inicio_evento = ordem_de_servico.check_in
-                        termino_evento = ordem_de_servico.check_out
-                    else:
-                        inicio_evento = ficha_de_evento.check_in
-                        termino_evento = ficha_de_evento.check_out
+                    inicio_evento = ficha_de_evento.check_in
+                    termino_evento = ficha_de_evento.check_out
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
@@ -287,7 +274,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'id_cliente': cliente.id,
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
-                    'disponiveis': gerar_disponibilidade(cliente.id)
+                    'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada)
                 })
 
             if id_cliente:
@@ -301,7 +288,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     ...
                 else:
                     escalados = pegar_escalacoes(escala_editada)
-                    teste_disponiveis = gerar_disponibilidade(id_cliente, True)
+                    teste_disponiveis = gerar_disponibilidade(id_cliente, data_selecionada, True)
 
                     for monitor in teste_disponiveis:
                         tipo_escalacao = []
@@ -411,13 +398,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                                                   request.POST.get('cliente')))
 
         if request.POST.get('id_cliente'):
-            return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente')))
+            return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
             check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%dT%H:%M')
+            ficha_de_evento, ordem = procurar_ficha_de_evento(cliente, check_in.date())
 
             if request.POST.get('id_escala') != '':
                 editando_escala = EscalaAcampamento.objects.get(id=int(request.POST.get('id_escala')))
@@ -432,20 +420,19 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.monitores_acampamento.set(request.POST.getlist('id_monitores[]'))
                 nova_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
                 nova_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
+                nova_escala.ficha_de_evento = ficha_de_evento
                 nova_escala.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
             return redirect('escalaPeraltas')
         else:
-            ficha_cliente = FichaDeEvento.objects.get(cliente=cliente)
-            ficha_cliente.escala = True
-            ficha_cliente.save()
+            ficha_de_evento.escala = True
+            ficha_de_evento.save()
 
-            if ficha_cliente.os:
-                ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente)
-                ordem_cliente.escala = True
-                ordem_cliente.save()
+            if ordem:
+                ordem.escala = True
+                ordem.save()
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return HttpResponse()
