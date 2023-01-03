@@ -8,7 +8,7 @@ from peraltas.models import ClienteColegio
 
 
 class Escala(models.Model):
-    meses = {
+    meses = (
         (1, 'Janeiro'),
         (2, 'Fevereiro'),
         (3, 'Março'),
@@ -21,7 +21,7 @@ class Escala(models.Model):
         (10, 'Outubro'),
         (11, 'Novembro'),
         (12, 'Dezembro'),
-    }
+    )
 
     equipe = models.JSONField(blank=True, null=True)  # {'professores': [id_professores]}
     data_escala = models.DateField(null=True)
@@ -51,7 +51,7 @@ class Escala(models.Model):
 
 
 class Disponibilidade(models.Model):
-    meses = {
+    meses = (
         (1, 'Janeiro'),
         (2, 'Fevereiro'),
         (3, 'Março'),
@@ -64,7 +64,7 @@ class Disponibilidade(models.Model):
         (10, 'Outubro'),
         (11, 'Novembro'),
         (12, 'Dezembro'),
-    }
+    )
 
     professor = models.ForeignKey(Professores, on_delete=models.CASCADE)
     dias_disponiveis = models.TextField(max_length=500)

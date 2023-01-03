@@ -339,7 +339,7 @@ class FichaDeEvento(models.Model):
 
 
 class DisponibilidadeAcampamento(models.Model):
-    meses = {
+    meses = (
         (1, 'Janeiro'),
         (2, 'Fevereiro'),
         (3, 'Março'),
@@ -352,7 +352,7 @@ class DisponibilidadeAcampamento(models.Model):
         (10, 'Outubro'),
         (11, 'Novembro'),
         (12, 'Dezembro'),
-    }
+    )
 
     monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
     dias_disponiveis = models.TextField(max_length=500)
@@ -362,7 +362,7 @@ class DisponibilidadeAcampamento(models.Model):
 
 
 class DisponibilidadeHotelaria(models.Model):
-    meses = {
+    meses = (
         (1, 'Janeiro'),
         (2, 'Fevereiro'),
         (3, 'Março'),
@@ -375,7 +375,7 @@ class DisponibilidadeHotelaria(models.Model):
         (10, 'Outubro'),
         (11, 'Novembro'),
         (12, 'Dezembro'),
-    }
+    )
 
     monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
     dias_disponiveis = models.TextField(max_length=500)
