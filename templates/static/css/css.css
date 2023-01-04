@@ -770,6 +770,31 @@
     display: table-cell;
     vertical-align: middle;
 }
+#atividades-acampamento{
+    display: flex;
+    gap: 2px;
+    border: groove 1px;
+    height: auto;
+    max-height: 150px;
+    overflow: auto;
+    flex-wrap: wrap;
+    background: #dfdfdf;
+}
+.card-atividade{
+    border: solid 1px;
+    border-radius: 10px;
+    padding: 2px 8px 2px 8px;
+    margin: 5px 5px 10px 5px;
+    width: fit-content;
+    height: fit-content;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    box-shadow: 2px 2px 2px;
+    cursor: grab;
+    background: #ffffff;
+}
 #div_bt_adicionar{
     display: flex;
     justify-content: end;

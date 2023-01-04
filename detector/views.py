@@ -6,36 +6,45 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from ceu.models import Professores, Atividades, Locaveis
+from ceu.models import Atividades, Locaveis
 from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, \
     tratar_dados_detector_selecionado, salvar_alteracoes_de_atividade_locacao
 from detector.models import DetectorDeBombas
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import Monitor
-from projetoCEU.utils import verificar_grupo, is_ajax, email_error
+from projetoCEU.utils import is_ajax, email_error
 
 
 @login_required(login_url='login')
 def detector_de_bombas(request, id_detector=None):
-    professores = Professores.objects.all()
-    monitores = Monitor.objects.all()
-    detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
+    setor = 'CEU' if request.user.has_perm('escala.add_escala') else 'Peraltas'
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
+
+    detectores_salvos = DetectorDeBombas.objects.filter(
+        data_inicio__gte=datetime.now(),
+        setor=setor
+    )
 
     if request.method == 'GET':
         if request.GET.get('data_inicio'):
             data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
             data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
 
-            ordens_intervalo = (OrdemDeServico.objects
-                                .filter(check_in_ceu__date__gte=data_inicio, check_in_ceu__date__lte=data_final)
-                                )
+            if setor == 'CEU':
+                ordens_intervalo = OrdemDeServico.objects.filter(
+                    check_in_ceu__date__gte=data_inicio,
+                    check_in_ceu__date__lte=data_final
+                )
+            else:
+                ordens_intervalo = OrdemDeServico.objects.filter(
+                    check_in__date__gte=data_inicio,
+                    check_in__date__lte=data_final
+                )
 
-            return render(request, 'detector/detector_de_bombas.html', {'eventos': ordens_intervalo,
-                                                                        'pesquisado': True,
-                                                                        'professores': professores
-                                                                        })
+            return render(request, 'detector/detector_de_bombas.html', {
+                'eventos': ordens_intervalo,
+                'pesquisado': True,
+            })
 
     if is_ajax(request):
         if request.method == 'POST':
@@ -66,7 +75,7 @@ def detector_de_bombas(request, id_detector=None):
                 else:
                     return JsonResponse({'id_atividade': atividade.id})
 
-            atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'))
+            atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'), setor)
             escalas = pegar_escalas(request.POST)
             return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
 

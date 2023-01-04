@@ -6,26 +6,35 @@ from ceu.models import Atividades, Locaveis, Professores
 from detector.models import DetectorDeBombas
 from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import ClienteColegio
+from peraltas.models import ClienteColegio, AtividadesEco
 
 lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
 
 
-def pegar_dados_evento(dados_detector, editando):
+def pegar_dados_evento(dados_detector, editando, setor):
     lista_id_clientes = list(map(int, dados_detector.getlist('id_grupos[]')))
     cores_escolhidas = sample(lista_cores, k=len(lista_id_clientes))
     data_inicio = datetime.strptime(dados_detector.get('data_inicio'), '%Y-%m-%d')
     data_final = datetime.strptime(dados_detector.get('data_final'), '%Y-%m-%d')
-    atividades = []
+    atividades_ceu = []
+    atividades_acampamento = []
+    atividades_extra = []
     locacoes = []
 
     if editando == 'false':
         for i, id_cliente in enumerate(lista_id_clientes):
-            ordens = (OrdemDeServico.objects
-                      .filter(ficha_de_evento__cliente__id=id_cliente)
-                      .filter(check_in_ceu__date__gte=dados_detector.get('data_inicio'),
-                              check_in_ceu__date__lte=dados_detector.get('data_final'))
-                      )
+            if setor == 'CEU':
+                ordens = OrdemDeServico.objects.filter(
+                    ficha_de_evento__cliente__id=id_cliente,
+                    check_in_ceu__date__gte=data_inicio,
+                    check_in_ceu__date__lte=data_final
+                )
+            else:
+                ordens = OrdemDeServico.objects.filter(
+                    ficha_de_evento__cliente__id=id_cliente,
+                    check_in__date__gte=data_inicio.date(),
+                    check_in__date__lte=data_final.date()
+                )
 
             for ordem in ordens:
                 if ordem.atividades_ceu:
@@ -33,39 +42,84 @@ def pegar_dados_evento(dados_detector, editando):
                         data_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M')
 
                         if data_inicio.date() <= data_atividade.date() <= data_final.date():
-                            atividade_bd = Atividades.objects.get(atividade=atividade['atividade'])
+                            atividade_bd = Atividades.objects.get(id=atividade['atividade'])
 
-                            atividades.append({
-                                'atividade': {'id': atividade_bd.id,
-                                              'nome': atividade['atividade'],
-                                              'qtd': atividade['participantes']},
+                            atividades_ceu.append({
+                                'atividade': {
+                                    'id': atividade_bd.id,
+                                    'nome': atividade_bd.atividade,
+                                    'qtd': atividade['participantes']
+                                },
                                 'inicio_atividade': atividade['data_e_hora'],
                                 'fim_atividade': (data_atividade + atividade_bd.duracao).strftime('%Y-%m-%d %H:%M'),
                                 'color': cores_escolhidas[i],
-                                'grupo': {'id': ordem.ficha_de_evento.cliente.id,
-                                          'nome': ordem.ficha_de_evento.cliente.nome_fantasia}
+                                'grupo': {
+                                    'id': ordem.ficha_de_evento.cliente.id,
+                                    'nome': ordem.ficha_de_evento.cliente.nome_fantasia
+                                }
                             })
 
                 if ordem.locacao_ceu:
                     for espaco in ordem.locacao_ceu.values():
-                        local_bd = Locaveis.objects.get(local__estrutura=espaco['espaco'])
-
+                        local_bd = Locaveis.objects.get(id=espaco['espaco'])
                         locacoes.append({
-                            'local': {'id': local_bd.id,
-                                      'nome': espaco['espaco'],
-                                      'qtd': espaco['participantes']},
+                            'local': {
+                                'id': local_bd.id,
+                                'nome': local_bd.local.estrutura,
+                                'qtd': espaco['participantes']
+                            },
                             'check_in': espaco['check_in'],
                             'check_out': espaco['check_out'],
                             'color': cores_escolhidas[i],
-                            'grupo': {'id': ordem.ficha_de_evento.cliente.id,
-                                      'nome': ordem.ficha_de_evento.cliente.nome_fantasia}
+                            'grupo': {
+                                'id': ordem.ficha_de_evento.cliente.id,
+                                'nome': ordem.ficha_de_evento.cliente.nome_fantasia
+                            }
                         })
 
+                if setor == 'Peraltas':
+                    if ordem.atividades_eco:
+                        for atividade in ordem.atividades_eco.values():
+                            data_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M')
+
+                            if data_inicio.date() <= data_atividade.date() <= data_final.date():
+                                atividade_bd = AtividadesEco.objects.get(id=atividade['atividade'])
+
+                                atividades_extra.append({
+                                    'atividade': {
+                                        'id': atividade_bd.id,
+                                        'nome': atividade_bd.nome_atividade_eco,
+                                        'qtd': atividade['participantes']
+                                    },
+                                    'inicio_atividade': atividade['data_e_hora'],
+                                    'fim_atividade': (data_atividade + atividade_bd.duracao).strftime('%Y-%m-%d %H:%M'),
+                                    'color': cores_escolhidas[i],
+                                    'grupo': {
+                                        'id': ordem.ficha_de_evento.cliente.id,
+                                        'nome': ordem.ficha_de_evento.cliente.nome_fantasia
+                                    }
+                                })
+
+                        if len(ordem.atividades_peraltas.all()) != 0:
+                            for atividade in ordem.atividades_peraltas.all():
+                                atividades_acampamento.append({
+                                    'id': atividade.id,
+                                    'nome': atividade.nome_atividade,
+                                    'duracao': atividade.duracao,
+                                    'color': cores_escolhidas[i],
+                                    'grupo': {
+                                        'id': ordem.ficha_de_evento.cliente.id,
+                                        'nome': ordem.ficha_de_evento.cliente.nome_fantasia
+                                    }
+                                })
+
         dados_eventos = {
-            'atividades': atividades,
-            'locacoes': locacoes
+            'atividades': atividades_ceu,
+            'locacoes': locacoes,
+            'atividades_extra': atividades_extra,
+            'atividades_acampamento': atividades_acampamento
         }
-        print(dados_eventos)
+
         return dados_eventos
     else:
         detector = DetectorDeBombas.objects.get(id=int(dados_detector.get('id_detector')))
@@ -94,15 +148,19 @@ def pegar_dados_evento(dados_detector, editando):
                     atividade = Atividades.objects.get(id=id_atividade)
                     cliente = ClienteColegio.objects.get(id=grupo.id)
                     qtd = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['participantes']
-                    atividades.append({
-                        'atividade': {'id': id_atividade,
-                                      'nome': atividade.atividade,
-                                      'qtd': qtd},
+                    atividades_ceu.append({
+                        'atividade': {
+                            'id': id_atividade,
+                            'nome': atividade.atividade,
+                            'qtd': qtd
+                        },
                         'inicio_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['inicio'],
                         'fim_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['fim'],
                         'color': cores_escolhidas[grupo_n - 1],
-                        'grupo': {'id': grupo.id,
-                                  'nome': cliente.nome_fantasia}
+                        'grupo': {
+                            'id': grupo.id,
+                            'nome': cliente.nome_fantasia
+                        }
                     })
 
                     professores_atividades[
@@ -115,14 +173,18 @@ def pegar_dados_evento(dados_detector, editando):
                     espaco = Locaveis.objects.get(id=id_local)
                     cliente = ClienteColegio.objects.get(id=grupo.id)
                     locacoes.append({
-                        'local': {'id': id_local,
-                                  'nome': espaco.local.estrutura,
-                                  'qtd': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['participantes']},
+                        'local': {
+                            'id': id_local,
+                            'nome': espaco.local.estrutura,
+                            'qtd': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['participantes']
+                        },
                         'check_in': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_in'],
                         'check_out': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_out'],
                         'color': cores_escolhidas[grupo_n - 1],
-                        'grupo': {'id': grupo.id,
-                                  'nome': cliente.nome_fantasia}
+                        'grupo': {
+                            'id': grupo.id,
+                            'nome': cliente.nome_fantasia
+                        }
                     })
 
                     professores_atividades[
@@ -132,7 +194,7 @@ def pegar_dados_evento(dados_detector, editando):
                     local_i += 1
 
         dados_eventos = {
-            'atividades': atividades,
+            'atividades_ceu': atividades_ceu,
             'locacoes': locacoes,
             'professores': professores_atividades
         }

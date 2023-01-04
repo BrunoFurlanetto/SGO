@@ -78,7 +78,24 @@ function pegar_dados_eventos(editando=false) {
             let classes_select_selecionados = $('.select2-selection__choice')
             let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
 
-            if (response['atividades_eventos']['atividades'].length > 0) {
+            for (let area in response['atividades_eventos']){
+                for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
+                    if (area === 'atividades') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
+                    if (area === 'locacoes') eventos.push(pegar_dados_locacoes(response['atividades_eventos'][area][i]))
+                    if (area === 'atividades_extra') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
+                    if (area === 'atividades_acampamento' && response['atividades_eventos'][area].length !== 0) pegar_atividades_acampamento(response['atividades_eventos'][area][i])
+
+                    for (let j = 0; j < classes_select_selecionados.length; j++) {
+                        if (classes_select_selecionados[j].title === response['atividades_eventos'][area][i]['grupo']['nome']) {
+                            classes_select_selecionados[j].style.backgroundColor = response['atividades_eventos'][area][i]['color']
+                            classes_select_selecionados[j].style.borderColor = response['atividades_eventos'][area][i]['color']
+                            classes_select_selecionados[j].style.color = '#fff'
+                        }
+                    }
+                }
+            }
+
+            /*if (response['atividades_eventos']['atividades'].length > 0) {
                 for (let i = 0; i < response['atividades_eventos']['atividades'].length; i++) {
                     eventos.push(pegar_dados_atividades(response['atividades_eventos']['atividades'][i]))
 
@@ -89,7 +106,6 @@ function pegar_dados_eventos(editando=false) {
                             classes_select_selecionados[j].style.color = '#fff'
                         }
                     }
-
                 }
             }
 
@@ -107,10 +123,24 @@ function pegar_dados_eventos(editando=false) {
                 }
             }
 
+            if (response['atividades_eventos']['atividades_extra'].length > 0) {
+                for (let i = 0; i < response['atividades_eventos']['atividades_extra'].length; i++) {
+                    eventos.push(pegar_dados_locacoes(response['atividades_eventos']['atividades_extra'][i]))
+
+                    for (let j = 0; j < classes_select_selecionados.length; j++) {
+                        if (classes_select_selecionados[j].title == response['atividades_eventos']['atividades_extra'][i]['grupo']['nome']) {
+                            classes_select_selecionados[j].style.backgroundColor = response['atividades_eventos']['atividades_extra'][i]['color']
+                            classes_select_selecionados[j].style.borderColor = response['atividades_eventos']['atividades_extra'][i]['color']
+                            classes_select_selecionados[j].style.color = '#fff'
+                        }
+                    }
+                }
+            }*/
+
             detector_de_bombas(eventos)
 
             if (editando){
-                mostrar_por_atividade(response['atividades_eventos'], response['escalas'], editando=true, response['atividades_eventos']['professores'])
+                mostrar_por_atividade(response['atividades_eventos'], response['escalas'], true, response['atividades_eventos']['professores'])
             } else {
                 mostrar_por_atividade(response['atividades_eventos'], response['escalas'])
             }
@@ -147,6 +177,16 @@ function pegar_dados_locacoes(dados_locacao) {
     }
 }
 
+function pegar_atividades_acampamento(dados_atividades_acampamento){
+    const id_atividade = dados_atividades_acampamento['id']
+    const nome_atividade = dados_atividades_acampamento['nome']
+    const duracao = dados_atividades_acampamento['duracao']
+    const color = dados_atividades_acampamento['color']
+
+    const div_atividades = `<div id="${id_atividade}" class="card-atividade" style="background: ${color}; color: #fff" data-event='{ "title": "${nome_atividade}", "duration": "${duracao}", "color": "${color}" }'>${nome_atividade}</div>`
+    $('#atividades-acampamento').append(div_atividades)
+}
+
 function pegar_select_atividade_locacao(atividade, hora_atividade) {
     const labels = $(`#${moment(hora_atividade).format('yyyy-MM-DD')} label`)
 
@@ -171,13 +211,21 @@ function pegar_select_atividade_locacao(atividade, hora_atividade) {
 }
 
 function detector_de_bombas(eventos) {
-    const calendarUI = document.getElementById('detector_de_bombas');
+    const calendarUI = document.getElementById('detector_de_bombas')
     const data_1 = moment($('#id_data_inicio').val())
     const data_2 = moment($('#id_data_final').val())
     let intervalo = data_2.diff(data_1);
     let dias_evento = moment.duration(intervalo).asDays() + 1;
+    let atividades = document.getElementById('atividades-acampamento')
+
+    new FullCalendar.Draggable(atividades, {
+        itemSelector: '.card-atividade',
+    })
 
     const detector = new FullCalendar.Calendar(calendarUI, {
+        editable: true,
+        droppable: true,
+
         headerToolbar: {
             left: '',
             center: 'title',
@@ -196,6 +244,10 @@ function detector_de_bombas(eventos) {
         slotDuration: '00:15:00',
         slotEventOverlap: false,
         events: eventos,
+
+        drop: function (info) {
+            info.draggedEl.parentNode.removeChild(info.draggedEl)
+        },
 
         eventClick: function (info){
             if (!isNaN(parseInt(window.location.href.split('/')[4]))){
@@ -302,12 +354,12 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
         <input type="hidden" name="final" id="id_final" value="${$('#id_data_final').val()}">
     `)
 
+//--------------------------------------------- Adição de todas divs -----------------------------------------------------------
     for (let i = 0; i < dados_eventos['atividades'].length; i++) {
         if (!datas.includes(moment(dados_eventos['atividades'][i]['inicio_atividade']).format('L'))) {
             datas.push(moment(dados_eventos['atividades'][i]['inicio_atividade']).format('L'))
 
-            formulario_detector.append(
-                `
+            formulario_detector.append(`
                 <hr>
                 <div id="${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-DD')}" class="atividades-locacoes-grupo row">
                     <div class="titulo-botao" style="display: flex">
@@ -316,8 +368,8 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
                     </div>                    
                     <div class="atividades none"></div>
                     <div class="locacoes none"></div>
-                </div>`
-            )
+                </div>
+            `)
         }
     }
 
@@ -325,8 +377,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
         if (!datas.includes(moment(dados_eventos['locacoes'][i]['check_in']).format('L'))) {
             datas.push((moment(dados_eventos['locacoes'][i]['check_in']).format('L')))
 
-            formulario_detector.append(
-                `
+            formulario_detector.append(`
                 <hr>
                 <div id="${moment(dados_eventos['locacoes'][i]['check_in']).format('YYYY-MM-DD')}" class="atividades-locacoes-grupo row">
                     <div class="titulo-botao" style="display: flex">
@@ -335,8 +386,8 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
                     </div>                    
                     <div class="atividades none"></div>
                     <div class="locacoes none"></div>
-                </div>`
-            )
+                </div>
+            `)
         }
     }
 
@@ -360,15 +411,13 @@ function mostrar_por_atividade(dados_eventos, escalados, editando=false, profess
         let nome_input_qtd = `qtd_atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
         let nome_input_atividade = `atividade_${n_atividades[dados_eventos['atividades'][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['atividades'][i]['grupo']['id']) + 1}`
 
-        $(`#${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-DD')} .atividades`).append(
-            `
-                <label>${dados_eventos['atividades'][i]['atividade']['nome']} - ${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividades'][i]['atividade']['qtd']} participantes (${dados_eventos['atividades'][i]['grupo']['nome']})</label>
-                <input type="hidden" name="${nome_input_atividade}" value="${dados_eventos['atividades'][i]['atividade']['id']}">
-                <input type="hidden" name="${nome_input_data}" id="${nome_input_data}" class="data_e_hora" value="${dados_eventos['atividades'][i]['inicio_atividade']}">
-                <input type="hidden" name="${nome_input_qtd}" id="${nome_input_qtd}" class="qtd" value="${dados_eventos['atividades'][i]['atividade']['qtd']}">
-                <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
-            `
-        )
+        $(`#${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('YYYY-MM-DD')} .atividades`).append(`
+            <label>${dados_eventos['atividades'][i]['atividade']['nome']} - ${moment(dados_eventos['atividades'][i]['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividades'][i]['atividade']['qtd']} participantes (${dados_eventos['atividades'][i]['grupo']['nome']})</label>
+            <input type="hidden" name="${nome_input_atividade}" value="${dados_eventos['atividades'][i]['atividade']['id']}">
+            <input type="hidden" name="${nome_input_data}" id="${nome_input_data}" class="data_e_hora" value="${dados_eventos['atividades'][i]['inicio_atividade']}">
+            <input type="hidden" name="${nome_input_qtd}" id="${nome_input_qtd}" class="qtd" value="${dados_eventos['atividades'][i]['atividade']['qtd']}">
+            <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
+        `)
 
         for (let j = 0; j < escalados.length; j++) {
             if (escalados[j]['data'] === dados_eventos['atividades'][i]['inicio_atividade'].split(' ')[0]) {

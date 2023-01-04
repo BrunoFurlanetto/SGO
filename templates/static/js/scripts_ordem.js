@@ -83,10 +83,12 @@ function completar_dados_os(selecao){
             if(response['corporativo']){
                 $('#id_tipo').val('Empresa')
                 $('.locacao-ceu').removeClass('none')
+                $('.colegios').addClass('none')
                 corporativo = true
             } else {
                 $('#id_tipo').val('Colégio')
                 $('.locacao-ceu').addClass('none')
+                $('.colegios').removeClass('none')
                 corporativo = false
             }
 
@@ -104,7 +106,7 @@ function completar_dados_os(selecao){
 
             if(response['locacoes_ceu'] !== ''){
                 for(let i in response['locacoes_ceu']){
-                    add_locacao(parseInt(i), response['locacoes_ceu'][i], parseInt(response['id_n_participantes']))
+                    add_locacao(parseInt(i), parseInt(response['id_n_participantes']))
                 }
             }
         }
@@ -162,7 +164,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
 
             // Todas as atividades que serão dcionadas no select da atividade
             for (let j in response['dados']) {
-                if(response['dados'][j] != atividade_) {
+                if(response['dados'][j] !== atividade_) {
                     $(`#ativ_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
                 }
             }
@@ -375,7 +377,6 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
             // A partir daqui os processos dessa parte são semelhantes a função de adcionar atividade,
             // com alguns elementos a mais, importante para a locação.
             let i = document.querySelectorAll('.div_pai_loc').length + 1
-
             $('.locacoes').append(`<div class="row div_pai_loc" id="div_pai_loc_${i}"></div>`)
 
             let div_locacao = `<div class="mb-2 div-locacao" id="div_locacao_${i}" style="width: 25%"></div>`
@@ -390,7 +391,7 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
             $(`#div_pai_loc_${i}`).append(div_locacao, div_entrada, div_saida, div_icone_loc, div_local_coffee, div_hora_coffee, div_participantes_loc, `<hr class="barra" style="margin-left: 10px">`)
 
             let label_locacao = `<label>Locação</label>`
-            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"></select>`
+            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"><option></option></select>`
             let label_entrada = `<label>Check in</label>`
             let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
@@ -408,12 +409,15 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
             $(`#div_local_coffee_${i}`).append(label_local_coffee, local_coffee)
             $(`#div_hora_coffee_${i}`).append(label_hora_coffee, hora_coffee)
             $(`#div_participantes_loc_${i}`).append(label_participantes_loc, participantes_loc)
+            let locacao_n = $(`#loc_${i}`)
 
             for (let j in response) {
-                $(`#loc_${i}`).append(`<option value="${j}">${response[j]}</option>`)
+                if (j == id_local_){
+                    locacao_n.append(`<option value="${j}" selected>${response[j]}</option>`)
+                } else {
+                    locacao_n.append(`<option value="${j}">${response[j]}</option>`)
+                }
             }
-
-            $(`#loc_${i}`).prepend(`<option selected value="${id_local_}"></option>`)
 
             $(`#div_icone_loc_${i}`).append(`<button class="buton-x buton-loc" id="btn-loc_${i}" type="button" onClick="remover_locacao(this)"></button>`)
             $(`#btn-loc_${i}`).append(`<span id="spn_loc${i}"><i class='bx bx-x'></i></span>`)
