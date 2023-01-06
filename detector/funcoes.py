@@ -43,11 +43,12 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
                         if data_inicio.date() <= data_atividade.date() <= data_final.date():
                             atividade_bd = Atividades.objects.get(id=atividade['atividade'])
+                            nome = atividade_bd.atividade if setor == 'CEU' else atividade_bd.atividade + ' (CEU)'
 
                             atividades_ceu.append({
                                 'atividade': {
                                     'id': atividade_bd.id,
-                                    'nome': atividade_bd.atividade,
+                                    'nome': nome,
                                     'qtd': atividade['participantes']
                                 },
                                 'inicio_atividade': atividade['data_e_hora'],
@@ -62,10 +63,12 @@ def pegar_dados_evento(dados_detector, editando, setor):
                 if ordem.locacao_ceu:
                     for espaco in ordem.locacao_ceu.values():
                         local_bd = Locaveis.objects.get(id=espaco['espaco'])
+                        estrutura = local_bd.local.estrutura if setor == 'CEU' else local_bd.local.estrutura + ' (CEU)'
+
                         locacoes.append({
                             'local': {
                                 'id': local_bd.id,
-                                'nome': local_bd.local.estrutura,
+                                'nome': estrutura,
                                 'qtd': espaco['participantes']
                             },
                             'check_in': espaco['check_in'],
@@ -102,10 +105,13 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
                         if len(ordem.atividades_peraltas.all()) != 0:
                             for atividade in ordem.atividades_peraltas.all():
+                                hora = f'{atividade.duracao.seconds // 3600}'.zfill(2)
+                                minuto = f'{atividade.duracao.seconds // 60}'.zfill(2)
+
                                 atividades_acampamento.append({
                                     'id': atividade.id,
                                     'nome': atividade.nome_atividade,
-                                    'duracao': atividade.duracao,
+                                    'duracao': f'{hora}:{minuto}',
                                     'color': cores_escolhidas[i],
                                     'grupo': {
                                         'id': ordem.ficha_de_evento.cliente.id,
@@ -291,7 +297,7 @@ def pegar_escalas(dados_eventos):
         data += timedelta(days=1)
 
     escalados.append({'datas_sem': datas_sem_professor})
-
+    print(escalados)
     return escalados
 
 

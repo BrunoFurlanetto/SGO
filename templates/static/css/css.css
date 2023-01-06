@@ -739,7 +739,8 @@
     margin-left: 10px;
 }
 
-.escala-por-atividades .atividades .select2-container, .escala-por-atividades .locacoes .select2-container{
+.escala-por-atividades .atividades .select2-container, .escala-por-atividades .locacoes .select2-container,
+.escala-por-atividades .atividades_extra .select2-container{
     width: 100% !important;
 }
 .conteudo-detector .form-check-input{
