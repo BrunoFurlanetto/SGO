@@ -152,7 +152,7 @@
             <section class="escala-por-atividades none">
                 <hr>
                 <h5 class="titulo-secao" style="text-align: center">Escala para as atividades</h5>
-                <form action="{% url 'detector' %}" method="POST">
+                <form action="{% url 'detector' %}" method="POST" id="form_teste">
                     {% csrf_token %}
                     <fieldset id="formulario-escala-professores-atividades"></fieldset>
                 </form>

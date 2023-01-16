@@ -80,7 +80,7 @@ function pegar_dados_eventos(editando = false) {
             let eventos = []
             let classes_select_selecionados = $('.select2-selection__choice')
             let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
-
+            console.log(response)
             for (let area in response['atividades_eventos']) {
                 for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
                     if (area === 'atividades') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
@@ -322,11 +322,10 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
 
     if (dados_eventos['atividades_acampamento'].length > 0) professores_monitores = 'monitores'
 
-    if (editando) {
+    /*if (editando) {
         const id_detector = $('#id_detector').val()
         $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="id_detector" value="${id_detector}">`)
-
-    }
+    }*/
 
     formulario_detector.append(`
         <input type="hidden" name="inicio" id="id_inicio" value="${$('#id_data_inicio').val()}">
@@ -366,9 +365,9 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
             }
 
             if (area === 'locacoes') {
-                criar_inputs_locacoes(professores_monitores, dados_eventos[area][i], n_atividades, grupos, area)
+                criar_inputs_locacoes(professores_monitores, dados_eventos[area][i], i + 1, grupos, area)
             } else if (area !== 'atividades_acampamento') {
-                criar_inputs_atividades(professores_monitores, n_atividades, grupos, dados_eventos[area][i], area)
+                criar_inputs_atividades(professores_monitores, i + 1, grupos, dados_eventos[area][i], area)
             }
         }
     }
@@ -383,7 +382,10 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
     }
 
     $('#formulario-escala-professores-atividades select').select2()
-    formulario_detector.append('<div class="botoes"><button type="submit" id="btn_salvar" class="btn btn-primary">Salvar detector</button></div>')
+    formulario_detector.append(`<div class="botoes">
+        <button type="button" id="btn_salvar" onclick="validar()" class="btn btn-primary">Salvar detector</button>
+        <button type="submit" id="salvar" class="none">Salvar detector</button>
+    </div>`)
     $('.escala-por-atividades').removeClass('none')
 }
 
@@ -403,43 +405,43 @@ function criar_divs_atividades(formulario_detector, data_inicio) {
     `)
 }
 
-function criar_inputs_atividades(professores_monitores, n_atividades, grupos, dados_eventos, area) {
+function criar_inputs_atividades(professores_monitores, atividade_n, grupos, dados_eventos, area) {
     const div_append = `${moment(dados_eventos['inicio_atividade']).format('YYYY-MM-DD')} .${area}`
     const label_atividade = `${dados_eventos['atividade']['nome']} - ${moment(dados_eventos['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividade']['qtd']} participantes (${dados_eventos['grupo']['nome']})`
-    const nome_id_select = `${professores_monitores}_atividade_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_data = `data_e_hora_atividade_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_qtd = `qtd_atividade_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_atividade = `atividade_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_id_select = `${professores_monitores}_${area}_${atividade_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_data = `data_e_hora_${area}_${atividade_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_qtd = `qtd_${area}_${atividade_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_atividade = `${area}_${atividade_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
     const value_atividade = dados_eventos['atividade']['id']
     const value_data_e_hora = dados_eventos['inicio_atividade']
     const value_qtd = dados_eventos['atividade']['qtd']
 
     $(`#${div_append}`).append(`
         <label>${label_atividade})</label>
-        <input type="hidden" name="${nome_input_atividade}" value="${value_atividade}">
-        <input type="hidden" name="${nome_input_data}" id="${nome_input_data}" class="data_e_hora" value="${value_data_e_hora}">
-        <input type="hidden" name="${nome_input_qtd}" id="${nome_input_qtd}" class="qtd" value="${value_qtd}">
-        <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" value="${value_atividade}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" id="${nome_input_data}" class="data_e_hora" value="${value_data_e_hora}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" id="${nome_input_qtd}" class="qtd" value="${value_qtd}">
+        <select name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}[${professores_monitores}]" id="${nome_id_select}" onchange="validacao(this)" multiple></select>
     `)
 
     atividades[nome_input_atividade] = [value_atividade, value_data_e_hora]
 }
 
-function criar_inputs_locacoes(professores_monitores, dados_eventos, n_atividades, grupos, area) {
+function criar_inputs_locacoes(professores_monitores, dados_eventos, locacao_n, grupos, area) {
     const div_append = `${moment(dados_eventos['check_in']).format('YYYY-MM-DD')} .${area}`
-    const nome_id_select = `${professores_monitores}_locacao_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_local = `locacao_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_check_in = `check_in_locacao_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_check_out = `check_out_locacao_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
-    const nome_input_qtd = `qtd_locacao_${n_atividades[dados_eventos['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_id_select = `${professores_monitores}_locacao_${locacao_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_local = `locacao_${locacao_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_check_in = `check_in_locacao_${locacao_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_check_out = `check_out_locacao_${locacao_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
+    const nome_input_qtd = `qtd_locacao_${locacao_n}_grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}`
 
     $(`#${div_append}`).append(`
         <label>Locacão ${dados_eventos['local']['nome']} - Das ${moment(dados_eventos['check_in']).format('HH:mm')} às ${moment(dados_eventos['check_out']).format('HH:mm')} (${dados_eventos['grupo']['nome']})</label>           
-        <input type="hidden" name="${nome_input_local}" value="${dados_eventos['local']['id']}">
-        <input type="hidden" name="${nome_input_check_in}" value="${dados_eventos['check_in']}">
-        <input type="hidden" name="${nome_input_check_out}" value="${dados_eventos['check_out']}">
-        <input type="hidden" name="${nome_input_qtd}" id="${nome_input_qtd}" value="${dados_eventos['local']['qtd']}">
-        <select name="${nome_id_select}" id="${nome_id_select}" onchange="validacao()" multiple></select>
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['local']['id']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['check_in']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['check_out']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" id="${nome_input_qtd}" value="${dados_eventos['local']['qtd']}">
+        <select name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}[${professores_monitores}]" id="${nome_id_select}" onchange="validacao()" multiple></select>
     `)
 
     atividades[nome_input_local] = [dados_eventos['local']['id'], dados_eventos['check_in']]
@@ -458,7 +460,7 @@ function juntar_grupos(dados_eventos) {
     for (let i = 0; i < dados_eventos['atividades'].length; i++) {
         if (!grupos.includes(dados_eventos['atividades'][i]['grupo']['id'])) {
             grupos.push(dados_eventos['atividades'][i]['grupo']['id'])
-            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupo_${j}" id="id_grupo_${j}" value="${dados_eventos['atividades'][i]['grupo']['id']}">`)
+            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['atividades'][i]['grupo']['id']}">`)
             j++
         }
     }
@@ -466,7 +468,7 @@ function juntar_grupos(dados_eventos) {
     for (let i = 0; i < dados_eventos['locacoes'].length; i++) {
         if (!grupos.includes(dados_eventos['locacoes'][i]['grupo']['id'])) {
             grupos.push(dados_eventos['locacoes'][i]['grupo']['id'])
-            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupo_${j}" id="id_grupo_${j}" value="${dados_eventos['locacoes'][i]['grupo']['id']}">`)
+            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['locacoes'][i]['grupo']['id']}">`)
             j++
         }
     }
@@ -577,9 +579,7 @@ function validacao(selecao) {
                 }
             }
         }
-
     }
-
 }
 
 $('document').ready(function () {
@@ -598,7 +598,28 @@ $('document').ready(function () {
         })
         return false
     })
+
 })
+
+function validar(e) {
+    const inputs = $('#formulario-escala-professores-atividades select')
+    let lista_dias_errado = []
+    $('#mensagem_escala_faltando').remove()
+
+    for (let input of inputs) {
+        if (input.value === '' && !lista_dias_errado.includes(moment(input.parentNode.parentNode.id, 'YYYY-MM-DD').date())) {
+            lista_dias_errado.push(moment(input.parentNode.parentNode.id, 'YYYY-MM-DD').date())
+        }
+    }
+
+    if (lista_dias_errado.length > 0) {
+        $('#formulario-escala-professores-atividades').prepend(`<div id="mensagem_escala_faltando" class="alert-warning">
+            <p>Verificar as escalas dos dias ${lista_dias_errado.join(', ')}</p>
+        </div>`)
+    } else {
+        $('#salvar').click()
+    }
+}
 
 $('#btn_salvar_alteracao').on('click', function (e) {
     const form = $('#form_alteração_de_atividade');
