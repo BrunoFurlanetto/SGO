@@ -227,6 +227,14 @@ def juntar_dados_detector(dados, setor):
     dados_atividades = {}
 
     for grupo in range(1, len(grupos) + 1):
+        dados_atividades[f'grupo_{grupo}'] = {
+            'id_grupo': grupos[grupo - 1],
+            'atividades': {},
+            'atividades_extra': {},
+            'atividades_acampamento': {},
+            'locacoes': {}
+        }
+
         pesquisas = [
             f'grupo_{grupo}_atividades_',
             f'grupo_{grupo}_locacoes_',
@@ -238,61 +246,63 @@ def juntar_dados_detector(dados, setor):
         for key in dados.keys():
             for pesquisa in pesquisas:
                 ativ = 'atividades' in pesquisa
-                print(grupo)
+
                 if ativ and (re.search(f'{pesquisa}[0-9]$', key) or re.search(f'{pesquisa}[1-9][0-9]$', key)):
                     if 'atividades' in key:
-                        if 'extra' not in pesquisa and 'acampamento' not in pesquisa:
+                        if 'extra' not in key and 'acampamento' not in key:
                             atividade_i += 1
                             atividade = Atividades.objects.get(pk=dados.getlist(key)[0])
-                            ceu = f'atividade_{atividade_i}'
-                            dados_atividades = {f'grupo_{grupo}': {f'${ceu}': {'id_atividade': atividade.id}}}
-                            print(dados.getlist(key))
-                        elif 'extra' in pesquisa:
+                            secao = 'atividades'
+                            n_atividade = f'atividade_{atividade_i}'
+                        elif 'extra' in key:
                             atividade_extra_i += 1
                             atividade = AtividadesEco.objects.get(pk=dados.getlist(key)[0])
-                            extra = f'atividade_extra_{atividade_extra_i}'
-                            dados_atividades = {f'grupo_{grupo}': {f'${extra}': {'id_atividade': atividade.id}}}
+                            secao = 'atividades_extra'
+                            n_atividade = f'atividade_extra_{atividade_extra_i}'
                         else:
                             atividade_acampamento_i += 1
                             atividade = AtividadePeraltas.objects.get(pk=dados.getlist(key)[0])
-                            acampamento = f'atividade_acampamento_{atividade_acampamento_i}'
-                            dados_atividades = {f'grupo_{grupo}': {f'{acampamento}': {'id_atividade': atividade.id}}}
+                            secao = 'atividades_acampamento'
+                            n_atividade = f'atividade_acampamento_{atividade_acampamento_i}'
 
                         inicio_atividade = datetime.strptime(dados.getlist(key)[1], '%Y-%m-%d %H:%M')
                         fim_atividade = (inicio_atividade + atividade.duracao).strftime('%Y-%m-%d %H:%M')
-                        dados_atividades[f'grupo_{grupo}'][f'atividade_{atividade_i}'] = {
-                            'inicio': dados.get(dados.getlist(key)[1]),
-                            'fim': fim_atividade,
-                            'participantes': int(dados.getlist(key)[2])
-                        }
 
                         if setor == 'CEU':
                             lista_escalados = list(map(int, dados.getlist(f'{key}[professores]')))
                             escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
-                            dados_atividades[f'grupo_{grupo}'][f'atividade_{atividade_i}']['professores'] = escala
+                            professores_monitores = 'professores'
                         else:
                             lista_escalados = list(map(int, dados.getlist(f'{key}[monitores]')))
                             escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
-                            dados_atividades[f'grupo_{grupo}'][f'atividade_{atividade_i}']['monitores'] = escala
+                            professores_monitores = 'monitores'
+
+                        dados_atividades[f'grupo_{grupo}'][f'{secao}'][f'{n_atividade}'] = {
+                            'id_atividade': atividade.id,
+                            'inicio': inicio_atividade.strftime('%Y-%m-%d %H:%M'),
+                            'fim': fim_atividade,
+                            'participantes': int(dados.getlist(key)[2]),
+                            f'{professores_monitores}': escala
+                        }
                 else:
-                    print('locacoes' in key, key)
-                    if 'locacoes' in key:
-                        dados_atividades[f'grupo_{grupo}'][f'locacao_{locacao_i}'] = {
+                    if re.search(f'{pesquisa}[0-9]$', key) or re.search(f'{pesquisa}[1-9][0-9]$', key):
+                        if setor == 'CEU':
+                            lista_escalados = list(map(int, dados.getlist(f'{key}[professores]')))
+                            escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
+                            professores_monitores = 'professores'
+                        else:
+                            lista_escalados = list(map(int, dados.getlist(f'{key}[monitores]')))
+                            escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
+                            professores_monitores = 'monitores'
+                        locacao_i += 1
+                        dados_atividades[f'grupo_{grupo}']['locacoes'][f'locacao_{locacao_i}'] = {
                             'id_espaco': int(dados.getlist(key)[0]),
                             'check_in': dados.getlist(key)[1],
                             'check_out': dados.getlist(key)[2],
                             'participantes': dados.getlist(key)[3],
+                            f'{professores_monitores}': escala
                         }
 
-                        if setor == 'CEU':
-                            lista_escalados = list(map(int, dados.getlist(f'{key}[professores]')))
-                            escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
-                            dados_atividades[f'grupo_{grupo}'][f'locacao_{locacao_i}']['profesores'] = escala
-                        else:
-                            lista_escalados = list(map(int, dados.getlist(f'{key}[monitores]')))
-                            escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
-                            dados_atividades[f'grupo_{grupo}'][f'locacao_{locacao_i}']['monitores'] = escala
-    print(dados_atividades)
     return grupos, dados_atividades
 
 
@@ -327,7 +337,11 @@ def pegar_escalas(dados_eventos, setor):
 
         for id_grupo in dados_eventos.getlist('id_grupos[]'):
             try:
-                escala_acampamento = EscalaAcampamento.objects.get(cliente_id=int(id_grupo))
+                escala_acampamento = EscalaAcampamento.objects.get(
+                    cliente_id=int(id_grupo),
+                    check_in_cliente__date__gte=data_inicio,
+                    check_in_cliente__date__lte=data_final
+                )
             except EscalaAcampamento.DoesNotExist:
                 ...
             else:

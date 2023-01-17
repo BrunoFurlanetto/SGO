@@ -6,8 +6,8 @@ from peraltas.models import ClienteColegio
 class DetectorDeBombas(models.Model):
     setores = (
         ('', ''),
-        ('CEU', 'CEU'),
-        ('Peraltas', 'Peraltas'),
+        ('ceu', 'CEU'),
+        ('peraltas', 'Peraltas'),
     )
 
     grupos = models.ManyToManyField(ClienteColegio)

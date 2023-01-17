@@ -1,4 +1,6 @@
 let atividades = []
+let grupos = []
+let atividade_acampamento_i = 0
 
 function selecionar_tudo() {
     if ($("#select_all").is(':checked')) {
@@ -80,7 +82,7 @@ function pegar_dados_eventos(editando = false) {
             let eventos = []
             let classes_select_selecionados = $('.select2-selection__choice')
             let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
-            console.log(response)
+
             for (let area in response['atividades_eventos']) {
                 for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
                     if (area === 'atividades') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
@@ -148,8 +150,9 @@ function pegar_atividades_acampamento(dados_atividades_acampamento) {
     const nome_atividade = dados_atividades_acampamento['nome']
     const duracao = dados_atividades_acampamento['duracao']
     const color = dados_atividades_acampamento['color']
-    console.log(duracao)
-    const div_atividades = `<div id="${id_atividade}" class="card-atividade" style="background: ${color}; color: #fff" data-event='{ "title": "${nome_atividade}", "duration": "${duracao}", "color": "${color}" }'>${nome_atividade}</div>`
+    const id_grupo = dados_atividades_acampamento['grupo']['id']
+    const nome_grupo = dados_atividades_acampamento['grupo']['nome']
+    const div_atividades = `<div id="${id_atividade}" data-grupo_id="${id_grupo}" data-grupo="${nome_grupo}" class="card-atividade" style="background: ${color}; color: #fff" data-event='{ "title": "${nome_atividade}", "duration": "${duracao}", "color": "${color}" }'>${nome_atividade}</div>`
     $('#atividades-acampamento').append(div_atividades)
 }
 
@@ -212,8 +215,13 @@ function detector_de_bombas(eventos, dropable, editable) {
         events: eventos,
 
         drop: function (info) {
-            console.log(info)
-            info.draggedEl.parentNode.removeChild(info.draggedEl)
+            atividade_acampamento_i++
+            const grupo = grupos.indexOf(parseInt(info.draggedEl.attributes['data-grupo_id'].value)) + 1
+            const nome_grupo = info.draggedEl.attributes['data-grupo'].value
+            const dados_atividade = {'id': info.draggedEl.id, 'nome': info.draggedEl.innerText}
+            criar_inputs_atividades_acampamento(info.date, dados_atividade, atividade_acampamento_i, grupo, nome_grupo)
+            try {
+            } catch (e) {}
         },
 
         eventResize: function (info) {
@@ -318,7 +326,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
     let professores_monitores = 'professores'
     moment.locale('pt-br')
     formulario_detector.empty()
-    let grupos = juntar_grupos(dados_eventos)
+    grupos = juntar_grupos(dados_eventos)
 
     if (dados_eventos['atividades_acampamento'].length > 0) professores_monitores = 'monitores'
 
@@ -343,7 +351,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
             } else if (area !== 'atividades_acampamento') {
                 if (!datas.includes(moment(dados_eventos[area][i]['check_in']).format('L'))) {
                     datas.push(moment(dados_eventos[area][i]['check_in']).format('L'))
-                    criar_divs_atividades(formulario_detector, moment(dados_eventos[area][i]['check_in']).format('LL'))
+                    criar_divs_atividades(formulario_detector, moment(dados_eventos[area][i]['check_in']))
                 }
             }
         }
@@ -405,6 +413,33 @@ function criar_divs_atividades(formulario_detector, data_inicio) {
     `)
 }
 
+function criar_inputs_atividades_acampamento(data_inicio, dados_atividade, atividade_n, grupo_n, nome_grupo){
+    const div_append = `${moment(data_inicio).format('YYYY-MM-DD')} .atividades_acampamento`
+    const label_atividade = `${dados_atividade['nome']} - ${moment(data_inicio).format('[às] HH:mm')} (${nome_grupo})`
+    const nome_id_select = `monitores_atividades_acampamento_${atividade_n}_grupo_${grupo_n}`
+    const nome_input_data = `data_e_hora_atividades_acampamento_${atividade_n}_grupo_${grupo_n}`
+    const nome_input_qtd = `qtd_atividades_acampamento_${atividade_n}_grupo_${grupo_n}`
+    const nome_input_atividade = `atividades_acampamento_${atividade_n}_grupo_${grupo_n}`
+    const value_atividade = dados_atividade['id']
+    const value_data_e_hora = moment(data_inicio).format('YYYY-MM-DD HH:mm')
+
+    $(`#${div_append}`).append(`
+        <label>${label_atividade}</label>
+        <input type="hidden" name="grupo_${grupo_n}_atividades_acampamento_${atividade_n}" id="${nome_input_atividade}" value="${value_atividade}">
+        <input type="hidden" name="grupo_${grupo_n}_atividades_acampamento_${atividade_n}" id="${nome_input_data}" class="data_e_hora" value="${value_data_e_hora}">
+        <div class="row">
+            <div style="width: 85%">
+                <select name="grupo_${grupo_n}_atividades_acampamento_${atividade_n}[monitores]" id="${nome_id_select}" onchange="validacao(this)" style="width: 100%" multiple></select>
+            </div>
+            <div style="width: 15%">
+                <input type="number" min="0" name="grupo_${grupo_n}_atividades_acampamento_${atividade_n}" placeholder="QTD" id="${nome_input_qtd}" style="height: 33px" class="qtd" required>
+            </div>
+        </div>        
+    `)
+
+    popular_select_monitores($(`#${moment(data_inicio).format('YYYY-MM-DD')} select`), $(`#${nome_id_select}`))
+}
+
 function criar_inputs_atividades(professores_monitores, atividade_n, grupos, dados_eventos, area) {
     const div_append = `${moment(dados_eventos['inicio_atividade']).format('YYYY-MM-DD')} .${area}`
     const label_atividade = `${dados_eventos['atividade']['nome']} - ${moment(dados_eventos['inicio_atividade']).format('[às] HH:mm')} com ${dados_eventos['atividade']['qtd']} participantes (${dados_eventos['grupo']['nome']})`
@@ -417,7 +452,7 @@ function criar_inputs_atividades(professores_monitores, atividade_n, grupos, dad
     const value_qtd = dados_eventos['atividade']['qtd']
 
     $(`#${div_append}`).append(`
-        <label>${label_atividade})</label>
+        <label>${label_atividade}</label>
         <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" value="${value_atividade}">
         <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" id="${nome_input_data}" class="data_e_hora" value="${value_data_e_hora}">
         <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" id="${nome_input_qtd}" class="qtd" value="${value_qtd}">
@@ -437,9 +472,9 @@ function criar_inputs_locacoes(professores_monitores, dados_eventos, locacao_n, 
 
     $(`#${div_append}`).append(`
         <label>Locacão ${dados_eventos['local']['nome']} - Das ${moment(dados_eventos['check_in']).format('HH:mm')} às ${moment(dados_eventos['check_out']).format('HH:mm')} (${dados_eventos['grupo']['nome']})</label>           
-        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['local']['id']}">
-        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['check_in']}">
-        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" value="${dados_eventos['check_out']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" id="${nome_input_local}" value="${dados_eventos['local']['id']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" id="${nome_input_check_in}" value="${dados_eventos['check_in']}">
+        <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" id="${nome_input_check_out}" value="${dados_eventos['check_out']}">
         <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}" id="${nome_input_qtd}" value="${dados_eventos['local']['qtd']}">
         <select name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${locacao_n}[${professores_monitores}]" id="${nome_id_select}" onchange="validacao()" multiple></select>
     `)
@@ -447,10 +482,21 @@ function criar_inputs_locacoes(professores_monitores, dados_eventos, locacao_n, 
     atividades[nome_input_local] = [dados_eventos['local']['id'], dados_eventos['check_in']]
 }
 
+function popular_select_monitores(selects_existentes, select_append){
+    for (let select of selects_existentes) {
+        if (select.children.length > 0) {
+            $(select.children).clone().appendTo($(select_append))
+            select_append.select2()
+
+            return
+        }
+    }
+}
+
 function mostrar_esconder_tividades(div) {
     const id_div_avo = div.parentNode.parentNode.id
 
-    $(`#${id_div_avo} .atividades, #${id_div_avo} .locacoes, #${id_div_avo} .atividades_extra `).toggleClass('none')
+    $(`#${id_div_avo} .atividades, #${id_div_avo} .locacoes, #${id_div_avo} .atividades_extra, #${id_div_avo} .atividades_acampamento`).toggleClass('none')
 }
 
 function juntar_grupos(dados_eventos) {

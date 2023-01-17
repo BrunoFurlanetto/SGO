@@ -124,21 +124,22 @@ def detector_de_bombas(request, id_detector=None):
         data_inicio = datetime.strptime(request.POST.get('inicio'), '%Y-%m-%d')
         data_final = datetime.strptime(request.POST.get('final'), '%Y-%m-%d')
 
-        # if not request.POST.get('id_detector'):
-        #     novo_detector_de_bombas = DetectorDeBombas.objects.create(
-        #         data_inicio=data_inicio,
-        #         data_final=data_final,
-        #         dados_atividades=dados_atividades
-        #     )
-        #
-        #     novo_detector_de_bombas.grupos.set(grupos)
-        #     novo_detector_de_bombas.setor = setor.lower()
-        #     novo_detector_de_bombas.save()
-        # else:
-        #     detector_editado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
-        #     detector_editado.dados_atividades = dados_atividades
-        #     detector_editado.save()
+        if not request.POST.get('id_detector'):
+            novo_detector_de_bombas = DetectorDeBombas.objects.create(
+                data_inicio=data_inicio,
+                data_final=data_final,
+                dados_atividades=dados_atividades
+            )
+
+            novo_detector_de_bombas.grupos.set(grupos)
+            novo_detector_de_bombas.setor = setor.lower()
+            novo_detector_de_bombas.save()
+        else:
+            detector_editado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
+            detector_editado.dados_atividades = dados_atividades
+            detector_editado.save()
     except Exception as e:
+        print(e)
         return redirect('dashboard')
     else:
         messages.success(request, 'Detector de bombas, salvo com sucesso!!')
