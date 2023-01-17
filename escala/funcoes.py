@@ -254,7 +254,11 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
     check_out = ficha_de_evento_cliente.check_out
 
     if ficha_de_evento_cliente.os:
-        ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente)
+        ordem_cliente = OrdemDeServico.objects.get(
+            ficha_de_evento__cliente=cliente,
+            check_in__date__lte=data,
+            check_out__date__gte=data
+        )
         check_in = ordem_cliente.check_in
         check_out = ordem_cliente.check_out
 

@@ -389,6 +389,11 @@ class DiaLimiteAcampamento(models.Model):
 
 
 class EscalaAcampamento(models.Model):
+    escolha_setor = (
+        ('ceu', 'CEU'),
+        ('peraltas', 'Peraltas'),
+    )
+
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
@@ -396,6 +401,7 @@ class EscalaAcampamento(models.Model):
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
+    setor = models.CharField(max_length=8, choices=escolha_setor)
 
 
 class DiaLimiteHotelaria(models.Model):

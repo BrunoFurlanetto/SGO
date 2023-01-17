@@ -1,4 +1,3 @@
-import pytz
 from django.contrib.auth.models import User
 from ceu.models import Professores
 from datetime import datetime, timedelta, timezone

@@ -12,7 +12,7 @@ def is_ajax(request):
 
 def requests_ajax(requisicao, files=None):
     if requisicao.get('id_ficha'):
-        ficha_de_evento = FichaDeEvento.objects.get(id=int(requisicao.get('id_ficha')))
+        ficha_de_evento = FichaDeEvento.objects.get(pk=requisicao.get('id_ficha'))
         id_monitor_embarque = ''
         serie = []
         atividades_ceu = {}

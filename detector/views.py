@@ -6,36 +6,46 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from ceu.models import Professores, Atividades, Locaveis
+from ceu.models import Atividades, Locaveis
 from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_detector, \
     tratar_dados_detector_selecionado, salvar_alteracoes_de_atividade_locacao
 from detector.models import DetectorDeBombas
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import Monitor
-from projetoCEU.utils import verificar_grupo, is_ajax, email_error
+from projetoCEU.utils import is_ajax, email_error
+import ast
 
 
 @login_required(login_url='login')
 def detector_de_bombas(request, id_detector=None):
-    professores = Professores.objects.all()
-    monitores = Monitor.objects.all()
-    detectores_salvos = DetectorDeBombas.objects.filter(data_inicio__gte=datetime.now())
+    setor = 'CEU' if request.user.has_perm('escala.add_escala') else 'Peraltas'
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
+
+    detectores_salvos = DetectorDeBombas.objects.filter(
+        data_final__gte=datetime.now().date(),
+        setor=setor.lower()
+    )
 
     if request.method == 'GET':
         if request.GET.get('data_inicio'):
             data_inicio = datetime.strptime(request.GET.get('data_inicio'), '%Y-%m-%d')
             data_final = datetime.strptime(request.GET.get('data_final'), '%Y-%m-%d')
 
-            ordens_intervalo = (OrdemDeServico.objects
-                                .filter(check_in_ceu__date__gte=data_inicio, check_in_ceu__date__lte=data_final)
-                                )
+            if setor == 'CEU':
+                ordens_intervalo = OrdemDeServico.objects.filter(
+                    check_in_ceu__date__gte=data_inicio,
+                    check_in_ceu__date__lte=data_final
+                )
+            else:
+                ordens_intervalo = OrdemDeServico.objects.filter(
+                    check_in__date__gte=data_inicio,
+                    check_in__date__lte=data_final
+                )
 
-            return render(request, 'detector/detector_de_bombas.html', {'eventos': ordens_intervalo,
-                                                                        'pesquisado': True,
-                                                                        'professores': professores
-                                                                        })
+            return render(request, 'detector/detector_de_bombas.html', {
+                'eventos': ordens_intervalo,
+                'pesquisado': True,
+            })
 
     if is_ajax(request):
         if request.method == 'POST':
@@ -66,12 +76,12 @@ def detector_de_bombas(request, id_detector=None):
                 else:
                     return JsonResponse({'id_atividade': atividade.id})
 
-            atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'))
-            escalas = pegar_escalas(request.POST)
+            atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'), setor)
+            escalas = pegar_escalas(request.POST, setor)
             return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
 
         if request.GET.get('id_detector'):
-            detector_selecionado = DetectorDeBombas.objects.get(id=int(request.GET.get('id_detector')))
+            detector_selecionado = DetectorDeBombas.objects.get(pk=request.GET.get('id_detector'))
             return JsonResponse(tratar_dados_detector_selecionado(detector_selecionado))
 
     if request.method != 'POST':
@@ -109,10 +119,10 @@ def detector_de_bombas(request, id_detector=None):
 
         return redirect('detector')
 
+    grupos, dados_atividades = juntar_dados_detector(request.POST, setor)
     try:
         data_inicio = datetime.strptime(request.POST.get('inicio'), '%Y-%m-%d')
         data_final = datetime.strptime(request.POST.get('final'), '%Y-%m-%d')
-        grupos, dados_atividades = juntar_dados_detector(request.POST)
 
         if not request.POST.get('id_detector'):
             novo_detector_de_bombas = DetectorDeBombas.objects.create(
@@ -122,14 +132,14 @@ def detector_de_bombas(request, id_detector=None):
             )
 
             novo_detector_de_bombas.grupos.set(grupos)
+            novo_detector_de_bombas.setor = setor.lower()
             novo_detector_de_bombas.save()
         else:
             detector_editado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
             detector_editado.dados_atividades = dados_atividades
             detector_editado.save()
     except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, f'Houve um erro inesperado: {e}')
+        print(e)
         return redirect('dashboard')
     else:
         messages.success(request, 'Detector de bombas, salvo com sucesso!!')

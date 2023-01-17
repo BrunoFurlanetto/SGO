@@ -142,13 +142,17 @@
                 {% endif %}
                 <hr>
             </section>
-
+            <h5 class="titulo-secao">
+                Atividades acampamento
+            </h5>
+            <div id="atividades-acampamento" class="arrastaveis acampamento"></div>
+            <hr class="acampamento">
             <section id="detector_de_bombas"></section>
 
             <section class="escala-por-atividades none">
                 <hr>
                 <h5 class="titulo-secao" style="text-align: center">Escala para as atividades</h5>
-                <form action="{% url 'detector' %}" method="POST">
+                <form action="{% url 'detector' %}" method="POST" id="form_teste">
                     {% csrf_token %}
                     <fieldset id="formulario-escala-professores-atividades"></fieldset>
                 </form>
