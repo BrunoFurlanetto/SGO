@@ -118,7 +118,7 @@
 
 .prev-date-disponibilidade, .next-date-disponibilidade,
 .prev-date-disponibilidade-acampamento, .next-date-disponibilidade-acampamento,
-.prev-date-disponibilidade-hotelaria, .next-date-disponibilidade-hotelaria{
+.prev-date-disponibilidade-hotelaria, .next-date-disponibilidade-hotelaria, .blocked{
   opacity: 0.3;
   pointer-events: none;
 }

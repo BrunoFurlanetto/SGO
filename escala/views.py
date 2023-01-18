@@ -133,7 +133,7 @@ def disponibilidade(request):
 def disponibilidadePeraltas(request):
     dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
     dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
-    print(dia_limite_acampamento.dia_limite_acampamento)
+
     if request.method != "POST":
         antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
         antes_dia_limite_hotelaria = True if datetime.now().day < dia_limite_hotelaria.dia_limite_hotelaria else False
@@ -189,15 +189,28 @@ def disponibilidadePeraltas(request):
                                              n_dias=cadastro.n_dias + n_dias)
 
                         if dias[1]:
-                            msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
-                            return JsonResponse({'tipo': 'sucesso',
-                                                 'mensagem': msg})
+                            if dias[2]:
+                                msg = f'Dias {dias[1]} não cadastrados, por já estarem na base de dados ou exceder o limite de dias por mês!'
+                                return JsonResponse({'tipo': 'sucesso',
+                                                     'mensagem': msg})
+                            else:
+                                msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
+                                return JsonResponse({'tipo': 'sucesso',
+                                                     'mensagem': msg})
                         else:
                             return JsonResponse({'tipo': 'sucesso',
                                                  'mensagem': 'Disponibilidade salva com sucesso!'})
                 else:
-                    return JsonResponse({'tipo': 'aviso',
-                                         'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'})
+                    if dias[2]:
+                        return JsonResponse({
+                            'tipo': 'aviso',
+                            'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'
+                        })
+                    else:
+                        return JsonResponse({
+                            'tipo': 'aviso',
+                            'mensagem': f'Número máximo de dias já cadastrado na base de dados (22 dias por mês).'
+                        })
             else:
                 if request.POST.get('peraltas') == 'acampamento':
                     dias_disponiveis = DisponibilidadeAcampamento(
@@ -394,7 +407,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
-            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'),data_selecionada,
+            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
                                                   request.POST.get('cliente')))
 
         if request.POST.get('id_cliente'):

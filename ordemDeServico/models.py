@@ -30,7 +30,7 @@ class OrdemDeServico(models.Model):
     serie = models.CharField(max_length=255, blank=True, null=True)
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True) # TODO: Verificar cado de exclusão de colaborador
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True)  # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,

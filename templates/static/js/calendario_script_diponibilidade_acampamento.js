@@ -1,4 +1,7 @@
 const date_disponibilidade_acampamento = new Date();
+let hoje = new Date()
+let data_limite = new  Date()
+data_limite.setDate(hoje.getDate() + 30)
 
 const renderCalendar_disponibilidade_acampamento = () => {
     date_disponibilidade_acampamento.setDate(1);
@@ -69,9 +72,21 @@ const renderCalendar_disponibilidade_acampamento = () => {
             i === new Date().getDate() &&
             date_disponibilidade_acampamento.getMonth() === new Date().getMonth()
         ) {
-            days_disponibilidade_acampamento += `<div id='${i}' class="$day {i} acampamento today-disponibilidade-acampamento">${i}</div>`;
+            let data_comparacao = new Date(date_disponibilidade_acampamento.getFullYear(), date_disponibilidade_acampamento.getMonth(), i)
+
+            if (data_comparacao < data_limite) {
+                days_disponibilidade_acampamento += `<div id='${i}' class="$day ${i} acampamento today-disponibilidade-acampamento blocked">${i}</div>`;
+            } else {
+                days_disponibilidade_acampamento += `<div id='${i}' class="$day ${i} acampamento today-disponibilidade-acampamento">${i}</div>`;
+            }
         } else {
-            days_disponibilidade_acampamento += `<div id='${i}' class="day ${i} acampamento">${i}</div>`;
+            let data_comparacao = new Date(date_disponibilidade_acampamento.getFullYear(), date_disponibilidade_acampamento.getMonth(), i)
+
+            if (data_comparacao < data_limite) {
+                days_disponibilidade_acampamento += `<div id='${i}' class="day ${i} acampamento blocked">${i}</div>`;
+            } else {
+                days_disponibilidade_acampamento += `<div id='${i}' class="day ${i} acampamento">${i}</div>`;
+            }
         }
     }
 

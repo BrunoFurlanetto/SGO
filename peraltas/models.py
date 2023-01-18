@@ -302,7 +302,7 @@ class FichaDeEvento(models.Model):
     locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
-    vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True) # TODO: Verificar caso de exclusão de colaborador
+    vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True)  # TODO: Verificar caso de exclusão de colaborador
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')

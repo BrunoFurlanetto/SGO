@@ -107,6 +107,7 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
     ano = datetime.strptime(dias_enviados.split(', ')[0], '%d/%m/%Y').year
     dias_ja_cadastrados = []  # Lista para os dias já presentes na base de dados
     dias_a_cadastrar = []  # Lista para os dias que serão salvos na base de dados
+    dias_limite = False
 
     # Verifica a intancia do usuário que enviou a disponibilidade, se é professor do CEU ou do Peraltas
     # para poder pegar os dias já cadastrados pelo usuário no model correto
@@ -130,17 +131,26 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
     if dias_cadastrados:  # Primeiro verifica se o usuário já cadastrou algum dia
         lista_dias_cadastrados = dias_cadastrados.dias_disponiveis.split(', ')  # Lista de dias já cadastrado
 
-        # ----- Looping de verificação dos dias -----
-        for dia in lista_dias:
-            if dia in lista_dias_cadastrados:
-                dias_ja_cadastrados.append(dia)
-            else:
-                dias_a_cadastrar.append(dia)
-        # -------------------------------------------
+        if len(lista_dias_cadastrados) > 22:
+            dias_limite = True
+        else:
+            dias_faltando = 22 - len(lista_dias_cadastrados)
+            # ----- Looping de verificação dos dias -----
+            for dia in lista_dias:
+                if dias_faltando > 0:
+                    if dia in lista_dias_cadastrados:
+                        dias_ja_cadastrados.append(dia)
+                    else:
+                        dias_a_cadastrar.append(dia)
+                        dias_faltando -= 1
+                else:
+                    dias_limite = True
+                    dias_ja_cadastrados.append(dia)
+            # -------------------------------------------
     else:
         dias_a_cadastrar.append(dias_enviados)  # Caso o usuário não tenha cadastrado nenhum dia ainda
 
-    return ', '.join(dias_a_cadastrar), ', '.join(dias_ja_cadastrados)
+    return ', '.join(dias_a_cadastrar), ', '.join(dias_ja_cadastrados), dias_limite
 
 
 def contar_dias(dias):

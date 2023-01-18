@@ -1,4 +1,7 @@
 const date_disponibilidade_hotelaria = new Date();
+// let hoje = new Date()
+// let data_limite = new Date()
+// data_limite.setDate(hoje.getDate() + 30)
 
 const renderCalendar_disponibilidade_hotelaria = () => {
     date_disponibilidade_hotelaria.setDate(1);
@@ -69,9 +72,21 @@ const renderCalendar_disponibilidade_hotelaria = () => {
             i === new Date().getDate() &&
             date_disponibilidade_hotelaria.getMonth() === new Date().getMonth()
         ) {
-            days_disponibilidade_hotelaria += `<div id='${i}' class="$day {i} hotelaria today-disponibilidade-hotelaria">${i}</div>`;
+            let data_comparacao = new Date(date_disponibilidade_hotelaria.getFullYear(), date_disponibilidade_hotelaria.getMonth(), i)
+
+            if (data_comparacao < data_limite) {
+                days_disponibilidade_hotelaria += `<div id='${i}' class="$day {i} hotelaria today-disponibilidade-hotelaria blocked">${i}</div>`;
+            } else {
+                days_disponibilidade_hotelaria += `<div id='${i}' class="$day {i} hotelaria today-disponibilidade-hotelaria">${i}</div>`;
+            }
         } else {
-            days_disponibilidade_hotelaria += `<div id='${i}' class="day ${i} hotelaria">${i}</div>`;
+            let data_comparacao = new Date(date_disponibilidade_hotelaria.getFullYear(), date_disponibilidade_hotelaria.getMonth(), i)
+
+            if (data_comparacao < data_limite) {
+                days_disponibilidade_hotelaria += `<div id='${i}' class="day ${i} hotelaria blocked">${i}</div>`;
+            } else {
+                days_disponibilidade_hotelaria += `<div id='${i}' class="day ${i} hotelaria">${i}</div>`;
+            }
         }
     }
 
