@@ -18,7 +18,7 @@ def requests_ajax(requisicao, files=None):
         atividades_ceu = {}
         locacoes_ceu = {}
         atividades_eco = {}
-        atividades_peraltas = {}
+        atividades_peraltas = []
 
         for perfil in ficha_de_evento.perfil_participantes.all():
             if perfil.ano != '':
@@ -36,7 +36,7 @@ def requests_ajax(requisicao, files=None):
             atividades_eco[atividade.id] = atividade.nome_atividade_eco
 
         for grupo in ficha_de_evento.atividades_peraltas.all():
-            atividades_peraltas[grupo.id] = grupo.grupo
+            atividades_peraltas.append(grupo.grupo)
 
         if ficha_de_evento.informacoes_adcionais.transporte:
             try:

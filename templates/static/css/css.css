@@ -425,6 +425,12 @@
     margin-left: -10px;
     background: transparent;
 }
+.alerta {
+    height: 23px;
+    border-radius: 10px;
+    width: 97%;
+    margin-left: 11px;
+}
 .pre-reserva .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;

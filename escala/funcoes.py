@@ -239,7 +239,7 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
     if editando:
         ficha_de_evento_cliente = FichaDeEvento.objects.get(
             cliente=cliente,
-            check_out__date__lte=data,
+            check_in__date__lte=data,
             check_out__date__gte=data
         )
     else:

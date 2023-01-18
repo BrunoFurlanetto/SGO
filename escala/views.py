@@ -394,7 +394,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
-            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
+            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'),data_selecionada,
                                                   request.POST.get('cliente')))
 
         if request.POST.get('id_cliente'):
@@ -586,18 +586,24 @@ def editarEscalaHotelaria(request, data):
 
 @login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
-    disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
-    disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
-    eventos_ordem_de_servico = OrdemDeServico.objects.all()
-    fichas_de_evento = FichaDeEvento.objects.filter(os=False)
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
 
-    for evento in eventos_ordem_de_servico:
-        evento.check_out += timedelta(days=1)
+    if coordenador_hotelaria or coordenador_acampamento:
+        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
+        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
+        eventos_ordem_de_servico = OrdemDeServico.objects.all()
+        fichas_de_evento = FichaDeEvento.objects.filter(os=False)
 
-    for ficha in fichas_de_evento:
-        ficha.check_out += timedelta(days=1)
+        for evento in eventos_ordem_de_servico:
+            evento.check_out += timedelta(days=1)
+
+        for ficha in fichas_de_evento:
+            ficha.check_out += timedelta(days=1)
+    else:
+        eventos_ordem_de_servico = fichas_de_evento = None
+        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor__usuario=request.user)
+        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(monitor__usuario=request.user)
 
     disponiveis_hotelaria = pegar_disponiveis(disponibilidades_hotelaria, 'hotelaria')
     disponiveis_acampamento = pegar_disponiveis(disponibilidades_acampamento, 'acampamento')

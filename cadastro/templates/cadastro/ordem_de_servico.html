@@ -89,9 +89,15 @@
                             <label for="id_monitor_embarque">Monitor embarque</label>
                             {{ form.monitor_embarque }}
                         </div>
-                        <div id="nome_motorista" {% if not ordem_servico.nome_motorista %} class="none" {% endif %} style="width: 60%">
-                            <label>Motorista</label>
-                            {{ form.nome_motorista }}
+                        <div id="informacoes_motorista" class="row {% if not ordem_servico.nome_motorista %} none {% endif %}">
+                            <div id="nome_motorista" style="width: 60%">
+                                <label>Motorista</label>
+                                {{ form.nome_motorista }}
+                            </div>
+                            <div id=telefone_motorista" style="width: 30%">
+                                <label>Telefone</label>
+                                {{ form.telefone_motorista }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -316,6 +322,7 @@
     <script src="{% static 'js/scripts_ordem.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
 
     <script>
         $('#ficha_de_evento, .qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')

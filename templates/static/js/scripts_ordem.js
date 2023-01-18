@@ -1,23 +1,36 @@
 let corporativo
 
-$(document).ready(function() {
-    if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha'){
-        $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled:'readonly'})
+$(document).ready(function () {
+    if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha') {
+        $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
     } else {
         $('#id_atividades_peraltas, #ficha_de_evento').select2()
     }
 
+    mascara_telefone()
+
 })
 
-function mostrar_conteudo(btn){
+function mascara_telefone() {
+    $('#id_telefone_motorista').mask('(00) 0 0000-00009');
+    $('#id_telefone_motorista').blur(function (event) {
+        if ($(this).val().length == 16) { // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
+            $(this).mask('(00) 0 0000-0009');
+        } else {
+            $(this).mask('(00) 0000-0000');
+        }
+    });
+}
+
+function mostrar_conteudo(btn) {
     const head = btn.closest('[class=head]')
     $('.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
     $(head).siblings('.content').toggleClass('none')
     $(btn).toggleClass('open')
 }
 
-function verificar_atividades(selecao){
+function verificar_atividades(selecao) {
     corporativo = $('#id_tipo').val() === 'Empresa';
 
     if (selecao.value === 'Peraltas') {
@@ -48,9 +61,10 @@ function verificar_atividades(selecao){
     }
 }
 
-function completar_dados_os(selecao){
+function completar_dados_os(selecao) {
     $('.atividades, .locacoes, .ecoturismo').empty()
     $('#id_ficha_de_evento').val(selecao.value)
+    $('#locais_selecionados').remove()
 
     $.ajax({
         type: 'POST',
@@ -59,20 +73,20 @@ function completar_dados_os(selecao){
         data: {'id_ficha': selecao.value},
         success: function (response) {
 
-            for(let i in response){
+            for (let i in response) {
                 $(`#${i}`).val(response[i])
             }
 
-            if(response['embarque_sao_paulo']){
+            if (response['embarque_sao_paulo']) {
                 $('#monitor_embarque, #nome_motorista').removeClass('none')
                 $('#id_monitor_embarque, #id_nome_motorista').prop('required', true)
 
                 if (response['id_monitor_embarque'] !== '') {
-                     $('#id_monitor_embarque').css({'pointer-events': 'none'})
+                    $('#id_monitor_embarque').css({'pointer-events': 'none'})
                 } else {
                     $('#id_monitor_embarque').css({'pointer-events': 'auto'})
                 }
-            }else{
+            } else {
                 $('#monitor_embarque, #nome_motorista').addClass('none')
                 $('#id_monitor_embarque, #id_nome_motorista').prop('required', false)
             }
@@ -80,7 +94,7 @@ function completar_dados_os(selecao){
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
-            if(response['corporativo']){
+            if (response['corporativo']) {
                 $('#id_tipo').val('Empresa')
                 $('.locacao-ceu').removeClass('none')
                 $('.colegios').addClass('none')
@@ -92,22 +106,26 @@ function completar_dados_os(selecao){
                 corporativo = false
             }
 
-            if(response['atividades_eco'] !== ''){
-                for(let i in response['atividades_eco']){
+            if (response['atividades_eco'] !== '') {
+                for (let i in response['atividades_eco']) {
                     add_atividade_eco(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_eco'][i], response['id_serie'])
                 }
             }
 
-            if(response['atividades_ceu'] !== ''){
-                for(let i in response['atividades_ceu']){
+            if (response['atividades_ceu'] !== '') {
+                for (let i in response['atividades_ceu']) {
                     add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
                 }
             }
 
-            if(response['locacoes_ceu'] !== ''){
-                for(let i in response['locacoes_ceu']){
+            if (response['locacoes_ceu'] !== '') {
+                for (let i in response['locacoes_ceu']) {
                     add_locacao(parseInt(i), parseInt(response['id_n_participantes']))
                 }
+            }
+
+            if (response['atividades_peraltas'].length > 0) {
+                $('#ativs_peraltas').append(`<div id="locais_selecionados" class="alerta alert-info"><p>Atividades selecionadas na Ficha de Evento: ${response['atividades_peraltas'].join(', ')}</p></div>`)
             }
         }
     })
@@ -121,14 +139,14 @@ function completar_dados_os(selecao){
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_='', data_=''){
+function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt(''), atividade_ = '', serie_ = '', data_ = '') {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'tipo': 'Colégio'},
-        success: function(response){
+        success: function (response) {
             // Variável responsável pelo indicie da nova atividade
             // a 'div_pai' é a div que ira receber todos os elementos relacionado a mesma atividade
             let i = document.querySelectorAll('.div_pai').length + 1
@@ -164,7 +182,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
 
             // Todas as atividades que serão dcionadas no select da atividade
             for (let j in response['dados']) {
-                if(response['dados'][j] !== atividade_) {
+                if (response['dados'][j] !== atividade_) {
                     $(`#ativ_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
                 }
             }
@@ -179,9 +197,10 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
         }
     })
 }
+
 // Função responsável pela remoção de uma atividade já iniciada e
 // renumeração dos id's e nomes dos elementos pai e filho
-function remover_atividade(selecao){
+function remover_atividade(selecao) {
     $(`#div_pai_${selecao.id.split('_')[1]}`).remove() // Remoção do elemento selecionado
 
     // Seleção de todas as div's a ser renumeradas/renomeadas
@@ -200,21 +219,21 @@ function remover_atividade(selecao){
     let serie = document.querySelectorAll('.serie_participantes')
 
     // Renumeração/renomeação das div's e elementos antes selecionados
-    for(let k = 0; k <= divs_pai.length; k++) {
+    for (let k = 0; k <= divs_pai.length; k++) {
         // Começa trabalhando em cima das div's
-        $(divs_pai[k]).attr('id', 'div_pai_'+(k+1));
-        $(divs_atividades[k]).attr('id', 'div_atividade_'+(k+1));
-        $(divs_data[k]).attr('id', 'div_data_hora_atividade_'+(k+1));
-        $(divs_participantes[k]).attr('id', 'div_participantes_'+(k+1));
-        $(divs_icones[k]).attr('id', 'div_icone_'+(k+1));
-        $(divs_serie[k]).attr('id', 'div_serie_'+(k+1));
+        $(divs_pai[k]).attr('id', 'div_pai_' + (k + 1));
+        $(divs_atividades[k]).attr('id', 'div_atividade_' + (k + 1));
+        $(divs_data[k]).attr('id', 'div_data_hora_atividade_' + (k + 1));
+        $(divs_participantes[k]).attr('id', 'div_participantes_' + (k + 1));
+        $(divs_icones[k]).attr('id', 'div_icone_' + (k + 1));
+        $(divs_serie[k]).attr('id', 'div_serie_' + (k + 1));
 
         // Então passa a renumeração/renomeação dos elementos
-        $(select_atividade[k]).attr('id', `ativ_${k+1}`).attr('name', `atividade_${k+1}`);
-        $(hora_atividade[k]).attr('name', 'data_hora_'+(k+1)).attr('id', 'data_' + (k+1));
-        $(qtd_atividade[k]).attr('name', 'participantes_'+(k+1)).attr('id', 'participantes_' + (k+1));
-        $(icone[k]).attr('id', 'btn_'+(k+1)).attr('id', 'btn_' + (k+1));
-        $(serie[k]).attr('name', 'serie_participantes_'+(k+1)).attr('id', 'serie_' + (k+1));
+        $(select_atividade[k]).attr('id', `ativ_${k + 1}`).attr('name', `atividade_${k + 1}`);
+        $(hora_atividade[k]).attr('name', 'data_hora_' + (k + 1)).attr('id', 'data_' + (k + 1));
+        $(qtd_atividade[k]).attr('name', 'participantes_' + (k + 1)).attr('id', 'participantes_' + (k + 1));
+        $(icone[k]).attr('id', 'btn_' + (k + 1)).attr('id', 'btn_' + (k + 1));
+        $(serie[k]).attr('name', 'serie_participantes_' + (k + 1)).attr('id', 'serie_' + (k + 1));
     }
 
 }
@@ -242,7 +261,7 @@ function verificar_limitacoes(selecao) {
                 var limite = response['participantes_maximo']
 
                 // A primeira verificação é do horário
-                if(data_atividade !== ''){
+                if (data_atividade !== '') {
 
                     // Horário informado durante o cadastro da atividade
                     let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
@@ -252,7 +271,7 @@ function verificar_limitacoes(selecao) {
                     if (response['limitacoes'].includes('Não pode acontecer durante a noite')) {
                         if (hora_atividade < 7.00 || hora_atividade >= 18.00) {
 
-                            if(hora_atividade >= 19){
+                            if (hora_atividade >= 19) {
                                 $(`#alert_noite_${selecao.id.split('_')[1]}`).remove()
                                 $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger"  id="alert_noite_${selecao.id.split('_')[1]}" style="margin-left: 10px">A atividade não pode ser realizada no horário informado!</p>`)
                                 $(`#data_${selecao.id.split('_')[1]}`).val('')
@@ -287,11 +306,11 @@ function verificar_limitacoes(selecao) {
                 }
 
                 // Verificação de número de participantes
-                if(participantes !== ''){
+                if (participantes !== '') {
 
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
-                    if(participantes < response['participantes_minimo']){
+                    if (participantes < response['participantes_minimo']) {
                         $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_${selecao.id.split('_')[1]}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
                     } else {
                         $(`#alert_participantes_${selecao.id.split('_')[1]}`).remove()
@@ -299,7 +318,7 @@ function verificar_limitacoes(selecao) {
 
                     // Verifica se o número de participantes está acimsa do limite de lotação.
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
-                    if(participantes > limite){
+                    if (participantes > limite) {
                         dividar_atividade(selecao.id.split('_')[1], limite)
                         $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
@@ -310,7 +329,7 @@ function verificar_limitacoes(selecao) {
 }
 
 // Função responsável pela divisão das turmas caso a lotação máxima seja excedida
-function dividar_atividade(indicie, limite){
+function dividar_atividade(indicie, limite) {
     let participantes_apx, k, aproximado, sobra;
     // Pegando os valores necessários para a divisão
     let qtd = $(`#participantes_${indicie}`)
@@ -319,10 +338,10 @@ function dividar_atividade(indicie, limite){
     let serie_ = $(`#serie_${indicie}`).val()
 
     // Aqui é feito uma verificação do número de turmas necessário
-    for(k = 2; k > 1; k++){
+    for (k = 2; k > 1; k++) {
 
         // Vê se o número e turmas já é o suficiente
-        if(qtd.val() / k <= limite){
+        if (qtd.val() / k <= limite) {
             // Aproximação necessária para não haver número fracionado
             participantes_apx = Math.trunc(qtd.val() / k)
             // Booleano para dizer se houve aproximação
@@ -335,7 +354,7 @@ function dividar_atividade(indicie, limite){
     }
 
     // Troca do número de participantes da atividade já inicado
-    if (aproximado){
+    if (aproximado) {
         qtd.val(participantes_apx + 1)
     } else {
         qtd.val(participantes_apx)
@@ -347,7 +366,7 @@ function dividar_atividade(indicie, limite){
         let participantes_ = participantes_apx
 
         // Caso haja participantes sobrando pelo arredondamento é adcionado nas primeiras turmas
-        if(j < sobra){
+        if (j < sobra) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
@@ -355,16 +374,17 @@ function dividar_atividade(indicie, limite){
     }
 
 }
+
 // ------------------------------------------ Final das funções que trabalham com atividades ------------------------------------
 
 // ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
 // Função responsável por adicionar uma nova locação
-function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
-                     check_out_='', local_coffee_='', hora_coffee_=''){
+function add_locacao(id_local_ = parseInt(''), qtd_ = parseInt(''), check_in_ = '',
+                     check_out_ = '', local_coffee_ = '', hora_coffee_ = '') {
     // Ajax responsável por puxar todas as estruturas do banco de dados
 
-    if(isNaN(qtd_)){
+    if (isNaN(qtd_)) {
         qtd_ = ($('#id_n_participantes').val())
     }
 
@@ -373,7 +393,7 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'tipo': 'Empresa'},
-        success: function(response){
+        success: function (response) {
             // A partir daqui os processos dessa parte são semelhantes a função de adcionar atividade,
             // com alguns elementos a mais, importante para a locação.
             let i = document.querySelectorAll('.div_pai_loc').length + 1
@@ -412,7 +432,7 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
             let locacao_n = $(`#loc_${i}`)
 
             for (let j in response) {
-                if (j == id_local_){
+                if (j == id_local_) {
                     locacao_n.append(`<option value="${j}" selected>${response[j]}</option>`)
                 } else {
                     locacao_n.append(`<option value="${j}">${response[j]}</option>`)
@@ -428,7 +448,7 @@ function add_locacao(id_local_=parseInt(''), qtd_=parseInt(''), check_in_='',
 }
 
 // Função semelhante a de remover atividade, mas para a parte de locação
-function remover_locacao(selecao){
+function remover_locacao(selecao) {
     $(`#div_pai_loc_${selecao.id.split('_')[1]}`).remove()
 
     let divs_pai_loc = document.querySelectorAll('.div_pai_loc')
@@ -448,28 +468,29 @@ function remover_locacao(selecao){
     let participantes_lo = document.querySelectorAll('.qtd_participantes_loc')
     let icone_loc = document.querySelectorAll('.buton-loc')
 
-    for(let k = 0; k <= divs_pai_loc.length; k++) {
-        $(divs_pai_loc[k]).attr('id', 'div_pai_loc'+(k+1));
-        $(divs_locacoes[k]).attr('id', 'div_locacao_'+(k+1));
-        $(divs_entrada[k]).attr('id', 'div_entrada_'+(k+1));
-        $(divs_saida[k]).attr('id', 'div_saida_'+(k+1));
-        $(divs_local_coffee[k]).attr('id', 'div_local_coffee_'+(k+1));
-        $(divs_hora_coffee[k]).attr('id', 'div_hora_coffee_'+(k+1));
-        $(divs_participantes_loc[k]).attr('id', 'div-hora-coffee_'+(k+1));
-        $(divs_icones_loc[k]).attr('id', 'div_icone_loc_'+(k+1));
+    for (let k = 0; k <= divs_pai_loc.length; k++) {
+        $(divs_pai_loc[k]).attr('id', 'div_pai_loc' + (k + 1));
+        $(divs_locacoes[k]).attr('id', 'div_locacao_' + (k + 1));
+        $(divs_entrada[k]).attr('id', 'div_entrada_' + (k + 1));
+        $(divs_saida[k]).attr('id', 'div_saida_' + (k + 1));
+        $(divs_local_coffee[k]).attr('id', 'div_local_coffee_' + (k + 1));
+        $(divs_hora_coffee[k]).attr('id', 'div_hora_coffee_' + (k + 1));
+        $(divs_participantes_loc[k]).attr('id', 'div-hora-coffee_' + (k + 1));
+        $(divs_icones_loc[k]).attr('id', 'div_icone_loc_' + (k + 1));
 
-        $(select_locacao[k]).attr('id', `loc_${k+1}`).attr('name', `locacao_${k+1}`);
-        $(entrada[k]).attr('id', `entrada_${k+1}`).attr('name', `entrada_${k+1}`);
-        $(saida[k]).attr('id',`saida_${k+1}`).attr('name', 'saida_'+(k+1));
-        $(local_coffee[k]).attr('id', `local-coffee_${k+1}`).attr('name', 'local-coffee_'+(k+1));
-        $(hora_coffee[k]).attr('id', `hora-coffee_${k+1}`).attr('name', 'hora-coffee_'+(k+1));
-        $(participantes_lo[k]).attr('id', `participantes-loc_${k+1}`).attr('name', 'participantes-loc_'+(k+1));
-        $(icone_loc[k]).attr('id', 'btn-loc_'+(k+1));
+        $(select_locacao[k]).attr('id', `loc_${k + 1}`).attr('name', `locacao_${k + 1}`);
+        $(entrada[k]).attr('id', `entrada_${k + 1}`).attr('name', `entrada_${k + 1}`);
+        $(saida[k]).attr('id', `saida_${k + 1}`).attr('name', 'saida_' + (k + 1));
+        $(local_coffee[k]).attr('id', `local-coffee_${k + 1}`).attr('name', 'local-coffee_' + (k + 1));
+        $(hora_coffee[k]).attr('id', `hora-coffee_${k + 1}`).attr('name', 'hora-coffee_' + (k + 1));
+        $(participantes_lo[k]).attr('id', `participantes-loc_${k + 1}`).attr('name', 'participantes-loc_' + (k + 1));
+        $(icone_loc[k]).attr('id', 'btn-loc_' + (k + 1));
     }
 
 }
+
 // Responsável pela verificação da lotação da estrutura
-function verificar_lotacao(selecao){
+function verificar_lotacao(selecao) {
     let participantes = $(`#participantes-loc_${selecao.id.split('_')[1]}`).val()
     let locacao = $(`#loc_${selecao.id.split('_')[1]}`).val()
 
@@ -478,16 +499,16 @@ function verificar_lotacao(selecao){
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'local': locacao},
-        success: function(response){
+        success: function (response) {
 
-            if(locacao !== ''){
+            if (locacao !== '') {
 
                 // Verifica se a lotação informada excede 70% da lotação máxima do prédio e lança
                 // um alerta para pedindo a verificação de uma nova lotação caso haja uma disposição
                 // de mesas e cadeiras diferentes
-                if(participantes > (response['lotacao'] * 0.7)){
+                if (participantes > (response['lotacao'] * 0.7)) {
 
-                    if(participantes > response['lotacao']){
+                    if (participantes > response['lotacao']) {
                         $(`#alert_participantes_loc_${selecao.id.split('_')[1]}`).remove()
                         $(`#div_pai_loc_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-danger" id="alert_participantes_loc_${selecao.id.split('_')[1]}" style="margin-left: 10px">Lotação máxima da sala ultrapassada!</p>`)
                         $(`#participantes-loc_${selecao.id.split('_')[1]}`).empty()
@@ -508,15 +529,15 @@ function verificar_lotacao(selecao){
 
 // ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
 // Função responsável pela adição de uma nova atividade de ecoturismo
-function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt(''),
-                           atividade_='', serie_='', data_=''){
+function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseInt(''),
+                           atividade_ = '', serie_ = '', data_ = '') {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'tipo': 'ecoturismo'},
-        success: function(response){
+        success: function (response) {
             // Variável responsável pelo indicie da nova atividade
             // a 'div_pai' é a div que ira receber todos os elementos relacionado a mesma atividade
             let i = document.querySelectorAll('.div_pai_eco').length + 1
@@ -552,7 +573,7 @@ function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt('
 
             // Todas as atividades que serão dcionadas no select da atividade
             for (let j in response['dados']) {
-                if(response['dados'][j] != atividade_) {
+                if (response['dados'][j] != atividade_) {
                     $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
                 }
             }
@@ -567,9 +588,10 @@ function add_atividade_eco(participantes_=parseInt(''), atividade_id_=parseInt('
         }
     })
 }
+
 // Função responsável pela remoção de uma atividade já iniciada e
 // renumeração dos id's e nomes dos elementos pai e filho
-function remover_atividade_eco(selecao){
+function remover_atividade_eco(selecao) {
     $(`#div_pai_eco_${selecao.id.split('_')[1]}`).remove() // Remoção do elemento selecionado
 
     // Seleção de todas as div's a ser renumeradas/renomeadas
@@ -588,23 +610,24 @@ function remover_atividade_eco(selecao){
     let serie = document.querySelectorAll('.serie_participantes_eco')
 
     // Renumeração/renomeação das div's e elementos antes selecionados
-    for(let k = 0; k <= divs_pai.length; k++) {
+    for (let k = 0; k <= divs_pai.length; k++) {
         // Começa trabalhando em cima das div's
-        $(divs_pai[k]).attr('id', 'div_pai_eco_'+(k+1));
-        $(divs_atividades[k]).attr('id', 'div_atividade_eco_'+(k+1));
-        $(divs_data[k]).attr('id', 'div_data_hora_atividade_eco_'+(k+1));
-        $(divs_participantes[k]).attr('id', 'div_participantes_eco_'+(k+1));
-        $(divs_icones[k]).attr('id', 'div_icone_eco_'+(k+1));
-        $(divs_serie[k]).attr('id', 'div_serie_eco_'+(k+1));
+        $(divs_pai[k]).attr('id', 'div_pai_eco_' + (k + 1));
+        $(divs_atividades[k]).attr('id', 'div_atividade_eco_' + (k + 1));
+        $(divs_data[k]).attr('id', 'div_data_hora_atividade_eco_' + (k + 1));
+        $(divs_participantes[k]).attr('id', 'div_participantes_eco_' + (k + 1));
+        $(divs_icones[k]).attr('id', 'div_icone_eco_' + (k + 1));
+        $(divs_serie[k]).attr('id', 'div_serie_eco_' + (k + 1));
 
         // Então passa a renumeração/renomeação dos elementos
-        $(select_atividade[k]).attr('id', `ativ_eco_${k+1}`).attr('name', `atividade_eco_${k+1}`);
-        $(hora_atividade[k]).attr('name', 'data_hora_eco_'+(k+1));
-        $(qtd_atividade[k]).attr('name', 'participantes_eco_'+(k+1));
-        $(icone[k]).attr('id', 'btn-eco_'+(k+1));
-        $(serie[k]).attr('name', 'serie_participantes_eco_'+(k+1)).attr('id', 'serie_eco_'+(k+1));
+        $(select_atividade[k]).attr('id', `ativ_eco_${k + 1}`).attr('name', `atividade_eco_${k + 1}`);
+        $(hora_atividade[k]).attr('name', 'data_hora_eco_' + (k + 1));
+        $(qtd_atividade[k]).attr('name', 'participantes_eco_' + (k + 1));
+        $(icone[k]).attr('id', 'btn-eco_' + (k + 1));
+        $(serie[k]).attr('name', 'serie_participantes_eco_' + (k + 1)).attr('id', 'serie_eco_' + (k + 1));
     }
 }
+
 // Função responsável por verificar as limitações da atividades sendo cadastrada.
 // Verifica tanto número de participantes máximo e mínimo para a atividade acontecer,
 // quanto o horário que ela ta sendo cadastrada, necessário por haver atividades que
@@ -628,7 +651,7 @@ function verificar_limitacoes_eco(selecao) {
                 // Participante máximo da atividade em questão
                 const limite = response['participantes_maximo']
                 // A primeira verificação é do horário
-                if(data_atividade !== ''){
+                if (data_atividade !== '') {
 
                     // Horário informado durante o cadastro da atividade
                     let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
@@ -636,7 +659,7 @@ function verificar_limitacoes_eco(selecao) {
                     // Verificando se o horário informado é durante a noite. Como o sol se põe e nasce em horários
                     // diferentes ao longo do ano, é apenas lançado um aviso para verificar isso
                     if (hora_atividade < 9.00 || hora_atividade >= 14.30) {
-                        if(hora_atividade >= 16 || (hora_atividade >= 0 && hora_atividade <= 7 )){
+                        if (hora_atividade >= 16 || (hora_atividade >= 0 && hora_atividade <= 7)) {
                             $(`#alert_noite_eco_${indice}`).remove()
                             $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger"  id="alert_noite_eco_${indice}" style="margin-left: 10px">A atividade não pode ser realizada no horário informado!</p>`)
                             $(`#data_eco_${indice}`).val('')
@@ -650,11 +673,11 @@ function verificar_limitacoes_eco(selecao) {
                 }
 
                 // Verificação de número de participantes
-                if(participantes !== ''){
+                if (participantes !== '') {
 
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
-                    if(participantes < response['participantes_minimo']){
+                    if (participantes < response['participantes_minimo']) {
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger" id="alert_participantes_eco_${indice}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
                     } else {
                         $(`#alert_participantes_eco_${indice}`).remove()
@@ -662,7 +685,7 @@ function verificar_limitacoes_eco(selecao) {
 
                     // Verifica se o número de participantes está acimsa do limite de lotação.
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
-                    if(participantes > limite){
+                    if (participantes > limite) {
                         dividar_atividade_eco(indice, limite)
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
@@ -673,7 +696,7 @@ function verificar_limitacoes_eco(selecao) {
 }
 
 // Função responsável pela divisão das turmas caso a lotação máxima seja excedida
-function dividar_atividade_eco(indicie, limite){
+function dividar_atividade_eco(indicie, limite) {
     let participantes_apx, k, aproximado, sobra;
     // Pegando os valores necessários para a divisão
     let qtd = $(`#participantes_eco_${indicie}`)
@@ -682,10 +705,10 @@ function dividar_atividade_eco(indicie, limite){
     let serie_ = $(`#serie_eco_${indicie}`).val()
 
     // Aqui é feito uma verificação do número de turmas necessário
-    for(k = 2; k > 1; k++){
+    for (k = 2; k > 1; k++) {
 
         // Vê se o número e turmas já é o suficiente
-        if(qtd.val() / k <= limite){
+        if (qtd.val() / k <= limite) {
             // Aproximação necessária para não haver número fracionado
             participantes_apx = Math.trunc(qtd.val() / k)
             // Booleano para dizer se houve aproximação
@@ -698,7 +721,7 @@ function dividar_atividade_eco(indicie, limite){
     }
 
     // Troca do número de participantes da atividade já inicado
-    if (aproximado){
+    if (aproximado) {
         qtd.val(participantes_apx + 1)
     } else {
         qtd.val(participantes_apx)
@@ -710,7 +733,7 @@ function dividar_atividade_eco(indicie, limite){
         let participantes_ = participantes_apx
 
         // Caso haja participantes sobrando pelo arredondamento é adcionado nas primeiras turmas
-        if(j < sobra){
+        if (j < sobra) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
@@ -718,7 +741,7 @@ function dividar_atividade_eco(indicie, limite){
     }
 }
 
-$('#btn_salvar_os').on('click', function (e){
+$('#btn_salvar_os').on('click', function (e) {
     const inputs_atividade_extra = [
         $('.atividade_eco'),
         $('.hora_atividade_eco'),

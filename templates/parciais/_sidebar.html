@@ -16,7 +16,7 @@
         {% if not ver %}
             <ul class="nav-links">
 
-                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                     {% if 'dashboard' in request.path %}
                         <li>
                             <a>
@@ -35,7 +35,7 @@
 
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -54,7 +54,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -74,7 +74,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -95,7 +95,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -136,7 +136,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -174,7 +174,7 @@
                         <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
                         <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
 
-                        {% if perms.peraltas.add_escalaacampamento %}
+                        {% if perms.peraltas.view_escalaacampamento %}
                             <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de disponibilidade</a></li>
                         {% endif %}
 
@@ -183,7 +183,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -205,7 +205,7 @@
                 </li>
 
                 {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>
@@ -225,7 +225,7 @@
                 {% endif %}
 
                 </li>{% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.peraltas.view_escalaacampamento %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
                         <li>

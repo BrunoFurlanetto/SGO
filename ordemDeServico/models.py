@@ -21,7 +21,7 @@ class OrdemDeServico(models.Model):
     )
 
     tipo = models.CharField(choices=tipo_choice, max_length=7)
-    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.DO_NOTHING)
+    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE)
     instituicao = models.CharField(max_length=300)
     cidade = models.CharField(max_length=255)
     check_in = models.DateTimeField()
@@ -30,12 +30,13 @@ class OrdemDeServico(models.Model):
     serie = models.CharField(max_length=255, blank=True, null=True)
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True) # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
                                          related_name='monitor_embarque')
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
+    telefone_motorista = models.CharField(max_length=15, blank=True, null=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)
@@ -86,6 +87,7 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'tipo': forms.Select(attrs={'onchange': "$('#id_empresa').trigger('change')"}),
             'empresa': forms.Select(attrs={'onchange': 'verificar_atividades(this)'}),
+            'telefone_motorista': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
         }
 
     def __init__(self, *args, **kwargs):
