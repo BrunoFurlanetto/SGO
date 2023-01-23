@@ -151,6 +151,7 @@ class ClienteColegio(models.Model):
     razao_social = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
     nome_fantasia = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255, blank=True, null=True)
     codigo_app_pj = models.IntegerField(unique=True, blank=True, null=True)
     codigo_app_pf = models.IntegerField(unique=True, blank=True, null=True)
     endereco = models.CharField(max_length=600)
@@ -316,6 +317,9 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+    def nickname_cliente(self):
+        return self.cliente.nickname if self.cliente.nickname else self.cliente.nome_fantasia
 
     def tabelar_refeicoes(self):
         dados = []

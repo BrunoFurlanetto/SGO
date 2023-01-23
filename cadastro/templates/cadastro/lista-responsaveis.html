@@ -43,10 +43,13 @@
             </form>
             <table class="table responsaveis">
                 <thead>
-                <th style="width: 25%">NOME</th>
-                <th style="width: 25%">TELEFONE</th>
-                <th style="width: 25%">EMAIL</th>
-                <th style="width: 30%">CLIENTE</th>
+                <tr>
+                    <th style="width: 30%">NOME</th>
+                    <th style="width: 30%">CARGO</th>
+                    <th style="width: 25%">TELEFONE</th>
+                    <th style="width: 25%">EMAIL</th>
+                    <th style="width: 30%">CLIENTE</th>
+                </tr>
                 </thead>
                 <tbody id="corpo-tabela-responsaveis">
                 {% for responsavel in responsaveis %}
@@ -58,6 +61,8 @@
                                         {{ responsavel.nome }}
                                     </span>
                             </button>
+                        </td>
+                        <td>{% for cargo in responsavel.cargo.all %}{{ cargo }},{% endfor %}
                         </td>
                         <td>{{ responsavel.fone }}</td>
                         <td>{{ responsavel.email_responsavel_evento }}</td>

@@ -145,7 +145,7 @@
                                 {
                                     {% if professor_ceu%}
                                         {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
-                                            title: "{{ ficha.cliente }}",
+                                            title: "{{ ficha.nickname_cliente }}",
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
@@ -236,18 +236,6 @@
         </script>
 
         <div class="legenda row">
-            <div class="colegio" style="display: flex; width: 300px">
-                <div class="cor"></div>
-                <p style="margin-top: 10px"> - Colégio</p>
-            </div>
-            <div class="empresa" style="display: flex; width: 300px">
-                <div class="cor"></div>
-                <p style="margin-top: 10px"> - Empresa</p>
-            </div>
-            <div class="ficha_evento" style="display: flex;  width: 300px">
-                <div class="cor"></div>
-                <p style="margin-top: 10px"> - Ficha de Evento</p>
-            </div>
             <div class="pre-reserva" style="display: flex;  width: 300px">
                 <div class="cor"></div>
                 <p style="margin-top: 10px"> - Pré reserva</p>
@@ -255,6 +243,15 @@
             <div class="reserva-confirmada" style="display: flex;  width: 300px">
                 <div class="cor"></div>
                 <p style="margin-top: 10px"> - Reserva confirmada</p>
+            </div>
+            0
+            <div class="colegio" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Colégio</p>
+            </div>
+            <div class="empresa" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Empresa</p>
             </div>
         </div>
     </div>

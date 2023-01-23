@@ -397,7 +397,6 @@ def listaCliente(request):
         form = CadastroCliente(request.POST, instance=cliente)
 
         if form.is_valid():
-
             try:
                 form.save()
             except Exception as e:

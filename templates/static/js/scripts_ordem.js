@@ -78,7 +78,7 @@ function completar_dados_os(selecao) {
             }
 
             if (response['embarque_sao_paulo']) {
-                $('#monitor_embarque, #nome_motorista').removeClass('none')
+                $('#informacoes_motorista').removeClass('none')
                 $('#id_monitor_embarque, #id_nome_motorista').prop('required', true)
 
                 if (response['id_monitor_embarque'] !== '') {
