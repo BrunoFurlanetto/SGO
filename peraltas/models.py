@@ -116,6 +116,7 @@ class ProdutosPeraltas(models.Model):
     produto = models.CharField(max_length=255)
     pernoite = models.BooleanField(default=True)
     colegio = models.BooleanField(default=True)
+    n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
     hora_padrao_check_in = models.TimeField(blank=True, null=True)
     hora_padrao_check_out = models.TimeField(blank=True, null=True)
 
@@ -162,7 +163,7 @@ class ClienteColegio(models.Model):
     responsavel_alteracao = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
-        return self.nome_fantasia
+        return self.nickname if self.nickname else self.nome_fantasia
 
 
 class ListaDeCargos(models.Model):
@@ -284,6 +285,7 @@ class FichaDeEvento(models.Model):
     outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
+    obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True)
     professores_com_alunos = models.BooleanField(default=False)
     qtd_professores = models.PositiveIntegerField(blank=True, null=True)
     qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True)
@@ -317,9 +319,6 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
-
-    def nickname_cliente(self):
-        return self.cliente.nickname if self.cliente.nickname else self.cliente.nome_fantasia
 
     def tabelar_refeicoes(self):
         dados = []
@@ -535,12 +534,12 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'check_in',
             'check_out', 'qtd_convidada', 'observacoes',
-            'vendedora', 'pre_reserva', 'agendado'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
         ]
 
         widgets = {
             'cliente': forms.Select(attrs={'onChange': 'gerar_responsaveis(this)'}),
-            'produto': forms.Select(attrs={'onChange': 'verQuantidades(this)'}),
+            'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
             'check_in': forms.TextInput(attrs={
                 'type': 'datetime-local',
                 'onChange': 'pegarDias(true)',
@@ -558,9 +557,24 @@ class CadastroPreReserva(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CadastroPreReserva, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
+        responsaveis = Responsavel.objects.all()
+        responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
 
         for cliente in clientes:
-            clientes_cnpj.append((cliente.id, f'{cliente.nome_fantasia} ({cliente.cnpj})'))
+            clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
+
+        for responsavel in responsaveis:
+            cargos = []
+
+            for cargo in responsavel.cargo.all():
+                if cargo != '':
+                    cargos.append(cargo.cargo)
+
+            if len(cargos) > 0:
+                responsaveis_cargo.append((responsavel.id, f'{responsavel.nome} ({", ".join(cargos)})'))
+            else:
+                responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
         self.fields['cliente'].choices = clientes_cnpj
+        self.fields['responsavel_evento'].choices = responsaveis_cargo

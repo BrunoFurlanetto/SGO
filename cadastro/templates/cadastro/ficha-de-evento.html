@@ -90,8 +90,17 @@
                     </div>
                     <div id="div_editar_horarios" class="checkbox">
                         <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
-                               style="margin-right: 5px; padding: 0">
+                               style="margin-right: 5px; padding: 0" {% if form.obs_edicao_horario.value != None %} checked {% endif %}
+                               onclick="$('#obs_edicao').toggleClass('none');
+                                           if ($('#obs_edicao').attr('class').includes('none')){
+                                               $('#id_obs_edicao_horario').prop('required', false)}
+                                           else{
+                                               $('#id_obs_edicao_horario').prop('required', true)}">
                         <label for="check_editar_horarios">Editar horários</label>
+                    </div>
+                    <div id="obs_edicao" class="mt-2 {% if form.obs_edicao_horario.value == None %} none {% endif %}">
+                        <label>Justificativa</label>
+                        {{ form.obs_edicao_horario }}
                     </div>
                 </div>
                 <hr>
@@ -302,7 +311,7 @@
                 <hr>
                 <div class="row">
                     <div>
-                        <label for="id_vendedora">Vendedor(a)</label>
+                        <label for="id_vendedora">Atendente</label>
                     </div>
                     <div style="width: 35%">
                         {{ form.vendedora }}

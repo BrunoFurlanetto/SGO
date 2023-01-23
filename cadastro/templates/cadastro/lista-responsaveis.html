@@ -23,7 +23,7 @@
                                     value="{{ request.GET.cliente }}" onchange="salvarIdCliente()">
                                 <option selected></option>
                                 {% for cliente in clientes %}
-                                    <option value="{{ cliente.id }}">{{ cliente.nome_fantasia }}</option>
+                                    <option value="{{ cliente.id }}">{{ cliente }}</option>
                                 {% endfor %}
                             </select>
                         </div>

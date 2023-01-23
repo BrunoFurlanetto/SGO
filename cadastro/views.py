@@ -542,7 +542,6 @@ def listaResponsaveis(request):
     form = CadastroResponsavel(request.POST)
 
     if form.is_valid():
-
         try:
             novo_responsavel = form.save()
         except Exception as e:

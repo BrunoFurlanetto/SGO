@@ -659,7 +659,8 @@
 .conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input,
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
 #form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
-#ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local]{
+#ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local],
+#ModalCadastroPreReserva input[type=text]{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;

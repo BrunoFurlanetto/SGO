@@ -68,6 +68,7 @@ def eventos(request):
             'cliente': pre_reserva.cliente.id,
             'responavel_evento': pre_reserva.responsavel_evento.id,
             'produto': pre_reserva.produto.id,
+            'obs_edicao': pre_reserva.obs_edicao_horario,
             'qtd': pre_reserva.qtd_convidada,
             'vendedor': pre_reserva.vendedora.id,
             'editar': pre_reserva.vendedora.usuario.id == request.user.id,

@@ -388,6 +388,7 @@ def requests_ajax(requisicao, files=None):
             'vt': produto.produto == 'Visita Técnica',
             'outro': produto.produto == 'Outro',
             'so_ceu': produto.produto == 'Só CEU',
+            'n_dias': produto.n_dias,
             'hora_check_in_padrao': produto.hora_padrao_check_in,
             'hora_check_out_padrao': produto.hora_padrao_check_out,
         }
