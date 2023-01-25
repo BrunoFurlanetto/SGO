@@ -72,12 +72,11 @@ function completar_dados_os(selecao) {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_ficha': selecao.value},
         success: function (response) {
-
             for (let i in response) {
                 $(`#${i}`).val(response[i])
             }
 
-            if (response['embarque_sao_paulo']) {
+            /*if (response['embarque_sao_paulo']) {
                 $('#informacoes_motorista').removeClass('none')
                 $('#id_monitor_embarque, #id_nome_motorista').prop('required', true)
 
@@ -89,7 +88,7 @@ function completar_dados_os(selecao) {
             } else {
                 $('#monitor_embarque, #nome_motorista').addClass('none')
                 $('#id_monitor_embarque, #id_nome_motorista').prop('required', false)
-            }
+            }*/
 
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
@@ -104,6 +103,18 @@ function completar_dados_os(selecao) {
                 $('.locacao-ceu').addClass('none')
                 $('.colegios').removeClass('none')
                 corporativo = false
+            }
+
+            if (response['transporte']) {
+                $('.transporte').removeClass('none')
+            } else {
+                $('.transporte').addClass('none')
+            }
+
+            if (response['seguro']){
+                $('#div_lista_segurados').removeClass('none')
+            } else {
+                $('#div_lista_segurados').addClass('none')
             }
 
             if (response['atividades_eco'] !== '') {
@@ -129,6 +140,7 @@ function completar_dados_os(selecao) {
             }
         }
     })
+
     setTimeout(() => {
         $('#id_empresa').trigger('change')
     }, 600)

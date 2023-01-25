@@ -12,7 +12,7 @@ from cadastro.funcoesPublico import salvar_equipe, salvar_atividades
 import cadastro.funcoes
 from ordemDeServico.models import OrdemDeServico, CadastroOrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroFichaDeEvento, InformacoesAdcionais, CodigosApp, \
-    CadastroInfoAdicionais, CadastroCodigoApp, GrupoAtividade, DadosTransporte, CadastroDadosTransporte
+    CadastroInfoAdicionais, CadastroCodigoApp, GrupoAtividade
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_atividades_e_professores
 
@@ -253,86 +253,3 @@ def verRelatorioEmpresa(request, id_relatorio):
         return render(request, 'verDocumento/ver-relatorios-empresa.html', {'formulario': relatorio_empresa,
                                                                             'professores': professores,
                                                                             'grupos': grupos})
-
-
-@login_required(login_url='login')
-def verFichaDeEvento(request, id_fichaDeEvento):
-    ficha = FichaDeEvento.objects.get(id=int(id_fichaDeEvento))
-    grupos_atividade = GrupoAtividade.objects.all()
-    informacoes = InformacoesAdcionais.objects.get(id=ficha.informacoes_adcionais.id)
-    app = CodigosApp.objects.get(id=ficha.codigos_app.id)
-    grupos = verificar_grupo(request.user.groups.all())
-    ficha_de_evento = CadastroFichaDeEvento(instance=ficha)
-    informacoes_adicionais = CadastroInfoAdicionais(instance=informacoes)
-    codigos_app = CadastroCodigoApp(instance=app)
-
-    if informacoes.transporte:
-        transporte = DadosTransporte.objects.get(id=informacoes.informacoes_transporte.id)
-        form_transporte = CadastroDadosTransporte(instance=transporte)
-    else:
-        transporte = None
-        form_transporte = CadastroDadosTransporte()
-
-    ficha_de_evento.id = ficha.id
-    informacoes_adicionais.lista_de_segurados = ficha.informacoes_adcionais.lista_segurados
-    comercial = User.objects.filter(pk=request.user.id, groups__name='Comercial').exists()
-    operacional = User.objects.filter(pk=request.user.id, groups__name='Operacional').exists()
-
-    if request.method != 'POST':
-        return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
-                                                                         'transporte': transporte,
-                                                                         'form_transporte': form_transporte,
-                                                                         'formAdicionais': informacoes_adicionais,
-                                                                         'grupos_atividade': grupos_atividade,
-                                                                         'formApp': codigos_app,
-                                                                         'comercial': comercial,
-                                                                         'operacional': operacional,
-                                                                         'grupos': grupos})
-
-    if is_ajax(request):
-        if request.POST.get('id_ficha_de_evento'):
-            return JsonResponse(requests_ajax(request.POST))
-
-        return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
-
-    if request.POST.get('excluir') == 'Sim':
-        try:
-            ficha.delete()
-            informacoes.delete()
-            app.delete()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, f'Ficha de evento não exlcuida: {e}')
-            return redirect('verFichaDeEvento', ficha.id)
-        else:
-            messages.success(request, 'Ficha de evento excluida com sucesso!')
-            return redirect('calendario_eventos')
-
-    ficha_de_evento = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha)
-
-    if ficha_de_evento.is_valid():
-
-        nova_ficha = ficha_de_evento.save(commit=False)
-        nova_ficha.refeicoes = cadastro.funcoes.pegar_refeicoes(request.POST)
-
-        try:
-            ficha_de_evento.save()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde.')
-            return redirect('dashboard')
-        else:
-            messages.success(request, 'Ficha de evento salva com sucesso')
-            return redirect('verFichaDeEvento', ficha.id)
-
-    else:
-        messages.warning(request, ficha_de_evento.errors)
-        return render(request, 'verDocumento/ver-ficha-de-evento.html', {'form': ficha_de_evento,
-                                                                         'transporte': transporte,
-                                                                         'form_transporte': form_transporte,
-                                                                         'formAdicionais': informacoes_adicionais,
-                                                                         'grupos_atividade': grupos_atividade,
-                                                                         'formApp': codigos_app,
-                                                                         'comercial': comercial,
-                                                                         'operacional': operacional,
-                                                                         'grupos': grupos})

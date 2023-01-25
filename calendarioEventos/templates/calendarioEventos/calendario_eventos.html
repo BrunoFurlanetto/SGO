@@ -15,7 +15,21 @@
         <script>
             $(document).ready(function () {
                 montar_calendario()
+
+                $('.fc-toolbar-chunk').on('click',
+                    () => {
+                        const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
+                        const mes = moment(data_base).month() + 1
+                        const ano = moment(data_base).year()
+                        console.log(mes, ano)
+                    }
+                )
             })
+
+            $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
+                const lista = 'Confirmados: 115 \n Reservados: 25 \n total: 140'
+                console.log(this.title = lista)
+            });
 
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
@@ -169,6 +183,7 @@
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',
+                                        description: 'Foi aqui'
                                     {% endif %}
 
                                     color: '#8B008B',
@@ -179,6 +194,7 @@
                     ],
 
                 });
+
                 calendar.render();
                 calendar.setOption('locale', 'pt-br')
             }
@@ -283,7 +299,7 @@
                 })
             }
         </script>
-
+        <div class="event-description"></div>
         <div class="legenda row">
             <div class="pre-reserva" style="display: flex;  width: 300px">
                 <div class="cor"></div>

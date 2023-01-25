@@ -325,7 +325,7 @@
                     </div>
                 </div>
                 <hr>
-                <div>
+                <div style="display: table-caption">
                     <h5 class="titulo-secao">Material de apoio</h5>
                     {{ form.material_apoio }}
                 </div>
@@ -381,66 +381,16 @@
                                     <label>Transporte?</label>
                                 </div>
                             </div>
-                            <div id="dados_transporte"
-                                 class="row mt-2 {% if not formAdicionais.transporte.value %} none {% endif %}">
-                                <div class="mb-2" style="display: flex; flex-direction: column">
+                            <div id="dados_transporte" class="row mt-2 {% if not formAdicionais.transporte.value %} none {% endif %}">
+                                <div class="mb-2">
                                     <label>Fechado internamente?</label>
-                                    {{ form_transporte.transporte_fechado_internamente }}
-                                </div>
-                                <div class="checkbox" style="width: 50%" id="viacao">
-                                    <label>Viação</label>
-                                    {{ form_transporte.empresa_onibus }}
-                                </div>
-                                <div style="width: 20%" id="horario_embarque">
-                                    <label for="id_hora_embarque">Horário</label>
-                                    {{ form_transporte.horario_embarque }}
-                                </div>
-                                <div class="row mt-2" id="dados_embarque">
-                                    <div style="width: 75%" id="endereco_embarque">
-                                        <label>Endereço de embarque</label>
-                                        {{ form_transporte.endereco_embarque }}
-                                    </div>
-                                </div>
-                                <div class="row mt-3" id="dados_veiculos">
-                                    <div class="row" style="width: 33%">
-                                        <div style="width: auto">
-                                            <label class="py-1">Micro ônibus:</label>
-                                        </div>
-                                        <div style="width: 30%">
-                                            <input type="number" name="n_micro" placeholder="n" min="0"
-                                                   value="{{ dados_transporte.valor_veiculos.0.n }}">
-                                        </div>
-                                    </div>
-                                    <div class="row" style="width: 36%">
-                                        <div style="width: auto">
-                                            <label class="py-1">Ônibus 46 lugares:</label>
-                                        </div>
-                                        <div style="width: 30%">
-                                            <input type="number" name="n_46" placeholder="n" min="0"
-                                                   value="{{ dados_transporte.valor_veiculos.1.n }}">
-                                        </div>
-                                    </div>
-                                    <div class="row" style="width: 36%">
-                                        <div style="width: auto">
-                                            <label class="py-1">Ônibus 50 lugares:</label>
-                                        </div>
-                                        <div style="width: 30%">
-                                            <input type="number" name="n_50" placeholder="n" min="0"
-                                                   value="{{ dados_transporte.valor_veiculos.2.n }}">
-                                        </div>
-                                    </div>
+                                    {{ formAdicionais.transporte_fechado_internamente }}
                                 </div>
                             </div>
                             <hr>
-                            <div class="checkbox row" onchange="lista_segurados()">
-                                <div style="width: 15%">
-                                    {{ formAdicionais.seguro }}
-                                    <label>Seguro</label>
-                                </div>
-                                <div id="div_lista_segurads" {% if not formAdicionais.seguro.value %}
-                                     class="none" {% endif %} style="width: 80%">
-                                    {{ formAdicionais.lista_segurados }}
-                                </div>
+                            <div class="checkbox">
+                                {{ formAdicionais.seguro }}
+                                <label>Seguro</label>
                             </div>
                             <hr>
                             <div class="row" id="monitoria_peraltas">
@@ -448,16 +398,6 @@
                                 <div class="mb-2" style="width: 60%">
                                     <label>Tipo</label>
                                     {{ formAdicionais.monitoria }}
-                                </div>
-                                <div class="checkbox" style="width: 40%; margin-top: 35px">
-                                    {{ formAdicionais.biologo }}
-                                    <label>Biólogo?</label>
-                                </div>
-                                <div id="biologo"
-                                     class="mt-2 {% if formAdicionais.biologo.value == None %} none {% endif %}"
-                                     style="width: 50%">
-                                    <label>Em quais atividades</label>
-                                    {{ formAdicionais.quais_atividades }}
                                 </div>
                             </div>
                             <hr>

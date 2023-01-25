@@ -23,6 +23,8 @@
 #material_apoio-clear_id{
     width: 20px;
     border: 1px solid #ced4da;
+    appearance: auto;
+    background: transparent;
     border-radius: 5px;
     padding: 0;
     height: 20px;

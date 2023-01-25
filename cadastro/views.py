@@ -5,11 +5,10 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico
+from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, CadastroDadosTransporte, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, \
-    DadosTransporte
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -159,18 +158,22 @@ def empresa(request):
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
+    form_transporte = CadastroDadosTransporte()
+    transporte = None
 
     if id_ordem_de_servico:
         ordem_servico = OrdemDeServico.objects.get(id=int(id_ordem_de_servico))
         form = CadastroOrdemDeServico(instance=ordem_servico)
         ficha_de_evento = FichaDeEvento.objects.get(id=ordem_servico.ficha_de_evento.id)
+        form_transporte = CadastroDadosTransporte(instance=ordem_servico.dados_transporte)
+        transporte = ordem_servico.dados_transporte
         atividades_eco = AtividadesEco.objects.all()
         atividades_ceu = Atividades.objects.all()
         espacos = Locaveis.objects.all()
         fichas_de_evento = None
     else:
         form = CadastroOrdemDeServico()
-        fichas_de_evento = FichaDeEvento.objects.filter(os=False).order_by('check_in')
+        fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False).order_by('check_in')
         ficha_de_evento = ordem_servico = None
         atividades_eco = atividades_ceu = espacos = None
 
@@ -180,6 +183,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {
             'form': form,
+            'form_transporte': form_transporte,
             'fichas': fichas_de_evento,
             'ficha_de_evento': ficha_de_evento,
             'ordem_servico': ordem_servico,
@@ -205,10 +209,16 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if id_ordem_de_servico:
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
+
+        if transporte:
+            form_transporte = CadastroDadosTransporte(request.POST, instance=transporte)
     else:
         form = CadastroOrdemDeServico(request.POST, request.FILES)
+        form_transporte = CadastroDadosTransporte(request.POST)
 
     ordem_de_servico = form.save(commit=False)
+    dados_transporte = form_transporte.save(commit=False)
+    dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(request.POST)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
 
     try:
@@ -220,6 +230,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         if ficha.escala:
             form.escala = True
 
+        transporte_salvo = form_transporte.save()
+        ordem_de_servico.dados_transporte = transporte_salvo
         form.save()
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
@@ -277,17 +289,13 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
         if id_ficha_de_evento:
             ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
-            dados_transporte = ficha_de_evento.informacoes_adcionais.informacoes_transporte
             form = CadastroFichaDeEvento(instance=ficha_de_evento)
             form_adicionais = CadastroInfoAdicionais(instance=ficha_de_evento.informacoes_adcionais)
             form_app = CadastroCodigoApp(instance=ficha_de_evento.codigos_app)
-            form_transporte = CadastroDadosTransporte(instance=dados_transporte)
 
             return render(request, 'cadastro/ficha-de-evento.html', {
                 'ficha_de_evento': ficha_de_evento,
-                'dados_transporte': dados_transporte,
                 'form': form,
-                'form_transporte': form_transporte,
                 'formAdicionais': form_adicionais,
                 'formApp': form_app,
                 'grupos_atividade': grupos_atividade,
@@ -297,7 +305,6 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
         return render(request, 'cadastro/ficha-de-evento.html', {
             'form': form,
-            'form_transporte': form_transporte,
             'formAdicionais': form_adicionais,
             'formApp': form_app,
             'grupos_atividade': grupos_atividade,

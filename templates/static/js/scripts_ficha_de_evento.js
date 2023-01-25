@@ -300,10 +300,7 @@ function salvar_novo_op_formatura() {
 jQuery('document').ready(function () {
     jQuery('#infos').submit(function () {
         const dados = new FormData(this);
-        const lista = $('#id_lista_segurados').prop('files')[0]
         const url = $(this).attr('action');
-
-        dados.append('lista_segurados', lista)
         dados.append('infos_adicionais', $('#id_informacoes_adcionais').val())
 
         $.ajax({
@@ -362,51 +359,6 @@ $('document').ready(function () {
         return false;
     });
 });
-
-// Visualização Ficha de evento
-
-/*function completar_visualizacao_ficha(id_ficha) {
-    if ($('#id_observacoes').val() === '') {
-        $('.observacoes-ver-ficha').addClass('none')
-    }
-
-    $('#info_adicionais_ok, #codigos_app_ok').prop('checked', true)
-
-    $.ajax({
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        type: "POST",
-        data: {'id_ficha_de_evento': id_ficha},
-        success: function (response) {
-            $('#cliente').val(response['cliente'])
-            $('#responsavel').val(response['responsavel'])
-
-            $('#id_check_in').val(moment(response['check_in']).format('yyyy-MM-DDTHH:mm'))
-            $('#id_check_out').val(moment(response['check_out']).format('yyyy-MM-DDTHH:mm'))
-            pegarDias(true)
-
-            if (!response['perfil']) {
-                $('.perfil-participantes-ver-ficha').addClass('none')
-            }
-
-            for (let refeicao in response['refeicoes']) {
-                $(`#${response['refeicoes'][refeicao]}`).prop('checked', true)
-            }
-
-            if (response['obs_refeicoes']) {
-                $('#observacoes_refeicoes').removeClass('none')
-            }
-
-            if ($('.arquivo').children('a').prop('href')) {
-                $('.arquivo, #material_apoio-clear_id, .arquivo label').addClass('none')
-                $('#link_arquivo').append(`<a href="${$('.arquivo').children('a').prop('href')}">Material de apoio</a>`)
-            } else {
-                $('.arquivo, .material-apoio').addClass('none')
-            }
-
-        }
-    })
-}*/
 
 function editar_ficha() {
     $('#form_ficha, #form_adicionais, #form_app, #salvar, #excluir, #id_atividades_ceu').prop('disabled', false)

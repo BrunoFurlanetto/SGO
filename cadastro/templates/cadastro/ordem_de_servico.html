@@ -10,7 +10,9 @@
             </center>
             <hr>
         </div>
-        <form {% if ordem_servico %} action="{% url 'ver_ordem_de_servico' ordem_servico.id %}" {% else %} action="{% url 'ordem_de_servico' %}" {% endif %} method="POST" enctype="multipart/form-data">
+        <form {% if ordem_servico %} action="{% url 'ver_ordem_de_servico' ordem_servico.id %}" {% else %}
+                                     action="{% url 'ordem_de_servico' %}" {% endif %} method="POST"
+                                     enctype="multipart/form-data">
             <fieldset id="fieldset" {% if ordem_servico %} disabled="disabled" {% endif %}>
                 {% csrf_token %}
                 {% if not ordem_servico %}
@@ -19,7 +21,9 @@
                         <select name="ficha_de_evento" id="ficha_de_evento" onchange="completar_dados_os(this)">
                             <option selected></option>
                             {% for ficha in fichas %}
-                                <option value="{{ ficha.id }}" {% if ficha_de_evento and ficha_de_evento.id == ficha.id %} selected {% endif %}>{{ ficha.cliente.nome_fantasia }}</option>
+                                <option value="{{ ficha.id }}"
+                                        {% if ficha_de_evento and ficha_de_evento.id == ficha.id %}
+                                        selected {% endif %}>{{ ficha.cliente.nome_fantasia }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -59,6 +63,10 @@
                         {{ form.n_professores }}
                     </div>
                 </div>
+                <div id="div_lista_segurados" class="mt-2 {% if not ficha_de_evento.informacoes_adcionais.seguro %} none {% endif %}">
+                    <label>Lista de segurados</label>
+                    {{ form.lista_segurados }}
+                </div>
                 <hr>
                 <div class="row mb-2">
                     <h5 class="titulo-secao">Informações internas</h5>
@@ -72,31 +80,66 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="row">
-                        <div style="width: 35%">
-                            <label>Atendente</label>
-                            {{ form.vendedor }}
-                        </div>
-                        <div class="mb-2" style="width: 35%">
-                            <label>Coordenador do grupo</label>
-                            {{ form.monitor_responsavel }}
-                        </div>
-                        <div class="mb-2" style="width: 30%">
-                            <label>Empresa</label>
-                            {{ form.empresa }}
-                        </div>
-                        <div id="monitor_embarque" {% if not ordem_servico.monitor_embarque %} class="none" {% endif %} style="width: 30%">
-                            <label for="id_monitor_embarque">Monitor embarque</label>
-                            {{ form.monitor_embarque }}
-                        </div>
-                        <div id="informacoes_motorista" class="row {% if not ordem_servico.nome_motorista %} none {% endif %}">
-                            <div id="nome_motorista" style="width: 60%">
-                                <label>Motorista</label>
-                                {{ form.nome_motorista }}
+                    <div style="width: 35%">
+                        <label>Atendente</label>
+                        {{ form.vendedor }}
+                    </div>
+                    <div class="mb-2" style="width: 35%">
+                        <label>Coordenador do grupo</label>
+                        {{ form.monitor_responsavel }}
+                    </div>
+                    <div class="mb-2" style="width: 30%">
+                        <label>Empresa</label>
+                        {{ form.empresa }}
+                    </div>
+                </div>
+                <hr class="transporte {% if not ficha_de_evento.informacoes_adcionais.transporte %} none {% endif %}">
+                <div class="row {% if not ordem_servico.dados_transporte %} none {% endif %} transporte">
+                    <h5 class="titulo-secao">Transporte</h5>
+                    <div class="checkbox" style="width: 80%" id="viacao">
+                        <label>Viação</label>
+                        {{ form_transporte.empresa_onibus }}
+                    </div>
+                    <div style="width: 20%" id="horario_embarque">
+                        <label for="id_hora_embarque">Horário</label>
+                        {{ form_transporte.horario_embarque }}
+                    </div>
+                    <div id="endereco_embarque" class="mt-2" style="width: 70%">
+                        <label>Endereço de embarque</label>
+                        {{ form_transporte.endereco_embarque }}
+                    </div>
+                    <div id="monitor_embarque" class="mt-2" style="width: 30%">
+                        <label for="id_monitor_embarque">Monitor embarque</label>
+                        {{ form.monitor_embarque }}
+                    </div>
+                    <div id="nome_motorista" class="mt-2" style="width: 70%">
+                        <label>Motorista</label>
+                        {{ form_transporte.nome_motorista }}
+                    </div>
+                    <div id=telefone_motorista" class="mt-2" style="width: 30%">
+                        <label>Telefone</label>
+                        {{ form_transporte.telefone_motorista }}
+                    </div>
+                    <div class="mt-3 mb-2" id="dados_veiculos" style="display: flex; justify-content: space-between">
+                        <div class="row">
+                            <div>
+                                <label class="py-1">Micro ônibus:</label>
+                                <input type="number" name="n_micro" placeholder="n" min="0"
+                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.0.n }}" style="width: 60px">
                             </div>
-                            <div id=telefone_motorista" style="width: 30%">
-                                <label>Telefone</label>
-                                {{ form.telefone_motorista }}
+                        </div>
+                        <div class="row">
+                            <div>
+                                <label class="py-1">Ônibus 46 lugares:</label>
+                                <input type="number" name="n_46" placeholder="n" min="0"
+                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.1.n }}" style="width: 60px">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <label class="py-1">Ônibus 50 lugares:</label>
+                                <input type="number" name="n_50" placeholder="n" min="0"
+                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.2.n }}" style="width: 60px">
                             </div>
                         </div>
                     </div>
@@ -111,7 +154,8 @@
                 <div class="atividades-eco">
                     <div class="head">
                         <h5>Atividades extra</h5>
-                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes" onclick="mostrar_conteudo(this)">
+                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                           onclick="mostrar_conteudo(this)">
                             <i class="bx bx-plus"></i>
                         </a>
                     </div>
@@ -120,31 +164,49 @@
                             {% if ordem_servico.atividades_eco %}
                                 {% for atividade in ordem_servico.dividir_atividades_eco %}
                                     <div class="row div_pai_eco" id="div_pai_eco_{{ forloop.counter }}">
-                                        <div class="mb-2 div-atividade_eco" id="div_atividade_eco_{{ forloop.counter }}" style="width: 45%">
+                                        <div class="mb-2 div-atividade_eco" id="div_atividade_eco_{{ forloop.counter }}"
+                                             style="width: 45%">
                                             <label>Atividade</label>
-                                            <select class="atividade_eco" id="ativ_eco_{{ forloop.counter }}" name="atividade_eco_{{ forloop.counter }}" onchange="verificar_limitacoes_eco(this)" required>
+                                            <select class="atividade_eco" id="ativ_eco_{{ forloop.counter }}"
+                                                    name="atividade_eco_{{ forloop.counter }}"
+                                                    onchange="verificar_limitacoes_eco(this)" required>
                                                 <option></option>
                                                 {% for ativ in atividades_eco %}
-                                                    <option value="{{ ativ.id }}" {% if ativ.id == atividade.atividade %}selected{% endif %}>{{ ativ.nome_atividade_eco }}</option>
+                                                    <option value="{{ ativ.id }}"
+                                                            {% if ativ.id == atividade.atividade %}selected{% endif %}>{{ ativ.nome_atividade_eco }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="mb-2 div-data_eco" id="div_data_hora_atividade_eco_{{ forloop.counter }}" style="width: 35%">
+                                        <div class="mb-2 div-data_eco"
+                                             id="div_data_hora_atividade_eco_{{ forloop.counter }}" style="width: 35%">
                                             <label>Data e hora</label>
-                                            <input class="hora_atividade_eco" id="data_eco_{{ forloop.counter }}" type="datetime-local" name="data_hora_eco_{{ forloop.counter }}" onchange="verificar_limitacoes_eco(this)" required value="{{ atividade.data_e_hora }}"/>
+                                            <input class="hora_atividade_eco" id="data_eco_{{ forloop.counter }}"
+                                                   type="datetime-local" name="data_hora_eco_{{ forloop.counter }}"
+                                                   onchange="verificar_limitacoes_eco(this)" required
+                                                   value="{{ atividade.data_e_hora }}"/>
                                         </div>
-                                        <div class="mb-2 div-participantes_eco" id="div_participantes_eco_{{ forloop.counter }}" style="width: 15%">
+                                        <div class="mb-2 div-participantes_eco"
+                                             id="div_participantes_eco_{{ forloop.counter }}" style="width: 15%">
                                             <label>QTD</label>
-                                            <input class="qtd_participantes_eco" id="participantes_eco_{{ forloop.counter }}" type="number" name="participantes_eco_{{ forloop.counter }}" onchange="verificar_limitacoes_eco(this)" required value="{{ atividade.participantes }}"/>
+                                            <input class="qtd_participantes_eco"
+                                                   id="participantes_eco_{{ forloop.counter }}" type="number"
+                                                   name="participantes_eco_{{ forloop.counter }}"
+                                                   onchange="verificar_limitacoes_eco(this)" required
+                                                   value="{{ atividade.participantes }}"/>
                                         </div>
-                                        <div class="my-0 div-icone_eco" id="div_icone_eco_{{ forloop.counter }}" style="width: 5%">
-                                            <button class="buton-x buton-eco" id="btn-eco_{{ forloop.counter }}" type="button" onClick="remover_atividade_eco(this)">
+                                        <div class="my-0 div-icone_eco" id="div_icone_eco_{{ forloop.counter }}"
+                                             style="width: 5%">
+                                            <button class="buton-x buton-eco" id="btn-eco_{{ forloop.counter }}"
+                                                    type="button" onClick="remover_atividade_eco(this)">
                                                 <span id="spn_{{ forloop.counter }}"><i class='bx bx-x'></i></span>
                                             </button>
                                         </div>
-                                        <div class="mb-2 colegios div_serie_eco" id="div_serie_eco_{{ forloop.counter }}" style="width: 50%">
+                                        <div class="mb-2 colegios div_serie_eco"
+                                             id="div_serie_eco_{{ forloop.counter }}" style="width: 50%">
                                             <label>Serie</label>
-                                            <input class="serie_participantes_eco" id="serie_eco_{{ forloop.counter }}" type="text" name="serie_participantes_eco_{{ forloop.counter }}" value="{{ atividade.serie }}"/>
+                                            <input class="serie_participantes_eco" id="serie_eco_{{ forloop.counter }}"
+                                                   type="text" name="serie_participantes_eco_{{ forloop.counter }}"
+                                                   value="{{ atividade.serie }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
                                     </div>
@@ -160,7 +222,8 @@
                 <div class="atividade-ceu">
                     <div class="head">
                         <h5>Atividades no CEU</h5>
-                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes" onclick="mostrar_conteudo(this)">
+                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                           onclick="mostrar_conteudo(this)">
                             <i class="bx bx-plus"></i>
                         </a>
                     </div>
@@ -169,31 +232,48 @@
                             {% if ordem_servico.atividades_ceu %}
                                 {% for atividade in ordem_servico.dividir_atividades_ceu %}
                                     <div class="row div_pai" id="div_pai_{{ forloop.counter }}">
-                                        <div class="mb-2 div-atividade" id="div_atividade_{{ forloop.counter }}" style="width: 45%">
+                                        <div class="mb-2 div-atividade" id="div_atividade_{{ forloop.counter }}"
+                                             style="width: 45%">
                                             <label>Atividade</label>
-                                            <select class="atividade" id="ativ_{{ forloop.counter }}" name="atividade_{{ forloop.counter }}" onchange="verificar_limitacoes(this)" required>
+                                            <select class="atividade" id="ativ_{{ forloop.counter }}"
+                                                    name="atividade_{{ forloop.counter }}"
+                                                    onchange="verificar_limitacoes(this)" required>
                                                 <option></option>
                                                 {% for ativ in atividades_ceu %}
-                                                    <option value="{{ ativ.id }}" {% if ativ.id == atividade.atividade %}selected{% endif %}>{{ ativ.atividade }}</option>
+                                                    <option value="{{ ativ.id }}"
+                                                            {% if ativ.id == atividade.atividade %}selected{% endif %}>{{ ativ.atividade }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="mb-2 div-data" id="div_data_hora_atividade_{{ forloop.counter }}" style="width: 35%">
+                                        <div class="mb-2 div-data" id="div_data_hora_atividade_{{ forloop.counter }}"
+                                             style="width: 35%">
                                             <label>Data e hora</label>
-                                            <input class="hora_atividade" id="data_{{ forloop.counter }}" type="datetime-local" name="data_hora_{{ forloop.counter }}" onchange="verificar_limitacoes(this)" required value="{{ atividade.data_e_hora }}"/>
+                                            <input class="hora_atividade" id="data_{{ forloop.counter }}"
+                                                   type="datetime-local" name="data_hora_{{ forloop.counter }}"
+                                                   onchange="verificar_limitacoes(this)" required
+                                                   value="{{ atividade.data_e_hora }}"/>
                                         </div>
-                                        <div class="mb-2 div-participantes" id="div_participantes_{{ forloop.counter }}" style="width: 15%">
+                                        <div class="mb-2 div-participantes" id="div_participantes_{{ forloop.counter }}"
+                                             style="width: 15%">
                                             <label>QTD</label>
-                                            <input class="qtd_participantes" id="participantes_{{ forloop.counter }}" type="number" name="participantes_{{ forloop.counter }}" onchange="verificar_limitacoes(this)" required value="{{ atividade.participantes }}"/>
+                                            <input class="qtd_participantes" id="participantes_{{ forloop.counter }}"
+                                                   type="number" name="participantes_{{ forloop.counter }}"
+                                                   onchange="verificar_limitacoes(this)" required
+                                                   value="{{ atividade.participantes }}"/>
                                         </div>
-                                        <div class="my-0 div-icone" id="div_icone_{{ forloop.counter }}" style="width: 5%">
-                                            <button class="buton-x" id="btn_{{ forloop.counter }}" type="button" onClick="remover_atividade(this)">
+                                        <div class="my-0 div-icone" id="div_icone_{{ forloop.counter }}"
+                                             style="width: 5%">
+                                            <button class="buton-x" id="btn_{{ forloop.counter }}" type="button"
+                                                    onClick="remover_atividade(this)">
                                                 <span id="spn_{{ forloop.counter }}"><i class='bx bx-x'></i></span>
                                             </button>
                                         </div>
-                                        <div class="mb-2 colegios div_serie" id="div_serie_{{ forloop.counter }}" style="width: 50%">
+                                        <div class="mb-2 colegios div_serie" id="div_serie_{{ forloop.counter }}"
+                                             style="width: 50%">
                                             <label>Serie</label>
-                                            <input class="serie_participantes" id="serie_{{ forloop.counter }}" type="text" name="serie_participantes_{{ forloop.counter }}" value="{{ atividade.serie }}"/>
+                                            <input class="serie_participantes" id="serie_{{ forloop.counter }}"
+                                                   type="text" name="serie_participantes_{{ forloop.counter }}"
+                                                   value="{{ atividade.serie }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
                                     </div>
@@ -209,7 +289,8 @@
                 <div class="locacao-ceu">
                     <div class="head">
                         <h5>Locacoes no CEU</h5>
-                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes" onclick="mostrar_conteudo(this)">
+                        <a type="button" id="btn_abrir" class="btn-mostrar-atividades-locacoes"
+                           onclick="mostrar_conteudo(this)">
                             <i class="bx bx-plus"></i>
                         </a>
                     </div>
@@ -218,39 +299,64 @@
                             {% if ordem_servico.locacao_ceu %}
                                 {% for locacao in ordem_servico.dividir_locacoes_ceu %}
                                     <div class="row div_pai_loc" id="div_pai_loc_{{ forloop.counter }}">
-                                        <div class="mb-2 div-locacao" id="div_locacao_{{ forloop.counter }}" style="width: 25%">
+                                        <div class="mb-2 div-locacao" id="div_locacao_{{ forloop.counter }}"
+                                             style="width: 25%">
                                             <label>Locação</label>
-                                            <select class="locacao" id="loc_{{ forloop.counter }}" name="locacao_{{ forloop.counter }}" onchange="verificar_lotacao(this)" required>
+                                            <select class="locacao" id="loc_{{ forloop.counter }}"
+                                                    name="locacao_{{ forloop.counter }}"
+                                                    onchange="verificar_lotacao(this)" required>
                                                 <option></option>
                                                 {% for espaco in espacos %}
-                                                    <option value="{{ espaco.id }}" {% if espaco.id == locacao.espaco %} selected {% endif %}>{{ espaco.local }}</option>
+                                                    <option value="{{ espaco.id }}" {% if espaco.id == locacao.espaco %}
+                                                            selected {% endif %}>{{ espaco.local }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="mb-2 div-entrada-loc" id="div_entrada_{{ forloop.counter }}" style="width: 35%">
+                                        <div class="mb-2 div-entrada-loc" id="div_entrada_{{ forloop.counter }}"
+                                             style="width: 35%">
                                             <label>Check in</label>
-                                            <input class="entrada" id="entrada_{{ forloop.counter }}" type="datetime-local" name="entrada_{{ forloop.counter }}" onchange="verificar_lotacao(this)" required value="{{ locacao.check_in }}"/>
+                                            <input class="entrada" id="entrada_{{ forloop.counter }}"
+                                                   type="datetime-local" name="entrada_{{ forloop.counter }}"
+                                                   onchange="verificar_lotacao(this)" required
+                                                   value="{{ locacao.check_in }}"/>
                                         </div>
-                                        <div class="mb-2 div-saida-loc" id="div_saida_{{ forloop.counter }}" style="width: 35%">
+                                        <div class="mb-2 div-saida-loc" id="div_saida_{{ forloop.counter }}"
+                                             style="width: 35%">
                                             <label>Check out</label>
-                                            <input class="saida" id="saida_{{ forloop.counter }}" type="datetime-local" name="saida_{{ forloop.counter }}" onchange="verificar_lotacao(this)" required value="{{ locacao.check_out }}"/>
+                                            <input class="saida" id="saida_{{ forloop.counter }}" type="datetime-local"
+                                                   name="saida_{{ forloop.counter }}" onchange="verificar_lotacao(this)"
+                                                   required value="{{ locacao.check_out }}"/>
                                         </div>
-                                        <div class="my-0 div-icone-loc" id="div_icone_loc_{{ forloop.counter }}" style="width: 4%; margin-top: auto">
-                                            <button class="buton-x buton-loc" id="btn-loc_{{ forloop.counter }}" type="button" onClick="remover_locacao(this)">
+                                        <div class="my-0 div-icone-loc" id="div_icone_loc_{{ forloop.counter }}"
+                                             style="width: 4%; margin-top: auto">
+                                            <button class="buton-x buton-loc" id="btn-loc_{{ forloop.counter }}"
+                                                    type="button" onClick="remover_locacao(this)">
                                                 <span id="spn_loc{{ forloop.counter }}"><i class='bx bx-x'></i></span>
                                             </button>
                                         </div>
-                                        <div class="mb-2 div-local-coffee" id="div_local_coffee_{{ forloop.counter }}" style="width: 50%">
+                                        <div class="mb-2 div-local-coffee" id="div_local_coffee_{{ forloop.counter }}"
+                                             style="width: 50%">
                                             <label>Local do cofee</label>
-                                            <input class="local_coffee" id="local-coffee_{{ forloop.counter }}" type="text" name="local-coffee_{{ forloop.counter }}" value="{{ locacao.local_coffee }}"/>
+                                            <input class="local_coffee" id="local-coffee_{{ forloop.counter }}"
+                                                   type="text" name="local-coffee_{{ forloop.counter }}"
+                                                   value="{{ locacao.local_coffee }}"/>
                                         </div>
-                                        <div class="mb-2 div-hora-coffee" id="div_hora_coffee_{{ forloop.counter }}" style="width: 20%">
+                                        <div class="mb-2 div-hora-coffee" id="div_hora_coffee_{{ forloop.counter }}"
+                                             style="width: 20%">
                                             <label>Hora</label>
-                                            <input class="hora_coffee" id="hora-coffee_{{ forloop.counter }}" type="time" name="hora-coffee_{{ forloop.counter }}" onchange="verificar_lotacao(this)" value="{{ locacao.hora_coffee }}"/>
+                                            <input class="hora_coffee" id="hora-coffee_{{ forloop.counter }}"
+                                                   type="time" name="hora-coffee_{{ forloop.counter }}"
+                                                   onchange="verificar_lotacao(this)"
+                                                   value="{{ locacao.hora_coffee }}"/>
                                         </div>
-                                        <div class="mb-2 div-participantes-loc" id="div_participantes_loc_{{ forloop.counter }}" style="width: 15%">
+                                        <div class="mb-2 div-participantes-loc"
+                                             id="div_participantes_loc_{{ forloop.counter }}" style="width: 15%">
                                             <label>QTD</label>
-                                            <input class="qtd_participantes_loc" id="participantes-loc_{{ forloop.counter }}" type="number" name="participantes-loc_{{ forloop.counter }}" onchange="verificar_lotacao(this)" required value="{{ locacao.participantes }}"/>
+                                            <input class="qtd_participantes_loc"
+                                                   id="participantes-loc_{{ forloop.counter }}" type="number"
+                                                   name="participantes-loc_{{ forloop.counter }}"
+                                                   onchange="verificar_lotacao(this)" required
+                                                   value="{{ locacao.participantes }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
                                     </div>
@@ -279,9 +385,12 @@
                 {% if perms.ordemDeServico.change_ordemdeservico %}
                     <div class="botoes">
                         <button type="submit" class="btn btn-primary ml-5" disabled>Salvar</button>
-                        <button type="button" class="btn btn-secondary ml-5" onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false)">Editar</button>
+                        <button type="button" class="btn btn-secondary ml-5"
+                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false)">Editar
+                        </button>
                         <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
-                            data-target="#excluir_ordem_de_servico" disabled>Excluir</button>
+                                data-target="#excluir_ordem_de_servico" disabled>Excluir
+                        </button>
                     </div>
                 {% endif %}
             {% else %}

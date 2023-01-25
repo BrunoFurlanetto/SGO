@@ -25,6 +25,9 @@ def eventos(request):
 
     if is_ajax(request):
         if request.method == 'GET':
+            if request.GET.get('mes'):
+                print(request.GET)
+
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
             tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)

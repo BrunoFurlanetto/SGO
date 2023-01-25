@@ -196,27 +196,6 @@ class EmpresaOnibus(models.Model):
         return self.viacao
 
 
-class DadosTransporte(models.Model):
-    sim_nao = (
-        ('', ''),
-        (0, 'Não'),
-        (1, 'Sim'),
-    )
-
-    transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='', blank=True, null=True)
-    empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE, blank=True, null=True)
-    endereco_embarque = models.CharField(max_length=255, blank=True, null=True)
-    horario_embarque = models.TimeField(blank=True, null=True)
-    dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
-
-    def valor_veiculos(self):
-        return [
-            {'veiculo': 'micro', 'n': self.dados_veiculos['micro_onibus']},
-            {'veiculo': '46', 'n': self.dados_veiculos['onibus_46']},
-            {'veiculo': '50', 'n': self.dados_veiculos['onibus_50']}
-        ]
-
-
 class OpcionaisGerais(models.Model):
     opcional_geral = models.CharField(max_length=100)
 
@@ -251,9 +230,8 @@ class InformacoesAdcionais(models.Model):
     )
 
     transporte = models.BooleanField()
-    informacoes_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
+    transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='')
     seguro = models.BooleanField()
-    lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
     quais_atividades = models.ManyToManyField(AtividadesEco, blank=True)
@@ -492,17 +470,6 @@ class CadastroResponsavel(forms.ModelForm):
         exclude = ()
 
 
-class CadastroDadosTransporte(forms.ModelForm):
-    class Meta:
-        model = DadosTransporte
-        exclude = ()
-
-        widgets = {
-            'transporte_fechado_internamente': forms.Select(attrs={'style': 'width: 100px'}),
-            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-        }
-
-
 class CadastroInfoAdicionais(forms.ModelForm):
     class Meta:
         model = InformacoesAdcionais
@@ -512,6 +479,7 @@ class CadastroInfoAdicionais(forms.ModelForm):
             'transporte': forms.CheckboxInput(attrs={'onchange': 'pegarEndereco()'}),
             'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
+            'transporte_fechado_internamente': forms.Select(attrs={'style': 'width: 100px'}),
         }
 
 

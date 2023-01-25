@@ -1,9 +1,11 @@
 from django.contrib import admin
+
+from ordemDeServico.models import DadosTransporte
 from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             DadosTransporte, Enfermeira)
+                             Enfermeira)
 from peraltas.models import Vendedor
 
 
