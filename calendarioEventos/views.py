@@ -37,18 +37,25 @@ def eventos(request):
 
         if request.POST.get('id_cliente'):
             cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente'))
-            relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
 
-            return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
+            try:
+                relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+            except RelacaoClienteResponsavel.DoesNotExist:
+                return JsonResponse({'responsaveis': []})
+            else:
+                return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
 
         if request.POST.get('id_produto'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
+        print(request.POST.get('cliente'))
         if not request.POST.get('cnpj'):
-            cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
+            try:
+                cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
+            except ClienteColegio.DoesNotExist:
+                cliente = ClienteColegio.objects.get(nickname=request.POST.get('cliente'))
         else:
             cliente = ClienteColegio.objects.get(cnpj=request.POST.get('cnpj'))
-
         check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%d %H:%M')
         check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%d %H:%M')
         pre_reserva = FichaDeEvento.objects.get(

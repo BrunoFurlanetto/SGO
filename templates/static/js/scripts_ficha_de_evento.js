@@ -1,4 +1,5 @@
-let hora_padrao_check_in, hora_padrao_check_out
+let hora_padrao_check_in, hora_padrao_check_out, dias_produto
+let carregado = false
 let evento_corporativo
 
 function carregar_scripts(editando) {
@@ -35,6 +36,10 @@ function verQuantidades(produto) {
         success: function (response) {
             hora_padrao_check_in = response['hora_check_in_padrao']
             hora_padrao_check_out = response['hora_check_out_padrao']
+
+            if (carregado) $('#id_check_in, #id_check_out').val('')
+            carregado = true
+            dias_produto = response['n_dias']
 
             if (response['so_ceu']) {
                 $('.peraltas').addClass('none')
@@ -124,8 +129,11 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
         }
 
         check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
-
-        if (check_out.val() !== '') check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
+        if (dias_produto !== null){
+            check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
+        } else {
+            check_out.val('')
+        }
     }
 }
 

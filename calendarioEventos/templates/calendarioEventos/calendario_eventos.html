@@ -38,7 +38,7 @@
             }
 
             $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
-                if (!this.classList.contains('fc-day-other')){
+                if (!this.classList.contains('fc-day-other')) {
                     const dia = moment($(this).data('date')).date()
                     const lotacao_dia = lotacao[dia]
                     this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`

@@ -447,7 +447,13 @@ class CadastroFichaDeEvento(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CadastroFichaDeEvento, self).__init__(*args, **kwargs)
-        self.fields['atividades_peraltas'].coices = GrupoAtividade.objects.filter(obrigatoria=True)
+        atividades_obrigatorias = GrupoAtividade.objects.filter(obrigatoria=True)
+        atividades = []
+
+        for atividade in atividades_obrigatorias:
+            atividades.append((atividade.id, atividade.grupo))
+
+        self.fields['atividades_peraltas'].choices = atividades
 
 
 class CadastroCliente(forms.ModelForm):
