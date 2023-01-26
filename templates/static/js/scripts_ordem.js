@@ -563,9 +563,10 @@ function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseI
             let div_participantes = `<div class="mb-2 div-participantes_eco" id="div_participantes_eco_${i}" style="width: 15%"></div>`
             let div_icone = `<div class="my-0 div-icone_eco" id="div_icone_eco_${i}" style="width: 5%"></div>`
             let div_serie = `<div class="mb-2 colegios div_serie_eco" id="div_serie_eco_${i}" style="width: 50%"></div>`;
+            let div_biologo = `<div class="mb-2 colegios div_biologo_eco" id="div_biologo_eco_${i}" style="width: 15%"></div>`;
 
             // Adição das div's na div pai
-            $(`#div_pai_eco_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, `<hr class="barra" style="margin-left: 10px">`)
+            $(`#div_pai_eco_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, div_biologo, `<hr class="barra" style="margin-left: 10px">`)
 
             //Criação dos elementos html necessários par o cadastro de uma nova atividade contratada pelo cliente
             let label_atividade = `<label>Atividade</label>`
@@ -576,12 +577,15 @@ function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseI
             let participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${participantes_}"/>`
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes_eco" id="serie_eco_${i}" type="text" name="serie_participantes_eco_${i}" value="${serie_}"/>`
+            let label_biologo = '<label>Biologo</label>'
+            let biologo = `<select class="biologo_eco" id="biologo_eco_${i}" name="biologo_eco_${i}" required><option></option><<option value="sim">Sim</option><<option value="nao">Não</option></select>`
 
             // Adição dos elemntos em suas respectivas div's
             $(`#div_atividade_eco_${i}`).append(label_atividade, select_atividade)
             $(`#div_data_hora_atividade_eco_${i}`).append(label_data, data_hora_atividade)
             $(`#div_participantes_eco_${i}`).append(label_participantes, participantes)
             $(`#div_serie_eco_${i}`).append(label_serie, serie)
+            $(`#div_biologo_eco_${i}`).append(label_biologo, biologo)
 
             // Todas as atividades que serão dcionadas no select da atividade
             for (let j in response['dados']) {
@@ -613,6 +617,7 @@ function remover_atividade_eco(selecao) {
     let divs_participantes = document.querySelectorAll('.div-participantes_eco')
     let divs_icones = document.querySelectorAll('.div-icone_eco')
     let divs_serie = document.querySelectorAll('.div_serie_eco')
+    let divs_biologo = document.querySelectorAll('.div_biologo_eco')
 
     // Seleção dos elementos que serão renumerados/renomeados
     let select_atividade = document.querySelectorAll('.atividade_eco')
@@ -620,6 +625,7 @@ function remover_atividade_eco(selecao) {
     let qtd_atividade = document.querySelectorAll('.qtd_participantes_eco')
     let icone = document.querySelectorAll('.buton-x')
     let serie = document.querySelectorAll('.serie_participantes_eco')
+    let biologo = document.querySelectorAll('.biologo_eco')
 
     // Renumeração/renomeação das div's e elementos antes selecionados
     for (let k = 0; k <= divs_pai.length; k++) {
@@ -630,6 +636,7 @@ function remover_atividade_eco(selecao) {
         $(divs_participantes[k]).attr('id', 'div_participantes_eco_' + (k + 1));
         $(divs_icones[k]).attr('id', 'div_icone_eco_' + (k + 1));
         $(divs_serie[k]).attr('id', 'div_serie_eco_' + (k + 1));
+        $(divs_biologo[k]).attr('id', 'div_biologo_eco_' + (k + 1));
 
         // Então passa a renumeração/renomeação dos elementos
         $(select_atividade[k]).attr('id', `ativ_eco_${k + 1}`).attr('name', `atividade_eco_${k + 1}`);
@@ -637,6 +644,7 @@ function remover_atividade_eco(selecao) {
         $(qtd_atividade[k]).attr('name', 'participantes_eco_' + (k + 1));
         $(icone[k]).attr('id', 'btn-eco_' + (k + 1));
         $(serie[k]).attr('name', 'serie_participantes_eco_' + (k + 1)).attr('id', 'serie_eco_' + (k + 1));
+        $(biologo[k]).attr('name', 'biologo_eco_' + (k + 1)).attr('id', 'biologo_eco_' + (k + 1));
     }
 }
 
@@ -754,11 +762,13 @@ function dividar_atividade_eco(indicie, limite) {
 }
 
 $('#btn_salvar_os').on('click', function (e) {
+    console.log('Foi')
     const inputs_atividade_extra = [
         $('.atividade_eco'),
         $('.hora_atividade_eco'),
         $('.qtd_participantes_eco'),
         $('.serie_participantes_eco'),
+        $('.biologo_eco'),
     ]
     const inputs_atividade_ceu = [
         $('.atividade'),
@@ -773,8 +783,8 @@ $('#btn_salvar_os').on('click', function (e) {
         $('.qtd_participantes_loc'),
     ]
     const div_mensagem_erro_atividades = $('#mensagens_preenchimento_atividades')
-    div_mensagem_erro_atividades.empty()
 
+    div_mensagem_erro_atividades.empty()
     // Verificação dos campos das atividades extra
     for (let campo of inputs_atividade_extra) {
         for (let input of campo) {
@@ -811,5 +821,4 @@ $('#btn_salvar_os').on('click', function (e) {
             }
         }
     }
-
 })

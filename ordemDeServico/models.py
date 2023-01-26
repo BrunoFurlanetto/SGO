@@ -111,7 +111,6 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'tipo': forms.Select(attrs={'onchange': "$('#id_empresa').trigger('change')"}),
             'empresa': forms.Select(attrs={'onchange': 'verificar_atividades(this)'}),
-            'telefone_motorista': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -146,4 +145,5 @@ class CadastroDadosTransporte(forms.ModelForm):
 
         widgets = {
             'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'telefone_motorista': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
         }

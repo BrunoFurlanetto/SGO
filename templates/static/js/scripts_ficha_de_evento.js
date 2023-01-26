@@ -79,8 +79,8 @@ function pegarDias(pre_reserva = false, editando=false) {
     if (pre_reserva) {
         check_in = $('#ModalCadastroPreReserva #id_check_in')
         check_out = $('#ModalCadastroPreReserva #id_check_out')
+        lotacao_dia_dia(check_in.val(), check_out.val())
     }
-    console.log(check_in.val(), check_out.val())
 
     if (check_out.val() !== '' && check_out.val() < check_in.val()) {
         check_out.val('')

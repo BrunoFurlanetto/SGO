@@ -20,7 +20,8 @@ def slavar_atividades_ecoturismo(dados, ordem_de_servico):
             'atividade': int(dados.get(f'atividade_eco_{i}')),
             'data_e_hora': dados.get(f'data_hora_eco_{i}').replace('T', ' '),
             'participantes': int(dados.get(f'participantes_eco_{i}')),
-            'serie': dados.get(f'serie_participantes_eco_{i}')
+            'serie': dados.get(f'serie_participantes_eco_{i}'),
+            'biologo': dados.get(f'biologo_eco_{i}')
         }
 
     ordem_de_servico.atividades_eco = dados_atividade

@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 
 import cadastro.funcoes
 from cadastro.funcoes import is_ajax
+from calendarioEventos.funcoes import gerar_lotacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import verificar_grupo, email_error
@@ -26,7 +27,7 @@ def eventos(request):
     if is_ajax(request):
         if request.method == 'GET':
             if request.GET.get('mes'):
-                print(request.GET)
+                return JsonResponse(gerar_lotacao(request.GET.get('mes'), request.GET.get('ano')))
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)

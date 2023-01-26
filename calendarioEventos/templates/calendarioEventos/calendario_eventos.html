@@ -13,23 +13,49 @@
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
+            let lotacao = {}
+
             $(document).ready(function () {
                 montar_calendario()
-
-                $('.fc-toolbar-chunk').on('click',
-                    () => {
-                        const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
-                        const mes = moment(data_base).month() + 1
-                        const ano = moment(data_base).year()
-                        console.log(mes, ano)
-                    }
-                )
+                gerar_lotacao()
+                $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
             })
 
+            function gerar_lotacao() {
+                const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
+                const mes = moment(data_base).month() + 1
+                const ano = moment(data_base).year()
+
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'mes': mes, 'ano': ano},
+                    success: function (response) {
+                        lotacao = response
+                    }
+                })
+            }
+
             $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
-                const lista = 'Confirmados: 115 \n Reservados: 25 \n total: 140'
-                console.log(this.title = lista)
+                if (!this.classList.contains('fc-day-other')){
+                    const dia = moment($(this).data('date')).date()
+                    const lotacao_dia = lotacao[dia]
+                    this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
+                }
             });
+
+            {% comment %}function lotacao_dia_dia(check_in, check_out) {
+                const dia_check_in = moment(check_in).date()
+                const dia_check_out = moment(check_out).date()
+                const dias_evento = (dia_check_out - dia_check_in)  + 1
+                $('#aviso_lotacao').empty().append('<p>Lotação para os dias do evento</p>')
+
+                for (let soma_dia = 0; soma_dia < dias_evento; soma_dia++){
+                    $('#aviso_lotacao').append(`<li>Dia ${dia_check_in + soma_dia}: ${lotacao[dia_check_in + soma_dia]['total']} pessoas</li`).addClass('alert-info')
+                }
+
+            }{% endcomment %}
 
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
@@ -57,6 +83,17 @@
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
+                            {% comment %}$('#aviso_lotacao').empty()
+
+                            if (lotacao[moment(date).date()]['total'] <= 120){
+                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-info')
+                            } else if (lotacao[moment(date).date()]['total'] <= 180) {
+                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-warning')
+                            } else if (lotacao[moment(date).date()]['total'] >= 180 && lotacao[moment(date).date()]['total'] <= 240) {
+                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-danger')
+                            } else {
+                                $('#aviso_lotacao').prepend(`Lotação máxima atingida para a data em questão`).removeAttr('class').addClass('alert-danger')
+                            }{% endcomment %}
                         },
 
                         eventClick: function (info) {
@@ -183,7 +220,6 @@
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',
-                                        description: 'Foi aqui'
                                     {% endif %}
 
                                     color: '#8B008B',
@@ -276,7 +312,6 @@
                         const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
                         $('#ModalCadastroPreReserva #id_check_out').val('')
 
-                        console.log(response)
                         if (response['hora_check_in_padrao'] === null) {
                             $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true).prop('disabled', true)
 
@@ -296,6 +331,8 @@
                             }
                         }
                     }
+                }).done(function () {
+                    $('#id_check_out').trigger('change')
                 })
             }
         </script>
@@ -332,6 +369,7 @@
                     <h5 class="modal-title">Cadastro de pré agendamento</h5>
                     <button class="btn-close" data-dismiss="modal"></button>
                 </div>
+                {% comment %}<div id="aviso_lotacao"><ul></ul></div>{% endcomment %}
                 <form action="{% url 'calendario_eventos' %}" method="POST">
                     {% csrf_token %}
                     <div class="modal-body">

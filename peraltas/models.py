@@ -55,6 +55,7 @@ class TipoAtividade(models.Model):
 
 class GrupoAtividade(models.Model):
     grupo = models.CharField(max_length=100)
+    obrigatoria = models.BooleanField(default=False)
 
     def __str__(self):
         return self.grupo
@@ -230,7 +231,7 @@ class InformacoesAdcionais(models.Model):
     )
 
     transporte = models.BooleanField()
-    transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='')
+    transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='', blank=True, null=True)
     seguro = models.BooleanField()
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
@@ -444,6 +445,10 @@ class CadastroFichaDeEvento(forms.ModelForm):
                                                              'class': 'form-check-input'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(CadastroFichaDeEvento, self).__init__(*args, **kwargs)
+        self.fields['atividades_peraltas'].coices = GrupoAtividade.objects.filter(obrigatoria=True)
+
 
 class CadastroCliente(forms.ModelForm):
     class Meta:
@@ -508,6 +513,7 @@ class CadastroPreReserva(forms.ModelForm):
         widgets = {
             'cliente': forms.Select(attrs={'onChange': 'gerar_responsaveis(this)'}),
             'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
+            'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
             'check_in': forms.TextInput(attrs={
                 'type': 'datetime-local',
                 'onChange': 'pegarDias(true)',

@@ -217,9 +217,13 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         form_transporte = CadastroDadosTransporte(request.POST)
 
     ordem_de_servico = form.save(commit=False)
-    dados_transporte = form_transporte.save(commit=False)
-    dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(request.POST)
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
+
+    if form_transporte.is_valid():
+        dados_transporte = form_transporte.save(commit=False)
+        dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(request.POST)
+    else:
+        dados_transporte = None
 
     try:
         slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
@@ -230,8 +234,10 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         if ficha.escala:
             form.escala = True
 
-        transporte_salvo = form_transporte.save()
-        ordem_de_servico.dados_transporte = transporte_salvo
+        if dados_transporte:
+            transporte_salvo = form_transporte.save()
+            ordem_de_servico.dados_transporte = transporte_salvo
+
         form.save()
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)

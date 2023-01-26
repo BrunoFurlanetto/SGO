@@ -845,6 +845,11 @@
     gap: 10px;
     flex-wrap: wrap;
 }
+#aviso_lotacao{
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
 .btn-edit{
     font-size: 25px;
     border: none;
