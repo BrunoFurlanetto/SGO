@@ -27,7 +27,7 @@ def eventos(request):
     if is_ajax(request):
         if request.method == 'GET':
             if request.GET.get('mes'):
-                return JsonResponse(gerar_lotacao(request.GET.get('mes'), request.GET.get('ano')))
+                return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)

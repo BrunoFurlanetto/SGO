@@ -121,6 +121,7 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
         if (hora_padrao_check_in === undefined) {
             if (pre_reserva){
                 $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+                check_out.val('')
             } else {
                 $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
             }
@@ -128,7 +129,10 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
             return
         }
 
+        if (pre_reserva) return
+
         check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
+
         if (dias_produto !== null){
             check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
         } else {

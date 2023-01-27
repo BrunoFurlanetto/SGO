@@ -13,50 +13,6 @@
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            let lotacao = {}
-
-            $(document).ready(function () {
-                montar_calendario()
-                gerar_lotacao()
-                $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
-            })
-
-            function gerar_lotacao() {
-                const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
-                const mes = moment(data_base).month() + 1
-                const ano = moment(data_base).year()
-
-                $.ajax({
-                    type: 'GET',
-                    url: '',
-                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                    data: {'mes': mes, 'ano': ano},
-                    success: function (response) {
-                        lotacao = response
-                    }
-                })
-            }
-
-            $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
-                if (!this.classList.contains('fc-day-other')) {
-                    const dia = moment($(this).data('date')).date()
-                    const lotacao_dia = lotacao[dia]
-                    this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
-                }
-            });
-
-            {% comment %}function lotacao_dia_dia(check_in, check_out) {
-                const dia_check_in = moment(check_in).date()
-                const dia_check_out = moment(check_out).date()
-                const dias_evento = (dia_check_out - dia_check_in)  + 1
-                $('#aviso_lotacao').empty().append('<p>Lotação para os dias do evento</p>')
-
-                for (let soma_dia = 0; soma_dia < dias_evento; soma_dia++){
-                    $('#aviso_lotacao').append(`<li>Dia ${dia_check_in + soma_dia}: ${lotacao[dia_check_in + soma_dia]['total']} pessoas</li`).addClass('alert-info')
-                }
-
-            }{% endcomment %}
-
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
                 const calendar = new FullCalendar.Calendar(calendarUI, {
@@ -83,17 +39,7 @@
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
-                            {% comment %}$('#aviso_lotacao').empty()
-
-                            if (lotacao[moment(date).date()]['total'] <= 120){
-                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-info')
-                            } else if (lotacao[moment(date).date()]['total'] <= 180) {
-                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-warning')
-                            } else if (lotacao[moment(date).date()]['total'] >= 180 && lotacao[moment(date).date()]['total'] <= 240) {
-                                $('#aviso_lotacao').text(`Restam ${240 - lotacao[moment(date).date()]['total']} vagas para atingir a lotação máxima`).removeAttr('class').addClass('alert-danger')
-                            } else {
-                                $('#aviso_lotacao').prepend(`Lotação máxima atingida para a data em questão`).removeAttr('class').addClass('alert-danger')
-                            }{% endcomment %}
+                            $('#aviso_lotacao').addClass('none')
                         },
 
                         eventClick: function (info) {
@@ -124,6 +70,7 @@
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
                                         $('#ModalCadastroPreReserva #id_observacoes').val(response['observacoes'])
                                         $('#nova_pre_reserva').addClass('none')
+                                        $('#aviso_lotacao').addClass('none')
                                         const modal_footer = $('#editar_pre_reserva').empty().removeClass('none')
                                         $('#ModalCadastroPreReserva #id_cliente').val(response['cliente']).trigger('change').select2({
                                             'disabled': 'readonly',
@@ -235,6 +182,62 @@
                 calendar.setOption('locale', 'pt-br')
             }
 
+            let lotacao = {}
+
+            $(document).ready(function () {
+                montar_calendario()
+                gerar_lotacao()
+                $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
+            })
+
+            function gerar_lotacao() {
+                const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
+                const mes = moment(data_base).month() + 1
+                const ano = moment(data_base).year()
+
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'mes': mes, 'ano': ano},
+                    success: function (response) {
+                        lotacao = response
+                    }
+                })
+            }
+
+            $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
+                const lotacao_dia = lotacao[$(this).data('date')]
+                this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
+            });
+
+            function lotacao_dia_dia(check_in, check_out) {
+                const diferenca = moment(check_out,"YYYY-MM-DD").diff(moment(check_in,"YYYY-MM-DD"))
+                const dias_evento = moment.duration(diferenca).asDays()
+                moment.locale('pt-br')
+                $('#aviso_lotacao ul').empty().removeClass('none')
+
+                for (let soma_dia = 0; soma_dia <= dias_evento; soma_dia++) {
+                    const data_busca = moment(check_in).add(soma_dia, 'days').format('YYYY-MM-DD')
+                    const data_item = moment(data_busca).format('L')
+
+                    if (lotacao[data_busca]['total'] <= 120) {
+                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                        $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
+                    } else  if (lotacao[data_busca]['total'] <= 180) {
+                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                        $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
+                    } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
+                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                    } else {
+                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: Sem vagas ou vagas excedidas</li`)
+                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                    }
+                }
+
+            }
+
             function excluir_pre_agendamento() {
                 $('document').ready(function () {
                     const cliente = $('#id_cliente :selected').text()
@@ -301,6 +304,9 @@
             }
 
             function dadosProduto(produto) {
+                hora_padrao_check_in = hora_padrao_check_out = undefined
+                $('#ModalCadastroPreReserva #id_check_out').val('')
+
                 $.ajax({
                     type: 'POST',
                     url: '',
@@ -310,7 +316,6 @@
                         hora_padrao_check_in = response['hora_check_in_padrao']
                         hora_padrao_check_out = response['hora_check_out_padrao']
                         const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
-                        $('#ModalCadastroPreReserva #id_check_out').val('')
 
                         if (response['hora_check_in_padrao'] === null) {
                             $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true).prop('disabled', true)
@@ -324,8 +329,8 @@
 
                             if (response['n_dias'] !== null) {
                                 const check_out = moment(check_in).add(response['n_dias'], 'days')
-                                $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`yyyy-MM-DD ${response['hora_check_in_padrao']}`)))
-                                $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`yyyy-MM-DD ${response['hora_check_out_padrao']}`)))
+                                $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`YYYY-MM-DD ${response['hora_check_in_padrao']}`)))
+                                $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`YYYY-MM-DD ${response['hora_check_out_padrao']}`)))
                             } else {
                                 $('#ModalCadastroPreReserva #id_check_out').val('')
                             }
@@ -369,7 +374,9 @@
                     <h5 class="modal-title">Cadastro de pré agendamento</h5>
                     <button class="btn-close" data-dismiss="modal"></button>
                 </div>
-                {% comment %}<div id="aviso_lotacao"><ul></ul></div>{% endcomment %}
+                <div id="aviso_lotacao" class="alert-info none">Vagas para os dias do evento
+                    <ul></ul>
+                </div>
                 <form action="{% url 'calendario_eventos' %}" method="POST">
                     {% csrf_token %}
                     <div class="modal-body">
@@ -459,6 +466,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
     <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/auto_refresh_calendar.js' %}"></script>
 
     <script>
