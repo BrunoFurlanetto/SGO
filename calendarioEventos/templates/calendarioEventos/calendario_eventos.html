@@ -58,7 +58,6 @@
                                         'check_out': moment(check_out).format('yyyy-MM-DD HH:mm')
                                     },
                                     success: function (response) {
-                                        console.log(response)
                                         $('#ModalCadastroPreReserva input[type!=hidden], #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', true)
                                         $('#ModalCadastroPreReserva #id_pre_reserva').val(response['id'])
                                         $('#ModalCadastroPreReserva #id_responsavel_evento').val(response['responavel_evento'])
