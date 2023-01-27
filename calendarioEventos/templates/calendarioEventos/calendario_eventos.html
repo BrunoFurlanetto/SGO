@@ -185,8 +185,10 @@
 
             $(document).ready(function () {
                 montar_calendario()
-                gerar_lotacao()
-                $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
+                {% if comercial %}
+                    gerar_lotacao()
+                    $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
+                {% endif %}
             })
 
             function gerar_lotacao() {
@@ -205,10 +207,12 @@
                 })
             }
 
-            $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
-                const lotacao_dia = lotacao[$(this).data('date')]
-                this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
-            });
+            {% if comercial %}
+                $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
+                    const lotacao_dia = lotacao[$(this).data('date')]
+                    this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
+                });
+            {% endif %}
 
             function lotacao_dia_dia(check_in, check_out) {
                 const diferenca = moment(check_out,"YYYY-MM-DD").diff(moment(check_in,"YYYY-MM-DD"))
