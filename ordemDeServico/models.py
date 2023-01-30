@@ -109,6 +109,7 @@ class CadastroOrdemDeServico(forms.ModelForm):
             'check_out': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_in_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'check_out_ceu': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'n_participantes': forms.NumberInput(attrs={'min': '0', 'onchange': 'atualizar_participantes(this)'}),
             'tipo': forms.Select(attrs={'onchange': "$('#id_empresa').trigger('change')"}),
             'empresa': forms.Select(attrs={'onchange': 'verificar_atividades(this)'}),
         }

@@ -269,7 +269,7 @@ class FichaDeEvento(models.Model):
     qtd_professores = models.PositiveIntegerField(blank=True, null=True)
     qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True)
     qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True)
-    qtd_convidada = models.PositiveIntegerField(blank=True, null=True)
+    qtd_convidada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade reservada')
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
     qtd_meninos = models.PositiveIntegerField(blank=True, null=True)
     qtd_meninas = models.PositiveIntegerField(blank=True, null=True)
@@ -288,7 +288,7 @@ class FichaDeEvento(models.Model):
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
-    data_preenchimento = models.DateField(blank=True, null=True)
+    data_preenchimento = models.DateField(blank=True, null=True, default=datetime.date.today)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     pre_reserva = models.BooleanField(default=False)
     agendado = models.BooleanField(default=False)
@@ -513,7 +513,8 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'check_in',
             'check_out', 'qtd_convidada', 'observacoes',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario',
+            'data_preenchimento'
         ]
 
         widgets = {

@@ -195,7 +195,7 @@
                                             <input class="qtd_participantes_eco"
                                                    id="participantes_eco_{{ forloop.counter }}" type="number"
                                                    name="participantes_eco_{{ forloop.counter }}"
-                                                   onchange="verificar_limitacoes_eco(this)" required
+                                                   onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone_eco" id="div_icone_eco_{{ forloop.counter }}"
@@ -270,7 +270,7 @@
                                             <label>QTD</label>
                                             <input class="qtd_participantes" id="participantes_{{ forloop.counter }}"
                                                    type="number" name="participantes_{{ forloop.counter }}"
-                                                   onchange="verificar_limitacoes(this)" required
+                                                   onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone" id="div_icone_{{ forloop.counter }}"
@@ -367,7 +367,7 @@
                                             <input class="qtd_participantes_loc"
                                                    id="participantes-loc_{{ forloop.counter }}" type="number"
                                                    name="participantes-loc_{{ forloop.counter }}"
-                                                   onchange="verificar_lotacao(this)" required
+                                                   onchange="verificar_lotacao(this)" onclick="$(this).removeClass('revisar')" required
                                                    value="{{ locacao.participantes }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
@@ -398,7 +398,7 @@
                     <div class="botoes">
                         <button type="submit" id="btn_salvar_os" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5"
-                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false)">Editar
+                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); editando=true">Editar
                         </button>
                         <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
                                 data-target="#excluir_ordem_de_servico" disabled>Excluir

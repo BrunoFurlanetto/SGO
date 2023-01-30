@@ -1,4 +1,5 @@
 let corporativo
+let editando = false
 
 $(document).ready(function () {
     if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha') {
@@ -76,20 +77,6 @@ function completar_dados_os(selecao) {
                 $(`#${i}`).val(response[i])
             }
 
-            /*if (response['embarque_sao_paulo']) {
-                $('#informacoes_motorista').removeClass('none')
-                $('#id_monitor_embarque, #id_nome_motorista').prop('required', true)
-
-                if (response['id_monitor_embarque'] !== '') {
-                    $('#id_monitor_embarque').css({'pointer-events': 'none'})
-                } else {
-                    $('#id_monitor_embarque').css({'pointer-events': 'auto'})
-                }
-            } else {
-                $('#monitor_embarque, #nome_motorista').addClass('none')
-                $('#id_monitor_embarque, #id_nome_motorista').prop('required', false)
-            }*/
-
             $('#id_check_in').val(moment(response['id_check_in']).format('yyyy-MM-DDTHH:mm'))
             $('#id_check_out').val(moment(response['id_check_out']).format('yyyy-MM-DDTHH:mm'))
 
@@ -146,12 +133,24 @@ function completar_dados_os(selecao) {
     }, 600)
 }
 
+function atualizar_participantes(participantes) {
+    $('#mensagens_preenchimento_atividades').empty()
+    console.log(editando)
+    if (!editando){
+        const participantes_atualizados = participantes.value
+        $('.divi').parent().parent().remove()
+        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco').val(participantes_atualizados).trigger('change')
+    } else {
+        $('#mensagens_preenchimento_atividades').append('<div class="alert-warning">Verficiar lotações das atividades</div>')
+        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco').addClass('revisar')
+    }
+}
+
 //  ------------------------------------------------- Fim das funcionalidades gerais da página ---------------------------------------------------------
-
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
-
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt(''), atividade_ = '', serie_ = '', data_ = '') {
+function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt(''),
+                       atividade_ = '', serie_ = '', data_ = '', divisao=false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
@@ -182,7 +181,13 @@ function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt('
             let label_data = `<label>Data e hora da atividade</label>`
             let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
-            let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
+
+            if (divisao) {
+                var participantes = `<input class="qtd_participantes divi" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+            } else {
+                var participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+            }
+
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes" id="serie_${i}" type="text" name="serie_participantes_${i}" value="${serie_}"/>`
 
@@ -319,7 +324,7 @@ function verificar_limitacoes(selecao) {
 
                 // Verificação de número de participantes
                 if (participantes !== '') {
-
+                    $('.alert-warning, .alert-danger').remove()
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
                     if (participantes < response['participantes_minimo']) {
@@ -351,7 +356,6 @@ function dividar_atividade(indicie, limite) {
 
     // Aqui é feito uma verificação do número de turmas necessário
     for (k = 2; k > 1; k++) {
-
         // Vê se o número e turmas já é o suficiente
         if (qtd.val() / k <= limite) {
             // Aproximação necessária para não haver número fracionado
@@ -362,7 +366,6 @@ function dividar_atividade(indicie, limite) {
             sobra = qtd.val() - (participantes_apx * k)
             break
         }
-
     }
 
     // Troca do número de participantes da atividade já inicado
@@ -382,7 +385,7 @@ function dividar_atividade(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade(participantes_, atividade_value_, atividade_, serie_)
+        add_atividade(participantes_, atividade_value_, atividade_, serie_, '', true)
     }
 
 }
@@ -393,7 +396,7 @@ function dividar_atividade(indicie, limite) {
 
 // Função responsável por adicionar uma nova locação
 function add_locacao(id_local_ = parseInt(''), qtd_ = parseInt(''), check_in_ = '',
-                     check_out_ = '', local_coffee_ = '', hora_coffee_ = '') {
+                     check_out_ = '', local_coffee_ = '', hora_coffee_ = '', divisao=false) {
     // Ajax responsável por puxar todas as estruturas do banco de dados
 
     if (isNaN(qtd_)) {
@@ -542,7 +545,7 @@ function verificar_lotacao(selecao) {
 // ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
 // Função responsável pela adição de uma nova atividade de ecoturismo
 function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseInt(''),
-                           atividade_ = '', serie_ = '', data_ = '') {
+                           atividade_ = '', serie_ = '', data_ = '', divisao=false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
@@ -574,7 +577,13 @@ function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseI
             let label_data = `<label>Data e hora</label>`
             let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
-            let participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${participantes_}"/>`
+
+            if (divisao) {
+                var participantes = `<input class="qtd_participantes_eco divi" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+            } else {
+                var participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+            }
+
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes_eco" id="serie_eco_${i}" type="text" name="serie_participantes_eco_${i}" value="${serie_}"/>`
             let label_biologo = '<label>Biologo</label>'
@@ -757,7 +766,7 @@ function dividar_atividade_eco(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade_eco(participantes_, atividade_value_, atividade_, serie_)
+        add_atividade_eco(participantes_, atividade_value_, atividade_, serie_, '', true)
     }
 }
 
@@ -783,6 +792,13 @@ $('#btn_salvar_os').on('click', function (e) {
         $('.qtd_participantes_loc'),
     ]
     const div_mensagem_erro_atividades = $('#mensagens_preenchimento_atividades')
+    const lotacoes_nao_revisadas = $('.revisar')
+
+    if (lotacoes_nao_revisadas.length > 0) {
+        e.preventDefault()
+
+        return
+    }
 
     div_mensagem_erro_atividades.empty()
     // Verificação dos campos das atividades extra
