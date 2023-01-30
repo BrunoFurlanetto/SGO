@@ -135,14 +135,14 @@ function completar_dados_os(selecao) {
 
 function atualizar_participantes(participantes) {
     $('#mensagens_preenchimento_atividades').empty()
-    console.log(editando)
+    
     if (!editando){
         const participantes_atualizados = participantes.value
         $('.divi').parent().parent().remove()
-        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco').val(participantes_atualizados).trigger('change')
+        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco, .qtd_participantes_loc').val(participantes_atualizados).trigger('change')
     } else {
         $('#mensagens_preenchimento_atividades').append('<div class="alert-warning">Verficiar lotações das atividades</div>')
-        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco').addClass('revisar')
+        $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco, .qtd_participantes_loc').val('')
     }
 }
 
