@@ -71,13 +71,13 @@
                 <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                     <h5 class="titulo-secao">Produto Peraltas</h5>
                     {{ form.produto }}
-                    <div class="mt-2 outro-produto none" style="width: 50%" onchange="verQuantidades(this)">
-                        <label>Qual?</label>
-                        {{ form.outro_produto }}
-                    </div>
                 </div>
-
                 <hr>
+{#                <div class="row produtos-peraltas checkbox form-group" style="width: 100%">#}
+{#                    <h5 class="titulo-secao">Produto corporativo</h5>#}
+{#                    {{ form.produto_corporativo }}#}
+{#                </div>#}
+{#                <hr>#}
                 <div id="sessao_periodo_viagem" class="row mb-2">
                     <h5 class="titulo-secao">Período de viagem</h5>
                     <div style="width: 35%">
@@ -266,12 +266,21 @@
                     <div style="width: 60%">
                         <label>Atividades</label>
                         {{ form.atividades_ceu }}
+{#                        <div class="mt-2 mb-2" style="display: flex; align-items: center">#}
+{#                            <input type="checkbox" id="check_a_definir" class="form-check-input" style="width: 7px; height: 7px; margin-right: 5px" onchange="atividades_a_definir()" {% if atividades_ceu.value != None %} checked {% endif %}>#}
+{#                            <label>A definir?</label>#}
+{#                            {{ form.atividades_ceu_a_definir }}#}
+{#                        </div>#}
                     </div>
                     <div style="width: 40%" id="div_locacao_ceu">
                         <label>Locações</label>
                         {{ form.locacoes_ceu }}
                     </div>
                 </div>
+{#                <hr>#}
+{#                <div id="dados_locacoes">#}
+{#                    <h5 class="titulo-secao">Dados das locações</h5>#}
+{#                </div>#}
                 <hr>
                 <div class="row peraltas">
                     <h5 class="titulo-secao">Peraltas</h5>

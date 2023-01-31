@@ -5,7 +5,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira)
+                             Enfermeira, ListaDeCargos)
 from peraltas.models import Vendedor
 
 
@@ -84,6 +84,11 @@ class FichaDeEventoAdmin(admin.ModelAdmin):
 @admin.register(ProdutosPeraltas)
 class ProdutosPeraltasAdmin(admin.ModelAdmin):
     list_display = ('produto',)
+
+
+@admin.register(ListaDeCargos)
+class ListaDeCargosAdmin(admin.ModelAdmin):
+    list_display = ('cargo', )
 
 
 @admin.register(PerfilsParticipantes)

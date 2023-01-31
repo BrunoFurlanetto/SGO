@@ -135,7 +135,7 @@ function completar_dados_os(selecao) {
 
 function atualizar_participantes(participantes) {
     $('#mensagens_preenchimento_atividades').empty()
-    
+
     if (!editando){
         const participantes_atualizados = participantes.value
         $('.divi').parent().parent().remove()

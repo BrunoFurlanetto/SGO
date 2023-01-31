@@ -23,6 +23,14 @@ function encaminhamento() {
     localStorage.setItem("encaminhado", true)
 }
 
+function atividades_a_definir() {
+    if ($('#check_a_definir').prop('checked')) {
+        $('#id_atividades_ceu_a_definir').removeClass('none')
+    } else {
+        $('#id_atividades_ceu_a_definir').addClass('none')
+    }
+}
+
 function verQuantidades(produto) {
     const id_produto = produto.value
     if ($('#pre_resserva').val() === '') $('#id_check_in, #id_check_out').val('')
@@ -77,7 +85,7 @@ function verQuantidades(produto) {
 
 }
 
-function pegarDias(pre_reserva = false, editando=false) {
+function pegarDias(pre_reserva = false, editando = false) {
     let check_in = $('#id_check_in')
     let check_out = $('#id_check_out')
 
@@ -119,7 +127,7 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
 
     if (!check_editar) {
         if (hora_padrao_check_in === undefined) {
-            if (pre_reserva){
+            if (pre_reserva) {
                 $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
                 check_out.val('')
             } else {
@@ -133,7 +141,7 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
 
         check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
 
-        if (dias_produto !== null){
+        if (dias_produto !== null) {
             check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
         } else {
             check_out.val('')
@@ -229,7 +237,7 @@ function pegarIdInfosAdicionais(editando = false) {
     const lista_atividades_biologo = $('#id_quais_atividades')
 
     for (let atividade of lista_atividades_biologo.children()) {
-        if (!lista_atividades_eco.includes(atividade.value)){
+        if (!lista_atividades_eco.includes(atividade.value)) {
             atividade.setAttribute('disabled', 'disabled')
 
             if (atividade.selected) {
@@ -308,6 +316,44 @@ function salvar_novo_op_formatura() {
         })
     }
 }
+
+$('document').ready(function () {
+    $('#id_locacoes_ceu').on('select2:select', function (e) {
+        const infos_locacao = `
+            <div class="row" id="espaco_${e.params.data.id}">
+                <div style="width: 40%">
+                    <label>Espaço</label>
+                    <input type="text" name=espaco readonly value="${e.params.data.text}">
+                    <input type="hidden" id="id_espaco">
+                </div>
+                <div style="width: 20%">
+                    <label>Intervalo</label>
+                    <select name="intervalo" id="id_intervalo">
+                        <option></option>
+                        <option value="4">4 horas</option>
+                        <option value="8">8 horas</option>
+                    </select>
+                </div>
+                <div style="width: 30%">
+                    <label>Formato da sala</label>
+                    <select name="formato_sala" id="id_formato_sala">
+                        <option></option>
+                        <option value="1">Auditório</option>
+                        <option value="2">Formato U</option>
+                        <option value="3">Formato redondo</option>
+                        <option value="4">Formato escolar</option>
+                        <option value="5">Coquetel</option>
+                    </select>
+                </div>
+            </div>
+        `
+        $('#dados_locacoes').append(infos_locacao)
+    })
+
+    $('#id_locacoes_ceu').on('select2:unselect', function (e) {
+        $(`#espaco_${e.params.data.id}`).remove()
+    })
+})
 
 jQuery('document').ready(function () {
     jQuery('#infos').submit(function () {

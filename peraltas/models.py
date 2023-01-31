@@ -125,6 +125,15 @@ class ProdutosPeraltas(models.Model):
         return self.produto
 
 
+class ProdutoCorporativo(models.Model):
+    produto = models.CharField(max_length=255)
+    pernoite = models.BooleanField(default=True)
+    n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
+
+    def __str__(self):
+        return self.produto
+
+
 class PerfilsParticipantes(models.Model):
     fase = models.CharField(max_length=255)
     ano = models.CharField(max_length=255, blank=True)
@@ -261,6 +270,7 @@ class FichaDeEvento(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE)
     produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
+    produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.CASCADE, blank=True, null=True)
     outro_produto = models.CharField(max_length=255, blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
@@ -281,10 +291,12 @@ class FichaDeEvento(models.Model):
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True)
     observacoes = models.TextField(blank=True)
     atividades_ceu = models.ManyToManyField(Atividades, blank=True)
+    atividades_ceu_a_definir = models.IntegerField(blank=True, null=True)
     locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
+    informacoes_locacoes = models.JSONField(blank=True, null=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
-    vendedora = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True)  # TODO: Verificar caso de exclusão de colaborador
+    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE)  # TODO: Verificar caso de exclusão de colaborador
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
@@ -423,6 +435,13 @@ class CadastroFichaDeEvento(forms.ModelForm):
     produto.widget.attrs['class'] = 'form-check-input'
     produto.widget.attrs['onclick'] = 'verQuantidades(this)'
 
+    produto_corporativo = forms.ModelChoiceField(
+        queryset=ProdutosPeraltas.objects.all(),
+        widget=forms.RadioSelect,
+        required=True
+    )
+    produto_corporativo.widget.attrs['class'] = 'form-check-input'
+
     class Meta:
         model = FichaDeEvento
         exclude = ()
@@ -439,6 +458,13 @@ class CadastroFichaDeEvento(forms.ModelForm):
                 'onChange': 'pegarDias()',
                 'onkeyup': '$("#id_check_out").val("")',
                 'onclick': 'this.showPicker()'
+            }),
+            'atividades_ceu_a_definir': forms.NumberInput(attrs={
+                'style': 'width: 15%; margin-left: 8px',
+                'min': '0',
+                'max': 10,
+                'placeholder': 'n',
+                'class': 'none',
             }),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
