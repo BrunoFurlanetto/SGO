@@ -48,7 +48,7 @@ def eventos(request):
         if request.POST.get('id_produto'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
-        print(request.POST.get('cliente'))
+
         if not request.POST.get('cnpj'):
             try:
                 cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
@@ -56,6 +56,7 @@ def eventos(request):
                 cliente = ClienteColegio.objects.get(nickname=request.POST.get('cliente'))
         else:
             cliente = ClienteColegio.objects.get(cnpj=request.POST.get('cnpj'))
+
         check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%d %H:%M')
         check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%d %H:%M')
         pre_reserva = FichaDeEvento.objects.get(
@@ -79,6 +80,7 @@ def eventos(request):
             'cliente': pre_reserva.cliente.id,
             'responavel_evento': pre_reserva.responsavel_evento.id,
             'produto': pre_reserva.produto.id,
+            'produto_corporativo': pre_reserva.produto_corporativo.id if pre_reserva.produto_corporativo else None,
             'obs_edicao': pre_reserva.obs_edicao_horario,
             'qtd': pre_reserva.qtd_convidada,
             'vendedor': pre_reserva.vendedora.id,

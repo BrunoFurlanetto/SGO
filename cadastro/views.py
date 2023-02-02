@@ -343,6 +343,9 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         novo_evento.empresa = ver_empresa_atividades(request.POST)
         novo_evento.pre_reserva = False
 
+        if len(request.POST.getlist('locacoes_ceu')) > 0:
+            novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
+
         try:
             form.save()
         except Exception as e:

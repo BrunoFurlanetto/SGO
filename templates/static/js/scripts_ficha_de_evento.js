@@ -1,4 +1,4 @@
-let hora_padrao_check_in, hora_padrao_check_out, dias_produto
+let hora_padrao_check_in, hora_padrao_check_out, dias_produto, dados_produto_corporativo
 let carregado = false
 let evento_corporativo
 
@@ -25,16 +25,15 @@ function encaminhamento() {
 
 function atividades_a_definir() {
     if ($('#check_a_definir').prop('checked')) {
-        $('#id_atividades_ceu_a_definir').removeClass('none')
+        $('#atividades_ceu_a_definir').removeClass('none')
     } else {
-        $('#id_atividades_ceu_a_definir').addClass('none')
+        $('#atividades_ceu_a_definir').addClass('none')
     }
 }
 
-function verQuantidades(produto) {
+function verQuantidades(produto, pre_reserva = false, editando = false) {
     const id_produto = produto.value
     if ($('#pre_resserva').val() === '') $('#id_check_in, #id_check_out').val('')
-    $('#corpo-tabela-refeicao').empty()
 
     $.ajax({
         url: '',
@@ -46,6 +45,7 @@ function verQuantidades(produto) {
             hora_padrao_check_out = response['hora_check_out_padrao']
 
             if (carregado) $('#id_check_in, #id_check_out').val('')
+
             carregado = true
             dias_produto = response['n_dias']
 
@@ -58,13 +58,14 @@ function verQuantidades(produto) {
             if (response['colegio']) {
                 evento_corporativo = false
                 $('.professores, #perfil_participantes, .lanches').removeClass('none')
-                $('.corporativo, .coffees, #div_locacao_ceu').addClass('none')
-
-                if (response['outro']) {
-                    $('.outro-produto').removeClass('none')
-                } else {
-                    $('.outro-produto').addClass('none')
-                }
+                $('.corporativo, .produtos-corporativos, .coffees, #div_locacao_ceu').addClass('none')
+                $('#id_produto_corporativo').prop('required', false)
+                //
+                // if (response['outro']) {
+                //     $('.outro-produto').removeClass('none')
+                // } else {
+                //     $('.outro-produto').addClass('none')
+                // }
 
                 if (response['pernoite']) {
                     $('.alunos-pernoite, .professores-pernoite').removeClass('none')
@@ -77,19 +78,27 @@ function verQuantidades(produto) {
                 }
             } else {
                 evento_corporativo = true
-                $('.corporativo, .coffees, #div_locacao_ceu').removeClass('none')
+                dados_produto_corporativo = response['dados_produtos_corporativo']
+                $('.corporativo, .coffees, #div_locacao_ceu, .produtos-corporativos').removeClass('none')
                 $('#perfil_participantes, .professores, .alunos-pernoite, .lanches').addClass('none')
+                $('#id_produto_corporativo').prop('required', true)
             }
+        }
+    }).done(() => {
+        if (evento_corporativo && $('#id_produto_corporativo').val() !== '') {
+            corporativo(document.getElementById('id_produto_corporativo'))
+        } else {
+            pegarDias(pre_reserva, editando)
         }
     })
 
 }
 
 function pegarDias(pre_reserva = false, editando = false) {
-    let check_in = $('#id_check_in')
-    let check_out = $('#id_check_out')
+    let check_in = $('#sessao_periodo_viagem #id_check_in')
+    let check_out = $('#sessao_periodo_viagem #id_check_out')
 
-    if (pre_reserva) {
+    if (check_in.val() === undefined) {
         check_in = $('#ModalCadastroPreReserva #id_check_in')
         check_out = $('#ModalCadastroPreReserva #id_check_out')
         lotacao_dia_dia(check_in.val(), check_out.val())
@@ -108,22 +117,37 @@ function pegarDias(pre_reserva = false, editando = false) {
         const data_2 = check_out.val().split('T')[0]
         let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
         let dias = moment.duration(intervalo).asDays()
-        $('#corpo-tabela-refeicao').empty()
+    }
 
+    if (!editando) {
+        const data_1 = check_in.val().split('T')[0]
+        const data_2 = check_out.val().split('T')[0]
+        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
+        let dias = moment.duration(intervalo).asDays()
+        $('#corpo-tabela-refeicao').empty()
         for (let i = 0; i <= dias; i++) {
             add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
         }
     }
 
-    if (!pre_reserva && check_in.val() !== '') {
+    if (!editando && check_in.val() !== '') {
         $('#id_data_final_inscricao').val(moment(check_in.val()).subtract(15, 'days').format('YYYY-MM-DD'))
     }
 }
 
+function corporativo(selecao, pre_reserva = false) {
+    const id_produto = selecao.value
+    let check_in = $('#id_check_in')
+    let check_out = $('#id_check_out')
+    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+    pegar_horario_padrao(check_in, check_out, pre_reserva)
+}
+
 function pegar_horario_padrao(check_in, check_out, pre_reserva) {
     $('#aviso_produto_n_selecionado').remove()
-    let check_editar = $('#ModalCadastroPreReserva #check_editar_horarios').prop('checked')
-    if (pre_reserva) check_editar = $('#editar_horarios').prop('checked')
+    let check_editar = $('#check_editar_horarios').prop('checked')
+    if (pre_reserva) check_editar = $('#ModalCadastroPreReserva #editar_horarios').prop('checked')
 
     if (!check_editar) {
         if (hora_padrao_check_in === undefined) {
@@ -137,14 +161,12 @@ function pegar_horario_padrao(check_in, check_out, pre_reserva) {
             return
         }
 
-        if (pre_reserva) return
-
         check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
 
         if (dias_produto !== null) {
             check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
         } else {
-            check_out.val('')
+            check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
         }
     }
 }
@@ -319,16 +341,17 @@ function salvar_novo_op_formatura() {
 
 $('document').ready(function () {
     $('#id_locacoes_ceu').on('select2:select', function (e) {
+        $('.dados_locacoes_').removeClass('none')
         const infos_locacao = `
             <div class="row" id="espaco_${e.params.data.id}">
                 <div style="width: 40%">
                     <label>Espaço</label>
-                    <input type="text" name=espaco readonly value="${e.params.data.text}">
-                    <input type="hidden" id="id_espaco">
+                    <input type="text" name=espaco readonly required value="${e.params.data.text}">
+                    <input type="hidden" id="id_espaco" name="id_espaco" value="${e.params.data.id}">
                 </div>
                 <div style="width: 20%">
                     <label>Intervalo</label>
-                    <select name="intervalo" id="id_intervalo">
+                    <select name="intervalo" id="id_intervalo" required>
                         <option></option>
                         <option value="4">4 horas</option>
                         <option value="8">8 horas</option>
@@ -336,18 +359,27 @@ $('document').ready(function () {
                 </div>
                 <div style="width: 30%">
                     <label>Formato da sala</label>
-                    <select name="formato_sala" id="id_formato_sala">
-                        <option></option>
-                        <option value="1">Auditório</option>
-                        <option value="2">Formato U</option>
-                        <option value="3">Formato redondo</option>
-                        <option value="4">Formato escolar</option>
-                        <option value="5">Coquetel</option>
-                    </select>
+                    <select name="formato_sala" id="id_formato_sala" required></select>
                 </div>
             </div>
         `
         $('#dados_locacoes').append(infos_locacao)
+
+        if (e.params.data.text == 'Auditório') {
+            $(`#espaco_${e.params.data.id} #id_formato_sala`).append('<option value="auditorio">Auditório</option>')
+        } else if (e.params.data.text == 'Outro') {
+            $(`#espaco_${e.params.data.id} #id_formato_sala`).append('<option value="livre">Formato livre</option>')
+        } else {
+            $(`#espaco_${e.params.data.id} #id_formato_sala`).append(`
+                <option></option>
+                <option value="auditorio">Auditório</option>
+                <option value="u">Formato U</option>
+                <option value="redondo">Formato redondo</option>
+                <option value="escolar">Formato escolar</option>
+                <option value="coquetel">Coquetel</option>
+                <option value="livre">Formato livre</option>
+            `)
+        }
     })
 
     $('#id_locacoes_ceu').on('select2:unselect', function (e) {

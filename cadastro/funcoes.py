@@ -3,7 +3,7 @@ from ceu.models import Atividades, Professores, Locaveis
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
-    AtividadesEco, EscalaAcampamento
+    AtividadesEco, EscalaAcampamento, ProdutoCorporativo
 
 
 def is_ajax(request):
@@ -360,6 +360,16 @@ def requests_ajax(requisicao, files=None):
 
     if requisicao.get('id_produto'):
         produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
+        dados_produtos_corporativo = {}
+
+        if not produto.colegio:
+            produtos_corporativos = ProdutoCorporativo.objects.all()
+
+            for produto_corporativo in produtos_corporativos:
+                dados_produtos_corporativo[produto_corporativo.id] = {
+                    'check_in_padrao': produto_corporativo.hora_padrao_check_in,
+                    'check_out_padrao': produto_corporativo.hora_padrao_check_out
+                }
 
         return {
             'colegio': produto.colegio,
@@ -370,6 +380,7 @@ def requests_ajax(requisicao, files=None):
             'n_dias': produto.n_dias,
             'hora_check_in_padrao': produto.hora_padrao_check_in,
             'hora_check_out_padrao': produto.hora_padrao_check_out,
+            'dados_produtos_corporativo': dados_produtos_corporativo
         }
 
 
@@ -425,3 +436,6 @@ def ver_empresa_atividades(dados):
         return 'Peraltas'
     else:
         return 'CEU'
+
+
+

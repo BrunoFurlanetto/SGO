@@ -106,7 +106,7 @@ function limpar_dados(){
 function pegarCliente(){
     const id_cliente = $('#id_cliente')
     const nome_fantasia = $('#cliente')
-    console.log('Foi')
+
     if (localStorage.getItem('id') === null && id_cliente.val() === '' ){
         return
     }

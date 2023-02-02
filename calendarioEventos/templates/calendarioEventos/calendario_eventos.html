@@ -62,6 +62,7 @@
                                         $('#ModalCadastroPreReserva #id_pre_reserva').val(response['id'])
                                         $('#ModalCadastroPreReserva #id_responsavel_evento').val(response['responavel_evento'])
                                         $('#ModalCadastroPreReserva #id_produto').val(response['produto'])
+                                        $('#ModalCadastroPreReserva #id_produto_corporativo').val(response['produto_corporativo'])
                                         $('#ModalCadastroPreReserva #id_check_in').val(moment(check_in).format('yyyy-MM-DDTHH:mm'))
                                         $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
                                         $('#ModalCadastroPreReserva #id_obs_edicao_horario').val(response['obs_edicao'])
@@ -215,7 +216,7 @@
             {% endif %}
 
             function lotacao_dia_dia(check_in, check_out) {
-                const diferenca = moment(check_out,"YYYY-MM-DD").diff(moment(check_in,"YYYY-MM-DD"))
+                const diferenca = moment(check_out, "YYYY-MM-DD").diff(moment(check_in, "YYYY-MM-DD"))
                 const dias_evento = moment.duration(diferenca).asDays()
                 moment.locale('pt-br')
                 $('#aviso_lotacao ul').empty().removeClass('none')
@@ -227,7 +228,7 @@
                     if (lotacao[data_busca]['total'] <= 120) {
                         $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
                         $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
-                    } else  if (lotacao[data_busca]['total'] <= 180) {
+                    } else if (lotacao[data_busca]['total'] <= 180) {
                         $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
                         $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
                     } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
@@ -319,8 +320,16 @@
                         hora_padrao_check_in = response['hora_check_in_padrao']
                         hora_padrao_check_out = response['hora_check_out_padrao']
                         const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
+                        dados_produto_corporativo = response['dados_produtos_corporativo']
+                        dias_produto = response['n_dias']
 
-                        if (response['hora_check_in_padrao'] === null) {
+                        if (Object.keys(dados_produto_corporativo).length !== 0) {
+                            $('#produto_corporativo').removeClass('none')
+                        } else {
+                            $('#produto_corporativo').addClass('none')
+                        }
+
+                        if (response['hora_check_in_padrao'] === null && dados_produto_corporativo.length === 0) {
                             $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true).prop('disabled', true)
 
                             if (response['n_dias'] !== null) {
@@ -412,6 +421,10 @@
                             <div class="div-produtos mb-2">
                                 <label>Produto Peraltas</label>
                                 {{ cadastro_pre_reserva.produto }}
+                            </div>
+                            <div class="mb-2 none" id="produto_corporativo">
+                                <label>Produto corporativo</label>
+                                {{ cadastro_pre_reserva.produto_corporativo }}
                             </div>
                             <div class="row mb-2">
                                 <div style="width: 50%">

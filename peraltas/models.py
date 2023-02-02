@@ -129,6 +129,8 @@ class ProdutoCorporativo(models.Model):
     produto = models.CharField(max_length=255)
     pernoite = models.BooleanField(default=True)
     n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
+    hora_padrao_check_in = models.TimeField(blank=True, null=True)
+    hora_padrao_check_out = models.TimeField(blank=True, null=True)
 
     def __str__(self):
         return self.produto
@@ -328,8 +330,31 @@ class FichaDeEvento(models.Model):
             ]
 
             dados.append({'dia': dia, 'refeicoes': dados_refeicoes})
+        print(dados)
+        return dados
+
+    def separar_informacoes_locacoes(self):
+        dados = []
+
+        for espaco in self.informacoes_locacoes.values():
+            dados.append(espaco)
 
         return dados
+
+    @staticmethod
+    def juntar_dados_locacoes(dados_requisicao):
+        dados_locacoes = {}
+
+        for posicao, espaco in enumerate(dados_requisicao.getlist('espaco'), start=1):
+            dados_locacoes[f'espaco_{posicao}'] = {
+                'id_espaco': dados_requisicao.getlist('id_espaco')[posicao - 1],
+                'espaco': espaco,
+                'intervalo': dados_requisicao.getlist('intervalo')[posicao - 1],
+                'formato_sala': dados_requisicao.getlist('formato_sala')[posicao - 1]
+            }
+
+        return dados_locacoes
+
 
 
 class DisponibilidadeAcampamento(models.Model):
@@ -435,13 +460,6 @@ class CadastroFichaDeEvento(forms.ModelForm):
     produto.widget.attrs['class'] = 'form-check-input'
     produto.widget.attrs['onclick'] = 'verQuantidades(this)'
 
-    produto_corporativo = forms.ModelChoiceField(
-        queryset=ProdutosPeraltas.objects.all(),
-        widget=forms.RadioSelect,
-        required=True
-    )
-    produto_corporativo.widget.attrs['class'] = 'form-check-input'
-
     class Meta:
         model = FichaDeEvento
         exclude = ()
@@ -460,12 +478,11 @@ class CadastroFichaDeEvento(forms.ModelForm):
                 'onclick': 'this.showPicker()'
             }),
             'atividades_ceu_a_definir': forms.NumberInput(attrs={
-                'style': 'width: 15%; margin-left: 8px',
                 'min': '0',
                 'max': 10,
                 'placeholder': 'n',
-                'class': 'none',
             }),
+            'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
@@ -537,8 +554,8 @@ class CadastroPreReserva(forms.ModelForm):
     class Meta:
         model = FichaDeEvento
         fields = [
-            'cliente', 'responsavel_evento', 'produto', 'check_in',
-            'check_out', 'qtd_convidada', 'observacoes',
+            'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
+            'check_in', 'check_out', 'qtd_convidada', 'observacoes',
             'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario',
             'data_preenchimento'
         ]
@@ -546,6 +563,7 @@ class CadastroPreReserva(forms.ModelForm):
         widgets = {
             'cliente': forms.Select(attrs={'onChange': 'gerar_responsaveis(this)'}),
             'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
+            'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
             'check_in': forms.TextInput(attrs={
                 'type': 'datetime-local',
