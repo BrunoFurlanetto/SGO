@@ -172,7 +172,14 @@ class ClienteColegio(models.Model):
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=10)
-    responsavel_alteracao = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    responsavel_alteracao = models.ForeignKey(User,
+                                              on_delete=models.DO_NOTHING,
+                                              blank=True, null=True,
+                                              related_name='responsavel_alteracao')
+    responsavel_cadastro = models.ForeignKey(User,
+                                             on_delete=models.DO_NOTHING,
+                                             blank=True, null=True,
+                                             related_name='responsavel_cadastro_cliente')
 
     def __str__(self):
         return self.nickname if self.nickname else self.nome_fantasia
@@ -190,9 +197,22 @@ class Responsavel(models.Model):
     cargo = models.ManyToManyField(ListaDeCargos)
     fone = models.CharField(max_length=16)
     email_responsavel_evento = models.EmailField()
+    responsavel_cadastro = models.ForeignKey(User,
+                                             on_delete=models.DO_NOTHING,
+                                             blank=True, null=True,
+                                             related_name='responsavel_cadastro')
+    responsavel_atualizacao = models.ForeignKey(User,
+                                                on_delete=models.DO_NOTHING,
+                                                blank=True, null=True,
+                                                related_name='responsavel_atualizacao')
 
     def __str__(self):
         return self.nome
+
+    def responsavel_por(self):
+        relacao = RelacaoClienteResponsavel.objects.get(responsavel=self)
+
+        return relacao.cliente
 
 
 class EmpresaOnibus(models.Model):
@@ -304,6 +324,7 @@ class FichaDeEvento(models.Model):
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
     data_preenchimento = models.DateField(blank=True, null=True, default=datetime.date.today)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
+    exclusividade = models.BooleanField(default=False)
     pre_reserva = models.BooleanField(default=False)
     agendado = models.BooleanField(default=False)
     os = models.BooleanField(default=False)
@@ -354,7 +375,6 @@ class FichaDeEvento(models.Model):
             }
 
         return dados_locacoes
-
 
 
 class DisponibilidadeAcampamento(models.Model):
@@ -523,6 +543,10 @@ class CadastroResponsavel(forms.ModelForm):
         model = Responsavel
         exclude = ()
 
+        widgets = {
+            'fone': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
+        }
+
 
 class CadastroInfoAdicionais(forms.ModelForm):
     class Meta:
@@ -555,7 +579,7 @@ class CadastroPreReserva(forms.ModelForm):
         model = FichaDeEvento
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
-            'check_in', 'check_out', 'qtd_convidada', 'observacoes',
+            'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
             'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario',
             'data_preenchimento'
         ]
@@ -565,6 +589,7 @@ class CadastroPreReserva(forms.ModelForm):
             'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
+            'exclusividade': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'check_in': forms.TextInput(attrs={
                 'type': 'datetime-local',
                 'onChange': 'pegarDias(true)',

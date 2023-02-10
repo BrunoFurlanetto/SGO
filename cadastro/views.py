@@ -383,7 +383,7 @@ def listaCliente(request):
     clientes = paginacao.get_page(pagina)
 
     if is_ajax(request):
-        return JsonResponse(requests_ajax(request.POST))
+        return JsonResponse(requests_ajax(request.POST, usuario=request.user))
 
     # ------------------------------------------------------------------------------------------------------------------
     if request.GET.get('termo'):
@@ -410,6 +410,7 @@ def listaCliente(request):
 
     if request.POST.get('update') == 'true':
         cliente = ClienteColegio.objects.get(id=int(request.POST.get('id')))
+        responsavel_cadastro_cliente = cliente.responsavel_cadastro
         form = CadastroCliente(request.POST, instance=cliente)
 
         if form.is_valid():
@@ -420,47 +421,48 @@ def listaCliente(request):
                 messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
             else:
                 cliente.responsavel_alteracao = request.user
+                cliente.responsavel_cadastro = responsavel_cadastro_cliente
                 cliente.save()
                 messages.success(request, 'Cliente atualizado com sucesso!')
                 return redirect('lista_cliente')
-
         else:
             messages.warning(request, form.errors)
             return redirect('lista_cliente')
 
-    form = CadastroCliente(request.POST)
+    # form = CadastroCliente(request.POST)
 
-    if form.is_valid():
-        try:
-            novo_cliente = form.save(commit=False)
-            novo_cliente.responsavel_alteracao = request.user
-            form.save()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
-
-            if request.POST.get('id_responsavel') != '':
-                responsavel = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
-                responsavel.delete()
-
-            return redirect('lista_cliente')
-        else:
-            nova_relacao = RelacaoClienteResponsavel.objects.create(cliente=novo_cliente)
-            nova_relacao.responsavel.add(request.POST.get('id_responsavel'))
-            nova_relacao.save()
-            messages.success(request, 'Cliente salvo com sucesso')
-            return redirect('lista_cliente')
-    else:
-        try:
-            responsavel_com_erro = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
-            responsavel_com_erro.delete()
-            messages.warning(request, form.errors)
-        except Responsavel.DoesNotExist:
-            ...
-        finally:
-            return render(request, 'cadastro/lista-cliente.html', {'form': form,
-                                                                   'clientes': clientes,
-                                                                   'formResponsavel': form_responsavel})
+    # if form.is_valid():
+    #     try:
+    #         novo_cliente = form.save(commit=False)
+    #         novo_cliente.responsavel_cadastro = request.user
+    #         print(novo_cliente)
+    #         form.save()
+    #     except Exception as e:
+    #         email_error(request.user.get_full_name(), e, __name__)
+    #         messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
+    #
+    #         if request.POST.get('id_responsavel') != '':
+    #             responsavel = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
+    #             responsavel.delete()
+    #
+    #         return redirect('lista_cliente')
+    #     else:
+    #         nova_relacao = RelacaoClienteResponsavel.objects.create(cliente=novo_cliente)
+    #         nova_relacao.responsavel.add(request.POST.get('id_responsavel'))
+    #         nova_relacao.save()
+    #         messages.success(request, 'Cliente salvo com sucesso')
+    #         return redirect('lista_cliente')
+    # else:
+    #     try:
+    #         responsavel_com_erro = Responsavel.objects.get(id=request.POST.get('id_responsavel'))
+    #         responsavel_com_erro.delete()
+    #         messages.warning(request, form.errors)
+    #     except Responsavel.DoesNotExist:
+    #         ...
+    #     finally:
+    #         return render(request, 'cadastro/lista-cliente.html', {'form': form,
+    #                                                                'clientes': clientes,
+    #                                                                'formResponsavel': form_responsavel})
 
 
 @login_required(login_url='login')
@@ -496,7 +498,8 @@ def listaResponsaveis(request):
         responsaveis = list(chain())
 
         try:
-            relacoes = RelacaoClienteResponsavel.objects.get(cliente=int(cliente))
+            relacoes = RelacaoClienteResponsavel.objects.filter(cliente=int(cliente))
+            print(relacoes)
         except RelacaoClienteResponsavel.DoesNotExist:
             responsaveis = []
         except Exception as e:
@@ -504,8 +507,9 @@ def listaResponsaveis(request):
             messages.error(request, 'Houve um erro inesperado, por favor tentar mais tarde!')
             return redirect('lista_responsaveis')
         else:
-            for responsavel in relacoes.responsavel.all():
-                responsaveis.append(Responsavel.objects.get(id=responsavel.id))
+            for relacao in relacoes:
+                for responsavel in relacao.responsavel.all():
+                    responsaveis.append(Responsavel.objects.get(id=responsavel.id))
 
             for responsavel in responsaveis:
                 relacao = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
@@ -529,12 +533,11 @@ def listaResponsaveis(request):
 
     if request.POST.get('update') == 'true':
         responsavel = Responsavel.objects.get(id=int(request.POST.get('id')))
+        responsavel_cadastro = responsavel.responsavel_cadastro
         cliente = ClienteColegio.objects.get(id=int(request.POST.get('id_responsavel_por')))
-
         form = CadastroResponsavel(request.POST, instance=responsavel)
 
         if form.is_valid():
-
             try:
                 form.save()
             except Exception as e:
@@ -542,8 +545,12 @@ def listaResponsaveis(request):
                 messages.error(request, 'Houve um erro inesperado, tente novemente mais tarde!')
                 return redirect('lista_responsaveis')
             else:
+                responsavel.responsavel_cadastro = responsavel_cadastro
+                responsavel.responsavel_atualizacao = request.user
+                responsavel.save()
+
                 try:
-                    relacao_existente = RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
+                    RelacaoClienteResponsavel.objects.get(responsavel=responsavel.id)
                 except RelacaoClienteResponsavel.DoesNotExist:
                     nova_relacao = RelacaoClienteResponsavel.objects.create(cliente=cliente)
                     nova_relacao.responsavel.add(responsavel.id)
@@ -559,6 +566,8 @@ def listaResponsaveis(request):
 
     if form.is_valid():
         try:
+            novo_responsavel = form.save(commit=False)
+            novo_responsavel.responsavel_cadastro = request.user
             novo_responsavel = form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)

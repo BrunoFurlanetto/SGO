@@ -93,6 +93,11 @@
                         <label>Empresa</label>
                         {{ form.empresa }}
                     </div>
+                    <div id="link_ficha_de_evento" class="mt-2">
+                        {% if not fichas and ficha_de_evento %}
+                            <strong>Ficha de evento: </strong><a href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a>
+                        {% endif %}
+                    </div>
                 </div>
                 <hr class="transporte {% if not ficha_de_evento.informacoes_adcionais.transporte %} none {% endif %}">
                 <div class="row {% if not ordem_servico.dados_transporte %} none {% endif %} transporte">

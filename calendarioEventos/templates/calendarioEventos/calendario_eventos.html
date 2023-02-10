@@ -33,7 +33,7 @@
                             $('#ModalCadastroPreReserva #id_pre_reserva').val('')
                             $('#ModalCadastroPreReserva #id_cliente').trigger('change')
                             $('#ModalCadastroPreReserva #id_cliente').prop('disabled', false)
-                            $('#ModalCadastroPreReserva #editar_horarios').prop('checked', false)
+                            $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
                             $('#ModalCadastroPreReserva').modal('show');
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
@@ -76,6 +76,12 @@
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
+                                        console.log(response)
+                                        if (response['exclusividade']) {
+                                            $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)
+                                        } else {
+                                            $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
+                                        }
 
                                         if (response['obs_edicao'] !== null) {
                                             $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true)
@@ -88,19 +94,27 @@
                                             modal_footer.append('<p>Agendamento já confirmado!</p>')
                                             modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
                                         } else {
-                                            {% if comercial %}
-                                                if (response['editar']) {
+                                            {% if comercial or diretoria %}
+                                                {% if diretoria %}
                                                     modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
-                                                }
+                                                {% else %}
+                                                    if (response['editar']) {
+                                                        modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
+                                                    }
+                                                    {% endif %}
                                             {% endif %}
 
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                             modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
 
-                                            {% if comercial %}
-                                                if (response['editar']) {
+                                            {% if comercial or diretoria %}
+                                                {% if diretoria %}
                                                     modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
-                                                }
+                                                {% else %}
+                                                    if (response['editar']) {
+                                                        modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                                    }
+                                                {% endif %}
                                             {% endif %}
                                         }
                                     }
@@ -114,7 +128,7 @@
                     events: [
                         {% for pre_reserva in pre_reservas %}
                             {
-                                title: "{{ pre_reserva.cliente }}",
+                                title: "{{ pre_reserva.cliente }}".replace("&#x27;", "\'"),
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
 
@@ -129,7 +143,7 @@
                         {% for evento in eventos %}
                             {
                                 {% if professor_ceu %}
-                                    title: "{{ evento.ficha_de_evento.cliente }}",
+                                    title: "{{ evento.ficha_de_evento.cliente }}".replace("&#x27;", "\'"),
                                     start: "{{ evento.check_in_ceu | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
@@ -157,7 +171,7 @@
                                 {
                                     {% if professor_ceu%}
                                         {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
-                                            title: "{{ ficha.cliente }}",
+                                            title: "{{ ficha.cliente }}".replace("&#x27;", "\'"),
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
@@ -435,14 +449,20 @@
                                     <label for="check_out">Check out (Data/horário)</label>
                                     {{ cadastro_pre_reserva.check_out }}
                                 </div>
-                                <div>
-                                    <input class="form-check-input" type="checkbox" name="editar_horario"
-                                           id="editar_horarios" onclick="$('#obs_edicao').toggleClass('none');
+                                <div class="row">
+                                    <div style="width: 50%">
+                                        <input class="form-check-input" type="checkbox" name="editar_horario"
+                                               id="editar_horarios" onclick="$('#obs_edicao').toggleClass('none');
                                            if ($('#obs_edicao').attr('class').includes('none')){
                                                $('#id_obs_edicao_horario').prop('required', false)}
                                            else{
                                                $('#id_obs_edicao_horario').prop('required', true)}">
-                                    <label for="editar_horarios">Editar horários</label>
+                                        <label for="editar_horarios">Editar horários</label>
+                                    </div>
+                                   {% comment %} <div style="width: 50%">
+                                        {{ cadastro_pre_reserva.exclusividade }}
+                                        <label>Exclusividade?</label>
+                                    </div>{% endcomment %}
                                 </div>
                                 <div id="obs_edicao" class="mt-2">
                                     <label>Motivo da edição:</label>

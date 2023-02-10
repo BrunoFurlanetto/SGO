@@ -106,12 +106,12 @@ class PerfilParticipantesAdmin(admin.ModelAdmin):
 
 @admin.register(ClienteColegio)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome_fantasia', 'razao_social', 'cnpj')
+    list_display = ('id', 'nome_fantasia', 'razao_social', 'cnpj', 'responsavel_cadastro', 'responsavel_alteracao')
 
 
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome',)
+    list_display = ('id', 'nome', 'responsavel_por', 'responsavel_cadastro', 'responsavel_atualizacao')
 
 
 @admin.register(OpcionaisGerais)

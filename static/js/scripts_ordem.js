@@ -51,7 +51,7 @@ function completar_dados_os(selecao){
 
             if(response['atividades_ceu'] !== ''){
                 for(let i in response['atividades_ceu']){
-                    add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
+                    add_atividade(parseInt(i), response['atividades_ceu'][i], response['id_serie'])
                     let j = document.querySelectorAll('.div_pai').length
                 }
             }
@@ -71,7 +71,7 @@ function completar_dados_os(selecao){
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), atividade_='', serie_=''){
+function add_atividade(atividade_id_=parseInt(''), atividade_='', serie_=''){
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
@@ -102,7 +102,7 @@ function add_atividade(participantes_=parseInt(''), atividade_id_=parseInt(''), 
             let label_data = `<label>Data e hora da atividade</label>`
             let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required/>`
             let label_participantes = `<label>QTD</label>`
-            let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required value="${participantes_}"/>`
+            let participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" required/>`
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes" id="serie_${i}" type="text" name="serie_participantes_${i}" value="${serie_}"/>`
 
@@ -302,7 +302,7 @@ function dividar_atividade(indicie, limite){
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade(participantes_, atividade_value_, atividade_, serie_)
+        add_atividade(atividade_value_, atividade_, serie_)
     }
 
 }
@@ -311,7 +311,7 @@ function dividar_atividade(indicie, limite){
 // ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
 // Função responsável por adicionar uma nova locação
-function add_locacao(id_local_=parseInt(''), local_='', qtd_=parseInt('')){
+function add_locacao(id_local_=parseInt(''), local_=''){
     // Ajax responsável por puxar todas as estruturas do banco de dados
 
     if(isNaN(qtd_)){
@@ -352,7 +352,7 @@ function add_locacao(id_local_=parseInt(''), local_='', qtd_=parseInt('')){
             let label_hora_coffee = `<label>Hora</label>`
             let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)"/>`
             let label_participantes_loc = `<label>QTD</label>`
-            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required value="${qtd_}"/>`
+            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required/>`
 
             $(`#div_locacao_${i}`).append(label_locacao, select_locacao)
             $(`#div_entrada_${i}`).append(label_entrada, entrada)
@@ -470,7 +470,7 @@ function dadosVerOrdem(){
             let j = 1
             if(response['atividades_ceu']){
                 for(let i in response['atividades_ceu']){
-                    add_atividade(response['atividades_ceu'][i]['participantes'], response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
+                    add_atividade(response['atividades_ceu'][i]['id_atividade'], response['atividades_ceu'][i]['atividade'], response['atividades_ceu'][i]['serie'])
                     setTimeout(() => {
                         $(`#data_${j}`).val(moment(response['atividades_ceu'][i]['data_e_hora']).format('yyyy-MM-DDTHH:mm'))
                         j++

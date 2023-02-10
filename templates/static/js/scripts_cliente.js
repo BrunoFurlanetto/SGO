@@ -151,9 +151,6 @@ function pegarDadosResponsaveis(selecao){
     $('#id_responsavel_por').val(selecao.value)
     let id_cliente = selecao.value
 
-
-    console.log(id_cliente)
-
      $.ajax({
         type: 'POST',
         url: '',
@@ -210,11 +207,10 @@ function completa_dados_responsavel(selecao) {
                 }
 
                 $('#id_responsavel_por').remove()
-                $('#div_responsavel_por').append('<select name="responsavel_por" id="id_responsavel_por" required><option></option></select>')
+                $('#div_responsavel_por').append(`<select name="responsavel_por" id="id_responsavel_por" onchange="$('#id_id_responsavel_por').val($('#id_responsavel_por').val())" required><option></option></select>`)
 
                 for (let i = 0; i < response['responsavel_por'].length; i++) {
                     $('#id_responsavel_por').append(`<option value="${response['responsavel_por'][i]['id']}">${response['responsavel_por'][i]['nome']}</option>`)
-
                 }
 
                 $('#id_responsavel_por').select2()
@@ -229,6 +225,9 @@ function completa_dados_responsavel(selecao) {
     })
 }
 
+function pegar_id_cliente() {
+
+}
 
 function novo_responsavel(){
     $('.cadastro-responsavel').removeClass('none')
@@ -237,8 +236,10 @@ function novo_responsavel(){
     $('#id_cargo').select2()
     $('#id_responsavel_por').val(localStorage.getItem('id_cliente'))
     $('#nome_fantasia_cliente').val(localStorage.getItem('fantasia_cliente'))
+}
 
-        // Telefone
+function mascara_telefone() {
+    // Telefone
     $('#id_fone').mask('(00) 0 0000-00009');
     $('#id_fone').blur(function(event) {
        if($(this).val().length == 16){ // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
@@ -247,7 +248,6 @@ function novo_responsavel(){
           $(this).mask('(00) 0000-0000');
        }
      });
-
 }
 
 function putResponsavel(){

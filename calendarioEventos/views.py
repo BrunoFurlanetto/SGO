@@ -23,6 +23,7 @@ def eventos(request):
     ordens = OrdemDeServico.objects.all()
     professor_ceu = request.user.has_perm('cadastro.add__relatoriodeatendimentopublicoceu')
     comercial = request.user.has_perm('peraltas.add_prereserva')
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
     if is_ajax(request):
         if request.method == 'GET':
@@ -47,7 +48,6 @@ def eventos(request):
 
         if request.POST.get('id_produto'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
-
 
         if not request.POST.get('cnpj'):
             try:
@@ -82,6 +82,7 @@ def eventos(request):
             'produto': pre_reserva.produto.id,
             'produto_corporativo': pre_reserva.produto_corporativo.id if pre_reserva.produto_corporativo else None,
             'obs_edicao': pre_reserva.obs_edicao_horario,
+            'exclusividade': pre_reserva.exclusividade,
             'qtd': pre_reserva.qtd_convidada,
             'vendedor': pre_reserva.vendedora.id,
             'editar': pre_reserva.vendedora.usuario.id == request.user.id,
@@ -95,6 +96,7 @@ def eventos(request):
             'fichas': fichas_de_evento,
             'professor_ceu': professor_ceu,
             'comercial': comercial,
+            'diretoria': diretoria,
             'pre_reservas': pre_reservas,
             'cadastro_pre_reserva': cadastro_de_pre_reservas,
             'clientes': clientes

@@ -106,19 +106,19 @@ function completar_dados_os(selecao) {
 
             if (response['atividades_eco'] !== '') {
                 for (let i in response['atividades_eco']) {
-                    add_atividade_eco(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_eco'][i], response['id_serie'])
+                    add_atividade_eco(parseInt(i), response['atividades_eco'][i], response['id_serie'])
                 }
             }
 
             if (response['atividades_ceu'] !== '') {
                 for (let i in response['atividades_ceu']) {
-                    add_atividade(parseInt(response['id_n_participantes']), parseInt(i), response['atividades_ceu'][i], response['id_serie'])
+                    add_atividade(parseInt(i), response['atividades_ceu'][i], response['id_serie'])
                 }
             }
 
             if (response['locacoes_ceu'] !== '') {
                 for (let i in response['locacoes_ceu']) {
-                    add_locacao(parseInt(i), parseInt(response['id_n_participantes']))
+                    add_locacao(parseInt(i))
                 }
             }
 
@@ -149,7 +149,7 @@ function atualizar_participantes(participantes) {
 //  ------------------------------------------------- Fim das funcionalidades gerais da página ---------------------------------------------------------
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
-function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt(''),
+function add_atividade(atividade_id_ = parseInt(''),
                        atividade_ = '', serie_ = '', data_ = '', divisao=false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
@@ -183,9 +183,9 @@ function add_atividade(participantes_ = parseInt(''), atividade_id_ = parseInt('
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
-                var participantes = `<input class="qtd_participantes divi" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+                var participantes = `<input class="qtd_participantes divi" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required/>`
             } else {
-                var participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+                var participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required/>`
             }
 
             let label_serie = `<label>Serie</label>`
@@ -385,7 +385,7 @@ function dividar_atividade(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade(participantes_, atividade_value_, atividade_, serie_, '', true)
+        add_atividade(atividade_value_, atividade_, serie_, '', true)
     }
 
 }
@@ -395,13 +395,9 @@ function dividar_atividade(indicie, limite) {
 // ----------------------------------------- Início das funções que trabalham com as locações -----------------------------------
 
 // Função responsável por adicionar uma nova locação
-function add_locacao(id_local_ = parseInt(''), qtd_ = parseInt(''), check_in_ = '',
+function add_locacao(id_local_ = parseInt(''), check_in_ = '',
                      check_out_ = '', local_coffee_ = '', hora_coffee_ = '', divisao=false) {
     // Ajax responsável por puxar todas as estruturas do banco de dados
-
-    if (isNaN(qtd_)) {
-        qtd_ = ($('#id_n_participantes').val())
-    }
 
     $.ajax({
         type: 'POST',
@@ -436,7 +432,7 @@ function add_locacao(id_local_ = parseInt(''), qtd_ = parseInt(''), check_in_ = 
             let label_hora_coffee = `<label>Hora</label>`
             let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)" value="${hora_coffee_}"/>`
             let label_participantes_loc = `<label>QTD</label>`
-            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required value="${qtd_}"/>`
+            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required/>`
 
             $(`#div_locacao_${i}`).append(label_locacao, select_locacao)
             $(`#div_entrada_${i}`).append(label_entrada, entrada)
@@ -544,7 +540,7 @@ function verificar_lotacao(selecao) {
 
 // ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
 // Função responsável pela adição de uma nova atividade de ecoturismo
-function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseInt(''),
+function add_atividade_eco(atividade_id_ = parseInt(''),
                            atividade_ = '', serie_ = '', data_ = '', divisao=false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
@@ -579,9 +575,9 @@ function add_atividade_eco(participantes_ = parseInt(''), atividade_id_ = parseI
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
-                var participantes = `<input class="qtd_participantes_eco divi" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+                var participantes = `<input class="qtd_participantes_eco divi" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required/>`
             } else {
-                var participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required value="${participantes_}"/>`
+                var participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required/>`
             }
 
             let label_serie = `<label>Serie</label>`
@@ -766,7 +762,7 @@ function dividar_atividade_eco(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade_eco(participantes_, atividade_value_, atividade_, serie_, '', true)
+        add_atividade_eco(atividade_value_, atividade_, serie_, '', true)
     }
 }
 

@@ -10,7 +10,7 @@ def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
-def requests_ajax(requisicao, files=None):
+def requests_ajax(requisicao, files=None, usuario=None):
     if requisicao.get('id_ficha'):
         ficha_de_evento = FichaDeEvento.objects.get(pk=requisicao.get('id_ficha'))
         id_monitor_embarque = ''
@@ -269,9 +269,11 @@ def requests_ajax(requisicao, files=None):
 
         if form.is_valid():
             try:
+                novo_responsavel = form.save(commit=False)
+                novo_responsavel.responsavel_cadastro = usuario
                 novo_responsavel = form.save()
-            except:
-                return {'mensagem': 'Houve um erro inesperado, responsável não foi salvo. Por favor tente mais tarde!'}
+            except Exception as e:
+                return {'mensagem': f'Houve um erro inesperado ({e}), responsável não foi salvo. Por favor tente mais tarde!'}
             else:
                 return {'mensagem': 'Responsável salvo com sucesso!',
                         'nome_responsavel': novo_responsavel.nome,
@@ -284,13 +286,13 @@ def requests_ajax(requisicao, files=None):
         form = CadastroCliente(requisicao)
 
         if form.is_valid():
-
             try:
+                novo_cliente = form.save(commit=False)
+                novo_cliente.responsavel_cadastro = usuario
                 novo_cliente = form.save()
-            except:
-                return {'mensagem': 'Houve um erro inesperado, por favor tentar mais tarde!'}
+            except Exception as e:
+                return {'mensagem': f'Houve um erro inesperado ({e}), por favor tentar mais tarde!'}
             else:
-
                 if requisicao.get('id_responsavel'):
                     cliente = ClienteColegio.objects.get(id=int(novo_cliente.id))
                     responsavel = Responsavel.objects.get(id=int(requisicao.get('id_responsavel')))
@@ -302,7 +304,6 @@ def requests_ajax(requisicao, files=None):
                 return {'mensagem': 'Cliente salvo com sucesso',
                         'id_cliente': novo_cliente.id,
                         'nome_fantasia': novo_cliente.nome_fantasia}
-
         else:
             return {'mensagem': form.errors}
 
