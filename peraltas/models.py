@@ -544,7 +544,7 @@ class CadastroResponsavel(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'fone': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
+            'fone': forms.TextInput(attrs={'onfocus': 'mascara_telefone()'})
         }
 
 
