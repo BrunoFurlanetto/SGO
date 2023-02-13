@@ -107,6 +107,7 @@ class PerfilParticipantesAdmin(admin.ModelAdmin):
 @admin.register(ClienteColegio)
 class ClienteAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome_fantasia', 'razao_social', 'cnpj', 'responsavel_cadastro', 'responsavel_alteracao')
+    list_editable = ('responsavel_cadastro', )
 
 
 @admin.register(Responsavel)
