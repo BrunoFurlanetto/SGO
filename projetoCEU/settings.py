@@ -18,7 +18,6 @@ from django.contrib.messages import constants
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -28,7 +27,7 @@ SECRET_KEY = 'django-insecure-8e5qrlwbt$(uvb1yea)7r-!^=snfz)2wqa%^b^m4nw4^!#3+zz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '191.96.251.170']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '191.96.251.170']
 
 
 # Application definition
@@ -170,8 +169,8 @@ MESSAGE_TAGS = {
     constants.SUCCESS: 'alert alert-success',
     constants.INFO: 'alert alert-info',
 }
-django_heroku.settings(locals())
+
 try:
     from local_settings import *
 except ImportError:
-    pass
+    django_heroku.settings(locals())
