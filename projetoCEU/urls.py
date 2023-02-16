@@ -19,9 +19,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from home.views import manutencao
 
-manuten = False
+try:
+    from local_settings import em_manutencao
+except ImportError:
+    em_manutencao = False
 
-if not manuten:
+if not em_manutencao:
     urlpatterns = [
         path('', include('home.urls')),
         path('ceu/', include('ceu.urls')),
