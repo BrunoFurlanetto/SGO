@@ -17,19 +17,41 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from home.views import manutencao
 
-urlpatterns = [
-    path('', include('home.urls')),
-    path('ceu/', include('ceu.urls')),
-    path('peraltas/', include('peraltas.urls')),
-    path('dashboard/', include('dashboard.urls')),
-    path('cadastro/', include('cadastro.urls')),
-    path('escala/', include('escala.urls')),
-    path('visualizacao/', include('verDocumento.urls')),
-    path('ficha-de-avaliacao/', include('fichaAvaliacao.urls')),
-    path('painel-geral/', include('painelAdm.urls')),
-    path('ordem-de-servico/', include('ordemDeServico.urls')),
-    path('calendario-eventos/', include('calendarioEventos.urls')),
-    path('detector-de-bombas/', include('detector.urls')),
-    path('admin/', admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+manuten = False
+
+if not manuten:
+    urlpatterns = [
+        path('', include('home.urls')),
+        path('ceu/', include('ceu.urls')),
+        path('peraltas/', include('peraltas.urls')),
+        path('dashboard/', include('dashboard.urls')),
+        path('cadastro/', include('cadastro.urls')),
+        path('escala/', include('escala.urls')),
+        path('visualizacao/', include('verDocumento.urls')),
+        path('ficha-de-avaliacao/', include('fichaAvaliacao.urls')),
+        path('painel-geral/', include('painelAdm.urls')),
+        path('ordem-de-servico/', include('ordemDeServico.urls')),
+        path('calendario-eventos/', include('calendarioEventos.urls')),
+        path('detector-de-bombas/', include('detector.urls')),
+        path('admin/', admin.site.urls),
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    urlpatterns = [
+        path('', manutencao),
+        path('ceu/', manutencao),
+        path('peraltas/', manutencao),
+        path('dashboard/', manutencao),
+        path('cadastro/', manutencao),
+        path('escala/',manutencao),
+        path('visualizacao/', manutencao),
+        path('ficha-de-avaliacao/', manutencao),
+        path('painel-geral/', manutencao),
+        path('ordem-de-servico/', manutencao),
+        path('calendario-eventos/', manutencao),
+        path('detector-de-bombas/', manutencao),
+        path('admin/', manutencao),
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'home.views.handler404'

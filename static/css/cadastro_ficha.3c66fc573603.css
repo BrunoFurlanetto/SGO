@@ -1,0 +1,236 @@
+.conteudo-ficha{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 750px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.conteudo-ficha input, .conteudo-cliente input, .conteudo-responsaveis input,
+#id_endereco_embarque, #id_quais_atividades, #id_horario_garantia,
+#id_valor, #id_valor_por_participantes, .app input, #vencimentos input,
+#id_outro_produto, #id_outros, #dados_veiculos input{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+#material_apoio-clear_id{
+    width: 20px;
+    border: 1px solid #ced4da;
+    appearance: auto;
+    background: transparent;
+    border-radius: 5px;
+    padding: 0;
+    height: 20px;
+}
+#div_editar_horarios{
+    width: 30%;
+    display: flex;
+    flex-flow: inherit;
+    align-items: center;
+}
+#dados_veiculos input[type='number']{
+    height: 30px;
+    padding: 5px;
+    margin-left: -15px;
+}
+.conteudo-ficha select, .modal-body select, #id_contrato, .ver-conteudo-ficha select{
+    background-color: #fff;
+    width: 100%;
+    border-radius: 5px;
+    border-color: #ced4da;
+    padding-left: 12px;
+    height: 38px;
+ }
+.conteudo-ficha textarea, #id_observacoes_financeiras{
+    background-color: #fff;
+    width: 96%;
+    margin-left: 2%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 250px;
+    resize: none;
+}
+#id_observacoes_refeicoes{
+    height: 100px;
+}
+.conteudo-ficha .switch{
+    padding: 6px;
+    height: 15px;
+}
+.bx-search{
+    align-self: center;
+    font-size: 30px;
+    color: black;
+}
+#id_produto input, #id_perfil_participantes input{
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: solid 1px #ced4da;
+}
+#id_produto, #id_perfil_participantes{
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: contents;
+}
+#id_produto div, #id_perfil_participantes div{
+    display: inline-block;
+    width: 25%;
+    margin-right: 8%;
+}
+#id_produto div > label{
+    max-width: 230px;
+}
+#id_produto label, #id_perfil_participantes label{
+    width: 200%;
+    font-weight: normal !important;
+}
+#id_professores_com_alunos{
+    width: 5px;
+    height: 5px;
+}
+/* Busca e cadastro de cliente */
+.conteudo-cliente{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 600px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-cliente{
+    margin: 20px;
+}
+.buton-search{
+    width: auto;
+    border: none;
+    background-color: transparent;
+}
+.buton-plus{
+    color: black;
+    width: 10px;
+    margin-left: -15px;
+}
+.button-cliente, .button-responsavel{
+    width: auto;
+    border: none;
+    background-color: transparent;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.conteudo-responsaveis{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 900px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.titulo-responsaveis{
+    margin: 20px;
+}
+.responsaveis td{
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.buton-x-ref {
+    background-color: transparent;
+    border: none;
+    font-size: 28px;
+    color: #b02a37;
+}
+.info{
+    width: 1px  !important;
+    height: 1px !important;
+    margin-right: 10px !important;
+    pointer-events: none;
+}
+#id_nota_fiscal, .checkbox input, #id_atividades_ceu input,
+#id_atividades_eco input, #id_locacoes_ceu input{
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+}
+.cont input {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #ced4da;
+}
+.ver-conteudo-ficha{
+    background-color: #fff;
+    margin: auto auto 5%;
+    width: 750px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+.ver-conteudo-ficha input{
+    border: none;
+    background-color: white;
+}
+.ver-conteudo-ficha textarea{
+    border: none;
+    background-color: white;
+    height: auto !important;
+    resize: none;
+}
+.ver-conteudo-ficha label{
+    font-weight: bold;
+}
+.ver-conteudo-ficha .infos, .ver-conteudo-ficha .bx, .ver-conteudo-ficha .form-switch{
+    display: none;
+}
+.ver-conteudo-ficha .form-check .bx{
+    display: block;
+}
+.ver-conteudo-ficha #corpo-tabela-refeicao .form-check-input{
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 12px;
+    height: 38px;
+}
+#opcionais_geral .select2, #opcionais_formatura .select2, #monitoria_peraltas .select2{
+    width: 95% !important;
+}
+#botao_add_opcionais_geral, #botao_add_opcionais_formatura{
+    background-color: transparent;
+    width: auto;
+    height: auto;
+    border: none;
+    margin-left: -30px;
+}
+#btn_limpar_dados_cliente{
+    border: none;
+    background: transparent;
+    margin-top: 5px;
+}
+#btn_limpar_dados_cliente:hover{
+    color: #c00303;
+}
+#id_lista_segurados{
+    width: 100%;
+    height: 35px;
+    border: none;
+}

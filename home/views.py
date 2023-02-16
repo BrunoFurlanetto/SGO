@@ -35,5 +35,13 @@ def logout(request):
     return redirect('login')
 
 
+def manutencao(request):
+    return render(request, 'home/manutencao.html')
 
 
+def handler404(request, exception):
+    return render(request, 'home/404.html')
+
+
+def handler500(request, exception):
+    return render(request, 'home/500.html', status=500)

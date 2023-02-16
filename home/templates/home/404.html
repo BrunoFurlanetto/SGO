@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-login">
+        <div class="box-manutencao">
+            <img class="logo-central" src="{% static 'img/grupoPeraltas.png' %}" alt="Logo" width="50%" height="auto">
+            <div class="aviso-manutencao">
+                <h2>PÁGINA NÃO ENCONTRADA!</h2>
+            </div>
+            <a href="{% url 'login' %}">
+                <img src="{% static 'img/repair-tools.gif' %}" alt="Site em manitenção" style="width: 18vh">
+            </a>
+        </div>
+    </div>
+{% endblock %}
+</html>

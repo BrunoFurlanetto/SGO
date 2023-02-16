@@ -1,0 +1,93 @@
+
+.conteudo-os input, .conteudo-ver-os input{
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+.conteudo-os select, .conteudo-ver-os select{
+    background-color: #fff;
+    width: 100%;
+    border-radius: 5px;
+    border-color: #ced4da;
+    padding-left: 12px;
+    height: 38px;
+ }
+.conteudo-os textarea, .conteudo-ver-os textarea{
+    background-color: #fff;
+    width: 96%;
+    margin-left: 2%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
+}
+.buton-plus, .buton-x{
+    color: #006b1b;
+    font-size: 25px;
+    border: none;
+    background-color: #fff;
+}
+.buton-x{
+    margin-top: -60px;
+    font-size: 28px;
+    color: #b02a37;
+}
+#id_cronograma_peraltas{
+    border: none;
+    height: 100%;
+}
+#id_atividades_eco input, #id_atividades_peraltas input{
+    width: 18px;
+    height: 18px;
+    padding: 0;
+}
+#id_atividades_eco, #id_atividades_peraltas{
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+#id_atividades_eco div{
+    display: inline-block;
+    width: 20%;
+    margin-right: 8%;
+}
+#id_atividades_peraltas div{
+    display: inline-block;
+    width: 30%;
+    margin-right: 8%;
+}
+#id_atividades_eco label, #id_atividades_peraltas label{
+    width: 100%;
+}
+
+.checkbox input{
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+}
+.cont input {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #ced4da;
+}
+.btn-mostrar-atividades-locacoes{
+    background: transparent;
+    color: black;
+    border: none;
+    font-size: 25px;
+    margin-top: -5px;
+    transition-delay: 0.2s;
+    transition: all 0.2s ease;
+}
+.open{
+    transition-delay: 0.2s;
+    transition: all 0.2s ease;
+    transform: rotate(45deg);
+}

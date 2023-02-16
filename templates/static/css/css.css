@@ -34,6 +34,23 @@
     margin: 2% 2%;
     color: #A9A9A9;
 }
+.box-manutencao{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.aviso-manutencao{
+    margin: 2% 2%;
+}
+.aviso-manutencao h2{
+    font-size: 4.5vh;
+    color: #1D7BAF;
+}
+.aviso-manutencao h3{
+    font-size: 3vh;
+    color: #1D7BAF;
+    font-weight: bold;
+}
 .titulo-secao{
     margin: -15px 0 15px 0
 }
