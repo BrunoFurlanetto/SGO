@@ -30,6 +30,23 @@ def eventos(request):
             if request.GET.get('mes'):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
+            if request.GET.get('data'):
+                fichas_data = FichaDeEvento.objects.filter(
+                    check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                    check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                    exclusividade=True,
+                )
+
+                return JsonResponse({'exclusividade': len(fichas_data) > 0})
+
+            if request.GET.get('check_in'):
+                fichas_intervalo = FichaDeEvento.objects.filter(
+                    check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                    check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                )
+
+                return JsonResponse({'eventos': len(fichas_intervalo) > 0})
+
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
             tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)
@@ -131,6 +148,10 @@ def eventos(request):
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
     nova_pre_reserva = cadastro_de_pre_reservas.save(commit=False)
     nova_pre_reserva.pre_reserva = True
+
+    # Esse if está aqui devido a existência de um bug no envio do formulário todo: Verificar se ainda está com bug!
+    if 'exclusividade' in request.POST:
+        nova_pre_reserva.exclusividade = True
 
     if cadastro_de_pre_reservas.is_valid():
         cadastro_de_pre_reservas.save()

@@ -13,6 +13,8 @@
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
+            const gradiente = `linear-gradient(0deg, rgba(0,128,0,1) 0%, rgba(242,101,34,1) 60%)`
+
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
                 const calendar = new FullCalendar.Calendar(calendarUI, {
@@ -35,11 +37,25 @@
                             $('#ModalCadastroPreReserva #id_cliente').prop('disabled', false)
                             $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
-                            $('#ModalCadastroPreReserva').modal('show');
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
+                            $('#alerta_exclusividade').remove()
+
+                            $.ajax({
+                                type: 'GET',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {'data': moment(date).format('YYYY-MM-DD')},
+                                success: function (response) {
+                                    if (response['exclusividade'] === true) {
+                                        alert('Evento exclusivo cadastrado na data em questão!')
+                                    } else {
+                                        $('#ModalCadastroPreReserva').modal('show');
+                                    }
+                                }
+                            })
                         },
 
                         eventClick: function (info) {
@@ -71,12 +87,13 @@
                                         $('#ModalCadastroPreReserva #id_observacoes').val(response['observacoes'])
                                         $('#nova_pre_reserva').addClass('none')
                                         $('#aviso_lotacao').addClass('none')
+                                        $('#alerta_exclusividade').remove()
                                         const modal_footer = $('#editar_pre_reserva').empty().removeClass('none')
                                         $('#ModalCadastroPreReserva #id_cliente').val(response['cliente']).trigger('change').select2({
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
-                                        console.log(response)
+
                                         if (response['exclusividade']) {
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)
                                         } else {
@@ -101,7 +118,7 @@
                                                     if (response['editar']) {
                                                         modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
                                                     }
-                                                    {% endif %}
+                                                {% endif %}
                                             {% endif %}
 
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
@@ -131,6 +148,9 @@
                                 title: "{{ pre_reserva.cliente }}".replace("&#x27;", "\'"),
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
+                                extendedProps: {
+                                    'exclusividade': '{{ pre_reserva.exclusividade }}'
+                                },
 
                                 {% if pre_reserva.agendado %}
                                     color: '#008000',
@@ -147,11 +167,17 @@
                                     start: "{{ evento.check_in_ceu | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
+                                    extendedProps: {
+                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}'
+                                    },
                                 {% else %}
                                     title: "{{ evento.ficha_de_evento.cliente }}",
                                     start: "{{ evento.check_in | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
+                                    extendedProps: {
+                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}'
+                                    },
                                 {% endif %}
 
                                 {% if evento.tipo == 'Empresa' %}
@@ -175,12 +201,18 @@
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
+                                            extendedProps: {
+                                                'exclusividade': '{{ ficha.exclusividade }}'
+                                            },
                                         {% endif %}
                                     {% else %}
                                         title: "{{ ficha.cliente}}",
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',
+                                        extendedProps: {
+                                            'exclusividade': '{{ ficha.exclusividade }}'
+                                        },
                                     {% endif %}
 
                                     color: '#8B008B',
@@ -189,6 +221,15 @@
                             {% endif %}
                         {% endfor %}
                     ],
+
+                    eventDidMount: function (info) {
+                        const inicio = moment(info.event.start).day()
+                        const fim = moment(info.event.end).day()
+
+                        if (info.event.extendedProps['exclusividade'] === 'True' && fim - inicio > 0) {
+                            info.el.style.background = `linear-gradient(90deg, ${info.event.backgroundColor} 40%, #000000 100%)`
+                        }
+                    },
 
                 });
 
@@ -366,6 +407,24 @@
                     $('#id_check_out').trigger('change')
                 })
             }
+
+            function verificar_evento_dia_exclusividade() {
+                const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
+                const check_out = $('#ModalCadastroPreReserva #id_check_out').val()
+                $('#alerta_exclusividade').remove()
+
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'check_in': check_in, 'check_out': check_out},
+                    success: function (response) {
+                        if (response['eventos']) {
+                            $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
+                        }
+                    }
+                })
+            }
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
@@ -404,96 +463,98 @@
                     <ul></ul>
                 </div>
                 <form action="{% url 'calendario_eventos' %}" method="POST">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
-                        <h5 class="titulo-secao">Dados cliente</h5>
-                        <div class="mb-2 row" id="cliente_responsavel" onclick="ativar_mascara()">
-                            <div class="mb-2" style="width: 90%">
-                                <label for="clientes">Cliente</label>
-                                {{ cadastro_pre_reserva.cliente }}
-                                <style>
-                                    .select2 {
-                                        width: 100% !important;
-                                    }
-                                </style>
-                            </div>
-                            <div style="width: 10%; display: flex">
-                                <button class="buton-plus" type="button"
-                                        onclick=window.location.href="{% url 'lista_cliente' %}">
-                                    <span><i class='bx bxs-plus-circle'></i></span>
-                                </button>
-                            </div>
-                            <div class="div-responsavel none">
-                                <label>Responsável</label>
-                                {{ cadastro_pre_reserva.responsavel_evento }}
-                            </div>
-                        </div>
-                        <hr>
-                        <h5 class="titulo-secao">Dados evento</h5>
-                        <div class="row">
-                            <div class="div-produtos mb-2">
-                                <label>Produto Peraltas</label>
-                                {{ cadastro_pre_reserva.produto }}
-                            </div>
-                            <div class="mb-2 none" id="produto_corporativo">
-                                <label>Produto corporativo</label>
-                                {{ cadastro_pre_reserva.produto_corporativo }}
-                            </div>
-                            <div class="row mb-2">
-                                <div style="width: 50%">
-                                    <label for="check_in">Check in (Data/horário)</label>
-                                    {{ cadastro_pre_reserva.check_in }}
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
+                            <h5 class="titulo-secao">Dados cliente</h5>
+                            <div class="mb-2 row" id="cliente_responsavel" onclick="ativar_mascara()">
+                                <div class="mb-2" style="width: 90%">
+                                    <label for="clientes">Cliente</label>
+                                    {{ cadastro_pre_reserva.cliente }}
+                                    <style>
+                                        .select2 {
+                                            width: 100% !important;
+                                        }
+                                    </style>
                                 </div>
-                                <div style="width: 50%" class="mb-2">
-                                    <label for="check_out">Check out (Data/horário)</label>
-                                    {{ cadastro_pre_reserva.check_out }}
+                                <div style="width: 10%; display: flex">
+                                    <button class="buton-plus" type="button"
+                                            onclick=window.location.href="{% url 'lista_cliente' %}">
+                                        <span><i class='bx bxs-plus-circle'></i></span>
+                                    </button>
                                 </div>
-                                <div class="row">
+                                <div class="div-responsavel none">
+                                    <label>Responsável</label>
+                                    {{ cadastro_pre_reserva.responsavel_evento }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Dados evento</h5>
+                            <div class="row">
+                                <div class="div-produtos mb-2">
+                                    <label>Produto Peraltas</label>
+                                    {{ cadastro_pre_reserva.produto }}
+                                </div>
+                                <div class="mb-2 none" id="produto_corporativo">
+                                    <label>Produto corporativo</label>
+                                    {{ cadastro_pre_reserva.produto_corporativo }}
+                                </div>
+                                <div class="row mb-2">
                                     <div style="width: 50%">
-                                        <input class="form-check-input" type="checkbox" name="editar_horario"
-                                               id="editar_horarios" onclick="$('#obs_edicao').toggleClass('none');
-                                           if ($('#obs_edicao').attr('class').includes('none')){
-                                               $('#id_obs_edicao_horario').prop('required', false)}
-                                           else{
-                                               $('#id_obs_edicao_horario').prop('required', true)}">
-                                        <label for="editar_horarios">Editar horários</label>
+                                        <label for="check_in">Check in (Data/horário)</label>
+                                        {{ cadastro_pre_reserva.check_in }}
                                     </div>
-                                   {% comment %} <div style="width: 50%">
-                                        {{ cadastro_pre_reserva.exclusividade }}
-                                        <label>Exclusividade?</label>
-                                    </div>{% endcomment %}
+                                    <div style="width: 50%" class="mb-2">
+                                        <label for="check_out">Check out (Data/horário)</label>
+                                        {{ cadastro_pre_reserva.check_out }}
+                                    </div>
+                                    <div class="row">
+                                        <div style="width: 50%">
+                                            <input class="form-check-input" type="checkbox" name="editar_horario"
+                                                   id="editar_horarios" onclick="$('#obs_edicao').toggleClass('none');
+                                               if ($('#obs_edicao').attr('class').includes('none')){
+                                                   $('#id_obs_edicao_horario').prop('required', false)}
+                                               else{
+                                                   $('#id_obs_edicao_horario').prop('required', true)}">
+                                            <label for="editar_horarios">Editar horários</label>
+                                        </div>
+                                        <div style="width: 50%">
+                                            {{ cadastro_pre_reserva.exclusividade }}
+                                            <label>Exclusividade?</label>
+                                        </div>
+                                    </div>
+                                    <div id="obs_edicao" class="mt-2">E
+                                        <label>Motivo da edição:</label>
+                                        {{ cadastro_pre_reserva.obs_edicao_horario }}
+                                    </div>
                                 </div>
-                                <div id="obs_edicao" class="mt-2">
-                                    <label>Motivo da edição:</label>
-                                    {{ cadastro_pre_reserva.obs_edicao_horario }}
+                                <div style="width: 30%">
+                                    <label for="participantes">QTD estimada</label>
+                                    {{ cadastro_pre_reserva.qtd_convidada }}
+                                </div>
+                                <div style="width: 50%">
+                                    <label for="vendedor">Atendente</label>
+                                    {{ cadastro_pre_reserva.vendedora }}
                                 </div>
                             </div>
-                            <div style="width: 30%">
-                                <label for="participantes">QTD estimada</label>
-                                {{ cadastro_pre_reserva.qtd_convidada }}
-                            </div>
-                            <div style="width: 50%">
-                                <label for="vendedor">Atendente</label>
-                                {{ cadastro_pre_reserva.vendedora }}
+                            <hr>
+                            <div>
+                                <label for="observacoes">Observações</label>
+                                {{ cadastro_pre_reserva.observacoes }}
                             </div>
                         </div>
-                        <hr>
-                        <div>
-                            <label for="observacoes">Observações</label>
-                            {{ cadastro_pre_reserva.observacoes }}
+                        <div class="modal-footer botoes">
+                            <div id="nova_pre_reserva">
+                                <button type="button" class="btn btn-success"
+                                        onclick="window.location.href='{% url 'ficha_de_evento' %}'">
+                                    Ficha de evento
+                                </button>
+                                <button type="submit" class="btn btn-primary">Salvar pré agendamento</button>
+                            </div>
+                            <div id="editar_pre_reserva" class="none"></div>
                         </div>
-                    </div>
-                    <div class="modal-footer botoes">
-                        <div id="nova_pre_reserva">
-                            <button type="button" class="btn btn-success"
-                                    onclick="window.location.href='{% url 'ficha_de_evento' %}'">
-                                Ficha de evento
-                            </button>
-                            <button type="submit" class="btn btn-primary">Salvar pré agendamento</button>
-                        </div>
-                        <div id="editar_pre_reserva" class="none"></div>
-                    </div>
+                    </fieldset>
                 </form>
             </div>
         </div>

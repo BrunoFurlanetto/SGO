@@ -589,7 +589,10 @@ class CadastroPreReserva(forms.ModelForm):
             'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
-            'exclusividade': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'exclusividade': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'onchange': 'verificar_evento_dia_exclusividade()'
+            }),
             'check_in': forms.TextInput(attrs={
                 'type': 'datetime-local',
                 'onChange': 'pegarDias(true)',
