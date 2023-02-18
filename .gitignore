@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,django
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,pycharm,django
 
+# Arquivos bash do servidor
+*.sh
+
 ### Django ###
 *.log
 *.pot
