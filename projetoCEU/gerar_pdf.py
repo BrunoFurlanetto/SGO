@@ -245,6 +245,9 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Viação: ') + 1, 8, 'Viação:')
         pdf_ordem.cell(100, 8, ordem_de_servico.dados_transporte.empresa_onibus.viacao)
 
+        if pdf_ordem.get_string_width(ordem_de_servico.dados_transporte.nome_motorista) > 59:
+            pdf_ordem.ln()
+
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Motorista: ') + 2, 8, 'Motorista:')
         pdf_ordem.cell(0, 8, ordem_de_servico.dados_transporte.nome_motorista, ln=1)
 
