@@ -4,6 +4,10 @@
 # Arquivos bash do servidor
 *.sh
 
+# Pasta para o salvamento temporário dos pdfs gerados
+temp/*
+!temp/.gitkeep
+
 ### Django ###
 *.log
 *.pot

@@ -408,6 +408,11 @@
                         <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
                                 data-target="#excluir_ordem_de_servico" disabled>Excluir
                         </button>
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="gerar_pdf" value="True">
+                            <button type="submit" class="btn btn-outline-primary">Gerar PDF</button>
+                        </fieldset>
                     </div>
                 {% endif %}
             {% else %}

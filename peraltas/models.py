@@ -351,7 +351,25 @@ class FichaDeEvento(models.Model):
             ]
 
             dados.append({'dia': dia, 'refeicoes': dados_refeicoes})
-        print(dados)
+
+        return dados
+
+    def juntar_refeicoes(self):
+        dados = []
+
+        for dia in self.refeicoes:
+            dados_refeicoes = []
+
+            dados_refeicoes.append('Café da manhã') if 'Café' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Coffee manhã') if 'Coffee manhã' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Almoço') if 'Almoço' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Lanche da tarde') if 'Lanche tarde' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Coffee tarde') if 'Coffee tarde' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Jantar') if 'Jantar' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Lanche da noite') if 'Lanche noite' in self.refeicoes[dia] else ...
+
+            dados.append({'dia': dia, 'refeicoes': ', '.join(dados_refeicoes)})
+
         return dados
 
     def separar_informacoes_locacoes(self):

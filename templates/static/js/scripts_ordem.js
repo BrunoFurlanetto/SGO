@@ -31,6 +31,26 @@ function mostrar_conteudo(btn) {
     $(btn).toggleClass('open')
 }
 
+function gerar_pdf() {
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        responseType: 'blob',
+        data: {'id_ficha': $('#id_ficha_de_evento').val()},
+        success: function (response) {
+            var blob = new Blob([response], {type: 'application/pdf'});
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'arquivo.pdf';
+            link.click();
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+        }
+    })
+}
+
 function verificar_atividades(selecao) {
     corporativo = $('#id_tipo').val() === 'Empresa';
 
@@ -98,7 +118,7 @@ function completar_dados_os(selecao) {
                 $('.transporte').addClass('none')
             }
 
-            if (response['seguro']){
+            if (response['seguro']) {
                 $('#div_lista_segurados').removeClass('none')
             } else {
                 $('#div_lista_segurados').addClass('none')
@@ -136,7 +156,7 @@ function completar_dados_os(selecao) {
 function atualizar_participantes(participantes) {
     $('#mensagens_preenchimento_atividades').empty()
 
-    if (!editando){
+    if (!editando) {
         const participantes_atualizados = participantes.value
         $('.divi').parent().parent().remove()
         $('.qtd_participantes, .qtd_eco, .qtd_participantes_eco, .qtd_participantes_loc').val(participantes_atualizados).trigger('change')
@@ -150,7 +170,7 @@ function atualizar_participantes(participantes) {
 // ------------------------------------------ Início das funcionalidades responsáveis pelas atividades -------------------------------------------------
 /* Função responsável pela adição de uma nova atividade que será realizada no CEU */
 function add_atividade(atividade_id_ = parseInt(''),
-                       atividade_ = '', serie_ = '', data_ = '', divisao=false) {
+                       atividade_ = '', serie_ = '', data_ = '', divisao = false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',
@@ -396,7 +416,7 @@ function dividar_atividade(indicie, limite) {
 
 // Função responsável por adicionar uma nova locação
 function add_locacao(id_local_ = parseInt(''), check_in_ = '',
-                     check_out_ = '', local_coffee_ = '', hora_coffee_ = '', divisao=false) {
+                     check_out_ = '', local_coffee_ = '', hora_coffee_ = '', divisao = false) {
     // Ajax responsável por puxar todas as estruturas do banco de dados
 
     $.ajax({
@@ -541,7 +561,7 @@ function verificar_lotacao(selecao) {
 // ----------------------------------- Início das funções que trabalham com as atividades eco -----------------------------------
 // Função responsável pela adição de uma nova atividade de ecoturismo
 function add_atividade_eco(atividade_id_ = parseInt(''),
-                           atividade_ = '', serie_ = '', data_ = '', divisao=false) {
+                           atividade_ = '', serie_ = '', data_ = '', divisao = false) {
     /* Ajax responsável por puxar as atividades do banco de dados */
     $.ajax({
         type: 'POST',

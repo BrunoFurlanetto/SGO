@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -12,7 +11,6 @@ from detector.funcoes import pegar_dados_evento, pegar_escalas, juntar_dados_det
 from detector.models import DetectorDeBombas
 from ordemDeServico.models import OrdemDeServico
 from projetoCEU.utils import is_ajax, email_error
-import ast
 
 
 @login_required(login_url='login')
@@ -51,7 +49,7 @@ def detector_de_bombas(request, id_detector=None):
         if request.method == 'POST':
             if request.POST.get('data'):
                 detector_selecionado = DetectorDeBombas.objects.get(id=int(request.POST.get('id_detector')))
-                print(request.POST.get('data'))
+
                 return HttpResponse(request.POST.get('data') in detector_selecionado.observacoes)
 
             if request.POST.get('id_detector') and request.POST.get('observacoes'):

@@ -1,14 +1,19 @@
+import json
+from datetime import time
+from io import BytesIO
 from itertools import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
+from fpdf import FPDF
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp
+from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
@@ -161,6 +166,17 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     form_transporte = CadastroDadosTransporte()
     transporte = None
 
+    if request.POST.get('gerar_pdf'):
+        ordem_pdf = OrdemDeServico.objects.get(pk=id_ordem_de_servico)
+        gerar_pdf.ordem_de_servico(ordem_pdf)
+
+        return FileResponse(
+            open('temp/ordem_de_servico.pdf', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Ordem de serviço de {ordem_pdf.ficha_de_evento.cliente}.pdf'
+        )
+
     if id_ordem_de_servico:
         ordem_servico = OrdemDeServico.objects.get(id=int(id_ordem_de_servico))
         form = CadastroOrdemDeServico(instance=ordem_servico)
@@ -180,6 +196,9 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     if id_ficha_de_evento:
         ficha_de_evento = FichaDeEvento.objects.get(id=int(id_ficha_de_evento))
 
+    if is_ajax(request):
+        return JsonResponse(requests_ajax(request.POST))
+
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {
             'form': form,
@@ -193,9 +212,6 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             'atividades_ceu': atividades_ceu,
             'espacos': espacos
         })
-
-    if is_ajax(request):
-        return JsonResponse(requests_ajax(request.POST))
 
     if request.POST.get('excluir'):
         try:
