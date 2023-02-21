@@ -40,7 +40,15 @@
                         <label>Cidade</label>
                         {{ form.cidade }}
                     </div>
-                    <div class="mb-2" style="width: 45%">
+                    <div style="width: 70%">
+                        <label>Endereço</label>
+                        <input type="text" name="endereço_cliente" id="id_endereco" value="{{ ficha_de_evento.cliente.endereco }}">
+                    </div>
+                    <div class="mb-2" style="width: 30%">
+                        <label>CNPJ</label>
+                        <input type="text" name="cnpj_cliente" id="id_cnpj" value="{{ ficha_de_evento.cliente.cnpj }}">
+                    </div>
+                    <div class="mb-2" style="width: 53%">
                         <label>Responsável do grupo</label>
                         {{ form.responsavel_grupo }}
                     </div>
@@ -53,7 +61,7 @@
                         {{ form.tipo }}
                     </div>
                 </div>
-                <div class="row colegios">
+                <div class="row colegios {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
                     <div style="width: 45%">
                         <label>Série</label>
                         {{ form.serie }}
@@ -94,13 +102,13 @@
                         {{ form.empresa }}
                     </div>
                     <div id="link_ficha_de_evento" class="mt-2">
-                        {% if not fichas and ficha_de_evento %}
+                        {% if ficha_de_evento %}
                             <strong>Ficha de evento: </strong><a href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a>
                         {% endif %}
                     </div>
                 </div>
                 <hr class="transporte {% if not ficha_de_evento.informacoes_adcionais.transporte %} none {% endif %}">
-                <div class="row {% if not ordem_servico.dados_transporte %} none {% endif %} transporte">
+                <div class="row {% if not ficha_de_evento.informacoes_adcionais.transporte %} none {% endif %} transporte">
                     <h5 class="titulo-secao">Transporte</h5>
                     <div class="checkbox" style="width: 80%" id="viacao">
                         <label>Viação</label>
@@ -400,15 +408,15 @@
             </fieldset>
             {% if ordem_servico %}
                 {% if perms.ordemDeServico.change_ordemdeservico %}
-                    <div class="botoes">
+                    <div class="botoes" style="display: flex; gap: 10px;">
                         <button type="submit" id="btn_salvar_os" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5"
-                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); editando=true">Editar
+                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true">Editar
                         </button>
                         <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
                                 data-target="#excluir_ordem_de_servico" disabled>Excluir
                         </button>
-                        <fieldset>
+                        <fieldset id="fieldset_pdf">
                             {% csrf_token %}
                             <input type="hidden" name="gerar_pdf" value="True">
                             <button type="submit" class="btn btn-outline-primary">Gerar PDF</button>

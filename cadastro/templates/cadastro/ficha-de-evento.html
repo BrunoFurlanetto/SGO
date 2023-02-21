@@ -380,6 +380,11 @@
                 </div>
                 {{ form.codigos_app.as_hidden }}
                 <hr>
+                <div class="form-check" style="display: flex; align-items: center">
+                    {{ form.exclusividade }}
+                    <label for="check_exclusivo">Exclusividade</label>
+                </div>
+                <hr>
                 <div class="row">
                     <div>
                         <label for="id_vendedora">Atendente</label>
@@ -494,6 +499,10 @@
                                 <div style="width: 20%">
                                     <label for="id_roupa_de_cama">Roupa de cama</label>
                                     {{ formAdicionais.roupa_de_cama }}
+                                </div>
+                                <div style="width: 20%">
+                                    <label for="id_link_foto">Link de  foto</label>
+                                    {{ formAdicionais.link_foto }}
                                 </div>
                             </div>
                             <hr>

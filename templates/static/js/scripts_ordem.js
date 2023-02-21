@@ -31,26 +31,6 @@ function mostrar_conteudo(btn) {
     $(btn).toggleClass('open')
 }
 
-function gerar_pdf() {
-    $.ajax({
-        type: 'GET',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        responseType: 'blob',
-        data: {'id_ficha': $('#id_ficha_de_evento').val()},
-        success: function (response) {
-            var blob = new Blob([response], {type: 'application/pdf'});
-            var link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = 'arquivo.pdf';
-            link.click();
-        },
-        error: function (xhr, status, error) {
-            console.error(error);
-        }
-    })
-}
-
 function verificar_atividades(selecao) {
     corporativo = $('#id_tipo').val() === 'Empresa';
 

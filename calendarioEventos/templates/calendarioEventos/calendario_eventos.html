@@ -411,13 +411,14 @@
             function verificar_evento_dia_exclusividade() {
                 const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
                 const check_out = $('#ModalCadastroPreReserva #id_check_out').val()
+                const id_cliente = $('#ModalCadastroPreReserva #id_cliente').val()
                 $('#alerta_exclusividade').remove()
 
                 $.ajax({
                     type: 'GET',
                     url: '',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                    data: {'check_in': check_in, 'check_out': check_out},
+                    data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
                     success: function (response) {
                         if (response['eventos']) {
                             $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')

@@ -49,6 +49,8 @@ def requests_ajax(requisicao, files=None, usuario=None):
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
+            'id_endereco': ficha_de_evento.cliente.endereco,
+            'id_cnpj': ficha_de_evento.cliente.cnpj,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
             'transporte': ficha_de_evento.informacoes_adcionais.transporte,
             'seguro': ficha_de_evento.informacoes_adcionais.seguro,

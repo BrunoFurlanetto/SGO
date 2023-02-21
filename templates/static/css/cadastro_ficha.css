@@ -163,6 +163,11 @@
     margin-right: 10px !important;
     pointer-events: none;
 }
+.exclusividade {
+    width: 1px  !important;
+    height: 1px !important;
+    margin-right: 10px !important;
+}
 #id_nota_fiscal, .checkbox input, #id_atividades_ceu input,
 #id_atividades_eco input, #id_locacoes_ceu input{
     width: 20px;

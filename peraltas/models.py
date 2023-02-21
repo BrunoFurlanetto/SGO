@@ -270,6 +270,7 @@ class InformacoesAdcionais(models.Model):
     enfermaria = models.IntegerField(choices=tipos_enfermaria, default=1)
     cantina = models.IntegerField(choices=sim_nao, default='')
     roupa_de_cama = models.IntegerField(choices=sim_nao, default='')
+    link_foto = models.IntegerField(choices=sim_nao, default='')
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
 
@@ -520,6 +521,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
                 'max': 10,
                 'placeholder': 'n',
             }),
+            'exclusividade': forms.CheckboxInput(attrs={'class': 'form-check-input exclusividade'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',

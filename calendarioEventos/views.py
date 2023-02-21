@@ -43,8 +43,9 @@ def eventos(request):
                 fichas_intervalo = FichaDeEvento.objects.filter(
                     check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
                     check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
-                )
+                ).exclude(cliente__id=int(request.GET.get('id_cliente')))
 
+                print(fichas_intervalo)
                 return JsonResponse({'eventos': len(fichas_intervalo) > 0})
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)

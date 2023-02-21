@@ -13,8 +13,8 @@ class PDF(FPDF):
         self.add_page()
 
     def my_header(self, titulo):
-        self.image('templates/static/img/logoPeraltasResumo.jpg', 15, 10, 65)
-        self.ln(10)
+        self.image('templates/static/img/logoPeraltasResumo.jpg', 140, 10, 65)
+        self.ln(15)
         self.set_font('helvetica', 'B', 20)
         w_titulo = self.get_string_width(titulo) + 6
         w_pdf = self.w
@@ -23,7 +23,7 @@ class PDF(FPDF):
 
     def titulo_secao(self, titulo_secao, height, width):
         self.set_font('Times', 'B', 14)
-        self.set_fill_color(255, 137, 32)
+        self.set_fill_color(147, 206, 235)
         self.cell(width, height, titulo_secao, ln=2, fill=True, align='c')
         self.set_font('Times', '', 12)
 
@@ -35,7 +35,7 @@ class PDF(FPDF):
     def tables(self, headings, rows, alings=None, col_widths=(75, 35, 56, 15, 15)):
         self.set_fill_color(23, 129, 180)
         self.set_text_color(255)
-        self.set_draw_color(174, 167, 53)
+        self.set_draw_color(255, 255, 255)
         self.set_line_width(0.3)
         self.set_font(style="B")
 
@@ -134,7 +134,7 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.cell(pdf_ordem.get_string_width(ordem_de_servico.serie) + 10, 8, ordem_de_servico.serie)
 
         if pdf_ordem.get_string_width(ordem_de_servico.serie) + 10 > 96:
-            pdf_ordem.ln(8)
+            pdf_ordem.ln()
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Professores: ') + 2, 8, 'Professores:')
         pdf_ordem.cell(10, 8, str(ordem_de_servico.n_professores))
@@ -193,16 +193,30 @@ def ordem_de_servico(ordem_de_servico):
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Cantina: ') + 2, 8, 'Cantina:')
 
     if ficha_de_evento.informacoes_adcionais.cantina == 1:
-        pdf_ordem.cell(20, 8, 'Não')
-    else:
         pdf_ordem.cell(20, 8, 'Sim')
+    else:
+        pdf_ordem.cell(20, 8, 'Não')
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Roupa de cama: ') + 2, 8, 'Roupa de cama:')
 
     if ficha_de_evento.informacoes_adcionais.roupa_de_cama == 1:
-        pdf_ordem.cell(20, 8, 'Não', ln=1)
+        pdf_ordem.cell(20, 8, 'Sim')
     else:
+        pdf_ordem.cell(20, 8, 'Não')
+
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lnk de foto: ') + 2, 8, 'Link de foto:')
+
+    if ficha_de_evento.informacoes_adcionais.link_foto == 1:
+        pdf_ordem.cell(20, 8, 'Sim')
+    else:
+        pdf_ordem.cell(20, 8, 'Não')
+
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Exclusividade: ') + 2, 8, 'Exclusividade:')
+
+    if ficha_de_evento.exclusividade:
         pdf_ordem.cell(20, 8, 'Sim', ln=1)
+    else:
+        pdf_ordem.cell(20, 8, 'Não', ln=1)
 
     if len(ficha_de_evento.informacoes_adcionais.opcionais_geral.all()) > 0:
         opcionais = []
