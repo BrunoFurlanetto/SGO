@@ -230,6 +230,11 @@ class EventosCancelados(models.Model):
     estagio_evento = models.CharField(choices=estagios_evento, max_length=20)
     atendente = models.CharField(max_length=50)
     produto_contratado = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
+    produto_corporativo_contratado = models.ForeignKey(
+        ProdutoCorporativo, on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True
+    )
     data_entrada = models.DateField()
     data_saida = models.DateField()
     motivo_cancelamento = models.TextField()

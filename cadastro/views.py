@@ -1,5 +1,5 @@
 import json
-from datetime import time
+from datetime import time, datetime
 from io import BytesIO
 from itertools import chain
 from django.contrib import messages
@@ -12,7 +12,7 @@ from fpdf import FPDF
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados
 from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
@@ -342,10 +342,26 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
     if request.POST.get('excluir'):
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
-        ficha_de_evento.delete()
-        messages.success(request, 'Ficha de evento excluída com sucesso!')
 
-        return redirect('dashboard')
+        try:
+            EventosCancelados.objects.create(
+                cliente=ficha_de_evento.cliente.__str__(),
+                cnpj_cliente=ficha_de_evento.cliente.cnpj,
+                estagio_evento='ficha_evento',
+                atendente=ficha_de_evento.vendedora.usuario.get_full_name(),
+                produto_contratado=ficha_de_evento.produto,
+                produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
+                data_entrada=ficha_de_evento.data_preenchimento,
+                data_saida=datetime.now().date(),
+                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+            )
+            ficha_de_evento.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Ficha de evento escluída com sucesso!')
+            return redirect('dashboard')
 
     if id_ficha_de_evento or id_pre_reserva:
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento if id_ficha_de_evento else id_pre_reserva)

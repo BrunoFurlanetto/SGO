@@ -73,12 +73,13 @@ def eventos(request):
         if request.POST.get('excluir'):
             print('Foi')
             try:
-                cancelamento = EventosCancelados.objects.create(
+                EventosCancelados.objects.create(
                     cliente=pre_reserva.cliente.__str__(),
                     cnpj_cliente=pre_reserva.cliente.cnpj,
                     estagio_evento='pre_reserva' if not pre_reserva.agendado else 'reserva_confirmada',
                     atendente=pre_reserva.vendedora.usuario.get_full_name(),
                     produto_contratado=pre_reserva.produto,
+                    produto_corporativo_contratado=pre_reserva.produto_corporativo,
                     data_entrada=pre_reserva.data_preenchimento,
                     data_saida=datetime.now().date(),
                     motivo_cancelamento=request.POST.get('motivo_cancelamento')
