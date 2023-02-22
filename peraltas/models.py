@@ -1,11 +1,9 @@
 import datetime
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 
 from ceu.models import Atividades, Locaveis
 
@@ -172,14 +170,18 @@ class ClienteColegio(models.Model):
     cidade = models.CharField(max_length=255)
     estado = models.CharField(max_length=255)
     cep = models.CharField(max_length=10)
-    responsavel_alteracao = models.ForeignKey(User,
-                                              on_delete=models.DO_NOTHING,
-                                              blank=True, null=True,
-                                              related_name='responsavel_alteracao')
-    responsavel_cadastro = models.ForeignKey(User,
-                                             on_delete=models.DO_NOTHING,
-                                             blank=True, null=True,
-                                             related_name='responsavel_cadastro_cliente')
+    responsavel_alteracao = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        blank=True, null=True,
+        related_name='responsavel_alteracao'
+    )
+    responsavel_cadastro = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        blank=True, null=True,
+        related_name='responsavel_cadastro_cliente'
+    )
 
     def __str__(self):
         return self.nickname if self.nickname else self.nome_fantasia
@@ -213,6 +215,27 @@ class Responsavel(models.Model):
         relacao = RelacaoClienteResponsavel.objects.get(responsavel=self)
 
         return relacao.cliente
+
+
+class EventosCancelados(models.Model):
+    estagios_evento = (
+        ('pre_reserva', 'Pré reserva'),
+        ('reserva_confirmada', 'Reserva confirmada'),
+        ('ficha_evento', 'Ficha de evento'),
+        ('ordem_servico', 'Ordem de serviço')
+    )
+
+    cliente = models.CharField(max_length=255)
+    cnpj_cliente = models.CharField(max_length=18)
+    estagio_evento = models.CharField(choices=estagios_evento, max_length=20)
+    atendente = models.CharField(max_length=50)
+    produto_contratado = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
+    data_entrada = models.DateField()
+    data_saida = models.DateField()
+    motivo_cancelamento = models.TextField()
+
+    def __str__(self):
+        return f'Cancelamento do evento de {self.cliente}.'
 
 
 class EmpresaOnibus(models.Model):
