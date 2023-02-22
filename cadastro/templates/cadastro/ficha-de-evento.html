@@ -613,7 +613,7 @@
                     <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST">
                         {% csrf_token %}
                         <div class="modal-body app">
-                            <label for="motivo_exclusao">Motivo cancelamento</label>
+                            <label for="motivo_cancelamento">Motivo cancelamento</label>
                             <input type="text" id="motivo_cancelamento" name="motivo_cancelamento">
                         </div>
                         <div class="modal-footer">

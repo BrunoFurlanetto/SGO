@@ -1,5 +1,5 @@
 
-.conteudo-os input, .conteudo-ver-os input{
+.conteudo-os input, #excluir_ordem_de_servico input[type=text]{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;

@@ -215,6 +215,17 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if request.POST.get('excluir'):
         try:
+            EventosCancelados.objects.create(
+                cliente=ordem_servico.ficha_de_evento.cliente.__str__(),
+                cnpj_cliente=ordem_servico.ficha_de_evento.cliente.cnpj,
+                estagio_evento='ordem_servico',
+                atendente=ordem_servico.vendedor.usuario.get_full_name(),
+                produto_contratado=ordem_servico.ficha_de_evento.produto,
+                produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
+                data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
+                data_saida=datetime.now().date(),
+                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+            )
             ordem_servico.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde')
