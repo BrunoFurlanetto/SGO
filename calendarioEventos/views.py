@@ -10,7 +10,8 @@ import cadastro.funcoes
 from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel
+from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
+    EventosCancelados
 from projetoCEU.utils import verificar_grupo, email_error
 
 
@@ -67,25 +68,21 @@ def eventos(request):
         if request.POST.get('id_produto'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
-        if not request.POST.get('cnpj'):
-            try:
-                cliente = ClienteColegio.objects.get(nome_fantasia=request.POST.get('cliente'))
-            except ClienteColegio.DoesNotExist:
-                cliente = ClienteColegio.objects.get(nickname=request.POST.get('cliente'))
-        else:
-            cliente = ClienteColegio.objects.get(cnpj=request.POST.get('cnpj'))
-
-        check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%d %H:%M')
-        check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%d %H:%M')
-        pre_reserva = FichaDeEvento.objects.get(
-            cliente=cliente,
-            check_in=check_in,
-            check_out=check_out,
-            pre_reserva=True
-        )
+        pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
 
         if request.POST.get('excluir'):
+            print('Foi')
             try:
+                cancelamento = EventosCancelados.objects.create(
+                    cliente=pre_reserva.cliente.__str__(),
+                    cnpj_cliente=pre_reserva.cliente.cnpj,
+                    estagio_evento='pre_reserva' if not pre_reserva.agendado else 'reserva_confirmada',
+                    atendente=pre_reserva.vendedora.usuario.get_full_name(),
+                    produto_contratado=pre_reserva.produto,
+                    data_entrada=pre_reserva.data_preenchimento,
+                    data_saida=datetime.now().date(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                )
                 pre_reserva.delete()
             except Exception as e:
                 messages.error(request, f'Pré reserva não excluida: f{e}')

@@ -60,7 +60,7 @@
 
                         eventClick: function (info) {
                             if (info.el.l) {
-                                let cliente = info.event.title
+                                let id_pre_reserva = info.event.extendedProps['id_pre_reserva']
                                 let check_in = info.event.start
                                 let check_out = info.event.end
 
@@ -69,7 +69,7 @@
                                     url: '',
                                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                     data: {
-                                        'cliente': cliente,
+                                        'id_pre_reserva': id_pre_reserva,
                                         'check_in': moment(check_in).format('yyyy-MM-DD HH:mm'),
                                         'check_out': moment(check_out).format('yyyy-MM-DD HH:mm')
                                     },
@@ -108,7 +108,8 @@
                                         }
 
                                         if (response['confirmado']) {
-                                            modal_footer.append('<p>Agendamento já confirmado!</p>')
+                                            modal_footer.append('<p style="font-size: 15px">Agendamento confirmado!</p>')
+                                            modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                             modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
                                         } else {
                                             {% if comercial or diretoria %}
@@ -126,10 +127,10 @@
 
                                             {% if comercial or diretoria %}
                                                 {% if diretoria %}
-                                                    modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                                    modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                 {% else %}
                                                     if (response['editar']) {
-                                                        modal_footer.append('<button type="button" class="btn btn-outline-secondary" onclick="excluir_pre_agendamento()">Excluir</button>')
+                                                        modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                     }
                                                 {% endif %}
                                             {% endif %}
@@ -149,7 +150,9 @@
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
                                 extendedProps: {
-                                    'exclusividade': '{{ pre_reserva.exclusividade }}'
+                                    'exclusividade': '{{ pre_reserva.exclusividade }}',
+                                    'id_cliente': '{{ pre_reserva.cliente.id }}',
+                                    'id_pre_reserva': '{{ pre_reserva.id }}'
                                 },
 
                                 {% if pre_reserva.agendado %}
@@ -168,7 +171,8 @@
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
                                     extendedProps: {
-                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}'
+                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}',
+                                        'id_cliente': '{{ evento.ficha_de_evento.id }}'
                                     },
                                 {% else %}
                                     title: "{{ evento.ficha_de_evento.cliente }}",
@@ -176,7 +180,8 @@
                                     end: "{{ evento.check_out | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
                                     extendedProps: {
-                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}'
+                                        'exclusividade': '{{ evento.ficha_de_evento.exclusividade }}',
+                                        'id_cliente': '{{ evento.ficha_de_evento.id }}'
                                     },
                                 {% endif %}
 
@@ -202,7 +207,8 @@
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
                                             extendedProps: {
-                                                'exclusividade': '{{ ficha.exclusividade }}'
+                                                'exclusividade': '{{ ficha.exclusividade }}',
+                                                'id_cliente': '{{ ficha.cliente.id }}'
                                             },
                                         {% endif %}
                                     {% else %}
@@ -211,7 +217,8 @@
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',
                                         extendedProps: {
-                                            'exclusividade': '{{ ficha.exclusividade }}'
+                                            'exclusividade': '{{ ficha.exclusividade }}',
+                                            'id_cliente': '{{ ficha.cliente.id }}'
                                         },
                                     {% endif %}
 
@@ -299,20 +306,17 @@
 
             function excluir_pre_agendamento() {
                 $('document').ready(function () {
-                    const cliente = $('#id_cliente :selected').text()
-                    const cnpj = cliente.slice(cliente.indexOf('(') + 1, cliente.indexOf(')'))
-                    const check_in = $('#id_check_in').val().replace('T', ' ')
-                    const check_out = $('#id_check_out').val().replace('T', ' ')
+                    const id_pre_reserva = $('#id_pre_reserva').val()
+                    const motivo = $('#motivo_cancelamento').val()
 
                     $.ajax({
                         url: '',
                         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                         type: "POST",
                         data: {
-                            'excluir': true,
-                            'cnpj': cnpj,
-                            'check_in': check_in,
-                            'check_out': check_out,
+                            'id_pre_reserva': id_pre_reserva,
+                            'motivo_cancelamento': motivo,
+                            'excluir': true
                         },
                         async: false,
                         success: function () {
@@ -566,18 +570,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cadastro de pré agendamento</h5>
+                    <h5 class="modal-title">Qual o motivo do cancelamento?</h5>
                     <button class="btn-close" data-dismiss="modal"></button>
-                </div>
-                <div id="aviso_lotacao" class="alert-info none">Vagas para os dias do evento
-                    <ul></ul>
                 </div>
                 <div class="modal-body" style="display: flex; flex-direction: column;">
                     <label for="motivo_cancelamento">Motivo do cancelamento</label>
                     <textarea name="motivo_cancelamento" id="motivo_cancelamento" rows="5"></textarea>
                 </div>
                 <div class="modal-footer botoes">
-
+                    <button class="btn btn-primary" onclick="excluir_pre_agendamento()">Salvar</button>
                 </div>
             </div>
         </div>

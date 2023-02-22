@@ -709,7 +709,7 @@
     padding: 12px;
     height: 38px;
 }
-#ModalCadastroPreReserva textarea{
+#ModalCadastroPreReserva textarea, #ModalExclusaoPreReserva textarea{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -910,6 +910,6 @@
 }
 #editar_pre_reserva{
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 10px;
 }
