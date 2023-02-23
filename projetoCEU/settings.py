@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'ordemDeServico.apps.OrdemdeservicoConfig',
     'calendarioEventos.apps.CalendarioeventosConfig',
     'detector.apps.DetectorConfig',
+    'orcamento.apps.OrcamentoConfig',
 ]
 
 MIDDLEWARE = [
