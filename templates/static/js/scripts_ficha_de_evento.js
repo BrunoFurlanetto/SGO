@@ -19,6 +19,20 @@ function carregar_scripts(editando) {
     }
 }
 
+function pegar_cnpj() {
+    if ($('#id_cliente').val() !== ''){
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "GET",
+            data: {'id_cliente': $('#id_cliente').val()},
+            success: function (response) {
+                $('#cnpj_cliente').val(response)
+            }
+        })
+    }
+}
+
 function encaminhamento() {
     localStorage.setItem("encaminhado", true)
 }
@@ -60,12 +74,6 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
                 $('.professores, #perfil_participantes, .lanches').removeClass('none')
                 $('.corporativo, .produtos-corporativos, .coffees, #div_locacao_ceu').addClass('none')
                 $('#id_produto_corporativo').prop('required', false)
-                //
-                // if (response['outro']) {
-                //     $('.outro-produto').removeClass('none')
-                // } else {
-                //     $('.outro-produto').addClass('none')
-                // }
 
                 if (response['pernoite']) {
                     $('.alunos-pernoite, .professores-pernoite').removeClass('none')
@@ -88,21 +96,15 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
         if (evento_corporativo && $('#id_produto_corporativo').val() !== '') {
             corporativo(document.getElementById('id_produto_corporativo'))
         } else {
-            pegarDias(pre_reserva, editando)
+            pegarDias(editando)
         }
     })
 
 }
 
-function pegarDias(pre_reserva = false, editando = false) {
+function pegarDias(editando = false) {
     let check_in = $('#sessao_periodo_viagem #id_check_in')
     let check_out = $('#sessao_periodo_viagem #id_check_out')
-
-    if (check_in.val() === undefined) {
-        check_in = $('#ModalCadastroPreReserva #id_check_in')
-        check_out = $('#ModalCadastroPreReserva #id_check_out')
-        lotacao_dia_dia(check_in.val(), check_out.val())
-    }
 
     if (check_out.val() !== '' && check_out.val() < check_in.val()) {
         check_out.val('')
@@ -110,9 +112,9 @@ function pegarDias(pre_reserva = false, editando = false) {
         return
     }
 
-    if (!editando) pegar_horario_padrao(check_in, check_out, pre_reserva)
+    if (!editando) pegar_horario_padrao(check_in, check_out)
 
-    if (!pre_reserva && (check_in.val() !== '' && check_out.val() !== '')) {
+    if (check_in.val() !== '' && check_out.val() !== '') {
         const data_1 = check_in.val().split('T')[0]
         const data_2 = check_out.val().split('T')[0]
         let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
@@ -125,6 +127,7 @@ function pegarDias(pre_reserva = false, editando = false) {
         let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
         let dias = moment.duration(intervalo).asDays()
         $('#corpo-tabela-refeicao').empty()
+
         for (let i = 0; i <= dias; i++) {
             add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
         }
@@ -135,28 +138,26 @@ function pegarDias(pre_reserva = false, editando = false) {
     }
 }
 
-function corporativo(selecao, pre_reserva = false) {
+function corporativo(selecao) {
     const id_produto = selecao.value
     let check_in = $('#id_check_in')
     let check_out = $('#id_check_out')
-    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
-    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
-    pegar_horario_padrao(check_in, check_out, pre_reserva)
+
+    if (dados_produto_corporativo) {
+        hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+        hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+    }
+
+    pegar_horario_padrao(check_in, check_out)
 }
 
-function pegar_horario_padrao(check_in, check_out, pre_reserva) {
+function pegar_horario_padrao(check_in, check_out) {
     $('#aviso_produto_n_selecionado').remove()
     let check_editar = $('#check_editar_horarios').prop('checked')
-    if (pre_reserva) check_editar = $('#ModalCadastroPreReserva #editar_horarios').prop('checked')
 
     if (!check_editar) {
         if (hora_padrao_check_in === undefined) {
-            if (pre_reserva) {
-                $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-                check_out.val('')
-            } else {
-                $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-            }
+            $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
         } else if (hora_padrao_check_in === null) {
             return
         }
@@ -428,7 +429,8 @@ function pegarIdCodigosApp() {
 
 $('document').ready(function () {
     jQuery('#codigos_app').submit(function () {
-        let dados = jQuery(this).serialize();
+        if ($('#id_cliente_sem_app').val() == '') $('#id_cliente_sem_app').val($('#id_cliente').val())
+        let dados = jQuery(this).serialize()
         //aqui voce pega o conteudo do atributo action do form
         let url = $(this).attr('action');
         $.ajax({
@@ -451,8 +453,11 @@ $('document').ready(function () {
 });
 
 function editar_ficha() {
-    $('#form_ficha, #form_adicionais, #form_app, #salvar, #excluir, #id_atividades_ceu').prop('disabled', false)
+    $('#form_ficha, #form_adicionais, #salvar, #form_app, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
+
+    $('#id_cliente_pf, #id_cliente_pj').prop('readonly', true)
+
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
 
@@ -462,3 +467,42 @@ function editar_ficha() {
 
     lista_segurados()
 }
+
+$('#salvar').on('click', function (e) {
+    $('#refeicoes_grupo .alert, .peraltas .alert').remove()
+    const linhas_tabela_refeicao = $('.linha')
+    const atividades_selecionadas = [
+        $('#id_atividades_ceu').val(),
+        $('#id_atividades_peraltas').val(),
+        $('#id_locacoes_ceu').val(),
+    ].flat()
+
+    // Verificação das refeições
+    for (let linha of linhas_tabela_refeicao) {
+        let refeicoes = $(`#${linha.id} input[type=checkbox]`)
+        let lista_refeicoes = []
+
+        refeicoes.map((index, refeicao) => {
+            lista_refeicoes.push(refeicao.checked)
+        })
+
+        if (!lista_refeicoes.includes(true)) {
+            e.preventDefault()
+            $('html, body').animate({scrollTop : 1000},50)
+            $('#refeicoes_grupo').append('<div class="alert alert-warning">Todos os dias devem ter ao menos uma refeição cadastrada!</div>')
+
+            return
+        }
+    }
+
+    // Verificação das atividades
+    if (!$('#check_a_definir').checked && !($('#id_atividades_ceu_a_definir').val() != '' && $('#id_atividades_ceu_a_definir').val() > '0')) {
+        if (atividades_selecionadas.length === 0) {
+            e.preventDefault()
+            $('html, body').animate({scrollTop : 1200},50)
+            $('.peraltas').append('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"!</div>')
+
+            return
+        }
+    }
+})

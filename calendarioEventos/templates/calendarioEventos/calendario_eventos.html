@@ -14,6 +14,7 @@
 
         <script>
             const gradiente = `linear-gradient(0deg, rgba(0,128,0,1) 0%, rgba(242,101,34,1) 60%)`
+            let hora_padrao_check_in, hora_padrao_check_out
 
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
@@ -367,7 +368,6 @@
             }
 
             function dadosProduto(produto) {
-                hora_padrao_check_in = hora_padrao_check_out = undefined
                 $('#ModalCadastroPreReserva #id_check_out').val('')
 
                 $.ajax({
@@ -412,24 +412,72 @@
                 })
             }
 
-            function verificar_evento_dia_exclusividade() {
-                const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
-                const check_out = $('#ModalCadastroPreReserva #id_check_out').val()
-                const id_cliente = $('#ModalCadastroPreReserva #id_cliente').val()
-                $('#alerta_exclusividade').remove()
+            function pegarDias() {
+                let check_in = $('#id_check_in')
+                let check_out = $('#id_check_out')
 
-                $.ajax({
-                    type: 'GET',
-                    url: '',
-                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                    data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
-                    success: function (response) {
-                        if (response['eventos']) {
-                            $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
+                    if (check_out.val() !== '' && check_out.val() < check_in.val()) {
+                        check_out.val('')
+
+                        return
+                    }
+
+                    pegar_horario_padrao(check_in, check_out)
+                }
+
+                function pegar_horario_padrao(check_in, check_out) {
+                    $('#aviso_produto_n_selecionado').remove()
+                    let check_editar = $('#editar_horarios').prop('checked')
+
+                    if (!check_editar) {
+                        if (hora_padrao_check_in === undefined) {
+                            $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+                            check_out.val('')
+
+                            return
+                        } else if (hora_padrao_check_in === null) {
+                            return
+                        }
+
+                        check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
+
+                        if (dias_produto !== null) {
+                            check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
+                        } else {
+                            check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
                         }
                     }
-                })
-            }
+
+                    lotacao_dia_dia(check_in.val(), check_out.val())
+                }
+
+                function corporativo(selecao) {
+                    const id_produto = selecao.value
+                    let check_in = $('#id_check_in')
+                    let check_out = $('#id_check_out')
+                    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+                    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+                    pegar_horario_padrao(check_in, check_out)
+                }
+
+                function verificar_evento_dia_exclusividade() {
+                    const check_in = $('#id_check_in').val()
+                    const check_out = $('#id_check_out').val()
+                    const id_cliente = $('#id_cliente').val()
+                    $('#alerta_exclusividade').remove()
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '',
+                        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                        data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
+                        success: function (response) {
+                            if (response['eventos'] && $('#id_exclusividade').prop('checked')) {
+                                $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
+                            }
+                        }
+                    })
+                }
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
@@ -585,7 +633,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
-    <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>

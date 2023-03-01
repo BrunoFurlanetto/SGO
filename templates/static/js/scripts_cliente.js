@@ -100,7 +100,7 @@ function manter_botao(){
 
 function limpar_dados(){
     $('.search').addClass('none')
-    $('#responsavel, #id_responsavel_evento, #id_cliente, #cliente').val('')
+    $('#responsavel, #id_responsavel_evento, #id_cliente, #cliente, #cnpj_cliente').val('')
 }
 
 function pegarCliente(){
@@ -130,10 +130,16 @@ function pegarCliente(){
         data: {'id_cliente_app': id_cliente.val()},
         success: function (response) {
             for(let i in response){
-                $(`#${i}`).val(response[i]).prop('readonly', true)
+                if (response[i] === null) {
+                    $(`#${i}`).val(response[i]).prop('readonly', false)
+                } else {
+                    $(`#${i}`).val(response[i]).prop('readonly', true)
+                }
             }
         }
     })
+
+    pegar_cnpj()
 }
 
 function salvarIdCliente(){

@@ -35,14 +35,14 @@ sidebarBtn.addEventListener("click", ()=>{
             itens[i].classList.add('cima')
         }
     }
-
 });
 
-sidebarBtn2.addEventListener("click", ()=>{
-    sidebar.classList.toggle("close");
+if (sidebarBtn2 !== null) {
+    sidebarBtn2.addEventListener("click", ()=>{
+        sidebar.classList.toggle("close");
 
         for (let i in itens){
-        itens[i].classList.toggle('baixo')
-    }
-
-});
+            itens[i].classList.toggle('baixo')
+        }
+    });
+}

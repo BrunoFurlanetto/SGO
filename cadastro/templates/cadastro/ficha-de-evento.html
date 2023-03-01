@@ -62,6 +62,10 @@
                                target="_blank"><i class='bx bx-search'></i></a>
                         </div>
                     {% endif %}
+                    <div style="width: 40%">
+                        <label>CNPJ</label>
+                        <input type="text" id="cnpj_cliente" value="{% if ficha_de_evento %} {{ ficha_de_evento.cliente.cnpj }} {% elif pre_reserva %} {{ pre_reserva.cliente.cnpj }} {% endif %}" readonly>
+                    </div>
                 </div>
                 {% if not pre_reserva and not ficha_de_evento %}
                     <button type="button" id="btn_limpar_dados_cliente" onclick="limpar_dados()">Limpar dados cliente
@@ -165,7 +169,7 @@
                     </div>
                 </div>
                 <hr>
-                <div>
+                <div id="refeicoes_grupo">
                     <h5 class="titulo-secao">Refeições</h5>
                     <table class="table">
                         <thead>
@@ -414,7 +418,7 @@
             </fieldset>
             <div class="botoes">
                 {% if not ficha_de_evento %}
-                    <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
                 {% elif request.user == ficha_de_evento.vendedora.usuario %}
                     <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
                     <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
@@ -570,26 +574,29 @@
                         </div>
                         <div class="modal-body app">
                             <input type="hidden" name="infos" value="app">
-                            <div class="row" style="align-items: end">
-                                <div style="width: 25%">
+                            <div class="row" style="justify-content: center">
+                                <div style="width: 33%">
                                     <label>Cliente PJ</label>
                                     {{ formApp.cliente_pj }}
                                 </div>
-                                <div style="width: 25%">
+                                <div style="width: 33%">
                                     <label>Cliente PF</label>
                                     {{ formApp.cliente_pf }}
                                 </div>
-                                <div style="width: 25%">
-                                    <label>Código eficha</label>
-                                    {{ formApp.evento }}
-                                </div>
-                                <div style="width: 25%">
+                                <div class="codigo_editavel" style="width: 33%">
                                     <label>Reserva APP</label>
                                     {{ formApp.reserva }}
+                                </div>
+                                <div class="codigo_editavel mt-2">
+                                    <label>Código eficha</label>
+                                    {{ formApp.evento }}
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
+                            {% if not ficha_de_evento.cliente.codigo_app_pf or not ficha_de_evento.cliente.codigo_app_pj %}
+                                <input type="hidden" name="id_cliente_sem_app"  id="id_cliente_sem_app" {% if pre_reserva %} value="{{ pre_reserva.cliente.id }} {% endif %}">
+                            {% endif %}
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                             <button type="submit" class="btn btn-primary">Savar</button>
                         </div>
@@ -647,7 +654,7 @@
 
                     setTimeout(() => {
                         $('#id_produto_corporativo').trigger('change')
-                        pegarDias(true, true)
+                        pegarDias(true)
                     }, 100)
                 {% else %}
                     for (let input of divs_produtos) {
@@ -658,7 +665,7 @@
 
                     setTimeout(() => {
                         $('#id_produto_corporativo').trigger('change')
-                        pegarDias(true, false)
+                        pegarDias(false)
                     }, 100)
                 {% endif %}
             {% else %}

@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
@@ -32,22 +33,32 @@ def eventos(request):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
             if request.GET.get('data'):
-                fichas_data = FichaDeEvento.objects.filter(
-                    check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                    check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                    exclusividade=True,
-                )
-
-                return JsonResponse({'exclusividade': len(fichas_data) > 0})
+                return JsonResponse({
+                    'exclusividade': FichaDeEvento.objects.filter(
+                        check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                        check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                        exclusividade=True,
+                    ).exists()
+                })
 
             if request.GET.get('check_in'):
-                fichas_intervalo = FichaDeEvento.objects.filter(
-                    check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
-                    check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
-                ).exclude(cliente__id=int(request.GET.get('id_cliente')))
+                fichas_intervalo = []
 
-                print(fichas_intervalo)
-                return JsonResponse({'eventos': len(fichas_intervalo) > 0})
+                fichas_intervalo.append(
+                    FichaDeEvento.objects.filter(
+                        check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                        check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M')
+                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists()
+                )
+
+                fichas_intervalo.append(
+                    FichaDeEvento.objects.filter(
+                        check_in__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                        check_in__lte=datetime.strptime(request.GET.get('check_out'), '%Y-%m-%dT%H:%M')
+                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists()
+                )
+
+                return JsonResponse({'eventos': True in fichas_intervalo})
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)

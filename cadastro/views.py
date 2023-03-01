@@ -226,6 +226,13 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 data_saida=datetime.now().date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento')
             )
+            ordem_servico.ficha_de_evento.delete()
+            ordem_servico.ficha_de_evento.informacoes_adcionais.delete()
+            ordem_servico.ficha_de_evento.codigos_app.delete()
+
+            if ordem_servico.dados_transporte:
+                ordem_servico.dados_transporte.delete()
+
             ordem_servico.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde')
@@ -303,6 +310,21 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
         return redirect('dashboard')
+    print(request.POST)
+    if is_ajax(request):
+        if request.method == 'GET':
+            return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
+
+        if request.FILES != {}:
+            return JsonResponse(requests_ajax(request.POST, request.FILES))
+        else:
+            if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
+                cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
+                cliente.codigo_app_pf = request.POST.get('cliente_pf')
+                cliente.codigo_app_pj = request.POST.get('cliente_pj')
+                cliente.save()
+
+            return JsonResponse(requests_ajax(request.POST))
 
     if request.method != 'POST':
         if id_pre_reserva:
@@ -344,12 +366,6 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             'atividades_ceu': atividades_ceu,
             'editando': False
         })
-
-    if is_ajax(request):
-        if request.FILES != {}:
-            return JsonResponse(requests_ajax(request.POST, request.FILES))
-        else:
-            return JsonResponse(requests_ajax(request.POST))
 
     if request.POST.get('excluir'):
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
