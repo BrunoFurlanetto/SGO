@@ -310,7 +310,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
         return redirect('dashboard')
-    print(request.POST)
+
     if is_ajax(request):
         if request.method == 'GET':
             return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)

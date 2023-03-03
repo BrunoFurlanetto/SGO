@@ -64,7 +64,9 @@
                     {% endif %}
                     <div style="width: 40%">
                         <label>CNPJ</label>
-                        <input type="text" id="cnpj_cliente" value="{% if ficha_de_evento %} {{ ficha_de_evento.cliente.cnpj }} {% elif pre_reserva %} {{ pre_reserva.cliente.cnpj }} {% endif %}" readonly>
+                        <input type="text" id="cnpj_cliente"
+                               value="{% if ficha_de_evento %} {{ ficha_de_evento.cliente.cnpj }} {% elif pre_reserva %} {{ pre_reserva.cliente.cnpj }} {% endif %}"
+                               readonly>
                     </div>
                 </div>
                 {% if not pre_reserva and not ficha_de_evento %}
@@ -505,7 +507,7 @@
                                     {{ formAdicionais.roupa_de_cama }}
                                 </div>
                                 <div style="width: 20%">
-                                    <label for="id_link_foto">Link de  foto</label>
+                                    <label for="id_link_foto">Link de foto</label>
                                     {{ formAdicionais.link_foto }}
                                 </div>
                             </div>
@@ -595,7 +597,8 @@
                         </div>
                         <div class="modal-footer">
                             {% if not ficha_de_evento.cliente.codigo_app_pf or not ficha_de_evento.cliente.codigo_app_pj %}
-                                <input type="hidden" name="id_cliente_sem_app"  id="id_cliente_sem_app" {% if pre_reserva %} value="{{ pre_reserva.cliente.id }} {% endif %}">
+                                <input type="hidden" name="id_cliente_sem_app" id="id_cliente_sem_app"
+                                        {% if pre_reserva %} value="{{ pre_reserva.cliente.id }} {% endif %}">
                             {% endif %}
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                             <button type="submit" class="btn btn-primary">Savar</button>
@@ -637,50 +640,17 @@
     <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/scripts_cliente.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
+
     <script>
         $(document).ready(function () {
-            carregar_scripts('{{ editando }}')
-            {% if pre_reserva or editando %}
-                const divs_produtos = $('#id_produto .form-check-input')
-                $('#material_apoio-clear_id').addClass('form-check-input')
-                $('.search').removeClass('none')
-
-                {% if editando %}
-                    for (let input of divs_produtos) {
-                        if (input.checked) {
-                            verQuantidades(input, true, true)
-                        }
-                    }
-
-                    setTimeout(() => {
-                        $('#id_produto_corporativo').trigger('change')
-                        pegarDias(true)
-                    }, 100)
-                {% else %}
-                    for (let input of divs_produtos) {
-                        if (input.checked) {
-                            verQuantidades(input, true, false)
-                        }
-                    }
-
-                    setTimeout(() => {
-                        $('#id_produto_corporativo').trigger('change')
-                        pegarDias(false)
-                    }, 100)
-                {% endif %}
-            {% else %}
-
-                for (let input of divs_produtos) {
-                    if (input.checked) {
-                        verQuantidades(input, false, false)
-                    }
-                }
-            {% endif %}
             $('#id_vendedora').css({'pointer-events': 'none'})
-        })
+            carregar_scripts('{{ editando }}')
 
-        setTimeout(() => {
-            $('#cliente').trigger('click')
-        }, 100)
+            {% if not editando %}
+                $('#cliente').trigger('click')
+                tabela_refeicoes()
+            {% endif %}
+        })
     </script>
+
 {% endblock %}

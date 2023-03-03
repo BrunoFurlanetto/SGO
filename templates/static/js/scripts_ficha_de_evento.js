@@ -20,7 +20,7 @@ function carregar_scripts(editando) {
 }
 
 function pegar_cnpj() {
-    if ($('#id_cliente').val() !== ''){
+    if ($('#id_cliente').val() !== '') {
         $.ajax({
             url: '',
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -121,20 +121,22 @@ function pegarDias(editando = false) {
         let dias = moment.duration(intervalo).asDays()
     }
 
-    if (!editando) {
-        const data_1 = check_in.val().split('T')[0]
-        const data_2 = check_out.val().split('T')[0]
-        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
-        let dias = moment.duration(intervalo).asDays()
-        $('#corpo-tabela-refeicao').empty()
-
-        for (let i = 0; i <= dias; i++) {
-            add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
-        }
-    }
+    if (!editando) tabela_refeicoes()
 
     if (!editando && check_in.val() !== '') {
         $('#id_data_final_inscricao').val(moment(check_in.val()).subtract(15, 'days').format('YYYY-MM-DD'))
+    }
+}
+
+async function tabela_refeicoes() {
+    const data_1 = $('#sessao_periodo_viagem #id_check_in').val().split('T')[0]
+    const data_2 = $('#sessao_periodo_viagem #id_check_out').val().split('T')[0]
+    const intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
+    const dias = moment.duration(intervalo).asDays()
+    $('#corpo-tabela-refeicao').empty()
+
+    for (let i = 0; i <= dias; i++) {
+        add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
     }
 }
 
@@ -488,7 +490,7 @@ $('#salvar').on('click', function (e) {
 
         if (!lista_refeicoes.includes(true)) {
             e.preventDefault()
-            $('html, body').animate({scrollTop : 1000},50)
+            $('html, body').animate({scrollTop: 1000}, 50)
             $('#refeicoes_grupo').append('<div class="alert alert-warning">Todos os dias devem ter ao menos uma refeição cadastrada!</div>')
 
             return
@@ -499,7 +501,7 @@ $('#salvar').on('click', function (e) {
     if (!$('#check_a_definir').checked && !($('#id_atividades_ceu_a_definir').val() != '' && $('#id_atividades_ceu_a_definir').val() > '0')) {
         if (atividades_selecionadas.length === 0) {
             e.preventDefault()
-            $('html, body').animate({scrollTop : 1200},50)
+            $('html, body').animate({scrollTop: 1200}, 50)
             $('.peraltas').append('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"!</div>')
 
             return

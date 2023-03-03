@@ -1,81 +1,120 @@
-.body{
+.body {
     margin: 0px;
     width: max-width;
     height: max-height;
 }
+
+.container_loading {
+    display: flex;
+    justify-content: center;
+}
+
+.loading {
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading img {
+    width: 50px;
+    animation: spin 2s linear infinite;
+}
+
 .box-total {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
+
 .box-side-bar {
     width: 200px;
     align: center;
 }
+
 .box-conteudo {
     margin-right: 30vh;
     align-items: center;
     width: 100vh;
     height: 100vh;
 }
+
 .container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
+
 .conteudo-login, .conteudo-manutencao {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
-.titulo-sistema{
+
+.titulo-sistema {
     font-size: 4.5vh;
     margin: 2% 2%;
     color: #A9A9A9;
 }
-.box-manutencao{
+
+.box-manutencao {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
-.aviso-manutencao{
+
+.aviso-manutencao {
     margin: 2% 2%;
 }
-.aviso-manutencao h2{
+
+.aviso-manutencao h2 {
     font-size: 4.5vh;
     color: #1D7BAF;
 }
-.aviso-manutencao h3{
+
+.aviso-manutencao h3 {
     font-size: 3vh;
     color: #1D7BAF;
     font-weight: bold;
 }
-.titulo-secao{
+
+.titulo-secao {
     margin: -15px 0 15px 0
 }
+
 .login {
     justify-content: center;
     align-items: center;
     width: 400px;
 }
+
 .barra {
-  border: 0;
-  height: 1px;
-  background-image: linear-gradient(to right, transparent, #CCC, transparent);
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, transparent, #CCC, transparent);
 }
-.x-fechar-modal{
+
+.x-fechar-modal {
     background-color: #fff;
     border: none;
     font-size: 20px;
 }
+
 .logo-central {
     margin-top: 6vh;
 }
 
 /* Estilos do cadastro de público */
-.conteudo-publico{
+.conteudo-publico {
     background-color: #fff;
     margin: auto auto 5%;
     width: 850px;
@@ -85,16 +124,19 @@
     display: flex;
     justify-content: center;
 }
-.titulo-publico{
+
+.titulo-publico {
     margin: 20px;
 }
-#corpo_tabela_atividade_publico .coluna_1{
+
+#corpo_tabela_atividade_publico .coluna_1 {
     display: flex;
     justify-content: space-between;
 }
+
 /*------------------------------*/
 /* Estilos do cadastro de colégio */
-.conteudo-colegio{
+.conteudo-colegio {
     background-color: #fff;
     margin: auto auto 5%;
     width: 850px;
@@ -104,12 +146,14 @@
     display: flex;
     justify-content: center;
 }
-.titulo-colegio{
+
+.titulo-colegio {
     margin: 20px;
 }
+
 /*------------------------------*/
 /* Estilos do cadastro de empresa */
-.conteudo-empresa, .conteudo-fichas-entregues{
+.conteudo-empresa, .conteudo-fichas-entregues {
     background-color: #fff;
     margin: auto auto 5%;
     width: 850px;
@@ -119,12 +163,14 @@
     display: flex;
     justify-content: center;
 }
-.titulo-empresa{
+
+.titulo-empresa {
     margin: 20px;
 }
+
 /*------------------------------*/
 /* Estilos do cadastro de OS */
-.conteudo-os, .conteudo-ver-os{
+.conteudo-os, .conteudo-ver-os {
     background-color: #fff;
     margin: auto auto 5%;
     width: 750px;
@@ -134,9 +180,10 @@
     display: flex;
     justify-content: center;
 }
+
 /*------------------------------*/
 
-.conteudo-dashboard{
+.conteudo-dashboard {
     margin: auto;
     width: 1100px;
     justify-content: center;
@@ -146,41 +193,48 @@
     border-radius: 15px;
     padding: 10px;
 }
-.tabela-dashboard table{
+
+.tabela-dashboard table {
     border-radius: 30px !important;
 }
-.tabela-dashboard h5{
+
+.tabela-dashboard h5 {
     margin: 10px;
     opacity: 0.6;
 }
+
 .tabela-dashboard td {
     max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.dados_dashboard{
+
+.dados_dashboard {
     display: flex;
     justify-content: space-between;
 }
 
-.tabela-dashboard{
+.tabela-dashboard {
     height: 400px;
 }
-.conteudo_dashboard_peraltas_escrito{
+
+.conteudo_dashboard_peraltas_escrito {
     height: 85vh;
     display: flex;
     align-items: center;
     justify-content: center;
     color: transparent;
     background-color: #B9BEC9;
-    text-shadow: 1px 1px 3px rgba(255,255,255,.5);
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, .5);
     -webkit-background-clip: text;
 }
-.conteudo_dashboard_peraltas_escrito h1{
+
+.conteudo_dashboard_peraltas_escrito h1 {
     font-size: 300px;
 }
-.conteudo-ver-ordem{
+
+.conteudo-ver-ordem {
     width: 800px;
     padding: 10px;
     margin: auto auto 5%;
@@ -190,18 +244,20 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-.conteudo-ver-ordem p{
+
+.conteudo-ver-ordem p {
     border: solid 1px;
     border-radius: 10px;
     min-height: 200px;
 }
-.relatorio{
+
+.relatorio {
     min-height: 200px;
     background-color: #fff;
     border-radius: 15px;
 }
 
-.conteudo-escala{
+.conteudo-escala {
     width: 1000px;
     margin: auto auto 10%;
     height: auto;
@@ -209,7 +265,8 @@
     align-items: center;
     box-shadow: 5px 5px 10px;
 }
-.conteudo-add-escala{
+
+.conteudo-add-escala {
     width: 500px;
     margin: auto;
     height: auto;
@@ -217,7 +274,8 @@
     align-items: center;
     box-shadow: 5px 5px 10px;
 }
-.conteudo-solicitação{
+
+.conteudo-solicitação {
     width: 470px;
     min-height: 550px;
     height: auto;
@@ -226,14 +284,16 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-#id_lista_segurados{
+
+#id_lista_segurados {
     width: 100%;
     height: 32px;
     border: none;
     margin-top: 3px;
     padding: 0;
 }
-#lista_segurados-clear_id{
+
+#lista_segurados-clear_id {
     width: 20px;
     border: 1px solid #ced4da;
     appearance: auto;
@@ -242,7 +302,8 @@
     padding: 0;
     height: 20px;
 }
-#div_lista_segurados{
+
+#div_lista_segurados {
     height: 30%;
     display: table-caption;
     min-width: 500px;
@@ -250,54 +311,64 @@
 }
 
 /* Parte da avaliação somente para computadores*/
-.only-line{
+.only-line {
     background-color: #fff !important;
     max-width: 100%;
     border-width: 0 0 2px;
     border-color: #007ec1;
 }
-.conteudo-avaliacao img{
+
+.conteudo-avaliacao img {
     padding: 10px;
     width: 210px;
 }
+
 .head {
     display: flex;
     align-items: center;
     font-size: 25px;
     font-weight: 500;
 }
-.head p{
+
+.head p {
     margin: auto;
     color: #007ec1;
 }
+
 .divisao {
     height: 2px !important;
     background-image: linear-gradient(to right, #fcc607, #007ec1, #fcc607);
 }
 
-.justificativa{
+.justificativa {
     resize: none;
     border-color: #007ec1;
     border-width: 2px;
 }
-.menos-margem{
+
+.menos-margem {
     margin-right: -15px;
 }
-.margem{
+
+.margem {
     margin-right: 30px;
 }
-.margem-label{
+
+.margem-label {
     margin-right: 22px;
 }
-.logo-final{
+
+.logo-final {
     margin-top: 25px;
     margin-left: -110px;
     width: 200px;
 }
-.logo-final img{
+
+.logo-final img {
     width: 330px;
 }
-#id_data{
+
+#id_data {
     height: 35px;
     width: 100%;
     border-radius: 0.25rem;
@@ -305,29 +376,34 @@
     border-width: 1px;
     border-color: #ced4da;
 }
-.conteudo-disponibilidade{
+
+.conteudo-disponibilidade {
     margin: -2% auto;
     padding: 30px;
     width: 500px;
 }
-.conteudo-disponibilidade-acampamento{
+
+.conteudo-disponibilidade-acampamento {
     margin-left: auto;
     padding: 30px;
     width: 500px;
 }
-.conteudo-disponibilidade-hotelaria{
+
+.conteudo-disponibilidade-hotelaria {
     margin-right: auto;
     margin-left: 10px;
     padding: 30px;
     width: 500px;
 }
+
 .painel-geral {
     display: flex;
     margin: auto;
     width: 900px;
     padding: 20px;
 }
-.resumo-mes{
+
+.resumo-mes {
     display: flex;
     height: 350px;
     width: 100%;
@@ -339,7 +415,8 @@
     align-items: center;
     margin-bottom: 2%;
 }
-.notas{
+
+.notas {
     display: flex;
     height: 900px;
     width: 49%;
@@ -351,7 +428,8 @@
     justify-content: center;
     align-items: center;
 }
-.grafico-2{
+
+.grafico-2 {
     height: 49%;
     width: 112%;
     padding: 20px;
@@ -361,7 +439,8 @@
     box-shadow: 5px 5px 10px;
     justify-content: center;
 }
-.grafico-3{
+
+.grafico-3 {
     height: 49%;
     width: 112%;
     padding: 20px;
@@ -371,7 +450,8 @@
     justify-content: center;
     align-items: center;
 }
-.grafico-4{
+
+.grafico-4 {
     display: flex;
     margin-top: 2%;
     height: 350px;
@@ -383,10 +463,12 @@
     justify-content: center;
     align-items: center;
 }
-.input-excluir{
+
+.input-excluir {
     width: 40px;
 }
-.conteudo-calendario-eventos{
+
+.conteudo-calendario-eventos {
     width: 1000px;
     margin: auto auto 10%;
     height: auto;
@@ -394,54 +476,65 @@
     align-items: center;
     box-shadow: 5px 5px 10px;
 }
-.conteudo-ver-os input{
+
+.conteudo-ver-os input {
     margin-top: -15px !important;
     border: none !important;
     background-color: transparent !important;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.conteudo-ver-os label{
+
+.conteudo-ver-os label {
     font-weight: bold;
 }
-.conteudo-ver-os select{
+
+.conteudo-ver-os select {
     border: none !important;
     -webkit-appearance: none;
     -moz-appearance: none;
     background-color: transparent !important;
     margin-top: -15px !important;
 }
-#cronograma_cliente a{
+
+#cronograma_cliente a {
     max-width: 75%;
     text-overflow: ellipsis;
 }
-.atividades-eco-os label, .atividades-peraltas-os label{
+
+.atividades-eco-os label, .atividades-peraltas-os label {
     font-weight: normal !important;
 }
-.conteudo-ver-os textarea{
+
+.conteudo-ver-os textarea {
     height: auto !important;
     border: none !important;
 }
-.conteudo-ver-os .buton-x{
+
+.conteudo-ver-os .buton-x {
     display: none !important;
 }
-.cronograma-cliente{
+
+.cronograma-cliente {
     width: 80%;
     display: inline-block;
     overflow-x: clip;
     text-overflow: ellipsis;
 }
-#cronograma_peraltas-clear_id{
+
+#cronograma_peraltas-clear_id {
     display: none;
 }
-.colegio .cor{
+
+.colegio .cor {
     margin: 10px 5px 0 20px;
     width: 65px;
     height: 20px;
     border: solid 1px #FF8C00;
     border-radius: 8px;
     background-color: #FF8C00;
- }
+}
+
 .empresa .cor {
     margin: 10px 5px 15px 20px;
     width: 65px;
@@ -449,7 +542,8 @@
     border: solid 1px #fcc607;
     border-radius: 8px;
     background-color: #fcc607;
- }
+}
+
 .ficha_evento .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;
@@ -458,19 +552,22 @@
     border-radius: 8px;
     background-color: #8B008B;
 }
-#id_material_apoio{
+
+#id_material_apoio {
     border: none;
     height: auto;
     margin-top: -20px;
     margin-left: -10px;
     background: transparent;
 }
+
 .alerta {
     height: 23px;
     border-radius: 10px;
     width: 97%;
     margin-left: 11px;
 }
+
 .pre-reserva .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;
@@ -479,6 +576,7 @@
     border-radius: 8px;
     background-color: #b60c0c;
 }
+
 .reserva-confirmada .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;
@@ -487,7 +585,8 @@
     border-radius: 8px;
     background-color: #008000;
 }
-.conteudo-resumo-financeiro-ceu, .conteudo-detector{
+
+.conteudo-resumo-financeiro-ceu, .conteudo-detector {
     width: 800px;
     padding: 10px;
     margin: auto auto 5%;
@@ -497,7 +596,8 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-.conteudo-fichas-entregues{
+
+.conteudo-fichas-entregues {
     background-color: #fff;
     margin: auto auto 5%;
     width: 650px;
@@ -507,41 +607,49 @@
     display: flex;
     justify-content: center;
 }
-.titulo-fichas-entregues{
+
+.titulo-fichas-entregues {
     margin: 20px;
 }
-.conteudo-fichas-entregues .buton-search{
+
+.conteudo-fichas-entregues .buton-search {
     width: auto;
     border: none;
     background-color: transparent;
 }
-.conteudo-fichas-entregues .bx-search{
+
+.conteudo-fichas-entregues .bx-search {
     align-self: center;
     font-size: 30px;
     color: black;
 }
-.conteudo-fichas-entregues .button-report{
+
+.conteudo-fichas-entregues .button-report {
     width: auto;
     border: none;
     background-color: transparent;
 }
-.conteudo-fichas-entregues .bxs-report{
+
+.conteudo-fichas-entregues .bxs-report {
     align-self: center;
     font-size: 25px;
     color: black;
 }
-#selecionar_setor{
+
+#selecionar_setor {
     width: 15%;
     margin-left: 20px;
     position: absolute;
     z-index: 1;
 }
-.conteudo-escalar-monitores{
+
+.conteudo-escalar-monitores {
     margin: auto auto 5%;
     justify-content: center;
     display: flex;
 }
-.escalar_monitores{
+
+.escalar_monitores {
     background-color: #fff;
     margin-right: 2%;
     width: 560px;
@@ -549,7 +657,8 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-.monitores_disponiveis{
+
+.monitores_disponiveis {
     border: solid 1px #ced4da;
     border-radius: 5px;
     min-height: 100px;
@@ -559,10 +668,12 @@
     display: flex;
     flex-wrap: wrap;
 }
-.espacos:hover{
+
+.espacos:hover {
     border-color: #ffc107;
 }
-.card-monitor{
+
+.card-monitor {
     border: solid 1px;
     border-radius: 10px;
     padding: 2px 8px 2px 8px;
@@ -576,17 +687,20 @@
     box-shadow: 2px 2px 2px;
     cursor: grab;
 }
-.arrastando:active{
+
+.arrastando:active {
     cursor: grabbing;
 }
-#legenda .tecnica, #legenda .biologo{
+
+#legenda .tecnica, #legenda .biologo {
     padding: 5px;
     width: fit-content;
     height: fit-content;
     border-radius: 10px;
     margin: 5px;
 }
-.dados-monitores{
+
+.dados-monitores {
     background-color: #ffffff;
     width: 250px;
     height: fit-content;
@@ -596,33 +710,40 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
 }
-.dados-monitores .conteudo{
+
+.dados-monitores .conteudo {
     transition: max-height 0.5s;
     color: #fff;
     max-height: 0;
 }
-.dados-monitores:hover .conteudo{
+
+.dados-monitores:hover .conteudo {
     border-top: 1px solid #C8C9CA;
     height: fit-content;
     color: #000;
     max-height: 400px;
     overflow: auto;
 }
-.tecnica{
+
+.tecnica {
     font-weight: bolder;
     background: #c3a06e;
 }
-.biologo{
+
+.biologo {
     font-weight: bolder;
     background: #03bb85;
 }
-#escalados .tecnica{
+
+#escalados .tecnica {
     background-color: #D6D32A
 }
-.escalado{
+
+.escalado {
     background: rgba(239, 61, 61, 0.78);
 }
-.monitores_escalados{
+
+.monitores_escalados {
     border: solid 1px #ced4da;
     border-radius: 5px;
     min-height: 100px;
@@ -630,7 +751,8 @@
     max-height: 250px;
     overflow-y: auto;
 }
-#nome_monitor_botao{
+
+#nome_monitor_botao {
     margin: 5px;
     width: auto;
     border-style: solid;
@@ -639,41 +761,54 @@
     background-color: #fff;
     box-shadow: 1px 1px 2px;
 }
-#nome_monitor_botao button{
+
+#nome_monitor_botao button {
     background-color: transparent;
     border: none;
     font-size: larger
 }
-.showMenu li{
+
+.showMenu li {
     overflow: hidden;
     text-overflow: clip;
     max-width: 95%;
 }
-.showMenu .max-word:hover{
+
+.showMenu .max-word:hover {
     animation: word_scroll 2s linear infinite;
     animation-direction: alternate;
     position: relative;
     right: 15%;
 }
+
 @keyframes word_scroll {
-    from{
+    from {
         transform: translateX(15%);
     }
     to {
         transform: translateX(-5%);
     }
 }
+
 @-webkit-keyframes marquee {
-    0% {text-indent:0;}
-    50% {text-indent:-80%}
-    100% {text-indent: 10%}
+    0% {
+        text-indent: 0;
+    }
+    50% {
+        text-indent: -80%
+    }
+    100% {
+        text-indent: 10%
+    }
 }
-.nome:hover{
+
+.nome:hover {
     -webkit-animation: marquee 5s infinite;
     -webkit-animation-timing-function: linear;
     animation-direction: alternate;
 }
-.conteudo-escalar-professores{
+
+.conteudo-escalar-professores {
     background-color: #fff;
     width: 560px;
     padding: 10px;
@@ -682,8 +817,9 @@
     margin: auto auto 5%;
     justify-content: center;
 }
+
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
-#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select{
+#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select {
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -691,16 +827,18 @@
     padding-left: 12px;
     height: 38px;
 }
+
 #modal_trocar_atividade select[readonly] {
-  background: #eee;
-  pointer-events: none;
-  touch-action: none;
+    background: #eee;
+    pointer-events: none;
+    touch-action: none;
 }
+
 .conteudo-escalar-professores input, .conteudo-detector input, .conteudo-escala input,
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
 #form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
 #ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local],
-#ModalCadastroPreReserva input[type=text]{
+#ModalCadastroPreReserva input[type=text] {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -709,7 +847,8 @@
     padding: 12px;
     height: 38px;
 }
-#ModalCadastroPreReserva textarea, #ModalExclusaoPreReserva textarea{
+
+#ModalCadastroPreReserva textarea, #ModalExclusaoPreReserva textarea {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -719,7 +858,8 @@
     height: 150px;
     resize: none;
 }
-#modal_trocar_atividade #id_observacoes_alteracao{
+
+#modal_trocar_atividade #id_observacoes_alteracao {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -729,56 +869,65 @@
     height: 150px;
     resize: none;
 }
-.listas-atividades-locacoes{
+
+.listas-atividades-locacoes {
     display: flex;
     margin-top: 25px
 }
-.listas-atividades-locacoes h5{
+
+.listas-atividades-locacoes h5 {
     text-align: center;
 }
-.listas-atividades-locacoes .div-lista-atividades{
+
+.listas-atividades-locacoes .div-lista-atividades {
     width: 50%;
     padding-right: 10px;
     border-right: solid 1px;
     display: flex;
     flex-direction: column;
 }
-.listas-atividades-locacoes .div-lista-locacoes{
+
+.listas-atividades-locacoes .div-lista-locacoes {
     width: 50%;
     display: flex;
     flex-direction: column;
 }
 
-.conteudo-detector .div-botao{
+.conteudo-detector .div-botao {
     display: flex;
     width: 10%;
     align-items: center;
     padding: 0;
 }
-.conteudo-detector .buton-search{
+
+.conteudo-detector .buton-search {
     height: 22px;
     background: transparent;
     border: none;
     font-size: 30px;
 }
-.conteudo-detector .div-btn-scan{
+
+.conteudo-detector .div-btn-scan {
     display: flex;
     width: 4%;
     align-items: center;
     padding: 0;
     margin-top: 20px
 }
-.conteudo-detector .btn-scan{
+
+.conteudo-detector .btn-scan {
     font-size: 30px;
     padding: 0;
 }
-.conteudo-detector .div-btn-escalar-professores{
+
+.conteudo-detector .div-btn-escalar-professores {
     width: 30%;
     display: flex;
     margin-top: 15px;
     align-items: center;
 }
-.conteudo-detector .btn-mostrar-atividades-locacoes{
+
+.conteudo-detector .btn-mostrar-atividades-locacoes {
     background: #fff;
     border: none;
     font-size: 25px;
@@ -787,38 +936,45 @@
 }
 
 .escala-por-atividades .atividades .select2-container, .escala-por-atividades .locacoes .select2-container,
-.escala-por-atividades .atividades_extra .select2-container{
+.escala-por-atividades .atividades_extra .select2-container {
     width: 100% !important;
 }
-.conteudo-detector .form-check-input{
+
+.conteudo-detector .form-check-input {
     width: 20px;
     height: 20px;
     padding: 0;
 }
-#formulario-escala-professores-atividades label{
+
+#formulario-escala-professores-atividades label {
     max-width: 95%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.lista-professores{
+
+.lista-professores {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
-#mensagem_erro{
+
+#mensagem_erro {
     width: 100%;
     margin-top: -10px;
     margin-bottom: -20px;
 }
-.lista-professores .selecao-professores{
+
+.lista-professores .selecao-professores {
     width: 30%;
 }
-#tabela_detectores_salvos td{
+
+#tabela_detectores_salvos td {
     display: table-cell;
     vertical-align: middle;
 }
-#atividades-acampamento{
+
+#atividades-acampamento {
     display: flex;
     gap: 2px;
     border: groove 1px;
@@ -828,7 +984,8 @@
     flex-wrap: wrap;
     background: #dfdfdf;
 }
-.card-atividade{
+
+.card-atividade {
     border: solid 1px;
     border-radius: 10px;
     padding: 2px 8px 2px 8px;
@@ -843,72 +1000,86 @@
     cursor: grab;
     background: #ffffff;
 }
-#div_bt_adicionar{
+
+#div_bt_adicionar {
     display: flex;
     justify-content: end;
     font-size: 16px;
 }
-#div_bt_adicionar .buton-plus-{
+
+#div_bt_adicionar .buton-plus- {
     color: #000000;
     font-size: 26px;
 }
-.barra-de-cor{
+
+.barra-de-cor {
     width: 60px;
     height: 20px;
     border-radius: 10px;
     margin-right: 5px;
 }
-.legenda{
+
+.legenda {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
-#aviso_lotacao{
+
+#aviso_lotacao {
     padding: 10px;
     margin-bottom: 5px;
     text-align: center;
 }
-.btn-edit{
+
+.btn-edit {
     font-size: 25px;
     border: none;
     background: transparent;
     margin: 0;
 }
-.btn-observacoes{
+
+.btn-observacoes {
     border: 1px solid;
     width: auto;
     height: 40px;
     margin-top: auto;
     margin-bottom: auto;
 }
-#area_observacoes{
+
+#area_observacoes {
     resize: none;
     width: 100%;
     padding: 10px;
     border: 1px solid #ced4da;
     border-radius: 10px;
 }
-.sem-monitor{
+
+.sem-monitor {
     background: #f5dcdd;
 }
-.div-titulo-btn{
+
+.div-titulo-btn {
     display: flex;
     justify-content: space-between;
 }
-.div-titulo-btn .btn{
+
+.div-titulo-btn .btn {
     margin-top: -12px;
     font-size: 13px;
 }
-#professores_atividade{
+
+#professores_atividade {
     display: flex;
     flex-direction: column;
 }
-#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade{
+
+#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade {
     width: 20px;
     height: 20px;
     border: 1px solid #ced4da;
 }
-#editar_pre_reserva{
+
+#editar_pre_reserva {
     display: flex;
     align-items: baseline;
     gap: 10px;

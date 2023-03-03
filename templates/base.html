@@ -6,6 +6,11 @@
 </head>
 
     <body style="background-color: #E4E9F7">
+    <div class="container_loading none">
+        <div class="loading">
+            <img src="{% static 'img/GP.png' %}" alt="">
+        </div>
+    </div>
     {% if user.groups.all %}
         {% include 'parciais/_sidebar.html' %}
         <section class="home-section">
