@@ -5,7 +5,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira, ListaDeCargos, ProdutoCorporativo)
+                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados)
 from peraltas.models import Vendedor
 
 
@@ -137,3 +137,9 @@ class InformacoesAdicionaisAdmin(admin.ModelAdmin):
 @admin.register(CodigosApp)
 class CodigosAppAdmin(admin.ModelAdmin):
     list_display = ('cliente_pj',)
+
+
+@admin.register(EventosCancelados)
+class EventosCanceladosAdmin(admin.ModelAdmin):
+    list_display = ('cliente', 'estagio_evento', 'atendente', 'motivo_cancelamento')
+    list_filter = ('estagio_evento', 'atendente')

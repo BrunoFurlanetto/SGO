@@ -838,7 +838,7 @@
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
 #form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
 #ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local],
-#ModalCadastroPreReserva input[type=text] {
+#ModalCadastroPreReserva input[type=text], #motivo_cancelamento{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;

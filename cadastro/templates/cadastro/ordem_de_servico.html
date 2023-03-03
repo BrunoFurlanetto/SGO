@@ -42,7 +42,8 @@
                     </div>
                     <div style="width: 70%">
                         <label>Endereço</label>
-                        <input type="text" name="endereço_cliente" id="id_endereco" value="{{ ficha_de_evento.cliente.endereco }}">
+                        <input type="text" name="endereço_cliente" id="id_endereco"
+                               value="{{ ficha_de_evento.cliente.endereco }}">
                     </div>
                     <div class="mb-2" style="width: 30%">
                         <label>CNPJ</label>
@@ -103,7 +104,8 @@
                     </div>
                     <div id="link_ficha_de_evento" class="mt-2">
                         {% if ficha_de_evento %}
-                            <strong>Ficha de evento: </strong><a href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a>
+                            <strong>Ficha de evento: </strong>
+                            <a href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a>
                         {% endif %}
                     </div>
                 </div>
@@ -208,7 +210,8 @@
                                             <input class="qtd_participantes_eco"
                                                    id="participantes_eco_{{ forloop.counter }}" type="number"
                                                    name="participantes_eco_{{ forloop.counter }}"
-                                                   onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required
+                                                   onchange="verificar_limitacoes_eco(this)"
+                                                   onclick="$(this).removeClass('revisar')" required
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone_eco" id="div_icone_eco_{{ forloop.counter }}"
@@ -225,12 +228,18 @@
                                                    type="text" name="serie_participantes_eco_{{ forloop.counter }}"
                                                    value="{{ atividade.serie }}"/>
                                         </div>
-                                        <div class="mb-2 colegios div_serie_eco" id="div_biologo_eco_{{ forloop.counter }}" style="width: 15%">
+                                        <div class="mb-2 colegios div_serie_eco"
+                                             id="div_biologo_eco_{{ forloop.counter }}" style="width: 15%">
                                             <label>Biologo?</label>
-                                            <select class="biologo_eco" id="ativ_eco_{{ forloop.counter }}" name="biologo_eco_{{ forloop.counter }}" required>
+                                            <select class="biologo_eco" id="ativ_eco_{{ forloop.counter }}"
+                                                    name="biologo_eco_{{ forloop.counter }}" required>
                                                 <option></option>
-                                                <option {% if atividade.biologo == 'sim' %} selected {% endif %} value="sim">Sim</option>
-                                                <option {% if atividade.biologo == 'nao' %} selected {% endif %} value="nao">Não</option>
+                                                <option {% if atividade.biologo == 'sim' %} selected {% endif %}
+                                                                                            value="sim">Sim
+                                                </option>
+                                                <option {% if atividade.biologo == 'nao' %} selected {% endif %}
+                                                                                            value="nao">Não
+                                                </option>
                                             </select>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
@@ -283,7 +292,8 @@
                                             <label>QTD</label>
                                             <input class="qtd_participantes" id="participantes_{{ forloop.counter }}"
                                                    type="number" name="participantes_{{ forloop.counter }}"
-                                                   onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required
+                                                   onchange="verificar_limitacoes(this)"
+                                                   onclick="$(this).removeClass('revisar')" required
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone" id="div_icone_{{ forloop.counter }}"
@@ -380,7 +390,8 @@
                                             <input class="qtd_participantes_loc"
                                                    id="participantes-loc_{{ forloop.counter }}" type="number"
                                                    name="participantes-loc_{{ forloop.counter }}"
-                                                   onchange="verificar_lotacao(this)" onclick="$(this).removeClass('revisar')" required
+                                                   onchange="verificar_lotacao(this)"
+                                                   onclick="$(this).removeClass('revisar')" required
                                                    value="{{ locacao.participantes }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
@@ -411,11 +422,16 @@
                     <div class="botoes" style="display: flex; gap: 10px;">
                         <button type="submit" id="btn_salvar_os" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5"
-                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true">Editar
+                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true">
+                            Editar
                         </button>
-                        <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
-                                data-target="#excluir_ordem_de_servico" disabled>Excluir
-                        </button>
+
+                        {% if perms.ordemDeServico.delete_ordemdeservico %}
+                            <button type="button" class="btn btn-danger ml-5" data-toggle="modal"
+                                    data-target="#excluir_ordem_de_servico" disabled>Excluir
+                            </button>
+                        {% endif %}
+
                         <fieldset id="fieldset_pdf">
                             {% csrf_token %}
                             <input type="hidden" name="gerar_pdf" value="True">
@@ -447,7 +463,7 @@
                         {% csrf_token %}
                         <div class="modal-body app">
                             <label for="motivo_cancelamento">Motivo cancelamento</label>
-                            <input type="text" id="motivo_cancelamento" name="motivo_cancelamento">
+                            <input type="text" id="motivo_cancelamento" name="motivo_cancelamento" required minlength="10">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>

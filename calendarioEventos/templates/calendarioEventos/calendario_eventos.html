@@ -110,11 +110,15 @@
 
                                         if (response['confirmado']) {
                                             modal_footer.append('<p style="font-size: 15px">Agendamento confirmado!</p>')
-                                            modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
+
+                                            {% if perms.peraltas.delete_fichadeevento %}
+                                                modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
+                                            {% endif %}
+
                                             modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
                                         } else {
-                                            {% if comercial or diretoria %}
-                                                {% if diretoria %}
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
                                                 {% else %}
                                                     if (response['editar']) {
@@ -126,8 +130,8 @@
                                             modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                             modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
 
-                                            {% if comercial or diretoria %}
-                                                {% if diretoria %}
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                 {% else %}
                                                     if (response['editar']) {
@@ -307,8 +311,17 @@
 
             function excluir_pre_agendamento() {
                 $('document').ready(function () {
+                    $('#ModalExclusaoPreReserva .alert').remove()
                     const id_pre_reserva = $('#id_pre_reserva').val()
                     const motivo = $('#motivo_cancelamento').val()
+
+                    if (motivo === '' || motivo.length < 10) {
+                        $('#ModalExclusaoPreReserva .modal-body').append(
+                            '<div class="alert alert-warning mt-2">Motivo de exclusão não pode ficar em branco ou ter menos de 10 caracteres</div>'
+                        )
+
+                        return
+                    }
 
                     $.ajax({
                         url: '',
@@ -623,7 +636,7 @@
                 </div>
                 <div class="modal-body" style="display: flex; flex-direction: column;">
                     <label for="motivo_cancelamento">Motivo do cancelamento</label>
-                    <textarea name="motivo_cancelamento" id="motivo_cancelamento" rows="5"></textarea>
+                    <input name="motivo_cancelamento" id="motivo_cancelamento" required/>
                 </div>
                 <div class="modal-footer botoes">
                     <button class="btn btn-primary" onclick="excluir_pre_agendamento()">Salvar</button>
