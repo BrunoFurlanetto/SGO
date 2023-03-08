@@ -2,7 +2,7 @@ let corporativo
 let editando = false
 
 $(document).ready(function () {
-    if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha') {
+    if (window.location.href.split('/')[5] !== '') {
         $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
     } else {
@@ -131,6 +131,10 @@ function completar_dados_os(selecao) {
     setTimeout(() => {
         $('#id_empresa').trigger('change')
     }, 600)
+}
+
+function completar_dados_cliente(){
+
 }
 
 function atualizar_participantes(participantes) {

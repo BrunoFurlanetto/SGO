@@ -130,11 +130,12 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Produto corporativo: ') + 3, 8, 'Produto corporativo:')
         pdf_ordem.multi_cell(100, 8, ficha_de_evento.produto_corporativo.produto, ln=1)
     else:
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Perfíl do grupo: ') + 2, 8, 'Perfil do grupo:')
-        pdf_ordem.cell(pdf_ordem.get_string_width(ordem_de_servico.serie) + 10, 8, ordem_de_servico.serie)
+        if ordem_de_servico.serie:
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Perfíl do grupo: ') + 2, 8, 'Perfil do grupo:')
+            pdf_ordem.cell(pdf_ordem.get_string_width(ordem_de_servico.serie) + 10, 8, ordem_de_servico.serie)
 
-        if pdf_ordem.get_string_width(ordem_de_servico.serie) + 10 > 96:
-            pdf_ordem.ln()
+            if pdf_ordem.get_string_width(ordem_de_servico.serie) + 10 > 96:
+                pdf_ordem.ln()
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Professores: ') + 2, 8, 'Professores:')
         pdf_ordem.cell(10, 8, str(ordem_de_servico.n_professores))

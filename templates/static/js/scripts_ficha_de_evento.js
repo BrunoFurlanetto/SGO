@@ -105,6 +105,23 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
 function pegarDias(editando = false) {
     let check_in = $('#sessao_periodo_viagem #id_check_in')
     let check_out = $('#sessao_periodo_viagem #id_check_out')
+    const datas_tabela = $('#corpo-tabela-refeicao .data')
+
+    // if (datas_tabela.length > 0){
+    //     if (datas_tabela[0].value !== moment(check_in.val()).format('YYYY-MM-DD') || datas_tabela[datas_tabela.length - 1].value !== moment(check_out.val()).format('YYYY-MM-DD')) {
+    //         if (moment(check_in.val()).format('YYYY-MM-DD') < datas_tabela[0].value) {
+    //             let data = datas_tabela[0].value
+    //
+    //             while (moment(check_in.val()).format('YYYY-MM-DD') < data) {
+    //                 add_refeicao(moment(data.value).format('YYYY-MM-DD'))
+    //                 console.log('Foi')
+    //                 moment(data).add(1, 'Days')
+    //             }
+    //         }
+    //     }
+    //
+    //     return
+    // }
 
     if (check_out.val() !== '' && check_out.val() < check_in.val()) {
         check_out.val('')

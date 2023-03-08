@@ -216,6 +216,9 @@ class Responsavel(models.Model):
 
         return relacao.cliente
 
+    def listar_cargos(self):
+        return ', '.join([c.cargo for c in self.cargo.all()])
+
 
 class EventosCancelados(models.Model):
     estagios_evento = (
