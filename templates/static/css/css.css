@@ -259,6 +259,8 @@
 
 .conteudo-escala {
     width: 1000px;
+    padding: 5px;
+    border-radius: 10px;
     margin: auto auto 10%;
     height: auto;
     justify-content: center;

@@ -9,10 +9,10 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
-    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
+    pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
     teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
-    retornar_dados_grupo, verificar_disponiveis, verificar_disponiveis_grupo, salvar_escala, pegar_escalacoes, \
+    verificar_disponiveis, verificar_disponiveis_grupo, salvar_escala, pegar_escalacoes, \
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
 from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
@@ -155,9 +155,6 @@ def disponibilidadePeraltas(request):
         })
 
     if is_ajax(request):
-        if request.POST.get('novo_dia'):
-            return JsonResponse(alterar_dia_limite_peraltas(request.POST))
-
         if request.POST.get('id_monitor'):
             monitor = Monitor.objects.get(pk=request.POST.get('id_monitor'))
             removido = request.POST.get('dia_removido', None)
@@ -543,35 +540,23 @@ def editarEscalaHotelaria(request, data):
 
 @login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
-    coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
-    coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+    disponibilidades = DisponibilidadePeraltas.objects.all()
+    eventos_ordem_de_servico = OrdemDeServico.objects.all()
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
 
-    if coordenador_hotelaria or coordenador_acampamento:
-        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
-        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
-        eventos_ordem_de_servico = OrdemDeServico.objects.all()
-        fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+    for evento in eventos_ordem_de_servico:
+        evento.check_out += timedelta(days=1)
 
-        for evento in eventos_ordem_de_servico:
-            evento.check_out += timedelta(days=1)
+    for ficha in fichas_de_evento:
+        ficha.check_out += timedelta(days=1)
 
-        for ficha in fichas_de_evento:
-            ficha.check_out += timedelta(days=1)
-    else:
-        eventos_ordem_de_servico = fichas_de_evento = None
-        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor__usuario=request.user)
-        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(monitor__usuario=request.user)
+    disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
 
-    disponiveis_hotelaria = pegar_disponiveis(disponibilidades_hotelaria, 'hotelaria')
-    disponiveis_acampamento = pegar_disponiveis(disponibilidades_acampamento, 'acampamento')
-
-    return render(request, 'escala/calendario_disponibilidade_peraltas.html',
-                  {'disponiveis_hotelaria': disponiveis_hotelaria,
-                   'disponiveis_acampamento': disponiveis_acampamento,
-                   'eventos': eventos_ordem_de_servico,
-                   'fichas_de_evento': fichas_de_evento,
-                   'coordenador_hotelaria': coordenador_hotelaria,
-                   'coordenador_acampamento': coordenador_acampamento})
+    return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
+        'disponiveis_peraltas': disponiveis_peraltas,
+        'eventos': eventos_ordem_de_servico,
+        'fichas_de_evento': fichas_de_evento,
+    })
 
 
 @login_required(login_url='login')

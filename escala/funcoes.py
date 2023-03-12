@@ -164,7 +164,6 @@ def remover_dia(monitor, dia_removido):
     return
 
 
-
 def verificar_dias(dias_enviados, professor):
     """
     Está função é responsável pela verificação dos dias enviados pelo usuário para serem salvos na base de dados,
@@ -239,41 +238,6 @@ def verificar_mes_e_ano(dias):
     ano = datetime.strptime(dias.split(', ')[0], '%d/%m/%Y').year
 
     return mes, ano
-
-
-def alterar_dia_limite_peraltas(dados):
-    """
-    Função responsável por salvar a alteração do dia limite para envio das disponibilidade. Importante
-    ressaltar que o dia já deve vir correto, para isso foi implementado um verificação do dia, no frontend
-    com javascript antes de ele ser enviado.
-
-    :param dados: Setor que enviou a alteração e o novo dia limite
-    :return: Retorna se o novo dia foi salvo com sucesso ou não e uma mensagem padrão para
-    cada uma das respostas.
-    """
-    # ----------------------- No caso do setor que alterou a data tenha sido a hotelaria ----------------------------
-    if dados.get('setor') == 'hotelaria':
-        dia_limite_hotelaria = DiaLimiteHotelaria.objects.get(id=1)  # Dia limite atual
-
-        try:  # Tentativa de alteração da data
-            dia_limite_hotelaria.dia_limite_hotelaria = int(dados.get('novo_dia'))
-            dia_limite_hotelaria.save()
-        except:  # Caso tenha acontecido algum erro ainda não reportado
-            return {'tipo': 'error', 'mensagem': 'Houve um erro inesperado, por favor tente novamente mais tarde!'}
-        else:  # Novo dia salvo com sucesso
-            return {'tipo': 'sucesso', 'mensagem': 'Dia limite atualizado com sucesso!'}
-
-    # -------------------- No caso do setor que alterou o dia tenha sido o acampamento ----------------------------
-    if dados.get('setor') == 'acampamento':
-        dia_limite_acampamento = DiaLimiteAcampamento.objects.get(id=1)  # Dia limite atual
-
-        try:  # Tentativa de atualização do dia
-            dia_limite_acampamento.dia_limite_acampamento = int(dados.get('novo_dia'))
-            dia_limite_acampamento.save()
-        except:  # Caso tenha acontecido algum erro ainda não relatado
-            return {'tipo': 'error', 'mensagem': 'Houve um erro inesperado, por favor tente novamente mais tarde!'}
-        else:  # Novo dia salvo com sucesso
-            return {'tipo': 'sucesso', 'mensagem': 'Dia limite atualizado com sucesso!'}
 
 
 def pegar_clientes_data_selecionada(data):
@@ -684,36 +648,26 @@ def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, dispo
 
 
 def pegar_disponiveis(disponibilidades, setor):
-    disponiveis_hotelaria = []
-    disponiveis_acampamento = []
+    disponiveis_peraltas = []
     disponiveis_ceu = []
 
-    if setor == 'hotelaria':
+    if setor == 'peraltas':
         for disponivel in disponibilidades:
             datas = []
             temp = disponivel.dias_disponiveis.split(', ')
 
             for dia in temp:
-                datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+                try:
+                    datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
+                except ValueError:
+                    ...
 
-            disponiveis_hotelaria.append({'monitor': disponivel.monitor.usuario.get_full_name(),
-                                          'dias_disponiveis': datas})
+            disponiveis_peraltas.append({
+                'monitor': disponivel.monitor.usuario.get_full_name(),
+                'dias_disponiveis': datas
+            })
 
-        return disponiveis_hotelaria
-
-    elif setor == 'acampamento':
-        for disponivel in disponibilidades:
-            datas = []
-            temp = disponivel.dias_disponiveis.split(', ')
-
-            for dia in temp:
-                datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
-
-            disponiveis_acampamento.append({'monitor': disponivel.monitor.usuario.get_full_name(),
-                                            'dias_disponiveis': datas})
-
-        return disponiveis_acampamento
-
+        return disponiveis_peraltas
     else:
         for disponivel in disponibilidades:
             datas = []
@@ -722,8 +676,10 @@ def pegar_disponiveis(disponibilidades, setor):
             for dia in temp:
                 datas.append(datetime.strptime(dia, '%d/%m/%Y').strftime('%Y-%m-%d'))
 
-            disponiveis_ceu.append({'professor': disponivel.professor.usuario.get_full_name(),
-                                    'dias_disponiveis': datas})
+            disponiveis_ceu.append({
+                'professor': disponivel.professor.usuario.get_full_name(),
+                'dias_disponiveis': datas
+            })
 
         return disponiveis_ceu
 
