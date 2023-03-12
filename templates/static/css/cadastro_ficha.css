@@ -123,6 +123,9 @@
     width: 10px;
     margin-left: -15px;
 }
+.buton-plus:disabled{
+    cursor: pointer;
+}
 .button-cliente, .button-responsavel{
     width: auto;
     border: none;
