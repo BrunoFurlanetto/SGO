@@ -6,7 +6,7 @@ from ceu.models import Professores
 from escala.models import Disponibilidade
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
-    Enfermeira
+    Enfermeira, EscalaAcampamento, EscalaHotelaria
 
 
 def is_ajax(request):
@@ -271,7 +271,7 @@ def pegar_clientes_data_selecionada(data):
 
 def gerar_disponibilidade(id_cliente, data, editando=False):
     cliente = ClienteColegio.objects.get(id=int(id_cliente))
-    print(data)
+
     if editando:
         ficha_de_evento_cliente = FichaDeEvento.objects.get(
             cliente=cliente,
@@ -298,18 +298,11 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
         check_in = ordem_cliente.check_in
         check_out = ordem_cliente.check_out
 
-    disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(
+    disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
         dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')
     )
 
-    disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(
-        dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')
-    )
-
-    disponiveis_intervalo = pegar_disponiveis_intervalo(check_in,
-                                                        check_out,
-                                                        list(chain(disponibilidades_acampamento,
-                                                                   disponibilidades_hotelaria)))
+    disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_peraltas)
 
     return disponiveis_intervalo
 
@@ -340,30 +333,15 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
         biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
-        if isinstance(disponibilidade, DisponibilidadeAcampamento):
-            dados_monitor = {
-                'id': disponibilidade.monitor.id,
-                'nome': disponibilidade.monitor.usuario.get_full_name(),
-                'setor': 'acampamento',
-                'tecnica': disponibilidade.monitor.tecnica,
-                'areas': '-'.join(areas),
-                'biologo': biologo
-            }
-
-            if not disponibilidade_dupla(disponibilidade, monitores_disponiveis_intervalo, 'acampamento'):
-                monitores_disponiveis_intervalo.append(dados_monitor)
-        else:
-            dados_monitor = {
-                'id': disponibilidade.monitor.id,
-                'nome': disponibilidade.monitor.usuario.get_full_name(),
-                'setor': 'hotelaria',
-                'tecnica': disponibilidade.monitor.tecnica,
-                'areas': '-'.join(areas),
-                'biologo': biologo
-            }
-
-            if not disponibilidade_dupla(disponibilidade, monitores_disponiveis_intervalo, 'hotelaria'):
-                monitores_disponiveis_intervalo.append(dados_monitor)
+        dados_monitor = {
+            'id': disponibilidade.monitor.id,
+            'nome': disponibilidade.monitor.usuario.get_full_name(),
+            'setor': 'peraltas',
+            'tecnica': disponibilidade.monitor.tecnica,
+            'areas': '-'.join(areas),
+            'biologo': biologo
+        }
+        monitores_disponiveis_intervalo.append(dados_monitor)
 
     for enfermeira in Enfermeira.objects.all():
         dados_monitor = {
@@ -379,47 +357,6 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
     return monitores_disponiveis_intervalo
 
 
-def disponibilidade_dupla(disponibilidade, lista_disponiveis, setor):
-    for monitor_i in lista_disponiveis:
-        if monitor_i['id'] == disponibilidade.monitor.id and setor not in monitor_i['setor']:
-            monitor_i['setor'] += f' {setor}'
-
-            return True
-
-    return False
-
-
-def monitores_disponiveis(data):
-    mes = data.month
-    ano = data.year
-    monitores_diponiveis_hotelaria = []
-    monitores_disponiveis_acampamento = []
-
-    monitores_hotelaria = DisponibilidadeHotelaria.objects.filter(ano=ano).filter(mes=mes).filter(
-        dias_disponiveis__icontains=data.strftime('%d/%m/%Y'))
-    monitores_acampamento = DisponibilidadeAcampamento.objects.filter(ano=ano).filter(mes=mes).filter(
-        dias_disponiveis__icontains=data.strftime('%d/%m/%Y'))
-
-    monitores = list(chain(monitores_hotelaria, monitores_acampamento))
-
-    for monitor in monitores:
-        if isinstance(monitor, DisponibilidadeHotelaria):
-            monitores_diponiveis_hotelaria.append({'id': monitor.monitor.id,
-                                                   'nome': monitor.monitor.usuario.get_full_name(),
-                                                   'tecnica': monitor.monitor.tecnica,
-                                                   'areas': [monitor.monitor.som, monitor.monitor.video,
-                                                             monitor.monitor.fotos_e_filmagens]})
-        else:
-            monitores_disponiveis_acampamento.append({'id': monitor.monitor.id,
-                                                      'nome': monitor.monitor.usuario.get_full_name(),
-                                                      'tecnica': monitor.monitor.tecnica,
-                                                      'areas': [monitor.monitor.som, monitor.monitor.video,
-                                                                monitor.monitor.fotos_e_filmagens]})
-
-    return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
-
-
-# TODO: Rever tudo após refatoração do banco
 def verificar_escalas(id_monitor, data_selecionada, id_cliente):
     monitor_escalado = Monitor.objects.get(id=int(id_monitor))
     escalas_monitor_hotelaria = None
@@ -469,15 +406,14 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
 
 
 def escalados_para_o_evento(dados_evento):
-    cliente = ClienteColegio.objects.get(nome_fantasia=dados_evento.get('cliente'))
-    check_in_evento = datetime.strptime(dados_evento.get('check_in_evento'), '%Y-%m-%dT%H:%M')
-    check_out_evento = datetime.strptime(dados_evento.get('check_out_evento'), '%Y-%m-%dT%H:%M')
+    print(dados_evento)
+    escala = EscalaAcampamento.objects.get(pk=dados_evento.get('id_escala'))
+    cliente = escala.cliente
+    check_in_evento = escala.check_in_cliente
+    check_out_evento = escala.check_out_cliente
     monitores_escalados = []
     monitores_embarque = []
     enfermeiras = []
-
-    escala_evento_cliente = EscalaAcampamento.objects.get(cliente=cliente, check_in_cliente=check_in_evento,
-                                                          check_out_cliente=check_out_evento)
 
     try:
         ordem_evento_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente,
@@ -486,19 +422,19 @@ def escalados_para_o_evento(dados_evento):
     except OrdemDeServico.DoesNotExist:
         ordem_evento_cliente = False
 
-    for monitor in escala_evento_cliente.monitores_acampamento.all():
+    for monitor in escala.monitores_acampamento.all():
         if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
-    for monitor in escala_evento_cliente.monitores_embarque.all():
+    for monitor in escala.monitores_embarque.all():
         if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
             monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
-    for enfermeira in escala_evento_cliente.enfermeiras.all():
+    for enfermeira in escala.enfermeiras.all():
         enfermeiras.append({'nome': enfermeira.usuario.get_full_name(), 'coordenador': False})
 
     return {
@@ -509,142 +445,6 @@ def escalados_para_o_evento(dados_evento):
         },
         'id_cliente': cliente.id
     }
-
-
-def teste_monitores_nao_escalados_acampamento(disponiveis_acampamento, escalados, id_escalados):
-    restante_acampamento = []
-
-    for monitor in disponiveis_acampamento:
-        adiciona = True
-
-        if isinstance(escalados, EscalaAcampamento):
-            for escalado in escalados:
-                if monitor['id'] == escalado.id:
-
-                    if monitor['id'] not in id_escalados:
-                        id_escalados.append(monitor['id'])
-
-                    adiciona = False
-                    break
-
-            if adiciona:
-                if monitor['tecnica']:
-                    monitor['especialidade'] = especialidade_monitor(monitor)
-
-                restante_acampamento.append(monitor)
-        else:
-            for escalado in escalados:
-                if monitor['id'] == escalado.id:
-
-                    if monitor['id'] not in id_escalados:
-                        id_escalados.append(monitor['id'])
-
-                    adiciona = False
-                    break
-
-            if adiciona:
-                if monitor['tecnica']:
-                    monitor['especialidade'] = especialidade_monitor(monitor)
-
-                restante_acampamento.append(monitor)
-
-    return restante_acampamento, id_escalados
-
-
-def teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria, escalados, id_escalados):
-    restante_hotelaria = []
-
-    for monitor in disponiveis_hotelaria:
-        adiciona = True
-
-        if isinstance(escalados, EscalaHotelaria):
-            for escalado in escalados:
-                if monitor['id'] == escalado.id:
-
-                    if monitor['id'] not in id_escalados:
-                        id_escalados.append(monitor['id'])
-
-                    adiciona = False
-                    break
-
-            if adiciona:
-                if monitor['tecnica']:
-                    monitor['especialidade'] = especialidade_monitor(monitor)
-
-                restante_hotelaria.append(monitor)
-        else:
-            for escalado in escalados:
-                if monitor['id'] == escalado.id:
-
-                    if monitor['id'] not in id_escalados:
-                        id_escalados.append(monitor['id'])
-
-                    adiciona = False
-                    break
-
-            if adiciona:
-                if monitor['tecnica']:
-                    monitor['especialidade'] = especialidade_monitor(monitor)
-
-                restante_hotelaria.append(monitor)
-
-    return restante_hotelaria, id_escalados
-
-
-def verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, disponiveis_hotelaria):
-    escalados_data = []
-
-    if isinstance(escalados, EscalaHotelaria):
-        for monitor in escalados.monitores_hotelaria.all():
-            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name(), 'tecnica': monitor.tecnica}
-            setor = []
-
-            for disponivel in disponiveis_acampamento:
-                if disponivel['id'] == monitor.id:
-                    setor.append('acampamento')
-
-                    if disponivel['tecnica']:
-                        setor.append('tecnica')
-
-                    break
-
-            for disponivel in disponiveis_hotelaria:
-                if disponivel['id'] == monitor.id:
-                    setor.append('hotelaria')
-
-                    if disponivel['tecnica']:
-                        setor.append('tecnica')
-
-                    break
-
-            dados_monitor['setor'] = ' '.join(setor)
-            escalados_data.append(dados_monitor)
-    else:
-        for monitor in escalados.monitores_acampamento.all():
-            dados_monitor = {'id': monitor.id, 'nome': monitor.usuario.get_full_name(), 'tecnica': monitor.tecnica}
-            setor = []
-
-            for disponivel in disponiveis_acampamento:
-                if disponivel['id'] == monitor.id:
-                    setor.append('acampamento')
-
-                    if disponivel['tecnica']:
-                        setor.append('tecnica')
-
-                    break
-
-            for disponivel in disponiveis_hotelaria:
-                if disponivel['id'] == monitor.id:
-                    setor.append('hotelaria')
-
-                    if disponivel['tecnica']:
-                        setor.append('tecnica')
-
-                    break
-
-            dados_monitor['setor'] = ' '.join(setor)
-            escalados_data.append(dados_monitor)
-    return escalados_data
 
 
 def pegar_disponiveis(disponibilidades, setor):
@@ -698,18 +498,6 @@ def especialidade_monitor(monitor_escalado):
         especialidades.append('fotos_e_filmagens')
 
     return ' '.join(especialidades)
-
-
-def salvar_escala(dados):
-    if dados.get('cliente') != '':
-        cliente = ClienteColegio.objects.get(id=dados.get('cliente'))
-        nova_escala = EscalaAcampamento.objects.create(
-            cliente=cliente,
-            check_in_cliente=datetime.strptime(dados.get('check_in'), '%Y-%m-%dT%H:%M'),
-            check_out_cliente=datetime.strptime(dados.get('check_out'), '%Y-%m-%dT%H:%M'),
-        )
-        nova_escala.monitores_acampamento.set(dados.getlist('id_monitores[]'))
-        nova_escala.save()
 
 
 def pegar_escalacoes(escala, acampamento=True):

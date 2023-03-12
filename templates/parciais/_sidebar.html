@@ -171,10 +171,10 @@
                     {% endif %}
 
                     {% if perms.peraltas.view_escalaacampamento %}
-                        <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
                         <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
+                        <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
 
-                        {% if perms.peraltas.view_escalaacampamento %}
+                        {% if perms.peraltas.add_escalaacampamento %}
                             <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de disponibilidade</a></li>
                         {% endif %}
 
