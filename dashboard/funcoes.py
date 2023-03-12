@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from escala.models import Disponibilidade, DiaLimite
 from unidecode import unidecode
 
-from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria
+from peraltas.models import DisponibilidadePeraltas
 
 
 # ------------ Função necessária para verificar se é o ajax que está mandando o POST para o servidor -------------------
@@ -123,51 +123,33 @@ def teste_aviso(hora_login, usuario, id_usuario):
 
 
 # --------------------------- Função apra testar o aviso de disponibilidade da monitoria -------------------------------
-def teste_aviso_monitoria(hora_login, monitor, dia_limite_acampamento, dia_limite_hotelaria):
+def teste_aviso_monitoria(hora_login, monitor, dia_limite_peraltas):
     agora = datetime.now()
-    dia_acampamento = dia_limite_acampamento.dia_limite_acampamento
-    dia_hotelaria = dia_limite_hotelaria.dia_limite_hotelaria
+    dia_limite = dia_limite_peraltas.dia_limite_peraltas
     tempo_logado = timedelta(hours=agora.hour, minutes=agora.minute, seconds=agora.second)
     tempo_logado -= timedelta(hours=hora_login.hour, minutes=hora_login.minute, seconds=hora_login.second)
-    mensagem_acampamento = mensagem_hotelaria = None
+    mensagem_monitor = None
 
     # Consultando as disponibilidadess
     if datetime.now().month != 12:
-        consulta_acampamento = DisponibilidadeAcampamento.objects.filter(monitor=monitor, mes=agora.month + 1)
-        consulta_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor=monitor, mes=agora.month + 1)
+        consulta_peraltas = DisponibilidadePeraltas.objects.filter(monitor=monitor, mes=agora.month + 1)
     else:
-        consulta_acampamento = DisponibilidadeAcampamento.objects.filter(monitor=monitor, mes=1, ano=agora.year + 1)
-        consulta_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor=monitor, mes=1, ano=agora.year + 1)
-    print()
+        consulta_peraltas = DisponibilidadePeraltas.objects.filter(monitor=monitor, mes=1, ano=agora.year + 1)
+
     # Verificando mensagem para o acampamento
-    if len(consulta_acampamento) == 0:
+    if len(consulta_peraltas) == 0:
         if tempo_logado.seconds < 30:
-            if dia_acampamento - 5 < agora.day < dia_acampamento:
-                mensagem_acampamento = f'''
-                    Atenção, você tem até o dia {dia_acampamento} para lançar a disponibilidade do <b>acampamento</b>
+            if dia_limite - 5 < agora.day < dia_limite:
+                mensagem_monitor = f'''
+                    Atenção, você tem até o dia {dia_limite} para lançar a disponibilidade do <b>acampamento</b>
                     para o mês seguinte. Por favor vá em <b>Escala</b> &rarr; <b>Disponibilidade</b> e informe os dias
                     que estará disponiveis para o <b>acampamento</b>.
                 '''
-            elif agora.day > dia_acampamento:
-                mensagem_acampamento = f'''
+            elif agora.day > dia_limite:
+                mensagem_monitor = f'''
                     Atenção, você perdeu a data para lançar a disponibilidade do <b>acampamento</b> para o mês seguinte.
                     Por favor entre em contato com o coordenador do seu setor, para que consiga informar a 
                     disponibilidade do mês seguinte.
                 '''
-    # Verificando mensagem para a hotelaria
-    if len(consulta_hotelaria) == 0:
-        if tempo_logado.seconds < 30:
-            if dia_hotelaria - 5 < agora.day < dia_hotelaria:
-                mensagem_hotelaria = f'''
-                    Atenção, você tem até o dia {dia_hotelaria} para
-                    lançar a disponibi lidade da <b>hotelaria</b> para o mês seguinte. Por favor
-                    vá em <b>Escala</b> &rarr; <b>Disponibilidade</b> e informe os dias que estará
-                    disponiveis para a <b>hotelaria</b>.
-                '''
-            elif agora.day > dia_hotelaria:
-                mensagem_hotelaria = f'''
-                    Atenção, você perdeu a data para lançar a disponibilidade da <b>hotelaria</b>
-                    para o mês seguinte. Por favor entre em contato com o coordenador do seu
-                    setor, para que consiga informar a disponibilidade do mês seguinte.
-                '''
-    return mensagem_acampamento, mensagem_hotelaria
+
+    return mensagem_monitor

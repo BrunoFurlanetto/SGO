@@ -13,13 +13,12 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
     teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
     retornar_dados_grupo, verificar_disponiveis, verificar_disponiveis_grupo, salvar_escala, pegar_escalacoes, \
-    pegar_disponiveis_intervalo, procurar_ficha_de_evento
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
 from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
-    EscalaHotelaria
-from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
-from projetoCEU.utils import verificar_grupo, email_error
+from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria
+from peraltas.models import Monitor, DisponibilidadePeraltas
+from projetoCEU.utils import email_error
 
 
 @login_required(login_url='login')
@@ -131,111 +130,56 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-    dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
-    dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
+    dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
 
     if request.method != "POST":
-        antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
-        antes_dia_limite_hotelaria = True if datetime.now().day < dia_limite_hotelaria.dia_limite_hotelaria else False
+        antes_dia_limite_peraltas = True if datetime.now().day < dia_limite_peraltas.dia_limite_peraltas else False
 
-        coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
-        coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-        monitores = Monitor.objects.all()
+        coordenador_peraltas = request.user.has_perm('peraltas.add_escalaacampamento')
+
+        if coordenador_peraltas:
+            monitores = Monitor.objects.all()
+            disponibilidades = DisponibilidadePeraltas.objects.all()
+        else:
+            monitores = Monitor.objects.filter(usuario=request.user)
+            disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores[0])
+
+        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
 
         return render(request, 'escala/disponibilidade-peraltas.html', {
-            'coordenador_acampamento': coordenador_acampamento,
-            'coordenador_hotelaria': coordenador_hotelaria,
-            'dia_limite_acampamento': dia_limite_acampamento.dia_limite_acampamento,
-            'dia_limite_hotelaria': dia_limite_hotelaria.dia_limite_hotelaria,
+            'coordenador_peraltas': coordenador_peraltas,
+            'dia_limite_peraltas': dia_limite_peraltas.dia_limite_peraltas,
+            'disponibilidades_peraltas': disponibilidades_peraltas,
             'monitores': monitores,
-            'antes_dia_limite_acampamento': antes_dia_limite_acampamento,
-            'antes_dia_limite_hotelaria': antes_dia_limite_hotelaria,
+            'antes_dia_limite_peraltas': antes_dia_limite_peraltas,
         })
 
     if is_ajax(request):
         if request.POST.get('novo_dia'):
             return JsonResponse(alterar_dia_limite_peraltas(request.POST))
 
-        if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
-            monitor = Monitor.objects.get(id=int(request.POST.get('monitor')))
-        else:
-            monitor = Monitor.objects.get(usuario=request.user)
+        if request.POST.get('id_monitor'):
+            monitor = Monitor.objects.get(pk=request.POST.get('id_monitor'))
+            removido = request.POST.get('dia_removido', None)
+            adicionado = request.POST.get('dia_adicionado', None)
+            dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
+            dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
 
-        dias = verificar_dias(request.POST.get('datas_disponiveis'),
-                              Monitor.objects.get(usuario=monitor.usuario),
-                              peraltas=request.POST.get('peraltas'))
+            if request.POST.get('adicionar_dia'):
+                adicionado = adicionar_dia(monitor, dia_adicionado)
 
-        if dias[0]:
-            n_dias = contar_dias(dias[0])
-            mes_e_ano_cadastro = verificar_mes_e_ano(dias[0])
-        else:
-            n_dias = 0
-            mes_e_ano_cadastro = verificar_mes_e_ano(dias[1])
+                return HttpResponse(adicionado)
 
-        if request.POST.get('peraltas') == 'acampamento':
-            ja_cadastrado = DisponibilidadeAcampamento.objects.filter(monitor=monitor,
-                                                                      mes=mes_e_ano_cadastro[0],
-                                                                      ano=mes_e_ano_cadastro[1])
-        else:
-            ja_cadastrado = DisponibilidadeHotelaria.objects.filter(monitor=monitor,
-                                                                    mes=mes_e_ano_cadastro[0],
-                                                                    ano=mes_e_ano_cadastro[1])
+            if request.POST.get('alterar_dia'):
+                remover_dia(monitor, dia_removido)
+                adicionar_dia(monitor, dia_adicionado)
 
-        try:
-            if ja_cadastrado:
-                if dias[0]:
-                    for cadastro in ja_cadastrado:
-                        ja_cadastrado.update(dias_disponiveis=cadastro.dias_disponiveis + ', ' + dias[0],
-                                             n_dias=cadastro.n_dias + n_dias)
+                return HttpResponse()
 
-                        if dias[1]:
-                            if dias[2]:
-                                msg = f'Dias {dias[1]} não cadastrados, por já estarem na base de dados ou exceder o limite de dias por mês!'
-                                return JsonResponse({'tipo': 'sucesso',
-                                                     'mensagem': msg})
-                            else:
-                                msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
-                                return JsonResponse({'tipo': 'sucesso',
-                                                     'mensagem': msg})
-                        else:
-                            return JsonResponse({'tipo': 'sucesso',
-                                                 'mensagem': 'Disponibilidade salva com sucesso!'})
-                else:
-                    if dias[2]:
-                        return JsonResponse({
-                            'tipo': 'aviso',
-                            'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'
-                        })
-                    else:
-                        return JsonResponse({
-                            'tipo': 'aviso',
-                            'mensagem': f'Número máximo de dias já cadastrado na base de dados (22 dias por mês).'
-                        })
-            else:
-                if request.POST.get('peraltas') == 'acampamento':
-                    dias_disponiveis = DisponibilidadeAcampamento(
-                        monitor=monitor,
-                        mes=mes_e_ano_cadastro[0],
-                        ano=mes_e_ano_cadastro[1],
-                        n_dias=n_dias,
-                        dias_disponiveis=dias[0]
-                    )
-                else:
-                    dias_disponiveis = DisponibilidadeHotelaria(
-                        monitor=monitor,
-                        mes=mes_e_ano_cadastro[0],
-                        ano=mes_e_ano_cadastro[1],
-                        n_dias=n_dias,
-                        dias_disponiveis=dias[0]
-                    )
+            if request.POST.get('remover_disponibilidade'):
+                remover_dia(monitor, dia_removido)
 
-                dias_disponiveis.save()
-                return JsonResponse({'tipo': 'sucesso',
-                                     'mensagem': 'Disponibilidade salva com sucesso'})
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            return JsonResponse({'tipo': 'erro',
-                                 'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
+                return HttpResponse()
 
 
 @login_required(login_url='login')
@@ -268,7 +212,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             if request.GET.get('cliente'):
                 cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
                 inicio_evento = termino_evento = None
-                ficha_de_evento,  ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
+                ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
                 if ordem_de_servico:
                     inicio_evento = ordem_de_servico.check_in
@@ -398,12 +342,12 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                         disponiveis.append(monitor_teste)
 
             return render(request, 'escala/escalar_monitores.html', {
-                    'data': data_selecionada,
-                    'setor': setor,
-                    'disponiveis': disponiveis,
-                    'escalados': escalado,
-                    'id_escala': escala_hotelaria.id
-                })
+                'data': data_selecionada,
+                'setor': setor,
+                'disponiveis': disponiveis,
+                'escalados': escalado,
+                'id_escala': escala_hotelaria.id
+            })
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):

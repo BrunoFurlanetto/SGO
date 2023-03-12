@@ -38,7 +38,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
         for grupo in ficha_de_evento.atividades_peraltas.all():
             atividades_peraltas.append(grupo.grupo)
 
-        if ficha_de_evento.informacoes_adcionais.transporte:
+        if ficha_de_evento.informacoes_adcionais.transporte:  # TODO: Rever após refatoração do banco
             try:
                 escala = EscalaAcampamento.objects.get(ficha_de_evento=ficha_de_evento)
             except EscalaAcampamento.DoesNotExist:

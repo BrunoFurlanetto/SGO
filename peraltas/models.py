@@ -424,7 +424,7 @@ class FichaDeEvento(models.Model):
         return dados_locacoes
 
 
-class DisponibilidadeAcampamento(models.Model):
+class DisponibilidadePeraltas(models.Model):
     meses = (
         (1, 'Janeiro'),
         (2, 'Fevereiro'),
@@ -447,39 +447,11 @@ class DisponibilidadeAcampamento(models.Model):
     n_dias = models.IntegerField()
 
 
-class DisponibilidadeHotelaria(models.Model):
-    meses = (
-        (1, 'Janeiro'),
-        (2, 'Fevereiro'),
-        (3, 'Março'),
-        (4, 'Abril'),
-        (5, 'Maio'),
-        (6, 'Junho'),
-        (7, 'Julho'),
-        (8, 'Agosto'),
-        (9, 'Setembro'),
-        (10, 'Outubro'),
-        (11, 'Novembro'),
-        (12, 'Dezembro'),
-    )
-
-    monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
-    dias_disponiveis = models.TextField(max_length=500)
-    mes = models.IntegerField(choices=meses)
-    ano = models.CharField(max_length=20)
-    n_dias = models.IntegerField()
-
-
-class DiaLimiteAcampamento(models.Model):
-    dia_limite_acampamento = models.PositiveIntegerField()
+class DiaLimitePeraltas(models.Model):
+    dia_limite_peraltas = models.PositiveIntegerField()
 
 
 class EscalaAcampamento(models.Model):
-    escolha_setor = (
-        ('ceu', 'CEU'),
-        ('peraltas', 'Peraltas'),
-    )
-
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
@@ -487,11 +459,6 @@ class EscalaAcampamento(models.Model):
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
-    setor = models.CharField(max_length=8, choices=escolha_setor)
-
-
-class DiaLimiteHotelaria(models.Model):
-    dia_limite_hotelaria = models.PositiveIntegerField()
 
 
 class EscalaHotelaria(models.Model):

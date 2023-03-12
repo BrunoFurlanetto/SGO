@@ -1,11 +1,12 @@
+import json
 from datetime import datetime, timedelta
 from itertools import chain
 
 from ceu.models import Professores
 from escala.models import Disponibilidade
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, Monitor, DiaLimiteHotelaria, \
-    DiaLimiteAcampamento, FichaDeEvento, ClienteColegio, EscalaAcampamento, EscalaHotelaria, Enfermeira
+from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
+    Enfermeira
 
 
 def is_ajax(request):
@@ -88,15 +89,90 @@ def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):
     return ','.join(equipe)
 
 
-def verificar_dias(dias_enviados, professor, peraltas=None):
+def transformar_disponibilidades(disponibilidades):
+    lista_disponibilidades_formatadas = []
+
+    for i, disponibilidade in enumerate(disponibilidades, start=1):
+        dias_disponiveis = disponibilidade.dias_disponiveis.split(', ')
+        monitor = disponibilidade.monitor
+
+        for j, dia_ in enumerate(dias_disponiveis, start=1):
+            try:
+                dia = datetime.strptime(dia_, '%d/%m/%Y').strftime('%Y-%m-%d')
+            except ValueError:
+                ...
+            else:
+                disponibilidade_formatada = {
+                    'id': f'disponibilidade_{disponibilidade.monitor.id}_{dia}',
+                    'title': monitor.usuario.get_full_name(),
+                    'start': f'{dia}',
+                    'extendedProps': {
+                        'id_monitor': f'{monitor.id}'
+                    }
+                }
+
+                lista_disponibilidades_formatadas.append(disponibilidade_formatada)
+
+    return json.dumps(lista_disponibilidades_formatadas)
+
+
+def adicionar_dia(monitor, dia_adicionado):
+    try:
+        disponibilidade_existente = DisponibilidadePeraltas.objects.get(
+            monitor=monitor,
+            mes=dia_adicionado.month,
+            ano=dia_adicionado.year
+        )
+    except DisponibilidadePeraltas.DoesNotExist:
+        DisponibilidadePeraltas.objects.create(
+            monitor=monitor,
+            dias_disponiveis=dia_adicionado.strftime('%d/%m/%Y'),
+            mes=dia_adicionado.month,
+            ano=dia_adicionado.year,
+            n_dias=1
+        )
+
+        return True
+    else:
+        if disponibilidade_existente.n_dias < 22:
+            disponibilidade_existente.dias_disponiveis += f', {dia_adicionado.strftime("%d/%m/%Y")}'
+            disponibilidade_existente.n_dias += 1
+            disponibilidade_existente.save()
+
+            return True
+        else:
+            return False
+
+
+def remover_dia(monitor, dia_removido):
+    disponibilidade_cadastrada = DisponibilidadePeraltas.objects.get(
+        monitor=monitor,
+        mes=dia_removido.month,
+        ano=dia_removido.year
+    )
+
+    try:
+        lista_dias = disponibilidade_cadastrada.dias_disponiveis.split(', ')
+        lista_dias.remove(dia_removido.strftime('%d/%m/%Y'))
+        disponibilidade_cadastrada.dias_disponiveis = ', '.join(lista_dias)
+        disponibilidade_cadastrada.n_dias -= 1
+        disponibilidade_cadastrada.save()
+    except Exception as e:
+        print(e)
+        return
+
+    return
+
+
+
+def verificar_dias(dias_enviados, professor):
     """
     Está função é responsável pela verificação dos dias enviados pelo usuário para serem salvos na base de dados,
     verifica dentre todas as datas as que já estão salvas, para que não haja duplicatas e retorna duas listas, uma
     com os dias a serem salvos e a outra com as datas já salvas anteriormente.
 
     :param dias_enviados: Dias enviados pelo usuário para ser cadastrado na base de dados
-    :param professor: Professor ou monitor que enviou os dias
-    :param peraltas: Se o usuário que enviou os dias é do acampamento Peraltas ou da hotelaria
+    :param professor: Professor que enviou os dias
     :return: No final é retornado duas listas, a primeira com os os dias que serão salvos na base de dados
     e a segunda com os dias que o usuário enviou e que já estão salvos. Importante para que os dias já salvos
     sejam mostrado na tela para o usuário.
@@ -109,24 +185,10 @@ def verificar_dias(dias_enviados, professor, peraltas=None):
     dias_a_cadastrar = []  # Lista para os dias que serão salvos na base de dados
     dias_limite = False
 
-    # Verifica a intancia do usuário que enviou a disponibilidade, se é professor do CEU ou do Peraltas
-    # para poder pegar os dias já cadastrados pelo usuário no model correto
-    if isinstance(professor, Professores):
-        try:
-            dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
-        except Disponibilidade.DoesNotExist:
-            dias_cadastrados = False
-    else:
-        if peraltas == 'acampamento':  # Em caso de ser do Peraltas, verifica se a disponibildade vai pro acampamento
-            try:
-                dias_cadastrados = DisponibilidadeAcampamento.objects.get(monitor=professor, mes=mes, ano=ano)
-            except DisponibilidadeAcampamento.DoesNotExist:
-                dias_cadastrados = False
-        else:  # Ou se vai para a hotelaria
-            try:
-                dias_cadastrados = DisponibilidadeHotelaria.objects.get(monitor=professor, mes=mes, ano=ano)
-            except DisponibilidadeHotelaria.DoesNotExist:
-                dias_cadastrados = False
+    try:
+        dias_cadastrados = Disponibilidade.objects.get(professor=professor, mes=mes, ano=ano)
+    except Disponibilidade.DoesNotExist:
+        dias_cadastrados = False
 
     if dias_cadastrados:  # Primeiro verifica se o usuário já cadastrou algum dia
         lista_dias_cadastrados = dias_cadastrados.dias_disponiveis.split(', ')  # Lista de dias já cadastrado
@@ -393,6 +455,7 @@ def monitores_disponiveis(data):
     return monitores_diponiveis_hotelaria, monitores_disponiveis_acampamento
 
 
+# TODO: Rever tudo após refatoração do banco
 def verificar_escalas(id_monitor, data_selecionada, id_cliente):
     monitor_escalado = Monitor.objects.get(id=int(id_monitor))
     escalas_monitor_hotelaria = None
