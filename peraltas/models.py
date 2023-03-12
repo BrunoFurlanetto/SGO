@@ -19,6 +19,7 @@ class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11)
     cidade_horigem = models.CharField(max_length=255, verbose_name='Moradia', blank=True)
+    valor_diaria = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)
@@ -440,7 +441,8 @@ class DisponibilidadePeraltas(models.Model):
         (12, 'Dezembro'),
     )
 
-    monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE)
+    monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE, null=True, blank=True)
+    enfermeira = models.ForeignKey(Enfermeira, on_delete=models.CASCADE, null=True, blank=True)
     dias_disponiveis = models.TextField(max_length=500)
     mes = models.IntegerField(choices=meses)
     ano = models.CharField(max_length=20)

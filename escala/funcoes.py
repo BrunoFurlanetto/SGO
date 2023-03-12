@@ -95,42 +95,71 @@ def transformar_disponibilidades(disponibilidades):
     for i, disponibilidade in enumerate(disponibilidades, start=1):
         dias_disponiveis = disponibilidade.dias_disponiveis.split(', ')
         monitor = disponibilidade.monitor
-
+        enfermeira = disponibilidade.enfermeira
+        print(monitor, enfermeira)
         for j, dia_ in enumerate(dias_disponiveis, start=1):
             try:
                 dia = datetime.strptime(dia_, '%d/%m/%Y').strftime('%Y-%m-%d')
             except ValueError:
                 ...
             else:
-                disponibilidade_formatada = {
-                    'id': f'disponibilidade_{disponibilidade.monitor.id}_{dia}',
-                    'title': monitor.usuario.get_full_name(),
-                    'start': f'{dia}',
-                    'extendedProps': {
-                        'id_monitor': f'{monitor.id}'
+                if monitor:
+                    disponibilidade_formatada = {
+                        'id': f'disponibilidade_{disponibilidade.monitor.id}_{dia}',
+                        'title': monitor.usuario.get_full_name(),
+                        'start': f'{dia}',
+                        'extendedProps': {
+                            'id_monitor': f'{monitor.id}',
+                            'color': '#FF8C00',
+                        }
                     }
-                }
+                else:
+                    disponibilidade_formatada = {
+                        'id': f'disponibilidade_{disponibilidade.enfermeira.id}_{dia}',
+                        'title': enfermeira.usuario.get_full_name(),
+                        'start': f'{dia}',
+                        'extendedProps': {
+                            'id_enfermeira': f'{enfermeira.id}',
+                            'color': '#ff7474',
+                        }
+                    }
 
                 lista_disponibilidades_formatadas.append(disponibilidade_formatada)
 
     return json.dumps(lista_disponibilidades_formatadas)
 
 
-def adicionar_dia(monitor, dia_adicionado):
+def adicionar_dia(monitor, dia_adicionado, enfermeira):
     try:
-        disponibilidade_existente = DisponibilidadePeraltas.objects.get(
-            monitor=monitor,
-            mes=dia_adicionado.month,
-            ano=dia_adicionado.year
-        )
+        if monitor:
+            disponibilidade_existente = DisponibilidadePeraltas.objects.get(
+                monitor=monitor,
+                mes=dia_adicionado.month,
+                ano=dia_adicionado.year
+            )
+        else:
+            disponibilidade_existente = DisponibilidadePeraltas.objects.get(
+                enfermeira=enfermeira,
+                mes=dia_adicionado.month,
+                ano=dia_adicionado.year
+            )
     except DisponibilidadePeraltas.DoesNotExist:
-        DisponibilidadePeraltas.objects.create(
-            monitor=monitor,
-            dias_disponiveis=dia_adicionado.strftime('%d/%m/%Y'),
-            mes=dia_adicionado.month,
-            ano=dia_adicionado.year,
-            n_dias=1
-        )
+        if monitor:
+            DisponibilidadePeraltas.objects.create(
+                monitor=monitor,
+                dias_disponiveis=dia_adicionado.strftime('%d/%m/%Y'),
+                mes=dia_adicionado.month,
+                ano=dia_adicionado.year,
+                n_dias=1
+            )
+        else:
+            DisponibilidadePeraltas.objects.create(
+                enfermeira=enfermeira,
+                dias_disponiveis=dia_adicionado.strftime('%d/%m/%Y'),
+                mes=dia_adicionado.month,
+                ano=dia_adicionado.year,
+                n_dias=1
+            )
 
         return True
     else:
@@ -144,12 +173,19 @@ def adicionar_dia(monitor, dia_adicionado):
             return False
 
 
-def remover_dia(monitor, dia_removido):
-    disponibilidade_cadastrada = DisponibilidadePeraltas.objects.get(
-        monitor=monitor,
-        mes=dia_removido.month,
-        ano=dia_removido.year
-    )
+def remover_dia(monitor, dia_removido, enfermeira):
+    if monitor:
+        disponibilidade_cadastrada = DisponibilidadePeraltas.objects.get(
+            monitor=monitor,
+            mes=dia_removido.month,
+            ano=dia_removido.year
+        )
+    else:
+        disponibilidade_cadastrada = DisponibilidadePeraltas.objects.get(
+            enfermeira=enfermeira,
+            mes=dia_removido.month,
+            ano=dia_removido.year
+        )
 
     try:
         lista_dias = disponibilidade_cadastrada.dias_disponiveis.split(', ')
@@ -328,30 +364,30 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
     for disponibilidade in disponiveis_intervalo:
         areas = []
 
-        areas.append('som') if disponibilidade.monitor.som else ...
-        areas.append('video') if disponibilidade.monitor.video else ...
-        areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
-        biologo = 'biologo' if disponibilidade.monitor.biologo else ''
+        if disponibilidade.monitor:
+            areas.append('som') if disponibilidade.monitor.som else ...
+            areas.append('video') if disponibilidade.monitor.video else ...
+            areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
+            biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
-        dados_monitor = {
-            'id': disponibilidade.monitor.id,
-            'nome': disponibilidade.monitor.usuario.get_full_name(),
-            'setor': 'peraltas',
-            'tecnica': disponibilidade.monitor.tecnica,
-            'areas': '-'.join(areas),
-            'biologo': biologo
-        }
-        monitores_disponiveis_intervalo.append(dados_monitor)
+            dados_monitor = {
+                'id': disponibilidade.monitor.id,
+                'nome': disponibilidade.monitor.usuario.get_full_name(),
+                'setor': 'peraltas',
+                'tecnica': disponibilidade.monitor.tecnica,
+                'areas': '-'.join(areas),
+                'biologo': biologo
+            }
+        else:
+            dados_monitor = {
+                'id': disponibilidade.enfermeira.id,
+                'nome': disponibilidade.enfermeira.usuario.get_full_name(),
+                'setor': 'enfermeira',
+                'tecnica': False,
+                'areas': '',
+                'biologo': False
+            }
 
-    for enfermeira in Enfermeira.objects.all():
-        dados_monitor = {
-            'id': enfermeira.id,
-            'nome': enfermeira.usuario.get_full_name(),
-            'setor': 'enfermeira',
-            'tecnica': False,
-            'areas': '',
-            'biologo': False
-        }
         monitores_disponiveis_intervalo.append(dados_monitor)
 
     return monitores_disponiveis_intervalo
@@ -406,7 +442,6 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
 
 
 def escalados_para_o_evento(dados_evento):
-    print(dados_evento)
     escala = EscalaAcampamento.objects.get(pk=dados_evento.get('id_escala'))
     cliente = escala.cliente
     check_in_evento = escala.check_in_cliente
@@ -462,10 +497,16 @@ def pegar_disponiveis(disponibilidades, setor):
                 except ValueError:
                     ...
 
-            disponiveis_peraltas.append({
-                'monitor': disponivel.monitor.usuario.get_full_name(),
-                'dias_disponiveis': datas
-            })
+            if disponivel.monitor:
+                disponiveis_peraltas.append({
+                    'monitor': disponivel.monitor.usuario.get_full_name(),
+                    'dias_disponiveis': datas
+                })
+            else:
+                disponiveis_peraltas.append({
+                    'monitor': disponivel.enfermeira.usuario.get_full_name(),
+                    'dias_disponiveis': datas
+                })
 
         return disponiveis_peraltas
     else:

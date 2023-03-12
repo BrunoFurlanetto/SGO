@@ -63,7 +63,6 @@ function trocar_card_monitor_escalado(monitor) {
 function escalado(espaco) {
     const monitores = espaco.querySelectorAll('.card-monitor')
     const tipo_escalacao = espaco.id
-
     // ---------------------------------este pra retorno na disponibilidade correta ------------------------------------
     if (tipo_escalacao === 'monitores_acampamento') {
         let lista_de_ids = []
@@ -144,7 +143,6 @@ function verificar_escalados() {
         id_enfermeiras, id_monitores_acampamento,
         id_monitores_hotelaria, id_enfermeiras_disponiveis
     ]
-
     // Importante para garantir a ordem da escala informada pelo usuário em caso de ser para a hotelaria
     if (window.location.href.split('/').includes('hotelaria')) id_escalados.length = 0
 

@@ -408,7 +408,11 @@
 }
 
 #nomes_monitores .card-monitor {
-    background: #ffffff;
+    background: #FF8C00;
+}
+
+#nomes_monitores .enfermeira{
+    background: #ff7474;
 }
 
 #calendario_escala {

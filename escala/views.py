@@ -12,7 +12,8 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria
+from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
+    Enfermeira
 from peraltas.models import Monitor, DisponibilidadePeraltas
 from projetoCEU.utils import email_error
 
@@ -126,53 +127,57 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-    dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
+    monitores = enfermeiras = None
 
     if request.method != "POST":
-        antes_dia_limite_peraltas = True if datetime.now().day < dia_limite_peraltas.dia_limite_peraltas else False
-
         coordenador_peraltas = request.user.has_perm('peraltas.add_escalaacampamento')
 
         if coordenador_peraltas:
             monitores = Monitor.objects.all()
+            enfermeiras = Enfermeira.objects.all()
             disponibilidades = DisponibilidadePeraltas.objects.all()
         else:
-            monitores = Monitor.objects.filter(usuario=request.user)
-            disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores[0])
+            try:
+                monitores = Monitor.objects.get(usuario=request.user)
+            except Monitor.DoesNotExist:
+                enfermeiras = Enfermeira.objects.get(usuario=request.user)
+                disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
+            else:
+                disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
 
         disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
 
         return render(request, 'escala/disponibilidade-peraltas.html', {
             'coordenador_peraltas': coordenador_peraltas,
-            'dia_limite_peraltas': dia_limite_peraltas.dia_limite_peraltas,
             'disponibilidades_peraltas': disponibilidades_peraltas,
             'monitores': monitores,
-            'antes_dia_limite_peraltas': antes_dia_limite_peraltas,
+            'enfermeiras': enfermeiras,
         })
 
     if is_ajax(request):
-        if request.POST.get('id_monitor'):
-            monitor = Monitor.objects.get(pk=request.POST.get('id_monitor'))
-            removido = request.POST.get('dia_removido', None)
-            adicionado = request.POST.get('dia_adicionado', None)
-            dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
-            dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
+        monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
+        enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
+            'id_enfermeira') else None
+        removido = request.POST.get('dia_removido', None)
+        adicionado = request.POST.get('dia_adicionado', None)
+        dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
+        dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
 
-            if request.POST.get('adicionar_dia'):
-                adicionado = adicionar_dia(monitor, dia_adicionado)
+        if request.POST.get('adicionar_dia'):
+            adicionado = adicionar_dia(monitor, dia_adicionado, enfermeira)
 
-                return HttpResponse(adicionado)
+            return HttpResponse(adicionado)
 
-            if request.POST.get('alterar_dia'):
-                remover_dia(monitor, dia_removido)
-                adicionar_dia(monitor, dia_adicionado)
+        if request.POST.get('alterar_dia'):
+            remover_dia(monitor, dia_removido, enfermeira)
+            adicionar_dia(monitor, dia_adicionado, enfermeira)
 
-                return HttpResponse()
+            return HttpResponse()
 
-            if request.POST.get('remover_disponibilidade'):
-                remover_dia(monitor, dia_removido)
+        if request.POST.get('remover_disponibilidade'):
+            remover_dia(monitor, dia_removido, enfermeira)
 
-                return HttpResponse()
+            return HttpResponse()
 
 
 @login_required(login_url='login')
@@ -181,15 +186,53 @@ def verEscalaPeraltas(request):
     escalas_acampamento = EscalaAcampamento.objects.all()
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+    print(request.POST)
 
     if request.method != 'POST':
-        return render(request, 'escala/escala_peraltas.html', {'coordenador_acampamento': coordenador_acampamento,
-                                                               'coordenador_hotelaria': coordenador_hotelaria,
-                                                               'escalas_hotelaria': escalas_hotelaria,
-                                                               'escalas_acampamento': escalas_acampamento})
+        return render(request, 'escala/escala_peraltas.html', {
+            'coordenador_acampamento': coordenador_acampamento,
+            'coordenador_hotelaria': coordenador_hotelaria,
+            'escalas_hotelaria': escalas_hotelaria,
+            'escalas_acampamento': escalas_acampamento
+        })
 
     if is_ajax(request):
         return JsonResponse(escalados_para_o_evento(request.POST))
+
+    if request.POST.get('id_escala'):
+        escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
+        ficha = escala_acampamento.ficha_de_evento
+
+        try:
+            ordem = OrdemDeServico.objects.get(ficha_de_evento=escala_acampamento.ficha_de_evento)
+        except OrdemDeServico.DoesNotExist:
+            ordem = None
+
+        try:
+            escala_acampamento.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado: {e}.')
+            return render(request, 'escala/escala_peraltas.html', {
+                'coordenador_acampamento': coordenador_acampamento,
+                'coordenador_hotelaria': coordenador_hotelaria,
+                'escalas_hotelaria': escalas_hotelaria,
+                'escalas_acampamento': escalas_acampamento
+            })
+        else:
+            ficha.escala = False
+            ficha.save()
+
+            if ordem:
+                ordem.escala = False
+                ordem.save()
+
+            messages.success(request, 'Escala excluída com sucesso!')
+            return render(request, 'escala/escala_peraltas.html', {
+                'coordenador_acampamento': coordenador_acampamento,
+                'coordenador_hotelaria': coordenador_hotelaria,
+                'escalas_hotelaria': escalas_hotelaria,
+                'escalas_acampamento': escalas_acampamento
+            })
 
 
 @login_required(login_url='login')
@@ -199,7 +242,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     escala_editada = None
     escalado = []
     disponiveis = []
-
+    print(request.POST)
     if request.method != 'POST':
         if setor == 'acampamento':
             if request.GET.get('cliente'):

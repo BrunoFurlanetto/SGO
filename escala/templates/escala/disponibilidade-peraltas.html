@@ -7,9 +7,29 @@
 
     <section class="conteudo-disponibilidade-peraltas">
         <div id="nomes_monitores">
-            {% for monitor in monitores %}
-                <div class="card-monitor" data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}"}, "title": "{{ monitor.usuario.get_full_name }}"}' draggable="true">{{ monitor.usuario.get_full_name }}</div>
-            {% endfor %}
+            {% if coordenador_peraltas %}
+                {% for monitor in monitores %}
+                    <div class="card-monitor"
+                         data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", "color": "#FF8C00"}, "title": "{{ monitor.usuario.get_full_name }}"}'
+                         draggable="true">{{ monitor.usuario.get_full_name }}</div>
+                {% endfor %}
+                {% for enfermeira in enfermeiras %}
+                    <div class="card-monitor enfermeira"
+                         data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeira.id }}", "color": "#ff7474"}, "title": "{{ enfermeira.usuario.get_full_name }}"}'
+                         draggable="true">{{ enfermeira.usuario.get_full_name }}</div>
+                {% endfor %}
+            {% else %}
+                {% if monitores %}
+                    <div class="card-monitor"
+                         data-event='{"extendedProps": {"id_monitor": "{{ monitores.id }}", "color": "#FF8C00"}, "title": "{{ monitores.usuario.get_full_name }}"}'
+                         draggable="true">{{ monitores.usuario.get_full_name }}</div>
+                {% endif %}
+                {% if enfermeiras %}
+                    <div class="card-monitor enfermeira"
+                         data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeiras.id }}", "color": "#ff7474"}, "title": "{{ enfermeiras.usuario.get_full_name }}"}'
+                         draggable="true">{{ enfermeiras.usuario.get_full_name }}</div>
+                {% endif %}
+            {% endif %}
         </div>
         <div id="calendario_escala"></div>
     </section>
