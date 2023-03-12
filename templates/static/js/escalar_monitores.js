@@ -14,7 +14,7 @@ espacos.forEach((espaco) => {
         const arrastando = document.querySelector('.arrastando')
 
         if (arrastando !== null) {
-            const nova_posicao = pegar_nova_posicao(espaco, e.clientY)
+            const nova_posicao = pegar_nova_posicao(espaco, e.clientX)
             e.preventDefault()
             e.dataTransfer.dropEffect = 'move'
 
@@ -35,20 +35,20 @@ document.addEventListener('dragend', (e) => {
     e.target.classList.remove('arrastando');
 })
 
-function pegar_nova_posicao(local, posY) {
+function pegar_nova_posicao(local, posX) {
     const cards_monitor = local.querySelectorAll('.card-monitor:not(.arrastando)')
     let resultado
 
     for (let card_referencia of cards_monitor) {
         const box = card_referencia.getBoundingClientRect()
-        const centro_do_box = box.y + box.height / 2
+        const centro_horizontal_do_box = box.x + box.width / 2
 
-        if (posY >= centro_do_box) resultado = card_referencia
+        if (posX >= centro_horizontal_do_box) resultado = card_referencia
     }
 
     return resultado
 }
-
+// ---------------------------------------------------------------------------------------------------------------------
 function remover_escalado_clique(monitor) {
     $(`#monitor_embarque #${monitor.id}`).removeClass('embarque')
     id_escalados.splice(id_escalados.indexOf(monitor.id), 1)
@@ -63,50 +63,7 @@ function trocar_card_monitor_escalado(monitor) {
 function escalado(espaco) {
     const monitores = espaco.querySelectorAll('.card-monitor')
     const tipo_escalacao = espaco.id
-
     // ---------------------------------este pra retorno na disponibilidade correta ------------------------------------
-    if (tipo_escalacao === 'monitores_hotelaria') {
-        let lista_de_ids = []
-
-        for (let monitor of monitores) {
-            $(monitor).removeClass('escalado')
-
-            if (monitor.classList.contains('embarque')) {
-                $(monitor).removeClass('embarque')
-                console.log('Foi')
-                console.log($(`#monitor_embarque #${monitor.id}`).classList)
-
-                if (monitor.children.length > 0){
-                    $(`#monitor_embarque #${monitor.id}`).removeClass('embarque')
-                    monitor.remove()
-                } else {
-                    trocar_card_monitor_escalado(monitor)
-                }
-
-                return
-            }
-
-            if (monitor.classList.contains('tecnica')) verificar_tecnica()
-
-            if (!lista_de_ids.includes(monitor.id)) {
-                lista_de_ids.push(monitor.id)
-            } else {
-                $('#monitores_acampamento').append(monitor)
-            }
-
-            if (monitor.classList.contains('enfermeira')) $('#enfermeiras_disponiveis').append(monitor)
-
-            if (!monitor.classList.contains('embarque')){
-                if (monitor.classList.contains('acampamento') && !monitor.classList.contains('hotelaria')) {
-                    $('#monitores_acampamento').append(monitor)
-                } else if (monitor.classList.contains('acampamento') && monitor.classList.contains('hotelaria')) {
-                    $(`#disponibilidade_duplicada #${monitor.id}`).removeClass('escalado')
-                    voltar_disponibilidade_dupla(monitor, 'monitores_acampamento')
-                }
-            }
-        }
-    }
-
     if (tipo_escalacao === 'monitores_acampamento') {
         let lista_de_ids = []
 
@@ -135,15 +92,6 @@ function escalado(espaco) {
             }
 
             if (monitor.classList.contains('enfermeira')) $('#enfermeiras_disponiveis').append(monitor)
-
-            if (!monitor.classList.contains('embarque')) {
-                if (monitor.classList.contains('hotelaria') && !monitor.classList.contains('acampamento')) {
-                    $('#monitores_hotelaria').append(monitor)
-                } else if (monitor.classList.contains('hotelaria') && monitor.classList.contains('acampamento')) {
-                    $(`#disponibilidade_duplicada #${monitor.id}`).removeClass('escalado')
-                    voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-                }
-            }
         }
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -163,7 +111,6 @@ function escalado(espaco) {
                     }
                 }
             }
-            verificar_escala_dupla(monitor)
         }
     }
 
@@ -185,16 +132,6 @@ function duplicar_escalado(monitor) {
     }
 }
 
-function voltar_disponibilidade_dupla(monitor, id_disponibilidade) {
-    const monitores_duplicados = $('#disponibilidade_duplicada').children()
-
-    for (let monitor_duplicado of monitores_duplicados) {
-        if (monitor.id === monitor_duplicado.id) {
-            $(`#${id_disponibilidade}`).append(monitor_duplicado)
-        }
-    }
-}
-
 function verificar_escalados() {
     const id_espacos = [
         'monitores_escalados', 'monitor_embarque',
@@ -206,7 +143,6 @@ function verificar_escalados() {
         id_enfermeiras, id_monitores_acampamento,
         id_monitores_hotelaria, id_enfermeiras_disponiveis
     ]
-
     // Importante para garantir a ordem da escala informada pelo usuário em caso de ser para a hotelaria
     if (window.location.href.split('/').includes('hotelaria')) id_escalados.length = 0
 
@@ -245,20 +181,6 @@ function verificar_escalados() {
             if (!id_monitores.includes(id)) lista_de_ids[i].splice(lista_de_ids[i].indexOf(id), 1)
         }
     }
-}
-
-function verificar_escala_dupla(monitor) {
-    const monitores_hotelaria = $('#monitores_hotelaria').children()
-    const monitores_acampamento = $('#monitores_acampamento').children()
-
-    for (let monitor_teste of monitores_hotelaria) {
-        if (monitor_teste.id === monitor.id) $('#disponibilidade_duplicada').append(monitor_teste)
-    }
-
-    for (let monitor_teste of monitores_acampamento) {
-        if (monitor_teste.id === monitor.id) $('#disponibilidade_duplicada').append(monitor_teste)
-    }
-
 }
 
 function verificar_tecnica() {
@@ -303,13 +225,7 @@ function verificar_enfermeira(monitor) {
 
     if (!monitor.classList.contains('embarque')){
         console.log(id_monitores_acampamento)
-        if (monitor.classList.contains('acampamento')) {
-            $('#monitores_acampamento').append(monitor)
-            voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-        } else {
-            $('#monitores_hotelaria').append(monitor)
-            voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-        }
+        $('#monitores_acampamento').append(monitor)
     } else {
         monitor.remove()
     }

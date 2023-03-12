@@ -1,25 +1,21 @@
-import json
 from datetime import datetime, timedelta
-from itertools import chain
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
-    alterar_dia_limite_peraltas, pegar_clientes_data_selecionada, monitores_disponiveis, escalados_para_o_evento, \
-    verificar_escalas, gerar_disponibilidade, teste_monitores_nao_escalados_acampamento, \
-    teste_monitores_nao_escalados_hotelaria, verificar_setor_de_disponibilidade, pegar_disponiveis, \
-    retornar_dados_grupo, verificar_disponiveis, verificar_disponiveis_grupo, salvar_escala, pegar_escalacoes, \
-    pegar_disponiveis_intervalo, procurar_ficha_de_evento
-from escala.models import Escala, Disponibilidade, DiaLimite, FormularioEscalaCeu
+    pegar_clientes_data_selecionada, escalados_para_o_evento, \
+    verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
+    verificar_disponiveis, pegar_escalacoes, \
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
+from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, ClienteColegio, FichaDeEvento, EscalaAcampamento, \
-    EscalaHotelaria
-from peraltas.models import Monitor, DisponibilidadeAcampamento, DisponibilidadeHotelaria
-from projetoCEU.utils import verificar_grupo, email_error
+from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
+    Enfermeira
+from peraltas.models import Monitor, DisponibilidadePeraltas
+from projetoCEU.utils import email_error
 
 
 @login_required(login_url='login')
@@ -131,111 +127,57 @@ def disponibilidade(request):
 
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
-    dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
-    dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
+    monitores = enfermeiras = None
 
     if request.method != "POST":
-        antes_dia_limite_acampamento = True if datetime.now().day < dia_limite_acampamento.dia_limite_acampamento else False
-        antes_dia_limite_hotelaria = True if datetime.now().day < dia_limite_hotelaria.dia_limite_hotelaria else False
+        coordenador_peraltas = request.user.has_perm('peraltas.add_escalaacampamento')
 
-        coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
-        coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-        monitores = Monitor.objects.all()
+        if coordenador_peraltas:
+            monitores = Monitor.objects.all()
+            enfermeiras = Enfermeira.objects.all()
+            disponibilidades = DisponibilidadePeraltas.objects.all()
+        else:
+            try:
+                monitores = Monitor.objects.get(usuario=request.user)
+            except Monitor.DoesNotExist:
+                enfermeiras = Enfermeira.objects.get(usuario=request.user)
+                disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
+            else:
+                disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
+
+        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
 
         return render(request, 'escala/disponibilidade-peraltas.html', {
-            'coordenador_acampamento': coordenador_acampamento,
-            'coordenador_hotelaria': coordenador_hotelaria,
-            'dia_limite_acampamento': dia_limite_acampamento.dia_limite_acampamento,
-            'dia_limite_hotelaria': dia_limite_hotelaria.dia_limite_hotelaria,
+            'coordenador_peraltas': coordenador_peraltas,
+            'disponibilidades_peraltas': disponibilidades_peraltas,
             'monitores': monitores,
-            'antes_dia_limite_acampamento': antes_dia_limite_acampamento,
-            'antes_dia_limite_hotelaria': antes_dia_limite_hotelaria,
+            'enfermeiras': enfermeiras,
         })
 
     if is_ajax(request):
-        if request.POST.get('novo_dia'):
-            return JsonResponse(alterar_dia_limite_peraltas(request.POST))
+        monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
+        enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
+            'id_enfermeira') else None
+        removido = request.POST.get('dia_removido', None)
+        adicionado = request.POST.get('dia_adicionado', None)
+        dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
+        dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
 
-        if request.POST.get('monitor') is not None and request.POST.get('monitor') != '':
-            monitor = Monitor.objects.get(id=int(request.POST.get('monitor')))
-        else:
-            monitor = Monitor.objects.get(usuario=request.user)
+        if request.POST.get('adicionar_dia'):
+            adicionado = adicionar_dia(monitor, dia_adicionado, enfermeira)
 
-        dias = verificar_dias(request.POST.get('datas_disponiveis'),
-                              Monitor.objects.get(usuario=monitor.usuario),
-                              peraltas=request.POST.get('peraltas'))
+            return HttpResponse(adicionado)
 
-        if dias[0]:
-            n_dias = contar_dias(dias[0])
-            mes_e_ano_cadastro = verificar_mes_e_ano(dias[0])
-        else:
-            n_dias = 0
-            mes_e_ano_cadastro = verificar_mes_e_ano(dias[1])
+        if request.POST.get('alterar_dia'):
+            remover_dia(monitor, dia_removido, enfermeira)
+            adicionar_dia(monitor, dia_adicionado, enfermeira)
 
-        if request.POST.get('peraltas') == 'acampamento':
-            ja_cadastrado = DisponibilidadeAcampamento.objects.filter(monitor=monitor,
-                                                                      mes=mes_e_ano_cadastro[0],
-                                                                      ano=mes_e_ano_cadastro[1])
-        else:
-            ja_cadastrado = DisponibilidadeHotelaria.objects.filter(monitor=monitor,
-                                                                    mes=mes_e_ano_cadastro[0],
-                                                                    ano=mes_e_ano_cadastro[1])
+            return HttpResponse()
 
-        try:
-            if ja_cadastrado:
-                if dias[0]:
-                    for cadastro in ja_cadastrado:
-                        ja_cadastrado.update(dias_disponiveis=cadastro.dias_disponiveis + ', ' + dias[0],
-                                             n_dias=cadastro.n_dias + n_dias)
+        if request.POST.get('remover_disponibilidade'):
+            remover_dia(monitor, dia_removido, enfermeira)
 
-                        if dias[1]:
-                            if dias[2]:
-                                msg = f'Dias {dias[1]} não cadastrados, por já estarem na base de dados ou exceder o limite de dias por mês!'
-                                return JsonResponse({'tipo': 'sucesso',
-                                                     'mensagem': msg})
-                            else:
-                                msg = f'dias {dias[1]} já estão na base de dados. Disponibilidade atualizada com sucesso'
-                                return JsonResponse({'tipo': 'sucesso',
-                                                     'mensagem': msg})
-                        else:
-                            return JsonResponse({'tipo': 'sucesso',
-                                                 'mensagem': 'Disponibilidade salva com sucesso!'})
-                else:
-                    if dias[2]:
-                        return JsonResponse({
-                            'tipo': 'aviso',
-                            'mensagem': 'Todos os dias selecionados já estão salvos na base de dados!'
-                        })
-                    else:
-                        return JsonResponse({
-                            'tipo': 'aviso',
-                            'mensagem': f'Número máximo de dias já cadastrado na base de dados (22 dias por mês).'
-                        })
-            else:
-                if request.POST.get('peraltas') == 'acampamento':
-                    dias_disponiveis = DisponibilidadeAcampamento(
-                        monitor=monitor,
-                        mes=mes_e_ano_cadastro[0],
-                        ano=mes_e_ano_cadastro[1],
-                        n_dias=n_dias,
-                        dias_disponiveis=dias[0]
-                    )
-                else:
-                    dias_disponiveis = DisponibilidadeHotelaria(
-                        monitor=monitor,
-                        mes=mes_e_ano_cadastro[0],
-                        ano=mes_e_ano_cadastro[1],
-                        n_dias=n_dias,
-                        dias_disponiveis=dias[0]
-                    )
-
-                dias_disponiveis.save()
-                return JsonResponse({'tipo': 'sucesso',
-                                     'mensagem': 'Disponibilidade salva com sucesso'})
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            return JsonResponse({'tipo': 'erro',
-                                 'mensagem': 'Houve um erro inesperado, tente novamente mais tarde!'})
+            return HttpResponse()
 
 
 @login_required(login_url='login')
@@ -244,15 +186,53 @@ def verEscalaPeraltas(request):
     escalas_acampamento = EscalaAcampamento.objects.all()
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+    print(request.POST)
 
     if request.method != 'POST':
-        return render(request, 'escala/escala_peraltas.html', {'coordenador_acampamento': coordenador_acampamento,
-                                                               'coordenador_hotelaria': coordenador_hotelaria,
-                                                               'escalas_hotelaria': escalas_hotelaria,
-                                                               'escalas_acampamento': escalas_acampamento})
+        return render(request, 'escala/escala_peraltas.html', {
+            'coordenador_acampamento': coordenador_acampamento,
+            'coordenador_hotelaria': coordenador_hotelaria,
+            'escalas_hotelaria': escalas_hotelaria,
+            'escalas_acampamento': escalas_acampamento
+        })
 
     if is_ajax(request):
         return JsonResponse(escalados_para_o_evento(request.POST))
+
+    if request.POST.get('id_escala'):
+        escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
+        ficha = escala_acampamento.ficha_de_evento
+
+        try:
+            ordem = OrdemDeServico.objects.get(ficha_de_evento=escala_acampamento.ficha_de_evento)
+        except OrdemDeServico.DoesNotExist:
+            ordem = None
+
+        try:
+            escala_acampamento.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado: {e}.')
+            return render(request, 'escala/escala_peraltas.html', {
+                'coordenador_acampamento': coordenador_acampamento,
+                'coordenador_hotelaria': coordenador_hotelaria,
+                'escalas_hotelaria': escalas_hotelaria,
+                'escalas_acampamento': escalas_acampamento
+            })
+        else:
+            ficha.escala = False
+            ficha.save()
+
+            if ordem:
+                ordem.escala = False
+                ordem.save()
+
+            messages.success(request, 'Escala excluída com sucesso!')
+            return render(request, 'escala/escala_peraltas.html', {
+                'coordenador_acampamento': coordenador_acampamento,
+                'coordenador_hotelaria': coordenador_hotelaria,
+                'escalas_hotelaria': escalas_hotelaria,
+                'escalas_acampamento': escalas_acampamento
+            })
 
 
 @login_required(login_url='login')
@@ -262,13 +242,13 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     escala_editada = None
     escalado = []
     disponiveis = []
-
+    print(request.POST)
     if request.method != 'POST':
         if setor == 'acampamento':
             if request.GET.get('cliente'):
                 cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
                 inicio_evento = termino_evento = None
-                ficha_de_evento,  ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
+                ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
                 if ordem_de_servico:
                     inicio_evento = ordem_de_servico.check_in
@@ -365,15 +345,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             })
 
         if setor == 'hotelaria':
-            disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(
+            disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
                 dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
             )
-
-            disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(
-                dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
-            )
-
-            disponiveis_bd = list(chain(disponibilidades_acampamento, disponibilidades_hotelaria))
 
             try:
                 escala_hotelaria = EscalaHotelaria.objects.get(data=data_selecionada)
@@ -381,14 +355,22 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 return render(request, 'escala/escalar_monitores.html', {
                     'data': data_selecionada,
                     'setor': setor,
-                    'disponiveis': pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponiveis_bd)
+                    'disponiveis': pegar_disponiveis_intervalo(
+                        data_selecionada,
+                        data_selecionada,
+                        disponibilidades_peraltas
+                    )
                 })
             except Exception as e:
                 email_error(request.user.get_full_name(), e, __name__)
                 messages.error(request, 'Ocorreu um erro inesperado, tente novamente mais tarde!')
                 return redirect('dashboard')
             else:
-                disponiveis_dia = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponiveis_bd)
+                disponiveis_dia = pegar_disponiveis_intervalo(
+                    data_selecionada,
+                    data_selecionada,
+                    disponibilidades_peraltas
+                )
 
                 for monitor_teste in disponiveis_dia:
                     if monitor_teste['id'] in escala_hotelaria.monitores_hotelaria.values():
@@ -398,12 +380,12 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                         disponiveis.append(monitor_teste)
 
             return render(request, 'escala/escalar_monitores.html', {
-                    'data': data_selecionada,
-                    'setor': setor,
-                    'disponiveis': disponiveis,
-                    'escalados': escalado,
-                    'id_escala': escala_hotelaria.id
-                })
+                'data': data_selecionada,
+                'setor': setor,
+                'disponiveis': disponiveis,
+                'escalados': escalado,
+                'id_escala': escala_hotelaria.id
+            })
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -480,154 +462,24 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
 
 @login_required(login_url='login')
-def editarEscalaMonitores(request, cliente, data):
-    data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
-    nome_fantasia_cliente = json.dumps(cliente, ensure_ascii=False).replace('"', '')
-    cliente_evento = ClienteColegio.objects.get(nome_fantasia=nome_fantasia_cliente)
-    ficha_evento_cliete = FichaDeEvento.objects.get(cliente=cliente_evento)
-    disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
-    id_escalados = []
-
-    if ficha_evento_cliete.os:
-        ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente_evento)
-        evento = {'check_in': (ordem_cliente.check_in - timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M'),
-                  'check_out': (ordem_cliente.check_out - timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M')}
-        escalados = EscalaAcampamento.objects.get(cliente=cliente_evento, check_in_cliente=ordem_cliente.check_in,
-                                                  check_out_cliente=ordem_cliente.check_out)
-    else:
-        evento = {'check_in': (ficha_evento_cliete.check_in - timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M'),
-                  'check_out': (ficha_evento_cliete.check_out - timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M')}
-        escalados = EscalaAcampamento.objects.get(cliente=cliente_evento, check_in_cliente=ficha_evento_cliete.check_in,
-                                                  check_out_cliente=ficha_evento_cliete.check_out)
-
-    restante_acampamento, id_escalados = teste_monitores_nao_escalados_acampamento(disponiveis_acampamento,
-                                                                                   escalados, id_escalados)
-    restante_hotelaria, id_escalados = teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria,
-                                                                               escalados, id_escalados)
-    escalados_evento = verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, disponiveis_hotelaria)
-
-    if request.method != 'POST':
-        return render(request, 'escala/editar_escala_monitoria.html', {'cliente': cliente_evento,
-                                                                       'evento': evento,
-                                                                       'restante_acampamento': restante_acampamento,
-                                                                       'restante_hotelaria': restante_hotelaria,
-                                                                       'escalados': escalados_evento,
-                                                                       'id_escalados': id_escalados})
-
-    if is_ajax(request):
-        return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
-                                              request.POST.get('cliente')))
-
-    if request.POST.get('acao') == 'Sim':
-        ficha_evento_cliete.escala = False
-        ficha_evento_cliete.save()
-
-        if ficha_evento_cliete.os:
-            ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente_evento)
-            ordem_cliente.escala = False
-            ordem_cliente.save()
-
-        try:
-            escalados.delete()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
-            return redirect('escalaPeraltas')
-        else:
-            messages.success(request, 'Escala excluida com sucesso!')
-            return redirect('escalaPeraltas')
-
-    try:
-        escalados.monitores_acampamento.clear()
-        escalados.monitores_acampamento.set(request.POST.get('monitores_escalados').split(','))
-    except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
-        return redirect('escalaPeraltas')
-    else:
-        messages.success(request, 'Escala atualizada com sucesso')
-        return redirect('escalaPeraltas')
-
-
-@login_required(login_url='login')
-def editarEscalaHotelaria(request, data):
-    data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
-    disponiveis_hotelaria, disponiveis_acampamento = monitores_disponiveis(data_selecionada)
-    escalados = EscalaHotelaria.objects.get(data=data_selecionada)
-    id_escalados = []
-
-    restante_acampamento, id_escalados = teste_monitores_nao_escalados_acampamento(disponiveis_acampamento,
-                                                                                   escalados, id_escalados)
-    restante_hotelaria, id_escalados = teste_monitores_nao_escalados_hotelaria(disponiveis_hotelaria,
-                                                                               escalados, id_escalados)
-    escalados_para_hoje = verificar_setor_de_disponibilidade(escalados, disponiveis_acampamento, disponiveis_hotelaria)
-
-    if request.method != 'POST':
-        return render(request, 'escala/editar_escala_hotelaria.html', {'data': data_selecionada,
-                                                                       'escalados': escalados_para_hoje,
-                                                                       'id_escalados': id_escalados,
-                                                                       'restante_acampamento': restante_acampamento,
-                                                                       'restante_hotelaria': restante_hotelaria})
-
-    if is_ajax(request):
-        return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
-                                              request.POST.get('cliente')))
-
-    if request.POST.get('acao') == 'Sim':
-
-        try:
-            escalados.delete()
-        except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente novamente mais tarde')
-            return redirect('escalaPeraltas')
-        else:
-            messages.success(request, 'Escala excluida com sucesso!')
-            return redirect('escalaPeraltas')
-
-    try:
-        escalados.monitores_hotelaria.clear()
-        escalados.monitores_hotelaria.set(request.POST.get('monitores_escalados').split(','))
-    except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde!')
-        return redirect('escapaPeraltas')
-    else:
-        messages.success(request, 'Escala atualizada com sucesso!')
-        return redirect('escalaPeraltas')
-
-
-@login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
-    coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
-    coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+    disponibilidades = DisponibilidadePeraltas.objects.all()
+    eventos_ordem_de_servico = OrdemDeServico.objects.all()
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
 
-    if coordenador_hotelaria or coordenador_acampamento:
-        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.all()
-        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.all()
-        eventos_ordem_de_servico = OrdemDeServico.objects.all()
-        fichas_de_evento = FichaDeEvento.objects.filter(os=False)
+    for evento in eventos_ordem_de_servico:
+        evento.check_out += timedelta(days=1)
 
-        for evento in eventos_ordem_de_servico:
-            evento.check_out += timedelta(days=1)
+    for ficha in fichas_de_evento:
+        ficha.check_out += timedelta(days=1)
 
-        for ficha in fichas_de_evento:
-            ficha.check_out += timedelta(days=1)
-    else:
-        eventos_ordem_de_servico = fichas_de_evento = None
-        disponibilidades_hotelaria = DisponibilidadeHotelaria.objects.filter(monitor__usuario=request.user)
-        disponibilidades_acampamento = DisponibilidadeAcampamento.objects.filter(monitor__usuario=request.user)
+    disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
 
-    disponiveis_hotelaria = pegar_disponiveis(disponibilidades_hotelaria, 'hotelaria')
-    disponiveis_acampamento = pegar_disponiveis(disponibilidades_acampamento, 'acampamento')
-
-    return render(request, 'escala/calendario_disponibilidade_peraltas.html',
-                  {'disponiveis_hotelaria': disponiveis_hotelaria,
-                   'disponiveis_acampamento': disponiveis_acampamento,
-                   'eventos': eventos_ordem_de_servico,
-                   'fichas_de_evento': fichas_de_evento,
-                   'coordenador_hotelaria': coordenador_hotelaria,
-                   'coordenador_acampamento': coordenador_acampamento})
+    return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
+        'disponiveis_peraltas': disponiveis_peraltas,
+        'eventos': eventos_ordem_de_servico,
+        'fichas_de_evento': fichas_de_evento,
+    })
 
 
 @login_required(login_url='login')

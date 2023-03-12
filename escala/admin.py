@@ -1,6 +1,6 @@
 from django.contrib import admin
 from escala.models import Escala, Disponibilidade, DiaLimite
-from peraltas.models import DisponibilidadeAcampamento, DisponibilidadeHotelaria, EscalaAcampamento, EscalaHotelaria
+from peraltas.models import DisponibilidadePeraltas, EscalaAcampamento, EscalaHotelaria
 
 
 @admin.register(Escala)
@@ -22,8 +22,8 @@ class DisponibilidadeAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
-@admin.register(DisponibilidadeAcampamento)
-class DisponibilidadeAcampamentoAdmin(admin.ModelAdmin):
+@admin.register(DisponibilidadePeraltas)
+class DisponibilidadePeraltasAdmin(admin.ModelAdmin):
     list_display = ('monitor', 'mes', 'ano', 'n_dias')
     list_filter = ('mes', 'ano')
     list_per_page = 10
@@ -37,10 +37,3 @@ class EscalaAcampamentoAdmin(admin.ModelAdmin):
 @admin.register(EscalaHotelaria)
 class EscalaHotelariaAdmin(admin.ModelAdmin):
     list_display = ('id',)
-
-
-@admin.register(DisponibilidadeHotelaria)
-class DisponibilidadeHotelariaAdmin(admin.ModelAdmin):
-    list_display = ('monitor', 'mes', 'ano', 'n_dias')
-    list_filter = ('mes', 'ano')
-    list_per_page = 10

@@ -12,8 +12,8 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from peraltas.models import DiaLimiteAcampamento, DiaLimiteHotelaria, Monitor
-from projetoCEU.utils import verificar_grupo, email_error
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor
+from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
 from ceu.models import Professores
@@ -127,23 +127,18 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
-    dia_limite_acampamento, p = DiaLimiteAcampamento.objects.get_or_create(id=1, defaults={'dia_limite_acampamento': 25})
-    dia_limite_hotelaria, p = DiaLimiteHotelaria.objects.get_or_create(id=1, defaults={'dia_limite_hotelaria': 25})
-    msg_acampamento = msg_hotelaria = None
+    dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
+    msg_monitor = None
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
     except Monitor.DoesNotExist:
         monitor = None
     else:
-        msg_acampamento, msg_hotelaria = teste_aviso_monitoria(
+        msg_monitor = teste_aviso_monitoria(
             request.user.last_login.astimezone(),
             monitor,
-            dia_limite_acampamento,
-            dia_limite_hotelaria
+            dia_limite_peraltas
         )
 
-    return render(request, 'dashboard/dashboardPeraltas.html', {
-        'msg_acampamento': msg_acampamento,
-        'msg_hotelaria': msg_hotelaria,
-    })
+    return render(request, 'dashboard/dashboardPeraltas.html', {'msg_acampamento': msg_monitor})

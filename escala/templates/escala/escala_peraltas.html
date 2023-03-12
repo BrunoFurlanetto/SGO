@@ -103,6 +103,9 @@
                                     title: "{{ escala.cliente }}",
                                     start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
                                     end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
+                                    extendedProps: {
+                                        "id_escala":{{ escala.id }},
+                                    },
                                 },
                             {% endfor %}
                         ],
@@ -110,13 +113,15 @@
                         eventColor: '#f36d21',
 
                         eventClick: function(info) {
-                            let cliente = info.event.title
-                            let check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
-                            let check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
+                            const cliente = info.event.title
+                            const id_escala = info.event.extendedProps['id_escala']
+                            const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
+                            const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
 
                             $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
                             $('#div_embarque, #div_enfermeiras').addClass('none')
                             $('#cliente_modal').val(cliente)
+                            $('#id_escala').val(id_escala)
                             $('#titulo_modal').text('Escala para o evento de ' + cliente)
                             $('#check_in_evento_modal').val(check_in_evento)
                             $('#check_out_evento_modal').val(check_out_evento)
@@ -125,7 +130,7 @@
                                 type: 'POST',
                                 url: '',
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                data: {'cliente': cliente, 'check_in_evento': check_in_evento, 'check_out_evento': check_out_evento},
+                                data: {'id_escala': id_escala},
                                 success: function(response){
                                     for(let monitor of response['escalados']['acampamento']){
                                         if(monitor['coordenador']){
@@ -221,6 +226,14 @@
                 <div class="modal-footer">
                     {% if coordenador_acampamento %}
                         <button type="button" class="btn btn-primary" onclick="redirecionar_edicao()">Editar</button>
+
+                        <form action="{% url 'escalaPeraltas' %}" method="POST">
+                            <fieldset>
+                                {% csrf_token %}
+                                <input type="hidden" name="id_escala" id="id_escala">
+                                <button type="submit" class="btn btn-danger">Excluir</button>
+                            </fieldset>
+                        </form>
                     {% endif %}
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
