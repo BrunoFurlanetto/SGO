@@ -1,0 +1,217 @@
+function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30) {
+    let ids_monitor = []
+    let ids_enfermeira = []
+
+    if (dia_adicionado < hoje_mais_30) {
+        return false
+    }
+
+    let eventos_dia = eventos_intervalo.filter((event) => {
+        if (moment(event.start).format('YYYY-MM-DD') === dia_adicionado) {
+
+            return event
+        }
+    })
+
+    if (id_monitor !== undefined) {
+        if (eventos_dia.length > 1) {
+            ids_monitor = eventos_dia.filter((evento) => {
+                if (evento.extendedProps['id_monitor'] === id_monitor) {
+                    return evento
+                }
+            })
+        }
+
+        return ids_monitor.length <= 1;
+    }
+
+    if (id_enfermeira !== undefined) {
+        if (eventos_dia.length > 1) {
+            ids_enfermeira = eventos_dia.filter((evento) => {
+                if (evento.extendedProps['id_enfermeira'] === id_enfermeira) {
+                    return evento
+                }
+            })
+        }
+
+        return ids_enfermeira.length <= 1;
+    }
+
+
+}
+
+function montar_disponibilidades(disponibilidade, coordenador) {
+    const monitores = document.getElementById('nomes_monitores')
+    const data_mais_30 = moment(new Date(Date.now())).add(30, 'days').format('YYYY-MM-DD')
+    let editavel = false
+
+    if (coordenador == 'True') editavel = true
+
+    new FullCalendar.Draggable(monitores, {
+        itemSelector: '.card-monitor',
+    })
+
+    let calendarUI = document.getElementById('calendario_escala');
+    let calendar = new FullCalendar.Calendar(calendarUI, {
+
+        headerToolbar: {
+            left: '',
+            center: 'title',
+            right: 'next'
+        },
+
+        dayMaxEvents: 4,
+        editable: editavel,
+        droppable: true,
+        eventOrderStrict: true,
+        locale: 'pt-br',
+        initialDate: moment(new Date(Date.now())).add(30, 'days').format('YYYY-MM-DD'),
+        events: disponibilidade,
+
+        dayCellDidMount: function (info) {
+            if (moment(info.date).format('YYYY-MM-DD') < data_mais_30) {
+                info.el.classList.add('not_selected');
+            }
+        },
+
+        eventDidMount: function (info) {
+            info.event.setProp('color', info.event.extendedProps['color'])
+
+            if (moment(info.event.start).format('YYYY-MM-DD') < data_mais_30) {
+                info.el.classList.remove('fc-event-draggable');
+            }
+        },
+
+        eventReceive: function (info) {
+            $('.container_loading').removeClass('none')
+            const id_monitor = info.event.extendedProps['id_monitor']
+            const id_enfermeira = info.event.extendedProps['id_enfermeira']
+            const dia_adicionado = moment(info.event.start).format('YYYY-MM-DD')
+            const hoje = new Date(Date.now())
+            const hoje_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
+            const eventos_intervalo = calendar.getEvents(hoje_mais_30.sub(30, 'days'), hoje_mais_30)
+
+            if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30)) {
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {
+                        'adicionar_dia': true,
+                        'id_monitor': id_monitor,
+                        'id_enfermeira': id_enfermeira,
+                        'dia_adicionado': dia_adicionado
+                    },
+                }).then((response) => {
+                    if (response === 'False') {
+                        alert('Limite de 22 dias disponiveis no mês atingido pelo monitor')
+                        info.revert()
+                    }
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                }).catch((response) => {
+                    if (response.status == 500) alert('Operação não realizada. Erro interno do servidor!')
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                    info.revert()
+                })
+
+                info.event.setProp('id', `disponibilidade_${id_monitor}_${dia_adicionado}`)
+                info.event.setProp('color', info.event.extendedProps['color'])
+            } else {
+                setTimeout(() => {
+                    $('.container_loading').addClass('none')
+                }, 300)
+                info.revert()
+            }
+
+        },
+
+        eventDrop: function (info) {
+            $('.container_loading').removeClass('none')
+            const id_monitor = info.event.extendedProps['id_monitor']
+            const id_enfermeira = info.event.extendedProps['id_enfermeira']
+            const dia_adicionado = moment(info.event.start).format('YYYY-MM-DD')
+            const dia_removido = moment(info.oldEvent.start).format('YYYY-MM-DD')
+            const hoje = new Date(Date.now())
+            const hoje_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
+            const eventos_intervalo = calendar.getEvents(hoje_mais_30.sub(30, 'days'), hoje_mais_30)
+
+            if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30)) {
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {
+                        'alterar_dia': true,
+                        'id_monitor': id_monitor,
+                        'id_enfermeira': id_enfermeira,
+                        'dia_adicionado': dia_adicionado,
+                        'dia_removido': dia_removido
+                    },
+                }).then((response) => {
+                    if (response === 'False') {
+                        alert('Limite de 22 dias disponiveis no mês atingido pelo monitor')
+                    }
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                }).catch((response) => {
+                    if (response.status == 500) alert('Operação não realizada. Erro interno do servidor!')
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                    info.revert()
+                })
+            } else {
+                setTimeout(() => {
+                    $('.container_loading').addClass('none')
+                }, 300)
+                info.revert()
+            }
+        },
+
+        eventDragStop: (info) => {
+            if (info.jsEvent.pageX < $('#calendario_escala').offset().left || info.jsEvent.pageX > ($('#calendario_escala').offset().left + $('#calendario_escala').width()) ||
+                info.jsEvent.pageY < $('#calendario_escala').offset().top || info.jsEvent.pageY > ($('#calendario_escala').offset().top + $('#calendario_escala').height())) {
+                $('.container_loading').removeClass('none')
+                const id_monitor = info.event.extendedProps['id_monitor']
+                const id_enfermeira = info.event.extendedProps['id_enfermeira']
+                const dia_removido = moment(info.event.start).format('YYYY-MM-DD')
+
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {
+                        'remover_disponibilidade': true,
+                        'id_monitor': id_monitor,
+                        'id_enfermeira': id_enfermeira,
+                        'dia_removido': dia_removido
+                    },
+                }).then(() => {
+                    calendar.getEventById(info.event.id).remove()
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                }).catch((response) => {
+                    if (response.status == 500) alert('Operação não realizada. Erro interno do servidor!')
+
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 300)
+                })
+            }
+        },
+    })
+
+    calendar.render()
+    calendar.setOption('locale', 'pt-br')
+}
