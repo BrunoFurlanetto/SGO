@@ -143,17 +143,17 @@
                         {{ form.qtd_mulheres }}
                     </div>
                 </div>
-                <div class="row professores {% if form.qtd_professores.value == None %} none {% endif %}">
+                <div class="row professores {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
                     <div style="width: 16%">
                         <label>QTD professores</label>
                         {{ form.qtd_professores }}
                     </div>
-                    <div class="professores-pernoite {% if form.qtd_profs_homens.value == None %} none {% endif %}"
+                    <div class="professores-pernoite {% if not ficha_de_evento.produto.colegio %} none {% endif %}"
                          style="width: 15%">
                         <label>QTD homens</label>
                         {{ form.qtd_profs_homens }}
                     </div>
-                    <div class="professores-pernoite {% if form.qtd_profs_mulheres.value == None %} none {% endif %}"
+                    <div class="professores-pernoite {% if not ficha_de_evento.produto.colegio %} none {% endif %}"
                          style="width: 15%">
                         <label>QTD mulheres</label>
                         {{ form.qtd_profs_mulheres }}
@@ -179,18 +179,18 @@
                             <th style="width: 5px">Data</th>
                             <th style="width: 5px"><small>Café</small></th>
                             <th style="width: 5px"
-                                class="coffees {% if form.qtd_professores.value != None %} none {% endif %}"><small>Coffe
+                                class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
                                 manhã</small></th>
                             <th style="width: 5px"><small>Almoço</small></th>
                             <th style="width: 5px"
-                                class="lanches {% if form.qtd_professores.value == None %} none {% endif %}"><small>Lanche
+                                class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}"><small>Lanche
                                 tarde</small></th>
                             <th style="width: 5px"
-                                class="coffees {% if form.qtd_professores.value != None %} none {% endif %}"><small>Coffe
+                                class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
                                 tarde</small></th>
                             <th style="width: 5px"><small>Jantar</small></th>
                             <th style="width: 5px"
-                                class="lanches {% if form.qtd_professores.value == None %} none {% endif %}"><small>Lanche
+                                class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}"><small>Lanche
                                 noite</small></th>
                             <th style="width: 2px"><small></small></th>
                         </tr>
@@ -647,6 +647,8 @@
     <script>
         $(document).ready(function () {
             $('#id_vendedora').css({'pointer-events': 'none'})
+            hora_padrao_check_in = '{{ ficha_de_evento.produto.hora_padrao_check_in|date:'G:i:s' }}'
+            hora_padrao_check_out = '{{ ficha_de_evento.produto.hora_padrao_check_out|date:'G:i:s' }}'
             carregar_scripts('{{ editando }}')
 
             {% if not editando %}

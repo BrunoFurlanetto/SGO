@@ -105,23 +105,34 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
 function pegarDias(editando = false) {
     let check_in = $('#sessao_periodo_viagem #id_check_in')
     let check_out = $('#sessao_periodo_viagem #id_check_out')
+    let editar_refeicao = true
     const datas_tabela = $('#corpo-tabela-refeicao .data')
 
-    // if (datas_tabela.length > 0){
-    //     if (datas_tabela[0].value !== moment(check_in.val()).format('YYYY-MM-DD') || datas_tabela[datas_tabela.length - 1].value !== moment(check_out.val()).format('YYYY-MM-DD')) {
-    //         if (moment(check_in.val()).format('YYYY-MM-DD') < datas_tabela[0].value) {
-    //             let data = datas_tabela[0].value
-    //
-    //             while (moment(check_in.val()).format('YYYY-MM-DD') < data) {
-    //                 add_refeicao(moment(data.value).format('YYYY-MM-DD'))
-    //                 console.log('Foi')
-    //                 moment(data).add(1, 'Days')
-    //             }
-    //         }
-    //     }
-    //
-    //     return
-    // }
+    if (datas_tabela.length > 0) {
+        if (moment(datas_tabela[0].value).format('YYYY-MM-DD') !== moment(check_in.val()).format('YYYY-MM-DD') || moment(datas_tabela[datas_tabela.length - 1].value).format('YYYY-MM-DD') !== moment(check_out.val()).format('YYYY-MM-DD')) {
+            let data = datas_tabela[0].value
+            let intervalo = moment(data, "YYYY-MM-DD").diff(moment(check_in.val(), "YYYY-MM-DD"))
+            let dias = moment.duration(intervalo).asDays()
+
+            if ($('#corpo-tabela-refeicao .alert').length === 0) $('#corpo-tabela-refeicao').append('<tr class="alert alert-primary" style="text-align: center"><td colspan="7" style="padding: 0">Dias adicionados</td></tr>')
+            
+            for (let i = 1; i < dias + 1; i++) {
+                add_refeicao(moment(check_in.val()).format('YYYY-MM-DD'))
+                data = moment(check_in.val()).add(i, 'days')
+            }
+
+            data = datas_tabela[datas_tabela.length - 1].value
+            intervalo = moment(check_out.val(), "YYYY-MM-DD").diff(moment(data, "YYYY-MM-DD"))
+            dias = moment.duration(intervalo).asDays()
+
+            for (let i = 1; i < dias + 1; i++) {
+                add_refeicao(moment(data).add(i, 'days').format('YYYY-MM-DD'))
+            }
+
+        }
+
+        editar_refeicao = false
+    }
 
     if (check_out.val() !== '' && check_out.val() < check_in.val()) {
         check_out.val('')
@@ -138,7 +149,7 @@ function pegarDias(editando = false) {
         let dias = moment.duration(intervalo).asDays()
     }
 
-    if (!editando) tabela_refeicoes()
+    if (editar_refeicao) tabela_refeicoes()
 
     if (!editando && check_in.val() !== '') {
         $('#id_data_final_inscricao').val(moment(check_in.val()).subtract(15, 'days').format('YYYY-MM-DD'))
@@ -146,6 +157,7 @@ function pegarDias(editando = false) {
 }
 
 async function tabela_refeicoes() {
+    console.log('Foi')
     const data_1 = $('#sessao_periodo_viagem #id_check_in').val().split('T')[0]
     const data_2 = $('#sessao_periodo_viagem #id_check_out').val().split('T')[0]
     const intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
