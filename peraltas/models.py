@@ -524,7 +524,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'exclusividade': forms.CheckboxInput(attrs={'class': 'form-check-input exclusividade'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
-            'professores_com_alunos': forms.TextInput(attrs={'type': 'checkbox',
+            'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
                                                              'class': 'form-check-input'}),
         }
 
@@ -606,7 +606,7 @@ class CadastroPreReserva(forms.ModelForm):
 
         widgets = {
             'cliente': forms.Select(attrs={'onChange': 'gerar_responsaveis(this)'}),
-            'produto': forms.Select(attrs={'onChange': 'dadosProduto(this)'}),
+            'produto': forms.Select(attrs={'onChange': 'dadosProduto()'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
             'exclusividade': forms.CheckboxInput(attrs={

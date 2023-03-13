@@ -39,6 +39,7 @@
                             $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
+                            $('#ModalCadastroPreReserva #id_check_out').prop('min', (moment(date).format('yyyy-MM-DD 09:00')))
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
@@ -81,7 +82,7 @@
                                         $('#ModalCadastroPreReserva #id_produto').val(response['produto'])
                                         $('#ModalCadastroPreReserva #id_produto_corporativo').val(response['produto_corporativo'])
                                         $('#ModalCadastroPreReserva #id_check_in').val(moment(check_in).format('yyyy-MM-DDTHH:mm'))
-                                        $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
+                                        $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm')).prop('min', (moment(check_in).format('yyyy-MM-DD 09:00')))
                                         $('#ModalCadastroPreReserva #id_obs_edicao_horario').val(response['obs_edicao'])
                                         $('#ModalCadastroPreReserva #id_qtd_convidada').val(response['qtd'])
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
@@ -94,6 +95,8 @@
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
+
+                                        dadosProduto(true)
 
                                         if (response['exclusividade']) {
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)
@@ -380,14 +383,14 @@
                 })
             }
 
-            function dadosProduto(produto) {
-                $('#ModalCadastroPreReserva #id_check_out').val('')
+            async function dadosProduto(editando=false) {
+                let produto = $('#id_produto').val()
 
                 $.ajax({
                     type: 'POST',
                     url: '',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                    data: {'id_produto': produto.value},
+                    data: {'id_produto': produto},
                     success: function (response) {
                         hora_padrao_check_in = response['hora_check_in_padrao']
                         hora_padrao_check_out = response['hora_check_out_padrao']
@@ -416,11 +419,16 @@
                                 $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`YYYY-MM-DD ${response['hora_check_in_padrao']}`)))
                                 $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`YYYY-MM-DD ${response['hora_check_out_padrao']}`)))
                             } else {
-                                $('#ModalCadastroPreReserva #id_check_out').val('')
+                                if (!editando) {
+                                    $('#ModalCadastroPreReserva #id_check_out').val('')
+                                }
                             }
                         }
                     }
                 }).done(function () {
+                    if (editando) {
+                        $('#id_produto_corporativo').trigger('change')
+                    }
                     $('#id_check_out').trigger('change')
                 })
             }
@@ -464,7 +472,7 @@
                     lotacao_dia_dia(check_in.val(), check_out.val())
                 }
 
-                function corporativo(selecao) {
+                async function corporativo(selecao) {
                     const id_produto = selecao.value
                     let check_in = $('#id_check_in')
                     let check_out = $('#id_check_out')
