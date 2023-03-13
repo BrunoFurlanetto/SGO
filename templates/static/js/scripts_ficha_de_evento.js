@@ -115,7 +115,7 @@ function pegarDias(editando = false) {
             let dias = moment.duration(intervalo).asDays()
 
             if ($('#corpo-tabela-refeicao .alert').length === 0) $('#corpo-tabela-refeicao').append('<tr class="alert alert-primary" style="text-align: center"><td colspan="7" style="padding: 0">Dias adicionados</td></tr>')
-            
+
             for (let i = 1; i < dias + 1; i++) {
                 add_refeicao(moment(check_in.val()).format('YYYY-MM-DD'))
                 data = moment(check_in.val()).add(i, 'days')
