@@ -253,7 +253,7 @@
                                name="cafe_{{ forloop.counter }}" {% if dados_refeicoes.refeicoes.0 %}
                                checked {% endif %} style="width: 5px; height: 5px">
                     </td>
-                    {% if form.qtd_professores.value == None %}
+                    {% if not ficha_de_evento.produto.colegio %}
                         <td><input type="checkbox" class="form-check-input coffee_m"
                                    id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
                                 {% if dados_refeicoes.refeicoes.1 %} checked {% endif %}
@@ -265,14 +265,14 @@
                             {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
                                style="width: 5px; height: 5px">
                     </td>
-                    {% if form.qtd_professores.value != None %}
+                    {% if ficha_de_evento.produto.colegio %}
                         <td><input type="checkbox" class="form-check-input lanche_t"
                                    id="lanche_t_{{ forloop.counter }}" name="lanche_t_{{ forloop.counter }}"
                                 {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
                                    style="width: 5px; height: 5px">
                         </td>
                     {% endif %}
-                    {% if form.qtd_professores.value == None %}
+                    {% if not ficha_de_evento.produto.colegio %}
                         <td><input type="checkbox" class="form-check-input coffee_t"
                                    id="coffee_t_{{ forloop.counter }}" name="coffee_t_{{ forloop.counter }}"
                                 {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
@@ -283,7 +283,7 @@
                             {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
                                style="width: 5px; height: 5px">
                     </td>
-                    {% if form.qtd_professores.value != None %}
+                    {% if ficha_de_evento.produto.colegio %}
                         <td><input type="checkbox" class="form-check-input lanche_n"
                                    id="lanche_n_{{ forloop.counter }}" name="lanche_n_{{ forloop.counter }}"
                                 {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}

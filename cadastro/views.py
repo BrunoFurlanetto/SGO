@@ -300,7 +300,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     atividades_ceu = Atividades.objects.all()
     grupos_atividade = GrupoAtividade.objects.all()
     dados_pre_reserva = ficha_de_evento = None
-    print(request.POST)
+    
     try:
         vendedora = Vendedor.objects.get(usuario=request.user)
         form.vendedora = vendedora.id
