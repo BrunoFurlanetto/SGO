@@ -154,7 +154,7 @@
                     events: [
                         {% for pre_reserva in pre_reservas %}
                             {
-                                title: "{{ pre_reserva.cliente }}".replace("&#x27;", "\'"),
+                                title: "{{ pre_reserva.cliente|safe }}",
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
                                 extendedProps: {
@@ -174,7 +174,7 @@
                         {% for evento in eventos %}
                             {
                                 {% if professor_ceu %}
-                                    title: "{{ evento.ficha_de_evento.cliente }}".replace("&#x27;", "\'"),
+                                    title: "{{ evento.ficha_de_evento.cliente|safe }}",
                                     start: "{{ evento.check_in_ceu | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
@@ -183,7 +183,7 @@
                                         'id_cliente': '{{ evento.ficha_de_evento.id }}'
                                     },
                                 {% else %}
-                                    title: "{{ evento.ficha_de_evento.cliente }}",
+                                    title: "{{ evento.ficha_de_evento.cliente|safe }}",
                                     start: "{{ evento.check_in | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
@@ -210,7 +210,7 @@
                                 {
                                     {% if professor_ceu%}
                                         {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
-                                            title: "{{ ficha.cliente }}".replace("&#x27;", "\'"),
+                                            title: "{{ ficha.cliente|safe }}",
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
@@ -220,7 +220,7 @@
                                             },
                                         {% endif %}
                                     {% else %}
-                                        title: "{{ ficha.cliente}}",
+                                        title: "{{ ficha.cliente|safe }}",
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',

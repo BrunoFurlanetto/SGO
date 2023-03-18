@@ -123,26 +123,49 @@
             <label>QTD reservada</label>
             {{ form.qtd_confirmada }}
         </div>
-        <div class="alunos-pernoite {% if form.qtd_meninas.value == None %} none {% endif %}"
-             style="width: 15%">
-            <label>QTD meninas</label>
-            {{ form.qtd_meninas }}
-        </div>
-        <div class="alunos-pernoite {% if form.qtd_meninos.value == None %} none {% endif %}"
-             style="width: 15%">
-            <label>QTD meninos</label>
-            {{ form.qtd_meninos }}
-        </div>
-        <div class="corporativo {% if form.qtd_homens.value == None %} none {% endif %}"
-             style="width: 15%;">
-            <label>QTD homens</label>
-            {{ form.qtd_homens }}
-        </div>
-        <div class="corporativo {% if form.qtd_mulheres.value == None %} none {% endif %}"
-             style="width: 15%">
-            <label>QTD mulheres</label>
-            {{ form.qtd_mulheres }}
-        </div>
+        {% if ficha_de_evento %}
+            <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD meninas</label>
+                {{ form.qtd_meninas }}
+            </div>
+            <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD meninos</label>
+                {{ form.qtd_meninos }}
+            </div>
+            <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
+                 style="width: 15%;">
+                <label>QTD homens</label>
+                {{ form.qtd_homens }}
+            </div>
+            <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD mulheres</label>
+                {{ form.qtd_mulheres }}
+            </div>
+        {% else %}
+            <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD meninas</label>
+                {{ form.qtd_meninas }}
+            </div>
+            <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD meninos</label>
+                {{ form.qtd_meninos }}
+            </div>
+            <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
+                 style="width: 15%;">
+                <label>QTD homens</label>
+                {{ form.qtd_homens }}
+            </div>
+            <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
+                 style="width: 15%">
+                <label>QTD mulheres</label>
+                {{ form.qtd_mulheres }}
+            </div>
+        {% endif %}
     </div>
     {% if ficha_de_evento %}
         <div class="row professores {% if not ficha_de_evento.produto.colegio %} none {% endif %}">

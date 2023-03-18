@@ -38,7 +38,7 @@ def eventos(request):
                         check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
                         check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
                         exclusividade=True,
-                    ).exists()
+                    ).exclude(check_out__date=datetime.strptime(request.GET.get('data'), '%Y-%m-%d')).exists()
                 })
 
             if request.GET.get('check_in'):

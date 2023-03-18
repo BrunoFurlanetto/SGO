@@ -52,7 +52,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
             'id_endereco': ficha_de_evento.cliente.endereco,
             'id_cnpj': ficha_de_evento.cliente.cnpj,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
-            'transporte': ficha_de_evento.informacoes_adcionais.transporte,
+            'transporte': ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 1,
             'seguro': ficha_de_evento.informacoes_adcionais.seguro,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
