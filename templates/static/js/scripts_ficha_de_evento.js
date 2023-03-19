@@ -487,7 +487,7 @@ function editar_ficha() {
     $('#form_ficha, #form_adicionais, #salvar, #form_app, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
 
-    $('#id_cliente_pf, #id_cliente_pj').prop('readonly', true)
+    $('#id_cliente_pj').prop('readonly', true)
 
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')

@@ -171,7 +171,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
             cliente = {
                 'id': cliente_bd.id,
                 'codigo_app_pj': cliente_bd.codigo_app_pj,
-                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -190,7 +189,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
             cliente = {
                 'id': cliente_bd.id,
                 'codigo_app_pj': cliente_bd.codigo_app_pj,
-                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -208,7 +206,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
     if requisicao.get('id_cliente_app'):
         cliente = ClienteColegio.objects.get(id=int(requisicao.get('id_cliente_app')))
 
-        return {'id_cliente_pj': cliente.codigo_app_pj, 'id_cliente_pf': cliente.codigo_app_pf}
+        return {'id_cliente_pj': cliente.codigo_app_pj}
 
     if requisicao.get('id'):
         responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))

@@ -165,7 +165,6 @@ class ClienteColegio(models.Model):
     nome_fantasia = models.CharField(max_length=255)
     nickname = models.CharField(max_length=255, blank=True, null=True)
     codigo_app_pj = models.IntegerField(unique=True, blank=True, null=True)
-    codigo_app_pf = models.IntegerField(unique=True, blank=True, null=True)
     endereco = models.CharField(max_length=600)
     bairro = models.CharField(max_length=255)
     cidade = models.CharField(max_length=255)
@@ -549,13 +548,11 @@ class CadastroCliente(forms.ModelForm):
                 'pattern': '\d*', 'minlength': '6', 'maxlength': '6',
                 'onload': 'if (this.value != "") this.prop("readonly", false)',
             }),
-            'codigo_app_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(CadastroCliente, self).__init__(*args, **kwargs)
         self.fields['codigo_app_pj'].widget.attrs['readonly'] = True
-        self.fields['codigo_app_pf'].widget.attrs['readonly'] = True
 
 
 class CadastroResponsavel(forms.ModelForm):

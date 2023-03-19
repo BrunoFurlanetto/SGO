@@ -4,6 +4,7 @@ function novo_cliente(){
     $('.lista-clientes').addClass('none')
     $('.cadastro-novo').removeClass('none')
     $('.dados-cliente').addClass('none')
+    $('#cadastro #id_codigo_app_pj').prop('readonly', false)
 
     // CEP
     setTimeout(() => {
