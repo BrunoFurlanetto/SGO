@@ -265,6 +265,24 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
         pdf_ordem.cell(0, 8, ordem_de_servico.monitor_embarque.usuario.get_full_name(), ln=1)
 
+        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
+
+        if ficha_de_evento.informacoes_adcionais.lanche_bordo:
+            pdf_ordem.cell(20, 8, 'Sim')
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ida: ') + 1, 8, 'Ida:')
+
+            if ficha_de_evento.informacoes_adcionais.ida:
+                pdf_ordem.cell(10, 8, 'Sim')
+            else:
+                pdf_ordem.cell(10, 8, 'Não')
+
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Volta: ') + 1, 8, 'Volta:')
+
+            if ficha_de_evento.informacoes_adcionais.volta:
+                pdf_ordem.cell(10, 8, 'Sim', ln=1)
+            else:
+                pdf_ordem.cell(10, 8, 'Não', ln=1)
+
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
         pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['micro_onibus']))
 

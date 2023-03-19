@@ -116,8 +116,8 @@
                         {% endif %}
                     </div>
                 </div>
-                <hr class="transporte {% if ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %}">
-                <div class="row {% if ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %} transporte">
+                <hr class="transporte {% if not ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %}">
+                <div class="row {% if not ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %} transporte">
                     <h5 class="titulo-secao">Transporte</h5>
                     <div class="checkbox" style="width: 80%" id="viacao">
                         <label>Viação</label>

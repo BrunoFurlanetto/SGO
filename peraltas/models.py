@@ -294,6 +294,9 @@ class InformacoesAdcionais(models.Model):
 
     transporte = models.BooleanField()
     transporte_fechado_internamente = models.IntegerField(choices=sim_nao, default='', blank=True, null=True)
+    lanche_bordo = models.BooleanField(default=False)
+    ida = models.BooleanField(default=False)
+    volta = models.BooleanField(default=False)
     seguro = models.BooleanField()
     monitoria = models.IntegerField(choices=tipos_monitoria, blank=True, null=True)
     biologo = models.BooleanField()
@@ -575,6 +578,7 @@ class CadastroInfoAdicionais(forms.ModelForm):
             'etiquetas_embarque': forms.CheckboxInput(attrs={'onchange': 'servicoBordo()'}),
             'biologo': forms.CheckboxInput(attrs={'onchange': 'quaisAtividades()'}),
             'transporte_fechado_internamente': forms.Select(attrs={'style': 'width: 100px'}),
+            'lanche_bordo': forms.CheckboxInput(attrs={'onclick': 'liberar_ida_e_volta()'})
         }
 
 

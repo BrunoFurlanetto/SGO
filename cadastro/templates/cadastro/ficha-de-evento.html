@@ -356,10 +356,17 @@
                 </div>
             </div>
         </div>
-        <div style="width: 40%" id="div_locacao_ceu">
-            <label>Locações</label>
-            {{ form.locacoes_ceu }}
-        </div>
+        {% if ficha_de_evento %}
+            <div style="width: 40%" id="div_locacao_ceu" class="{% if ficha_de_evento.produto.colegio %} none {% endif %}">
+                <label>Locações</label>
+                {{ form.locacoes_ceu }}
+            </div>
+        {% else %}
+            <div style="width: 40%" id="div_locacao_ceu" class="{% if pre_reserva.produto.colegio %} none {% endif %}">
+                <label>Locações</label>
+                {{ form.locacoes_ceu }}
+            </div>
+        {% endif %}
     </div>
     <hr class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
     <div id="dados_locacoes"
@@ -542,6 +549,20 @@
                                 <div class="mb-2">
                                     <label>Fechado internamente?</label>
                                     {{ formAdicionais.transporte_fechado_internamente }}
+                                </div>
+                                <div class="checkbox mt-2">
+                                    {{ formAdicionais.lanche_bordo }}
+                                    <label>Lanche de bordo?</label>
+                                </div>
+                                <div class="ida_e_volta mt-2 {% if not ficha_de_evento.informacoes_adcionais.lanche_bordo %} none {% endif %}">
+                                    <div class="checkbox">
+                                        {{ formAdicionais.ida }}
+                                        <label>Ida</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        {{ formAdicionais.volta }}
+                                        <label>Volta</label>
+                                    </div>
                                 </div>
                             </div>
                             <hr>

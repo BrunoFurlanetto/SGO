@@ -156,6 +156,14 @@ function pegarDias(editando = false) {
     }
 }
 
+function liberar_ida_e_volta() {
+    if ($('#id_lanche_bordo').prop('checked')) {
+        $('.ida_e_volta').removeClass('none')
+    } else {
+        $('.ida_e_volta').addClass('none')
+    }
+}
+
 async function tabela_refeicoes() {
     console.log('Foi')
     const data_1 = $('#sessao_periodo_viagem #id_check_in').val().split('T')[0]
