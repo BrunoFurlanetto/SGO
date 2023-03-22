@@ -33,13 +33,16 @@ def eventos(request):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
             if request.GET.get('data'):
-                return JsonResponse({
-                    'exclusividade': FichaDeEvento.objects.filter(
-                        check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                        check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                        exclusividade=True,
-                    ).exclude(check_out__date=datetime.strptime(request.GET.get('data'), '%Y-%m-%d')).exists()
-                })
+                if not User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists():
+                    return JsonResponse({
+                        'exclusividade': FichaDeEvento.objects.filter(
+                            check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                            check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                            exclusividade=True,
+                        ).exclude(check_out__date=datetime.strptime(request.GET.get('data'), '%Y-%m-%d')).exists()
+                    })
+                else:
+                    return JsonResponse({'exclusividade': False})
 
             if request.GET.get('check_in'):
                 fichas_intervalo = []

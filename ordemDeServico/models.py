@@ -121,6 +121,14 @@ class CadastroOrdemDeServico(forms.ModelForm):
         self.fields['cidade'].widget.attrs['readonly'] = True
         self.fields['responsavel_grupo'].widget.attrs['readonly'] = True
 
+        monitores = Monitor.objects.filter(nivel__nivel__contains='Coordenador')
+        monitores_selecao = []
+
+        for monitor in monitores:
+            monitores_selecao.append((monitor.id, monitor.usuario.get_full_name()))
+
+        self.fields['monitor_responsavel'].choices = monitores_selecao
+
     @staticmethod
     def opt_groups():
         grupos = []

@@ -1,3 +1,7 @@
+$(document).ready(function () {
+    $('button.fc-prev-button').prop('disabled', true)
+})
+
 function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30) {
     let ids_monitor = []
     let ids_enfermeira = []
@@ -42,7 +46,8 @@ function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfe
 
 function montar_disponibilidades(disponibilidade, coordenador) {
     const monitores = document.getElementById('nomes_monitores')
-    const data_mais_30 = moment(new Date(Date.now())).add(30, 'days').format('YYYY-MM-DD')
+    const hoje = new Date(Date.now())
+    const data_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
     let editavel = false
 
     if (coordenador == 'True') editavel = true
@@ -51,13 +56,39 @@ function montar_disponibilidades(disponibilidade, coordenador) {
         itemSelector: '.card-monitor',
     })
 
+    function onChangeMonth() {
+        if (moment(calendar.currentData.currentDate).month() !== moment(hoje).month()) {
+            $('button.fc-prev-button').prop('disabled', false)
+        } else {
+            $('button.fc-prev-button').prop('disabled', true)
+        }
+    }
+
     let calendarUI = document.getElementById('calendario_escala');
     let calendar = new FullCalendar.Calendar(calendarUI, {
 
         headerToolbar: {
             left: '',
             center: 'title',
-            right: 'next'
+            right: 'prev, next'
+        },
+
+        customButtons: {
+            prev: {
+                text: 'Voltar',
+                click: function () {
+                    calendar.prev();
+                    onChangeMonth();
+                },
+            },
+
+            next: {
+                text: 'Avançar',
+                click: function () {
+                    calendar.next();
+                    onChangeMonth();
+                }
+            },
         },
 
         dayMaxEvents: 4,
@@ -70,7 +101,11 @@ function montar_disponibilidades(disponibilidade, coordenador) {
 
         dayCellDidMount: function (info) {
             if (moment(info.date).format('YYYY-MM-DD') < data_mais_30) {
-                info.el.classList.add('not_selected');
+                info.el.classList.add('not_selected')
+            }
+
+            if (hoje.getDate() > 15 && info.date.getMonth() === hoje.getMonth() + 1) {
+                info.el.classList.add('not_selected')
             }
         },
 
