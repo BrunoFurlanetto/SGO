@@ -5,10 +5,11 @@ $(document).ready(function () {
 function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30) {
     let ids_monitor = []
     let ids_enfermeira = []
+    const hoje = new Date(Date.now())
 
-    if (dia_adicionado < hoje_mais_30) {
-        return false
-    }
+    if (hoje.getDate() > 15 && moment(dia_adicionado).month() === hoje.getMonth() + 1) return false
+
+    if (dia_adicionado < hoje_mais_30) return false
 
     let eventos_dia = eventos_intervalo.filter((event) => {
         if (moment(event.start).format('YYYY-MM-DD') === dia_adicionado) {
@@ -48,9 +49,6 @@ function montar_disponibilidades(disponibilidade, coordenador) {
     const monitores = document.getElementById('nomes_monitores')
     const hoje = new Date(Date.now())
     const data_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
-    let editavel = false
-
-    if (coordenador == 'True') editavel = true
 
     new FullCalendar.Draggable(monitores, {
         itemSelector: '.card-monitor',
@@ -92,7 +90,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
         },
 
         dayMaxEvents: 4,
-        editable: editavel,
+        editable: true,
         droppable: true,
         eventOrderStrict: true,
         locale: 'pt-br',
@@ -111,9 +109,13 @@ function montar_disponibilidades(disponibilidade, coordenador) {
 
         eventDidMount: function (info) {
             info.event.setProp('color', info.event.extendedProps['color'])
+            console.log(hoje.getDate(), hoje.getMonth(), moment(info.event.start).month())
+            if (hoje.getDate() > 15 && hoje.getMonth() + 1 === moment(info.event.start).month()) {
+                info.el.classList.remove('fc-event-draggable')
+            }
 
             if (moment(info.event.start).format('YYYY-MM-DD') < data_mais_30) {
-                info.el.classList.remove('fc-event-draggable');
+                info.el.classList.remove('fc-event-draggable')
             }
         },
 

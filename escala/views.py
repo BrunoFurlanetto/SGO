@@ -242,7 +242,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     escala_editada = None
     escalado = []
     disponiveis = []
-    print(request.POST)
+
     if request.method != 'POST':
         if setor == 'acampamento':
             if request.GET.get('cliente'):
