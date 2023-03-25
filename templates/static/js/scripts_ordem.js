@@ -116,6 +116,12 @@ function completar_dados_os(selecao) {
                 }
             }
 
+            if (response['atividades_ceu_a_definir'] !== '') {
+                for (let i = 0; i < parseInt(response['atividades_ceu_a_definir']); i++) {
+                    add_atividade('', '', response['id_serie'])
+                }
+            }
+
             if (response['locacoes_ceu'] !== '') {
                 for (let i in response['locacoes_ceu']) {
                     add_locacao(parseInt(i))

@@ -63,6 +63,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
             'id_vendedor': ficha_de_evento.vendedora.id,
             'id_empresa': ficha_de_evento.empresa,
             'atividades_ceu': atividades_ceu,
+            'atividades_ceu_a_definir': ficha_de_evento.atividades_ceu_a_definir,
             'locacoes_ceu': locacoes_ceu,
             'atividades_eco': atividades_eco,
             'atividades_peraltas': atividades_peraltas,
@@ -426,7 +427,7 @@ def pegar_refeicoes(dados):
 
 
 def ver_empresa_atividades(dados):
-    atividades_ceu = dados.get('atividades_ceu')
+    atividades_ceu = [dados.get('atividades_ceu'), dados.get('atividades_ceu_a_definir')]
     locacoes_ceu = dados.get('locacoes_ceu')
     atividades_exta = dados.get('atividades_eco')
     atividades_peraltas = dados.get('atividades_peraltas')

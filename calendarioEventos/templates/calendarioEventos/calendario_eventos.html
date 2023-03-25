@@ -28,7 +28,7 @@
                     locale: 'pt-br',
                     dayMaxEvents: 5,
 
-                    {% if comercial %}
+                    {% if perms.peraltas.add_fichadeevento %}
                         navLinks: true,
                         navLinkDayClick: function (date, jsEvent) {
                             $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
@@ -59,7 +59,9 @@
                                 }
                             })
                         },
+                    {% endif %}
 
+                    {% if perms.peraltas.view_fichadeevento %}
                         eventClick: function (info) {
                             if (info.el.l) {
                                 let id_pre_reserva = info.event.extendedProps['id_pre_reserva']
@@ -118,7 +120,9 @@
                                                 modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                             {% endif %}
 
-                                            modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
+                                            {% endif %}
                                         } else {
                                             {% if perms.peraltas.add_fichadeevento %}
                                                 {% if perms.peraltas.delete_fichadeevento %}
@@ -130,8 +134,10 @@
                                                 {% endif %}
                                             {% endif %}
 
-                                            modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
-                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
+                                                modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
+                                            {% endif %}
 
                                             {% if perms.peraltas.add_fichadeevento %}
                                                 {% if perms.peraltas.delete_fichadeevento %}
@@ -383,7 +389,7 @@
                 })
             }
 
-            async function dadosProduto(editando=false) {
+            async function dadosProduto(editando = false) {
                 let produto = $('#id_produto').val()
 
                 $.ajax({
@@ -437,68 +443,68 @@
                 let check_in = $('#id_check_in')
                 let check_out = $('#id_check_out')
 
-                    if (check_out.val() !== '' && check_out.val() < check_in.val()) {
+                if (check_out.val() !== '' && check_out.val() < check_in.val()) {
+                    check_out.val('')
+
+                    return
+                }
+
+                pegar_horario_padrao(check_in, check_out)
+            }
+
+            function pegar_horario_padrao(check_in, check_out) {
+                $('#aviso_produto_n_selecionado').remove()
+                let check_editar = $('#editar_horarios').prop('checked')
+
+                if (!check_editar) {
+                    if (hora_padrao_check_in === undefined) {
+                        $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
                         check_out.val('')
 
                         return
+                    } else if (hora_padrao_check_in === null) {
+                        return
                     }
 
-                    pegar_horario_padrao(check_in, check_out)
+                    check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
+
+                    if (dias_produto !== null) {
+                        check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
+                    } else {
+                        check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
+                    }
                 }
 
-                function pegar_horario_padrao(check_in, check_out) {
-                    $('#aviso_produto_n_selecionado').remove()
-                    let check_editar = $('#editar_horarios').prop('checked')
+                lotacao_dia_dia(check_in.val(), check_out.val())
+            }
 
-                    if (!check_editar) {
-                        if (hora_padrao_check_in === undefined) {
-                            $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-                            check_out.val('')
+            async function corporativo(selecao) {
+                const id_produto = selecao.value
+                let check_in = $('#id_check_in')
+                let check_out = $('#id_check_out')
+                hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+                hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+                pegar_horario_padrao(check_in, check_out)
+            }
 
-                            return
-                        } else if (hora_padrao_check_in === null) {
-                            return
-                        }
+            function verificar_evento_dia_exclusividade() {
+                const check_in = $('#id_check_in').val()
+                const check_out = $('#id_check_out').val()
+                const id_cliente = $('#id_cliente').val()
+                $('#alerta_exclusividade').remove()
 
-                        check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
-
-                        if (dias_produto !== null) {
-                            check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
-                        } else {
-                            check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
+                    success: function (response) {
+                        if (response['eventos'] && $('#id_exclusividade').prop('checked')) {
+                            $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
                         }
                     }
-
-                    lotacao_dia_dia(check_in.val(), check_out.val())
-                }
-
-                async function corporativo(selecao) {
-                    const id_produto = selecao.value
-                    let check_in = $('#id_check_in')
-                    let check_out = $('#id_check_out')
-                    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
-                    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
-                    pegar_horario_padrao(check_in, check_out)
-                }
-
-                function verificar_evento_dia_exclusividade() {
-                    const check_in = $('#id_check_in').val()
-                    const check_out = $('#id_check_out').val()
-                    const id_cliente = $('#id_cliente').val()
-                    $('#alerta_exclusividade').remove()
-
-                    $.ajax({
-                        type: 'GET',
-                        url: '',
-                        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                        data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
-                        success: function (response) {
-                            if (response['eventos'] && $('#id_exclusividade').prop('checked')) {
-                                $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
-                            }
-                        }
-                    })
-                }
+                })
+            }
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
