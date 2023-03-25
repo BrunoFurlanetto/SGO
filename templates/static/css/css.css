@@ -637,6 +637,17 @@
     border-radius: 15px;
 }
 
+.conteudo_nova_senha {
+    width: 400px;
+    padding: 10px;
+    margin: 10% auto;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+}
+
 .conteudo-fichas-entregues {
     background-color: #fff;
     margin: auto auto 5%;
