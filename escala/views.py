@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
+from itertools import chain
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
@@ -182,11 +184,22 @@ def disponibilidadePeraltas(request):
 
 @login_required(login_url='login')
 def verEscalaPeraltas(request):
-    escalas_hotelaria = EscalaHotelaria.objects.all()
-    escalas_acampamento = EscalaAcampamento.objects.all()
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-    print(request.POST)
+
+    if coordenador_acampamento or coordenador_hotelaria:
+        escalas_hotelaria = EscalaHotelaria.objects.all()
+        escalas_acampamento = EscalaAcampamento.objects.all()
+    else:
+        escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
+        escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento__usuario=request.user)
+        escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
+            monitores_embarque__usuario=request.user
+        ).exclude(id__in=escalas_acampamento_acampamento)
+        escalas_acampamento_enermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
+        escalas_acampamento = list(chain(
+            escalas_acampamento_acampamento, escalas_acampamento_embarque, escalas_acampamento_enermeira
+        ))
 
     if request.method != 'POST':
         return render(request, 'escala/escala_peraltas.html', {
@@ -441,9 +454,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             if request.POST.get('id_escala'):
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
+                escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
                 escala_hotelaria.save()
             else:
                 nova_escala = EscalaHotelaria.objects.create(data=data_selecionada, monitores_hotelaria=escala_dia)
+                nova_escala.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
                 nova_escala.save()
 
         except Exception as e:

@@ -19,11 +19,11 @@
         {% endif %}
 
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
-          {% csrf_token %}
+        {% csrf_token %}
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            $(document).ready(function (){
+            $(document).ready(function () {
                 mostrar_calendario()
             })
 
@@ -100,93 +100,136 @@
                         events: [
                             {% for escala in escalas_acampamento %}
                                 {
-                                    title: "{{ escala.cliente }}",
+                                    title: {% if coordenador_acampamento or coordenador_hotelaria %}
+                                        "{{ escala.cliente }}"
+                                    {% else %}
+                                        "{{ escala.tipo_escala }}"
+                                    {% endif %},
                                     start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
                                     end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
                                     extendedProps: {
                                         "id_escala":{{ escala.id }},
                                     },
+                                    {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Colégio' %}
+                                        color: '#FF8C00',
+                                    {% endif %}
+
+                                    {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Corporativo' %}
+                                        color: '#fcc607',
+                                    {% endif %}
                                 },
                             {% endfor %}
+
+                            {% if not coordenador_hotelaria and not coordenador_acampamento %}
+                                {% for escala in escalas_hotelaria %}
+                                    {
+                                        title: 'Hotelaria',
+                                        start: "{{ escala.data | date:'Y-m-d' }}",
+                                        extendedProps: {
+                                            "id_escala":{{ escala.id }},
+                                        },
+                                    },
+                                {% endfor %}
+                            {% endif %}
                         ],
 
-                        eventColor: '#f36d21',
+                        {% if coordenador_acampamento or coordenador_hotelaria %}
+                            eventColor: '#f36d21',
+                        {% endif %}
 
-                        eventClick: function(info) {
-                            const cliente = info.event.title
-                            const id_escala = info.event.extendedProps['id_escala']
-                            const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
-                            const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
+                        {% if coordenador_acampamento %}
+                            eventClick: function (info) {
+                                const cliente = info.event.title
+                                const id_escala = info.event.extendedProps['id_escala']
+                                const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
+                                const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
 
-                            $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
-                            $('#div_embarque, #div_enfermeiras').addClass('none')
-                            $('#cliente_modal').val(cliente)
-                            $('#id_escala').val(id_escala)
-                            $('#titulo_modal').text('Escala para o evento de ' + cliente)
-                            $('#check_in_evento_modal').val(check_in_evento)
-                            $('#check_out_evento_modal').val(check_out_evento)
+                                $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
+                                $('#div_embarque, #div_enfermeiras').addClass('none')
+                                $('#cliente_modal').val(cliente)
+                                $('#id_escala').val(id_escala)
+                                $('#titulo_modal').text('Escala para o evento de ' + cliente)
+                                $('#check_in_evento_modal').val(check_in_evento)
+                                $('#check_out_evento_modal').val(check_out_evento)
 
-                            $.ajax({
-                                type: 'POST',
-                                url: '',
-                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                data: {'id_escala': id_escala},
-                                success: function(response){
-                                    for(let monitor of response['escalados']['acampamento']){
-                                        if(monitor['coordenador']){
-                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${monitor['nome']}</li>`)
-                                        }else{
-                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${monitor['nome']}</li>`)
-                                        }
-                                    }
-
-                                    if (response['escalados']['embarque'].length > 0){
-                                        for(let monitor of response['escalados']['embarque']){
-                                            $('#div_embarque').removeClass('none')
-
-                                            if(monitor['coordenador']){
-                                                $('#monitores_escalados_embarque_modal ul').append(`<li style="color: #f36d21">${monitor['nome']}</li>`)
-                                            }else{
-                                                $('#monitores_escalados_embarque_modal ul').append(`<li>${monitor['nome']}</li>`)
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '',
+                                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                    data: {'id_escala': id_escala},
+                                    success: function (response) {
+                                        for (let monitor of response['escalados']['acampamento']) {
+                                            if (monitor['coordenador']) {
+                                                $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${monitor['nome']}</li>`)
+                                            } else {
+                                                $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${monitor['nome']}</li>`)
                                             }
                                         }
-                                    }
 
-                                    if (response['escalados']['enfermeiras'].length > 0){
-                                        $('#div_enfermeiras').removeClass('none')
+                                        if (response['escalados']['embarque'].length > 0) {
+                                            for (let monitor of response['escalados']['embarque']) {
+                                                $('#div_embarque').removeClass('none')
 
-                                        for(let enfermeira of response['escalados']['enfermeiras']){
-                                            $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
+                                                if (monitor['coordenador']) {
+                                                    $('#monitores_escalados_embarque_modal ul').append(`<li style="color: #f36d21">${monitor['nome']}</li>`)
+                                                } else {
+                                                    $('#monitores_escalados_embarque_modal ul').append(`<li>${monitor['nome']}</li>`)
+                                                }
+                                            }
                                         }
+
+                                        if (response['escalados']['enfermeiras'].length > 0) {
+                                            $('#div_enfermeiras').removeClass('none')
+
+                                            for (let enfermeira of response['escalados']['enfermeiras']) {
+                                                $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
+                                            }
+                                        }
+
+                                        $('#id_cliente_modal').val(response['id_cliente'])
+
                                     }
+                                })
 
-                                    $('#id_cliente_modal').val(response['id_cliente'])
-
-                                }
-                            })
-
-                            $('#ModalEscalaEvento').modal('show');
-                        }
-
+                                $('#ModalEscalaEvento').modal('show');
+                            }
+                        {% endif %}
                     });
                     calendario_acampamento.render();
                     calendario_acampamento.setOption('locale', 'pt-br')
                 }
             }
 
-            function redirecionar_edicao(){
+            function redirecionar_edicao() {
                 window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')}/${$('#id_cliente_modal').val()}`
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>
+        {% if not coordenador_hotelaria and not coordenador_acampamento %}
+            <div class="legenda row">
+                <div class="colegio" style="display: flex; width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Colégio</p>
+                </div>
+                <div class="empresa" style="display: flex; width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Empresa</p>
+                </div>
+                <div class="hotelaria" style="display: flex; width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Hotelaria</p>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
-    <div class="modal fade" id="ModalEscalaEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="ModalEscalaEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="titulo_modal"></h5>
-                    <button class="btn btn-close" data-dismiss="modal" ></button>
+                    <button class="btn btn-close" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <h5 class="titulo-secao">Dados evento</h5>
@@ -210,16 +253,25 @@
                     <div class="row">
                         <div>
                             <label><b>Acampamento</b></label>
-                            <div id="monitores_escalados_modal" style="max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul class="row"></ul></div>
+                            <div id="monitores_escalados_modal"
+                                 style="max-height: 200px; overflow-y: auto; overflow-x: hidden">
+                                <ul class="row"></ul>
+                            </div>
                         </div>
                         <div class="barra"></div>
                         <div id="div_embarque" class="none" style="width: 50%">
                             <label><b>Embarque</b></label>
-                            <div id="monitores_escalados_embarque_modal" style="max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul></ul></div>
+                            <div id="monitores_escalados_embarque_modal"
+                                 style="max-height: 200px; overflow-y: auto; overflow-x: hidden">
+                                <ul></ul>
+                            </div>
                         </div>
                         <div id="div_enfermeiras" style="width: 50%" class="none">
                             <label><b>Enfermeiras</b></label>
-                            <div id="enfermeiras_escaladas_modal" style="max-height: 200px; overflow-y: auto; overflow-x: hidden"><ul></ul></div>
+                            <div id="enfermeiras_escaladas_modal"
+                                 style="max-height: 200px; overflow-y: auto; overflow-x: hidden">
+                                <ul></ul>
+                            </div>
                         </div>
                     </div>
                 </div>

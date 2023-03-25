@@ -584,6 +584,15 @@
     background-color: #8B008B;
 }
 
+.hotelaria .cor {
+    margin: 10px 5px 10px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #0a58ca;
+    border-radius: 8px;
+    background-color: #0a58ca;
+}
+
 #id_material_apoio {
     border: none;
     height: auto;

@@ -467,6 +467,12 @@ class EscalaAcampamento(models.Model):
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
 
+    def tipo_escala(self):
+        if self.ficha_de_evento.produto.colegio:
+            return "Colégio"
+        else:
+            return 'Corporativo'
+
 
 class EscalaHotelaria(models.Model):
     monitores_hotelaria = models.JSONField(null=True)
