@@ -53,14 +53,6 @@ INSTALLED_APPS = [
     'orcamento.apps.OrcamentoConfig',
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'error.alpha.teste@gmail.com'
-EMAIL_HOST_PASSWORD = 'ofdsqhqzyfctqkem'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'REDEFINIR SENHA'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
