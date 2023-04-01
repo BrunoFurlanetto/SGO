@@ -286,10 +286,14 @@ def pegar_clientes_data_selecionada(data):
     :return: Retorna a lista de todos os clientes padronizado, id e nome fantasia
     """
     # ----- Primeiramente é pego os cliente que não tornaram OS e depois as fichas de evento que já tem sua OS -----
-    clientes_dia_ficha = FichaDeEvento.objects.filter(os=False, escala=False).filter(check_in__date__lte=data,
-                                                                                     check_out__date__gte=data)
-    clientes_dia_ordem = OrdemDeServico.objects.filter(escala=False).filter(check_in__date__lte=data,
-                                                                            check_out__date__gte=data)
+    clientes_dia_ficha = FichaDeEvento.objects.filter(os=False, escala=False, pre_reserva=False).filter(
+        check_in__date__lte=data,
+        check_out__date__gte=data
+    )
+    clientes_dia_ordem = OrdemDeServico.objects.filter(escala=False).filter(
+        check_in__date__lte=data,
+        check_out__date__gte=data
+    )
     # Junta em uma lista pra facilitar no looping que vai pegar os dados de forma correta
     todos_clientes = list(chain(clientes_dia_ficha, clientes_dia_ordem))
     clientes = []  # Lista que vai receber os dados
@@ -463,6 +467,12 @@ def escalados_para_o_evento(dados_evento):
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
+    for monitor in escala.biologos.all():
+        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+            monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
+        else:
+            monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
+
     for monitor in escala.monitores_embarque.all():
         if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
             monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
@@ -548,6 +558,9 @@ def pegar_escalacoes(escala, acampamento=True):
         escalados.append(monitor.id)
 
     for monitor in escala.monitores_embarque.all():
+        escalados.append(monitor.id)
+
+    for monitor in escala.biologos.all():
         escalados.append(monitor.id)
 
     for enfermeira in escala.enfermeiras.all():

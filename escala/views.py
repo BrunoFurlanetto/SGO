@@ -274,7 +274,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'clientes_dia': clientes_dia,
                     'data': data_selecionada,
                     'setor': setor,
-                    'biologo': ficha_de_evento.informacoes_adcionais.biologo,
+                    'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
                     'embarque': ficha_de_evento.informacoes_adcionais.transporte,
                     'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'id_cliente': cliente.id,
@@ -308,6 +308,10 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                                 for teste_monitor in escala_editada.monitores_embarque.all():
                                     if monitor['id'] == teste_monitor.id:
                                         tipo_escalacao.append('embarque')
+
+                                for teste_monitor in escala_editada.biologos.all():
+                                    if monitor['id'] == teste_monitor.id:
+                                        tipo_escalacao.append('biologo')
                             else:
                                 for teste_monitor in escala_editada.enfermeiras.all():
                                     if monitor['id'] == teste_monitor.id:
@@ -335,12 +339,17 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     )
 
                     ficha_de_evento = ordem_de_servico.ficha_de_evento
+                else:
+                    try:
+                        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+                    except OrdemDeServico.DoesNotExist:
+                        ordem_de_servico = None
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'inicio': check_in,
                     'final': check_out,
                     'id_cliente': id_cliente,
-                    'biologo': ficha_de_evento.informacoes_adcionais.biologo,
+                    'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
                     'embarque': ficha_de_evento.informacoes_adcionais.transporte,
                     'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'cliente': escala_editada.cliente.nome_fantasia,
@@ -419,6 +428,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala = EscalaAcampamento.objects.get(id=int(request.POST.get('id_escala')))
                 editando_escala.monitores_acampamento.set(request.POST.getlist('id_monitores[]'))
                 editando_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
+                editando_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
                 editando_escala.save()
             else:
@@ -427,6 +437,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                                                                check_out_cliente=check_out)
                 nova_escala.monitores_acampamento.set(request.POST.getlist('id_monitores[]'))
                 nova_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
+                nova_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 nova_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
                 nova_escala.ficha_de_evento = ficha_de_evento
                 nova_escala.save()

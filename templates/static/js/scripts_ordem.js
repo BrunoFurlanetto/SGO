@@ -2,9 +2,16 @@ let corporativo
 let editando = false
 
 $(document).ready(function () {
+    console.log(window.location.href.split('/')[5])
     if (window.location.href.split('/')[5] !== '') {
-        $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
+
+        if (window.location.href.split('/')[5] === 'ficha'){
+            $('#ficha_de_evento').select2({disabled: 'readonly'})
+            $('#id_atividades_peraltas').select2()
+        } else {
+            $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
+        }
     } else {
         $('#id_atividades_peraltas, #ficha_de_evento').select2()
     }
@@ -686,7 +693,7 @@ function verificar_limitacoes_eco(selecao) {
                 // Participante máximo da atividade em questão
                 const limite = response['participantes_maximo']
                 // A primeira verificação é do horário
-                if (data_atividade !== '') {
+                /*if (data_atividade !== '') {
 
                     // Horário informado durante o cadastro da atividade
                     let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
@@ -705,7 +712,7 @@ function verificar_limitacoes_eco(selecao) {
                     } else {
                         $(`#alert_noite_eco_${indice}`).remove()
                     }
-                }
+                }*/
 
                 // Verificação de número de participantes
                 if (participantes !== '') {
@@ -713,6 +720,7 @@ function verificar_limitacoes_eco(selecao) {
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
                     if (participantes < response['participantes_minimo']) {
+                        $(`#alert_participantes_eco_${indice}`).remove()
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger" id="alert_participantes_eco_${indice}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
                     } else {
                         $(`#alert_participantes_eco_${indice}`).remove()
@@ -722,6 +730,7 @@ function verificar_limitacoes_eco(selecao) {
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
                     if (participantes > limite) {
                         dividar_atividade_eco(indice, limite)
+                        $(`#div_pai_eco_${indice} .alert-warning`).remove()
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
                 }

@@ -52,11 +52,19 @@
     align-items: center;
 }
 
-.conteudo-login, .conteudo-manutencao {
+.box-login, .conteudo-manutencao {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+.footer_login{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .titulo-sistema {
@@ -801,6 +809,11 @@
     height: auto;
     max-height: 250px;
     overflow-y: auto;
+}
+
+#div_biologos_escalados .monitores_escalados{
+    min-height: 50px;
+    max-height: 50px;
 }
 
 #nome_monitor_botao {

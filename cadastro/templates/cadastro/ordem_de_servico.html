@@ -110,7 +110,8 @@
                             </div>
                             <div>
                                 <strong>Dados do cliente: </strong>
-                                <a data-target="#modal_dados_cliente" data-toggle="modal" onclick="completar_dados_cliente()"
+                                <a data-target="#modal_dados_cliente" data-toggle="modal"
+                                   onclick="completar_dados_cliente()"
                                    href="#modal_dados_cliente">{{ ficha_de_evento.cliente }}</a>
                             </div>
                         {% endif %}
@@ -429,7 +430,7 @@
                     <div class="botoes" style="display: flex; gap: 10px;">
                         <button type="submit" id="btn_salvar_os" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5"
-                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true">
+                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true; $('.select2-container').css('width','100%')">
                             Editar
                         </button>
 
@@ -477,7 +478,9 @@
                         </div>
                         <div style="width: 35%">
                             <label>Nickname</label>
-                            <input type="text" value="{% if ficha_de_evento.cliente.nickname %} {{ ficha_de_evento.cliente.nickname }} {% endif %}" disabled>
+                            <input type="text"
+                                   value="{% if ficha_de_evento.cliente.nickname %} {{ ficha_de_evento.cliente.nickname }} {% endif %}"
+                                   disabled>
                         </div>
                     </div>
                     <div class="row">
@@ -530,11 +533,14 @@
                             </div>
                             <div style="width: 50%">
                                 <label>Email</label>
-                                <input type="text" value="{{ ficha_de_evento.responsavel_evento.email_responsavel_evento }}" disabled>
+                                <input type="text"
+                                       value="{{ ficha_de_evento.responsavel_evento.email_responsavel_evento }}"
+                                       disabled>
                             </div>
                             <div>
                                 <label>Cargo</label>
-                                <input type="text" value="{{ ficha_de_evento.responsavel_evento.listar_cargos }}" disabled>
+                                <input type="text" value="{{ ficha_de_evento.responsavel_evento.listar_cargos }}"
+                                       disabled>
                             </div>
                         </div>
                     </div>

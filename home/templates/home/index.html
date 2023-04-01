@@ -7,31 +7,30 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-
-    <center class="conteudo-login">
+    <div class="conteudo-login">
         <div class="box-login">
             <img class="logo-central" src="{% static 'img/grupoPeraltas.png' %}" alt="Logo" width="50%" height="auto">
             <h2 class="titulo-sistema">Sistema de Gerenciamento Operacional</h2>
             <div class="login">
                 <form method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
-                    <div class="form-group mt-3">
+                    <div class="form-group mt-3" style="text-align: center">
                         <label>Email</label>
                         <input type="email" class="form-control" name="email">
                     </div>
                     <br>
-                    <div class="form-group">
+                    <div class="form-group" style="text-align: center">
                         <label>Senha</label>
                         <input type="password" class="form-control" name="senha">
                     </div>
                     <br>
-                    <div>
+                    <div class="footer_login">
                         <button type="submit" class="btn btn-primary">Login</button>
-                        <button type="button" class="btn btn-primary"  onclick="window.location.href = '{% url 'nova_senha' %}'">Trocar senha</button>
+                        <a href="{% url 'nova_senha' %}">Esqueceu a senha?</a>
                     </div>
                 </form>
             </div>
         </div>
-    </center>
+    </div>
 {% endblock %}
 </html>

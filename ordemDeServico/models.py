@@ -55,7 +55,8 @@ class OrdemDeServico(models.Model):
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True)  # TODO: Verificar cado de exclusão de colaborador
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True,
+                                 null=True)  # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
     dados_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
@@ -97,6 +98,16 @@ class OrdemDeServico(models.Model):
             atividades.append(atividade)
 
         return atividades
+
+    def atividade_biologo(self):
+        if self.atividades_eco:
+            biologo = False
+
+            for atividade in self.atividades_eco.values():
+                if atividade['biologo'] == 'sim':
+                    biologo = True
+
+            return biologo
 
 
 class CadastroOrdemDeServico(forms.ModelForm):

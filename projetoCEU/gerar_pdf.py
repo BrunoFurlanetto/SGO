@@ -13,7 +13,7 @@ class PDF(FPDF):
         self.add_page()
 
     def my_header(self, titulo):
-        self.image('templates/static/img/logoPeraltasResumo.jpg', 140, 10, 65)
+        self.image('templates/static/img/logoPeraltasFundoBranco.jpg', 140, 10, 65)
         self.ln(15)
         self.set_font('helvetica', 'B', 20)
         w_titulo = self.get_string_width(titulo) + 6
