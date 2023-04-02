@@ -466,6 +466,9 @@ class EscalaAcampamento(models.Model):
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField(default=datetime.timezone)
     check_out_cliente = models.DateTimeField(default=datetime.timezone)
+    racional_monitores = models.PositiveIntegerField(default=10)
+    racional_coordenadores = models.PositiveIntegerField(default=120)
+    permicao_coordenadores = models.BooleanField(default=False, verbose_name='Permitir 3 coordenadores')
 
     def tipo_escala(self):
         if self.ficha_de_evento.produto.colegio:

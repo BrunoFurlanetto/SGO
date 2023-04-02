@@ -11,7 +11,8 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     pegar_clientes_data_selecionada, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
-    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
+    numero_coordenadores
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
@@ -256,6 +257,26 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     escalado = []
     disponiveis = []
 
+    if is_ajax(request):
+        if request.method == 'GET':
+            id_monitores_escalados = list(set(map(int, request.GET.getlist('monitores_escalados[]'))))
+            n_coordenadores_escalados = 0
+
+            for id_monitor in id_monitores_escalados:
+                monitor = Monitor.objects.get(id=id_monitor)
+
+                if 'Coordenador' in monitor.nivel.nivel:
+                    n_coordenadores_escalados += 1
+
+            return HttpResponse(n_coordenadores_escalados)
+
+        if request.POST.get('id_monitor'):
+            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
+                                                  request.POST.get('cliente')))
+
+        if request.POST.get('id_cliente'):
+            return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
+
     if request.method != 'POST':
         if setor == 'acampamento':
             if request.GET.get('cliente'):
@@ -266,9 +287,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 if ordem_de_servico:
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
+                    n_monitores = int(ordem_de_servico.n_participantes / 10)
                 else:
                     inicio_evento = ficha_de_evento.check_in
                     termino_evento = ficha_de_evento.check_out
+                    n_monitores = int(ficha_de_evento.qtd_confirmada / 10)
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
@@ -280,7 +303,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'id_cliente': cliente.id,
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
-                    'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada)
+                    'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada),
+                    'n_monitores': n_monitores if n_monitores != 0 else 1,
+                    'n_coordenadores': numero_coordenadores(ficha_de_evento)
                 })
 
             if id_cliente:
@@ -339,12 +364,16 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     )
 
                     ficha_de_evento = ordem_de_servico.ficha_de_evento
+                    n_monitores = int(ordem_de_servico.n_participantes / escala_editada.racional_monitores)
+                    n_coordenadores = int(ordem_de_servico.n_participantes / escala_editada.racional_coordenadores)
                 else:
                     try:
                         ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+                        n_monitores = int(ordem_de_servico.n_participantes / escala_editada.racional_monitores)
                     except OrdemDeServico.DoesNotExist:
                         ordem_de_servico = None
-
+                        n_monitores = int(ficha_de_evento.qtd_confirmada / escala_editada.racional_monitores)
+                print(numero_coordenadores(ficha_de_evento, escala_editada))
                 return render(request, 'escala/escalar_monitores.html', {
                     'inicio': check_in,
                     'final': check_out,
@@ -357,7 +386,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'setor': setor,
                     'disponiveis': disponiveis,
                     'escalados': escalado,
-                    'id_escala': escala_editada.id
+                    'id_escala': escala_editada.id,
+                    'n_monitores': n_monitores if n_monitores != 0 else 1,
+                    'n_coordenadores': numero_coordenadores(ficha_de_evento, escala_editada)
                 })
 
             return render(request, 'escala/escalar_monitores.html', {
@@ -408,14 +439,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 'escalados': escalado,
                 'id_escala': escala_hotelaria.id
             })
-
-    if is_ajax(request):
-        if request.POST.get('id_monitor'):
-            return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
-                                                  request.POST.get('cliente')))
-
-        if request.POST.get('id_cliente'):
-            return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
         try:

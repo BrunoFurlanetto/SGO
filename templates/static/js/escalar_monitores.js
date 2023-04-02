@@ -62,7 +62,29 @@ function trocar_card_monitor_escalado(monitor) {
     $('#monitores_escalados').append(monitor)
 }
 
-function escalado(espaco) {
+async function verificar_racionais() {
+    $('#escalar .alerta_racionais').remove()
+
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'monitores_escalados': id_escalados.concat(id_monitores_embarque).concat(id_monitores_biologo)},
+        success: function (response) {
+            const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
+
+            if (monitores_totais > n_monitores) {
+                $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
+            }
+
+            if (parseInt(response) > n_coordenadores) {
+                $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de coordenadores escalados acima do permitido para o evento!</p></div>')
+            }
+        }
+    })
+}
+
+async function escalado(espaco) {
     const monitores = espaco.querySelectorAll('.card-monitor')
     const tipo_escalacao = espaco.id
     // ---------------------------------este pra retorno na disponibilidade correta ------------------------------------
@@ -124,7 +146,6 @@ function escalado(espaco) {
     }
 
     if (tipo_escalacao === 'biologos') {
-        console.log('Foi')
         for (let monitor of monitores) {
             if (!monitor.classList.contains('biologo')) verificar_biologo(monitor)
             if (monitor.classList.contains('tecnica')) verificar_tecnica()
@@ -132,6 +153,7 @@ function escalado(espaco) {
     }
 
     verificar_escalados()
+    verificar_racionais()
 }
 
 function duplicar_escalado(monitor) {
@@ -173,7 +195,7 @@ function verificar_escalados() {
 
                 if (monitor.classList.contains('escalado')) {
                     $('#mensagem').remove()
-                    $('#escalar').append('<div  id="mensagem"><p class="alert-danger">Monitor(es) já presente(s) em escala na data em questão!</p></div>')
+                    $('#escalar').append('<div id="mensagem"><p class="alert alert-danger">Monitor(es) já presente(s) em escala na data em questão!</p></div>')
                 }
             } else {
                 if (outras_escalas.indexOf(monitor.id) !== -1) {
@@ -235,7 +257,7 @@ function verificar_tecnica() {
 
     if (areas.length !== 0) {
         $('#mensagem_tecnica').remove()
-        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert-info">Técnico(s) de ${areas.join(', ')} escalado(s)</p></div>`)
+        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert alert-info">Técnico(s) de ${areas.join(', ')} escalado(s)</p></div>`)
     } else {
         $('#mensagem_tecnica').remove()
     }
@@ -294,9 +316,9 @@ function salvar_monitores_escalados(btn, editando = false) {
 
     if ((id_escalados.length + id_monitores_embarque.length) === 0) {
         if (editando) {
-            $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+            $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
         } else {
-            $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+            $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
         }
         erro_sem_alteracao = true
     }
@@ -338,11 +360,34 @@ function salvar_monitores_escalados(btn, editando = false) {
         }
     }
 
+    if ($('#escalar .alerta_racionais').length > 0) {
+        let count = 0;
+        let interval = setInterval(function () {
+            jQuery('#escalar .alerta_racionais').animate({opacity: 0.7}, 100, "linear", function () {
+                jQuery(this).delay(50);
+                jQuery(this).animate({opacity: 1}, 100, function () {
+
+
+                });
+                jQuery(this).delay(50);
+            });
+
+            count++;
+
+            if (count === 10) {
+                clearInterval(interval);
+            }
+        }, 50)
+
+        return
+    }
+
     if (erro_sem_alteracao || erro_biologo || erro_monitor_embarque || erro_2_enfermeiras || erro_3_enfermeiras) {
         window.scroll({top: 0, behavior: 'smooth'});
 
         return
     }
+
 
     $.ajax({
         url: '',

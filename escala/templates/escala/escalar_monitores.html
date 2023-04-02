@@ -257,6 +257,9 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
     <script>
+        const n_coordenadores = {{ n_coordenadores }}
+        const n_monitores = {{ n_monitores }}
+
         verificar_tecnica()
         verificar_escalados()
     </script>
