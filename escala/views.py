@@ -291,7 +291,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 else:
                     inicio_evento = ficha_de_evento.check_in
                     termino_evento = ficha_de_evento.check_out
-                    n_monitores = int(ficha_de_evento.qtd_confirmada / 10)
+                    n_monitores = int(ficha_de_evento.qtd_convidada / 10)
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
@@ -372,8 +372,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                         n_monitores = int(ordem_de_servico.n_participantes / escala_editada.racional_monitores)
                     except OrdemDeServico.DoesNotExist:
                         ordem_de_servico = None
-                        n_monitores = int(ficha_de_evento.qtd_confirmada / escala_editada.racional_monitores)
-                print(numero_coordenadores(ficha_de_evento, escala_editada))
+                        n_monitores = int(ficha_de_evento.qtd_convidada / escala_editada.racional_monitores)
+
                 return render(request, 'escala/escalar_monitores.html', {
                     'inicio': check_in,
                     'final': check_out,

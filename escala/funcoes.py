@@ -596,7 +596,7 @@ def numero_coordenadores(ficha_de_evento, escala=None):
         ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
         participantes = ordem_de_servico.n_participantes
     else:
-        participantes = ficha_de_evento.qtd_confirmada
+        participantes = ficha_de_evento.qtd_convidada
 
     if not escala:
         if participantes < 120:
