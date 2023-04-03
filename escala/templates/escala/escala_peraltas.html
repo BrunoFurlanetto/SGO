@@ -58,7 +58,7 @@
                             {% for escala in escalas_hotelaria %}
                                 {% for monitor in escala.separar_monitores %}
                                     {
-                                        title: "{{ forloop.counter }} {{ monitor.nome }}",
+                                        title: "{{ forloop.counter }} {{ monitor.nome|safe }}",
                                         start: "{{ escala.data | date:'Y-m-d' }}",
 
                                         {% if user == monitor.user %}
@@ -101,9 +101,9 @@
                             {% for escala in escalas_acampamento %}
                                 {
                                     title: {% if coordenador_acampamento or coordenador_hotelaria %}
-                                        "{{ escala.cliente }}"
+                                        "{{ escala.cliente|safe }}"
                                     {% else %}
-                                        "{{ escala.tipo_escala }}"
+                                        "{{ escala.tipo_escala|safe }}"
                                     {% endif %},
                                     start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
                                     end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
