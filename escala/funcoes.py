@@ -96,7 +96,7 @@ def transformar_disponibilidades(disponibilidades):
         dias_disponiveis = disponibilidade.dias_disponiveis.split(', ')
         monitor = disponibilidade.monitor
         enfermeira = disponibilidade.enfermeira
-        print(monitor, enfermeira)
+
         for j, dia_ in enumerate(dias_disponiveis, start=1):
             try:
                 dia = datetime.strptime(dia_, '%d/%m/%Y').strftime('%Y-%m-%d')
@@ -163,7 +163,7 @@ def adicionar_dia(monitor, dia_adicionado, enfermeira):
 
         return True
     else:
-        if disponibilidade_existente.n_dias < 22:
+        if disponibilidade_existente.n_dias < 22 or monitor.fixo:
             disponibilidade_existente.dias_disponiveis += f', {dia_adicionado.strftime("%d/%m/%Y")}'
             disponibilidade_existente.n_dias += 1
             disponibilidade_existente.save()

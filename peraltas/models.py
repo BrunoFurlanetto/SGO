@@ -26,6 +26,7 @@ class Monitor(models.Model):
     som = models.BooleanField(default=False)
     video = models.BooleanField(default=False)
     fotos_e_filmagens = models.BooleanField(default=False)
+    fixo = models.BooleanField(default=False)
     nota = models.FloatField(default=0.00)
     n_avaliacoes = models.IntegerField(default=0)
 
