@@ -85,7 +85,6 @@ def eventos(request):
         pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
 
         if request.POST.get('excluir'):
-            print('Foi')
             try:
                 EventosCancelados.objects.create(
                     cliente=pre_reserva.cliente.__str__(),
