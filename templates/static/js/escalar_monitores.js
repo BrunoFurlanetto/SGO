@@ -365,10 +365,7 @@ function salvar_monitores_escalados(btn, editando = false) {
         let interval = setInterval(function () {
             jQuery('#escalar .alerta_racionais').animate({opacity: 0.7}, 100, "linear", function () {
                 jQuery(this).delay(50);
-                jQuery(this).animate({opacity: 1}, 100, function () {
-
-
-                });
+                jQuery(this).animate({opacity: 1}, 100, function () {});
                 jQuery(this).delay(50);
             });
 

@@ -1,7 +1,3 @@
-$(document).ready(function () {
-    $('button.fc-prev-button').prop('disabled', true)
-})
-
 function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordenador) {
     let ids_monitor = []
     let ids_enfermeira = []
@@ -51,16 +47,29 @@ function montar_disponibilidades(disponibilidade, coordenador) {
     const monitores = document.getElementById('nomes_monitores')
     const hoje = new Date(Date.now())
     const data_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
+    const coordena = coordenador === 'True'
 
     new FullCalendar.Draggable(monitores, {
         itemSelector: '.card-monitor',
     })
 
-    function onChangeMonth() {
-        if (moment(calendar.currentData.currentDate).month() !== moment(hoje).month()) {
-            $('button.fc-prev-button').prop('disabled', false)
-        } else {
+    if (!coordena) {
+        $(document).ready(function () {
             $('button.fc-prev-button').prop('disabled', true)
+        })
+    }
+
+    function onChangeMonth(coordenacao) {
+        console.log(coordenacao)
+        if (!coordenacao) {
+            console.log('Ué')
+            if (moment(calendar.currentData.currentDate).month() !== moment(hoje).month()) {
+                $('button.fc-prev-button').prop('disabled', false)
+            } else {
+                $('button.fc-prev-button').prop('disabled', true)
+            }
+        } else {
+            $('button.fc-prev-button').prop('disabled', false)
         }
     }
 
@@ -78,7 +87,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
                 text: 'Voltar',
                 click: function () {
                     calendar.prev();
-                    onChangeMonth();
+                    onChangeMonth(coordena);
                 },
             },
 
@@ -86,7 +95,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
                 text: 'Avançar',
                 click: function () {
                     calendar.next();
-                    onChangeMonth();
+                    onChangeMonth(coordena);
                 }
             },
         },
@@ -100,12 +109,14 @@ function montar_disponibilidades(disponibilidade, coordenador) {
         events: disponibilidade,
 
         dayCellDidMount: function (info) {
-            if (moment(info.date).format('YYYY-MM-DD') < data_mais_30) {
-                info.el.classList.add('not_selected')
-            }
+            if (!coordena) {
+                if (moment(info.date).format('YYYY-MM-DD') < data_mais_30) {
+                    info.el.classList.add('not_selected')
+                }
 
-            if (hoje.getDate() > 15 && info.date.getMonth() === hoje.getMonth() + 1) {
-                info.el.classList.add('not_selected')
+                if (hoje.getDate() > 15 && info.date.getMonth() === hoje.getMonth() + 1) {
+                    info.el.classList.add('not_selected')
+                }
             }
         },
 
