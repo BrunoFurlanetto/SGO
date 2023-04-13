@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
-import django_heroku
+# import django_heroku
 from pathlib import Path
 from django.contrib.messages import constants
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'ordemDeServico.apps.OrdemdeservicoConfig',
     'calendarioEventos.apps.CalendarioeventosConfig',
     'detector.apps.DetectorConfig',
+    'orcamento.apps.OrcamentoConfig',
 ]
 
 MIDDLEWARE = [
@@ -163,4 +164,5 @@ MESSAGE_TAGS = {
 try:
     from local_settings import *
 except ImportError:
-    django_heroku.settings(locals())
+    pass
+    # django_heroku.settings(locals())
