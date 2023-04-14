@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='check_out_cliente',
             field=models.DateTimeField(),
         ),
-        ############################################
+        # Operações pra correção de conflitos entre branchs do github no
         migrations.AddField(
             model_name='fichadeevento',
             name='data_preenchimento',

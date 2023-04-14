@@ -515,6 +515,10 @@ def visualizarDisponibilidadePeraltas(request):
     disponibilidades = DisponibilidadePeraltas.objects.all()
     eventos_ordem_de_servico = OrdemDeServico.objects.all()
     fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
+    disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
+    eventos_hospedagem = FichaDeEvento.objects.filter(cliente__cnpj='03.694.061/0001-90').filter(
+        produto__brotas_eco=True
+    )
 
     for evento in eventos_ordem_de_servico:
         evento.check_out += timedelta(days=1)
@@ -522,7 +526,11 @@ def visualizarDisponibilidadePeraltas(request):
     for ficha in fichas_de_evento:
         ficha.check_out += timedelta(days=1)
 
-    disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
+    if request.GET.get('setor') == 'hotelaria':
+        return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
+            'disponiveis_peraltas': disponiveis_peraltas,
+            'eventos_hospedagem': eventos_hospedagem
+        })
 
     return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
         'disponiveis_peraltas': disponiveis_peraltas,
