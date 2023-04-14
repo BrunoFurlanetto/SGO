@@ -145,21 +145,23 @@
                             </div>
                         </div>
                     {% endif %}
-                    <div class="mb-2 mt-2" id="div_biologos_escalados">
-                        <label>Biologos</label>
-                        <div class="monitores_escalados espacos" id="biologos"
-                             style="display: flex; flex-wrap: wrap;" ondrop="escalado(this)">
-                            {% if escalados %}
-                                {% for escalado in escalados %}
-                                    {% if 'biologo' in escalado.tipo_escalacao %}
-                                        <div id="{{ escalado.id }}"
-                                             class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
-                                             draggable="true">{{ escalado.nome }}</div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
+                    {% if setor == 'acampamento' %}
+                        <div class="mb-2 mt-2" id="div_biologos_escalados">
+                            <label>Biologos</label>
+                            <div class="monitores_escalados espacos" id="biologos"
+                                 style="display: flex; flex-wrap: wrap;" ondrop="escalado(this)">
+                                {% if escalados %}
+                                    {% for escalado in escalados %}
+                                        {% if 'biologo' in escalado.tipo_escalacao %}
+                                            <div id="{{ escalado.id }}"
+                                                 class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                                 draggable="true">{{ escalado.nome }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                     <div class="mb-2" id="div_monitores_escalados">
                         <label>Monitores</label>
                         <div class="monitores_escalados espacos" id="monitores_escalados"
