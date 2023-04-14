@@ -300,6 +300,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     atividades_ceu = Atividades.objects.all()
     grupos_atividade = GrupoAtividade.objects.all()
     dados_pre_reserva = ficha_de_evento = None
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
     try:
         vendedora = Vendedor.objects.get(usuario=request.user)
@@ -339,6 +340,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 'pre_reserva': pre_reserva,
                 'grupos_atividade': grupos_atividade,
                 'atividades_ceu': atividades_ceu,
+                'diretoria': diretoria,
                 'editando': False
             })
 
@@ -355,6 +357,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 'formApp': form_app,
                 'grupos_atividade': grupos_atividade,
                 'atividades_ceu': atividades_ceu,
+                'diretoria': diretoria,
                 'editando': True
             })
 
@@ -364,6 +367,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             'formApp': form_app,
             'grupos_atividade': grupos_atividade,
             'atividades_ceu': atividades_ceu,
+            'diretoria': diretoria,
             'editando': False
         })
 
@@ -428,7 +432,8 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             'formApp': form_app,
             'dados_pre_reserva': dados_pre_reserva,
             'grupos_atividade': grupos_atividade,
-            'atividades_ceu': atividades_ceu
+            'atividades_ceu': atividades_ceu,
+                'diretoria': diretoria,
         })
 
 
