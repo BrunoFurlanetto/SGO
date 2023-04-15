@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
 <html lang="pt">
-
 
 {% include 'parciais/_head.html' %}
 
@@ -26,7 +24,7 @@
                     <br>
                     <div class="footer_login">
                         <button type="submit" class="btn btn-primary">Login</button>
-                        {% comment %}<a href="{% url 'nova_senha' %}">Esqueceu a senha?</a>{% endcomment %}
+                        <a href="{% url 'nova_senha' %}">Esqueceu a senha?</a>
                     </div>
                 </form>
             </div>

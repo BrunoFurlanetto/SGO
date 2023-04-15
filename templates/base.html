@@ -5,28 +5,28 @@
     {% include 'parciais/_head.html' %}
 </head>
 
-    <body style="background-color: #E4E9F7">
-    <div class="container_loading none">
-        <div class="loading">
-            <img src="{% static 'img/GP.png' %}" alt="">
+<body style="background-color: #E4E9F7">
+<div class="container_loading none">
+    <div class="loading">
+        <img src="{% static 'img/GP.png' %}" alt="">
+    </div>
+</div>
+{% if user.groups.all %}
+    {% include 'parciais/_sidebar.html' %}
+    <section class="home-section">
+    {% if not ver %}
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Sistema de Gerenciamento Operacional</span>
         </div>
-    </div>
-    {% if user.groups.all %}
-        {% include 'parciais/_sidebar.html' %}
-        <section class="home-section">
-        {% if not ver %}
-            <div class="home-content">
-                <i class='bx bx-menu'></i>
-                <span class="text">Sistema de Gerenciamento Operacional</span>
-            </div>
-            <hr class="barra">
-        {% endif %}
+        <hr class="barra">
     {% endif %}
-    <div id="corpo_site">
-        {% include 'parciais/_mensagens.html' %}
-        {% block conteudo %}{% endblock %}
-    </div>
-    </section>
-    <script src="{% static 'js/script.js' %}"></script>
-    </body>
+{% endif %}
+<div id="corpo_site">
+    {% include 'parciais/_mensagens.html' %}
+    {% block conteudo %}{% endblock %}
+</div>
+</section>
+<script src="{% static 'js/script.js' %}"></script>
+</body>
 </html>
