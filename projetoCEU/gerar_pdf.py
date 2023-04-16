@@ -366,7 +366,11 @@ def ordem_de_servico(ordem_de_servico):
         dados = []
 
         for atividade in ordem_de_servico.atividades_eco.values():
-            biologo = Monitor.objects.get(id=atividade['biologo']).usuario.get_full_name()
+            if isinstance(atividade['biologo'], int):
+                biologo = Monitor.objects.get(id=atividade['biologo']).usuario.get_full_name()
+            else:
+                biologo = ''
+
             nome_atividade = AtividadesEco.objects.get(pk=atividade['atividade'])
             data = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
 
@@ -384,7 +388,7 @@ def ordem_de_servico(ordem_de_servico):
             ['Atividade', 'Data e hora', 'Serie', 'Biologo', 'QTD'],
             dados,
             ['L', 'C', 'L', 'C', 'C'],
-            col_widths=(75, 35, 56, 15, 15)
+            col_widths=(65, 35, 40, 41, 15)
         )
         pdf_ordem.ln(4)
     # --------------------------------------------- Atividades CEU -----------------------------------------------------
@@ -418,7 +422,7 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.titulo_secao('Locacoes CEU', 5, 0)
         pdf_ordem.ln(2)
         dados = []
-        print(ordem_de_servico.locacao_ceu.values())
+        
         for espaco in ordem_de_servico.locacao_ceu.values():
             nome_espaco = Locaveis.objects.get(pk=espaco['espaco'])
             check_in = datetime.strptime(espaco['check_in'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
