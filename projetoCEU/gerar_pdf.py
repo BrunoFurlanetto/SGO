@@ -269,9 +269,8 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
         pdf_ordem.cell(0, 8, ordem_de_servico.monitor_embarque.usuario.get_full_name(), ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
-
         if ficha_de_evento.informacoes_adcionais.lanche_bordo:
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
             pdf_ordem.cell(20, 8, 'Sim')
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ida: ') + 1, 8, 'Ida:')
 
@@ -422,7 +421,7 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.titulo_secao('Locacoes CEU', 5, 0)
         pdf_ordem.ln(2)
         dados = []
-        
+
         for espaco in ordem_de_servico.locacao_ceu.values():
             nome_espaco = Locaveis.objects.get(pk=espaco['espaco'])
             check_in = datetime.strptime(espaco['check_in'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
