@@ -58,7 +58,7 @@ class OrdemDeServico(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True,
                                  null=True)  # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
-    monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
+    monitor_responsavel = models.ManyToManyField(Monitor)
     dados_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
     monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
                                          related_name='monitor_embarque')
@@ -74,6 +74,8 @@ class OrdemDeServico(models.Model):
     ficha_avaliacao = models.BooleanField(default=False)
     escala_ceu = models.BooleanField(default=False)
     escala = models.BooleanField(default=False)
+    racional_coordenadores = models.IntegerField(default=120, blank=True)
+    permicao_coordenadores = models.BooleanField(default=False)
 
     def dividir_atividades_ceu(self):
         atividades = []
@@ -108,6 +110,10 @@ class OrdemDeServico(models.Model):
                     biologo = True
 
             return biologo
+
+    @staticmethod
+    def pegar_biologos():
+        return Monitor.objects.filter(biologo=True)
 
 
 class CadastroOrdemDeServico(forms.ModelForm):

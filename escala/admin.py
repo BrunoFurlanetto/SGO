@@ -31,8 +31,8 @@ class DisponibilidadePeraltasAdmin(admin.ModelAdmin):
 
 @admin.register(EscalaAcampamento)
 class EscalaAcampamentoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'racional_monitores', 'racional_coordenadores', 'permicao_coordenadores')
-    list_editable = ('racional_monitores', 'racional_coordenadores', 'permicao_coordenadores')
+    list_display = ('id', 'cliente', 'racional_monitores')
+    list_editable = ('racional_monitores',)
 
 
 @admin.register(EscalaHotelaria)

@@ -236,18 +236,16 @@
                                                    type="text" name="serie_participantes_eco_{{ forloop.counter }}"
                                                    value="{{ atividade.serie }}"/>
                                         </div>
-                                        <div class="mb-2 colegios div_serie_eco"
-                                             id="div_biologo_eco_{{ forloop.counter }}" style="width: 15%">
-                                            <label>Biologo?</label>
+                                        <div class="mb-2 colegios div_biologo_eco"
+                                             id="div_biologo_eco_{{ forloop.counter }}" style="width: 40%">
+                                            <label>Biologo</label>
                                             <select class="biologo_eco" id="ativ_eco_{{ forloop.counter }}"
-                                                    name="biologo_eco_{{ forloop.counter }}" required>
+                                                    name="biologo_eco_{{ forloop.counter }}">
                                                 <option></option>
-                                                <option {% if atividade.biologo == 'sim' %} selected {% endif %}
-                                                                                            value="sim">Sim
-                                                </option>
-                                                <option {% if atividade.biologo == 'nao' %} selected {% endif %}
-                                                                                            value="nao">Não
-                                                </option>
+                                                {% for monitor_biologo in ordem_servico.pegar_biologos %}
+                                                    <option value="{{ monitor_biologo.id }}"
+                                                            {% if monitor_biologo.id == atividade.biologo %}selected{% endif %}>{{ monitor_biologo.usuario.get_full_name }}</option>
+                                                {% endfor %}
                                             </select>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">
@@ -425,12 +423,13 @@
                     </div>
                 </div>
             </fieldset>
+
             {% if ordem_servico %}
                 {% if perms.ordemDeServico.change_ordemdeservico %}
                     <div class="botoes" style="display: flex; gap: 10px;">
                         <button type="submit" id="btn_salvar_os" class="btn btn-primary ml-5" disabled>Salvar</button>
                         <button type="button" class="btn btn-secondary ml-5"
-                                onclick="$('#fieldset, #id_atividades_peraltas, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true; $('.select2-container').css('width','100%')">
+                                onclick="$('#fieldset, #id_atividades_peraltas, #id_monitor_responsavel, .btn').prop('disabled', false); $('#fieldset_pdf').prop('disabled', true); editando=true; $('.select2-container').css('width','100%')">
                             Editar
                         </button>
 
@@ -587,5 +586,11 @@
     <script>
         $('#ficha_de_evento, .qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
         $('#id_empresa').trigger('change')
+
+        {% if not ordem_servico %}
+            $('#id_monitor_responsavel').select2({maximumSelectionLength: {{ n_coordenadores }}})
+        {% else %}
+            $('#id_monitor_responsavel').select2({maximumSelectionLength: {{ n_coordenadores }}, disabled: 'readonly'})
+        {% endif %}
     </script>
 {% endblock %}

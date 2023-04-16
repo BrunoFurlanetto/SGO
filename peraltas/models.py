@@ -468,8 +468,6 @@ class EscalaAcampamento(models.Model):
     check_in_cliente = models.DateTimeField()
     check_out_cliente = models.DateTimeField()
     racional_monitores = models.PositiveIntegerField(default=10)
-    racional_coordenadores = models.PositiveIntegerField(default=120)
-    permicao_coordenadores = models.BooleanField(default=False, verbose_name='Permitir 3 coordenadores')
 
     def tipo_escala(self):
         if self.ficha_de_evento.produto.colegio:

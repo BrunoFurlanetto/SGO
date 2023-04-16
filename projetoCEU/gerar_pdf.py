@@ -3,7 +3,7 @@ from datetime import datetime
 from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
-from peraltas.models import AtividadesEco
+from peraltas.models import AtividadesEco, Monitor
 
 
 class PDF(FPDF):
@@ -159,9 +159,13 @@ def ordem_de_servico(ordem_de_servico):
     atendente = ordem_de_servico.vendedor.usuario.get_full_name()
     pdf_ordem.cell(pdf_ordem.get_string_width(atendente) + 10, 8, atendente)
 
-    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador do grupo: ') + 3, 8, 'Coordenador do grupo:')
-    monitor_responsavel = ordem_de_servico.monitor_responsavel.usuario.get_full_name()
-    pdf_ordem.cell(pdf_ordem.get_string_width(monitor_responsavel), 8, monitor_responsavel, ln=1)
+    monitor_responsavel = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
+
+    if pdf_ordem.get_string_width(', '.join(monitor_responsavel)) > 81.5:
+        pdf_ordem.ln()
+
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8, 'Coordenador(es) do grupo:')
+    pdf_ordem.cell(pdf_ordem.get_string_width(', '.join(monitor_responsavel)), 8, ', '.join(monitor_responsavel), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Seguro: ') + 1, 8, 'Seguro:')
 
@@ -302,28 +306,28 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de meninos: ') + 3, 8, 'Número de meninos:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninos))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninos) if ficha_de_evento.qtd_meninos else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de meninas: ') + 3, 8, 'Número de meninas:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninas), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninas) if ficha_de_evento.qtd_meninas else '', ln=1)
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de professores: ') + 3, 8, 'Número de professores:')
-        pdf_ordem.cell(15, 8, str(ordem_de_servico.n_professores))
+        pdf_ordem.cell(15, 8, str(ordem_de_servico.n_professores) if ordem_de_servico.n_professores else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens) if ficha_de_evento.qtd_profs_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '', ln=1)
     else:
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8, 'Número de participantes:')
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_homens))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_homens) if ficha_de_evento.qtd_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_mulheres), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_mulheres) if ficha_de_evento.qtd_mulheres else '', ln=1)
 
     pdf_ordem.ln(4)
     # --------------------------------------------- Refeições ----------------------------------------------------------
@@ -362,6 +366,7 @@ def ordem_de_servico(ordem_de_servico):
         dados = []
 
         for atividade in ordem_de_servico.atividades_eco.values():
+            biologo = Monitor.objects.get(id=atividade['biologo']).usuario.get_full_name()
             nome_atividade = AtividadesEco.objects.get(pk=atividade['atividade'])
             data = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
 
@@ -369,7 +374,7 @@ def ordem_de_servico(ordem_de_servico):
                 nome_atividade.nome_atividade_eco,
                 data,
                 atividade['serie'],
-                atividade['biologo'].capitalize(),
+                biologo,
                 str(atividade['participantes'])
             ]
 

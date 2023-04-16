@@ -589,27 +589,3 @@ def procurar_ficha_de_evento(cliente, data_selecionada):
             return ficha_de_evento, OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
         else:
             return ficha_de_evento, None
-
-
-def numero_coordenadores(ficha_de_evento, escala=None):
-    if ficha_de_evento.os:
-        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
-        participantes = ordem_de_servico.n_participantes
-    else:
-        participantes = ficha_de_evento.qtd_convidada
-
-    if not escala:
-        if participantes < 120:
-            return 1
-        else:
-            return 2
-    else:
-        if participantes < escala.racional_coordenadores:
-            return 1
-        elif escala.racional_coordenadores < participantes < 160:
-            return 2
-        else:
-            if escala.permicao_coordenadores:
-                return 3
-            else:
-                return 2

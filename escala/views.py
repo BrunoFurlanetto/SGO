@@ -11,8 +11,7 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     pegar_clientes_data_selecionada, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
-    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
-    numero_coordenadores
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
@@ -304,8 +303,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada),
-                    'n_monitores': n_monitores if n_monitores != 0 else 1,
-                    'n_coordenadores': numero_coordenadores(ficha_de_evento)
+                    'n_monitores': n_monitores if n_monitores != 0 else 1
                 })
 
             if id_cliente:
@@ -388,7 +386,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'escalados': escalado,
                     'id_escala': escala_editada.id,
                     'n_monitores': n_monitores if n_monitores != 0 else 1,
-                    'n_coordenadores': numero_coordenadores(ficha_de_evento, escala_editada)
                 })
 
             return render(request, 'escala/escalar_monitores.html', {

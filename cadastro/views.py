@@ -15,7 +15,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados
 from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
-from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades
+from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
@@ -210,7 +210,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             'grupos_atividades_acampamento': grupos_atividades_acampamento,
             'atividades_eco': atividades_eco,
             'atividades_ceu': atividades_ceu,
-            'espacos': espacos
+            'espacos': espacos,
+            'n_coordenadores': numero_coordenadores(ficha_de_evento)
         })
 
     if request.POST.get('excluir'):
@@ -243,14 +244,17 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if id_ordem_de_servico:
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
+        permicao_coordenacao = ordem_servico.permicao_coordenadores
 
         if transporte:
             form_transporte = CadastroDadosTransporte(request.POST, instance=transporte)
     else:
+        permicao_coordenacao = False
         form = CadastroOrdemDeServico(request.POST, request.FILES)
         form_transporte = CadastroDadosTransporte(request.POST)
 
     ordem_de_servico = form.save(commit=False)
+    ordem_de_servico.permicao_coordenadores = permicao_coordenacao
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
 
     if form_transporte.is_valid():
@@ -259,8 +263,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     else:
         dados_transporte = None
 
+    slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
     try:
-        slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
         salvar_atividades_ceu(request.POST, ordem_de_servico)
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)

@@ -1,9 +1,10 @@
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
+from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
-    AtividadesEco, EscalaAcampamento, ProdutoCorporativo
+    AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor
 
 
 def is_ajax(request):
@@ -93,12 +94,17 @@ def requests_ajax(requisicao, files=None, usuario=None):
 
     if requisicao.get('tipo') == 'ecoturismo':
         atividades_eco_bd = AtividadesEco.objects.all()
+        monitores_biologos_bd = Monitor.objects.filter(biologo=True)
         atividades = {}
+        biologos = {}
+
+        for monitor in monitores_biologos_bd:
+            biologos[monitor.id] = monitor.usuario.get_full_name()
 
         for atividade in atividades_eco_bd:
             atividades[atividade.id] = atividade.nome_atividade_eco
 
-        return {'dados': atividades}
+        return {'atividades': atividades, 'biologos': biologos}
 
     if requisicao.get('atividade'):
         atividade_selecionada = Atividades.objects.get(id=int(requisicao.get('atividade')))
@@ -440,4 +446,27 @@ def ver_empresa_atividades(dados):
         return 'CEU'
 
 
+def numero_coordenadores(ficha_de_evento):
+    ordem_de_servico = None
 
+    if ficha_de_evento.os:
+        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+        participantes = ordem_de_servico.n_participantes
+    else:
+        participantes = ficha_de_evento.qtd_convidada
+
+    if not ordem_de_servico:
+        if participantes < 120:
+            return 1
+        else:
+            return 2
+    else:
+        if participantes < ordem_de_servico.racional_coordenadores:
+            return 1
+        elif ordem_de_servico.racional_coordenadores < participantes < 160:
+            return 2
+        else:
+            if ordem_de_servico.permicao_coordenadores:
+                return 3
+            else:
+                return 2

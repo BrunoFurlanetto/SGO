@@ -2,7 +2,6 @@ let corporativo
 let editando = false
 
 $(document).ready(function () {
-    console.log(window.location.href.split('/')[5])
     if (window.location.href.split('/')[5] !== '') {
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
 
@@ -579,7 +578,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let div_participantes = `<div class="mb-2 div-participantes_eco" id="div_participantes_eco_${i}" style="width: 15%"></div>`
             let div_icone = `<div class="my-0 div-icone_eco" id="div_icone_eco_${i}" style="width: 5%"></div>`
             let div_serie = `<div class="mb-2 colegios div_serie_eco" id="div_serie_eco_${i}" style="width: 50%"></div>`;
-            let div_biologo = `<div class="mb-2 colegios div_biologo_eco" id="div_biologo_eco_${i}" style="width: 15%"></div>`;
+            let div_biologo = `<div class="mb-2 colegios div_biologo_eco" id="div_biologo_eco_${i}" style="width: 40%"></div>`;
 
             // Adição das div's na div pai
             $(`#div_pai_eco_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, div_biologo, `<hr class="barra" style="margin-left: 10px">`)
@@ -600,7 +599,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes_eco" id="serie_eco_${i}" type="text" name="serie_participantes_eco_${i}" value="${serie_}"/>`
             let label_biologo = '<label>Biologo</label>'
-            let biologo = `<select class="biologo_eco" id="biologo_eco_${i}" name="biologo_eco_${i}" required><option></option><<option value="sim">Sim</option><<option value="nao">Não</option></select>`
+            let biologo = `<select class="biologo_eco" id="biologo_eco_${i}" name="biologo_eco_${i}"><option></option></select>`
 
             // Adição dos elemntos em suas respectivas div's
             $(`#div_atividade_eco_${i}`).append(label_atividade, select_atividade)
@@ -610,10 +609,14 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             $(`#div_biologo_eco_${i}`).append(label_biologo, biologo)
 
             // Todas as atividades que serão dcionadas no select da atividade
-            for (let j in response['dados']) {
-                if (response['dados'][j] != atividade_) {
-                    $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
+            for (let j in response['atividades']) {
+                if (response['atividades'][j] != atividade_) {
+                    $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['atividades'][j]}</option>`)
                 }
+            }
+
+            for (let j in response['biologos']) {
+                $(`#biologo_eco_${i}`).append(`<option value="${j}">${response['biologos'][j]}</option>`)
             }
 
             // Adição das opções no select
@@ -781,18 +784,15 @@ function dividar_atividade_eco(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade_eco(atividade_value_, atividade_, serie_, '', true)
+        add_atividade_eco(atividade_value_, atividade_, serie_, '',true)
     }
 }
 
 $('#btn_salvar_os').on('click', function (e) {
-    console.log('Foi')
     const inputs_atividade_extra = [
         $('.atividade_eco'),
         $('.hora_atividade_eco'),
         $('.qtd_participantes_eco'),
-        $('.serie_participantes_eco'),
-        $('.biologo_eco'),
     ]
     const inputs_atividade_ceu = [
         $('.atividade'),
@@ -819,7 +819,6 @@ $('#btn_salvar_os').on('click', function (e) {
     // Verificação dos campos das atividades extra
     for (let campo of inputs_atividade_extra) {
         for (let input of campo) {
-            console.log(input.value)
             if (input.value === '' || input.value === 'NaN') {
                 div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
                 e.preventDefault()
