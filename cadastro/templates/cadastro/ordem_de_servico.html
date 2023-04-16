@@ -209,6 +209,8 @@
                                             <label>Data e hora</label>
                                             <input class="hora_atividade_eco" id="data_eco_{{ forloop.counter }}"
                                                    type="datetime-local" name="data_hora_eco_{{ forloop.counter }}"
+                                                   min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
+                                                   max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
                                                    onchange="verificar_limitacoes_eco(this)" required
                                                    value="{{ atividade.data_e_hora }}"/>
                                         </div>
@@ -290,6 +292,8 @@
                                             <label>Data e hora</label>
                                             <input class="hora_atividade" id="data_{{ forloop.counter }}"
                                                    type="datetime-local" name="data_hora_{{ forloop.counter }}"
+                                                   min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
+                                                   max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
                                                    onchange="verificar_limitacoes(this)" required
                                                    value="{{ atividade.data_e_hora }}"/>
                                         </div>
@@ -358,6 +362,8 @@
                                             <label>Check in</label>
                                             <input class="entrada" id="entrada_{{ forloop.counter }}"
                                                    type="datetime-local" name="entrada_{{ forloop.counter }}"
+                                                   min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
+                                                   max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
                                                    onchange="verificar_lotacao(this)" required
                                                    value="{{ locacao.check_in }}"/>
                                         </div>
@@ -366,6 +372,8 @@
                                             <label>Check out</label>
                                             <input class="saida" id="saida_{{ forloop.counter }}" type="datetime-local"
                                                    name="saida_{{ forloop.counter }}" onchange="verificar_lotacao(this)"
+                                                   min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
+                                                   max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
                                                    required value="{{ locacao.check_out }}"/>
                                         </div>
                                         <div class="my-0 div-icone-loc" id="div_icone_loc_{{ forloop.counter }}"

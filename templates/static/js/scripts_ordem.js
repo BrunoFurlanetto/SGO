@@ -195,7 +195,7 @@ function add_atividade(atividade_id_ = parseInt(''),
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
@@ -440,9 +440,9 @@ function add_locacao(id_local_ = parseInt(''), check_in_ = '',
             let label_locacao = `<label>Locação</label>`
             let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"><option></option></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
             let label_local_coffee = `<label>Local do coffee</label>`
             let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}" value="${local_coffee_}"/>`
             let label_hora_coffee = `<label>Hora</label>`
@@ -587,7 +587,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade_eco" id="ativ_eco_${i}" name="atividade_eco_${i}" onchange="verificar_limitacoes_eco(this)" required></select>`
             let label_data = `<label>Data e hora</label>`
-            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" min="${$('#id_check_in').val()}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
