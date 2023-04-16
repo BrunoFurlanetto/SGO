@@ -64,24 +64,11 @@ function trocar_card_monitor_escalado(monitor) {
 
 async function verificar_racionais() {
     $('#escalar .alerta_racionais').remove()
+    const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
 
-    $.ajax({
-        type: 'GET',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'monitores_escalados': id_escalados.concat(id_monitores_embarque).concat(id_monitores_biologo)},
-        success: function (response) {
-            const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
-
-            if (monitores_totais > n_monitores) {
-                $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
-            }
-
-            // if (parseInt(response) > n_coordenadores) {
-            //     $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de coordenadores escalados acima do permitido para o evento!</p></div>')
-            // }
-        }
-    })
+    if (monitores_totais > n_monitores) {
+        $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
+    }
 }
 
 async function escalado(espaco) {

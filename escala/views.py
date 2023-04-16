@@ -135,8 +135,8 @@ def disponibilidadePeraltas(request):
         coordenador_peraltas = request.user.has_perm('peraltas.add_escalaacampamento')
 
         if coordenador_peraltas:
-            monitores = Monitor.objects.all()
-            enfermeiras = Enfermeira.objects.all()
+            monitores = Monitor.objects.all().order_by('usuario__first_name')
+            enfermeiras = Enfermeira.objects.all().order_by('usuario__first_name')
             disponibilidades = DisponibilidadePeraltas.objects.all()
         else:
             try:
@@ -257,18 +257,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     disponiveis = []
 
     if is_ajax(request):
-        if request.method == 'GET':
-            id_monitores_escalados = list(set(map(int, request.GET.getlist('monitores_escalados[]'))))
-            n_coordenadores_escalados = 0
-
-            for id_monitor in id_monitores_escalados:
-                monitor = Monitor.objects.get(id=id_monitor)
-
-                if 'Coordenador' in monitor.nivel.nivel:
-                    n_coordenadores_escalados += 1
-
-            return HttpResponse(n_coordenadores_escalados)
-
         if request.POST.get('id_monitor'):
             return JsonResponse(verificar_escalas(request.POST.get('id_monitor'), data_selecionada,
                                                   request.POST.get('cliente')))
@@ -363,7 +351,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                     ficha_de_evento = ordem_de_servico.ficha_de_evento
                     n_monitores = int(ordem_de_servico.n_participantes / escala_editada.racional_monitores)
-                    n_coordenadores = int(ordem_de_servico.n_participantes / escala_editada.racional_coordenadores)
                 else:
                     try:
                         ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
