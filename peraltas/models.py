@@ -20,6 +20,8 @@ class Monitor(models.Model):
     telefone = models.CharField(max_length=11)
     cidade_horigem = models.CharField(max_length=255, verbose_name='Moradia', blank=True)
     valor_diaria = models.DecimalField(null=True, decimal_places=2, max_digits=5)
+    valor_diaria_coordenacao = models.DecimalField(null=True, decimal_places=2, max_digits=5)
+    valor_diaria_biologo = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)
@@ -40,6 +42,8 @@ class Monitor(models.Model):
 class Enfermeira(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11)
+    valor_diaria = models.DecimalField(null=True, decimal_places=2, max_digits=5)
+    valor_pernoite = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     pode_pernoitar = models.BooleanField(default=False)
 
     def __str__(self):
