@@ -30,3 +30,8 @@ def index(indexavel, indice):
         ...
     else:
         return indexavel[indice]
+
+
+@register.filter
+def get_item(lista, indice):
+    return lista[indice]

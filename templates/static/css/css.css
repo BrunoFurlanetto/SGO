@@ -60,7 +60,7 @@
     height: 100vh;
 }
 
-.footer_login{
+.footer_login {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -259,6 +259,30 @@
     min-height: 200px;
 }
 
+#div_btn_adicionar_viacao {
+    display: flex;
+    margin-top: 10px;
+}
+
+#btn_adicionar_empresa_onibus {
+    background: transparent;
+    border: none;
+    font-size: 25px;
+    margin-top: -5px;
+}
+
+#btn_adicionar_empresa_onibus:hover {
+    color: #0a58ca;
+}
+
+.btn-remover-viacao button {
+    background: transparent;
+    border: none;
+    font-size: 30px;
+    color: #b02a37;
+    height: 35px;
+}
+
 .relatorio {
     min-height: 200px;
     background-color: #fff;
@@ -420,7 +444,8 @@
     background: #FF8C00;
 }
 
-#nomes_monitores .enfermeira{    background: #ff7474;
+#nomes_monitores .enfermeira {
+    background: #ff7474;
 
 }
 
@@ -811,7 +836,7 @@
     overflow-y: auto;
 }
 
-#div_biologos_escalados .monitores_escalados{
+#div_biologos_escalados .monitores_escalados {
     min-height: 50px;
     max-height: 50px;
 }
@@ -902,7 +927,7 @@
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
 #form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
 #ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local],
-#ModalCadastroPreReserva input[type=text], #motivo_cancelamento, #modal_dados_cliente input{
+#ModalCadastroPreReserva input[type=text], #motivo_cancelamento, #modal_dados_cliente input {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;

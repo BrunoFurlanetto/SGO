@@ -11,7 +11,8 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     pegar_clientes_data_selecionada, escalados_para_o_evento, \
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
-    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia
+    pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
+    pegar_dados_monitor_embarque
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
@@ -272,20 +273,26 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
                 if ordem_de_servico:
+                    areas = []
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
                     n_monitores = int(ordem_de_servico.n_participantes / 10)
+                    monitor_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
                 else:
                     inicio_evento = ficha_de_evento.check_in
                     termino_evento = ficha_de_evento.check_out
                     n_monitores = int(ficha_de_evento.qtd_convidada / 10)
+                    monitor_embarque = None
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
                     'data': data_selecionada,
                     'setor': setor,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
-                    'embarque': ficha_de_evento.informacoes_adcionais.transporte,
+                    'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
+                    'ficha_de_evento': ficha_de_evento,
+                    'os': ordem_de_servico,
+                    'monitor_embarque': monitor_embarque,
                     'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'id_cliente': cliente.id,
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
@@ -364,6 +371,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'final': check_out,
                     'id_cliente': id_cliente,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
+                    'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
+                    'ficha_de_evento': ficha_de_evento,
+                    'os': ordem_de_servico,
                     'embarque': ficha_de_evento.informacoes_adcionais.transporte,
                     'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'cliente': escala_editada.cliente.nome_fantasia,

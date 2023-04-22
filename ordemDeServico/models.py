@@ -14,6 +14,7 @@ class DadosTransporte(models.Model):
     horario_embarque = models.TimeField(blank=True, null=True)
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
     dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
 
     def valor_veiculos(self):
@@ -59,9 +60,7 @@ class OrdemDeServico(models.Model):
                                  null=True)  # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ManyToManyField(Monitor)
-    dados_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
-    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                         related_name='monitor_embarque')
+    dados_transporte = models.ManyToManyField(DadosTransporte, blank=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)
@@ -170,6 +169,6 @@ class CadastroDadosTransporte(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'telefone_motorista': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
+            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'step': '60'}),
+            'telefone_motorista': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'})
         }

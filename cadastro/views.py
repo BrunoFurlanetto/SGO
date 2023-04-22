@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from fpdf import FPDF
 
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
@@ -15,7 +14,8 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados
 from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
-from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores
+from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
+    separar_dados_transporte, salvar_dados_transporte
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
@@ -164,7 +164,21 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
     form_transporte = CadastroDadosTransporte()
+    forms_transporte = []
+    transportes_salvos = []
     transporte = None
+
+    if is_ajax(request):
+        if request.POST.get('id_viacao_excluida'):
+            ordem = OrdemDeServico.objects.get(pk=request.POST.get('id_os'))
+
+            for dados_transporte in ordem.dados_transporte.all():
+                if dados_transporte.empresa_onibus.id == int(request.POST.get('id_viacao_excluida')):
+                    dados_transporte.delete()
+
+            return HttpResponse(True)
+
+        return JsonResponse(requests_ajax(request.POST))
 
     if request.POST.get('gerar_pdf'):
         ordem_pdf = OrdemDeServico.objects.get(pk=id_ordem_de_servico)
@@ -180,9 +194,12 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     if id_ordem_de_servico:
         ordem_servico = OrdemDeServico.objects.get(id=int(id_ordem_de_servico))
         form = CadastroOrdemDeServico(instance=ordem_servico)
+
+        for transporte in ordem_servico.dados_transporte.all():
+            form_transporte = CadastroDadosTransporte(instance=transporte)
+            forms_transporte.append(form_transporte)
+
         ficha_de_evento = FichaDeEvento.objects.get(id=ordem_servico.ficha_de_evento.id)
-        form_transporte = CadastroDadosTransporte(instance=ordem_servico.dados_transporte)
-        transporte = ordem_servico.dados_transporte
         atividades_eco = AtividadesEco.objects.all()
         atividades_ceu = Atividades.objects.all()
         espacos = Locaveis.objects.all()
@@ -196,13 +213,10 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     if id_ficha_de_evento:
         ficha_de_evento = FichaDeEvento.objects.get(id=int(id_ficha_de_evento))
 
-    if is_ajax(request):
-        return JsonResponse(requests_ajax(request.POST))
-
     if request.method != 'POST':
         return render(request, 'cadastro/ordem_de_servico.html', {
             'form': form,
-            'form_transporte': form_transporte,
+            'forms_transporte': forms_transporte if len(forms_transporte) > 0 else [form_transporte],
             'fichas': fichas_de_evento,
             'ficha_de_evento': ficha_de_evento,
             'ordem_servico': ordem_servico,
@@ -227,12 +241,12 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 data_saida=datetime.now().date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento')
             )
-            ordem_servico.ficha_de_evento.delete()
-            ordem_servico.ficha_de_evento.informacoes_adcionais.delete()
-            ordem_servico.ficha_de_evento.codigos_app.delete()
+            ordem_servico.ficha_de_evento.os = False
+            ordem_servico.ficha_de_evento.save()
 
             if ordem_servico.dados_transporte:
-                ordem_servico.dados_transporte.delete()
+                for dados_transporte in ordem_servico.dados_transporte.all():
+                    dados_transporte.delete()
 
             ordem_servico.delete()
         except Exception as e:
@@ -246,24 +260,32 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
         permicao_coordenacao = ordem_servico.permicao_coordenadores
 
-        if transporte:
-            form_transporte = CadastroDadosTransporte(request.POST, instance=transporte)
+        if len(ordem_servico.dados_transporte.all()) > 0:
+            for tranporte_n, transporte in enumerate(ordem_servico.dados_transporte.all()):
+                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
+                form_transporte = CadastroDadosTransporte(dados_transporte, instance=transporte)
+                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
+
+        if len(ordem_servico.dados_transporte.all()) < len(request.POST.getlist('empresa_onibus')):
+            for tranporte_n in range(len(ordem_servico.dados_transporte.all()), len(request.POST.getlist('empresa_onibus'))):
+                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
+                form_transporte = CadastroDadosTransporte(dados_transporte)
+                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
     else:
         permicao_coordenacao = False
         form = CadastroOrdemDeServico(request.POST, request.FILES)
-        form_transporte = CadastroDadosTransporte(request.POST)
+
+        if len(request.POST.getlist('empresa_onibus')) > 0:
+            for tranporte_n in range(0, len(request.POST.getlist('empresa_onibus'))):
+                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
+                form_transporte = CadastroDadosTransporte(dados_transporte)
+                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
 
     ordem_de_servico = form.save(commit=False)
     ordem_de_servico.permicao_coordenadores = permicao_coordenacao
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
-
-    if form_transporte.is_valid():
-        dados_transporte = form_transporte.save(commit=False)
-        dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(request.POST)
-    else:
-        dados_transporte = None
-
     slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
+
     try:
         salvar_atividades_ceu(request.POST, ordem_de_servico)
         check_in_and_check_out_atividade(ordem_de_servico)
@@ -272,11 +294,9 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         if ficha.escala:
             form.escala = True
 
-        if dados_transporte:
-            transporte_salvo = form_transporte.save()
-            ordem_de_servico.dados_transporte = transporte_salvo
-
-        form.save()
+        os = form.save()
+        os.dados_transporte.set(transportes_salvos)
+        os.save()
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'

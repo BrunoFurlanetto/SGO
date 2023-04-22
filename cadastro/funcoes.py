@@ -1,6 +1,6 @@
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
-from ordemDeServico.models import OrdemDeServico
+from ordemDeServico.models import OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
@@ -470,3 +470,28 @@ def numero_coordenadores(ficha_de_evento):
                 return 3
             else:
                 return 2
+
+
+def separar_dados_transporte(dados_transporte, transporte_n):
+    campos = list(CadastroDadosTransporte().fields.keys())
+    n_carros = ['n_micro', 'n_46', 'n_50']
+    campos.extend(n_carros)
+    numero_carros = {}
+    dados = {}
+
+    for campo in campos:
+        if len(dados_transporte.getlist(campo)) > 0:
+            dados[campo] = dados_transporte.getlist(campo)[transporte_n]
+
+            if campo in n_carros:
+                numero_carros[campo] = dados_transporte.getlist(campo)[transporte_n]
+
+    return dados, numero_carros
+
+
+def salvar_dados_transporte(form_transporte, numero_carros):
+    dados_transporte = form_transporte.save(commit=False)
+    dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(numero_carros)
+    form_salvo = form_transporte.save()
+
+    return form_salvo.id

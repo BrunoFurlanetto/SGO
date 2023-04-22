@@ -589,3 +589,24 @@ def procurar_ficha_de_evento(cliente, data_selecionada):
             return ficha_de_evento, OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
         else:
             return ficha_de_evento, None
+
+
+def pegar_dados_monitor_embarque(os):
+    areas = []
+    monitor = os.monitor_embarque
+
+    areas.append('som') if monitor.som else ...
+    areas.append('video') if monitor.video else ...
+    areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
+    biologo = 'biologo' if monitor.biologo else ''
+
+    dados_monitor = {
+        'id': monitor.id,
+        'nome': monitor.usuario.get_full_name(),
+        'setor': 'peraltas',
+        'tecnica': monitor.tecnica,
+        'areas': '-'.join(areas),
+        'biologo': biologo
+    }
+
+    return dados_monitor

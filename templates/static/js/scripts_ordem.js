@@ -5,7 +5,7 @@ $(document).ready(function () {
     if (window.location.href.split('/')[5] !== '') {
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
 
-        if (window.location.href.split('/')[5] === 'ficha'){
+        if (window.location.href.split('/')[5] === 'ficha') {
             $('#ficha_de_evento').select2({disabled: 'readonly'})
             $('#id_atividades_peraltas').select2()
         } else {
@@ -19,9 +19,9 @@ $(document).ready(function () {
 
 })
 
-function mascara_telefone() {
-    $('#id_telefone_motorista').mask('(00) 0 0000-00009');
-    $('#id_telefone_motorista').blur(function (event) {
+function mascara_telefone(input) {
+    $(input).mask('(00) 0 0000-00009');
+    $(input).blur(function (event) {
         if ($(this).val().length == 16) { // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
             $(this).mask('(00) 0 0000-0009');
         } else {
@@ -145,7 +145,7 @@ function completar_dados_os(selecao) {
     }, 600)
 }
 
-function completar_dados_cliente(){
+function completar_dados_cliente() {
 
 }
 
@@ -195,7 +195,7 @@ function add_atividade(atividade_id_ = parseInt(''),
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
@@ -440,9 +440,9 @@ function add_locacao(id_local_ = parseInt(''), check_in_ = '',
             let label_locacao = `<label>Locação</label>`
             let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"><option></option></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()} name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
             let label_local_coffee = `<label>Local do coffee</label>`
             let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}" value="${local_coffee_}"/>`
             let label_hora_coffee = `<label>Hora</label>`
@@ -784,8 +784,89 @@ function dividar_atividade_eco(indicie, limite) {
             participantes_ = participantes_apx + 1
         }
         // Chama a função para adcionar atividades e manda os vlores da turma
-        add_atividade_eco(atividade_value_, atividade_, serie_, '',true)
+        add_atividade_eco(atividade_value_, atividade_, serie_, '', true)
     }
+}
+
+function adicionar_viacao() {
+    const viacoes = $('#id_empresa_onibus').html()
+    const monitores = $('#id_monitor_embarque').html()
+
+    $('#transporte').append(`
+        <hr>
+        <div class="row">
+            <div class="btn-remover-viacao">
+                <button class="buton-x" type="button" onClick="remover_vaicao(this)">
+                    <span><i class='bx bx-x'></i></span>
+                </button>
+            </div>
+            <div class="checkbox" style="width: 80%" id="viacao">
+                <label>Viação</label>
+                <select name="empresa_onibus" id="id_empresa_onibus">${viacoes}</select>
+            </div>
+            <div style="width: 20%" id="horario_embarque">
+                <label for="id_hora_embarque">Horário</label>
+                <input type="time" name="horario_embarque" id="id_horario_embarque" step="60" value="${$('#id_horario_embarque').val()}">
+            </div>
+            <div id="endereco_embarque" class="mt-2" style="width: 70%">
+                <label>Endereço de embarque</label>
+                <input type="text" name="endereco_embarque" id="id_endereco_embarque" value="${$('#id_endereco_embarque').val()}">
+            </div>
+            <div id="monitor_embarque" class="mt-2" style="width: 30%">
+                <label for="id_monitor_embarque">Monitor embarque</label>
+                <select name="monitor_embarque" id="id_monitor_embarque">${monitores}</select>
+            </div>
+            <div id="nome_motorista" class="mt-2" style="width: 70%">
+                <label>Motorista</label>
+                <input type="text" name="nome_motorista" id="id_nome_motorista">
+            </div>
+            <div id=telefone_motorista" class="mt-2" style="width: 30%">
+                <label>Telefone</label>
+                <input type="text" name="telefone_motorista" id="id_telefone_motorista" onfocus="mascara_telefone(this)" maxlength="17">
+            </div>
+            <div class="mt-3 mb-2" id="dados_veiculos"
+                 style="display: flex; justify-content: space-between">
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Micro ônibus:</label>
+                            <input type="number" name="n_micro" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Ônibus 46 lugares:</label>
+                            <input type="number" name="n_46" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Ônibus 50 lugares:</label>
+                            <input type="number" name="n_50" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+            </div>                
+        </div>
+    `)
+}
+
+function remover_vaicao(div, id_os=null) {
+    const div_transporte = div.parentNode.parentNode.parentNode
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {
+            'id_viacao_excluida': $(`#${div_transporte.id} #id_empresa_onibus`).val(),
+            'id_os': id_os
+        },
+        success: function (response) {
+            $(div).parent().parent().remove()
+        }
+    })
 }
 
 $('#btn_salvar_os').on('click', function (e) {

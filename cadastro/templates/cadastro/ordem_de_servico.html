@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filter_tag %}
 {% load static %}
 {% include 'parciais/_head.html' %}
 
@@ -118,58 +119,82 @@
                     </div>
                 </div>
                 <hr class="transporte {% if not ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %}">
-                <div class="row {% if not ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %} transporte">
+                <div id="transporte"
+                     class="{% if not ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 0 %} none {% endif %} transporte">
                     <h5 class="titulo-secao">Transporte</h5>
-                    <div class="checkbox" style="width: 80%" id="viacao">
-                        <label>Viação</label>
-                        {{ form_transporte.empresa_onibus }}
-                    </div>
-                    <div style="width: 20%" id="horario_embarque">
-                        <label for="id_hora_embarque">Horário</label>
-                        {{ form_transporte.horario_embarque }}
-                    </div>
-                    <div id="endereco_embarque" class="mt-2" style="width: 70%">
-                        <label>Endereço de embarque</label>
-                        {{ form_transporte.endereco_embarque }}
-                    </div>
-                    <div id="monitor_embarque" class="mt-2" style="width: 30%">
-                        <label for="id_monitor_embarque">Monitor embarque</label>
-                        {{ form.monitor_embarque }}
-                    </div>
-                    <div id="nome_motorista" class="mt-2" style="width: 70%">
-                        <label>Motorista</label>
-                        {{ form_transporte.nome_motorista }}
-                    </div>
-                    <div id=telefone_motorista" class="mt-2" style="width: 30%">
-                        <label>Telefone</label>
-                        {{ form_transporte.telefone_motorista }}
-                    </div>
-                    <div class="mt-3 mb-2" id="dados_veiculos" style="display: flex; justify-content: space-between">
+                    {% for form_transporte in forms_transporte %}
                         <div class="row">
-                            <div>
-                                <label class="py-1">Micro ônibus:</label>
-                                <input type="number" name="n_micro" placeholder="n" min="0"
-                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.0.n }}"
-                                       style="width: 60px">
+                            <div class="btn-remover-viacao">
+                                <button type="button" onClick="remover_vaicao(this, '{{ ordem_servico.id }}')">
+                                    <span><i class='bx bx-x'></i></span>
+                                </button>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div>
-                                <label class="py-1">Ônibus 46 lugares:</label>
-                                <input type="number" name="n_46" placeholder="n" min="0"
-                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.1.n }}"
-                                       style="width: 60px">
+                            <div class="checkbox" style="width: 80%" id="viacao">
+                                <label>Viação</label>
+                                {{ form_transporte.empresa_onibus }}
                             </div>
-                        </div>
-                        <div class="row">
-                            <div>
-                                <label class="py-1">Ônibus 50 lugares:</label>
-                                <input type="number" name="n_50" placeholder="n" min="0"
-                                       value="{{ ordem_servico.dados_transporte.valor_veiculos.2.n }}"
-                                       style="width: 60px">
+                            <div style="width: 20%" id="horario_embarque">
+                                <label for="id_hora_embarque">Horário</label>
+                                {{ form_transporte.horario_embarque }}
                             </div>
+                            <div id="endereco_embarque" class="mt-2" style="width: 70%">
+                                <label>Endereço de embarque</label>
+                                {{ form_transporte.endereco_embarque }}
+                            </div>
+                            <div id="monitor_embarque" class="mt-2" style="width: 30%">
+                                <label for="id_monitor_embarque">Monitor embarque</label>
+                                {{ form_transporte.monitor_embarque }}
+                            </div>
+                            <div id="nome_motorista" class="mt-2" style="width: 70%">
+                                <label>Motorista</label>
+                                {{ form_transporte.nome_motorista }}
+                            </div>
+                            <div id=telefone_motorista" class="mt-2" style="width: 30%">
+                                <label>Telefone</label>
+                                {{ form_transporte.telefone_motorista }}
+                            </div>
+                            <div class="mt-3 mb-2" id="dados_veiculos"
+                                 style="display: flex; justify-content: space-between">
+                                {% for dado in ordem_servico.dados_transporte.all %}
+                                    {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                                        <div class="row">
+                                            <div>
+                                                <label class="py-1">Micro ônibus:</label>
+                                                <input type="number" name="n_micro" placeholder="n" min="0"
+                                                       value="{{ dado.valor_veiculos.0.n }}"
+                                                       style="width: 60px">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div>
+                                                <label class="py-1">Ônibus 46 lugares:</label>
+                                                <input type="number" name="n_46" placeholder="n" min="0"
+                                                       value="{{ dado.valor_veiculos.1.n }}"
+                                                       style="width: 60px">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div>
+                                                <label class="py-1">Ônibus 50 lugares:</label>
+                                                <input type="number" name="n_50" placeholder="n" min="0"
+                                                       value="{{ dado.valor_veiculos.2.n }}"
+                                                       style="width: 60px">
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% if not forloop.last %}
+                                <hr>
+                            {% endif %}
                         </div>
-                    </div>
+                    {% endfor %}
+                </div>
+                <div id="div_btn_adicionar_viacao">
+                    <button type="button" id="btn_adicionar_empresa_onibus" onclick="adicionar_viacao()">
+                        <i class="bx bx-plus"></i>
+                    </button>
+                    <label for="btn_adicionar_empresa_onibus">Adicionar viação</label>
                 </div>
                 <hr>
                 <div class="row" id="ativs_peraltas">
