@@ -3,6 +3,21 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
+from ordemDeServico.models import OrdemDeServico, DadosTransporte
+
+
+def popular_dados_transporte_e_monitor_embarque(apps, schema_editor):
+    OrdemDeServico = apps.get_model('ordemDeServico', 'OrdemDeServico')
+    DadosTransporte = apps.get_model('ordemDeServico', 'DadosTransporte')
+    Monitor = apps.get_model('peraltas', 'Monitor')
+
+    for ordem in OrdemDeServico.objects.all():
+        if ordem.dados_transporte and ordem.monitor_embarque:
+            transporte = DadosTransporte.objects.get(id=ordem.dados_transporte.id)
+            transporte.monitor_embarque = Monitor.objects.get(id=ordem.monitor_embarque.id)
+            transporte.save()
+            ordem.dados_transporte_temp.set([ordem.dados_transporte.id])
+
 
 class Migration(migrations.Migration):
 
@@ -22,9 +37,5 @@ class Migration(migrations.Migration):
             name='dados_transporte_temp',
             field=models.ManyToManyField(related_name='Dados_transporte_temp', to='ordemDeServico.DadosTransporte'),
         ),
-        migrations.AlterField(
-            model_name='ordemdeservico',
-            name='dados_transporte',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='ordemDeServico.dadostransporte'),
-        ),
+	migrations.RunPython(popular_dados_transporte_e_monitor_embarque),
     ]
