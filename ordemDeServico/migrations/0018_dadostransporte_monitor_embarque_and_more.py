@@ -39,3 +39,4 @@ class Migration(migrations.Migration):
         ),
 	migrations.RunPython(popular_dados_transporte_e_monitor_embarque),
     ]
+
