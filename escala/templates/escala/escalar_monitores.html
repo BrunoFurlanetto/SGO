@@ -68,11 +68,15 @@
                             <li>O grupo informou um total de {{ qtd }} participantes</li>
 
                             {% if ficha_de_evento %}
-                                <li>Ficha de evento: <a href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a></li>
+                                <li>Ficha de evento: <a
+                                        href="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}">{{ ficha_de_evento.cliente }}</a>
+                                </li>
                             {% endif %}
 
                             {% if os %}
-                                <li>Ordem de serviço: <a href="{% url 'ver_ordem_de_servico' os.id %}">{{ os.ficha_de_evento.cliente }}</a></li>
+                                <li>Ordem de serviço: <a
+                                        href="{% url 'ver_ordem_de_servico' os.id %}">{{ os.ficha_de_evento.cliente }}</a>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>
@@ -134,9 +138,12 @@
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    <div id="{{ monitor_embarque.id }}"
-                                         class="card-monitor {{ monitor_embarque.setor }} embarque {% if monitor_embarque.tecnica %}tecnica{% endif %} {{ monitor_embarque.areas }} {{ monitor_embarque.biologo }}"
-                                         draggable="true">{{ monitor_embarque.nome }}</div>
+                                    {% for monitor in monitores_embarque %}
+                                        <div id="{{ monitor.id }}"
+                                             class="card-monitor {{ monitor.setor }} embarque {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }}">
+                                            {{ monitor.nome }}
+                                        </div>
+                                    {% endfor %}
                                 {% endif %}
                             </div>
                         </div>
@@ -168,6 +175,13 @@
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
                                     {% endfor %}
+                                {% else %}
+                                    {% for monitor in monitores_biologo %}
+                                        <div id="{{ monitor.id }}"
+                                             class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }}">
+                                             {{ monitor.nome }}
+                                        </div>
+                                    {% endfor %}
                                 {% endif %}
                             </div>
                         </div>
@@ -183,6 +197,7 @@
                                              class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
                                              draggable="true">{{ escalado.nome }}
 
+
                                             {% if 'embarque' in escalado.tipo_escalacao %}
                                                 <button class="btn btn-close" style="font-size: 12px; margin-left: 5px"
                                                         onclick="remover_escalado_clique(this.parentNode)"></button>
@@ -195,11 +210,17 @@
                     </div>
                     <input id="escala_editada" type="hidden" value="{{ id_escala }}">
                 </div>
-                <div class="botoes">
-                    <button type="button" class="btn btn-primary" {% if id_cliente %}
-                            onclick="salvar_monitores_escalados(this, true)" {% else %}
-                            onclick="salvar_monitores_escalados(this)" {% endif %}>Salvar
-                    </button>
+                <div class="botoes" style="display: flex; justify-content: space-between">
+                    {% if pre_escala or not id_escala %}
+                        <button type="button" class="btn btn-primary" {% if id_cliente %}
+                                onclick="salvar_monitores_escalados(this, false, true)" {% else %}
+                                onclick="salvar_monitores_escalados(this, false)" {% endif %}>
+                            Salvar escala final
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
+                            onclick="salvar_monitores_escalados(this, true, true)" {% else %}
+                            onclick="salvar_monitores_escalados(this, true)" {% endif %}>Salvar prévia</button>
+                    {% endif %}
                 </div>
                 </div>
             {% endif %}
@@ -271,7 +292,7 @@
     <script>
         const n_monitores = {{ n_monitores }}
 
-        verificar_tecnica()
+            verificar_tecnica()
         verificar_escalados()
     </script>
 {% endblock %}

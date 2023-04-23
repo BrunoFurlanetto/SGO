@@ -467,10 +467,12 @@ class EscalaAcampamento(models.Model):
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
     monitores_embarque = models.ManyToManyField(Monitor, blank=True, related_name='monitores_embarque')
+    ultima_pre_reserva = models.JSONField(blank=True, null=True)
     biologos = models.ManyToManyField(Monitor, blank=True, related_name='biologos')
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
     check_in_cliente = models.DateTimeField()
     check_out_cliente = models.DateTimeField()
+    pre_escala = models.BooleanField(default=False)
     racional_monitores = models.PositiveIntegerField(default=10)
 
     def tipo_escala(self):

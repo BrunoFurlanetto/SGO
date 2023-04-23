@@ -592,21 +592,68 @@ def procurar_ficha_de_evento(cliente, data_selecionada):
 
 
 def pegar_dados_monitor_embarque(os):
-    areas = []
-    monitor = os.monitor_embarque
+    dados_monitores = []
 
-    areas.append('som') if monitor.som else ...
-    areas.append('video') if monitor.video else ...
-    areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
-    biologo = 'biologo' if monitor.biologo else ''
+    if not os.dados_transporte:
+        return None
 
-    dados_monitor = {
-        'id': monitor.id,
-        'nome': monitor.usuario.get_full_name(),
-        'setor': 'peraltas',
-        'tecnica': monitor.tecnica,
-        'areas': '-'.join(areas),
-        'biologo': biologo
+    for transporte in os.dados_transporte.all():
+        areas = []
+        monitor = transporte.monitor_embarque
+
+        areas.append('som') if monitor.som else ...
+        areas.append('video') if monitor.video else ...
+        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
+        biologo = 'biologo' if monitor.biologo else ''
+
+        dados_monitor = {
+            'id': monitor.id,
+            'nome': monitor.usuario.get_full_name(),
+            'setor': 'peraltas',
+            'tecnica': monitor.tecnica,
+            'areas': '-'.join(areas),
+            'biologo': biologo
+        }
+
+        dados_monitores.append(dados_monitor)
+
+    return dados_monitores
+
+
+def pegar_dados_monitor_biologo(os):
+    dados_monitores = []
+
+    if not os.atividades_eco:
+        return None
+
+    for atividade in os.atividades_eco.values():
+        areas = []
+        id_monitor = atividade['biologo']
+        monitor = Monitor.objects.get(pk=id_monitor)
+
+        areas.append('som') if monitor.som else ...
+        areas.append('video') if monitor.video else ...
+        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
+        biologo = 'biologo' if monitor.biologo else ''
+
+        dados_monitor = {
+            'id': monitor.id,
+            'nome': monitor.usuario.get_full_name(),
+            'setor': 'peraltas',
+            'tecnica': monitor.tecnica,
+            'areas': '-'.join(areas),
+            'biologo': biologo
+        }
+
+        if dados_monitor not in dados_monitores:
+            dados_monitores.append(dados_monitor)
+
+    return dados_monitores
+
+
+def salvar_ultima_pre_escala(dados_escala, editando_escala):
+    return {
+        'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),
+        'embarque': list(map(int, dados_escala.getlist('id_monitores_embarque[]'))),
+        'biologos': list(map(int, dados_escala.getlist('id_biologos[]'))),
     }
-
-    return dados_monitor

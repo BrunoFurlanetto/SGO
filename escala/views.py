@@ -12,7 +12,7 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
-    pegar_dados_monitor_embarque
+    pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
@@ -277,12 +277,13 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
                     n_monitores = int(ordem_de_servico.n_participantes / 10)
-                    monitor_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
+                    monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
+                    monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
                 else:
                     inicio_evento = ficha_de_evento.check_in
                     termino_evento = ficha_de_evento.check_out
                     n_monitores = int(ficha_de_evento.qtd_convidada / 10)
-                    monitor_embarque = None
+                    monitores_embarque = monitores_biologo = None
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
@@ -292,7 +293,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
                     'ficha_de_evento': ficha_de_evento,
                     'os': ordem_de_servico,
-                    'monitor_embarque': monitor_embarque,
+                    'monitores_embarque': monitores_embarque,
+                    'monitores_biologo': monitores_biologo,
                     'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
                     'id_cliente': cliente.id,
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
@@ -382,6 +384,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'disponiveis': disponiveis,
                     'escalados': escalado,
                     'id_escala': escala_editada.id,
+                    'pre_escala': escala_editada.pre_escala,
                     'n_monitores': n_monitores if n_monitores != 0 else 1,
                 })
 
@@ -447,6 +450,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
                 editando_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
+
+                if request.POST.get('pre_escala') == 'false':
+                    editando_escala.ultima_pre_reserva = salvar_ultima_pre_escala(request.POST, editando_escala)
+
+                editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 editando_escala.save()
             else:
                 nova_escala = EscalaAcampamento.objects.create(cliente=cliente,
@@ -457,6 +465,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 nova_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
                 nova_escala.ficha_de_evento = ficha_de_evento
+
+                if request.POST.get('pre_escala') == 'false':
+                    nova_escala.ultima_pre_reserva = salvar_ultima_pre_escala(request.POST, nova_escala)
+                    
+                nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)

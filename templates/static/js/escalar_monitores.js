@@ -290,7 +290,7 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
-function salvar_monitores_escalados(btn, editando = false) {
+function salvar_monitores_escalados(btn, pre_escala, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
     const enfermeiras_escaladas = $('#enfermagem').children()
@@ -372,7 +372,6 @@ function salvar_monitores_escalados(btn, editando = false) {
         return
     }
 
-
     $.ajax({
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -387,6 +386,7 @@ function salvar_monitores_escalados(btn, editando = false) {
             'cliente': $('#cliente').val(),
             'check_in': $('#check_in').val(),
             'check_out': $('#check_out').val(),
+            'pre_escala': pre_escala,
         },
         success: function (response) {
             window.location.href = '/escala/peraltas/'
