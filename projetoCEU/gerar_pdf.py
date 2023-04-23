@@ -247,55 +247,60 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.titulo_secao('Dados do transporte', 5, 0)
         pdf_ordem.ln(2)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Viação: ') + 1, 8, 'Viação:')
-        pdf_ordem.cell(100, 8, ordem_de_servico.dados_transporte.empresa_onibus.viacao)
+        for loop, transporte in enumerate(ordem_de_servico.dados_transporte.all()):
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Viação: ') + 1, 8, 'Viação:')
+            pdf_ordem.cell(100, 8, transporte.empresa_onibus.viacao)
 
-        if pdf_ordem.get_string_width(ordem_de_servico.dados_transporte.nome_motorista) > 59:
-            pdf_ordem.ln()
+            if pdf_ordem.get_string_width(transporte.nome_motorista) > 59:
+                pdf_ordem.ln()
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Motorista: ') + 2, 8, 'Motorista:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.dados_transporte.nome_motorista, ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Motorista: ') + 2, 8, 'Motorista:')
+            pdf_ordem.cell(0, 8, transporte.nome_motorista, ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Endereço embarque: ') + 3, 8, 'Endereço embarque:')
-        w_text = pdf_ordem.get_string_width(ordem_de_servico.dados_transporte.endereco_embarque) + 10
-        pdf_ordem.cell(w_text, 8, ordem_de_servico.dados_transporte.endereco_embarque)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Endereço embarque: ') + 3, 8, 'Endereço embarque:')
+            w_text = pdf_ordem.get_string_width(transporte.endereco_embarque) + 10
+            pdf_ordem.cell(w_text, 8, transporte.endereco_embarque)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.dados_transporte.horario_embarque.strftime('%H:%M'), ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
+            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M'), ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
-        pdf_ordem.cell(40, 8, ordem_de_servico.dados_transporte.telefone_motorista)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
+            pdf_ordem.cell(40, 8, transporte.telefone_motorista)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.monitor_embarque.usuario.get_full_name(), ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
+            pdf_ordem.cell(0, 8, transporte.monitor_embarque.usuario.get_full_name(), ln=1)
 
-        if ficha_de_evento.informacoes_adcionais.lanche_bordo:
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
-            pdf_ordem.cell(20, 8, 'Sim')
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ida: ') + 1, 8, 'Ida:')
+            if ficha_de_evento.informacoes_adcionais.lanche_bordo:
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
+                pdf_ordem.cell(20, 8, 'Sim')
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ida: ') + 1, 8, 'Ida:')
 
-            if ficha_de_evento.informacoes_adcionais.ida:
-                pdf_ordem.cell(10, 8, 'Sim')
-            else:
-                pdf_ordem.cell(10, 8, 'Não')
+                if ficha_de_evento.informacoes_adcionais.ida:
+                    pdf_ordem.cell(10, 8, 'Sim')
+                else:
+                    pdf_ordem.cell(10, 8, 'Não')
 
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Volta: ') + 1, 8, 'Volta:')
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Volta: ') + 1, 8, 'Volta:')
 
-            if ficha_de_evento.informacoes_adcionais.volta:
-                pdf_ordem.cell(10, 8, 'Sim', ln=1)
-            else:
-                pdf_ordem.cell(10, 8, 'Não', ln=1)
+                if ficha_de_evento.informacoes_adcionais.volta:
+                    pdf_ordem.cell(10, 8, 'Sim', ln=1)
+                else:
+                    pdf_ordem.cell(10, 8, 'Não', ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['micro_onibus']))
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['micro_onibus']))
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['onibus_46']))
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_46']))
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['onibus_50']), ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_50']), ln=1)
 
-        pdf_ordem.ln(4)
+            pdf_ordem.ln(4)
+
+            if loop < len(ordem_de_servico.dados_transporte.all()) - 1:
+                pdf_ordem.line(pdf_ordem.l_margin, pdf_ordem.y, pdf_ordem.w - pdf_ordem.r_margin, pdf_ordem.y)
+                pdf_ordem.ln(4)
     # ----------------------------------------------- Quantidades ------------------------------------------------------
     pdf_ordem.titulo_secao('Quantidades', 5, 0)
     pdf_ordem.ln(2)
