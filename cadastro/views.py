@@ -291,10 +291,11 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
 
-        if ficha.escala:
-            form.escala = True
-
         os = form.save()
+
+        if ficha.escala:
+            os.escala = True
+
         os.dados_transporte.set(transportes_salvos)
         os.save()
     except Exception as e:
@@ -457,7 +458,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             'dados_pre_reserva': dados_pre_reserva,
             'grupos_atividade': grupos_atividade,
             'atividades_ceu': atividades_ceu,
-                'diretoria': diretoria,
+            'diretoria': diretoria,
         })
 
 

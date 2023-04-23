@@ -39,14 +39,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
         for grupo in ficha_de_evento.atividades_peraltas.all():
             atividades_peraltas.append(grupo.grupo)
 
-        if ficha_de_evento.informacoes_adcionais.transporte:  # TODO: Rever após refatoração do banco
-            try:
-                escala = EscalaAcampamento.objects.get(ficha_de_evento=ficha_de_evento)
-            except EscalaAcampamento.DoesNotExist:
-                ...
-            else:
-                id_monitor_embarque = escala.monitores_embarque.all()[0].id
-
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
@@ -57,7 +49,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
             'seguro': ficha_de_evento.informacoes_adcionais.seguro,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
-            'id_monitor_embarque': id_monitor_embarque,
             'id_n_professores': ficha_de_evento.qtd_professores,
             'id_check_in': ficha_de_evento.check_in,
             'id_check_out': ficha_de_evento.check_out,

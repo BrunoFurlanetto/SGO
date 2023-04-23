@@ -190,13 +190,15 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div id="div_btn_adicionar_viacao">
-                    <button type="button" id="btn_adicionar_empresa_onibus" onclick="adicionar_viacao()">
-                        <i class="bx bx-plus"></i>
-                    </button>
-                    <label for="btn_adicionar_empresa_onibus">Adicionar viação</label>
-                </div>
-                <hr>
+                {% if ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente or ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 1 %}
+                    <div id="div_btn_adicionar_viacao">
+                        <button type="button" id="btn_adicionar_empresa_onibus" onclick="adicionar_viacao()">
+                            <i class="bx bx-plus"></i>
+                        </button>
+                        <label for="btn_adicionar_empresa_onibus">Adicionar viação</label>
+                    </div>
+                    <hr>
+                {% endif %}
                 <div class="row" id="ativs_peraltas">
                     <h5 class="titulo-secao">Atividades Peraltas</h5>
                     {{ form.atividades_peraltas }}
