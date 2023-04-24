@@ -42,11 +42,11 @@ function verificar_atividades(selecao) {
 
     if (selecao.value === 'Peraltas') {
         $('.atividade-ceu, .locacao-ceu').addClass('none')
-        $('.atividades-eco, #ativs_peraltas').removeClass('none')
+        $('.atividades-eco, #ativs_peraltas, .ativs_peraltas').removeClass('none')
     }
 
     if (selecao.value === 'CEU') {
-        $('.atividades-eco, #ativs_peraltas').addClass('none')
+        $('.atividades-eco, #ativs_peraltas, .ativs_peraltas').addClass('none')
 
         if (corporativo) {
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
@@ -57,7 +57,7 @@ function verificar_atividades(selecao) {
     }
 
     if (selecao.value === 'Peraltas CEU') {
-        $('.atividade-ceu, .locacao-ceu, .atividades-eco, #ativs_peraltas').removeClass('none')
+        $('.atividade-ceu, .locacao-ceu, .atividades-eco, #ativs_peraltas, .ativs_peraltas').removeClass('none')
 
         if (corporativo) {
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
