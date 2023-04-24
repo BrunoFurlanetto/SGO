@@ -793,8 +793,8 @@ function adicionar_viacao() {
     const monitores = $('#id_monitor_embarque').html()
 
     $('#transporte').append(`
-        <hr>
         <div class="row">
+            <hr>
             <div class="btn-remover-viacao">
                 <button class="buton-x" type="button" onClick="remover_vaicao(this)">
                     <span><i class='bx bx-x'></i></span>
@@ -853,18 +853,21 @@ function adicionar_viacao() {
 }
 
 function remover_vaicao(div, id_os=null) {
-    const div_transporte = div.parentNode.parentNode.parentNode
+    const div_transporte = div.closest('.row')
+    const id_viacao = $(div_transporte).children('#viacao').children('#id_empresa_onibus').val()
 
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {
-            'id_viacao_excluida': $(`#${div_transporte.id} #id_empresa_onibus`).val(),
+            'id_viacao_excluida': id_viacao,
             'id_os': id_os
         },
         success: function (response) {
-            $(div).parent().parent().remove()
+            if (response == "True") {
+                $(div).parent().parent().remove()
+            }
         }
     })
 }

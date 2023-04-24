@@ -170,13 +170,19 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if is_ajax(request):
         if request.POST.get('id_viacao_excluida'):
-            ordem = OrdemDeServico.objects.get(pk=request.POST.get('id_os'))
+            print(request.POST)
+            if request.POST.get('id_os') == '':
+                return HttpResponse(True)
 
-            for dados_transporte in ordem.dados_transporte.all():
-                if dados_transporte.empresa_onibus.id == int(request.POST.get('id_viacao_excluida')):
-                    dados_transporte.delete()
-
-            return HttpResponse(True)
+            try:
+                ordem = OrdemDeServico.objects.get(pk=request.POST.get('id_os'))
+                for dados_transporte in ordem.dados_transporte.all():
+                    if dados_transporte.empresa_onibus.id == int(request.POST.get('id_viacao_excluida')):
+                        dados_transporte.delete()
+            except Exception as e:
+                return HttpResponse(e)
+            else:
+                return HttpResponse(True)
 
         return JsonResponse(requests_ajax(request.POST))
 
