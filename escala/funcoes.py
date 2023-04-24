@@ -593,7 +593,7 @@ def procurar_ficha_de_evento(cliente, data_selecionada):
 
 def pegar_dados_monitor_embarque(os):
     dados_monitores = []
-
+    print(len(os.dados_transporte.all()))
     if not os.dados_transporte:
         return None
 

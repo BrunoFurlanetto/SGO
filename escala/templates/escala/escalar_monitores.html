@@ -211,12 +211,12 @@
                     <input id="escala_editada" type="hidden" value="{{ id_escala }}">
                 </div>
                 <div class="botoes" style="display: flex; justify-content: space-between">
-                    {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-primary" {% if id_cliente %}
                                 onclick="salvar_monitores_escalados(this, false, true)" {% else %}
                                 onclick="salvar_monitores_escalados(this, false)" {% endif %}>
                             Salvar escala final
                         </button>
+                {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
                             onclick="salvar_monitores_escalados(this, true, true)" {% else %}
                             onclick="salvar_monitores_escalados(this, true)" {% endif %}>Salvar prévia</button>

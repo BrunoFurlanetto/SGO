@@ -451,7 +451,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
 
-                if request.POST.get('pre_escala') == 'false':
+                if request.POST.get('pre_escala') == 'false' and not editando_escala.ultima_pre_reserva:
                     editando_escala.ultima_pre_reserva = salvar_ultima_pre_escala(request.POST, editando_escala)
 
                 editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
