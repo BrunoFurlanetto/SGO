@@ -50,7 +50,17 @@
                                 let ano = String(date.getFullYear())
                                 let data = dia + '-' + mes + '-' + ano
 
-                                window.location.href = `${$('#setor').val()}/escalar/${data}`
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '',
+                                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                    data: {'data_escala': data},
+                                    success: function (response) {
+                                        if (response['hotelaria']) {
+                                            window.location.href = `${$('#setor').val()}/escalar/${data}`
+                                        }
+                                    }
+                                })
                             },
                         {% endif %}
 

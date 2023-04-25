@@ -188,6 +188,18 @@ def verEscalaPeraltas(request):
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
 
+    if is_ajax(request):
+        if request.method == 'GET':
+            data = datetime.strptime(request.GET.get('data_escala'), '%d-%m-%Y')
+            hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
+                check_in__date__lte=data,
+                check_out__date__gte=data,
+            )
+
+            return JsonResponse({'hotelaria': len(hotelaria) > 0})
+
+        return JsonResponse(escalados_para_o_evento(request.POST))
+
     if coordenador_acampamento or coordenador_hotelaria:
         escalas_hotelaria = EscalaHotelaria.objects.all()
         escalas_acampamento = EscalaAcampamento.objects.all()
@@ -209,9 +221,6 @@ def verEscalaPeraltas(request):
             'escalas_hotelaria': escalas_hotelaria,
             'escalas_acampamento': escalas_acampamento
         })
-
-    if is_ajax(request):
-        return JsonResponse(escalados_para_o_evento(request.POST))
 
     if request.POST.get('id_escala'):
         escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
