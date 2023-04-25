@@ -651,7 +651,7 @@ def pegar_dados_monitor_biologo(os):
     return dados_monitores
 
 
-def salvar_ultima_pre_escala(dados_escala, editando_escala):
+def salvar_ultima_pre_escala(dados_escala):
     return {
         'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),
         'embarque': list(map(int, dados_escala.getlist('id_monitores_embarque[]'))),

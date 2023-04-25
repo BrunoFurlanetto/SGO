@@ -434,6 +434,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 'setor': setor,
                 'disponiveis': disponiveis,
                 'escalados': escalado,
+                'pre_escala': escala_hotelaria.pre_escala,
                 'id_escala': escala_hotelaria.id
             })
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
@@ -451,8 +452,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
 
-                if request.POST.get('pre_escala') == 'false' and not editando_escala.ultima_pre_reserva:
-                    editando_escala.ultima_pre_reserva = salvar_ultima_pre_escala(request.POST, editando_escala)
+                if request.POST.get('pre_escala') == 'false' and not editando_escala.ultima_pre_escala:
+                    editando_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 
                 editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 editando_escala.save()
@@ -467,7 +468,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.ficha_de_evento = ficha_de_evento
 
                 if request.POST.get('pre_escala') == 'false':
-                    nova_escala.ultima_pre_reserva = salvar_ultima_pre_escala(request.POST, nova_escala)
+                    nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
                     
                 nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
@@ -496,10 +497,20 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
                 escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
+
+                if request.POST.get('pre_escala') == 'false' and not escala_hotelaria.ultima_pre_escala:
+                    escala_hotelaria.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
+
+                escala_hotelaria.pre_escala = request.POST.get('pre_escala') == 'true'
                 escala_hotelaria.save()
             else:
                 nova_escala = EscalaHotelaria.objects.create(data=data_selecionada, monitores_hotelaria=escala_dia)
                 nova_escala.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
+
+                if request.POST.get('pre_escala') == 'false':
+                    nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
+
+                nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
 
         except Exception as e:
