@@ -133,9 +133,10 @@
                             const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
 
                             $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
-                            $('#div_embarque, #div_enfermeiras').addClass('none')
+                            $('#div_embarque, #div_enfermeiras, #form_escala_final').addClass('none')
+                            $('.modal-footer button').removeClass('none')
                             $('#cliente_modal').val(cliente)
-                            $('#id_escala').val(id_escala)
+                            $('#form_excluir_escala #id_escala').val(id_escala)
                             $('#titulo_modal').text('Escala para o evento de ' + cliente)
                             $('#check_in_evento_modal').val(check_in_evento)
                             $('#check_out_evento_modal').val(check_out_evento)
@@ -171,6 +172,15 @@
 
                                         for (let enfermeira of response['escalados']['enfermeiras']) {
                                             $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
+                                        }
+                                    }
+
+                                    if (response['pre_escala']) {
+                                        $('#form_escala_final').removeClass('none')
+                                        $('#form_escala_final #id_escala').val(id_escala)
+                                    } else {
+                                        if (!$('.modal-footer').attr('class').split(/\s+/).includes('diretoria')) {
+                                            $('.modal-footer button, form').addClass('none')
                                         }
                                     }
 
@@ -263,15 +273,27 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer {% if diretoria %} diretoria {% endif %}">
                     {% if coordenador_acampamento %}
+                        {% if diretoria %}
+                            <form id="form_escala_final" class="none" action="{% url 'escalaPeraltas' %}"
+                                  method="POST">
+                                <fieldset>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id_escala" id="id_escala">
+                                    <input type="submit" class="btn btn-outline-dark" name="escala_final"
+                                           value="Salvar escala final"/>
+                                </fieldset>
+                            </form>
+                        {% endif %}
+
                         <button type="button" class="btn btn-primary" onclick="redirecionar_edicao()">Editar</button>
 
-                        <form action="{% url 'escalaPeraltas' %}" method="POST">
+                        <form id="form_excluir_escala" action="{% url 'escalaPeraltas' %}" method="POST">
                             <fieldset>
                                 {% csrf_token %}
                                 <input type="hidden" name="id_escala" id="id_escala">
-                                <button type="submit" class="btn btn-danger">Excluir</button>
+                                <input type="submit" class="btn btn-danger" name="excluir_escala" value="Excluir"/>
                             </fieldset>
                         </form>
                     {% endif %}

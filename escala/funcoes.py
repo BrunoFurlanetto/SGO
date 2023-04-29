@@ -488,7 +488,8 @@ def escalados_para_o_evento(dados_evento):
             'embarque': monitores_embarque,
             'enfermeiras': enfermeiras
         },
-        'id_cliente': cliente.id
+        'id_cliente': cliente.id,
+        'pre_escala': escala.pre_escala
     }
 
 

@@ -3,6 +3,7 @@ from itertools import chain
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -187,7 +188,8 @@ def disponibilidadePeraltas(request):
 def verEscalaPeraltas(request):
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-    print(coordenador_hotelaria, coordenador_acampamento)
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+
     if is_ajax(request):
         if request.method == 'GET':
             data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
@@ -221,7 +223,8 @@ def verEscalaPeraltas(request):
         else:
             setor = None
             escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
-            escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento__usuario=request.user)
+            escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(
+                monitores_acampamento__usuario=request.user)
             escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
                 monitores_embarque__usuario=request.user
             ).exclude(id__in=escalas_acampamento_acampamento)
@@ -231,10 +234,10 @@ def verEscalaPeraltas(request):
             ))
 
     if request.method != 'POST':
-        print(request.GET.get('setor'))
         return render(request, 'escala/escala_peraltas.html', {
             'coordenador_acampamento': coordenador_acampamento,
             'coordenador_hotelaria': coordenador_hotelaria,
+            'diretoria': diretoria,
             'escalas_hotelaria': escalas_hotelaria,
             'escalas_acampamento': escalas_acampamento,
             'setor': setor,
@@ -249,6 +252,24 @@ def verEscalaPeraltas(request):
         except OrdemDeServico.DoesNotExist:
             ordem = None
 
+        if request.POST.get('escala_final'):
+            try:
+                escala_acampamento.pre_escala = False
+                escala_acampamento.save()
+            except Exception as e:
+                messages.error(request, f'Houve um erro inesperado: {e}.')
+                return render(request, 'escala/escala_peraltas.html', {
+                    'coordenador_acampamento': coordenador_acampamento,
+                    'coordenador_hotelaria': coordenador_hotelaria,
+                    'diretoria': diretoria,
+                    'escalas_hotelaria': escalas_hotelaria,
+                    'escalas_acampamento': escalas_acampamento,
+                    'setor': setor,
+                })
+            else:
+                messages.success(request, 'Escala salva com sucesso!')
+                return redirect('escalaPeraltas')
+
         try:
             escala_acampamento.delete()
         except Exception as e:
@@ -256,8 +277,10 @@ def verEscalaPeraltas(request):
             return render(request, 'escala/escala_peraltas.html', {
                 'coordenador_acampamento': coordenador_acampamento,
                 'coordenador_hotelaria': coordenador_hotelaria,
+                'diretoria': diretoria,
                 'escalas_hotelaria': escalas_hotelaria,
-                'escalas_acampamento': escalas_acampamento
+                'escalas_acampamento': escalas_acampamento,
+                'setor': setor,
             })
         else:
             ficha.escala = False
@@ -268,18 +291,14 @@ def verEscalaPeraltas(request):
                 ordem.save()
 
             messages.success(request, 'Escala excluída com sucesso!')
-            return render(request, 'escala/escala_peraltas.html', {
-                'coordenador_acampamento': coordenador_acampamento,
-                'coordenador_hotelaria': coordenador_hotelaria,
-                'escalas_hotelaria': escalas_hotelaria,
-                'escalas_acampamento': escalas_acampamento
-            })
+            return redirect('escalaPeraltas')
 
 
 @login_required(login_url='login')
 def escalarMonitores(request, setor, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
     escala_editada = None
     escalado = []
     disponiveis = []
@@ -314,6 +333,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
+                    'diretoria': diretoria,
                     'data': data_selecionada.strftime('%d-%m-%Y'),
                     'setor': setor,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
@@ -397,6 +417,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'inicio': check_in,
+                    'diretoria': diretoria,
                     'final': check_out,
                     'id_cliente': id_cliente,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
@@ -431,6 +452,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             except EscalaHotelaria.DoesNotExist:
                 return render(request, 'escala/escalar_monitores.html', {
                     'data': data_selecionada,
+                    'diretoria': diretoria,
                     'setor': setor,
                     'disponiveis': pegar_disponiveis_intervalo(
                         data_selecionada,
@@ -458,6 +480,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
             return render(request, 'escala/escalar_monitores.html', {
                 'data': data_selecionada,
+                    'diretoria': diretoria,
                 'setor': setor,
                 'disponiveis': disponiveis,
                 'escalados': escalado,
@@ -543,6 +566,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             messages.error(request, f'Houve um erro inesperado, ({e}) por favor tente mais tarde!')
             return render(request, 'escala/escalar_monitores.html', {
                 'clientes_dia': clientes_dia,
+                'diretoria': diretoria,
                 'data': data_selecionada,
                 'setor': setor
             })
