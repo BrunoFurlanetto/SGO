@@ -8,14 +8,14 @@
 
     <div class="conteudo-escala" style="background-color: white">
 
-        {% if coordenador_acampamento or coordenador_hotelaria %}
-            <div id="selecionar_setor">
-                <label>Setor</label>
-                <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
-                    <option value="hotelaria">Hotelaria</option>
+        {% if coordenador_acampamento and coordenador_hotelaria %}
+            <form id="selecionar_setor" action="{% url 'escalaPeraltas' %}" method="GET">
+                <label for="setor">Montar escala para</label>
+                <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
                     <option value="acampamento">Acampamento</option>
+                    <option value="hotelaria" {% if setor == 'hotelaria' %} selected {% endif %}>Hotelaria</option>
                 </select>
-            </div>
+            </form>
         {% endif %}
 
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
@@ -23,33 +23,28 @@
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            $(document).ready(function () {
-                mostrar_calendario()
-            })
-
-            function mostrar_calendario() {
+            $('document').ready(function () {
                 const calendarUI = document.getElementById('calendar');
-                if ($('#setor').val() === 'hotelaria') {
-                    $('#calendar').empty()
-                    let calendario_hotelaria = new FullCalendar.Calendar(calendarUI, {
+                let calendario_de_escalas = new FullCalendar.Calendar(calendarUI, {
 
-                        headerToolbar: {
-                            left: '',
-                            center: 'title',
-                        },
+                    headerToolbar: {
+                        left: '',
+                        center: 'title',
+                    },
 
-                        eventOrderStrict: true,
-                        locale: 'pt-br',
-                        dayMaxEvents: 3,
+                    eventOrderStrict: true,
+                    locale: 'pt-br',
+                    dayMaxEvents: 3,
 
-                        {% if coordenador_hotelaria %}
-                            navLinks: true,
-                            navLinkDayClick: function (date, jsEvent) {
-                                let dia = String(date.getDate()).padStart(2, '0')
-                                let mes = String(date.getMonth() + 1).padStart(2, '0')
-                                let ano = String(date.getFullYear())
-                                let data = dia + '-' + mes + '-' + ano
+                    {% if setor %}
+                        navLinks: true,
+                        navLinkDayClick: function (date, jsEvent) {
+                            let dia = String(date.getDate()).padStart(2, '0')
+                            let mes = String(date.getMonth() + 1).padStart(2, '0')
+                            let ano = String(date.getFullYear())
+                            let data = ano + '-' + mes + '-' + dia
 
+                            {% if setor == 'hotelaria' %}
                                 $.ajax({
                                     type: 'GET',
                                     url: '',
@@ -57,14 +52,50 @@
                                     data: {'data_escala': data},
                                     success: function (response) {
                                         if (response['hotelaria']) {
-                                            window.location.href = `${$('#setor').val()}/escalar/${data}`
+                                            window.location.href = `hotelaria/escalar/${data}`
                                         }
                                     }
                                 })
-                            },
-                        {% endif %}
+                            {% else %}
+                                window.location.href = `acampamento/escalar/${data}`
+                            {% endif %}
+                        },
+                    {% endif %}
 
-                        events: [
+                    events: [
+                        {% for escala in escalas_acampamento %}
+                            {
+                                title: {% if coordenador_acampamento or coordenador_hotelaria %}
+                                    "{{ escala.cliente|safe }}"
+                                {% else %}
+                                    "{{ escala.tipo_escala|safe }}"
+                                {% endif %},
+                                start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
+                                end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
+                                extendedProps: {
+                                    "id_escala":{{ escala.id }},
+                                },
+                                {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Colégio' %}
+                                    color: '#FF8C00',
+                                {% endif %}
+
+                                {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Corporativo' %}
+                                    color: '#fcc607',
+                                {% endif %}
+                            },
+                        {% endfor %}
+
+                        {% if not coordenador_hotelaria %}
+                            {% for escala in escalas_hotelaria %}
+                                {
+                                    title: 'Hotelaria',
+                                    start: "{{ escala.data | date:'Y-m-d' }}",
+                                    extendedProps: {
+                                        "id_escala":{{ escala.id }},
+                                    },
+                                },
+                            {% endfor %}
+                        {% else %}
                             {% for escala in escalas_hotelaria %}
                                 {% for monitor in escala.separar_monitores %}
                                     {
@@ -78,137 +109,75 @@
                                     },
                                 {% endfor %}
                             {% endfor %}
-                        ]
-                    });
-                    calendario_hotelaria.render();
-                    calendario_hotelaria.setOption('locale', 'pt-br')
-                } else {
-                    $('#calendar').empty()
-                    let calendario_acampamento = new FullCalendar.Calendar(calendarUI, {
-
-                        headerToolbar: {
-                            left: '',
-                            center: 'title',
-                        },
-
-                        eventOrderStrict: true,
-                        locale: 'pt-br',
-                        dayMaxEvents: 3,
-
-                        {% if coordenador_acampamento %}
-                            navLinks: true,
-                            navLinkDayClick: function (date, jsEvent) {
-                                let dia = String(date.getDate()).padStart(2, '0')
-                                let mes = String(date.getMonth() + 1).padStart(2, '0')
-                                let ano = String(date.getFullYear())
-                                let data = dia + '-' + mes + '-' + ano
-
-                                window.location.href = `${$('#setor').val()}/escalar/${data}`
-                            },
                         {% endif %}
+                    ],
 
-                        events: [
-                            {% for escala in escalas_acampamento %}
-                                {
-                                    title: {% if coordenador_acampamento or coordenador_hotelaria %}
-                                        "{{ escala.cliente|safe }}"
-                                    {% else %}
-                                        "{{ escala.tipo_escala|safe }}"
-                                    {% endif %},
-                                    start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
-                                    end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
-                                    extendedProps: {
-                                        "id_escala":{{ escala.id }},
-                                    },
-                                    {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Colégio' %}
-                                        color: '#FF8C00',
-                                    {% endif %}
+                    {% if coordenador_acampamento or coordenador_hotelaria %}
+                        eventColor: '#f36d21',
+                    {% endif %}
 
-                                    {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Corporativo' %}
-                                        color: '#fcc607',
-                                    {% endif %}
-                                },
-                            {% endfor %}
+                    {% if coordenador_acampamento and setor == 'acampamento' %}
+                        eventClick: function (info) {
+                            const cliente = info.event.title
+                            const id_escala = info.event.extendedProps['id_escala']
+                            const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
+                            const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
 
-                            {% if not coordenador_hotelaria and not coordenador_acampamento %}
-                                {% for escala in escalas_hotelaria %}
-                                    {
-                                        title: 'Hotelaria',
-                                        start: "{{ escala.data | date:'Y-m-d' }}",
-                                        extendedProps: {
-                                            "id_escala":{{ escala.id }},
-                                        },
-                                    },
-                                {% endfor %}
-                            {% endif %}
-                        ],
+                            $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
+                            $('#div_embarque, #div_enfermeiras').addClass('none')
+                            $('#cliente_modal').val(cliente)
+                            $('#id_escala').val(id_escala)
+                            $('#titulo_modal').text('Escala para o evento de ' + cliente)
+                            $('#check_in_evento_modal').val(check_in_evento)
+                            $('#check_out_evento_modal').val(check_out_evento)
 
-                        {% if coordenador_acampamento or coordenador_hotelaria %}
-                            eventColor: '#f36d21',
-                        {% endif %}
-
-                        {% if coordenador_acampamento %}
-                            eventClick: function (info) {
-                                const cliente = info.event.title
-                                const id_escala = info.event.extendedProps['id_escala']
-                                const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
-                                const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
-
-                                $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
-                                $('#div_embarque, #div_enfermeiras').addClass('none')
-                                $('#cliente_modal').val(cliente)
-                                $('#id_escala').val(id_escala)
-                                $('#titulo_modal').text('Escala para o evento de ' + cliente)
-                                $('#check_in_evento_modal').val(check_in_evento)
-                                $('#check_out_evento_modal').val(check_out_evento)
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '',
-                                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                    data: {'id_escala': id_escala},
-                                    success: function (response) {
-                                        for (let monitor of response['escalados']['acampamento']) {
-                                            if (monitor['coordenador']) {
-                                                $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${monitor['nome']}</li>`)
-                                            } else {
-                                                $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${monitor['nome']}</li>`)
-                                            }
+                            $.ajax({
+                                type: 'POST',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {'id_escala': id_escala},
+                                success: function (response) {
+                                    for (let monitor of response['escalados']['acampamento']) {
+                                        if (monitor['coordenador']) {
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%; color: #f36d21">${monitor['nome']}</li>`)
+                                        } else {
+                                            $('#monitores_escalados_modal ul').append(`<li style="width: 50%">${monitor['nome']}</li>`)
                                         }
-
-                                        if (response['escalados']['embarque'].length > 0) {
-                                            for (let monitor of response['escalados']['embarque']) {
-                                                $('#div_embarque').removeClass('none')
-
-                                                if (monitor['coordenador']) {
-                                                    $('#monitores_escalados_embarque_modal ul').append(`<li style="color: #f36d21">${monitor['nome']}</li>`)
-                                                } else {
-                                                    $('#monitores_escalados_embarque_modal ul').append(`<li>${monitor['nome']}</li>`)
-                                                }
-                                            }
-                                        }
-
-                                        if (response['escalados']['enfermeiras'].length > 0) {
-                                            $('#div_enfermeiras').removeClass('none')
-
-                                            for (let enfermeira of response['escalados']['enfermeiras']) {
-                                                $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
-                                            }
-                                        }
-
-                                        $('#id_cliente_modal').val(response['id_cliente'])
-
                                     }
-                                })
 
-                                $('#ModalEscalaEvento').modal('show');
-                            }
-                        {% endif %}
-                    });
-                    calendario_acampamento.render();
-                    calendario_acampamento.setOption('locale', 'pt-br')
-                }
-            }
+                                    if (response['escalados']['embarque'].length > 0) {
+                                        for (let monitor of response['escalados']['embarque']) {
+                                            $('#div_embarque').removeClass('none')
+
+                                            if (monitor['coordenador']) {
+                                                $('#monitores_escalados_embarque_modal ul').append(`<li style="color: #f36d21">${monitor['nome']}</li>`)
+                                            } else {
+                                                $('#monitores_escalados_embarque_modal ul').append(`<li>${monitor['nome']}</li>`)
+                                            }
+                                        }
+                                    }
+
+                                    if (response['escalados']['enfermeiras'].length > 0) {
+                                        $('#div_enfermeiras').removeClass('none')
+
+                                        for (let enfermeira of response['escalados']['enfermeiras']) {
+                                            $('#enfermeiras_escaladas_modal ul').append(`<li>${enfermeira['nome']}</li>`)
+                                        }
+                                    }
+
+                                    $('#id_cliente_modal').val(response['id_cliente'])
+
+                                }
+                            })
+
+                            $('#ModalEscalaEvento').modal('show');
+                        }
+                    {% endif %}
+                })
+
+                calendario_de_escalas.render();
+                calendario_de_escalas.setOption('locale', 'pt-br')
+            })
 
             function redirecionar_edicao() {
                 window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')}/${$('#id_cliente_modal').val()}`

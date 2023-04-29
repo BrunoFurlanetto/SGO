@@ -7,14 +7,17 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
 
     <div class="conteudo-escala" style="background-color: white">
-        <form id="selecionar_setor" action="{% url 'visualizarDisponibilidadePeraltas' %}" method="GET">
-            <label for="setor">Montar escala para</label>
-            <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
-                <option value="acampamento">Acampamento</option>
-                <option value="hotelaria" {% if request.GET.setor == 'hotelaria' %} selected {% endif %}>Hotelaria
-                </option>
-            </select>
-        </form>
+
+        {% if coordenador_hotelaria and coordenador_acampamento %}
+            <form id="selecionar_setor" action="{% url 'visualizarDisponibilidadePeraltas' %}" method="GET">
+                <label for="setor">Montar escala para</label>
+                <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
+                    <option value="acampamento">Acampamento</option>
+                    <option value="hotelaria" {% if request.GET.setor == 'hotelaria' %} selected {% endif %}>Hotelaria</option>
+                </select>
+            </form>
+        {% endif %}
+
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
         {% csrf_token %}
         <script src="{% static 'js/Moment.js' %}"></script>
@@ -38,19 +41,21 @@
 
                     navLinks: true,
                     navLinkDayClick: function (date, jsEvent) {
-                        if ($('#setor').val() === 'hotelaria') {
-                            {% for evento in eventos_hospedagem %}
-                                if (moment(date).format('YYYY-MM-DD') >= '{{ evento.check_in|date:'Y-m-d' }}' &&
-                                    moment(date).format('YYYY-MM-DD') <= '{{ evento.check_out|date:'Y-m-d' }}') {
-                                    let data = moment(date).format('DD-MM-YYYY')
-
-                                    window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
+                        {% if setor == 'hotelaria' %}
+                            $.ajax({
+                                type: 'GET',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {'data_escala': moment(date).format('YYYY-MM-DD')},
+                                success: function (response) {
+                                    if (response['hotelaria']) {
+                                        window.location.href = `/escala/peraltas/hotelaria/escalar/${moment(date).format('YYYY-MM-DD')}`
+                                    }
                                 }
-                            {% endfor %}
-                        } else {
-                            let data = moment(date).format('DD-MM-YYYY')
-                            window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
-                        }
+                            })
+                        {% else %}
+                            window.location.href = `/escala/peraltas/acampamento/escalar/${moment(date).format('YYYY-MM-DD')}`
+                        {% endif %}
                     },
 
                     events: [
@@ -77,7 +82,7 @@
                             },
                         {% endfor %}
 
-                        {% for evento in eventos_hospedagem %}
+                        {% for evento in hopedagem %}
                             {
                                 start: '{{ evento.check_in | date:'Y-m-d' }}',
                                 end: '{{ evento.check_out | date:'Y-m-d' }}',

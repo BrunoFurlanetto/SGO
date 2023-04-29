@@ -187,10 +187,10 @@ def disponibilidadePeraltas(request):
 def verEscalaPeraltas(request):
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-
+    print(coordenador_hotelaria, coordenador_acampamento)
     if is_ajax(request):
         if request.method == 'GET':
-            data = datetime.strptime(request.GET.get('data_escala'), '%d-%m-%Y')
+            data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
             hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
                 check_in__date__lte=data,
                 check_out__date__gte=data,
@@ -200,26 +200,44 @@ def verEscalaPeraltas(request):
 
         return JsonResponse(escalados_para_o_evento(request.POST))
 
-    if coordenador_acampamento or coordenador_hotelaria:
-        escalas_hotelaria = EscalaHotelaria.objects.all()
-        escalas_acampamento = EscalaAcampamento.objects.all()
+    if request.GET.get('setor'):
+        if request.GET.get('setor') == 'acampamento':
+            setor = 'acampamento'
+            escalas_acampamento = EscalaAcampamento.objects.all()
+            escalas_hotelaria = None
+        else:
+            setor = 'hotelaria'
+            escalas_acampamento = None
+            escalas_hotelaria = EscalaHotelaria.objects.all()
     else:
-        escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
-        escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento__usuario=request.user)
-        escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
-            monitores_embarque__usuario=request.user
-        ).exclude(id__in=escalas_acampamento_acampamento)
-        escalas_acampamento_enermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
-        escalas_acampamento = list(chain(
-            escalas_acampamento_acampamento, escalas_acampamento_embarque, escalas_acampamento_enermeira
-        ))
+        if coordenador_acampamento:
+            setor = 'acampamento'
+            escalas_acampamento = EscalaAcampamento.objects.all()
+            escalas_hotelaria = None
+        elif coordenador_hotelaria:
+            setor = 'hotelaria'
+            escalas_hotelaria = EscalaHotelaria.objects.all()
+            escalas_acampamento = None
+        else:
+            setor = None
+            escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
+            escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(monitores_acampamento__usuario=request.user)
+            escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
+                monitores_embarque__usuario=request.user
+            ).exclude(id__in=escalas_acampamento_acampamento)
+            escalas_acampamento_enermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
+            escalas_acampamento = list(chain(
+                escalas_acampamento_acampamento, escalas_acampamento_embarque, escalas_acampamento_enermeira
+            ))
 
     if request.method != 'POST':
+        print(request.GET.get('setor'))
         return render(request, 'escala/escala_peraltas.html', {
             'coordenador_acampamento': coordenador_acampamento,
             'coordenador_hotelaria': coordenador_hotelaria,
             'escalas_hotelaria': escalas_hotelaria,
-            'escalas_acampamento': escalas_acampamento
+            'escalas_acampamento': escalas_acampamento,
+            'setor': setor,
         })
 
     if request.POST.get('id_escala'):
@@ -260,7 +278,7 @@ def verEscalaPeraltas(request):
 
 @login_required(login_url='login')
 def escalarMonitores(request, setor, data, id_cliente=None):
-    data_selecionada = datetime.strptime(data, '%d-%m-%Y').date()
+    data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
     escala_editada = None
     escalado = []
@@ -296,7 +314,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 return render(request, 'escala/escalar_monitores.html', {
                     'clientes_dia': clientes_dia,
-                    'data': data_selecionada,
+                    'data': data_selecionada.strftime('%d-%m-%Y'),
                     'setor': setor,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
                     'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
@@ -478,12 +496,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 if request.POST.get('pre_escala') == 'false':
                     nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
-                    
+
                 nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
         except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde!')
             return redirect('escalaPeraltas')
         else:
             ficha_de_evento.escala = True
@@ -523,8 +540,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.save()
 
         except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde!')
+            messages.error(request, f'Houve um erro inesperado, ({e}) por favor tente mais tarde!')
             return render(request, 'escala/escalar_monitores.html', {
                 'clientes_dia': clientes_dia,
                 'data': data_selecionada,
@@ -534,35 +550,73 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             messages.success(
                 request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!'
             )
-            return redirect('escalaPeraltas')
+            return redirect('dashboard')
 
 
 @login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
     disponibilidades = DisponibilidadePeraltas.objects.all()
-    eventos_ordem_de_servico = OrdemDeServico.objects.all()
-    fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
     disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
-    eventos_hospedagem = FichaDeEvento.objects.filter(cliente__cnpj='03.694.061/0001-90').filter(
-        produto__brotas_eco=True
-    )
+    coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+    coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
+    eventos_ordem_de_servico = fichas_de_evento = eventos_hospedagem = None
 
-    for evento in eventos_ordem_de_servico:
-        evento.check_out += timedelta(days=1)
+    if is_ajax(request):
+        data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
+        hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
+            check_in__date__lte=data,
+            check_out__date__gte=data,
+        )
 
-    for ficha in fichas_de_evento:
-        ficha.check_out += timedelta(days=1)
+        return JsonResponse({'hotelaria': len(hotelaria) > 0})
 
-    if request.GET.get('setor') == 'hotelaria':
-        return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
-            'disponiveis_peraltas': disponiveis_peraltas,
-            'eventos_hospedagem': eventos_hospedagem
-        })
+    if request.GET.get('setor'):
+        if request.GET.get('setor') == 'acampamento':
+            eventos_ordem_de_servico = OrdemDeServico.objects.all()
+            fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
+            eventos_hospedagem = None
+            setor = 'acampamento'
+
+            for evento in eventos_ordem_de_servico:
+                evento.check_out += timedelta(days=1)
+
+            for ficha in fichas_de_evento:
+                ficha.check_out += timedelta(days=1)
+        else:
+            eventos_ordem_de_servico = fichas_de_evento = None
+            eventos_hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True)
+            setor = 'hotelaria'
+
+            for evento in eventos_hospedagem:
+                evento.check_out += timedelta(days=1)
+    else:
+        if coordenador_acampamento:
+            eventos_ordem_de_servico = OrdemDeServico.objects.all()
+            fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False)
+            eventos_hospedagem = None
+            setor = 'acampamento'
+
+            for evento in eventos_ordem_de_servico:
+                evento.check_out += timedelta(days=1)
+
+            for ficha in fichas_de_evento:
+                ficha.check_out += timedelta(days=1)
+        else:
+            eventos_ordem_de_servico = fichas_de_evento = None
+            eventos_hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True)
+            setor = 'hotelaria'
+
+            for evento in eventos_hospedagem:
+                evento.check_out += timedelta(days=1)
 
     return render(request, 'escala/calendario_disponibilidade_peraltas.html', {
         'disponiveis_peraltas': disponiveis_peraltas,
         'eventos': eventos_ordem_de_servico,
         'fichas_de_evento': fichas_de_evento,
+        'hopedagem': eventos_hospedagem,
+        'setor': setor,
+        'coordenador_hotelaria': coordenador_hotelaria,
+        'coordenador_acampamento': coordenador_acampamento,
     })
 
 

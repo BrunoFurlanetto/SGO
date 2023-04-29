@@ -13,7 +13,7 @@
             <hr>
             {% csrf_token %}
             {% if setor == 'acampamento' %}
-                <form id="form_evento" action="{% url 'escalar_monitores' setor data|date:'d-m-Y' %}" method="get">
+                <form id="form_evento" action="{% url 'escalar_monitores' setor data %}" method="get">
                     <div class="mb-2">
                         <h5 class="titulo-secao">Eventos para {{ data }}</h5>
                         <label for="cliente">Cliente</label>
