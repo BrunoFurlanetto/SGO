@@ -75,6 +75,15 @@
                                 extendedProps: {
                                     "id_escala":{{ escala.id }},
                                 },
+
+                                {% if coordenador_acampamento %}
+                                    {% if escala.pre_escala %}
+                                        color: '#f36d21',
+                                    {% else %}
+                                        color: '#008000',
+                                    {% endif %}
+                                {% endif %}
+
                                 {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Colégio' %}
                                     color: '#FF8C00',
                                 {% endif %}
@@ -112,8 +121,8 @@
                         {% endif %}
                     ],
 
-                    {% if coordenador_acampamento or coordenador_hotelaria %}
-                        eventColor: '#f36d21',
+                    {% if coordenador_hotelaria %}
+                        eventColor: '#fcc607',
                     {% endif %}
 
                     {% if coordenador_acampamento and setor == 'acampamento' %}
@@ -180,7 +189,7 @@
             })
 
             function redirecionar_edicao() {
-                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')}/${$('#id_cliente_modal').val()}`
+                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('YYYY-MM-DD')}/${$('#id_cliente_modal').val()}`
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>
