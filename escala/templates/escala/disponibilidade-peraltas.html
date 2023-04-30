@@ -7,7 +7,7 @@
 
     <section class="conteudo-disponibilidade-peraltas">
         <div id="nomes_monitores">
-            {% if coordenador_peraltas %}
+            {% if coordenador_acampamento or coordenador_hotelaria %}
                 {% for monitor in monitores %}
                     <div class="card-monitor"
                          data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", "color": "#FF8C00"}, "title": "{{ monitor.usuario.get_full_name }}"}'
@@ -41,6 +41,6 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
 
     <script>
-        montar_disponibilidades({{ disponibilidades_peraltas|safe }}, '{{ coordenador_peraltas|safe }}')
+        montar_disponibilidades({{ disponibilidades_peraltas|safe }}, '{{ coordenador_acampamento }}', '{{ coordenador_hotelaria }}')
     </script>
 {% endblock %}

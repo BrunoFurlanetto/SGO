@@ -1,12 +1,36 @@
-function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordenador) {
+async function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordenador, coordenador_hotelaria, coodenador_acampamento) {
+    function teste_escalacao() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET',
+                url: '',
+                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                data: {'data': dia_adicionado},
+                success: function (response) {
+                    resolve(response)
+                },
+                error: function (error) {
+                    reject(error)
+                }
+            })
+        })
+    }
+
+
     let ids_monitor = []
     let ids_enfermeira = []
     const hoje = new Date(Date.now())
 
-    if (coordenador !== 'True') {
+    if (!coordenador) {
         if (hoje.getDate() > 15 && moment(dia_adicionado).month() === hoje.getMonth() + 1) return false
 
         if (dia_adicionado < hoje_mais_30) return false
+    }
+
+    if (coordenador_hotelaria && !coodenador_acampamento) {
+        const adicao = await teste_escalacao()
+
+        if (!adicao['hospedagem']) return adicao['hospedagem']
     }
 
     let eventos_dia = eventos_intervalo.filter((event) => {
@@ -39,15 +63,17 @@ function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, id_enfe
 
         return ids_enfermeira.length <= 1;
     }
-
-
 }
 
-function montar_disponibilidades(disponibilidade, coordenador) {
+function montar_disponibilidades(disponibilidade, coordenador_acampamento, coordenador_hotelaria) {
     const monitores = document.getElementById('nomes_monitores')
     const hoje = new Date(Date.now())
     const data_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
-    const coordena = coordenador === 'True'
+    const coordenacao_hotelaria = coordenador_hotelaria === 'True'
+    const coordenacao_acampamento = coordenador_acampamento === 'True'
+    let coordena = false
+
+    if (coordenacao_hotelaria || coordenacao_acampamento) coordena = true
 
     new FullCalendar.Draggable(monitores, {
         itemSelector: '.card-monitor',
@@ -60,9 +86,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
     }
 
     function onChangeMonth(coordenacao) {
-        console.log(coordenacao)
         if (!coordenacao) {
-            console.log('Ué')
             if (moment(calendar.currentData.currentDate).month() !== moment(hoje).month()) {
                 $('button.fc-prev-button').prop('disabled', false)
             } else {
@@ -120,10 +144,39 @@ function montar_disponibilidades(disponibilidade, coordenador) {
             }
         },
 
+        datesSet: function () {
+            if (coordenacao_hotelaria && !coordenacao_acampamento) {
+                const cells = document.querySelectorAll('#calendario_escala .fc-day.fc-day')
+                $('.container_loading').removeClass('none')
+
+                cells.forEach(function (cell) {
+                    if (cell.role !== 'columnheader') {
+                        $.ajax({
+                            type: 'GET',
+                            url: '',
+                            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                            data: {'data': cell.getAttribute('data-date')},
+                            success: function (response) {
+                                if (!response['hospedagem']) {
+                                    cell.classList.add('not_selected')
+                                } else {
+                                    cell.classList.remove('not_selected')
+                                }
+                            }
+                        }).done(() => {
+                            setTimeout(() => {
+                                $('.container_loading').addClass('none')
+                            }, 500)
+                        })
+                    }
+                })
+            }
+        },
+
         eventDidMount: function (info) {
             info.event.setProp('color', info.event.extendedProps['color'])
 
-            if (coordenador !== 'True') {
+            if (!coordena) {
                 if (hoje.getDate() > 15 && hoje.getMonth() + 1 === moment(info.event.start).month()) {
                     info.el.classList.remove('fc-event-draggable')
                 }
@@ -131,10 +184,26 @@ function montar_disponibilidades(disponibilidade, coordenador) {
                 if (moment(info.event.start).format('YYYY-MM-DD') < data_mais_30) {
                     info.el.classList.remove('fc-event-draggable')
                 }
+            } else if (coordenacao_hotelaria && !coordenacao_acampamento) {
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'data': moment(info.event.start).format('YYYY-MM-DD')},
+                    success: function (response) {
+                        if (!response['hospedagem']) {
+                            info.el.classList.remove('fc-event-draggable')
+                        }
+                    }
+                }).done(() => {
+                    setTimeout(() => {
+                        $('.container_loading').addClass('none')
+                    }, 500)
+                })
             }
         },
 
-        eventReceive: function (info) {
+        eventReceive: async function (info) {
             $('.container_loading').removeClass('none')
             const id_monitor = info.event.extendedProps['id_monitor']
             const id_enfermeira = info.event.extendedProps['id_enfermeira']
@@ -143,7 +212,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
             const hoje_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
             const eventos_intervalo = calendar.getEvents(hoje_mais_30.sub(30, 'days'), hoje_mais_30)
 
-            if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordenador)) {
+            if (await adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena, coordenacao_hotelaria, coordenacao_acampamento)) {
                 $.ajax({
                     type: 'POST',
                     url: '',
@@ -181,7 +250,8 @@ function montar_disponibilidades(disponibilidade, coordenador) {
                 info.revert()
             }
 
-        },
+        }
+        ,
 
         eventDrop: function (info) {
             $('.container_loading').removeClass('none')
@@ -193,7 +263,7 @@ function montar_disponibilidades(disponibilidade, coordenador) {
             const hoje_mais_30 = moment(hoje).add(30, 'days').format('YYYY-MM-DD')
             const eventos_intervalo = calendar.getEvents(hoje_mais_30.sub(30, 'days'), hoje_mais_30)
 
-            if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordenador)) {
+            if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena)) {
                 $.ajax({
                     type: 'POST',
                     url: '',
@@ -227,7 +297,8 @@ function montar_disponibilidades(disponibilidade, coordenador) {
                 }, 300)
                 info.revert()
             }
-        },
+        }
+        ,
 
         eventDragStop: (info) => {
             if (info.jsEvent.pageX < $('#calendario_escala').offset().left || info.jsEvent.pageX > ($('#calendario_escala').offset().left + $('#calendario_escala').width()) ||

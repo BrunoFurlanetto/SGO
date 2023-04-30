@@ -133,32 +133,16 @@ def disponibilidade(request):
 def disponibilidadePeraltas(request):
     monitores = enfermeiras = None
 
-    if request.method != "POST":
-        coordenador_peraltas = request.user.has_perm('peraltas.add_escalaacampamento')
-
-        if coordenador_peraltas:
-            monitores = Monitor.objects.all().order_by('usuario__first_name')
-            enfermeiras = Enfermeira.objects.all().order_by('usuario__first_name')
-            disponibilidades = DisponibilidadePeraltas.objects.all()
-        else:
-            try:
-                monitores = Monitor.objects.get(usuario=request.user)
-            except Monitor.DoesNotExist:
-                enfermeiras = Enfermeira.objects.get(usuario=request.user)
-                disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
-            else:
-                disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
-
-        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
-
-        return render(request, 'escala/disponibilidade-peraltas.html', {
-            'coordenador_peraltas': coordenador_peraltas,
-            'disponibilidades_peraltas': disponibilidades_peraltas,
-            'monitores': monitores,
-            'enfermeiras': enfermeiras,
-        })
-
     if is_ajax(request):
+        if request.method == 'GET':
+            data_enviada = datetime.strptime(request.GET.get('data'), '%Y-%m-%d')
+            hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
+                check_in__date__lte=data_enviada,
+                check_out__date__gte=data_enviada,
+            )
+
+            return JsonResponse({'hospedagem': len(hospedagem) > 0})
+
         monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
         enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
             'id_enfermeira') else None
@@ -182,6 +166,33 @@ def disponibilidadePeraltas(request):
             remover_dia(monitor, dia_removido, enfermeira)
 
             return HttpResponse()
+
+    if request.method != "POST":
+        coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
+        coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+
+        if coordenador_acampamento or coordenador_hotelaria:
+            monitores = Monitor.objects.all().order_by('usuario__first_name')
+            enfermeiras = Enfermeira.objects.all().order_by('usuario__first_name')
+            disponibilidades = DisponibilidadePeraltas.objects.all()
+        else:
+            try:
+                monitores = Monitor.objects.get(usuario=request.user)
+            except Monitor.DoesNotExist:
+                enfermeiras = Enfermeira.objects.get(usuario=request.user)
+                disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
+            else:
+                disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
+
+        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
+
+        return render(request, 'escala/disponibilidade-peraltas.html', {
+            'coordenador_acampamento': coordenador_acampamento,
+            'coordenador_hotelaria': coordenador_hotelaria,
+            'disponibilidades_peraltas': disponibilidades_peraltas,
+            'monitores': monitores,
+            'enfermeiras': enfermeiras,
+        })
 
 
 @login_required(login_url='login')
@@ -480,7 +491,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
             return render(request, 'escala/escalar_monitores.html', {
                 'data': data_selecionada,
-                    'diretoria': diretoria,
+                'diretoria': diretoria,
                 'setor': setor,
                 'disponiveis': disponiveis,
                 'escalados': escalado,
