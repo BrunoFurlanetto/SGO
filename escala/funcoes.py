@@ -89,7 +89,7 @@ def escalar(coodenador, prof_2, prof_3, prof_4, prof_5):
     return ','.join(equipe)
 
 
-def transformar_disponibilidades(disponibilidades):
+def transformar_disponibilidades(disponibilidades, coordenador):
     lista_disponibilidades_formatadas = []
 
     for i, disponibilidade in enumerate(disponibilidades, start=1):
@@ -104,13 +104,23 @@ def transformar_disponibilidades(disponibilidades):
                 ...
             else:
                 if monitor:
+                    if coordenador:
+                        if monitor.tecnica:
+                            color = '#C3A06E'
+                        elif monitor.biologo:
+                            color = '#03BB85'
+                        else:
+                            color = '#FF8C00'
+                    else:
+                        color = '#FF8C00'
+
                     disponibilidade_formatada = {
                         'id': f'disponibilidade_{disponibilidade.monitor.id}_{dia}',
                         'title': monitor.usuario.get_full_name(),
                         'start': f'{dia}',
                         'extendedProps': {
                             'id_monitor': f'{monitor.id}',
-                            'color': '#FF8C00',
+                            'color': color,
                         }
                     }
                 else:
@@ -120,7 +130,7 @@ def transformar_disponibilidades(disponibilidades):
                         'start': f'{dia}',
                         'extendedProps': {
                             'id_enfermeira': f'{enfermeira.id}',
-                            'color': '#ff7474',
+                            'color': '#FF7474',
                         }
                     }
 

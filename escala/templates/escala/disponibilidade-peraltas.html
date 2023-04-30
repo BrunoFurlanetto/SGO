@@ -9,8 +9,8 @@
         <div id="nomes_monitores">
             {% if coordenador_acampamento or coordenador_hotelaria %}
                 {% for monitor in monitores %}
-                    <div class="card-monitor"
-                         data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", "color": "#FF8C00"}, "title": "{{ monitor.usuario.get_full_name }}"}'
+                    <div class="card-monitor" style="background: {% if monitor.tecnica %}#C3A06E{% elif monitor.biologo %}#03BB85{% else %}#FF8C00{% endif %}"
+                         data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", {% if monitor.tecnica %}"color": "#C3A06E"{% elif monitor.biologo %}"color": "#03BB85"{% else %}"color": "#FF8C00"{% endif %}}, "title": "{{ monitor.usuario.get_full_name }}"}'
                          draggable="true">{{ monitor.usuario.get_full_name }}</div>
                 {% endfor %}
                 {% for enfermeira in enfermeiras %}

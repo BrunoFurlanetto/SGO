@@ -184,7 +184,7 @@ def disponibilidadePeraltas(request):
             else:
                 disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
 
-        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades)
+        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades, coordenador_hotelaria or coordenador_acampamento)
 
         return render(request, 'escala/disponibilidade-peraltas.html', {
             'coordenador_acampamento': coordenador_acampamento,
