@@ -173,14 +173,24 @@ def adicionar_dia(monitor, dia_adicionado, enfermeira):
 
         return True
     else:
-        if monitor and (disponibilidade_existente.n_dias < 22 or monitor.fixo):
-            disponibilidade_existente.dias_disponiveis += f', {dia_adicionado.strftime("%d/%m/%Y")}'
-            disponibilidade_existente.n_dias += 1
-            disponibilidade_existente.save()
+        if monitor:
+            if disponibilidade_existente.n_dias < 22 or monitor.fixo:
+                disponibilidade_existente.dias_disponiveis += f', {dia_adicionado.strftime("%d/%m/%Y")}'
+                disponibilidade_existente.n_dias += 1
+                disponibilidade_existente.save()
 
-            return True
+                return True
+            else:
+                return False
         else:
-            return False
+            if disponibilidade_existente.n_dias < 22:
+                disponibilidade_existente.dias_disponiveis += f', {dia_adicionado.strftime("%d/%m/%Y")}'
+                disponibilidade_existente.n_dias += 1
+                disponibilidade_existente.save()
+
+                return True
+            else:
+                return False
 
 
 def remover_dia(monitor, dia_removido, enfermeira):
