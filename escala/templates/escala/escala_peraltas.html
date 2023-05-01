@@ -131,6 +131,7 @@
                             const id_escala = info.event.extendedProps['id_escala']
                             const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
                             const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
+                            $('.container_loading').removeClass('none')
 
                             $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
                             $('#div_embarque, #div_enfermeiras, #form_escala_final').addClass('none')
@@ -197,6 +198,7 @@
                                 }
                             }).done(() => {
                                 $('#ModalEscalaEvento').modal('show');
+                                $('.container_loading').addClass('none')
                             })
                         }
                     {% endif %}
