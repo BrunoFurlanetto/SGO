@@ -195,9 +195,9 @@
                                     $('#id_cliente_modal').val(response['id_cliente'])
 
                                 }
+                            }).done(() => {
+                                $('#ModalEscalaEvento').modal('show');
                             })
-
-                            $('#ModalEscalaEvento').modal('show');
                         }
                     {% endif %}
                 })
