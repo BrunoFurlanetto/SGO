@@ -142,7 +142,7 @@ def disponibilidadePeraltas(request):
             )
 
             return JsonResponse({'hospedagem': len(hospedagem) > 0})
-
+        print(request.POST)
         monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
         enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
             'id_enfermeira') else None
