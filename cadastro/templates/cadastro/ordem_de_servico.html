@@ -446,10 +446,18 @@
                     </div>
                 </div>
                 <hr class="locacao-ceu">
-                <div style="width: 70%">
+                <div style="width: 70%; display: contents">
                     <h5 class="titulo-secao">Programação do grupo</h5>
                     {{ form.cronograma_peraltas }}
                 </div>
+                {% now 'Y-m-d' as today %}
+                {% if ordem_servico and today > ordem_servico.check_out|date:'Y-m-d' %}
+                    <hr>
+                    <div style="width: 70%; display: contents">
+                        <h5 class="titulo-secao">Ficha de avaliação</h5>
+                        {{ form.ficha_de_avaliacao }}
+                    </div>
+                {% endif %}
                 <hr>
                 <div>
                     <div class="row mb-3">

@@ -5,6 +5,8 @@ let id_monitores_acampamento = []
 let id_monitores_hotelaria = []
 let id_monitores_embarque = []
 let id_monitores_biologo = []
+let id_tecnicos = []
+let id_coordenadores_escalados = []
 let outras_escalas = []
 let id_enfermeiras = []
 let id_escalados = []
@@ -139,6 +141,24 @@ async function escalado(espaco) {
         }
     }
 
+    if (tipo_escalacao === 'coordenadores_escalados') {
+        for (let monitor of monitores) {
+            if (!monitor.classList.contains('coordenador')) {
+                $('#monitores_acampamento').append(monitor)
+            }
+        }
+    }
+
+    if (tipo_escalacao === 'tecnicos_escalados') {
+        for (let monitor of monitores) {
+            if (!monitor.classList.contains('tecnica')) {
+                $('#monitores_acampamento').append(monitor)
+            } else {
+                verificar_tecnica()
+            }
+        }
+    }
+
     verificar_escalados()
     verificar_racionais()
 }
@@ -155,13 +175,15 @@ function verificar_escalados() {
         'monitores_escalados', 'monitor_embarque',
         'enfermagem', 'monitores_acampamento',
         'monitores_hotelaria', 'enfermeiras',
-        'biologos'
+        'biologos', 'coordenadores_escalados',
+        'tecnicos_escalados'
     ]
     const lista_de_ids = [
         id_escalados, id_monitores_embarque,
         id_enfermeiras, id_monitores_acampamento,
         id_monitores_hotelaria, id_enfermeiras_disponiveis,
-        id_monitores_biologo
+        id_monitores_biologo, id_coordenadores_escalados,
+        id_tecnicos
     ]
     // Importante para garantir a ordem da escala informada pelo usuário em caso de ser para a hotelaria
     if (window.location.href.split('/').includes('hotelaria')) id_escalados.length = 0
@@ -214,23 +236,10 @@ function verificar_biologo(monitor) {
 }
 
 function verificar_tecnica() {
-    let monitores_escalados = $('#monitores_escalados').children()
-    const monitores_embarque = $('#monitor_embarque').children()
+    let tecnicos_escalados = $('#tecnicos_escalados').children()
     let areas = []
 
-    for (let monitor of monitores_escalados) {
-        if (monitor.classList.contains('tecnica')) {
-            let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
-
-            areas_monitor.forEach(area => {
-                if (!areas.includes(area)) {
-                    areas.push(area)
-                }
-            })
-        }
-    }
-
-    for (let monitor of monitores_embarque) {
+    for (let monitor of tecnicos_escalados) {
         if (monitor.classList.contains('tecnica')) {
             let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
 
@@ -290,7 +299,7 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
-function salvar_monitores_escalados(btn, pre_escala, editando = false) {
+function salvar_monitores_escalados(pre_escala, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
     const enfermeiras_escaladas = $('#enfermagem').children()
@@ -374,15 +383,17 @@ function salvar_monitores_escalados(btn, pre_escala, editando = false) {
 
     $.ajax({
         url: '',
+        type: 'POST',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         async: false,
-        type: "POST",
         data: {
             'id_escala': $('#escala_editada').val(),
             'id_monitores': id_escalados,
             'id_monitores_embarque': id_monitores_embarque,
             'id_biologos': id_monitores_biologo,
             'id_enfermeiras': id_enfermeiras,
+            'id_coordenadores': id_coordenadores_escalados,
+            'id_tecnicos': id_tecnicos,
             'cliente': $('#cliente').val(),
             'check_in': $('#check_in').val(),
             'check_out': $('#check_out').val(),
@@ -393,6 +404,3 @@ function salvar_monitores_escalados(btn, pre_escala, editando = false) {
         }
     });
 }
-
-
-

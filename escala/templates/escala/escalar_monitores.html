@@ -14,38 +14,40 @@
             {% csrf_token %}
             {% if setor == 'acampamento' %}
                 <form id="form_evento" action="{% url 'escalar_monitores' setor data %}" method="get">
-                    <div class="mb-2">
-                        <h5 class="titulo-secao">Eventos para {{ data }}</h5>
-                        <label for="cliente">Cliente</label>
-                        {% if clientes_dia %}
-                            <select class="form-select" name="cliente" id="cliente" required>
-                                <option selected></option>
-                                {% for cliente in clientes_dia %}
-                                    <option value="{{ cliente.id }}" {% if id_cliente == cliente.id %}
-                                            selected {% endif %}>{{ cliente.nome_fantasia }}</option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <input type="text" value="{{ cliente }}" name="nome_cliente" id="nome_cliente" readonly>
-                            <input type="hidden" value="{{ id_cliente }}" name="cliente" id="cliente" readonly>
+                    <fieldset>
+                        <div class="mb-2">
+                            <h5 class="titulo-secao">Eventos para {{ data }}</h5>
+                            <label for="cliente">Cliente</label>
+                            {% if clientes_dia %}
+                                <select class="form-select" name="cliente" id="cliente" required>
+                                    <option selected></option>
+                                    {% for cliente in clientes_dia %}
+                                        <option value="{{ cliente.id }}" {% if id_cliente == cliente.id %}
+                                                selected {% endif %}>{{ cliente.nome_fantasia }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <input type="text" value="{{ cliente }}" name="nome_cliente" id="nome_cliente" readonly>
+                                <input type="hidden" value="{{ id_cliente }}" name="cliente" id="cliente" readonly>
+                            {% endif %}
+                        </div>
+                        <div class="row mb-3">
+                            <div style="width: 50%">
+                                <label for="check_in">Check in</label>
+                                <input type="datetime-local" id="check_in" {% if inicio %} value="{{ inicio }}" {% endif %}
+                                       readonly>
+                            </div>
+                            <div style="width: 50%">
+                                <label for="check_out">Check out</label>
+                                <input type="datetime-local" id="check_out" {% if final %} value="{{ final }}" {% endif %}
+                                       readonly>
+                            </div>
+                        </div>
+                        {% if not id_cliente %}
+                            <button type="submit" class="btn btn-primary">Procurar disponibilidade</button>
                         {% endif %}
-                    </div>
-                    <div class="row mb-3">
-                        <div style="width: 50%">
-                            <label for="check_in">Check in</label>
-                            <input type="datetime-local" id="check_in" {% if inicio %} value="{{ inicio }}" {% endif %}
-                                   readonly>
-                        </div>
-                        <div style="width: 50%">
-                            <label for="check_out">Check out</label>
-                            <input type="datetime-local" id="check_out" {% if final %} value="{{ final }}" {% endif %}
-                                   readonly>
-                        </div>
-                    </div>
-                    {% if not id_cliente %}
-                        <button type="submit" class="btn btn-primary">Procurar disponibilidade</button>
-                    {% endif %}
-                    <hr class="escalar">
+                        <hr class="escalar">
+                    </fieldset>
                 </form>
             {% endif %}
             {% if setor == 'hotelaria' or inicio and final %}
@@ -163,7 +165,7 @@
                         </div>
                     {% endif %}
                     {% if setor == 'acampamento' %}
-                        <div class="mb-2 mt-2" id="div_biologos_escalados">
+                        <div class="mb-2 mt-2" id="div_biologos_escalados" style="width: 50%">
                             <label>Biologos</label>
                             <div class="monitores_escalados espacos" id="biologos"
                                  style="display: flex; flex-wrap: wrap;" ondrop="escalado(this)">
@@ -179,13 +181,47 @@
                                     {% for monitor in monitores_biologo %}
                                         <div id="{{ monitor.id }}"
                                              class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }}">
-                                             {{ monitor.nome }}
+                                            {{ monitor.nome }}
                                         </div>
                                     {% endfor %}
                                 {% endif %}
                             </div>
                         </div>
                     {% endif %}
+                    {% if setor == 'hotelaria' %}
+                        <div class="mb-2" id="div_coordenadores_escalados" style="width: 50%">
+                            <label>Coordenadores</label>
+                            <div class="monitores_escalados espacos" id="coordenadores_escalados"
+                                 style="display: flex; flex-wrap: wrap" ondrop="escalado(this)">
+                                {% if escalados %}
+                                    {% for escalado in escalados %}
+                                        {% if 'coordenadores' in escalado.tipo_escalacao %}
+                                            <div id="{{ escalado.id }}"
+                                                 class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                                 draggable="true">{{ escalado.nome }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="mb-2 mt-2" id="div_tecnicos_escalados" style="width: 50%">
+                        <label>Técnica</label>
+                        <div class="monitores_escalados espacos" id="tecnicos_escalados"
+                             style="display: flex; flex-wrap: wrap" ondrop="escalado(this)">
+                            {% if escalados %}
+                                {% for escalado in escalados %}
+                                    {% if 'tecnico' in escalado.tipo_escalacao %}
+                                        <div id="{{ escalado.id }}"
+                                             class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                             draggable="true">{{ escalado.nome }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="mb-2" id="div_monitores_escalados">
                         <label>Monitores</label>
                         <div class="monitores_escalados espacos" id="monitores_escalados"
@@ -213,20 +249,21 @@
                 <div class="botoes" style="display: flex; justify-content: space-between">
                     {% if diretoria %}
                         <button type="button" class="btn btn-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados(this, false, true)" {% else %}
-                                onclick="salvar_monitores_escalados(this, false)" {% endif %}>
+                                onclick="salvar_monitores_escalados(false, true)" {% else %}
+                                onclick="salvar_monitores_escalados(false)" {% endif %}>
                             Salvar escala final
                         </button>
                     {% endif %}
 
                     {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
-                            onclick="salvar_monitores_escalados(this, true, true)" {% else %}
-                            onclick="salvar_monitores_escalados(this, true)" {% endif %}>Salvar prévia</button>
+                                onclick="salvar_monitores_escalados(true, true)" {% else %}
+                                onclick="salvar_monitores_escalados(true)" {% endif %}>Salvar prévia
+                        </button>
                     {% endif %}
                 </div>
-                </div>
             {% endif %}
+        </div>
 
         <div class="dados-monitores none">
             <h5 style="text-align: center; padding: 0">Dados dos monitores</h5>
@@ -295,7 +332,7 @@
     <script>
         const n_monitores = {{ n_monitores }}
 
-            verificar_tecnica()
+        verificar_tecnica()
         verificar_escalados()
     </script>
 {% endblock %}

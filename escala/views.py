@@ -184,7 +184,8 @@ def disponibilidadePeraltas(request):
             else:
                 disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
 
-        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades, coordenador_hotelaria or coordenador_acampamento)
+        disponibilidades_peraltas = transformar_disponibilidades(disponibilidades,
+                                                                 coordenador_hotelaria or coordenador_acampamento)
 
         return render(request, 'escala/disponibilidade-peraltas.html', {
             'coordenador_acampamento': coordenador_acampamento,
@@ -200,18 +201,6 @@ def verEscalaPeraltas(request):
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
-
-    if is_ajax(request):
-        if request.method == 'GET':
-            data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
-            hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
-                check_in__date__lte=data,
-                check_out__date__gte=data,
-            )
-
-            return JsonResponse({'hotelaria': len(hotelaria) > 0})
-
-        return JsonResponse(escalados_para_o_evento(request.POST))
 
     if request.GET.get('setor'):
         if request.GET.get('setor') == 'acampamento':
@@ -234,17 +223,38 @@ def verEscalaPeraltas(request):
         else:
             setor = None
             escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
+
             escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(
-                monitores_acampamento__usuario=request.user)
+                monitores_acampamento__usuario=request.user
+            )
+
             escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
                 monitores_embarque__usuario=request.user
             ).exclude(id__in=escalas_acampamento_acampamento)
-            escalas_acampamento_enermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
+
+            escalas_acampamento_tecnico = EscalaAcampamento.objects.filter(
+                tecnicos__usuario=request.user
+            ).exclude(id__in=escalas_acampamento_acampamento).exclude(id__in=escalas_acampamento_embarque)
+
+            escalas_acampamento_enfermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
+
             escalas_acampamento = list(chain(
-                escalas_acampamento_acampamento, escalas_acampamento_embarque, escalas_acampamento_enermeira
+                escalas_acampamento_acampamento,
+                escalas_acampamento_embarque,
+                escalas_acampamento_enfermeira,
+                escalas_acampamento_tecnico
             ))
 
     if request.method != 'POST':
+        if is_ajax(request):
+            data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
+            hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
+                check_in__date__lte=data,
+                check_out__date__gte=data,
+            )
+
+            return JsonResponse({'hotelaria': len(hotelaria) > 0})
+
         return render(request, 'escala/escala_peraltas.html', {
             'coordenador_acampamento': coordenador_acampamento,
             'coordenador_hotelaria': coordenador_hotelaria,
@@ -253,6 +263,9 @@ def verEscalaPeraltas(request):
             'escalas_acampamento': escalas_acampamento,
             'setor': setor,
         })
+
+    if is_ajax(request):
+        return JsonResponse(escalados_para_o_evento(request.POST))
 
     if request.POST.get('id_escala'):
         escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
@@ -334,12 +347,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
                     n_monitores = int(ordem_de_servico.n_participantes / 10)
+                    # n_coordenadores =
                     monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
                     monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
                 else:
                     inicio_evento = ficha_de_evento.check_in
                     termino_evento = ficha_de_evento.check_out
                     n_monitores = int(ficha_de_evento.qtd_convidada / 10)
+                    # n_coordenadores =
                     monitores_embarque = monitores_biologo = None
 
                 return render(request, 'escala/escalar_monitores.html', {
@@ -358,7 +373,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
                     'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada),
-                    'n_monitores': n_monitores if n_monitores != 0 else 1
+                    'n_monitores': n_monitores if n_monitores != 0 else 1,
+                    # 'n_coordenadores': 1 if ordem_de_servico
                 })
 
             if id_cliente:
@@ -379,21 +395,20 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                         if monitor['id'] in escalados:
                             if monitor['setor'] != 'enfermeira':
-                                for teste_monitor in escala_editada.monitores_acampamento.all():
-                                    if monitor['id'] == teste_monitor.id:
-                                        tipo_escalacao.append(setor)
+                                if Monitor.objects.get(pk=monitor['id']) in escala_editada.monitores_acampamento.all():
+                                    tipo_escalacao.append(setor)
 
-                                for teste_monitor in escala_editada.monitores_embarque.all():
-                                    if monitor['id'] == teste_monitor.id:
-                                        tipo_escalacao.append('embarque')
+                                if Monitor.objects.get(pk=monitor['id']) in escala_editada.monitores_embarque.all():
+                                    tipo_escalacao.append('embarque')
 
-                                for teste_monitor in escala_editada.biologos.all():
-                                    if monitor['id'] == teste_monitor.id:
-                                        tipo_escalacao.append('biologo')
+                                if Monitor.objects.get(pk=monitor['id']) in escala_editada.biologos.all():
+                                    tipo_escalacao.append('biologo')
+
+                                if Monitor.objects.get(pk=monitor['id']) in escala_editada.tecnicos.all():
+                                    tipo_escalacao.append('tecnico')
                             else:
-                                for teste_monitor in escala_editada.enfermeiras.all():
-                                    if monitor['id'] == teste_monitor.id:
-                                        tipo_escalacao.append('enfermeira')
+                                if Enfermeira.objects.get(pk=monitor['id']) in escala_editada.enfermeiras.all():
+                                    tipo_escalacao.append('enfermeira')
 
                             monitor['tipo_escalacao'] = tipo_escalacao
                             escalado.append(monitor)
@@ -483,11 +498,18 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 )
 
                 for monitor_teste in disponiveis_dia:
-                    if monitor_teste['id'] in escala_hotelaria.monitores_hotelaria.values():
-                        monitor_teste['tipo_escalacao'] = setor
-                        escalado.append(monitor_teste)
-                    else:
-                        disponiveis.append(monitor_teste)
+                    if monitor_teste['setor'] != 'enfermeira':
+                        if Monitor.objects.get(pk=monitor_teste['id']) in escala_hotelaria.monitores_escalados.all():
+                            monitor_teste['tipo_escalacao'] = setor
+                            escalado.append(monitor_teste)
+                        elif Monitor.objects.get(pk=monitor_teste['id']) in escala_hotelaria.coordenadores.all():
+                            monitor_teste['tipo_escalacao'] = 'coordenadores'
+                            escalado.append(monitor_teste)
+                        elif Monitor.objects.get(pk=monitor_teste['id']) in escala_hotelaria.tecnicos_hotelaria.all():
+                            monitor_teste['tipo_escalacao'] = 'tecnico'
+                            escalado.append(monitor_teste)
+                        else:
+                            disponiveis.append(monitor_teste)
 
             return render(request, 'escala/escalar_monitores.html', {
                 'data': data_selecionada,
@@ -512,20 +534,24 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
                 editando_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
-
+                editando_escala.tecnicos.set(request.POST.getlist('id_tecnicos[]'))
+                editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
+                print(request.POST.getlist('id_tecnicos[]'), editando_escala.tecnicos.all())
                 if request.POST.get('pre_escala') == 'false' and not editando_escala.ultima_pre_escala:
                     editando_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 
-                editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 editando_escala.save()
             else:
-                nova_escala = EscalaAcampamento.objects.create(cliente=cliente,
-                                                               check_in_cliente=check_in,
-                                                               check_out_cliente=check_out)
+                nova_escala = EscalaAcampamento.objects.create(
+                    cliente=cliente,
+                    check_in_cliente=check_in,
+                    check_out_cliente=check_out
+                )
                 nova_escala.monitores_acampamento.set(request.POST.getlist('id_monitores[]'))
                 nova_escala.monitores_embarque.set(request.POST.getlist('id_monitores_embarque[]'))
                 nova_escala.biologos.set(request.POST.getlist('id_biologos[]'))
                 nova_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
+                nova_escala.tecnicos.set(request.POST.getlist('id_tecnicos[]'))
                 nova_escala.ficha_de_evento = ficha_de_evento
 
                 if request.POST.get('pre_escala') == 'false':
@@ -545,18 +571,25 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 ordem.save()
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
-            return HttpResponse()
+            return redirect('dashboard')
     else:
         try:
             escala_dia = {}
+            segundo_incio = len(request.POST.getlist('id_coordenadores[]'))
 
-            for posicao, id_monitor in enumerate(request.POST.getlist('id_monitores[]'), start=1):
+            for posicao, id_monitor in enumerate(request.POST.getlist('id_coordenadores[]'), start=1):
+                escala_dia[posicao] = int(id_monitor)
+
+            for posicao, id_monitor in enumerate(request.POST.getlist('id_monitores[]'), start=segundo_incio + 1):
                 escala_dia[posicao] = int(id_monitor)
 
             if request.POST.get('id_escala'):
+                print(request.POST)
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
                 escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
+                escala_hotelaria.coordenadores.set(list(map(int, request.POST.getlist('id_coordenadores[]'))))
+                escala_hotelaria.tecnicos_hotelaria.set(list(map(int, request.POST.getlist('id_tecnicos[]'))))
 
                 if request.POST.get('pre_escala') == 'false' and not escala_hotelaria.ultima_pre_escala:
                     escala_hotelaria.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
@@ -566,6 +599,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             else:
                 nova_escala = EscalaHotelaria.objects.create(data=data_selecionada, monitores_hotelaria=escala_dia)
                 nova_escala.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
+                nova_escala.coordenadores.set(list(map(int, request.POST.getlist('id_coordenadores[]'))))
+                nova_escala.tecnicos_hotelaria.set(list(map(int, request.POST.getlist('id_tecnicos[]'))))
 
                 if request.POST.get('pre_escala') == 'false':
                     nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
@@ -594,7 +629,6 @@ def visualizarDisponibilidadePeraltas(request):
     disponiveis_peraltas = pegar_disponiveis(disponibilidades, 'peraltas')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
-    eventos_ordem_de_servico = fichas_de_evento = eventos_hospedagem = None
 
     if is_ajax(request):
         data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')

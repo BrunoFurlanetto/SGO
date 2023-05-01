@@ -175,6 +175,14 @@
                                         }
                                     }
 
+                                    if (response['escalados']['tecnicos'].length > 0) {
+                                        $('#div_tecnicos').removeClass('none')
+
+                                        for (let tecnico of response['escalados']['tecnicos']) {
+                                            $('#tecnicos_escaladas_modal ul').append(`<li>${tecnico['nome']}</li>`)
+                                        }
+                                    }
+
                                     if (response['pre_escala']) {
                                         $('#form_escala_final').removeClass('none')
                                         $('#form_escala_final #id_escala').val(id_escala)
@@ -264,6 +272,14 @@
                                 <ul></ul>
                             </div>
                         </div>
+                        <div id="div_tecnicos" style="width: 50%" class="none">
+                            <label><b>Tecnicos</b></label>
+                            <div id="tecnicos_escaladas_modal"
+                                 style="max-height: 200px; overflow-y: auto; overflow-x: hidden">
+                                <ul></ul>
+                            </div>
+                        </div>
+                        <div class="barra"></div>
                         <div id="div_enfermeiras" style="width: 50%" class="none">
                             <label><b>Enfermeiras</b></label>
                             <div id="enfermeiras_escaladas_modal"

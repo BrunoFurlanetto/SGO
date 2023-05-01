@@ -467,9 +467,10 @@ class EscalaAcampamento(models.Model):
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True)
     monitores_acampamento = models.ManyToManyField(Monitor, related_name='monitores_acampamento')
     monitores_embarque = models.ManyToManyField(Monitor, blank=True, related_name='monitores_embarque')
-    ultima_pre_escala = models.JSONField(blank=True, null=True)
+    tecnicos = models.ManyToManyField(Monitor, blank=True, related_name='tecnicos')
     biologos = models.ManyToManyField(Monitor, blank=True, related_name='biologos')
     enfermeiras = models.ManyToManyField(Enfermeira, blank=True, related_name='enfermeiras')
+    ultima_pre_escala = models.JSONField(blank=True, null=True)
     check_in_cliente = models.DateTimeField()
     check_out_cliente = models.DateTimeField()
     pre_escala = models.BooleanField(default=False)
@@ -483,6 +484,8 @@ class EscalaAcampamento(models.Model):
 
 
 class EscalaHotelaria(models.Model):
+    coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='coordendadores')
+    tecnicos_hotelaria = models.ManyToManyField(Monitor, blank=True, related_name='tecnicos_hotelaria')
     monitores_hotelaria = models.JSONField(null=True)
     monitores_escalados = models.ManyToManyField(Monitor)
     pre_escala = models.BooleanField(default=True)

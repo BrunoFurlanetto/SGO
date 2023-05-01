@@ -25,6 +25,8 @@ async function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, i
         if (hoje.getDate() > 15 && moment(dia_adicionado).month() === hoje.getMonth() + 1) return false
 
         if (dia_adicionado < hoje_mais_30) return false
+
+        if (moment(dia_adicionado).month() > hoje.getMonth() + 4) return false
     }
 
     if (coordenador_hotelaria && !coodenador_acampamento) {
@@ -141,13 +143,39 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
                 if (hoje.getDate() > 15 && info.date.getMonth() === hoje.getMonth() + 1) {
                     info.el.classList.add('not_selected')
                 }
+
+                if (hoje.getDate() > 15 && info.date.getMonth() > hoje.getMonth() + 4) {
+                    info.el.classList.add('not_selected')
+                }
             }
         },
 
         datesSet: function () {
+            const cells = document.querySelectorAll('#calendario_escala .fc-day.fc-day')
+            $('.container_loading').removeClass('none')
+
+            if (!coordena) {
+                cells.forEach(function (cell) {
+                    if (moment(cell.getAttribute('data-date')).format('YYYY-MM-DD') < data_mais_30) {
+                        cell.classList.add('not_selected')
+                    }
+
+                    if (hoje.getDate() > 15 && moment(cell.getAttribute('data-date')).month() === hoje.getMonth() + 1) {
+                        cell.classList.add('not_selected')
+                    }
+
+                    if (hoje.getDate() > 15 && moment(cell.getAttribute('data-date')).month() > hoje.getMonth() + 4) {
+                        cell.classList.add('not_selected')
+                    }
+                })
+
+            }
+
+            setTimeout(() => {
+                $('.container_loading').addClass('none')
+            }, 500)
+
             if (coordenacao_hotelaria && !coordenacao_acampamento) {
-                const cells = document.querySelectorAll('#calendario_escala .fc-day.fc-day')
-                $('.container_loading').removeClass('none')
 
                 cells.forEach(function (cell) {
                     if (cell.role !== 'columnheader') {

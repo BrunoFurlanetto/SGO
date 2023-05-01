@@ -586,10 +586,6 @@
     text-overflow: ellipsis;
 }
 
-#cronograma_peraltas-clear_id {
-    display: none;
-}
-
 .colegio .cor {
     margin: 10px 5px 0 20px;
     width: 65px;
@@ -834,11 +830,6 @@
     height: auto;
     max-height: 250px;
     overflow-y: auto;
-}
-
-#div_biologos_escalados .monitores_escalados {
-    min-height: 50px;
-    max-height: 50px;
 }
 
 #nome_monitor_botao {

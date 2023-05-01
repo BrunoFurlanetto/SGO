@@ -382,6 +382,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
             areas.append('som') if disponibilidade.monitor.som else ...
             areas.append('video') if disponibilidade.monitor.video else ...
             areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
+            areas.append('coordenador') if 'Coordenador' in disponibilidade.monitor.nivel.nivel else ...
             biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
             dados_monitor = {
@@ -463,6 +464,7 @@ def escalados_para_o_evento(dados_evento):
     monitores_escalados = []
     monitores_embarque = []
     enfermeiras = []
+    tecnicos = []
 
     try:
         ordem_evento_cliente = OrdemDeServico.objects.get(ficha_de_evento__cliente=cliente,
@@ -472,19 +474,19 @@ def escalados_para_o_evento(dados_evento):
         ordem_evento_cliente = False
 
     for monitor in escala.monitores_acampamento.all():
-        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+        if ordem_evento_cliente and monitor in ordem_evento_cliente.monitor_responsavel.all():
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
     for monitor in escala.biologos.all():
-        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+        if ordem_evento_cliente and monitor in ordem_evento_cliente.monitor_responsavel.all():
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_escalados.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
 
     for monitor in escala.monitores_embarque.all():
-        if ordem_evento_cliente and ordem_evento_cliente.monitor_responsavel == monitor:
+        if ordem_evento_cliente and monitor in ordem_evento_cliente.monitor_responsavel.all():
             monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': True})
         else:
             monitores_embarque.append({'nome': monitor.usuario.get_full_name(), 'coordenador': False})
@@ -492,11 +494,15 @@ def escalados_para_o_evento(dados_evento):
     for enfermeira in escala.enfermeiras.all():
         enfermeiras.append({'nome': enfermeira.usuario.get_full_name(), 'coordenador': False})
 
+    for tecnico in escala.tecnicos.all():
+        tecnicos.append({'nome': tecnico.usuario.get_full_name(), 'coordenador': False})
+
     return {
         'escalados': {
             'acampamento': monitores_escalados,
             'embarque': monitores_embarque,
-            'enfermeiras': enfermeiras
+            'enfermeiras': enfermeiras,
+            'tecnicos': tecnicos,
         },
         'id_cliente': cliente.id,
         'pre_escala': escala.pre_escala
@@ -572,6 +578,9 @@ def pegar_escalacoes(escala, acampamento=True):
         escalados.append(monitor.id)
 
     for monitor in escala.biologos.all():
+        escalados.append(monitor.id)
+
+    for monitor in escala.tecnicos.all():
         escalados.append(monitor.id)
 
     for enfermeira in escala.enfermeiras.all():
@@ -667,4 +676,6 @@ def salvar_ultima_pre_escala(dados_escala):
         'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),
         'embarque': list(map(int, dados_escala.getlist('id_monitores_embarque[]'))),
         'biologos': list(map(int, dados_escala.getlist('id_biologos[]'))),
+        'tecnicos': list(map(int, dados_escala.getlist('id_tecnicos[]'))),
+        'enfermeiras': list(map(int, dados_escala.getlist('id_enfermeiras[]'))),
     }
