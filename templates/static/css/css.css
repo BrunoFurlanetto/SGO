@@ -417,16 +417,19 @@
     width: 500px;
 }
 
-.conteudo-disponibilidade-peraltas {
+.conteudo-disponibilidade-peraltas > div:first-child {
     display: flex;
     gap: 10px;
+    justify-content: flex-start;
+    align-items: end;
+}
+
+.conteudo-disponibilidade-peraltas{
     width: 1000px;
     margin: auto auto 10%;
     border-radius: 20px;
     padding: 20px;
-    height: 670px;
-    justify-content: flex-start;
-    align-items: end;
+    height: fit-content;
     box-shadow: 5px 5px 10px;
     background: #ffffff;
 }
@@ -1175,4 +1178,67 @@
 
 .not_selected .fc-event-main {
     background: rgba(215, 215, 215, 0.43);
+}
+
+.fixo .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #FFC107;
+    border-radius: 8px;
+    background-color: #FFC107;
+}
+
+.tecnico .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #C3A06E;
+    border-radius: 8px;
+    background-color: #C3A06E;
+}
+
+.monitor-biologo .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #03BB85;
+    border-radius: 8px;
+    background-color: #03BB85;
+}
+
+.enfermeira .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #ff7474;
+    border-radius: 8px;
+    background-color: #ff7474;
+}
+
+.monitor .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #FF8C00;
+    border-radius: 8px;
+    background-color: #FF8C00;
+}
+
+.pre-escala .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #f36d21;
+    border-radius: 8px;
+    background-color: #f36d21;
+}
+
+.escala-confirmada .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #008000;
+    border-radius: 8px;
+    background-color: #008000;
 }

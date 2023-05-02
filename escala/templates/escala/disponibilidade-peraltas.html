@@ -6,33 +6,60 @@
     {% csrf_token %}
 
     <section class="conteudo-disponibilidade-peraltas">
-        <div id="nomes_monitores">
-            {% if coordenador_acampamento or coordenador_hotelaria %}
-                {% for monitor in monitores %}
-                    <div class="card-monitor" style="background: {% if monitor.tecnica %}#C3A06E{% elif monitor.biologo %}#03BB85{% else %}#FF8C00{% endif %}"
-                         data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", {% if monitor.tecnica %}"color": "#C3A06E"{% elif monitor.biologo %}"color": "#03BB85"{% else %}"color": "#FF8C00"{% endif %}}, "title": "{{ monitor.usuario.get_full_name }}"}'
-                         draggable="true">{{ monitor.usuario.get_full_name }}</div>
-                {% endfor %}
-                {% for enfermeira in enfermeiras %}
-                    <div class="card-monitor enfermeira"
-                         data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeira.id }}", "color": "#ff7474"}, "title": "{{ enfermeira.usuario.get_full_name }}"}'
-                         draggable="true">{{ enfermeira.usuario.get_full_name }}</div>
-                {% endfor %}
-            {% else %}
-                {% if monitores %}
-                    <div class="card-monitor"
-                         data-event='{"extendedProps": {"id_monitor": "{{ monitores.id }}", "color": "#FF8C00"}, "title": "{{ monitores.usuario.get_full_name }}"}'
-                         draggable="true">{{ monitores.usuario.get_full_name }}</div>
+        <div>
+            <div id="nomes_monitores">
+                {% if coordenador_acampamento or coordenador_hotelaria %}
+                    {% for monitor in monitores %}
+                        <div class="card-monitor"
+                             style="background: {% if monitor.fixo %}#FFC107{% elif monitor.tecnica %}#C3A06E{% elif monitor.biologo %}#03BB85{% else %}#FF8C00{% endif %}"
+                             data-event='{"extendedProps": {"id_monitor": "{{ monitor.id }}", {% if monitor.fixo %} "color": "#FFC107" {% elif monitor.tecnica %}"color": "#C3A06E"{% elif monitor.biologo %}"color": "#03BB85"{% else %}"color": "#FF8C00"{% endif %}}, "title": "{{ monitor.usuario.get_full_name }}"}'
+                             draggable="true">{{ monitor.usuario.get_full_name }}</div>
+                    {% endfor %}
+                    {% for enfermeira in enfermeiras %}
+                        <div class="card-monitor enfermeira"
+                             data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeira.id }}", "color": "#ff7474"}, "title": "{{ enfermeira.usuario.get_full_name }}"}'
+                             draggable="true">{{ enfermeira.usuario.get_full_name }}</div>
+                    {% endfor %}
+                {% else %}
+                    {% if monitores %}
+                        <div class="card-monitor"
+                             data-event='{"extendedProps": {"id_monitor": "{{ monitores.id }}", "color": "#FF8C00"}, "title": "{{ monitores.usuario.get_full_name }}"}'
+                             draggable="true">{{ monitores.usuario.get_full_name }}</div>
+                    {% endif %}
+                    {% if enfermeiras %}
+                        <div class="card-monitor enfermeira"
+                             data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeiras.id }}", "color": "#ff7474"}, "title": "{{ enfermeiras.usuario.get_full_name }}"}'
+                             draggable="true">{{ enfermeiras.usuario.get_full_name }}</div>
+                    {% endif %}
                 {% endif %}
-                {% if enfermeiras %}
-                    <div class="card-monitor enfermeira"
-                         data-event='{"extendedProps": {"id_enfermeira": "{{ enfermeiras.id }}", "color": "#ff7474"}, "title": "{{ enfermeiras.usuario.get_full_name }}"}'
-                         draggable="true">{{ enfermeiras.usuario.get_full_name }}</div>
-                {% endif %}
-            {% endif %}
+            </div>
+            <div id="calendario_escala"></div>
         </div>
-        <div id="calendario_escala"></div>
+        <div class="legenda row">
+            <div class="fixo" style="display: flex;  width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Fixo</p>
+            </div>
+            <div class="tecnico" style="display: flex;  width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Técnica</p>
+            </div>
+            <div class="enfermeira" style="display: flex;  width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Enfermeira</p>
+            </div>
+            <div class="monitor-biologo" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Biologo</p>
+            </div>
+            <div class="monitor" style="display: flex; width: 300px">
+                <div class="cor"></div>
+                <p style="margin-top: 10px"> - Monitor</p>
+            </div>
+        </div>
     </section>
+
+
 
     <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário -->
     <script src="{% static 'js/scripts_disponibilidade_peraltas.js' %}"></script><!-- Script do calendário de escala -->

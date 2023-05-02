@@ -111,7 +111,13 @@
                                         title: "{{ forloop.counter }} {{ monitor.nome|safe }}",
                                         start: "{{ escala.data | date:'Y-m-d' }}",
 
-                                        {% if user == monitor.user %}
+                                        {% if coordenador_hotelaria %}
+                                            {% if escala.pre_escala %}
+                                                color: '#f36d21',
+                                            {% else %}
+                                                color: '#008000',
+                                            {% endif %}
+                                        {% elif user == monitor.user %}
                                             color: '#f36d21',
                                             textColor: 'black'
                                         {% endif %}
@@ -226,6 +232,17 @@
                 <div class="hotelaria" style="display: flex; width: 300px">
                     <div class="cor"></div>
                     <p style="margin-top: 10px"> - Hotelaria</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="legenda row">
+                <div class="pre-escala" style="display: flex; width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Pré escala</p>
+                </div>
+                <div class="escala-confirmada" style="display: flex; width: 300px">
+                    <div class="cor"></div>
+                    <p style="margin-top: 10px"> - Escala confirmada</p>
                 </div>
             </div>
         {% endif %}

@@ -105,10 +105,12 @@ def transformar_disponibilidades(disponibilidades, coordenador):
             else:
                 if monitor:
                     if coordenador:
-                        if monitor.tecnica:
-                            color = '#C3A06E'
+                        if monitor.fixo:
+                            color = '#FFC107'
                         elif monitor.biologo:
                             color = '#03BB85'
+                        elif monitor.tecnica:
+                            color = '#C3A06E'
                         else:
                             color = '#FF8C00'
                     else:
