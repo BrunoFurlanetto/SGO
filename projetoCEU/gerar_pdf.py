@@ -9,28 +9,30 @@ from peraltas.models import AtividadesEco, Monitor
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'Letter')
-        self.set_font('Times', '', 12)
+        self.add_font('Times New Roman', '', 'times.ttf')
+        self.add_font('Times New Roman', 'B', 'timesbd.ttf')
+        self.set_font('Times New Roman', '', 12)
         self.add_page()
 
     def my_header(self, titulo):
         self.image('templates/static/img/logoPeraltasFundoBranco.jpg', 140, 10, 65)
         self.ln(15)
-        self.set_font('helvetica', 'B', 20)
+        self.set_font('Times New Roman', 'B', 20)
         w_titulo = self.get_string_width(titulo) + 6
         w_pdf = self.w
         self.set_x((w_pdf - w_titulo) / 2)
         self.cell(w_titulo, 20, titulo, ln=1, align='C')
 
     def titulo_secao(self, titulo_secao, height, width):
-        self.set_font('Times', 'B', 14)
+        self.set_font('Times New Roman', 'B', 14)
         self.set_fill_color(147, 206, 235)
         self.cell(width, height, titulo_secao, ln=2, fill=True, align='c')
-        self.set_font('Times', '', 12)
+        self.set_font('Times New Roman', '', 12)
 
     def texto_negrito(self, w, h, texto):
-        self.set_font('Times', 'B', 12)
+        self.set_font('Times New Roman', 'B', 12)
         self.cell(w, h, texto)
-        self.set_font('Times', '', 12)
+        self.set_font('Times New Roman', '', 12)
 
     def tables(self, headings, rows, alings=None, col_widths=(75, 35, 56, 15, 15)):
         self.set_fill_color(23, 129, 180)
