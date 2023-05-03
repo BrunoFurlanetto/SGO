@@ -262,7 +262,7 @@ def ordem_de_servico(ordem_de_servico):
             pdf_ordem.cell(w_text, 8, transporte.endereco_embarque)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
-            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M'), ln=1)
+            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '', ln=1)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
             pdf_ordem.cell(40, 8, transporte.telefone_motorista)
