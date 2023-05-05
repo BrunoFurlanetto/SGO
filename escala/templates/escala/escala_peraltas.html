@@ -138,9 +138,9 @@
                             const check_in_evento = moment(info.event.start).format('yyyy-MM-DDTHH:mm')
                             const check_out_evento = moment(info.event.end).format('yyyy-MM-DDTHH:mm')
                             $('.container_loading').removeClass('none')
-
-                            $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul, #enfermeiras_escaladas_modal ul').empty()
-                            $('#div_embarque, #div_enfermeiras, #form_escala_final').addClass('none')
+                            $('#monitores_escalados_modal ul, #monitores_escalados_embarque_modal ul').empty()
+                            $('#enfermeiras_escaladas_modal ul, #tecnicos_escaladas_modal ul').empty()
+                            $('#div_embarque, #div_enfermeiras, #div_tecnicos, #form_escala_final').addClass('none')
                             $('.modal-footer button').removeClass('none')
                             $('#cliente_modal').val(cliente)
                             $('#form_excluir_escala #id_escala').val(id_escala)
