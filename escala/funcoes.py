@@ -8,6 +8,11 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
     Enfermeira, EscalaAcampamento, EscalaHotelaria
 
+grupos_monitores_1 = ['Auxiliar de monitoria 1', 'Auxiliar de monitoria 2',
+                      'Auxiliar de monitoria 3', 'Auxiliar de monitoria 4']
+grupos_monitores_2 = ['Monitor 1', 'Monitor 2', 'Monitor 3']
+grupos_monitores_3 = ['Monitor 4', 'Monitor 3', 'Monitor 6']
+
 
 def is_ajax(request):
     """
@@ -105,12 +110,12 @@ def transformar_disponibilidades(disponibilidades, coordenador):
             else:
                 if monitor:
                     if coordenador:
-                        if monitor.fixo:
-                            color = '#FFC107'
+                        if monitor.tecnica:
+                            color = '#C3A06E'
                         elif monitor.biologo:
                             color = '#03BB85'
-                        elif monitor.tecnica:
-                            color = '#C3A06E'
+                        elif monitor.fixo:
+                            color = '#FFC107'
                         else:
                             color = '#FF8C00'
                     else:
@@ -397,13 +402,26 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
             areas.append('coordenador') if 'Coordenador' in disponibilidade.monitor.nivel.nivel else ...
             biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
+            if not disponibilidade.monitor.tecnica and not disponibilidade.monitor.biologo:
+                if disponibilidade.monitor.nivel.nivel in grupos_monitores_1:
+                    nivel = 'monitor_1'
+                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_2:
+                    nivel = 'monitor_2'
+                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_3:
+                    nivel = 'monitor_3'
+                else:
+                    nivel = 'monitor_4'
+            else:
+                nivel = ''
+
             dados_monitor = {
                 'id': disponibilidade.monitor.id,
                 'nome': disponibilidade.monitor.usuario.get_full_name(),
                 'setor': 'peraltas',
                 'tecnica': disponibilidade.monitor.tecnica,
                 'areas': '-'.join(areas),
-                'biologo': biologo
+                'biologo': biologo,
+                'nivel': nivel
             }
         else:
             dados_monitor = {
@@ -412,7 +430,8 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
                 'setor': 'enfermeira',
                 'tecnica': False,
                 'areas': '',
-                'biologo': False
+                'biologo': False,
+                'nivel': ''
             }
 
         monitores_disponiveis_intervalo.append(dados_monitor)
@@ -625,7 +644,7 @@ def procurar_ficha_de_evento(cliente, data_selecionada):
 
 def pegar_dados_monitor_embarque(os):
     dados_monitores = []
-    print(len(os.dados_transporte.all()))
+
     if not os.dados_transporte:
         return None
 
@@ -638,13 +657,26 @@ def pegar_dados_monitor_embarque(os):
         areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
         biologo = 'biologo' if monitor.biologo else ''
 
+        if not monitor.tecnica and not monitor.biologo:
+            if monitor.nivel.nivel in grupos_monitores_1:
+                nivel = 'monitor_1'
+            elif monitor.nivel.nivel in grupos_monitores_2:
+                nivel = 'monitor_2'
+            elif monitor.nivel.nivel in grupos_monitores_3:
+                nivel = 'monitor_3'
+            else:
+                nivel = 'monitor_4'
+        else:
+            nivel = ''
+
         dados_monitor = {
             'id': monitor.id,
             'nome': monitor.usuario.get_full_name(),
             'setor': 'peraltas',
             'tecnica': monitor.tecnica,
             'areas': '-'.join(areas),
-            'biologo': biologo
+            'biologo': biologo,
+            'nivel': nivel
         }
 
         dados_monitores.append(dados_monitor)
@@ -668,13 +700,26 @@ def pegar_dados_monitor_biologo(os):
         areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
         biologo = 'biologo' if monitor.biologo else ''
 
+        if not monitor.tecnica and not monitor.biologo:
+            if monitor.nivel.nivel in grupos_monitores_1:
+                nivel = 'monitor_1'
+            elif monitor.nivel.nivel in grupos_monitores_2:
+                nivel = 'monitor_2'
+            elif monitor.nivel.nivel in grupos_monitores_3:
+                nivel = 'monitor_3'
+            else:
+                nivel = 'monitor_4'
+        else:
+            nivel = ''
+
         dados_monitor = {
             'id': monitor.id,
             'nome': monitor.usuario.get_full_name(),
             'setor': 'peraltas',
             'tecnica': monitor.tecnica,
             'areas': '-'.join(areas),
-            'biologo': biologo
+            'biologo': biologo,
+            'nivel': nivel
         }
 
         if dados_monitor not in dados_monitores:

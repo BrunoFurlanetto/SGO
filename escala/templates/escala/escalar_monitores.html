@@ -114,11 +114,15 @@
                         </div>
                     </div>
                 </div>
-                <div id="legenda" style="display: flex">
+                <div id="legenda" style="display: flex; flex-wrap: wrap">
                     <div class="tecnica">Técnica</div>
                     {% if setor == 'acampamento' %}
                         <div class="biologo">Biologo</div>
                     {% endif %}
+                    <div class="monitor_1">Nivel 1 (Auxiliar de monitoria de 1 a 4)</div>
+                    <div class="monitor_2">Nível 2 (Monitor de 1 a 3)</div>
+                    <div class="monitor_3">Nível 3 (Monitor de 4 a 6)</div>
+                    <div class="monitor_4">Nível 4 (Coordenador)</div>
                 </div>
                 <hr>
                 <div class="row mb-2 escalados" id="escalar">
@@ -135,14 +139,14 @@
                                     {% for escalado in escalados %}
                                         {% if 'embarque' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
-                                                 class="card-monitor {{ escalado.setor }} embarque {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                                 class="card-monitor {{ escalado.setor }} embarque {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     {% for monitor in monitores_embarque %}
                                         <div id="{{ monitor.id }}"
-                                             class="card-monitor {{ monitor.setor }} embarque {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }}">
+                                             class="card-monitor {{ monitor.setor }} embarque {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
                                     {% endfor %}
@@ -173,14 +177,14 @@
                                     {% for escalado in escalados %}
                                         {% if 'biologo' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
-                                                 class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                                 class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     {% for monitor in monitores_biologo %}
                                         <div id="{{ monitor.id }}"
-                                             class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }}">
+                                             class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
                                     {% endfor %}
@@ -197,7 +201,7 @@
                                     {% for escalado in escalados %}
                                         {% if 'coordenadores' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
-                                                 class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                                 class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}
                                             </div>
                                         {% endif %}
@@ -214,7 +218,7 @@
                                 {% for escalado in escalados %}
                                     {% if 'tecnico' in escalado.tipo_escalacao %}
                                         <div id="{{ escalado.id }}"
-                                             class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                             class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
                                         </div>
                                     {% endif %}
@@ -230,7 +234,7 @@
                                 {% for escalado in escalados %}
                                     {% if setor in escalado.tipo_escalacao %}
                                         <div id="{{ escalado.id }}"
-                                             class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }}"
+                                             class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
 
 

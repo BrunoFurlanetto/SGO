@@ -775,7 +775,8 @@
     cursor: grabbing;
 }
 
-#legenda .tecnica, #legenda .biologo {
+#legenda .tecnica, #legenda .biologo, #legenda .monitor_1, #legenda .monitor_2, #legenda .monitor_3,
+#legenda .monitor_4 {
     padding: 5px;
     width: fit-content;
     height: fit-content;
@@ -811,6 +812,22 @@
 .tecnica {
     font-weight: bolder;
     background: #c3a06e;
+}
+.monitor_1 {
+    font-weight: bolder;
+    background: #BF9106;
+}
+.monitor_2 {
+    font-weight: bolder;
+    background: #999542;
+}
+.monitor_3 {
+    font-weight: bolder;
+    background: #FF8C00;
+}
+.monitor_4 {
+    font-weight: bolder;
+    background: #FFC107;
 }
 
 .biologo {
