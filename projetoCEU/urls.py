@@ -55,6 +55,7 @@ else:
         path('ordem-de-servico/', manutencao),
         path('calendario-eventos/', manutencao),
         path('detector-de-bombas/', manutencao),
+        path('orcamento/', include('orcamento.urls')),
         path('admin/', manutencao),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -1,4 +1,5 @@
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -10,6 +11,9 @@ from .budget import Budget
 
 @csrf_exempt
 def calc_budget(req):
+    if req.method != 'POST':
+        return render(req, 'orcamento/orcamento.html')
+
     if req.method == 'POST':
         # JSON
         data = req.body

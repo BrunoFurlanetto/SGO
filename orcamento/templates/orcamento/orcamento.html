@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-orcamento">
+        <div class="head-orcamento">
+            <h2>Orçamento</h2>
+            <hr>
+        </div>
+        <form>
+            <fieldset>
+                {% csrf_token %}
+                <div class="conteudo-primeiro"><br><br><br><br></div>
+                <div class="conteudo"><br><br><br><br></div>
+                <div class="conteudo"><br><br><br><br></div>
+                <div class="conteudo"><br><br><br><br></div>
+            </fieldset>
+        </form>
+    </div>
+
+    <script src="{% static 'js/scripts_orcamento.js' %}"></script>
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
+
+{% endblock %}
