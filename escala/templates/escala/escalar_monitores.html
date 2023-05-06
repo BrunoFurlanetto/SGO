@@ -107,7 +107,7 @@
                             {% for disponivel in disponiveis %}
                                 {% if 'peraltas' in disponivel.setor %}
                                     <div id="{{ disponivel.id }}"
-                                         class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {% if setor == 'acampamento' %} {{ disponivel.biologo }} {% endif %}"
+                                         class="card-monitor {{ disponivel.nivel }} {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {% if setor == 'acampamento' %} {{ disponivel.biologo }} {% endif %}"
                                          draggable="true">{{ disponivel.nome }}</div>
                                 {% endif %}
                             {% endfor %}
