@@ -372,7 +372,7 @@
     <div id="dados_locacoes"
          class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
         <h5 class="titulo-secao">Dados das locações</h5>
-        {% if not ficha_de_evento.produto.colegio %}
+        {% if not ficha_de_evento.produto.colegio and ficha_de_evento.informacoes_locacoes %}
             {% for espaco in ficha_de_evento.separar_informacoes_locacoes %}
                 <div class="row" id="espaco_{{ espaco.id_espaco }}">
                     <div style="width: 40%">
