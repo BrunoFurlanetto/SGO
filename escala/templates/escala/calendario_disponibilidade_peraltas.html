@@ -13,7 +13,8 @@
                 <label for="setor">Montar escala para</label>
                 <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
                     <option value="acampamento">Acampamento</option>
-                    <option value="hotelaria" {% if request.GET.setor == 'hotelaria' %} selected {% endif %}>Hotelaria</option>
+                    <option value="hotelaria" {% if request.GET.setor == 'hotelaria' %} selected {% endif %}>Hotelaria
+                    </option>
                 </select>
             </form>
         {% endif %}
@@ -39,8 +40,20 @@
                     locale: 'pt-br',
                     dayMaxEvents: 3,
                     fixedWeekCount: false,
-
                     navLinks: true,
+                    height: 'parent',
+                    contentHeight: 'auto',
+                    handleWindowResize: true,
+
+                    viewRender: function (view, element) {
+                        var hasScrollbar = $('.fc-scroller-canvas').height() > $('.fc-scroller').height();
+                        if (hasScrollbar) {
+                            $('.fc-day-grid-container').css('margin-right', '16px');
+                        } else {
+                            $('.fc-day-grid-container').css('margin-right', '0');
+                        }
+                    },
+
                     navLinkDayClick: function (date, jsEvent) {
                         {% if setor == 'hotelaria' %}
                             $.ajax({

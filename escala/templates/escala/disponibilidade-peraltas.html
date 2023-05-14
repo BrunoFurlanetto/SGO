@@ -6,8 +6,8 @@
     {% csrf_token %}
 
     <section class="conteudo-disponibilidade-peraltas">
-        <div>
-            <div id="nomes_monitores">
+        <div style="position: relative">
+            <div id="nomes_monitores" {% if coordenador_acampamento or coordenador_hotelaria %} class="sticky" {% endif %}>
                 {% if coordenador_acampamento or coordenador_hotelaria %}
                     {% for monitor in monitores %}
                         <div class="card-monitor"
@@ -42,7 +42,7 @@
                     {% endif %}
                 {% endif %}
             </div>
-            <div id="calendario_escala"></div>
+            <div id="calendario_escala" {% if not coordenador_acampamento and not coordenador_hotelaria %} style="position: relative; left: 200px" {% endif %}></div>
         </div>
         <div class="legenda row">
             <div class="fixo" style="display: flex;  width: 300px">

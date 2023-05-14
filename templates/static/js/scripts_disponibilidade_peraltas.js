@@ -126,7 +126,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             },
         },
 
-        dayMaxEvents: 4,
+        dayMaxEvents: 3,
         editable: true,
         droppable: true,
         eventOrderStrict: true,
@@ -134,6 +134,9 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
         locale: 'pt-br',
         initialDate: moment(new Date(Date.now())).add(30, 'days').format('YYYY-MM-DD'),
         events: disponibilidade,
+        height: 'parent',
+        contentHeight: 'auto',
+        handleWindowResize: true,
 
         dayCellDidMount: function (info) {
             if (!coordena) {
