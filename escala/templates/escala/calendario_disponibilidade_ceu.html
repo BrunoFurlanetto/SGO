@@ -30,6 +30,7 @@
                     locale: 'pt-br',
                     dayMaxEvents: 3,
                     navLinks: true,
+                    fixedWeekCount: false,
 
                     navLinkDayClick: function (date, jsEvent) {
                         window.location.href = `/escala/montar_escala/${moment(date).format('yyyy-MM-DD')}`

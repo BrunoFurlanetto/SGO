@@ -130,6 +130,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
         editable: true,
         droppable: true,
         eventOrderStrict: true,
+        fixedWeekCount: false,
         locale: 'pt-br',
         initialDate: moment(new Date(Date.now())).add(30, 'days').format('YYYY-MM-DD'),
         events: disponibilidade,
