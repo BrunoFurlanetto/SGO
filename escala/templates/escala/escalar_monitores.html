@@ -247,8 +247,13 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
+                        <hr>
                     </div>
                     <input id="escala_editada" type="hidden" value="{{ id_escala }}">
+                    <div>
+                        <label for="observacoes">Observações</label>
+                        <textarea name="observacoes" id="observacoes">{{ observacoes }}</textarea>
+                    </div>
                 </div>
                 <div class="botoes" style="display: flex; justify-content: space-between">
                     {% if diretoria %}
@@ -335,6 +340,7 @@
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
     <script>
         const n_monitores = {{ n_monitores }}
+        const produto = '{{ ficha_de_evento.produto.produto }}'
 
         verificar_tecnica()
         verificar_escalados()

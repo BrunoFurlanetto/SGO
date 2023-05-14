@@ -513,6 +513,7 @@ class EscalaAcampamento(models.Model):
     ultima_pre_escala = models.JSONField(blank=True, null=True)
     check_in_cliente = models.DateTimeField()
     check_out_cliente = models.DateTimeField()
+    observacoes = models.TextField(null=True)
     pre_escala = models.BooleanField(default=False)
     racional_monitores = models.PositiveIntegerField(default=10)
 

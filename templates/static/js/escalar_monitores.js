@@ -310,13 +310,24 @@ function salvar_monitores_escalados(pre_escala, editando = false) {
     let erro_2_enfermeiras = false
     let erro_3_enfermeiras = false
 
-    if ((id_escalados.length + id_monitores_embarque.length) === 0) {
-        if (editando) {
-            $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
-        } else {
-            $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+    if (produto === 'Só CEU'){
+        if ((id_escalados.length + id_monitores_embarque.length + id_tecnicos) === 0) {
+            if (editando) {
+                $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+            } else {
+                $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+            }
+            erro_sem_alteracao = true
         }
-        erro_sem_alteracao = true
+    } else {
+        if ((id_escalados.length + id_monitores_embarque.length) === 0) {
+            if (editando) {
+                $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+            } else {
+                $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+            }
+            erro_sem_alteracao = true
+        }
     }
 
     if ($('#obrigatoriedades')) {
@@ -397,6 +408,7 @@ function salvar_monitores_escalados(pre_escala, editando = false) {
             'cliente': $('#cliente').val(),
             'check_in': $('#check_in').val(),
             'check_out': $('#check_out').val(),
+            'observacoes': $('#observacoes').val(),
             'pre_escala': pre_escala,
         },
         success: function (response) {

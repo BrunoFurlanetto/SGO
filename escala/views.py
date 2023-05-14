@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from itertools import chain
 
+import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -458,6 +459,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'disponiveis': disponiveis,
                     'escalados': escalado,
                     'id_escala': escala_editada.id,
+                    'observacoes': escala_editada.observacoes,
                     'pre_escala': escala_editada.pre_escala,
                     'n_monitores': n_monitores if n_monitores != 0 else 1,
                 })
@@ -536,7 +538,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 editando_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
                 editando_escala.tecnicos.set(request.POST.getlist('id_tecnicos[]'))
                 editando_escala.pre_escala = request.POST.get('pre_escala') == 'true'
-                print(request.POST.getlist('id_tecnicos[]'), editando_escala.tecnicos.all())
+                editando_escala.observacoes = request.POST.get('observacoes')
+
                 if request.POST.get('pre_escala') == 'false' and not editando_escala.ultima_pre_escala:
                     editando_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 
@@ -553,6 +556,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.enfermeiras.set(request.POST.getlist('id_enfermeiras[]'))
                 nova_escala.tecnicos.set(request.POST.getlist('id_tecnicos[]'))
                 nova_escala.ficha_de_evento = ficha_de_evento
+                nova_escala.observacoes = request.POST.get('observacoes')
 
                 if request.POST.get('pre_escala') == 'false':
                     nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
