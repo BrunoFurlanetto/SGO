@@ -1,3 +1,4 @@
+import datetime
 import os.path
 
 from django import forms
@@ -76,6 +77,7 @@ class OrdemDeServico(models.Model):
     escala = models.BooleanField(default=False)
     racional_coordenadores = models.IntegerField(default=120, blank=True)
     permicao_coordenadores = models.BooleanField(default=False)
+    data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
 
     def dividir_atividades_ceu(self):
         atividades = []

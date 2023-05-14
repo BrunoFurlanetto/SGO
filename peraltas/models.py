@@ -434,6 +434,46 @@ class FichaDeEvento(models.Model):
         return dados_locacoes
 
 
+class Eventos(models.Model):
+    ordem_de_servico = models.ForeignKey('ordemDeServico.OrdemDeServico', on_delete=models.CASCADE, null=True, blank=True)
+    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Eventos'
+
+    def vendedor(self):
+        return self.ficha_de_evento.vendedora.usuario.get_full_name()
+
+    def cliente(self):
+        return self.ficha_de_evento.cliente
+
+    def check_in(self):
+        return self.ordem_de_servico.check_in if self.ordem_de_servico else self.ficha_de_evento.check_in
+
+    def check_out(self):
+        return self.ordem_de_servico.check_out if self.ordem_de_servico else self.ficha_de_evento.check_out
+
+    def qtd_confirmada(self):
+        return self.ordem_de_servico.n_participantes if self.ordem_de_servico else self.ficha_de_evento.qtd_confirmada
+
+    def qtd_previa(self):
+        return self.ficha_de_evento.qtd_convidada
+
+    def data_preenchimento(self):
+        return self.ordem_de_servico.data_preenchimento if self.ordem_de_servico else self.ficha_de_evento.data_preenchimento
+
+    def estagio_evento(self):
+        if self.ordem_de_servico:
+            return 'Ordem de Servico'
+        else:
+            if self.ficha_de_evento.pre_reserva and not self.ficha_de_evento.agendado:
+                return 'Pré reserva'
+            elif self.ficha_de_evento.pre_reserva and self.ficha_de_evento.agendado:
+                return 'Evento confirmado'
+            else:
+                return 'Ficha de evento'
+
+
 class DisponibilidadePeraltas(models.Model):
     meses = (
         (1, 'Janeiro'),

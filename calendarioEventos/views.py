@@ -12,7 +12,7 @@ from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
-    EventosCancelados
+    EventosCancelados, Eventos
 from projetoCEU.utils import verificar_grupo, email_error
 
 
@@ -45,21 +45,15 @@ def eventos(request):
                     return JsonResponse({'exclusividade': False})
 
             if request.GET.get('check_in'):
-                fichas_intervalo = []
-
-                fichas_intervalo.append(
+                fichas_intervalo = [
                     FichaDeEvento.objects.filter(
                         check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
                         check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M')
-                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists()
-                )
-
-                fichas_intervalo.append(
-                    FichaDeEvento.objects.filter(
+                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists(), FichaDeEvento.objects.filter(
                         check_in__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
                         check_in__lte=datetime.strptime(request.GET.get('check_out'), '%Y-%m-%dT%H:%M')
                     ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists()
-                )
+                ]
 
                 return JsonResponse({'eventos': True in fichas_intervalo})
 
@@ -137,6 +131,7 @@ def eventos(request):
         if request.POST.get('confirmar_agendamento'):
             try:
                 pre_reserva.agendado = True
+                pre_reserva.data_preenchimento = datetime.today().date()
                 pre_reserva.save()
             except Exception as e:
                 email_error(request.user.get_full_name(), e, __name__)
@@ -166,7 +161,8 @@ def eventos(request):
         nova_pre_reserva.exclusividade = True
 
     if cadastro_de_pre_reservas.is_valid():
-        cadastro_de_pre_reservas.save()
+        pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
+        Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
 
         return redirect('calendario_eventos')
     else:

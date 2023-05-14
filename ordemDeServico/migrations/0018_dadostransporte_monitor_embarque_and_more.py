@@ -20,7 +20,6 @@ def popular_dados_transporte_e_monitor_embarque(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('peraltas', '0133_enfermeira_valor_diaria_enfermeira_valor_pernoite_and_more'),
         ('ordemDeServico', '0017_alter_ordemdeservico_racional_coordenadores'),
@@ -30,13 +29,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dadostransporte',
             name='monitor_embarque',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='peraltas.monitor'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING,
+                                    to='peraltas.monitor'),
         ),
         migrations.AddField(
             model_name='ordemdeservico',
             name='dados_transporte_temp',
             field=models.ManyToManyField(related_name='Dados_transporte_temp', to='ordemDeServico.DadosTransporte'),
         ),
-	migrations.RunPython(popular_dados_transporte_e_monitor_embarque),
+        migrations.RunPython(popular_dados_transporte_e_monitor_embarque),
     ]
-

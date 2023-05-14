@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos
 from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
@@ -298,6 +298,9 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
 
         os = form.save()
+        evento = Eventos.objects.get(ficha_de_evento=ficha)
+        evento.ordem_de_servico = os
+        evento.save()
 
         if ficha.escala:
             os.escala = True
@@ -436,6 +439,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         novo_evento.refeicoes = pegar_refeicoes(request.POST)
         novo_evento.empresa = ver_empresa_atividades(request.POST)
         novo_evento.pre_reserva = False
+        novo_evento.data_preenchimento = datetime.today().date()
 
         if len(request.POST.getlist('locacoes_ceu')) > 0:
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
