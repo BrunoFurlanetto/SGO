@@ -750,6 +750,7 @@
             carregar_scripts('{{ editando }}')
 
             {% if not editando %}
+                evento_corporativo = '{{ coorporativo|safe }}' == 'True'
                 $('#cliente').trigger('click')
                 tabela_refeicoes()
             {% endif %}

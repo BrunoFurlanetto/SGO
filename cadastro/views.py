@@ -375,6 +375,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 'grupos_atividade': grupos_atividade,
                 'atividades_ceu': atividades_ceu,
                 'diretoria': diretoria,
+                'coorporativo': not pre_reserva.produto.colegio,
                 'editando': False
             })
 

@@ -165,7 +165,6 @@ function liberar_ida_e_volta() {
 }
 
 async function tabela_refeicoes() {
-    console.log('Foi')
     const data_1 = $('#sessao_periodo_viagem #id_check_in').val().split('T')[0]
     const data_2 = $('#sessao_periodo_viagem #id_check_out').val().split('T')[0]
     const intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
