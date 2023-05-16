@@ -152,4 +152,4 @@ class EventosAdmin(admin.ModelAdmin):
         'qtd_confirmada', 'data_preenchimento', 'estagio_evento'
     )
     list_display_links = ('cliente', )
-    list_per_page = 10
+    list_per_page = 100
