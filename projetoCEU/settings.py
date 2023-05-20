@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_cron',
+    'django_crontab',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',
@@ -62,10 +62,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-CRON_CLASSES = [
-    'peraltas.cron.AtualizarDadosCronJob',
 ]
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -168,3 +164,8 @@ try:
     from local_settings import *
 except ImportError:
     ...
+
+CRONJOBS = [
+    ('11 * * *', 'peraltas.cron.atualizar_pagantes_ficha')
+]
+
