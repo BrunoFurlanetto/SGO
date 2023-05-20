@@ -5,7 +5,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos)
+                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao)
 from peraltas.models import Vendedor
 
 
@@ -132,6 +132,11 @@ class DadosTransporteAdmin(admin.ModelAdmin):
 @admin.register(InformacoesAdcionais)
 class InformacoesAdicionaisAdmin(admin.ModelAdmin):
     list_display = ('id',)
+
+
+@admin.register(CodigosPadrao)
+class CodigosPadraoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'codigo')
 
 
 @admin.register(CodigosApp)

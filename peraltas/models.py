@@ -154,6 +154,11 @@ class PerfilsParticipantes(models.Model):
             return f'{self.fase}({self.idade})'
 
 
+class CodigosPadrao(models.Model):
+    codigo = models.CharField(unique=True, max_length=10)
+    nome = models.CharField(max_length=50)
+
+
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
@@ -650,7 +655,7 @@ class CadastroCodigoApp(forms.ModelForm):
         widgets = {
             'cliente_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
             'cliente_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
-            'evento': forms.TextInput(),
+            'evento': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
         }
 

@@ -431,8 +431,10 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
     if id_ficha_de_evento or id_pre_reserva:
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento if id_ficha_de_evento else id_pre_reserva)
+        os = ficha_de_evento.os
         form = CadastroFichaDeEvento(request.POST, request.FILES, instance=ficha_de_evento)
     else:
+        os = False
         form = CadastroFichaDeEvento(request.POST, request.FILES)
 
     if form.is_valid():
@@ -441,6 +443,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         novo_evento.empresa = ver_empresa_atividades(request.POST)
         novo_evento.pre_reserva = False
         novo_evento.data_preenchimento = datetime.today().date()
+        novo_evento.os = os
 
         if len(request.POST.getlist('locacoes_ceu')) > 0:
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)

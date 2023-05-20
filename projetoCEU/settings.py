@@ -166,6 +166,5 @@ except ImportError:
     ...
 
 CRONJOBS = [
-    ('11 * * *', 'peraltas.cron.atualizar_pagantes_ficha')
+    ('0 07 * * *', 'peraltas.cron.atualizar_pagantes_ficha')
 ]
-

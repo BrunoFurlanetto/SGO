@@ -3,6 +3,9 @@ import email.message
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime
+from django.core.mail import send_mail
+
+from projetoCEU.settings import EMAIL_HOST_USER
 
 
 def is_ajax(request):
@@ -33,16 +36,14 @@ def email_error(usuario, erro, view):
         smtp.send_message(msg)
 
 
-def envio_email(usuario):
-    corpo_email = f'O usuário {usuario.get_full_name()}, acabou de enviar um email de teste para você.'
+def enviar_email_erro(mensagem, assunto):
+    remetente = EMAIL_HOST_USER
+    destinatario = 'bruno.furlanetto@hotmail.com'
 
-    msg = EmailMessage()
-    msg['Subject'] = f"EMAIL TESTE"
-    msg['From'] = 'sgo@peraltas.com.br'
-    msg['To'] = 'bruno.furlanetto@hotmail.com'
-    password = 'Bruno@2355'
-    msg.set_content(corpo_email)
-
-    with smtplib.SMTP_SSL('email-ssl.com.br', 465) as smtp:
-        smtp.login(msg['From'], password)
-        smtp.send_message(msg)
+    send_mail(
+        subject=assunto,
+        message=mensagem,
+        from_email=remetente,
+        recipient_list=[destinatario],
+        fail_silently=False,
+    )
