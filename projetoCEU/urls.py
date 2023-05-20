@@ -18,7 +18,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from home.views import manutencao
-from peraltas.views import cron_job_logs
 
 try:
     from local_settings import em_manutencao
@@ -40,7 +39,6 @@ if not em_manutencao:
         path('calendario-eventos/', include('calendarioEventos.urls')),
         path('detector-de-bombas/', include('detector.urls')),
         path('orcamentos/', include('orcamento.urls')),
-        path('cron/job-logs/', cron_job_logs, name='cron_job_logs'),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
