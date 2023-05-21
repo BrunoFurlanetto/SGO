@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from django.utils import timezone
-
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
 
@@ -21,7 +19,7 @@ def atualizar_pagantes_ficha():
 
         fichas = FichaDeEvento.objects.filter(
             pre_reserva=False,
-            check_in__date__gte=timezone.make_aware(datetime(2023, 3, 1))
+            check_in__date__gte=datetime.today().date()
         ).exclude(
             codigos_app__evento__in=codigos_padrao
         )

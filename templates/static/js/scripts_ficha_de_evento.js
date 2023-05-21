@@ -19,6 +19,31 @@ function carregar_scripts(editando) {
     }
 }
 
+function verificar_codigos_eficha() {
+    $('.container_loading').removeClass('none')
+    $('#modal_codigos_app .modal-body .alert').remove()
+
+    const codigos_eficha = $('#id_evento').val().split(',').map((codigo) => {
+        return codigo.replaceAll(/^\s+|\s+$/g, '')
+    })
+
+    $.ajax({
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'codigos_eficha': codigos_eficha},
+        success: function (response) {
+            if (response['salvar']) {
+                $('#btn_submit').trigger('click')
+            } else {
+                $('#modal_codigos_app .modal-body').prepend(`<div class="alert alert-danger">${response['mensagem']}</div>`)
+            }
+        }
+    }).then(() => {
+        $('.container_loading').addClass('none')
+    })
+}
+
 function pegar_cnpj() {
     if ($('#id_cliente').val() !== '') {
         $.ajax({

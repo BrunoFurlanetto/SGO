@@ -5,7 +5,10 @@ from email.message import EmailMessage
 from datetime import datetime
 from django.core.mail import send_mail
 
-from projetoCEU.settings import EMAIL_HOST_USER
+try:
+    from projetoCEU.settings import EMAIL_HOST_USER
+except ImportError:
+    ...
 
 
 def is_ajax(request):

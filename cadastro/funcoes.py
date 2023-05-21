@@ -1,10 +1,12 @@
+import requests
+
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
 from ordemDeServico.models import OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
-    AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor
+    AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor, CodigosPadrao
 
 
 def is_ajax(request):
@@ -486,3 +488,38 @@ def salvar_dados_transporte(form_transporte, numero_carros):
     form_salvo = form_transporte.save()
 
     return form_salvo.id
+
+
+def verificar_codigos(codigos):
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+    url_gerar_json = 'https://pagamento.peraltas.com.br/a/tools/gera_arquivo_json_turmas.aspx'
+    url_json = 'https://pagamento.peraltas.com.br/json/turmas.json'
+
+    for codigo in codigos:
+        if codigo in codigos_padrao:
+            return {
+                'salvar': True
+            }
+
+    response_gerar_json = requests.get(url_gerar_json)
+    response_json = requests.get(url_json)
+
+    if response_gerar_json.status_code == 200 and response_json.status_code == 200:
+        eventos = response_json.json()
+        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+
+        for codigo in codigos:
+            if codigo not in eventos_dict and codigo != '':
+                return {
+                    'salvar': False,
+                    'mensagem': f'O código {codigo} não está cadastrado no sistema de pagamentos. Verifique e tente novamente.'
+                }
+    else:
+        return {
+            'salvar': False,
+            'mensagem': 'O servidor de pagamentos não respondeu, cadastre um dos códgigos de exceção e tente novamente mais tarde.'
+        }
+
+    return {
+        'salvar': True
+    }

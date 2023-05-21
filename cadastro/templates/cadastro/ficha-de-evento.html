@@ -696,7 +696,8 @@
                                         {% if pre_reserva %} value="{{ pre_reserva.cliente.id }} {% endif %}">
                             {% endif %}
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                            <button type="submit" class="btn btn-primary">Salvar</button>
+                            <button type="button" class="btn btn-primary" onclick="verificar_codigos_eficha()">Salvar</button>
+                            <button type="submit" id="btn_submit" class="none">Salvar</button>
                         </div>
                     </div>
                 </div>

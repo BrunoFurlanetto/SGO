@@ -15,7 +15,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
 from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
-    separar_dados_transporte, salvar_dados_transporte
+    separar_dados_transporte, salvar_dados_transporte, verificar_codigos
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
@@ -348,6 +348,9 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
     if is_ajax(request):
         if request.method == 'GET':
+            if request.GET.getlist('codigos_eficha[]'):
+                return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
+
             return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
 
         if request.FILES != {}:
