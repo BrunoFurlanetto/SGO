@@ -23,6 +23,7 @@ class Monitor(models.Model):
     valor_diaria_coordenacao = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     valor_diaria_biologo = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
+    aceite_do_termo = models.BooleanField(default=False)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)
     som = models.BooleanField(default=False)
@@ -89,6 +90,7 @@ class AtividadePeraltas(models.Model):
 class Vendedor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     telefone = models.CharField(max_length=11)
+    supervisor = models.BooleanField(default=False)
     nota = models.FloatField(default=0.00)
     n_avaliacoes = models.IntegerField(default=0)
 

@@ -12,7 +12,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
@@ -135,10 +135,18 @@ def dashboardPeraltas(request):
     except Monitor.DoesNotExist:
         monitor = None
     else:
+
         msg_monitor = teste_aviso_monitoria(
             request.user.last_login.astimezone(),
             monitor,
             dia_limite_peraltas
         )
 
-    return render(request, 'dashboard/dashboardPeraltas.html', {'msg_acampamento': msg_monitor})
+    if request.POST.get('termo_de_aceite'):
+        monitor.aceite_do_termo = True
+        monitor.save()
+
+    return render(request, 'dashboard/dashboardPeraltas.html', {
+        'msg_acampamento': msg_monitor,
+        'termo_monitor': not monitor.aceite_do_termo if monitor else None
+    })

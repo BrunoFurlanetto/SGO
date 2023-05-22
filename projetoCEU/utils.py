@@ -1,12 +1,10 @@
-import datetime
-import email.message
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime
 from django.core.mail import send_mail
 
 try:
-    from projetoCEU.settings import EMAIL_HOST_USER
+    from local_settings import *
 except ImportError:
     ...
 

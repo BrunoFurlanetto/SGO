@@ -90,7 +90,7 @@
                     <div class="modal-body" style="text-align: justify">
                         {% if msg_acampamento %}
                             <div>
-                                {{ msg_acampamento | safe}}
+                                {{ msg_acampamento | safe }}
                             </div>
                         {% endif %}
                         {% if msg_acampamento and msg_hotelaria %}
@@ -111,6 +111,41 @@
         <script>
             $(window).on('load', function () {
                 $('#aviso_disponibilidade').modal('show')
+            })
+        </script>
+    {% endif %}
+
+    {% if termo_monitor %}
+        <div class="modal fade" data-backdrop="static" id="termo_aceite_monitor" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Termo de aceite</h5>
+                    </div>
+                    <div class="modal-body" style="text-align: justify">
+                        <p>
+                            Ao acessar esse sistema, você concorda em disponibilizar, nas datas pré-selecionadas, a
+                            prestação de seus serviços como Monitor para supervisão de crianças e jovens. RESSALTANDO
+                            QUE você pode recusar o trabalho quantas vezes quiser, sem necessidade de qualquer
+                            justificativa.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                            <fieldset>
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-primary" name="termo_de_aceite" value="Sim"/>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(window).on('load', function () {
+                $('#termo_aceite_monitor').modal('show')
             })
         </script>
     {% endif %}
