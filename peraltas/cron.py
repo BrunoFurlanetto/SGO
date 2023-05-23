@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
 
@@ -52,6 +53,13 @@ def atualizar_pagantes_ficha():
 
                 ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
                 ficha.save()
+
+                if ficha.os:
+                    ordem = OrdemDeServico.objects.get(ficha_de_evento=ficha)
+                    ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
+                    ordem.n_professores = total_professores_masculino + total_professores_feminino
+                    ordem.save()
+
         except Exception as e:
             mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
             enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
