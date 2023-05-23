@@ -27,6 +27,7 @@ def atualizar_pagantes_ficha():
 
         try:
             for ficha in fichas:
+                alterar = False
                 codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.evento.split(',')]
 
                 total_pagantes_masculino = 0
@@ -36,29 +37,31 @@ def atualizar_pagantes_ficha():
 
                 for codigo in codigos_eficha:
                     if codigo in eventos_dict:
+                        alterar = True
                         totais = eventos_dict[codigo]['totais']
                         total_pagantes_masculino += totais['totalPagantesMasculino']
                         total_pagantes_feminino += totais['totalPagantesFeminino']
                         total_professores_masculino += totais['totalProfessoresMasculino']
                         total_professores_feminino += totais['totalProfessoresFeminino']
 
-                if ficha.produto_corporativo:
-                    ficha.qtd_homens = total_pagantes_masculino
-                    ficha.qtd_mulheres = total_pagantes_feminino
-                else:
-                    ficha.qtd_meninos = total_pagantes_masculino
-                    ficha.qtd_meninas = total_pagantes_feminino
-                    ficha.qtd_profs_homens = total_professores_masculino
-                    ficha.qtd_profs_mulheres = total_professores_feminino
+                if alterar:
+                    if ficha.produto_corporativo:
+                        ficha.qtd_homens = total_pagantes_masculino
+                        ficha.qtd_mulheres = total_pagantes_feminino
+                    else:
+                        ficha.qtd_meninos = total_pagantes_masculino
+                        ficha.qtd_meninas = total_pagantes_feminino
+                        ficha.qtd_profs_homens = total_professores_masculino
+                        ficha.qtd_profs_mulheres = total_professores_feminino
 
-                ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
-                ficha.save()
+                    ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
+                    ficha.save()
 
-                if ficha.os:
-                    ordem = OrdemDeServico.objects.get(ficha_de_evento=ficha)
-                    ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
-                    ordem.n_professores = total_professores_masculino + total_professores_feminino
-                    ordem.save()
+                    if ficha.os:
+                        ordem = OrdemDeServico.objects.get(ficha_de_evento=ficha)
+                        ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
+                        ordem.n_professores = total_professores_masculino + total_professores_feminino
+                        ordem.save()
 
         except Exception as e:
             mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
