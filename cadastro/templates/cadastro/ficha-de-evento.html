@@ -79,7 +79,7 @@
                     {{ form.produto }}
                 </div>
                 <hr class="produtos-corporativos {% if not form.produto_corporativo.value %} none {% endif %}">
-                <div style="width: 70%"
+                <div id="div_produto_corporativo" style="width: 70%"
                      class="{% if not form.produto_corporativo.value %} none {% endif %} produtos-corporativos">
                     <h5 class="titulo-secao">Produto corporativo</h5>
                     {{ form.produto_corporativo }}

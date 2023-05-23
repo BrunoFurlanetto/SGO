@@ -505,6 +505,11 @@ def verificar_codigos(codigos):
     response_json = requests.get(url_json)
 
     if response_gerar_json.status_code == 200 and response_json.status_code == 200:
+        total_pagantes_masculino = 0
+        total_pagantes_feminino = 0
+        total_professores_masculino = 0
+        total_professores_feminino = 0
+
         eventos = response_json.json()
         eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
 
@@ -514,6 +519,12 @@ def verificar_codigos(codigos):
                     'salvar': False,
                     'mensagem': f'O código {codigo} não está cadastrado no sistema de pagamentos. Verifique e tente novamente.'
                 }
+            elif codigo in eventos_dict and codigo != '':
+                totais = eventos_dict[codigo]['totais']
+                total_pagantes_masculino += totais['totalPagantesMasculino']
+                total_pagantes_feminino += totais['totalPagantesFeminino']
+                total_professores_masculino += totais['totalProfessoresMasculino']
+                total_professores_feminino += totais['totalProfessoresFeminino']
     else:
         return {
             'salvar': False,
@@ -521,5 +532,12 @@ def verificar_codigos(codigos):
         }
 
     return {
-        'salvar': True
+        'salvar': True,
+        'totais': {
+            'total_pagantes_masculino': total_pagantes_masculino,
+            'total_pagantes_feminino': total_pagantes_feminino,
+            'total_professores_masculino': total_professores_masculino,
+            'total_professores_feminino': total_professores_feminino,
+            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino
+        }
     }
