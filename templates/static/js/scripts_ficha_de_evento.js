@@ -34,18 +34,21 @@ function verificar_codigos_eficha() {
         data: {'codigos_eficha': codigos_eficha},
         success: function (response) {
             if (response['salvar']) {
-                $('#btn_submit').trigger('click')
-                $('#id_qtd_confirmada').val(response['totais']['total_confirmado'])
+                if (response['totais']) {
+                    $('#id_qtd_confirmada').val(response['totais']['total_confirmado'])
 
-                if ($('#div_produto_corporativo').hasClass('none')) {
-                    $('#id_qtd_meninos').val(response['totais']['total_pagantes_masculino'])
-                    $('#id_qtd_meninas').val(response['totais']['total_pagantes_feminino'])
-                    $('#id_qtd_profs_homens').val(response['totais']['total_professores_masculino'])
-                    $('#id_qtd_profs_mulheres').val(response['totais']['total_professores_feminino'])
-                } else {
-                    $('#id_qtd_homens').val(response['totais']['total_pagantes_masculino'])
-                    $('#id_qtd_mulheres').val(response['totais']['total_pagantes_feminino'])
+                    if ($('#div_produto_corporativo').hasClass('none')) {
+                        $('#id_qtd_meninos').val(response['totais']['total_pagantes_masculino'])
+                        $('#id_qtd_meninas').val(response['totais']['total_pagantes_feminino'])
+                        $('#id_qtd_profs_homens').val(response['totais']['total_professores_masculino'])
+                        $('#id_qtd_profs_mulheres').val(response['totais']['total_professores_feminino'])
+                    } else {
+                        $('#id_qtd_homens').val(response['totais']['total_pagantes_masculino'])
+                        $('#id_qtd_mulheres').val(response['totais']['total_pagantes_feminino'])
+                    }
                 }
+
+                $('#btn_submit').trigger('click')
             } else {
                 $('#modal_codigos_app .modal-body').prepend(`<div class="alert alert-danger">${response['mensagem']}</div>`)
             }
