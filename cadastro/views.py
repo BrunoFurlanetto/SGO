@@ -453,8 +453,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
 
         try:
-            # form.save()
-            ...
+            form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
