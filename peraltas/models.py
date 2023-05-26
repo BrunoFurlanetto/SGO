@@ -442,7 +442,8 @@ class FichaDeEvento(models.Model):
 
 
 class Eventos(models.Model):
-    ordem_de_servico = models.ForeignKey('ordemDeServico.OrdemDeServico', on_delete=models.CASCADE, null=True, blank=True)
+    ordem_de_servico = models.ForeignKey('ordemDeServico.OrdemDeServico', on_delete=models.CASCADE, null=True,
+                                         blank=True)
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
@@ -594,7 +595,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
-                                                             'class': 'form-check-input'}),
+                                                                 'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):

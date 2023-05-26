@@ -23,20 +23,27 @@ class EmailSender:
             html_message=mensagem,
         )
 
-    def mensagem_pre_escala_monitoria(self, check_in, check_out, cliente):
-        check_in_monitor = check_in - timedelta(hours=3)
+    def mensagem_pre_escala_monitoria(self, ficha_de_evento):
+        check_in = ficha_de_evento.check_in
+        check_out = ficha_de_evento.check_out
+        cliente = ficha_de_evento.cliente
+        check_in_monitor = check_in - timedelta(hours=1)
         self.subject = 'Confirmação da pré escala monitoria'
 
         mensagem = f'''
             <html>
                 <body>
                     <p>
-                        <strong>"Este e-mail confirma sua Pré participação no evento acampamento pedagógico XXXX para
-                        prestar serviços de monitoria no Acampamento Peraltas, no período de 
+                        <strong>"Este e-mail confirma sua Pré participação no evento acampamento pedagógico {cliente}
+                        para prestar serviços de monitoria no Acampamento Peraltas, no período de 
                         {check_in.strftime('%d/%m/%Y')} a {check_out.strftime('%d/%m/%Y')} com o cliente {cliente},
                         devendo estar presente às {check_in_monitor.strftime('%H')} horas do dia {check_in.day} para
                         assumir a função de monitor/recreador."</strong> A inserção do seu nome no cadastro de
                         PRÉ-ESCALA NÃO significa que você está escalado para esse evento.                        
+                    </p>
+                    <p>
+                        Aos monitores que irão fazer o embarque do grupo, um email contendo as informações do embarque
+                        será enviado posteriormente, caso já tenha o recebido, ignore está parte.
                     </p>
                     <p>
                         A confirmação da necessidade do serviço ocorrerá após definição de números de participantes pelo
@@ -66,33 +73,8 @@ class EmailSender:
 
         self.enviar_email(mensagem)
 
-    def mensagem_cadastro_ficha_monitoria(self, check_in, check_out, cliente, nome_colaboradora):
-        self.subject = 'Confirmação do preenchimento da ficha evento pelo Comercial'
-
-        mensagem = f'''
-            <html>
-                <body>
-                    <p>
-                        {nome_colaboradora}, efetuou o cadastro da ficha de evento referente ao evento de {cliente}, na
-                        data {check_in.strftime('%d/%m/%Y')} a {check_out.strftime('%d/%m/%Y')}. Já está liberado o
-                        preenchimento da pré-escala dos monitores que irão participar desse evento. Favor fazer o mais
-                        rápido possível. 
-                    </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
-                </body>
-            </html>
-        '''
-
-        self.enviar_email(mensagem)
-
-    def mensagem_cadastro_ficha_operacional(self, check_in, check_out, cliente, nome_colaboradora):
-        self.subject = 'Confirmação do preenchimento da ficha evento pelo Comercial'
+    def mensagem_cadastro_ficha(self, check_in, check_out, cliente, nome_colaboradora):
+        self.subject = 'Preenchimento da ficha evento pelo Comercial'
 
         mensagem = f'''
             <html>

@@ -95,8 +95,7 @@
                         <label>Check out (data/horário)</label>
                         {{ form.check_out }}
                     </div>
-                    <div id="div_editar_horarios" cl
-                    'as's="checkbox">
+                    <div id="div_editar_horarios" class="checkbox">
                     <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
                            style="margin-right: 5px; padding: 0" {% if form.obs_edicao_horario.value != None %}
                            checked {% endif %}
@@ -740,7 +739,10 @@
 
     <script>
         $(document).ready(function () {
-            $('#id_vendedora').css({'pointer-events': 'none'})
+            {% if not perms.peraltas.delete_fichadeevento %}
+                $('#id_vendedora').css({'pointer-events': 'none'})
+            {% endif %}
+
             hora_padrao_check_in = '{{ ficha_de_evento.produto.hora_padrao_check_in|date:'G:i:s' }}'
             hora_padrao_check_out = '{{ ficha_de_evento.produto.hora_padrao_check_out|date:'G:i:s' }}'
 

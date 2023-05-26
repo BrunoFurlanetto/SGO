@@ -736,3 +736,17 @@ def salvar_ultima_pre_escala(dados_escala):
         'tecnicos': list(map(int, dados_escala.getlist('id_tecnicos[]'))),
         'enfermeiras': list(map(int, dados_escala.getlist('id_enfermeiras[]'))),
     }
+
+
+def juntar_emails_monitores(escala):
+    lista_de_emails = set()
+    campos_de_monitores = [
+        escala.monitores_acampamento.all(), escala.monitores_embarque.all(),
+        escala.tecnicos.all(), escala.biologos.all(), escala.enfermeiras.all()
+    ]
+
+    for campo in campos_de_monitores:
+        for monitor in campo:
+            lista_de_emails.add(monitor.usuario.email)
+
+    return list(lista_de_emails)

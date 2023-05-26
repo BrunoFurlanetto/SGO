@@ -303,12 +303,12 @@ function salvar_monitores_escalados(pre_escala, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
     const enfermeiras_escaladas = $('#enfermagem').children()
-    $('#mensagem_sem_monitor').remove()
     let erro_sem_alteracao = false
     let erro_biologo = false
     let erro_monitor_embarque = false
     let erro_2_enfermeiras = false
     let erro_3_enfermeiras = false
+    $('#mensagem_sem_monitor').remove()
 
     if (produto === 'Só CEU'){
         if ((id_escalados.length + id_monitores_embarque.length + id_tecnicos) === 0) {
@@ -392,11 +392,11 @@ function salvar_monitores_escalados(pre_escala, editando = false) {
         return
     }
 
+    $('.container_loading').removeClass('none')
     $.ajax({
         url: '',
         type: 'POST',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        async: false,
         data: {
             'id_escala': $('#escala_editada').val(),
             'id_monitores': id_escalados,

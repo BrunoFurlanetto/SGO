@@ -13,12 +13,13 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
-    pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala
+    pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala, juntar_emails_monitores
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
     Enfermeira
 from peraltas.models import Monitor, DisponibilidadePeraltas
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
 
 
@@ -523,6 +524,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             })
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
+        editando_escala = nova_escala = None
+
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
@@ -572,6 +575,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             if ordem:
                 ordem.escala = True
                 ordem.save()
+
+            if nova_escala.pre_escala if nova_escala else editando_escala:
+                EmailSender(
+                    juntar_emails_monitores(nova_escala if nova_escala else editando_escala)
+                ).mensagem_pre_escala_monitoria(ficha_de_evento)
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')

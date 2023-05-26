@@ -13,6 +13,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos
 from projetoCEU import gerar_pdf
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
@@ -452,13 +453,32 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
 
         try:
-            form.save()
+            # form.save()
+            ...
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
 
             return redirect('ficha_de_evento')
         else:
+            if not id_ficha_de_evento:
+                coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
+                operacional = User.objects.filter(groups__name='Operacional')
+                lista_emails = set()
+
+                for grupo in [operacional, coordenadores_acampamento]:
+                    for colaborador in grupo:
+                        lista_emails.add(colaborador.email)
+
+                EmailSender(
+                    list(lista_emails)
+                ).mensagem_cadastro_ficha(
+                    novo_evento.check_in,
+                    novo_evento.check_out,
+                    novo_evento.cliente,
+                    novo_evento.vendedora
+                )
+
             messages.success(
                 request,
                 'Ficha de evento salva com sucesso' if not ficha_de_evento else 'Ficha de evento editada com sucesso'
