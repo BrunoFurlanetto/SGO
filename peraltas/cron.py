@@ -89,6 +89,10 @@ def envio_dados_embarque():
 
     for ordem in ordens_aviso:
         for transporte in ordem.dados_transporte.all():
-            EmailSender([transporte.monitor_embarque.usuario.email, 'bruno.furlanetto@hotmail.com']).dados_embarque(
-                ordem, transporte
-            )
+            try:
+                EmailSender([transporte.monitor_embarque.usuario.email, 'bruno.furlanetto@hotmail.com']).dados_embarque(
+                    ordem, transporte
+                )
+            except Exception as e:
+                mensagem_erro = f'Erro durante a consulta da ordem de servico de {ordem.ficha_de_evento.cliente}: {e}'
+                enviar_email_erro(mensagem_erro, 'ERRO NA CONSULTA DA ORDEM')
