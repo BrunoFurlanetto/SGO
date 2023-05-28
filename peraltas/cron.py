@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
 
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import enviar_email_erro
 
 
@@ -76,3 +77,18 @@ def atualizar_pagantes_ficha():
             f'Erro na conexão com o servidor de pagamentos, código {response.status_code}',
             'ERRO DE CONEXÃO COM SERVIDOR'
         )
+
+
+def envio_dados_embarque():
+    dia_referencia = datetime.today().date() + timedelta(days=10)
+    ordens_aviso = OrdemDeServico.objects.filter(
+        check_in__date=dia_referencia
+    ).exclude(
+        dados_transporte__isnull=True
+    )
+
+    for ordem in ordens_aviso:
+        for transporte in ordem.dados_transporte.all():
+            EmailSender([transporte.monitor_embarque.usuario.email, 'bruno.furlanetto@hotmail.com']).dados_embarque(
+                ordem, transporte
+            )

@@ -24,7 +24,7 @@ class EmailSender:
             </p>
         '''
 
-    def enviar_email(self, mensagem):
+    def __enviar_email(self, mensagem):
         send_mail(
             self._subject,
             '',
@@ -76,7 +76,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_cadastro_ficha(self, check_in, check_out, cliente, nome_colaboradora):
         self._subject = 'Preenchimento da ficha evento pelo Comercial'
@@ -95,7 +95,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_cadastro_escala(self, ficha_de_evento):
         __ordem_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None
@@ -124,7 +124,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_cadastro_escala_operacional(self, ficha_de_evento, escala):
         __ordem_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None
@@ -157,7 +157,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_cadastro_ordem(self, check_in, check_out, cliente):
         self._subject = f'Ordem de serviço cadastrada'
@@ -175,7 +175,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_monitor_embarque(self, cliente, check_in, monitor_embarque):
         self._subject = 'Monitor de embarque'
@@ -193,7 +193,7 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
 
     def mensagem_confirmacao_evento(self, check_in, check_out, cliente, nome_colaboradora):
         self._subject = f'Confirmação de evento'
@@ -210,7 +210,41 @@ class EmailSender:
             </html>
         '''
 
-        self.enviar_email(__mensagem)
+        self.__enviar_email(__mensagem)
+
+    def dados_embarque(self, os, dados_emarque):
+        self._subject = f'Dados do embarque'
+
+        __mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                        {dados_emarque.monitor_embarque.usuario.get_full_name()}, você foi escalado(a) para realizar o
+                        embarque de {os.ficha_de_evento.cliente} que acontecerá no dia <strong>
+                        {os.check_in.strftime('%d/%m/%Y')}</strong>, dessa forma, segue os dados para o embarque:                    
+                    </p>
+                    <h3>Dados do embarque</h3>
+                    <p>                        
+                        <strong>Viação responsável pelo transporte</strong>: {dados_emarque.empresa_onibus.viacao}
+                        <br>
+                        <strong>Endereço de embarque</strong>: {dados_emarque.endereco_embarque}
+                        <br>                 
+                        <strong>Horário embarque</strong>: {dados_emarque.horario_embarque.strftime('%H:%M')}
+                        <br>
+                        <strong>Nome do motorista</strong>: {dados_emarque.nome_motorista}
+                        <br>                        
+                        <strong>Telefone do motorista</strong>: {dados_emarque.telefone_motorista}                     
+                    </p>
+                    <p>
+                        É importe que esteja no local de embarque pelo menos <strong><u>UMA HORA ANTES DO HORÁRIO
+                        DESCRITO ACIMA </u></strong>. Em caso de dúvidas, entrar em contato com o operacional.
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
+
+        self.__enviar_email(__mensagem)
 
     @staticmethod
     def __criar_lista_monitores(lista_monitores, tipo_escalacao):
