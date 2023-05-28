@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.core.mail import send_mail
 
+from ordemDeServico.models import OrdemDeServico
+
 try:
     from local_settings import *
 except ImportError:
@@ -9,15 +11,24 @@ except ImportError:
 
 class EmailSender:
     def __init__(self, lista_destinatario):
-        self.subject = None
-        self.from_email = EMAIL_HOST_USER
+        self._subject = None
+        self.__from_email = EMAIL_HOST_USER
         self.recipient_list = lista_destinatario
+        self.__assinatura = '''
+            <p>
+                Este e-mail é um automático, e não deve ser respondido.                       
+                <br>
+                Sistema de Gerenciamento Operacional (SGO).
+                <br>
+                Equipe Grupo Peraltas.
+            </p>
+        '''
 
     def enviar_email(self, mensagem):
         send_mail(
-            self.subject,
+            self._subject,
             '',
-            self.from_email,
+            self.__from_email,
             self.recipient_list,
             fail_silently=False,
             html_message=mensagem,
@@ -28,9 +39,9 @@ class EmailSender:
         check_out = ficha_de_evento.check_out
         cliente = ficha_de_evento.cliente
         check_in_monitor = check_in - timedelta(hours=1)
-        self.subject = 'Confirmação da pré escala monitoria'
+        self._subject = 'Confirmação da pré escala monitoria'
 
-        mensagem = f'''
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
@@ -43,7 +54,7 @@ class EmailSender:
                     </p>
                     <p>
                         Aos monitores que irão fazer o embarque do grupo, um email contendo as informações do embarque
-                        será enviado posteriormente, caso já tenha o recebido, ignore está parte.
+                        será enviado posteriormente, caso já tenha o recebido, ignore esta parte.
                     </p>
                     <p>
                         A confirmação da necessidade do serviço ocorrerá após definição de números de participantes pelo
@@ -59,24 +70,18 @@ class EmailSender:
                     <p>
                         A data limite para inscrição e confirmação no interesse de prestação de serviços de um evento,
                         poderá ser feita até 10 dias antes do evento, através do cadastro de PRÉ-ESCALA.
-                    </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
+                    </p>      
+                    {self.__assinatura}              
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
 
     def mensagem_cadastro_ficha(self, check_in, check_out, cliente, nome_colaboradora):
-        self.subject = 'Preenchimento da ficha evento pelo Comercial'
+        self._subject = 'Preenchimento da ficha evento pelo Comercial'
 
-        mensagem = f'''
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
@@ -85,77 +90,79 @@ class EmailSender:
                         preenchimento da ordem de serviço e pré-escala dos monitores que irão participar desse evento.
                         Favor fazer o mais rápido possível.
                     </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
+                    {self.__assinatura}
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
 
-    def mensagem_cadastro_escala(self, check_in, check_out, cliente):
-        self.subject = f'Confirmação da escala do evento de {cliente}'
-        check_in_monitor = check_in - timedelta(hours=3)
+    def mensagem_cadastro_escala(self, ficha_de_evento):
+        __ordem_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None
+        __cliente = ficha_de_evento.cliente
+        __check_in = ficha_de_evento.check_in if not __ordem_servico else __ordem_servico.check_in
+        __check_out = ficha_de_evento.check_out if not __ordem_servico else __ordem_servico.check_out
+        __check_in_monitor = ficha_de_evento.check_in - timedelta(hours=1)
+        self._subject = f'Confirmação da escala do evento de {__cliente}'
 
-        mensagem = f'''
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
-                        Este e-mail confirma sua participação no evento acampamento pedagógico XXXX para prestar
-                        serviços de monitoria no Acampamento Peraltas, no período de {check_in.strftime('%d/%m/%Y')}
-                        à {check_out.strftime('%d/%m/%Y')} de {cliente}, devendo estar presente às
-                        {check_in_monitor.strftime('%H')} horas do dia {check_in.day} para assumir a função de
+                        Este e-mail confirma sua participação no evento acampamento pedagógico {__cliente} para prestar
+                        serviços de monitoria no Acampamento Peraltas, no período de {__check_in.strftime('%d/%m/%Y')}
+                        à {__check_out.strftime('%d/%m/%Y')}, devendo estar presente às
+                        {__check_in_monitor.strftime('%H')} horas do dia {__check_in.day} para assumir a função de
                         monitor/recreador.
                     </p>
                     <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
+                        Aos monitores que irão fazer o embarque do grupo, um email contendo as informações do embarque
+                        será enviado posteriormente, caso já o tenha recebido, ignore esta parte.
                     </p>
+                    {self.__assinatura}
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
 
-    def mensagem_cadastro_escala_operacional(self, check_in, check_out, cliente):
-        self.subject = f'Confirmação da escala do evento de {cliente}'
-        check_in_monitor = check_in - timedelta(hours=3)
+    def mensagem_cadastro_escala_operacional(self, ficha_de_evento, escala):
+        __ordem_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None
+        __cliente = ficha_de_evento.cliente
+        __check_in = ficha_de_evento.check_in if not __ordem_servico else __ordem_servico.check_in
+        __check_out = ficha_de_evento.check_out if not __ordem_servico else __ordem_servico.check_out
+        self._subject = f'Confirmação da escala do evento de {__cliente}'
 
-        mensagem = f'''
+        _acamp = len(escala.monitores_acampamento.all()) > 0
+        _embarque = len(escala.monitores_embarque.all()) > 0
+        _tec = len(escala.tecnicos.all()) > 0
+        _biologo = len(escala.biologos.all()) > 0
+        _enfermeiras = len(escala.enfermeiras.all()) > 0
+
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
-                        A escala do evento de {cliente}, da data {check_in.strftime('%d/%m/%Y')} a
-                        {check_out.strftime('%d/%m/%Y')} foi confirmada pela direção. Segue abaixo o nome e função dos
-                        monitores escalados. 
-                        Nome 1 / Função
-                        Nome 2/ função
+                        A escala do evento de {__cliente}, da data {__check_in.strftime('%d/%m/%Y')} a
+                        {__check_out.strftime('%d/%m/%Y')} foi confirmada pela direção. Segue abaixo o nome e função dos
+                        monitores escalados:
                     </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
+                    {self.__criar_lista_monitores(escala.monitores_acampamento.all(), 'Acampamento') if _acamp else ...}
+                    {self.__criar_lista_monitores(escala.monitores_embarque.all(), 'Embarque') if _embarque else ...}
+                    {self.__criar_lista_monitores(escala.tecnicos.all(), 'Tecnicos') if _tec else ...}
+                    {self.__criar_lista_monitores(escala.biologos.all(), 'Biologos') if _biologo else ...}
+                    {self.__criar_lista_monitores(escala.enfermeiras.all(), 'Enfermeiras') if _enfermeiras else ...}
+                    {self.__assinatura}
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
 
     def mensagem_cadastro_ordem(self, check_in, check_out, cliente):
-        self.subject = f'Ordem de serviço cadastrada'
+        self._subject = f'Ordem de serviço cadastrada'
 
-        mensagem = f'''
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
@@ -163,38 +170,80 @@ class EmailSender:
                         {check_in.strftime('%d/%m/%Y')} à {check_out.strftime('%d/%m/%Y')}. Favor entrar na mesma e
                         confirmar as informações.
                     </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
+                    {self.__assinatura}
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
+
+    def mensagem_monitor_embarque(self, cliente, check_in, monitor_embarque):
+        self._subject = 'Monitor de embarque'
+
+        __mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                        {monitor_embarque}, você está escalado para fazer o embarque de
+                        {cliente}, dia {check_in.strftime('%d/%m/%Y')}. Informações sobre o local e horário de embarque
+                        serão encaminhadas 10 dias antes do evento.
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
+
+        self.enviar_email(__mensagem)
 
     def mensagem_confirmacao_evento(self, check_in, check_out, cliente, nome_colaboradora):
-        self.subject = f'Confirmação de evento'
+        self._subject = f'Confirmação de evento'
 
-        mensagem = f'''
+        __mensagem = f'''
             <html>
                 <body>
                     <p>
                         {nome_colaboradora}, confirmou a pré-reserva referente ao evento de {cliente}, da data
                         {check_in.strftime('%d/%m/%Y')} à {check_out.strftime('%d/%m/%Y')}.
                     </p>
-                    <p>
-                        Este e-mail é um automático, e não deve ser respondido.                       
-                        <br>
-                        Sistema de Gerenciamento Operacional (SGO).
-                        <br>
-                        Equipe Grupo Peraltas.
-                    </p>
+                    {self.__assinatura}
                 </body>
             </html>
         '''
 
-        self.enviar_email(mensagem)
+        self.enviar_email(__mensagem)
+
+    @staticmethod
+    def __criar_lista_monitores(lista_monitores, tipo_escalacao):
+        __max_colunas = 4
+        __max_linhas = len(lista_monitores) // 4
+        __max_linhas += 1 if len(lista_monitores) % 4 != 0 else 0
+
+        __tabela_monitores_html = '''
+            <style>
+                table {{
+                    border-collapse: collapse;
+                    width: 100%;
+                }}
+
+                th, td {{
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: left;
+                }}
+            </style>
+            <h2>{}</h2>
+            <table>
+        '''.format(tipo_escalacao)
+
+        for i in range(__max_linhas):
+            __tabela_monitores_html += '<tr>'
+
+            for j in range(min(__max_colunas, len(lista_monitores))):
+                valor = lista_monitores[i*__max_colunas + j] if i*__max_colunas + j < len(lista_monitores) else ''
+                __tabela_monitores_html += f'<td>{valor}</td>'
+
+            __tabela_monitores_html += '</tr>'
+
+        __tabela_monitores_html += '</table>'
+
+        return __tabela_monitores_html

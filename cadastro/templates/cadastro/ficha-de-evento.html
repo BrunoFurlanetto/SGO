@@ -15,7 +15,7 @@
         </div>
 
         <form action='{% if ficha_de_evento %} {% url 'ver_ficha_de_evento' ficha_de_evento.id %} {% elif pre_reserva %} {% url 'ficha_de_evento' pre_reserva.id %} {% else %} {% url 'ficha_de_evento' %} {% endif %}'
-              method="POST" enctype="multipart/form-data">
+              method="POST" enctype="multipart/form-data" onsubmit="loading()">
             <fieldset id="form_ficha" {% if ficha_de_evento %} disabled {% endif %}>
                 <input type="hidden" id="pre_reserva" value="{{ pre_reserva }}">
                 {% csrf_token %}

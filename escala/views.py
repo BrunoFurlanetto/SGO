@@ -571,15 +571,20 @@ def escalarMonitores(request, setor, data, id_cliente=None):
         else:
             ficha_de_evento.escala = True
             ficha_de_evento.save()
+            escala_salva = nova_escala if nova_escala else editando_escala
 
             if ordem:
                 ordem.escala = True
                 ordem.save()
 
-            if nova_escala.pre_escala if nova_escala else editando_escala:
+            if escala_salva.pre_escala:
                 EmailSender(
-                    juntar_emails_monitores(nova_escala if nova_escala else editando_escala)
+                    juntar_emails_monitores(escala_salva)
                 ).mensagem_pre_escala_monitoria(ficha_de_evento)
+            else:
+                EmailSender(
+                    juntar_emails_monitores(escala_salva)
+                ).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_salva)
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')

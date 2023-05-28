@@ -547,7 +547,7 @@
                 <div id="aviso_lotacao" class="alert-info none">Vagas para os dias do evento
                     <ul></ul>
                 </div>
-                <form action="{% url 'calendario_eventos' %}" method="POST">
+                <form action="{% url 'calendario_eventos' %}" method="POST" onsubmit="loading()">
                     <fieldset>
                         {% csrf_token %}
                         <div class="modal-body">

@@ -12,7 +12,8 @@ from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
-    EventosCancelados, Eventos
+    EventosCancelados, Eventos, Vendedor
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
 
 
@@ -137,6 +138,12 @@ def eventos(request):
                 email_error(request.user.get_full_name(), e, __name__)
                 messages.warning(request, f'Pré agendamento não confirmado!')
                 messages.error(request, f'{e}')
+            else:
+                supervisao = Vendedor.objects.filter(supervisor=True)
+                lista_emails = [vendedora.usuario.email for vendedora in supervisao]
+                EmailSender(lista_emails).mensagem_confirmacao_evento(
+                    pre_reserva.check_in, pre_reserva.check_out, pre_reserva.cliente, pre_reserva.vendedora
+                )
             finally:
                 return redirect('calendario_eventos')
 

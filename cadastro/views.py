@@ -298,19 +298,27 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
 
-        os = form.save()
-        evento = Eventos.objects.get(ficha_de_evento=ficha)
-        evento.ordem_de_servico = os
+        ordem_de_servico = form.save()
+
+        try:
+            evento = Eventos.objects.get(ficha_de_evento=ficha)
+        except Eventos.DoesNotExist:
+            ficha_para_evento = FichaDeEvento.objects.get(id=ordem_de_servico.ficha_de_evento.id)
+            evento = Eventos.objects.create(ficha_de_evento=ficha_para_evento)
+
+        evento.ordem_de_servico = ordem_de_servico
         evento.save()
 
         if ficha.escala:
-            os.escala = True
+            ordem_de_servico.escala = True
 
-        os.dados_transporte.set(transportes_salvos)
-        os.save()
+        if len(request.POST.getlist('empresa_onibus')) > 0:
+            ordem_de_servico.dados_transporte.set(transportes_salvos)
+
+        ordem_de_servico.save()
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado ao salvar a ficha do evento, por favor tente mais tarde,'
+        messages.error(request, 'Houve um erro inesperado ao salvar a ordem de serviço, por favor tente mais tarde,'
                                 'ou entre em contato com o desenvolvedor.')
 
         return redirect('dashboardPeraltas')
@@ -322,6 +330,19 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             messages.success(request, f'Ordem de serviço da empresa {ordem_de_servico.instituicao} salva com sucesso')
         else:
             messages.success(request, f'Ordem de serviço do colégio {ordem_de_servico.instituicao} salva com sucesso')
+
+        if not id_ordem_de_servico:
+            EmailSender([ficha.vendedora.usuario.email]).mensagem_cadastro_ordem(
+                ordem_de_servico.check_in, ordem_de_servico.check_out, ordem_de_servico.ficha_de_evento.cliente
+            )
+
+            if len(ordem_de_servico.dados_transporte.all()) > 0:
+                for transporte in ordem_de_servico.dados_transporte.all():
+                    EmailSender([transporte.monitor_embarque.usuario.email]).mensagem_monitor_embarque(
+                        ordem_de_servico.ficha_de_evento.cliente,
+                        ordem_de_servico.check_in,
+                        transporte.monitor_embarque.usuario.get_full_name()
+                    )
 
         return redirect('dashboardPeraltas')
 
