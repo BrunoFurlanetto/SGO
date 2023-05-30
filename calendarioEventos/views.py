@@ -129,7 +129,7 @@ def eventos(request):
     if request.POST.get('id_pre_reserva'):
         pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
 
-        if request.POST.get('confirmar_agendamento'):
+        if request.POST.get('confirmar_agendamento') and not request.POST.get('cliente'):
             try:
                 pre_reserva.agendado = True
                 pre_reserva.data_preenchimento = datetime.today().date()
@@ -151,6 +151,10 @@ def eventos(request):
             editar_pre_reserva = CadastroPreReserva(request.POST, instance=pre_reserva)
             edicao = editar_pre_reserva.save(commit=False)
             edicao.pre_reserva = True
+
+            if request.POST.get('confirmar_agendamento'):
+                edicao.agendado = True
+
             editar_pre_reserva.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)

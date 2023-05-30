@@ -1194,8 +1194,14 @@
 
 #editar_pre_reserva {
     display: flex;
-    align-items: baseline;
+    align-items: initial;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+
+#editar_pre_reserva .confirmado {
+    flex-wrap: nowrap;
 }
 
 .not_selected {

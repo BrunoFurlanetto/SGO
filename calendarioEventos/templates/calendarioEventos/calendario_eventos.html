@@ -36,6 +36,7 @@
                     {% if perms.peraltas.add_fichadeevento %}
                         navLinks: true,
                         navLinkDayClick: function (date, jsEvent) {
+                            loading()
                             $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
                             $('#ModalCadastroPreReserva input[type!=hidden], #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').val('')
                             $('#ModalCadastroPreReserva #id_pre_reserva').val('')
@@ -62,12 +63,13 @@
                                         $('#ModalCadastroPreReserva').modal('show');
                                     }
                                 }
-                            })
+                            }).then(() => end_loading())
                         },
                     {% endif %}
 
                     {% if perms.peraltas.view_fichadeevento %}
                         eventClick: function (info) {
+                            loading()
                             if (info.el.l) {
                                 let id_pre_reserva = info.event.extendedProps['id_pre_reserva']
                                 let check_in = info.event.start
@@ -122,6 +124,11 @@
                                             modal_footer.append('<p style="font-size: 15px">Agendamento confirmado!</p>')
 
                                             {% if perms.peraltas.delete_fichadeevento %}
+                                                modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento(true)">Editar</button>')
+                                                modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
+                                            {% endif %}
+
+                                            {% if perms.peraltas.delete_fichadeevento %}
                                                 modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                             {% endif %}
 
@@ -155,7 +162,7 @@
                                             {% endif %}
                                         }
                                     }
-                                })
+                                }).then(() => end_loading())
 
                                 $('#ModalCadastroPreReserva').modal('show');
                             }
@@ -359,10 +366,15 @@
                 document.getElementById('salvar_edicao').click()
             }
 
-            function editar_agendamento() {
+            function editar_agendamento(confirmado=false) {
                 $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
-                $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
-                $('#nova_pre_reserva').removeClass('none')
+
+                if (!confirmado) {
+                    $('#nova_pre_reserva').removeClass('none')
+                    $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
+                } else {
+                    $('#editar_pre_reserva').append('<button type="submit" class="btn btn-primary">Salvar pré agendamento</button>')
+                }
             }
 
             function gerar_responsaveis(cliente) {
