@@ -56,14 +56,14 @@
                                 url: '',
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                 data: {'data': moment(date).format('YYYY-MM-DD')},
-                                success: function (response) {
-                                    if (response['exclusividade'] === true) {
+                            }).then((response) => {
+                                if (response['exclusividade'] === true) {
                                         alert('Evento exclusivo cadastrado na data em questão!')
-                                    } else {
-                                        $('#ModalCadastroPreReserva').modal('show');
-                                    }
+                                } else {
+                                    $('#ModalCadastroPreReserva').modal('show');
                                 }
-                            }).then(() => end_loading())
+                                end_loading()
+                            })
                         },
                     {% endif %}
 
@@ -162,9 +162,10 @@
                                             {% endif %}
                                         }
                                     }
-                                }).then(() => end_loading())
-
-                                $('#ModalCadastroPreReserva').modal('show');
+                                }).then(() => {
+                                    end_loading()
+                                    $('#ModalCadastroPreReserva').modal('show');
+                                })
                             }
                         },
                     {% endif %}
