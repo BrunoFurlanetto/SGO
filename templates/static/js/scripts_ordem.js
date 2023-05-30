@@ -265,7 +265,7 @@ function remover_atividade(selecao) {
         $(select_atividade[k]).attr('id', `ativ_${k + 1}`).attr('name', `atividade_${k + 1}`);
         $(hora_atividade[k]).attr('name', 'data_hora_' + (k + 1)).attr('id', 'data_' + (k + 1));
         $(qtd_atividade[k]).attr('name', 'participantes_' + (k + 1)).attr('id', 'participantes_' + (k + 1));
-        $(icone[k]).attr('id', 'btn_' + (k + 1)).attr('id', 'btn_' + (k + 1));
+        $(icone[k]).attr('id', 'btn_' + (k + 1))
         $(serie[k]).attr('name', 'serie_participantes_' + (k + 1)).attr('id', 'serie_' + (k + 1));
     }
 

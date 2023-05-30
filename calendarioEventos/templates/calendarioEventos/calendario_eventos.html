@@ -58,7 +58,7 @@
                                 data: {'data': moment(date).format('YYYY-MM-DD')},
                             }).then((response) => {
                                 if (response['exclusividade'] === true) {
-                                        alert('Evento exclusivo cadastrado na data em questão!')
+                                    alert('Evento exclusivo cadastrado na data em questão!')
                                 } else {
                                     $('#ModalCadastroPreReserva').modal('show');
                                 }
@@ -309,25 +309,30 @@
                 moment.locale('pt-br')
                 $('#aviso_lotacao ul').empty().removeClass('none')
 
-                for (let soma_dia = 0; soma_dia <= dias_evento; soma_dia++) {
-                    const data_busca = moment(check_in).add(soma_dia, 'days').format('YYYY-MM-DD')
-                    const data_item = moment(data_busca).format('L')
+                try {
+                    for (let soma_dia = 0; soma_dia <= dias_evento; soma_dia++) {
+                        const data_busca = moment(check_in).add(soma_dia, 'days').format('YYYY-MM-DD')
+                        const data_item = moment(data_busca).format('L')
 
-                    if (lotacao[data_busca]['total'] <= 120) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
-                    } else if (lotacao[data_busca]['total'] <= 180) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
-                    } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
-                    } else {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: Sem vagas ou vagas excedidas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        if (lotacao[data_busca]['total'] <= 120) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
+                        } else if (lotacao[data_busca]['total'] <= 180) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
+                        } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        } else {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: Sem vagas ou vagas excedidas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        }
                     }
+                }catch (e){
+                    console.log(e)
+                } finally {
+                    end_loading()
                 }
-                end_loading()
             }
 
             function excluir_pre_agendamento() {
@@ -366,7 +371,7 @@
                 document.getElementById('salvar_edicao').click()
             }
 
-            function editar_agendamento(confirmado=false) {
+            function editar_agendamento(confirmado = false) {
                 $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
 
                 if (!confirmado) {
@@ -477,9 +482,12 @@
                     if (hora_padrao_check_in === undefined) {
                         $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
                         check_out.val('')
+                        end_loading()
 
                         return
                     } else if (hora_padrao_check_in === null) {
+
+                        end_loading()
                         return
                     }
 
