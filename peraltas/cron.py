@@ -67,11 +67,6 @@ def atualizar_pagantes_ficha():
         except Exception as e:
             mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
             enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
-        else:
-            enviar_email_erro(
-                f'Atualização realizada com sucesso as {datetime.now().strftime("%d/%m/%Y %H:%M")}',
-                'ATUALIZAÇÃO REALIZADA COM SUCESSO'
-            )
     else:
         enviar_email_erro(
             f'Erro na conexão com o servidor de pagamentos, código {response.status_code}',
