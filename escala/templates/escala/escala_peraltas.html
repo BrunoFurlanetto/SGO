@@ -316,7 +316,7 @@
                     {% if coordenador_acampamento %}
                         {% if diretoria %}
                             <form id="form_escala_final" class="none" action="{% url 'escalaPeraltas' %}"
-                                  method="POST">
+                                  method="POST" onsubmit="loading()">
                                 <fieldset>
                                     {% csrf_token %}
                                     <input type="hidden" name="id_escala" id="id_escala">

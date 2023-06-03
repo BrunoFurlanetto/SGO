@@ -280,6 +280,10 @@ def verEscalaPeraltas(request):
         if request.POST.get('escala_final'):
             try:
                 escala_acampamento.pre_escala = False
+                escala_acampamento.ultima_pre_escala = salvar_ultima_pre_escala(
+                    None,
+                    dados_escala_confirmada=escala_acampamento
+                )
                 escala_acampamento.save()
             except Exception as e:
                 messages.error(request, f'Houve um erro inesperado: {e}.')
@@ -292,6 +296,16 @@ def verEscalaPeraltas(request):
                     'setor': setor,
                 })
             else:
+                ficha_de_evento = escala_acampamento.ficha_de_evento
+                operacional = User.objects.filter(groups__name='Operacional')
+                lista_emails = set()
+
+                for colaborador in operacional:
+                    lista_emails.add(colaborador.email)
+
+                EmailSender(juntar_emails_monitores(escala_acampamento)).mensagem_cadastro_escala(ficha_de_evento)
+                EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_acampamento)
+
                 messages.success(request, 'Escala salva com sucesso!')
                 return redirect('escalaPeraltas')
 
@@ -582,9 +596,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     juntar_emails_monitores(escala_salva)
                 ).mensagem_pre_escala_monitoria(ficha_de_evento)
             else:
-                EmailSender(
-                    juntar_emails_monitores(escala_salva)
-                ).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_salva)
+                operacional = User.objects.filter(groups__name='Operacional')
+                lista_emails = set()
+
+                for colaborador in operacional:
+                    lista_emails.add(colaborador.email)
+
+                EmailSender(juntar_emails_monitores(escala_salva)).mensagem_cadastro_escala(ficha_de_evento)
+                EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_salva)
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')
@@ -600,7 +619,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 escala_dia[posicao] = int(id_monitor)
 
             if request.POST.get('id_escala'):
-                print(request.POST)
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
                 escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))

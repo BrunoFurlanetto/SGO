@@ -147,11 +147,11 @@ class EmailSender:
                         {__check_out.strftime('%d/%m/%Y')} foi confirmada pela direção. Segue abaixo o nome e função dos
                         monitores escalados:
                     </p>
-                    {self.__criar_lista_monitores(escala.monitores_acampamento.all(), 'Acampamento') if _acamp else ...}
-                    {self.__criar_lista_monitores(escala.monitores_embarque.all(), 'Embarque') if _embarque else ...}
-                    {self.__criar_lista_monitores(escala.tecnicos.all(), 'Tecnicos') if _tec else ...}
-                    {self.__criar_lista_monitores(escala.biologos.all(), 'Biologos') if _biologo else ...}
-                    {self.__criar_lista_monitores(escala.enfermeiras.all(), 'Enfermeiras') if _enfermeiras else ...}
+                    {self.__criar_lista_monitores(escala.monitores_acampamento.all(), 'Acampamento') if _acamp else ''}
+                    {self.__criar_lista_monitores(escala.monitores_embarque.all(), 'Embarque') if _embarque else ''}
+                    {self.__criar_lista_monitores(escala.tecnicos.all(), 'Tecnicos') if _tec else ''}
+                    {self.__criar_lista_monitores(escala.biologos.all(), 'Biologos') if _biologo else ''}
+                    {self.__criar_lista_monitores(escala.enfermeiras.all(), 'Enfermeiras') if _enfermeiras else ''}
                     {self.__assinatura}
                 </body>
             </html>

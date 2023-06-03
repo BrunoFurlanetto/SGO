@@ -728,14 +728,23 @@ def pegar_dados_monitor_biologo(os):
     return dados_monitores
 
 
-def salvar_ultima_pre_escala(dados_escala):
-    return {
-        'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),
-        'embarque': list(map(int, dados_escala.getlist('id_monitores_embarque[]'))),
-        'biologos': list(map(int, dados_escala.getlist('id_biologos[]'))),
-        'tecnicos': list(map(int, dados_escala.getlist('id_tecnicos[]'))),
-        'enfermeiras': list(map(int, dados_escala.getlist('id_enfermeiras[]'))),
-    }
+def salvar_ultima_pre_escala(dados_escala, dados_escala_confirmada=None):
+    if not dados_escala_confirmada:
+        return {
+            'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),
+            'embarque': list(map(int, dados_escala.getlist('id_monitores_embarque[]'))),
+            'biologos': list(map(int, dados_escala.getlist('id_biologos[]'))),
+            'tecnicos': list(map(int, dados_escala.getlist('id_tecnicos[]'))),
+            'enfermeiras': list(map(int, dados_escala.getlist('id_enfermeiras[]'))),
+        }
+    else:
+        return {
+            'acampamento': list(monitor.id for monitor in dados_escala_confirmada.monitores_acampamento.all()),
+            'embarque': list(monitor.id for monitor in dados_escala_confirmada.monitores_embarque.all()),
+            'biologos': list(monitor.id for monitor in dados_escala_confirmada.biologos.all()),
+            'tecnicos': list(monitor.id for monitor in dados_escala_confirmada.tecnicos.all()),
+            'enfermeiras': list(monitor.id for monitor in dados_escala_confirmada.enfermeiras.all()),
+        }
 
 
 def juntar_emails_monitores(escala):
