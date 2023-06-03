@@ -358,6 +358,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
                 if ordem_de_servico:
+                    qtd_pagantes = ordem_de_servico.n_participantes
+                else:
+                    qtd_pagantes = ficha_de_evento.qtd_confirmada if ficha_de_evento.qtd_confirmada else 0
+
+                if ordem_de_servico:
                     areas = []
                     inicio_evento = ordem_de_servico.check_in
                     termino_evento = ordem_de_servico.check_out
@@ -378,7 +383,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     'data': data_selecionada.strftime('%d-%m-%Y'),
                     'setor': setor,
                     'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
-                    'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
+                    'qtd': ficha_de_evento.qtd_convidada,
+                    'qtd_pagantes': qtd_pagantes,
                     'ficha_de_evento': ficha_de_evento,
                     'os': ordem_de_servico,
                     'monitores_embarque': monitores_embarque,
