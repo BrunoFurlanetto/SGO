@@ -6,6 +6,8 @@ dj-database-url==1.0.0
 Django==4.0.1
 django-crontab==0.7.1
 django-heroku==0.3.1
+django-multiupload==0.6.1
+django-reversion==5.0.4
 fonttools==4.38.0
 form==0.0.1
 fpdf2==2.6.1

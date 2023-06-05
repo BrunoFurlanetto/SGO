@@ -4,75 +4,42 @@
 
 {% block conteudo %}
 
-    {% if ceu %}
-        <div class="conteudo-dashboard">
-            <div class="tabela-dashboard">
-                {% csrf_token %}
-                <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
-                <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
-                    <thead>
-                    <tr class="table-active">
-                        <th width="90px">
-                            <center>Tipo</center>
-                        </th>
-                        <th width="400px">
-                            <center>Instituição</center>
-                        </th>
-                        <th width="120px">
-                            <center>Coordenador</center>
-                        </th>
-                        <th width="250px">
-                            <center>Equipe</center>
-                        </th>
-                        <th width="210px">
-                            <center>
-                                <nobr>Data de atendimento</nobr>
-                            </center>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id="dados">
-                    {% if not relatorios %}
-                        <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
-                    {% endif %}
-
-                    {% for relatorio in relatorios %}
-                        <tr class='clickable-row' data-href="{% url 'verRelatorio' relatorio.id %}">
-                            <td>{{ relatorio.tipo }}</td>
-                            <td>{{ relatorio.instituicao }}</td>
-                            <td>{{ relatorio.equipe.coordenador }}</td>
-                            <td>{{ relatorio.equipe_escalada }}</td>
-                            <td>{{ data }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
-            </div>
-            <hr>
-            <div class="dados_dashboard">
-                <div class="dados-usuario">
-                    <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
-                </div>
-                <div class="escala">
-                    <b>Escala do dia:</b>
-
-                    {% if equipe_escalada %}
-                        {% for professor in equipe_escalada %}
-                            {{ forloop.counter }} - {{ professor }},
-                        {% endfor %}
+    {% for versao in ultimas_versoes %}
+        <div class="card card-log">
+            <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+            <div class="card-body">
+                <ul>
+                    {% if versao.campos_alterados|length > 4 %}
+                        <li>
+                            <p>Campos
+                                {% for alteracao in versao.campos_alterados %}
+                                    {% if not forloop.last %}
+                                         <span>{{ alteracao.campo.nome_campo }}</span>,
+                                    {% else %}
+                                         e <span>{{ alteracao.campo.nome_campo }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                alterados
+                            </p>
+                        </li>
                     {% else %}
-                        Ninguém escalado para hoje!
+                        {% for alteracao in versao.campos_alterados %}
+                            <li>
+                                {% if alteracao.campo.nome_campo == 'refeicoes' %}
+                                    <p>Tabela de <span>{{ alteracao.campo.nome_campo }}</span> alterado</p>
+                                {% else %}
+                                    <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de <span>{{ alteracao.campo.valor_anterior }}</span> para <span>{{ alteracao.campo.novo_valor }}</span></p>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
                     {% endif %}
-
-                </div>
+                </ul>
             </div>
         </div>
-    {% else %}
-        <div class="conteudo_dashboard_peraltas_escrito">
+    {% endfor %}
+        {% comment %}<div class="conteudo_dashboard_peraltas_escrito">
             <h1>SGO</h1>
-        </div>
-    {% endif %}
+        </div>{% endcomment %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->

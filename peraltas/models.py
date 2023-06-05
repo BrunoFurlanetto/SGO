@@ -1,9 +1,12 @@
 import datetime
 
+import reversion
 from django import forms
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
+from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
 
@@ -329,6 +332,7 @@ class RelacaoClienteResponsavel(models.Model):
     responsavel = models.ManyToManyField(Responsavel)
 
 
+@reversion.register
 class FichaDeEvento(models.Model):
     empresa_choices = (
         ('Peraltas', 'Peraltas'),
@@ -359,7 +363,7 @@ class FichaDeEvento(models.Model):
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True)
     observacoes = models.TextField(blank=True)
     atividades_ceu = models.ManyToManyField(Atividades, blank=True)
-    atividades_ceu_a_definir = models.IntegerField(blank=True, null=True)
+    atividades_ceu_a_definir = models.IntegerField(blank=True, null=True, verbose_name='Atividades CEU a definir')
     locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
     informacoes_locacoes = models.JSONField(blank=True, null=True)
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
@@ -379,6 +383,66 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+    def get_all_fields(self):
+        return [field.name for field in self._meta.fields]
+
+    def get_field_verbose_name(self, field_name):
+        field = self._meta.get_field(field_name)
+        return field.verbose_name
+
+    def get_field_type(self, field_name):
+        field = self._meta.get_field(field_name)
+        return field.get_internal_type()
+
+    @classmethod
+    def logs_de_alteracao(cls):
+        dados_alterados = []
+
+        for ficha in cls.objects.all():
+            versoes = (
+                Version.
+                objects.
+                get_for_object(ficha).
+                select_related('revision').
+                order_by('revision__date_created')[:2]
+            )
+            versao = len(versoes) - 1
+            pre_versao = len(versoes) - 2
+            campos_alterados = []
+
+            if len(versoes) >= 2 and versoes[versao].revision.user and len(dados_alterados) <= 10:
+                for campo in ficha.get_all_fields():
+                    if ficha.get_field_type(campo) != 'ForeignKey':
+                        if versoes[versao].field_dict[campo] != versoes[pre_versao].field_dict[campo]:
+                            campos_alterados.append({
+                                'campo': {
+                                    'nome_campo': ficha.get_field_verbose_name(campo),
+                                    'valor_anterior': versoes[pre_versao].field_dict[campo],
+                                    'novo_valor': versoes[versao].field_dict[campo]
+                                }
+                            })
+                    else:
+                        if versoes[versao].field_dict[campo + '_id'] != versoes[pre_versao].field_dict[campo + '_id']:
+                            campos_alterados.append({
+                                'campo': {
+                                    'nome_campo': ficha.get_field_verbose_name(campo),
+                                    'valor_anterior': versoes[pre_versao].field_dict[campo + '_id'],
+                                    'novo_valor': versoes[versao].field_dict[campo + '_id']
+                                }
+                            })
+
+                dados_alterados.append({
+                    'ficha': {
+                        'ficha': ficha,
+                        'id_ficha': ficha.id,
+                    },
+                    'campos_alterados': campos_alterados,
+                    'colaborador': versoes[versao].revision.user.get_full_name(),
+                    'data_e_hora': timezone.localtime(versoes[versao].revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                })
+
+        return dados_alterados
 
     def tabelar_refeicoes(self):
         dados = []
