@@ -540,7 +540,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 'disponiveis': disponiveis,
                 'escalados': escalado,
                 'pre_escala': escala_hotelaria.pre_escala,
-                'id_escala': escala_hotelaria.id
+                'id_escala': escala_hotelaria.id,
             })
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
@@ -614,23 +614,25 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')
     else:
+        print(request.POST)
         try:
             escala_dia = {}
-            segundo_incio = len(request.POST.getlist('id_coordenadores[]'))
+            segundo_incio = len(request.POST.getlist('id_coordenadores[]', [1]))
 
             for posicao, id_monitor in enumerate(request.POST.getlist('id_coordenadores[]'), start=1):
                 escala_dia[posicao] = int(id_monitor)
 
             for posicao, id_monitor in enumerate(request.POST.getlist('id_monitores[]'), start=segundo_incio + 1):
                 escala_dia[posicao] = int(id_monitor)
-
+            print(escala_dia)
             if request.POST.get('id_escala'):
+                print('AAAAAAAAA')
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
+                print('-' * 20, escala_hotelaria.monitores_hotelaria, '-' * 20)
                 escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
                 escala_hotelaria.coordenadores.set(list(map(int, request.POST.getlist('id_coordenadores[]'))))
                 escala_hotelaria.tecnicos_hotelaria.set(list(map(int, request.POST.getlist('id_tecnicos[]'))))
-
                 if request.POST.get('pre_escala') == 'false' and not escala_hotelaria.ultima_pre_escala:
                     escala_hotelaria.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 
@@ -645,17 +647,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 if request.POST.get('pre_escala') == 'false':
                     nova_escala.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 
-                nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
+                nova_escala.pre_escala = request.POST.get('pre_escala', 'true') == 'true'
                 nova_escala.save()
-
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado, ({e}) por favor tente mais tarde!')
-            return render(request, 'escala/escalar_monitores.html', {
-                'clientes_dia': clientes_dia,
-                'diretoria': diretoria,
-                'data': data_selecionada,
-                'setor': setor
-            })
+            return redirect('escalaPeraltas')
         else:
             messages.success(
                 request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!'

@@ -249,17 +249,19 @@
                         </div>
                         <hr>
                     </div>
-                    <input id="escala_editada" type="hidden" value="{{ id_escala }}">
-                    <div>
-                        <label for="observacoes">Observações</label>
-                        <textarea name="observacoes" id="observacoes">{{ observacoes }}</textarea>
-                    </div>
+                    {% if setor == 'acampamento' %}
+                        <div>
+                            <label for="observacoes">Observações</label>
+                            <textarea name="observacoes" id="observacoes">{{ observacoes }}</textarea>
+                        </div>
+                    {% endif %}
                 </div>
+                <input id="escala_editada" type="hidden" value="{{ id_escala }}">
                 <div class="botoes" style="display: flex; justify-content: space-between">
                     {% if diretoria %}
                         <button type="button" class="btn btn-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados(false, true)" {% else %}
-                                onclick="salvar_monitores_escalados(false)" {% endif %}>
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, true)" {% else %}
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false)" {% endif %}>
                             Salvar escala final
                         </button>
                     {% endif %}
@@ -267,7 +269,7 @@
                     {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
                                 onclick="salvar_monitores_escalados(true, true)" {% else %}
-                                onclick="salvar_monitores_escalados(true)" {% endif %}>Salvar prévia
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true)" {% endif %}>Salvar prévia
                         </button>
                     {% endif %}
                 </div>
@@ -339,8 +341,10 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/escalar_monitores.js' %}"></script>
     <script>
-        const n_monitores = {{ n_monitores }}
-        const produto = '{{ ficha_de_evento.produto.produto }}'
+        {% if setor == 'acampamento' %}
+            const n_monitores = {{ n_monitores }}
+            const produto = '{{ ficha_de_evento.produto.produto|safe }}'
+        {% endif %}
 
         verificar_tecnica()
         verificar_escalados()
