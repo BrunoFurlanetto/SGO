@@ -38,7 +38,7 @@ class EmailSender:
         check_in = ficha_de_evento.check_in
         check_out = ficha_de_evento.check_out
         cliente = ficha_de_evento.cliente
-        check_in_monitor = check_in - timedelta(hours=1)
+        check_in_monitor = check_in.astimezone() - timedelta(hours=1)
         self._subject = 'Confirmação da pré escala monitoria'
 
         __mensagem = f'''
@@ -102,7 +102,7 @@ class EmailSender:
         __cliente = ficha_de_evento.cliente
         __check_in = ficha_de_evento.check_in if not __ordem_servico else __ordem_servico.check_in
         __check_out = ficha_de_evento.check_out if not __ordem_servico else __ordem_servico.check_out
-        __check_in_monitor = ficha_de_evento.check_in - timedelta(hours=1)
+        __check_in_monitor = ficha_de_evento.check_in.astimezone() - timedelta(hours=1)
         self._subject = f'Confirmação da escala do evento de {__cliente}'
 
         __mensagem = f'''
