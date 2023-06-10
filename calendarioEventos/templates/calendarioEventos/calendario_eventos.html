@@ -471,6 +471,7 @@
                     return
                 }
 
+                $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out.val()).format('yyyy-MM-DDTHH:mm')).prop('min', (moment(check_in.val()).format('yyyy-MM-DD 09:00')))
                 pegar_horario_padrao(check_in, check_out)
             }
 
