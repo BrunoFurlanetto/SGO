@@ -553,6 +553,8 @@ $('#salvar').on('click', function (e) {
         $('#id_atividades_peraltas').val(),
         $('#id_locacoes_ceu').val(),
     ].flat()
+    const atividades_ceu = $('#id_atividades_ceu').val()
+    const atividades_a_definir = $('#id_atividades_ceu_a_definir').val()
 
     // Verificação das refeições
     for (let linha of linhas_tabela_refeicao) {
@@ -581,5 +583,13 @@ $('#salvar').on('click', function (e) {
 
             return
         }
+    }
+
+    if (atividades_ceu.length === 0 && (atividades_a_definir === '' || atividades_a_definir == 0)) {
+        e.preventDefault()
+        $('html, body').animate({scrollTop: 1200}, 50)
+        $('.ceu').prepend('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"! Em caso de não haver atividade, selecionar "Sem atividade"</div>')
+
+        return
     }
 })
