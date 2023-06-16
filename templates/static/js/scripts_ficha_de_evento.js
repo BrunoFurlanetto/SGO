@@ -575,7 +575,7 @@ $('#salvar').on('click', function (e) {
     }
 
     // Verificação das atividades
-    if (!$('#check_a_definir').checked && !($('#id_atividades_ceu_a_definir').val() != '' && $('#id_atividades_ceu_a_definir').val() > '0')) {
+    if (!$('#check_a_definir').prop('checked') && !($('#id_atividades_ceu_a_definir').val() != '' && $('#id_atividades_ceu_a_definir').val() > '0')) {
         if (atividades_selecionadas.length === 0) {
             e.preventDefault()
             $('html, body').animate({scrollTop: 1200}, 50)
@@ -585,11 +585,9 @@ $('#salvar').on('click', function (e) {
         }
     }
 
-    if (atividades_ceu.length === 0 && (atividades_a_definir === '' || atividades_a_definir == 0)) {
+    if (atividades_ceu.length === 0 && !$('#check_a_definir').prop('checked')) {
         e.preventDefault()
         $('html, body').animate({scrollTop: 1200}, 50)
         $('.ceu').prepend('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"! Em caso de não haver atividade, selecionar "Sem atividade"</div>')
-
-        return
     }
 })
