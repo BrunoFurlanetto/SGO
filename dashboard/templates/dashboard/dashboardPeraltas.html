@@ -29,8 +29,12 @@
                     {% else %}
                         {% for alteracao in versao.campos_alterados %}
                             <li>
-                                {% if alteracao.campo.nome_campo == 'refeicoes' %}
-                                    <p>Tabela de <span>{{ alteracao.campo.nome_campo }}</span> alterado</p>
+                                {% if alteracao.campo.tipo_campo == 'JSONField' %}
+                                    {% if alteracao.campo.nome_campo == 'refeicoes' %}
+                                        <p>Tabela de <span>refeicoes</span> alterado</p>
+                                    {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}
+                                        <p><span>Informações da locação</span> alterado</p>
+                                    {% endif %}
                                 {% else %}
                                     <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de <span>{{ alteracao.campo.valor_anterior }}</span> para <span>{{ alteracao.campo.novo_valor }}</span></p>
                                 {% endif %}

@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import ManyToManyField
 from django.utils import timezone
 from reversion.models import Version
 
@@ -166,6 +167,7 @@ class CodigosPadrao(models.Model):
     nome = models.CharField(max_length=50)
 
 
+@reversion.register
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
@@ -291,6 +293,7 @@ class OpcionaisFormatura(models.Model):
         return self.opcional_formatura
 
 
+@reversion.register
 class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
@@ -424,58 +427,34 @@ class FichaDeEvento(models.Model):
             campos_alterados = []
 
             if len(versoes) == 1:
+                versao = versoes[0]
                 dados_alterados.append({
                     'ficha': {
-                        'ficha': versoes[0],
-                        'id_ficha': versoes[0].object.id,
+                        'ficha': versao,
+                        'id_ficha': versao.object.id,
                     },
                     'campos_alterados': '',
-                    'colaborador': versoes[0].revision.user.get_full_name() if versoes[0].revision.user else '',
-                    'data_e_hora': timezone.localtime(versoes[0].revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                    'colaborador': versao.revision.user.get_full_name() if versao.revision.user else '',
+                    'data_e_hora': timezone.localtime(versao.revision.date_created).strftime('%d/%m/%Y às %H:%M')
                 })
             else:
-                for campo in versoes[1].object.get_all_fields():
-                    if versoes[1].object.get_field_type(campo) == 'ForeignKey':
-                        if versoes[1].field_dict[campo + '_id'] != versoes[0].field_dict[campo + '_id']:
-                            campos_alterados.append({
-                                'campo': {
-                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
-                                    'valor_anterior': versoes[1].field_dict[campo + '_id'],
-                                    'novo_valor': versoes[0].field_dict[campo + '_id'],
-                                    'tipo_campo': versoes[1].object.get_field_type(campo)
-                                }
-                            })
-                    elif versoes[1].object.get_field_type(campo) == 'BooleanField':
-                        if versoes[1].field_dict[campo] != versoes[0].field_dict[campo]:
-                            campos_alterados.append({
-                                'campo': {
-                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
-                                    'valor_anterior': 'Sim' if versoes[1].field_dict[campo] else 'Não',
-                                    'novo_valor': 'Sim' if versoes[0].field_dict[campo] else 'Não',
-                                    'tipo_campo': versoes[1].object.get_field_type(campo)
-                                }
-                            })
-                    else:
-                        if versoes[1].field_dict[campo] != versoes[0].field_dict[campo]:
-                            campos_alterados.append({
-                                'campo': {
-                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
-                                    'valor_anterior': versoes[1].field_dict[campo],
-                                    'novo_valor': versoes[0].field_dict[campo],
-                                    'tipo_campo': versoes[1].object.get_field_type(campo)
-                                }
-                            })
+                versao_atual = versoes[0]
+                versao_anterior = versoes[1]
 
-                campos_alterados.append(cls.__comparar_many_to_many(versoes[0], versoes[1]))
+                campos_alterados.extend(cls.__comparar_campos_simples(versao_atual, versao_anterior))
+
+                if len(campos_alterados) == 0:
+                    campos_alterados.extend(cls.__comparar_many_to_many(versao_atual, versao_anterior))
 
                 dados_alterados.append({
                     'ficha': {
-                        'ficha': versoes[1].object,
-                        'id_ficha': versoes[1].object.id,
+                        'ficha': versao_atual.object,
+                        'id_ficha': versao_atual.object.id,
                     },
                     'campos_alterados': campos_alterados,
-                    'colaborador': versoes[1].revision.user.get_full_name(),
-                    'data_e_hora': timezone.localtime(versoes[1].revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                    'colaborador': versao_atual.revision.user.get_full_name(),
+                    'data_e_hora': timezone.localtime(versao_atual.revision.date_created).strftime(
+                        '%d/%m/%Y às %H:%M')
                 })
 
         return dados_alterados
@@ -494,24 +473,66 @@ class FichaDeEvento(models.Model):
         return versoes_agrupadas
 
     @staticmethod
-    def __comparar_many_to_many(versao_anterior, versao_atual):
+    def __comparar_campos_simples(versao_atual, versao_anterior):
         campos_alterados = []
-        print(versao_atual.object.atividades_ceu.all(), versao_anterior.object.atividades_ceu.all())
-        for campo in versao_atual.object.get_many_to_many_fields():
-            campo_anterior = set(getattr(versao_anterior.object, campo).values_list('pk', flat=True))
-            campo_atual = set(getattr(versao_atual.object, campo).values_list('pk', flat=True))
 
-            if campo_anterior != campo_atual:
-                campos_alterados.append({
+        for campo in versao_atual.object.get_all_fields():
+            if versao_atual.object.get_field_type(campo) == 'ForeignKey':
+                valor_anterior = versao_anterior.field_dict[f'{campo}_id']
+                valor_atual = versao_atual.field_dict[f'{campo}_id']
+            else:
+                valor_anterior = versao_anterior.field_dict[campo]
+                valor_atual = versao_atual.field_dict[campo]
+
+            if valor_anterior != valor_atual:
+                campo_alterado = {
                     'campo': {
-                        'nome_campo': campo.verbose_name,
-                        'valores_anteriores': campo_anterior,
-                        'novos_valores': campo_atual,
-                        'tipo_campo': versao_atual.object.get_field_type(campo_atual)
+                        'nome_campo': versao_atual.object.get_field_verbose_name(campo),
+                        'valor_anterior': valor_anterior,
+                        'novo_valor': valor_atual,
+                        'tipo_campo': versao_atual.object.get_field_type(campo)
                     }
-                })
+                }
+
+                campos_alterados.append(campo_alterado)
 
         return campos_alterados
+
+    @staticmethod
+    def __comparar_many_to_many(versao_atual, versao_anterior):
+        campos_alterados = [{
+            'campo': {
+                'nome_campo': 'Atividades',
+                'valor_anterior': '',
+                'novo_valor': '',
+                'tipo_campo': 'ManyToMany'
+            }
+        }]
+
+        return campos_alterados
+
+    @staticmethod
+    def __comparar_json_field(versao_atual, versao_anterior):
+        campos_alterados = []
+
+        for campo in versao_atual.object.get_all_fields():
+            if versao_atual.object.get_field_type(campo) == 'JSONField':
+                valor_anterior = versao_anterior.field_dict[campo]
+                valor_atual = versao_atual.field_dict[campo]
+
+                if valor_atual != valor_anterior:
+                    campo_alterado = {
+                        'campo': {
+                            'nome_campo': campo,
+                            'valor_anterior': '',
+                            'novo_valor': '',
+                            'tipo_campo': 'JSONField'
+                        }
+                    }
+
+                    campos_alterados.append(campo_alterado)
+
+            return campos_alterados
     # ------------------------------------------------------------------------------------------------------------------
 
     def tabelar_refeicoes(self):

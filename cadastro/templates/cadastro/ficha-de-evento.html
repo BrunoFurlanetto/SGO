@@ -76,13 +76,17 @@
                 <hr>
                 <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
                     <h5 class="titulo-secao">Produto Peraltas</h5>
-                    {{ form.produto }}
+                    <fieldset {% if ficha_de_evento %} readonly="disabled" {% endif %}>
+                        {{ form.produto }}
+                    </fieldset>
                 </div>
                 <hr class="produtos-corporativos {% if not form.produto_corporativo.value %} none {% endif %}">
                 <div id="div_produto_corporativo" style="width: 70%"
                      class="{% if not form.produto_corporativo.value %} none {% endif %} produtos-corporativos">
                     <h5 class="titulo-secao">Produto corporativo</h5>
-                    {{ form.produto_corporativo }}
+                    <fieldset {% if ficha_de_evento %} readonly="disabled" {% endif %}>
+                        {{ form.produto_corporativo }}
+                    </fieldset>
                 </div>
                 <hr>
                 <div id="sessao_periodo_viagem" class="row mb-2">

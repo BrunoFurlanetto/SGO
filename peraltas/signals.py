@@ -7,6 +7,13 @@ from .models import FichaDeEvento
 
 @receiver(pre_save, sender=FichaDeEvento)
 def atualizar_data_preenchimento(sender, instance, **kwargs):
-    print(instance.agendado, instance.pre_reserva)
-    if not instance.pk or instance.agendado or not instance.pre_reserva:
+    if not instance.pk:
         instance.data_preenchimento = date.today()
+    else:
+        ficha_existente = FichaDeEvento.objects.get(pk=instance.pk)
+
+        if not ficha_existente.agendado and instance.agendado:
+            instance.data_preenchimento = date.today()
+
+        if ficha_existente.pre_reserva and not instance.pre_reserva:
+            instance.data_preenchimento = date.today()
