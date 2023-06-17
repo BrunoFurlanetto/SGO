@@ -6,7 +6,11 @@
 
     {% for versao in ultimas_versoes %}
         <div class="card card-log">
-            <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+            {% if versao.campos_alterados == '' %}
+                <div class="card-header">Criação da <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+            {% else %}
+                <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+            {% endif %}
             <div class="card-body">
                 <ul>
                     {% if versao.campos_alterados|length > 4 %}

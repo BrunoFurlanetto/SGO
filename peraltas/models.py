@@ -1,4 +1,6 @@
 import datetime
+from collections import defaultdict
+from heapq import nlargest
 
 import reversion
 from django import forms
@@ -372,7 +374,7 @@ class FichaDeEvento(models.Model):
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
-    data_preenchimento = models.DateField(blank=True, null=True, default=datetime.date.today)
+    data_preenchimento = models.DateField(blank=True, null=True)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     exclusividade = models.BooleanField(default=False)
     pre_reserva = models.BooleanField(default=False)
@@ -395,54 +397,122 @@ class FichaDeEvento(models.Model):
         field = self._meta.get_field(field_name)
         return field.get_internal_type()
 
+    def get_many_to_many_fields(self):
+        many_to_many_fields = []
+
+        for field in self._meta.get_fields():
+            if field.many_to_many:
+                many_to_many_fields.append(field.name)
+
+        return many_to_many_fields
+
+    # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------
     @classmethod
     def logs_de_alteracao(cls):
         dados_alterados = []
 
-        for ficha in cls.objects.all():
-            versoes = (
-                Version.
-                objects.
-                get_for_object(ficha).
-                select_related('revision').
-                order_by('revision__date_created')[:2]
-            )
-            versao = len(versoes) - 1
-            pre_versao = len(versoes) - 2
+        pre_alteracoes = (
+            Version.objects
+            .get_for_model(cls)
+            .select_related('revision')
+            .order_by('-revision__date_created')[:100]
+        )
+
+        versoes_agrupadas = cls.__agrupar_versoes(pre_alteracoes)
+
+        for obj, versoes in versoes_agrupadas.items():
             campos_alterados = []
 
-            if len(versoes) >= 2 and versoes[versao].revision.user and len(dados_alterados) <= 10:
-                for campo in ficha.get_all_fields():
-                    if ficha.get_field_type(campo) != 'ForeignKey':
-                        if versoes[versao].field_dict[campo] != versoes[pre_versao].field_dict[campo]:
+            if len(versoes) == 1:
+                dados_alterados.append({
+                    'ficha': {
+                        'ficha': versoes[0],
+                        'id_ficha': versoes[0].object.id,
+                    },
+                    'campos_alterados': '',
+                    'colaborador': versoes[0].revision.user.get_full_name() if versoes[0].revision.user else '',
+                    'data_e_hora': timezone.localtime(versoes[0].revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                })
+            else:
+                for campo in versoes[1].object.get_all_fields():
+                    if versoes[1].object.get_field_type(campo) == 'ForeignKey':
+                        if versoes[1].field_dict[campo + '_id'] != versoes[0].field_dict[campo + '_id']:
                             campos_alterados.append({
                                 'campo': {
-                                    'nome_campo': ficha.get_field_verbose_name(campo),
-                                    'valor_anterior': versoes[pre_versao].field_dict[campo],
-                                    'novo_valor': versoes[versao].field_dict[campo]
+                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
+                                    'valor_anterior': versoes[1].field_dict[campo + '_id'],
+                                    'novo_valor': versoes[0].field_dict[campo + '_id'],
+                                    'tipo_campo': versoes[1].object.get_field_type(campo)
+                                }
+                            })
+                    elif versoes[1].object.get_field_type(campo) == 'BooleanField':
+                        if versoes[1].field_dict[campo] != versoes[0].field_dict[campo]:
+                            campos_alterados.append({
+                                'campo': {
+                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
+                                    'valor_anterior': 'Sim' if versoes[1].field_dict[campo] else 'Não',
+                                    'novo_valor': 'Sim' if versoes[0].field_dict[campo] else 'Não',
+                                    'tipo_campo': versoes[1].object.get_field_type(campo)
                                 }
                             })
                     else:
-                        if versoes[versao].field_dict[campo + '_id'] != versoes[pre_versao].field_dict[campo + '_id']:
+                        if versoes[1].field_dict[campo] != versoes[0].field_dict[campo]:
                             campos_alterados.append({
                                 'campo': {
-                                    'nome_campo': ficha.get_field_verbose_name(campo),
-                                    'valor_anterior': versoes[pre_versao].field_dict[campo + '_id'],
-                                    'novo_valor': versoes[versao].field_dict[campo + '_id']
+                                    'nome_campo': versoes[1].object.get_field_verbose_name(campo),
+                                    'valor_anterior': versoes[1].field_dict[campo],
+                                    'novo_valor': versoes[0].field_dict[campo],
+                                    'tipo_campo': versoes[1].object.get_field_type(campo)
                                 }
                             })
 
+                campos_alterados.append(cls.__comparar_many_to_many(versoes[0], versoes[1]))
+
                 dados_alterados.append({
                     'ficha': {
-                        'ficha': ficha,
-                        'id_ficha': ficha.id,
+                        'ficha': versoes[1].object,
+                        'id_ficha': versoes[1].object.id,
                     },
                     'campos_alterados': campos_alterados,
-                    'colaborador': versoes[versao].revision.user.get_full_name(),
-                    'data_e_hora': timezone.localtime(versoes[versao].revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                    'colaborador': versoes[1].revision.user.get_full_name(),
+                    'data_e_hora': timezone.localtime(versoes[1].revision.date_created).strftime('%d/%m/%Y às %H:%M')
                 })
 
         return dados_alterados
+
+    @staticmethod
+    def __agrupar_versoes(pre_alteracoes):
+        versoes_agrupadas = defaultdict(list)
+
+        for versao in pre_alteracoes:
+            if not versao.object.pre_reserva and versao.revision.user and len(versoes_agrupadas) < 10:
+                versoes_agrupadas[versao.object].append(versao)
+
+        for obj, versoes in versoes_agrupadas.items():
+            versoes_agrupadas[obj] = nlargest(2, versoes, key=lambda x: x.revision.date_created)
+
+        return versoes_agrupadas
+
+    @staticmethod
+    def __comparar_many_to_many(versao_anterior, versao_atual):
+        campos_alterados = []
+        print(versao_atual.object.atividades_ceu.all(), versao_anterior.object.atividades_ceu.all())
+        for campo in versao_atual.object.get_many_to_many_fields():
+            campo_anterior = set(getattr(versao_anterior.object, campo).values_list('pk', flat=True))
+            campo_atual = set(getattr(versao_atual.object, campo).values_list('pk', flat=True))
+
+            if campo_anterior != campo_atual:
+                campos_alterados.append({
+                    'campo': {
+                        'nome_campo': campo.verbose_name,
+                        'valores_anteriores': campo_anterior,
+                        'novos_valores': campo_atual,
+                        'tipo_campo': versao_atual.object.get_field_type(campo_atual)
+                    }
+                })
+
+        return campos_alterados
+    # ------------------------------------------------------------------------------------------------------------------
 
     def tabelar_refeicoes(self):
         dados = []
