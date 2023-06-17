@@ -481,6 +481,12 @@ class Eventos(models.Model):
             else:
                 return 'Ficha de evento'
 
+    def codigo_pagamento(self):
+        if not self.ficha_de_evento.pre_reserva:
+            return self.ficha_de_evento.codigos_app.evento
+        else:
+            return ''
+
 
 class DisponibilidadePeraltas(models.Model):
     meses = (

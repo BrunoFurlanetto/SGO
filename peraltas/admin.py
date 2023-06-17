@@ -154,7 +154,7 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
 class EventosAdmin(admin.ModelAdmin):
     list_display = (
         'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
-        'qtd_confirmada', 'data_preenchimento', 'estagio_evento'
+        'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento'
     )
     list_display_links = ('cliente', )
     list_per_page = 100
