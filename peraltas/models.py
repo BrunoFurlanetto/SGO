@@ -518,7 +518,6 @@ class FichaDeEvento(models.Model):
 
             if ids_anterior != ids_atual:
                 model_class = campo.remote_field.model
-                content_type = ContentType.objects.get_for_model(model_class)
 
                 if len(ids_atual) > 0:
                     objetos_atual = model_class.objects.filter(pk__in=ids_atual)
