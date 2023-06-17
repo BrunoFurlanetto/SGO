@@ -4,6 +4,7 @@ from heapq import nlargest
 
 import reversion
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
@@ -442,9 +443,7 @@ class FichaDeEvento(models.Model):
                 versao_anterior = versoes[1]
 
                 campos_alterados.extend(cls.__comparar_campos_simples(versao_atual, versao_anterior))
-
-                if len(campos_alterados) == 0:
-                    campos_alterados.extend(cls.__comparar_many_to_many(versao_atual, versao_anterior))
+                campos_alterados.extend(cls.__comparar_many_to_many(versao_atual, versao_anterior))
 
                 dados_alterados.append({
                     'ficha': {
@@ -500,14 +499,45 @@ class FichaDeEvento(models.Model):
 
     @staticmethod
     def __comparar_many_to_many(versao_atual, versao_anterior):
-        campos_alterados = [{
-            'campo': {
-                'nome_campo': 'Atividades',
-                'valor_anterior': '',
-                'novo_valor': '',
-                'tipo_campo': 'ManyToMany'
-            }
-        }]
+        campos_alterados = []
+        campos_m2m = versao_atual.object._meta.many_to_many
+
+        for campo in campos_m2m:
+            campo_nome = campo.name
+            campo_verbose_name = campo.verbose_name
+            campo_tipo = campo.remote_field.model.__name__
+
+            if campo_nome not in versao_atual.field_dict or campo_nome not in versao_anterior.field_dict:
+                continue
+
+            ids_anterior = versao_anterior.field_dict[campo_nome]
+            ids_atual = versao_atual.field_dict[campo_nome]
+
+            valores_anterior = []
+            valores_atual = []
+
+            if ids_anterior != ids_atual:
+                model_class = campo.remote_field.model
+                content_type = ContentType.objects.get_for_model(model_class)
+
+                if len(ids_atual) > 0:
+                    objetos_atual = model_class.objects.filter(pk__in=ids_atual)
+                    valores_atual = [str(objeto) for objeto in objetos_atual]
+
+                if len(ids_anterior) > 0:
+                    objetos_anterior = model_class.objects.filter(pk__in=ids_anterior)
+                    valores_anterior = [str(objeto) for objeto in objetos_anterior]
+
+                campo_alterado = {
+                    'campo': {
+                        'nome_campo': campo_verbose_name,
+                        'valor_anterior': ', '.join(valores_anterior) if valores_anterior else '"Vazio"',
+                        'novo_valor': ', '.join(valores_atual) if valores_atual else '"Vazio"',
+                        'tipo_campo': campo_tipo
+                    }
+                }
+
+                campos_alterados.append(campo_alterado)
 
         return campos_alterados
 
