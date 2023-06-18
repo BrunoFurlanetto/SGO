@@ -378,7 +378,7 @@ class FichaDeEvento(models.Model):
     data_final_inscricao = models.DateField(blank=True, null=True)
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
-    data_preenchimento = models.DateField(blank=True, null=True)
+    data_preenchimento = models.DateField(blank=True, null=True, editable=False)
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
     exclusividade = models.BooleanField(default=False)
     pre_reserva = models.BooleanField(default=False)
@@ -755,7 +755,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
 
     class Meta:
         model = FichaDeEvento
-        exclude = ()
+        exclude = ['data_preenchimento']
 
         widgets = {
             'check_in': forms.TextInput(attrs={
@@ -853,8 +853,7 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario',
-            'data_preenchimento'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
         ]
 
         widgets = {
