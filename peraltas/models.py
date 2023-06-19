@@ -1,9 +1,16 @@
 import datetime
+from collections import defaultdict
+from heapq import nlargest
 
+import reversion
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import ManyToManyField
+from django.utils import timezone
+from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
 
@@ -161,6 +168,7 @@ class CodigosPadrao(models.Model):
     nome = models.CharField(max_length=50)
 
 
+@reversion.register
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
@@ -170,6 +178,10 @@ class CodigosApp(models.Model):
 
     def __str__(self):
         return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
+
+    @classmethod
+    def log_de_alteracoes(cls):
+        ...
 
 
 class ClienteColegio(models.Model):
@@ -286,6 +298,7 @@ class OpcionaisFormatura(models.Model):
         return self.opcional_formatura
 
 
+@reversion.register
 class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
@@ -323,12 +336,22 @@ class InformacoesAdcionais(models.Model):
     def __str__(self):
         return f'Informações adicionais id: {self.id}'
 
+    @classmethod
+    def log_de_alteracao(cls):
+        pre_alteracoes = (
+            Version.objects
+            .get_for_model(cls)
+            .select_related('revision')
+            .order_by('-revision__date_created')[:100]
+        )
+
 
 class RelacaoClienteResponsavel(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
     responsavel = models.ManyToManyField(Responsavel)
 
 
+@reversion.register
 class FichaDeEvento(models.Model):
     empresa_choices = (
         ('Peraltas', 'Peraltas'),
@@ -336,49 +359,229 @@ class FichaDeEvento(models.Model):
         ('Peraltas CEU', 'Peraltas + Fundação CEU')
     )
 
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
-    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE)
-    produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
-    produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.CASCADE, blank=True, null=True)
-    check_in = models.DateTimeField()
-    check_out = models.DateTimeField()
-    obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True)
-    professores_com_alunos = models.BooleanField(default=False)
-    qtd_professores = models.PositiveIntegerField(blank=True, null=True)
-    qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True)
-    qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável pelo evento')
+    produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING, verbose_name='Produto')
+    produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.CASCADE, blank=True, null=True,
+                                            verbose_name='Produto corporativo')
+    check_in = models.DateTimeField(verbose_name='Check in')
+    check_out = models.DateTimeField(verbose_name='Check out')
+    obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True, verbose_name='Observação da edição do horário')
+    professores_com_alunos = models.BooleanField(default=False, verbose_name='Professores dormirão com alunos?')
+    qtd_professores = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores')
+    qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores homens')
+    qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores mulheres')
     qtd_convidada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade reservada')
-    qtd_confirmada = models.PositiveIntegerField(blank=True, null=True)
-    qtd_meninos = models.PositiveIntegerField(blank=True, null=True)
-    qtd_meninas = models.PositiveIntegerField(blank=True, null=True)
-    qtd_homens = models.PositiveIntegerField(blank=True, null=True)
-    qtd_mulheres = models.PositiveIntegerField(blank=True, null=True)
-    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True)
-    refeicoes = models.JSONField(blank=True, null=True)
-    observacoes_refeicoes = models.TextField(blank=True, null=True)
-    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True)
-    observacoes = models.TextField(blank=True)
-    atividades_ceu = models.ManyToManyField(Atividades, blank=True)
-    atividades_ceu_a_definir = models.IntegerField(blank=True, null=True)
-    locacoes_ceu = models.ManyToManyField(Locaveis, blank=True)
-    informacoes_locacoes = models.JSONField(blank=True, null=True)
-    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True)
-    atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True)
-    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE)  # TODO: Verificar caso de exclusão de colaborador
-    data_final_inscricao = models.DateField(blank=True, null=True)
-    empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True)
-    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d')
-    data_preenchimento = models.DateField(blank=True, null=True, default=datetime.date.today)
-    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True)
-    exclusividade = models.BooleanField(default=False)
-    pre_reserva = models.BooleanField(default=False)
-    agendado = models.BooleanField(default=False)
-    os = models.BooleanField(default=False)
-    escala = models.BooleanField(default=False)
-    ficha_financeira = models.BooleanField(default=False)
+    qtd_confirmada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade confirmada')
+    qtd_meninos = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de menino')
+    qtd_meninas = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de meninas')
+    qtd_homens = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de homens')
+    qtd_mulheres = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de mulheres')
+    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True, verbose_name='Perfíl dos participantes')
+    refeicoes = models.JSONField(blank=True, null=True, verbose_name='Refeições')
+    observacoes_refeicoes = models.TextField(blank=True, null=True, verbose_name='Observações das refeições')
+    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Informações adicionais')
+    observacoes = models.TextField(blank=True, verbose_name='Observações')
+    atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
+    atividades_ceu_a_definir = models.IntegerField(blank=True, null=True, verbose_name='Atividades CEU a definir')
+    locacoes_ceu = models.ManyToManyField(Locaveis, blank=True, verbose_name='Locações no CEU')
+    informacoes_locacoes = models.JSONField(blank=True, null=True, verbose_name='Informações de locações')
+    atividades_eco = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades extra')
+    atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True, verbose_name='Atividades Peraltas')
+    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE, verbose_name='Vendedora')  # TODO: Verificar caso de exclusão de colaborador
+    data_final_inscricao = models.DateField(blank=True, null=True, verbose_name='Data final da inscrição')
+    empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True, verbose_name='Empresa')
+    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d', verbose_name='Material de apoio')
+    data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
+    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Códigos APP')
+    exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
+    pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
+    agendado = models.BooleanField(default=False, verbose_name='Agendado')
+    os = models.BooleanField(default=False, verbose_name='Ordem de serviço')
+    escala = models.BooleanField(default=False, verbose_name='Escala')
+    ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+    def get_all_fields(self):
+        return [field.name for field in self._meta.fields]
+
+    def get_field_verbose_name(self, field_name):
+        field = self._meta.get_field(field_name)
+        return field.verbose_name
+
+    def get_field_type(self, field_name):
+        field = self._meta.get_field(field_name)
+        return field.get_internal_type()
+
+    def get_many_to_many_fields(self):
+        many_to_many_fields = []
+
+        for field in self._meta.get_fields():
+            if field.many_to_many:
+                many_to_many_fields.append(field.name)
+
+        return many_to_many_fields
+
+    # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------
+    @classmethod
+    def logs_de_alteracao(cls):
+        dados_alterados = []
+
+        pre_alteracoes = (
+            Version.objects
+            .get_for_model(cls)
+            .select_related('revision')
+            .order_by('-revision__date_created')[:100]
+        )
+
+        versoes_agrupadas = cls.__agrupar_versoes(pre_alteracoes)
+
+        for obj, versoes in versoes_agrupadas.items():
+            campos_alterados = []
+
+            if len(versoes) == 1 or (versoes[1].field_dict['pre_reserva'] and not versoes[0].field_dict['pre_reserva']):
+                versao = versoes[0]
+
+                dados_alterados.append({
+                    'ficha': {
+                        'ficha': versao,
+                        'id_ficha': versao.object.id,
+                    },
+                    'campos_alterados': '',
+                    'colaborador': versao.revision.user.get_full_name() if versao.revision.user else '',
+                    'data_e_hora': timezone.localtime(versao.revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                })
+            else:
+                versao_atual = versoes[0]
+                versao_anterior = versoes[1]
+
+                campos_alterados.extend(cls.__comparar_campos_simples(versao_atual, versao_anterior))
+                campos_alterados.extend(cls.__comparar_many_to_many(versao_atual, versao_anterior))
+
+                dados_alterados.append({
+                    'ficha': {
+                        'ficha': versao_atual.object,
+                        'id_ficha': versao_atual.object.id,
+                    },
+                    'campos_alterados': campos_alterados,
+                    'colaborador': versao_atual.revision.user.get_full_name(),
+                    'data_e_hora': timezone.localtime(versao_atual.revision.date_created).strftime(
+                        '%d/%m/%Y às %H:%M')
+                })
+
+        return dados_alterados
+
+    @staticmethod
+    def __agrupar_versoes(pre_alteracoes):
+        versoes_agrupadas = defaultdict(list)
+
+        for versao in pre_alteracoes:
+            if not versao.object.pre_reserva and versao.revision.user and len(versoes_agrupadas) < 10:
+                versoes_agrupadas[versao.object].append(versao)
+
+        for obj, versoes in versoes_agrupadas.items():
+            versoes_agrupadas[obj] = nlargest(2, versoes, key=lambda x: x.revision.date_created)
+
+        return versoes_agrupadas
+
+    @staticmethod
+    def __comparar_campos_simples(versao_atual, versao_anterior):
+        campos_alterados = []
+
+        for campo in versao_atual.object.get_all_fields():
+            if versao_atual.object.get_field_type(campo) == 'ForeignKey':
+                valor_anterior = versao_anterior.field_dict[f'{campo}_id']
+                valor_atual = versao_atual.field_dict[f'{campo}_id']
+
+                if campo == 'vendedora':
+                    valor_anterior = Vendedor.objects.get(pk=valor_anterior).usuario.get_full_name()
+                    valor_atual = Vendedor.objects.get(pk=valor_atual).usuario.get_full_name()
+            else:
+                valor_anterior = versao_anterior.field_dict[campo]
+                valor_atual = versao_atual.field_dict[campo]
+
+            if valor_anterior != valor_atual:
+                campo_alterado = {
+                    'campo': {
+                        'nome_campo': versao_atual.object.get_field_verbose_name(campo),
+                        'valor_anterior': valor_anterior,
+                        'novo_valor': valor_atual,
+                        'tipo_campo': versao_atual.object.get_field_type(campo)
+                    }
+                }
+
+                campos_alterados.append(campo_alterado)
+
+        return campos_alterados
+
+    @staticmethod
+    def __comparar_many_to_many(versao_atual, versao_anterior):
+        campos_alterados = []
+        campos_m2m = versao_atual.object._meta.many_to_many
+
+        for campo in campos_m2m:
+            campo_nome = campo.name
+            campo_verbose_name = campo.verbose_name
+            campo_tipo = campo.remote_field.model.__name__
+
+            if campo_nome not in versao_atual.field_dict or campo_nome not in versao_anterior.field_dict:
+                continue
+
+            ids_anterior = versao_anterior.field_dict[campo_nome]
+            ids_atual = versao_atual.field_dict[campo_nome]
+
+            valores_anterior = []
+            valores_atual = []
+
+            if ids_anterior != ids_atual:
+                model_class = campo.remote_field.model
+
+                if len(ids_atual) > 0:
+                    objetos_atual = model_class.objects.filter(pk__in=ids_atual)
+                    valores_atual = [str(objeto) for objeto in objetos_atual]
+
+                if len(ids_anterior) > 0:
+                    objetos_anterior = model_class.objects.filter(pk__in=ids_anterior)
+                    valores_anterior = [str(objeto) for objeto in objetos_anterior]
+
+                campo_alterado = {
+                    'campo': {
+                        'nome_campo': campo_verbose_name,
+                        'valor_anterior': ', '.join(valores_anterior) if valores_anterior else '"Vazio"',
+                        'novo_valor': ', '.join(valores_atual) if valores_atual else '"Vazio"',
+                        'tipo_campo': campo_tipo
+                    }
+                }
+
+                campos_alterados.append(campo_alterado)
+
+        return campos_alterados
+
+    @staticmethod
+    def __comparar_json_field(versao_atual, versao_anterior):
+        campos_alterados = []
+
+        for campo in versao_atual.object.get_all_fields():
+            if versao_atual.object.get_field_type(campo) == 'JSONField':
+                valor_anterior = versao_anterior.field_dict[campo]
+                valor_atual = versao_atual.field_dict[campo]
+
+                if valor_atual != valor_anterior:
+                    campo_alterado = {
+                        'campo': {
+                            'nome_campo': campo,
+                            'valor_anterior': '',
+                            'novo_valor': '',
+                            'tipo_campo': 'JSONField'
+                        }
+                    }
+
+                    campos_alterados.append(campo_alterado)
+
+            return campos_alterados
+    # ------------------------------------------------------------------------------------------------------------------
 
     def tabelar_refeicoes(self):
         dados = []
@@ -577,7 +780,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
 
     class Meta:
         model = FichaDeEvento
-        exclude = ()
+        exclude = ['data_preenchimento']
 
         widgets = {
             'check_in': forms.TextInput(attrs={
@@ -675,8 +878,7 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario',
-            'data_preenchimento'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
         ]
 
         widgets = {

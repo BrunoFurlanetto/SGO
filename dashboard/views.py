@@ -2,17 +2,19 @@ import json
 from datetime import datetime
 from itertools import chain
 
+import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from reversion.models import Version
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
@@ -148,5 +150,6 @@ def dashboardPeraltas(request):
 
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
-        'termo_monitor': not monitor.aceite_do_termo if monitor else None
+        'termo_monitor': not monitor.aceite_do_termo if monitor else None,
+        'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

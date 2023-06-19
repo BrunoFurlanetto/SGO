@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
+    'reversion',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'reversion.middleware.RevisionMiddleware',
 ]
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -168,4 +170,7 @@ except ImportError:
 CRONJOBS = [
     ('0 07 * * *', 'peraltas.cron.atualizar_pagantes_ficha'),
     ('0 11 * * *', 'peraltas.cron.envio_dados_embarque'),
+    ('0 4 */14 * *', 'peraltas.cron.deletar_versoes_antigas')
 ]
+
+

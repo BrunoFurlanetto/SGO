@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+from reversion.models import Version
+
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
@@ -91,3 +93,9 @@ def envio_dados_embarque():
             except Exception as e:
                 mensagem_erro = f'Erro durante a consulta da ordem de servico de {ordem.ficha_de_evento.cliente}: {e}'
                 enviar_email_erro(mensagem_erro, 'ERRO NA CONSULTA DA ORDEM')
+
+
+def deletar_versoes_antigas():
+    data_de_corte = datetime.now() - timedelta(days=15)
+    versoes_antigas = Version.objects.get_for_model(FichaDeEvento).filter(revision__date_created__lt=data_de_corte)
+    versoes_antigas.delete()

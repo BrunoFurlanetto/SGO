@@ -1278,3 +1278,12 @@
     border-radius: 8px;
     background-color: #008000;
 }
+.card-log {
+    width: 800px;
+    margin: auto auto 15px;
+    box-shadow: 2px 2px 2px;
+}
+
+.card-body span {
+    color: #0a58ca;
+}
