@@ -470,7 +470,7 @@ class FichaDeEvento(models.Model):
                     'data_e_hora': timezone.localtime(versao_atual.revision.date_created).strftime(
                         '%d/%m/%Y às %H:%M')
                 })
-        print(dados_alterados)
+
         return dados_alterados
 
     @staticmethod
