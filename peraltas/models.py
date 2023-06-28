@@ -390,6 +390,7 @@ class FichaDeEvento(models.Model):
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True, verbose_name='Atividades Peraltas')
     vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE, verbose_name='Vendedora')  # TODO: Verificar caso de exclusão de colaborador
     data_final_inscricao = models.DateField(blank=True, null=True, verbose_name='Data final da inscrição')
+    data_divulgacao = models.DateField(blank=True, null=True, verbose_name='Data prevista para divulgação')
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True, verbose_name='Empresa')
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d', verbose_name='Material de apoio')
     data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
@@ -800,9 +801,11 @@ class CadastroFichaDeEvento(forms.ModelForm):
                 'max': 10,
                 'placeholder': 'n',
             }),
+            'qtd_convidada': forms.NumberInput(attrs={'readonly': 'readonly'}),
             'exclusividade': forms.CheckboxInput(attrs={'class': 'form-check-input exclusividade'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
+            'data_divulgacao': forms.TextInput(attrs={'type': 'date'}),
             'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
                                                                  'class': 'form-check-input'}),
         }
