@@ -5,6 +5,7 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}"> <!-- Styles da bootstrap -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.13.2/jquery-ui.css' %}"> <!-- Styles do jquery UI -->
 
     <div class="conteudo-escala" style="background-color: white">
 
@@ -19,11 +20,22 @@
         {% endif %}
 
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
+        <div id="dialog" title="Detalhes do Evento">
+            <p><strong>Cliente: </strong> <span id="nome_cliente"></span></p>
+            <p><strong>Check in:</strong> <span id="checkin"></span></p>
+            <p><strong>Check out:</strong> <span id="checkout"></span></p>
+        </div>
         {% csrf_token %}
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
             $('document').ready(function () {
+                $('#dialog').dialog({
+                    autoOpen: false,
+                    modal: true,
+                    width: 400
+                });
+
                 const calendarUI = document.getElementById('calendar');
                 let calendario_de_escalas = new FullCalendar.Calendar(calendarUI, {
 
@@ -69,11 +81,7 @@
                     events: [
                         {% for escala in escalas_acampamento %}
                             {
-                                title: {% if coordenador_acampamento or coordenador_hotelaria %}
-                                    "{{ escala.cliente|safe }}"
-                                {% else %}
-                                    "{{ escala.tipo_escala|safe }}"
-                                {% endif %},
+                                title: "{{ escala.cliente|safe }}",
                                 start: "{{ escala.check_in_cliente | date:'Y-m-d H:i' }}",
                                 end: "{{ escala.check_out_cliente | date:'Y-m-d H:i' }}",
                                 extendedProps: {
@@ -89,11 +97,11 @@
                                 {% endif %}
 
                                 {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Colégio' %}
-                                    color: '#FF8C00',
+                                    color: '#fcc607',
                                 {% endif %}
 
                                 {% if not coordenador_acampamento and not coordenador_hotelaria and escala.tipo_escala == 'Corporativo' %}
-                                    color: '#fcc607',
+                                    color: '#0a58ca',
                                 {% endif %}
                             },
                         {% endfor %}
@@ -106,6 +114,8 @@
                                     extendedProps: {
                                         "id_escala":{{ escala.id }},
                                     },
+
+                                    color: '#008000'
                                 },
                             {% endfor %}
                         {% else %}
@@ -212,6 +222,17 @@
                             })
                         }
                     {% endif %}
+
+                    eventMouseEnter: function (calEvent, jsEvent) {
+                        $('#nome_cliente').text(calEvent.event.title);
+                        $('#checkin').text(moment(calEvent.event.start).format('DD/MM/YYYY HH:mm'));
+                        $('#checkout').text(moment(calEvent.event.end).format('DD/MM/YYYY HH:mm'));
+                        $('#dialog').dialog('open');
+                    },
+
+                    eventMouseLeave: function (calEvent, jsEvent) {
+                        $('#dialog').dialog('close');
+                    },
                 })
 
                 calendario_de_escalas.render();
@@ -341,6 +362,8 @@
             </div>
         </div>
     </div>
+
+    <script src="{% static 'jquery-ui-1.13.2/jquery-ui.js' %}"></script>
 
 {% endblock %}
 
