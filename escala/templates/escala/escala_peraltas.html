@@ -32,7 +32,7 @@
             $('document').ready(function () {
                 $('#dialog').dialog({
                     autoOpen: false,
-                    modal: true,
+                    modal: false,
                     width: 400
                 });
 
@@ -161,6 +161,7 @@
                             $('#titulo_modal').text('Escala para o evento de ' + cliente)
                             $('#check_in_evento_modal').val(check_in_evento)
                             $('#check_out_evento_modal').val(check_out_evento)
+                            $('#form_gerar_pdf #id_escala').val(id_escala)
 
                             $.ajax({
                                 type: 'POST',
@@ -220,7 +221,7 @@
                                 $('#ModalEscalaEvento').modal('show');
                                 $('.container_loading').addClass('none')
                             })
-                        }
+                        },
                     {% endif %}
 
                     eventMouseEnter: function (calEvent, jsEvent) {
@@ -228,10 +229,6 @@
                         $('#checkin').text(moment(calEvent.event.start).format('DD/MM/YYYY HH:mm'));
                         $('#checkout').text(moment(calEvent.event.end).format('DD/MM/YYYY HH:mm'));
                         $('#dialog').dialog('open');
-                    },
-
-                    eventMouseLeave: function (calEvent, jsEvent) {
-                        $('#dialog').dialog('close');
                     },
                 })
 
@@ -357,6 +354,13 @@
                             </fieldset>
                         </form>
                     {% endif %}
+                    <form action="" method="GET" id="form_gerar_pdf">
+                        <fieldset id="fieldset_pdf">
+                            <input type="hidden" name="gerar_pdf" value="True">
+                            <input type="hidden" name="id_escala" id="id_escala">
+                            <button type="submit" class="btn btn-outline-primary">Dados monitores</button>
+                        </fieldset>
+                    </form>
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
             </div>

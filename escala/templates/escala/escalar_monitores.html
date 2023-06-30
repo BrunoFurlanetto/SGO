@@ -34,12 +34,14 @@
                         <div class="row mb-3">
                             <div style="width: 50%">
                                 <label for="check_in">Check in</label>
-                                <input type="datetime-local" id="check_in" {% if inicio %} value="{{ inicio }}" {% endif %}
+                                <input type="datetime-local" id="check_in" {% if inicio %}
+                                       value="{{ inicio }}" {% endif %}
                                        readonly>
                             </div>
                             <div style="width: 50%">
                                 <label for="check_out">Check out</label>
-                                <input type="datetime-local" id="check_out" {% if final %} value="{{ final }}" {% endif %}
+                                <input type="datetime-local" id="check_out" {% if final %}
+                                       value="{{ final }}" {% endif %}
                                        readonly>
                             </div>
                         </div>
@@ -67,7 +69,9 @@
                                 <li class="enfermeira_3">Enfermeira das 08h às 8h, necessário 3 enfermeiras</li>
                             {% endif %}
 
-                            <li>O grupo informou um total de {{ qtd }} participantes e até o momento temos um total de {{ qtd_pagantes }} confirmados</li>
+                            <li>O grupo informou um total de {{ qtd }} participantes e até o momento temos um total
+                                de {{ qtd_pagantes }} confirmados
+                            </li>
 
                             {% if ficha_de_evento %}
                                 <li>Ficha de evento: <a
@@ -271,6 +275,16 @@
                                 onclick="salvar_monitores_escalados(true, true)" {% else %}
                                 onclick="salvar_monitores_escalados('{{ setor|safe }}', true)" {% endif %}>Salvar prévia
                         </button>
+                    {% endif %}
+
+                    {% if id_escala %}
+                        <form action="" method="GET">
+                            <fieldset id="fieldset_pdf">
+                                <input type="hidden" name="gerar_pdf" value="True">
+                                <input type="hidden" name="id_escala" value="{{ id_escala }}">
+                                <button type="submit" class="btn btn-outline-dark">Dados monitores</button>
+                            </fieldset>
+                        </form>
                     {% endif %}
                 </div>
             {% endif %}

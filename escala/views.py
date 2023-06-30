@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
@@ -19,6 +19,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
     Enfermeira
 from peraltas.models import Monitor, DisponibilidadePeraltas
+from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
 
@@ -247,6 +248,17 @@ def verEscalaPeraltas(request):
             ))
 
     if request.method != 'POST':
+        if request.GET.get('gerar_pdf'):
+            escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
+            gerar_pdf.dados_monitores(escala_acampamento)
+
+            return FileResponse(
+                open('temp/dados_monitores_escalados.pdf', 'rb'),
+                content_type='application/pdf',
+                as_attachment=True,
+                filename=f'Dados monitores escalados.pdf'
+            )
+
         if is_ajax(request):
             data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
             hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
@@ -349,6 +361,17 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
         if request.POST.get('id_cliente'):
             return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
+
+    if request.GET.get('gerar_pdf'):
+        escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
+        gerar_pdf.dados_monitores(escala_acampamento)
+
+        return FileResponse(
+            open('temp/dados_monitores_escalados.pdf', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Dados monitores escalados.pdf'
+        )
 
     if request.method != 'POST':
         if setor == 'acampamento':

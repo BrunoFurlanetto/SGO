@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
@@ -459,3 +460,55 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.multi_cell(195, 8, ordem_de_servico.observacoes)
 
     pdf_ordem.output('temp/ordem_de_servico.pdf')
+
+
+def dados_monitores(escala):
+    consulta = [
+        escala.monitores_acampamento.all(),
+        escala.monitores_embarque.all(),
+        escala.biologos.all(),
+        escala.tecnicos.all(),
+        escala.enfermeiras.all()
+    ]
+    titulos_secoes = [
+        'Monitores Acampamento',
+        'Monitores Embarque',
+        'Biologos',
+        'Técnicos',
+        'Enfermeiras'
+    ]
+
+    pdf_escala = PDF()
+    pdf_escala.my_header('Dados dos monitores escalados')
+    pdf_escala.ln(2)
+    pdf_escala.texto_negrito(15, 8, 'Cliente:')
+    pdf_escala.cell(0, 8, escala.cliente.__str__(), ln=1)
+    pdf_escala.ln(3)
+
+    for secao, campo in enumerate(consulta):
+        lista = []
+
+        for colcaborador in campo:
+            ddd = colcaborador.telefone[0:2]
+            primeira_parte = colcaborador.telefone[4:8]
+            segunda_parte = colcaborador.telefone[7:]
+
+            lista.append([
+                colcaborador.usuario.get_full_name(),
+                colcaborador.usuario.email,
+                f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+            ])
+
+        if len(lista) > 0:
+            pdf_escala.titulo_secao(titulos_secoes[secao], 5, 0)
+            pdf_escala.ln(2)
+            pdf_escala.tables(
+                headings=['Nome Completo', 'E-mail', 'Telefone'],
+                rows=lista,
+                alings=('L', 'L', 'C'),
+                col_widths=(80, 80, 36)
+            )
+
+            pdf_escala.ln(8)
+
+    pdf_escala.output('temp/dados_monitores_escalados.pdf')
