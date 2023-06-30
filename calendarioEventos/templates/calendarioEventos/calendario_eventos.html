@@ -14,7 +14,7 @@
 
         <script>
             const gradiente = `linear-gradient(0deg, rgba(0,128,0,1) 0%, rgba(242,101,34,1) 60%)`
-            let hora_padrao_check_in, hora_padrao_check_out
+            let hora_padrao_check_in, hora_padrao_check_out, xhr
 
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
@@ -166,6 +166,7 @@
                                     $('#ModalCadastroPreReserva').modal('show');
                                 })
                             }
+                            window.addEventListener('unload', cancelAjaxRequest)
                         },
                     {% endif %}
 
@@ -280,6 +281,15 @@
                 {% endif %}
             })
 
+            function cancelAjaxRequest() {
+                if (xhr && xhr.readyState !== 4) {
+                    xhr.abort();
+                }
+
+                // Remova o manipulador do evento unload
+                window.removeEventListener('unload', cancelAjaxRequest);
+            }
+
             function gerar_lotacao() {
                 const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
                 const mes = moment(data_base).month() + 1
@@ -328,7 +338,7 @@
                             $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
                         }
                     }
-                }catch (e){
+                } catch (e) {
                     console.log(e)
                 } finally {
                     end_loading()

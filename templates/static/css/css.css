@@ -606,6 +606,15 @@
     margin: 10px 5px 0 20px;
     width: 65px;
     height: 20px;
+    border: solid 1px #FF8C00;
+    border-radius: 8px;
+    background-color: #FF8C00;
+}
+
+.conteudo-escala .colegio .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
     border: solid 1px #fcc607;
     border-radius: 8px;
     background-color: #fcc607;
@@ -615,9 +624,18 @@
     margin: 10px 5px 15px 20px;
     width: 65px;
     height: 20px;
-    border: solid 1px #0a58ca;
+    border: solid 1px #fcc607;
     border-radius: 8px;
-    background-color: #0a58ca;
+    background-color: #fcc607;
+}
+
+.conteudo-escala .empresa .cor {
+    margin: 10px 5px 15px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #0A58CA;
+    border-radius: 8px;
+    background-color: #0A58CA;
 }
 
 .ficha_evento .cor {
