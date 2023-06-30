@@ -151,5 +151,5 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
-        'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
+        # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

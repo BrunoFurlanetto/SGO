@@ -3,7 +3,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    {% if perms.peraltas.add_fichadeevento %}
+    {% comment %}{% if False %}
         {% for versao in ultimas_versoes %}
             <div class="card card-log">
                 {% if versao.campos_alterados == '' %}
@@ -103,11 +103,11 @@
                 {% endif %}
             </div>
         {% endfor %}
-    {% else %}
+    {% else %}{% endcomment %}
         <div class="conteudo_dashboard_peraltas_escrito">
             <h1>SGO</h1>
         </div>
-    {% endif %}
+    {% comment %}{% endif %}{% endcomment %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
