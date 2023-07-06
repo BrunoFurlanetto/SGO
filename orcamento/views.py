@@ -22,23 +22,28 @@ def calc_budget(req):
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)
-        # GERANDO ORÇAMENTO
-        budget = Budget(data['period'], data['days'],
-                        data["comming"], data["exit"])
 
+        # GERANDO ORÇAMENTO
+        budget = Budget(data['period'], data['days'], data["comming"], data["exit"])
         value_monitor = 0
         value_transport = 0
+
         if "pax" in data:  # numero de participantes
             budget.set_pax(data["pax"])
+
         if "monitor" in data:
             value_monitor = budget.monitor(data['monitor'])
+
         if "transport" in data:
             if data['transport']:
                 value_transport = budget.transport()
+
         if "optional" in data:
             budget.add_optional(data['optional'])
+
         if "others" in data:
             budget.add_others(data['others'])
+
         value_meal = budget.meal()
 
         # RESPOSTA
