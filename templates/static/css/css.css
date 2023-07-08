@@ -1060,32 +1060,3 @@
     align-items: baseline;
     gap: 10px;
 }
-
-.conteudo-orcamento {
-    margin: auto auto 5%;
-    width: 650px;
-    padding: 10px;
-    justify-content: center;
-}
-
-.head-orcamento {
-    text-align: center;
-    background-color: #fff;
-    box-shadow: 5px 13px 10px;
-    border-radius: 15px 15px 0 0;
-    padding-bottom: 5px;
-    padding-top: 20px;
-}
-
-.conteudo-orcamento .conteudo-primeiro{
-    background-color: #fff;
-    box-shadow: 5px 11px 10px;
-    border-radius: 0 0 15px 15px;
-}
-
-.conteudo-orcamento .conteudo {
-    background-color: #fff;
-    margin-top: 30px;
-    box-shadow: 5px 11px 10px;
-    border-radius: 15px;
-}

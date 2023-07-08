@@ -3,8 +3,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from .models import CadastroOrcamento
 from .utils import verify_data
 from .budget import Budget
+
 
 # Create your views here.
 
@@ -12,7 +14,12 @@ from .budget import Budget
 @csrf_exempt
 def calc_budget(req):
     if req.method != 'POST':
-        return render(req, 'orcamento/orcamento.html')
+        cadastro_orcamento = CadastroOrcamento()
+        print(req.GET.get('tipo_de_orcamento'))
+        return render(req, 'orcamento/orcamento.html', {
+            'orcamento': cadastro_orcamento,
+            'tipo_orcamento': req.GET.get('tipo_de_orcamento')
+        })
 
     if req.method == 'POST':
         # JSON

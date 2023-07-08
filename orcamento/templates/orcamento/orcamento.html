@@ -3,6 +3,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <div class="conteudo-orcamento">
         <div class="head-orcamento">
             <h2>Orçamento</h2>
@@ -12,12 +13,24 @@
             <fieldset>
                 {% csrf_token %}
                 <div class="conteudo-primeiro periodo-viagem">
-                    <h5 class="titulo-secao">Período de viagem</h5>
-
+                    <h5 class="titulo-secao">Tipo de orçamento</h5>
+                    <form action="{% url 'orcamento' %}" method="GET">
+                        <select name="tipo_de_orcamento" id="tipo_de_orcamento" style="width: 50%" onchange="this.form.submit()">
+                            <option {% if not tipo_orcamento or tipo_orcamento == '' %} selected {% endif %}></option>
+                            <option value="ceu" {% if tipo_orcamento == 'ceu' %} selected {% endif %} title="Para orçamentos com apenas atividades avulsas do CEU">Só CEU</option>
+                            <option value="padrao" {% if tipo_orcamento == 'padrao' %} selected {% endif %} title="Personalize um orçamento do zero">Padrão</option>
+                            <option value="promocional" {% if tipo_orcamento == 'promocional' %} selected {% endif %} title="Pacotes promocionais">Promocional</option>
+                        </select>
+                    </form>
                 </div>
-                <div class="conteudo"><br><br><br><br></div>
-                <div class="conteudo"><br><br><br><br></div>
-                <div class="conteudo"><br><br><br><br></div>
+                <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %} none {% endif %}">
+                    <h5 class="titulo-secao">Período da viagem</h5>
+                    <div>
+
+                    </div>
+                </div>
+                <div class="conteudo none"><br><br><br><br></div>
+                <div class="conteudo none"><br><br><br><br></div>
             </fieldset>
         </form>
     </div>

@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 
 from peraltas.models import ClienteColegio, Responsavel
@@ -45,3 +46,9 @@ class Orcamento(models.Model):
 
     def __str__(self):
         return f'Orçamento de {self.cliente}'
+
+
+class CadastroOrcamento(forms.ModelForm):
+    class Meta:
+        model = Orcamento
+        exclude = ()
