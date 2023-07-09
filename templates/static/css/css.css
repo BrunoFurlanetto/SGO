@@ -3,7 +3,6 @@
     width: max-width;
     height: max-height;
 }
-
 .container_loading {
     display: flex;
     justify-content: center;
@@ -844,6 +843,7 @@
     font-weight: bolder;
     background: #c3a06e;
 }
+
 .monitor_1 {
     font-weight: bolder;
     background: #BF9106;

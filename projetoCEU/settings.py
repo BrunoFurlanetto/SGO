@@ -172,5 +172,3 @@ CRONJOBS = [
     ('0 11 * * *', 'peraltas.cron.envio_dados_embarque'),
     ('0 4 */14 * *', 'peraltas.cron.deletar_versoes_antigas')
 ]
-
-

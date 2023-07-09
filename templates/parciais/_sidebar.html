@@ -217,6 +217,36 @@
                     <li>
                 {% endif %}
 
+                {% if perms.peraltas.add_fichadeevento %}
+                    <a href="{% url 'orcamento' %}">
+                        <i class='bx bxs-calculator'></i>
+                        <span class="link_name">Orçamento</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="/admin/">Orçamento</a></li>
+                    </ul>
+                {% endif %}
+
+                </li>{% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+
                 {% if perms.fichaAvaliacao.view_fichadeavaliacao %}
                     <a href="{% url 'entregues' %}">
                         <i class='bx bxs-report'></i>
