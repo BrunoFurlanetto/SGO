@@ -4,6 +4,9 @@ let id_enfermeiras_disponiveis = []
 let id_monitores_acampamento = []
 let id_monitores_hotelaria = []
 let id_monitores_embarque = []
+let id_monitores_biologo = []
+let id_tecnicos = []
+let id_coordenadores_escalados = []
 let outras_escalas = []
 let id_enfermeiras = []
 let id_escalados = []
@@ -14,7 +17,7 @@ espacos.forEach((espaco) => {
         const arrastando = document.querySelector('.arrastando')
 
         if (arrastando !== null) {
-            const nova_posicao = pegar_nova_posicao(espaco, e.clientY)
+            const nova_posicao = pegar_nova_posicao(espaco, e.clientX)
             e.preventDefault()
             e.dataTransfer.dropEffect = 'move'
 
@@ -35,20 +38,21 @@ document.addEventListener('dragend', (e) => {
     e.target.classList.remove('arrastando');
 })
 
-function pegar_nova_posicao(local, posY) {
+function pegar_nova_posicao(local, posX) {
     const cards_monitor = local.querySelectorAll('.card-monitor:not(.arrastando)')
     let resultado
 
     for (let card_referencia of cards_monitor) {
         const box = card_referencia.getBoundingClientRect()
-        const centro_do_box = box.y + box.height / 2
+        const centro_horizontal_do_box = box.x + box.width / 2
 
-        if (posY >= centro_do_box) resultado = card_referencia
+        if (posX >= centro_horizontal_do_box) resultado = card_referencia
     }
 
     return resultado
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
 function remover_escalado_clique(monitor) {
     $(`#monitor_embarque #${monitor.id}`).removeClass('embarque')
     id_escalados.splice(id_escalados.indexOf(monitor.id), 1)
@@ -60,53 +64,19 @@ function trocar_card_monitor_escalado(monitor) {
     $('#monitores_escalados').append(monitor)
 }
 
-function escalado(espaco) {
+async function verificar_racionais() {
+    $('#escalar .alerta_racionais').remove()
+    const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
+
+    if (monitores_totais > n_monitores) {
+        $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
+    }
+}
+
+async function escalado(espaco) {
     const monitores = espaco.querySelectorAll('.card-monitor')
     const tipo_escalacao = espaco.id
-
     // ---------------------------------este pra retorno na disponibilidade correta ------------------------------------
-    if (tipo_escalacao === 'monitores_hotelaria') {
-        let lista_de_ids = []
-
-        for (let monitor of monitores) {
-            $(monitor).removeClass('escalado')
-
-            if (monitor.classList.contains('embarque')) {
-                $(monitor).removeClass('embarque')
-                console.log('Foi')
-                console.log($(`#monitor_embarque #${monitor.id}`).classList)
-
-                if (monitor.children.length > 0){
-                    $(`#monitor_embarque #${monitor.id}`).removeClass('embarque')
-                    monitor.remove()
-                } else {
-                    trocar_card_monitor_escalado(monitor)
-                }
-
-                return
-            }
-
-            if (monitor.classList.contains('tecnica')) verificar_tecnica()
-
-            if (!lista_de_ids.includes(monitor.id)) {
-                lista_de_ids.push(monitor.id)
-            } else {
-                $('#monitores_acampamento').append(monitor)
-            }
-
-            if (monitor.classList.contains('enfermeira')) $('#enfermeiras_disponiveis').append(monitor)
-
-            if (!monitor.classList.contains('embarque')){
-                if (monitor.classList.contains('acampamento') && !monitor.classList.contains('hotelaria')) {
-                    $('#monitores_acampamento').append(monitor)
-                } else if (monitor.classList.contains('acampamento') && monitor.classList.contains('hotelaria')) {
-                    $(`#disponibilidade_duplicada #${monitor.id}`).removeClass('escalado')
-                    voltar_disponibilidade_dupla(monitor, 'monitores_acampamento')
-                }
-            }
-        }
-    }
-
     if (tipo_escalacao === 'monitores_acampamento') {
         let lista_de_ids = []
 
@@ -116,7 +86,7 @@ function escalado(espaco) {
             if (monitor.classList.contains('embarque')) {
                 $(monitor).removeClass('embarque')
 
-                if (monitor.children.length > 0){
+                if (monitor.children.length > 0) {
                     $(`#monitor_embarque #${monitor.id}`).removeClass('embarque')
                     monitor.remove()
                 } else {
@@ -135,15 +105,6 @@ function escalado(espaco) {
             }
 
             if (monitor.classList.contains('enfermeira')) $('#enfermeiras_disponiveis').append(monitor)
-
-            if (!monitor.classList.contains('embarque')) {
-                if (monitor.classList.contains('hotelaria') && !monitor.classList.contains('acampamento')) {
-                    $('#monitores_hotelaria').append(monitor)
-                } else if (monitor.classList.contains('hotelaria') && monitor.classList.contains('acampamento')) {
-                    $(`#disponibilidade_duplicada #${monitor.id}`).removeClass('escalado')
-                    voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-                }
-            }
         }
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -152,7 +113,7 @@ function escalado(espaco) {
             if (monitor.classList.contains('tecnica')) verificar_tecnica()
             if (monitor.classList.contains('enfermeira')) $('#enfermeiras_disponiveis').append(monitor)
             if (tipo_escalacao === 'monitor_embarque') duplicar_escalado(monitor)
-            if (tipo_escalacao === 'monitores_escalados'){
+            if (tipo_escalacao === 'monitores_escalados') {
                 if ($(`#monitores_escalados .embarque`).length > 1) {
                     for (let card_monitor of $(`#monitores_escalados .embarque`)) {
                         if (card_monitor.children.length > 0) {
@@ -163,7 +124,6 @@ function escalado(espaco) {
                     }
                 }
             }
-            verificar_escala_dupla(monitor)
         }
     }
 
@@ -172,10 +132,35 @@ function escalado(espaco) {
             if (!monitor.classList.contains('enfermeira')) verificar_enfermeira(monitor)
             if (monitor.classList.contains('tecnica')) verificar_tecnica()
         }
+    }
 
+    if (tipo_escalacao === 'biologos') {
+        for (let monitor of monitores) {
+            if (!monitor.classList.contains('biologo')) verificar_biologo(monitor)
+            if (monitor.classList.contains('tecnica')) verificar_tecnica()
+        }
+    }
+
+    if (tipo_escalacao === 'coordenadores_escalados') {
+        for (let monitor of monitores) {
+            if (!monitor.classList.contains('coordenador')) {
+                $('#monitores_acampamento').append(monitor)
+            }
+        }
+    }
+
+    if (tipo_escalacao === 'tecnicos_escalados') {
+        for (let monitor of monitores) {
+            if (!monitor.classList.contains('tecnica')) {
+                $('#monitores_acampamento').append(monitor)
+            } else {
+                verificar_tecnica()
+            }
+        }
     }
 
     verificar_escalados()
+    verificar_racionais()
 }
 
 function duplicar_escalado(monitor) {
@@ -185,28 +170,21 @@ function duplicar_escalado(monitor) {
     }
 }
 
-function voltar_disponibilidade_dupla(monitor, id_disponibilidade) {
-    const monitores_duplicados = $('#disponibilidade_duplicada').children()
-
-    for (let monitor_duplicado of monitores_duplicados) {
-        if (monitor.id === monitor_duplicado.id) {
-            $(`#${id_disponibilidade}`).append(monitor_duplicado)
-        }
-    }
-}
-
 function verificar_escalados() {
     const id_espacos = [
         'monitores_escalados', 'monitor_embarque',
         'enfermagem', 'monitores_acampamento',
-        'monitores_hotelaria', 'enfermeiras'
+        'monitores_hotelaria', 'enfermeiras',
+        'biologos', 'coordenadores_escalados',
+        'tecnicos_escalados'
     ]
     const lista_de_ids = [
         id_escalados, id_monitores_embarque,
         id_enfermeiras, id_monitores_acampamento,
-        id_monitores_hotelaria, id_enfermeiras_disponiveis
+        id_monitores_hotelaria, id_enfermeiras_disponiveis,
+        id_monitores_biologo, id_coordenadores_escalados,
+        id_tecnicos
     ]
-
     // Importante para garantir a ordem da escala informada pelo usuário em caso de ser para a hotelaria
     if (window.location.href.split('/').includes('hotelaria')) id_escalados.length = 0
 
@@ -221,12 +199,12 @@ function verificar_escalados() {
                 lista_de_ids[i].push(monitor.id)
             }
 
-            if (i == 0 || i == 1) {
+            if (i == 0 || i == 1 || i == 6) {
                 verificar_ja_escalado(monitor.id)
 
                 if (monitor.classList.contains('escalado')) {
                     $('#mensagem').remove()
-                    $('#escalar').append('<div  id="mensagem"><p class="alert-danger">Monitor(es) já presente(s) em escala na data em questão!</p></div>')
+                    $('#escalar').append('<div id="mensagem"><p class="alert alert-danger">Monitor(es) já presente(s) em escala na data em questão!</p></div>')
                 }
             } else {
                 if (outras_escalas.indexOf(monitor.id) !== -1) {
@@ -247,38 +225,21 @@ function verificar_escalados() {
     }
 }
 
-function verificar_escala_dupla(monitor) {
-    const monitores_hotelaria = $('#monitores_hotelaria').children()
-    const monitores_acampamento = $('#monitores_acampamento').children()
+function verificar_biologo(monitor) {
+    $(monitor).removeClass('escalado')
 
-    for (let monitor_teste of monitores_hotelaria) {
-        if (monitor_teste.id === monitor.id) $('#disponibilidade_duplicada').append(monitor_teste)
+    if (!monitor.classList.contains('embarque')) {
+        $('#monitores_acampamento').append(monitor)
+    } else {
+        monitor.remove()
     }
-
-    for (let monitor_teste of monitores_acampamento) {
-        if (monitor_teste.id === monitor.id) $('#disponibilidade_duplicada').append(monitor_teste)
-    }
-
 }
 
 function verificar_tecnica() {
-    let monitores_escalados = $('#monitores_escalados').children()
-    const monitores_embarque = $('#monitor_embarque').children()
+    let tecnicos_escalados = $('#tecnicos_escalados').children()
     let areas = []
 
-    for (let monitor of monitores_escalados) {
-        if (monitor.classList.contains('tecnica')) {
-            let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
-
-            areas_monitor.forEach(area => {
-                if (!areas.includes(area)) {
-                    areas.push(area)
-                }
-            })
-        }
-    }
-
-    for (let monitor of monitores_embarque) {
+    for (let monitor of tecnicos_escalados) {
         if (monitor.classList.contains('tecnica')) {
             let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
 
@@ -292,7 +253,7 @@ function verificar_tecnica() {
 
     if (areas.length !== 0) {
         $('#mensagem_tecnica').remove()
-        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert-info">Técnico(s) de ${areas.join(', ')} escalado(s)</p></div>`)
+        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert alert-info">Técnico(s) de ${areas.join(', ')} escalado(s)</p></div>`)
     } else {
         $('#mensagem_tecnica').remove()
     }
@@ -301,15 +262,8 @@ function verificar_tecnica() {
 function verificar_enfermeira(monitor) {
     $(monitor).removeClass('escalado')
 
-    if (!monitor.classList.contains('embarque')){
-        console.log(id_monitores_acampamento)
-        if (monitor.classList.contains('acampamento')) {
-            $('#monitores_acampamento').append(monitor)
-            voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-        } else {
-            $('#monitores_hotelaria').append(monitor)
-            voltar_disponibilidade_dupla(monitor, 'monitores_hotelaria')
-        }
+    if (!monitor.classList.contains('embarque')) {
+        $('#monitores_acampamento').append(monitor)
     } else {
         monitor.remove()
     }
@@ -345,71 +299,93 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
-function salvar_monitores_escalados(btn, editando = false) {
+function salvar_monitores_escalados(setor, pre_escala, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
     const enfermeiras_escaladas = $('#enfermagem').children()
-    $('#mensagem_sem_monitor').remove()
     let erro_sem_alteracao = false
     let erro_biologo = false
     let erro_monitor_embarque = false
     let erro_2_enfermeiras = false
     let erro_3_enfermeiras = false
+    $('#mensagem_sem_monitor').remove()
 
-    if ((id_escalados.length + id_monitores_embarque.length) === 0) {
-        if (editando) {
-            $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+    if (setor == 'acampamento') {
+        if (produto === 'Só CEU'){
+            if ((id_escalados.length + id_monitores_embarque.length + id_tecnicos) === 0) {
+                if (editando) {
+                    $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+                } else {
+                    $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+                }
+                erro_sem_alteracao = true
+            }
         } else {
-            $('#corpo_site').prepend('<p class="alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+            if ((id_escalados.length + id_monitores_embarque.length) === 0) {
+                if (editando) {
+                    $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
+                } else {
+                    $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhum monitor foi selecionado</p>')
+                }
+                erro_sem_alteracao = true
+            }
         }
-        erro_sem_alteracao = true
+
+        if ($('#obrigatoriedades')) {
+            if ($('#obrigatoriedades .biologo_1').length > 0) {
+                if (id_monitores_biologo < 1) {
+                    window.scroll({top: 0, behavior: 'smooth'});
+                    $('.biologo_1').css({'color': 'red'})
+                    erro_biologo = true
+                } else {
+                    $('.biologo_1').css({'color': 'black'})
+                    erro_biologo = false
+                }
+            }
+
+            if ($('#obrigatoriedades .embarque_1').length > 0 && monitores_escalados_embarque.length === 0) {
+                $('.embarque_1').css({'color': 'red'})
+                erro_monitor_embarque = true
+            } else {
+                $('.embarque_1').css({'color': 'black'})
+                erro_monitor_embarque = false
+            }
+
+            if ($('#obrigatoriedades .enfermeira_2').length > 0 && enfermeiras_escaladas.length < 2) {
+                $('.enfermeira_2').css({'color': 'red'})
+                erro_2_enfermeiras = true
+            } else {
+                $('.enfermeira_2').css({'color': 'black'})
+                erro_2_enfermeiras = false
+            }
+
+            if ($('#obrigatoriedades .enfermeira_3').length > 0 && enfermeiras_escaladas.length < 3) {
+                $('.enfermeira_3').css({'color': 'red'})
+                erro_3_enfermeiras = true
+            } else {
+                $('.enfermeira_3').css({'color': 'black'})
+                erro_3_enfermeiras = false
+            }
+        }
     }
 
-    if ($('#obrigatoriedades')) {
-        if ($('#obrigatoriedades .biologo_1').length > 0) {
-            let biologo = false
+    if ($('#escalar .alerta_racionais').length > 0) {
+        let count = 0;
+        let interval = setInterval(function () {
+            jQuery('#escalar .alerta_racionais').animate({opacity: 0.7}, 100, "linear", function () {
+                jQuery(this).delay(50);
+                jQuery(this).animate({opacity: 1}, 100, function () {});
+                jQuery(this).delay(50);
+            });
 
-            for (let monitor of monitores_escalados) {
-                if (monitor.classList.contains('biologo')) biologo = true
+            count++;
+
+            if (count === 10) {
+                clearInterval(interval);
             }
+        }, 50)
 
-            for (let monitor of monitores_escalados_embarque) {
-                if (monitor.classList.contains('biologo')) biologo = true
-            }
-
-            if (!biologo) {
-                window.scroll({top: 0, behavior: 'smooth'});
-                $('.biologo_1').css({'color': 'red'})
-                erro_biologo = true
-            } else {
-                $('.biologo_1').css({'color': 'black'})
-                erro_biologo = false
-            }
-        }
-
-        if ($('#obrigatoriedades .embarque_1').length > 0 && monitores_escalados_embarque.length === 0) {
-            $('.embarque_1').css({'color': 'red'})
-            erro_monitor_embarque = true
-        } else {
-            $('.embarque_1').css({'color': 'black'})
-            erro_monitor_embarque = false
-        }
-
-        if ($('#obrigatoriedades .enfermeira_2').length > 0 && enfermeiras_escaladas.length < 2) {
-            $('.enfermeira_2').css({'color': 'red'})
-            erro_2_enfermeiras = true
-        } else {
-            $('.enfermeira_2').css({'color': 'black'})
-            erro_2_enfermeiras = false
-        }
-
-        if ($('#obrigatoriedades .enfermeira_3').length > 0 && enfermeiras_escaladas.length < 3) {
-            $('.enfermeira_3').css({'color': 'red'})
-            erro_3_enfermeiras = true
-        } else {
-            $('.enfermeira_3').css({'color': 'black'})
-            erro_3_enfermeiras = false
-        }
+        return
     }
 
     if (erro_sem_alteracao || erro_biologo || erro_monitor_embarque || erro_2_enfermeiras || erro_3_enfermeiras) {
@@ -417,25 +393,28 @@ function salvar_monitores_escalados(btn, editando = false) {
 
         return
     }
+
+    $('.container_loading').removeClass('none')
     $.ajax({
         url: '',
+        type: 'POST',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        async: false,
-        type: "POST",
         data: {
             'id_escala': $('#escala_editada').val(),
             'id_monitores': id_escalados,
             'id_monitores_embarque': id_monitores_embarque,
+            'id_biologos': id_monitores_biologo,
             'id_enfermeiras': id_enfermeiras,
+            'id_coordenadores': id_coordenadores_escalados,
+            'id_tecnicos': id_tecnicos,
             'cliente': $('#cliente').val(),
             'check_in': $('#check_in').val(),
             'check_out': $('#check_out').val(),
+            'observacoes': $('#observacoes').val(),
+            'pre_escala': pre_escala,
         },
         success: function (response) {
             window.location.href = '/escala/peraltas/'
         }
     });
 }
-
-
-

@@ -1,9 +1,12 @@
+import requests
+
 from cadastro.funcoesColegio import pegar_informacoes_cliente
 from ceu.models import Atividades, Professores, Locaveis
+from ordemDeServico.models import OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais, \
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
-    AtividadesEco, EscalaAcampamento, ProdutoCorporativo
+    AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor, CodigosPadrao
 
 
 def is_ajax(request):
@@ -38,31 +41,23 @@ def requests_ajax(requisicao, files=None, usuario=None):
         for grupo in ficha_de_evento.atividades_peraltas.all():
             atividades_peraltas.append(grupo.grupo)
 
-        if ficha_de_evento.informacoes_adcionais.transporte:
-            try:
-                escala = EscalaAcampamento.objects.get(ficha_de_evento=ficha_de_evento)
-            except EscalaAcampamento.DoesNotExist:
-                ...
-            else:
-                id_monitor_embarque = escala.monitores_embarque.all()[0].id
-
         dados_ficha = {
             'id_instituicao': ficha_de_evento.cliente.nome_fantasia,
             'id_cidade': ficha_de_evento.cliente.cidade,
             'id_endereco': ficha_de_evento.cliente.endereco,
             'id_cnpj': ficha_de_evento.cliente.cnpj,
             'id_responsavel_grupo': ficha_de_evento.responsavel_evento.nome,
-            'transporte': ficha_de_evento.informacoes_adcionais.transporte,
+            'transporte': ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 1,
             'seguro': ficha_de_evento.informacoes_adcionais.seguro,
             'id_n_participantes': ficha_de_evento.qtd_confirmada,
             'id_serie': ', '.join(serie),
-            'id_monitor_embarque': id_monitor_embarque,
             'id_n_professores': ficha_de_evento.qtd_professores,
             'id_check_in': ficha_de_evento.check_in,
             'id_check_out': ficha_de_evento.check_out,
             'id_vendedor': ficha_de_evento.vendedora.id,
             'id_empresa': ficha_de_evento.empresa,
             'atividades_ceu': atividades_ceu,
+            'atividades_ceu_a_definir': ficha_de_evento.atividades_ceu_a_definir,
             'locacoes_ceu': locacoes_ceu,
             'atividades_eco': atividades_eco,
             'atividades_peraltas': atividades_peraltas,
@@ -92,12 +87,17 @@ def requests_ajax(requisicao, files=None, usuario=None):
 
     if requisicao.get('tipo') == 'ecoturismo':
         atividades_eco_bd = AtividadesEco.objects.all()
+        monitores_biologos_bd = Monitor.objects.filter(biologo=True)
         atividades = {}
+        biologos = {}
+
+        for monitor in monitores_biologos_bd:
+            biologos[monitor.id] = monitor.usuario.get_full_name()
 
         for atividade in atividades_eco_bd:
             atividades[atividade.id] = atividade.nome_atividade_eco
 
-        return {'dados': atividades}
+        return {'atividades': atividades, 'biologos': biologos}
 
     if requisicao.get('atividade'):
         atividade_selecionada = Atividades.objects.get(id=int(requisicao.get('atividade')))
@@ -171,7 +171,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
             cliente = {
                 'id': cliente_bd.id,
                 'codigo_app_pj': cliente_bd.codigo_app_pj,
-                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -190,7 +189,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
             cliente = {
                 'id': cliente_bd.id,
                 'codigo_app_pj': cliente_bd.codigo_app_pj,
-                'codigo_app_pf': cliente_bd.codigo_app_pf,
                 'razao_social': cliente_bd.razao_social,
                 'cnpj': cliente_bd.cnpj,
                 'nome_fantasia': cliente_bd.nome_fantasia,
@@ -208,7 +206,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
     if requisicao.get('id_cliente_app'):
         cliente = ClienteColegio.objects.get(id=int(requisicao.get('id_cliente_app')))
 
-        return {'id_cliente_pj': cliente.codigo_app_pj, 'id_cliente_pf': cliente.codigo_app_pf}
+        return {'id_cliente_pj': cliente.codigo_app_pj}
 
     if requisicao.get('id'):
         responsaveis_bd = Responsavel.objects.filter(responsavel_por=int(requisicao.get('id')))
@@ -356,7 +354,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
             form = CadastroCodigoApp(requisicao, instance=codigo)
         else:
             form = CadastroCodigoApp(requisicao)
-        print(form.is_valid())
+
         if form.is_valid():
             novo_codigo = form.save()
             return {'id': novo_codigo.id}
@@ -428,7 +426,7 @@ def pegar_refeicoes(dados):
 
 
 def ver_empresa_atividades(dados):
-    atividades_ceu = dados.get('atividades_ceu')
+    atividades_ceu = [dados.get('atividades_ceu'), dados.get('atividades_ceu_a_definir')]
     locacoes_ceu = dados.get('locacoes_ceu')
     atividades_exta = dados.get('atividades_eco')
     atividades_peraltas = dados.get('atividades_peraltas')
@@ -441,4 +439,105 @@ def ver_empresa_atividades(dados):
         return 'CEU'
 
 
+def numero_coordenadores(ficha_de_evento):
+    ordem_de_servico = None
 
+    if ficha_de_evento.os:
+        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento)
+        participantes = ordem_de_servico.n_participantes
+    else:
+        participantes = ficha_de_evento.qtd_convidada
+
+    if not ordem_de_servico:
+        if participantes < 120:
+            return 1
+        else:
+            return 2
+    else:
+        if participantes < ordem_de_servico.racional_coordenadores:
+            return 1
+        elif ordem_de_servico.racional_coordenadores < participantes < 160:
+            return 2
+        else:
+            if ordem_de_servico.permicao_coordenadores:
+                return 3
+            else:
+                return 2
+
+
+def separar_dados_transporte(dados_transporte, transporte_n):
+    campos = list(CadastroDadosTransporte().fields.keys())
+    n_carros = ['n_micro', 'n_46', 'n_50']
+    campos.extend(n_carros)
+    numero_carros = {}
+    dados = {}
+
+    for campo in campos:
+        if len(dados_transporte.getlist(campo)) > 0:
+            dados[campo] = dados_transporte.getlist(campo)[transporte_n]
+
+            if campo in n_carros:
+                numero_carros[campo] = dados_transporte.getlist(campo)[transporte_n]
+
+    return dados, numero_carros
+
+
+def salvar_dados_transporte(form_transporte, numero_carros):
+    dados_transporte = form_transporte.save(commit=False)
+    dados_transporte.dados_veiculos = DadosTransporte.reunir_veiculos(numero_carros)
+    form_salvo = form_transporte.save()
+
+    return form_salvo.id
+
+
+def verificar_codigos(codigos):
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+    url_gerar_json = 'https://pagamento.peraltas.com.br/a/tools/gera_arquivo_json_turmas.aspx'
+    url_json = 'https://pagamento.peraltas.com.br/json/turmas.json'
+
+    for codigo in codigos:
+        if codigo in codigos_padrao:
+            return {
+                'salvar': True
+            }
+
+    response_gerar_json = requests.get(url_gerar_json)
+    response_json = requests.get(url_json)
+
+    if response_gerar_json.status_code == 200 and response_json.status_code == 200:
+        total_pagantes_masculino = 0
+        total_pagantes_feminino = 0
+        total_professores_masculino = 0
+        total_professores_feminino = 0
+
+        eventos = response_json.json()
+        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+
+        for codigo in codigos:
+            if codigo not in eventos_dict and codigo != '':
+                return {
+                    'salvar': False,
+                    'mensagem': f'O código {codigo} não está cadastrado no sistema de pagamentos. Verifique e tente novamente.'
+                }
+            elif codigo in eventos_dict and codigo != '':
+                totais = eventos_dict[codigo]['totais']
+                total_pagantes_masculino += totais['totalPagantesMasculino']
+                total_pagantes_feminino += totais['totalPagantesFeminino']
+                total_professores_masculino += totais['totalProfessoresMasculino']
+                total_professores_feminino += totais['totalProfessoresFeminino']
+    else:
+        return {
+            'salvar': False,
+            'mensagem': 'O servidor de pagamentos não respondeu, cadastre um dos códgigos de exceção e tente novamente mais tarde.'
+        }
+
+    return {
+        'salvar': True,
+        'totais': {
+            'total_pagantes_masculino': total_pagantes_masculino,
+            'total_pagantes_feminino': total_pagantes_feminino,
+            'total_professores_masculino': total_professores_masculino,
+            'total_professores_feminino': total_professores_feminino,
+            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino
+        }
+    }

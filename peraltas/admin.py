@@ -5,7 +5,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira, ListaDeCargos, ProdutoCorporativo)
+                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao)
 from peraltas.models import Vendedor
 
 
@@ -77,7 +77,7 @@ class EmpresaOnibusAdmin(admin.ModelAdmin):
 
 @admin.register(FichaDeEvento)
 class FichaDeEventoAdmin(admin.ModelAdmin):
-    list_display = ('vendedora', 'cliente', 'check_in', 'check_out', 'qtd_convidada')
+    list_display = ('vendedora', 'cliente', 'check_in', 'check_out', 'qtd_convidada', 'data_preenchimento')
     list_filter = ('pre_reserva', 'data_preenchimento')
 
 
@@ -134,6 +134,27 @@ class InformacoesAdicionaisAdmin(admin.ModelAdmin):
     list_display = ('id',)
 
 
+@admin.register(CodigosPadrao)
+class CodigosPadraoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'codigo')
+
+
 @admin.register(CodigosApp)
 class CodigosAppAdmin(admin.ModelAdmin):
     list_display = ('cliente_pj',)
+
+
+@admin.register(EventosCancelados)
+class EventosCanceladosAdmin(admin.ModelAdmin):
+    list_display = ('cliente', 'estagio_evento', 'atendente', 'motivo_cancelamento')
+    list_filter = ('estagio_evento', 'atendente')
+
+
+@admin.register(Eventos)
+class EventosAdmin(admin.ModelAdmin):
+    list_display = (
+        'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
+        'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento'
+    )
+    list_display_links = ('cliente', )
+    list_per_page = 100

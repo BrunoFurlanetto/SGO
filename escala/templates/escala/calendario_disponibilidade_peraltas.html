@@ -7,157 +7,127 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- Styles da bootstrap -->
 
     <div class="conteudo-escala" style="background-color: white">
-        <div id="selecionar_setor">
-            <label>Setor</label>
-            <select class="form-select" name="setor" id="setor" onchange="mostrar_calendario()">
-                <option value="hotelaria">Hotelaria</option>
-                <option value="acampamento">Acampamento</option>
-            </select>
-        </div>
+
+        {% if coordenador_hotelaria and coordenador_acampamento %}
+            <form id="selecionar_setor" action="{% url 'visualizarDisponibilidadePeraltas' %}" method="GET">
+                <label for="setor">Montar escala para</label>
+                <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
+                    <option value="acampamento">Acampamento</option>
+                    <option value="hotelaria" {% if request.GET.setor == 'hotelaria' %} selected {% endif %}>Hotelaria
+                    </option>
+                </select>
+            </form>
+        {% endif %}
+
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
-          {% csrf_token %}
+        {% csrf_token %}
+        <script src="{% static 'js/Moment.js' %}"></script>
+        <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+        <script src="{% static 'js/Moment_timezone.js' %}"></script>
         <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
 
         <script>
-            $(document).ready(function (){
-                mostrar_calendario()
+            $(document).ready(function () {
+                let calendarUI = document.getElementById('calendar')
+                let calendario_hotelaria = new FullCalendar.Calendar(calendarUI, {
+
+                    headerToolbar: {
+                        left: '',
+                        center: 'title',
+                    },
+
+                    eventOrderStrict: true,
+                    locale: 'pt-br',
+                    dayMaxEvents: 3,
+                    fixedWeekCount: false,
+                    navLinks: true,
+                    height: 'parent',
+                    contentHeight: 'auto',
+                    handleWindowResize: true,
+
+                    viewRender: function (view, element) {
+                        var hasScrollbar = $('.fc-scroller-canvas').height() > $('.fc-scroller').height();
+                        if (hasScrollbar) {
+                            $('.fc-day-grid-container').css('margin-right', '16px');
+                        } else {
+                            $('.fc-day-grid-container').css('margin-right', '0');
+                        }
+                    },
+
+                    navLinkDayClick: function (date, jsEvent) {
+                        {% if setor == 'hotelaria' %}
+                            $.ajax({
+                                type: 'GET',
+                                url: '',
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                data: {'data_escala': moment(date).format('YYYY-MM-DD')},
+                                success: function (response) {
+                                    if (response['hotelaria']) {
+                                        window.location.href = `/escala/peraltas/hotelaria/escalar/${moment(date).format('YYYY-MM-DD')}`
+                                    }
+                                }
+                            })
+                        {% else %}
+                            window.location.href = `/escala/peraltas/acampamento/escalar/${moment(date).format('YYYY-MM-DD')}`
+                        {% endif %}
+                    },
+
+                    events: [
+                        {% for ficha in fichas_de_evento %}
+                            {
+                                start: '{{ ficha.check_in | date:'Y-m-d' }}',
+                                end: '{{ ficha.check_out | date:'Y-m-d' }}',
+                                display: 'background',
+                                color: '#8B008B',
+                            },
+                        {% endfor %}
+
+                        {% for evento in eventos %}
+                            {
+                                start: '{{ evento.check_in | date:'Y-m-d' }}',
+                                end: '{{ evento.check_out | date:'Y-m-d' }}',
+                                display: 'background',
+
+                                {% if evento.tipo == 'Colégio' %}
+                                    color: '#FF8C00',
+                                {% else %}
+                                    color: '#fcc607',
+                                {% endif %}
+                            },
+                        {% endfor %}
+
+                        {% for evento in hopedagem %}
+                            {
+                                start: '{{ evento.check_in | date:'Y-m-d' }}',
+                                end: '{{ evento.check_out | date:'Y-m-d' }}',
+                                display: 'background',
+                                color: '#008000',
+
+                            },
+                        {% endfor %}
+
+                        {% for disponivel in disponiveis_peraltas %}
+                            {% for dia in disponivel.dias_disponiveis %}
+                                {
+                                    title: "{{ disponivel.monitor }}",
+                                    start: "{{ dia }}",
+                                },
+                            {% endfor %}
+                        {% endfor %}
+                    ],
+                    eventColor: '#EB5B48',
+                });
+                calendario_hotelaria.render();
+                calendario_hotelaria.setOption('locale', 'pt-br')
             })
 
-            function mostrar_calendario() {
-                const calendarUI = document.getElementById('calendar');
-                if ($('#setor').val() === 'hotelaria') {
-                    $('#calendar').empty()
-                    let calendario_hotelaria = new FullCalendar.Calendar(calendarUI, {
-
-                        headerToolbar: {
-                            left: '',
-                            center: 'title',
-                        },
-
-                        eventOrderStrict: true,
-                        locale: 'pt-br',
-                        dayMaxEvents: 3,
-
-                        {% if coordenador_hotelaria %}
-                            navLinks: true,
-                            navLinkDayClick: function (date, jsEvent) {
-                                let dia = String(date.getDate()).padStart(2, '0')
-                                let mes = String(date.getMonth() + 1).padStart(2, '0')
-                                let ano = String(date.getFullYear())
-                                let data = dia + '-' + mes + '-' + ano
-
-                                window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
-                            },
-                        {% endif %}
-
-                        events: [
-                            {% for ficha in fichas_de_evento %}
-                                {
-                                    start: '{{ ficha.check_in | date:'Y-m-d' }}',
-                                    end: '{{ ficha.check_out | date:'Y-m-d' }}',
-                                    display: 'background',
-                                    color: '#8B008B',
-                                },
-                            {% endfor %}
-
-                            {% for evento in eventos %}
-                                {
-                                    start: '{{ evento.check_in | date:'Y-m-d' }}',
-                                    end: '{{ evento.check_out | date:'Y-m-d' }}',
-                                    display: 'background',
-
-                                    {% if evento.tipo == 'Colégio' %}
-                                        color: '#FF8C00',
-                                    {% else %}
-                                        color: '#fcc607',
-                                    {% endif %}
-                                },
-                            {% endfor %}
-
-                            {% for disponivel in disponiveis_hotelaria %}
-                                {% for dia in disponivel.dias_disponiveis %}
-                                    {
-                                        title: "{{ disponivel.monitor }}",
-                                        start: "{{ dia }}",
-                                    },
-                                {% endfor %}
-                            {% endfor %}
-                        ],
-                    eventColor: '#EB5B48',
-                    });
-                    calendario_hotelaria.render();
-                    calendario_hotelaria.setOption('locale', 'pt-br')
-                } else {
-                    $('#calendar').empty()
-                    let calendario_acampamento = new FullCalendar.Calendar(calendarUI, {
-
-                        headerToolbar: {
-                            left: '',
-                            center: 'title',
-                        },
-
-                        eventOrderStrict: true,
-                        locale: 'pt-br',
-                        dayMaxEvents: 3,
-
-                        {% if coordenador_acampamento %}
-                            navLinks: true,
-                            navLinkDayClick: function (date, jsEvent) {
-                                let dia = String(date.getDate()).padStart(2, '0')
-                                let mes = String(date.getMonth() + 1).padStart(2, '0')
-                                let ano = String(date.getFullYear())
-                                let data = dia + '-' + mes + '-' + ano
-
-                                window.location.href = `/escala/peraltas/${$('#setor').val()}/escalar/${data}`
-                            },
-                        {% endif %}
-
-                        events: [
-                            {% for ficha in fichas_de_evento %}
-                                {
-                                    start: '{{ ficha.check_in | date:'Y-m-d' }}',
-                                    end: '{{ ficha.check_out | date:'Y-m-d' }}',
-                                    display: 'background',
-                                    color: '#8B008B',
-                                },
-                            {% endfor %}
-
-                            {% for evento in eventos %}
-                                {
-                                    start: '{{ evento.check_in | date:'Y-m-d' }}',
-                                    end: '{{ evento.check_out | date:'Y-m-d' }}',
-                                    display: 'background',
-
-                                    {% if evento.tipo == 'Colégio' %}
-                                        color: '#FF8C00',
-                                    {% else %}
-                                        color: '#fcc607',
-                                    {% endif %}
-                                },
-                            {% endfor %}
-
-                            {% for disponivel in disponiveis_acampamento %}
-                                {% for dia in disponivel.dias_disponiveis %}
-                                    {
-                                        title: "{{ disponivel.monitor }}",
-                                        start: "{{ dia }}",
-                                    },
-                                {% endfor %}
-                            {% endfor %}
-                        ],
-
-                        eventColor: '#f36d21',
-
-                    });
-                    calendario_acampamento.render();
-                    calendario_acampamento.setOption('locale', 'pt-br')
-                }
-            }
-
-            function redirecionar_edicao(){
+            function redirecionar_edicao() {
                 window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')
             }
         </script>
+        <script src="{% static 'js/Moment.js' %}"></script>
+        <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+        <script src="{% static 'js/Moment_timezone.js' %}"></script>
     </div>
 
 {% endblock %}

@@ -18,21 +18,22 @@ def gerar_lotacao(mes, ano):
             _ano = ano + 1
         else:
             _ano = ano
+        print(loop, mes, _ano)
 
         ultimo_dia_mes = monthrange(_ano, _mes)[1]
 
         ordens_mes_ano = OrdemDeServico.objects.filter(
             check_in__month=_mes,
-            check_in__year=ano if loop != 2 and mes != 12 else ano + 1,
+            check_in__year=_ano,
         )
         fichas_mes_ano = FichaDeEvento.objects.filter(os=False).filter(
             check_in__month=_mes,
-            check_in__year=ano if loop != 2 and mes != 12 else ano + 1,
+            check_in__year=_ano,
             pre_reserva=False
         )
         pre_reservas_mes = FichaDeEvento.objects.filter(os=False).filter(
             check_in__month=_mes,
-            check_in__year=ano if loop != 2 and mes != 12 else ano + 1,
+            check_in__year=_ano,
             pre_reserva=True
         )
 

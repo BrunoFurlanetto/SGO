@@ -48,7 +48,7 @@ else:
         path('peraltas/', manutencao),
         path('dashboard/', manutencao),
         path('cadastro/', manutencao),
-        path('escala/',manutencao),
+        path('escala/', manutencao),
         path('visualizacao/', manutencao),
         path('ficha-de-avaliacao/', manutencao),
         path('painel-geral/', manutencao),

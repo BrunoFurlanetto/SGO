@@ -3,76 +3,111 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-
-    {% if ceu %}
-        <div class="conteudo-dashboard">
-            <div class="tabela-dashboard">
-                {% csrf_token %}
-                <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
-                <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
-                    <thead>
-                    <tr class="table-active">
-                        <th width="90px">
-                            <center>Tipo</center>
-                        </th>
-                        <th width="400px">
-                            <center>Instituição</center>
-                        </th>
-                        <th width="120px">
-                            <center>Coordenador</center>
-                        </th>
-                        <th width="250px">
-                            <center>Equipe</center>
-                        </th>
-                        <th width="210px">
-                            <center>
-                                <nobr>Data de atendimento</nobr>
-                            </center>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id="dados">
-                    {% if not relatorios %}
-                        <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
-                    {% endif %}
-
-                    {% for relatorio in relatorios %}
-                        <tr class='clickable-row' data-href="{% url 'verRelatorio' relatorio.id %}">
-                            <td>{{ relatorio.tipo }}</td>
-                            <td>{{ relatorio.instituicao }}</td>
-                            <td>{{ relatorio.equipe.coordenador }}</td>
-                            <td>{{ relatorio.equipe_escalada }}</td>
-                            <td>{{ data }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
+    {% comment %}{% if False %}
+        {% for versao in ultimas_versoes %}
+            <div class="card card-log">
+                {% if versao.campos_alterados == '' %}
+                    <div class="card-header">Criação da <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-body">
+                        <ul>
+                            <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-body">
+                        <ul>
+                            {% if versao.campos_alterados|length > 4 %}
+                                <li>
+                                    <p>Campos
+                                        {% for alteracao in versao.campos_alterados %}
+                                            {% if not forloop.last %}
+                                                 <span>{{ alteracao.campo.nome_campo }}</span>,
+                                            {% else %}
+                                                 e <span>{{ alteracao.campo.nome_campo }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        alterados
+                                    </p>
+                                </li>
+                            {% else %}
+                                {% for alteracao in versao.campos_alterados %}
+                                    <li>
+                                        {% if alteracao.campo.tipo_campo == 'JSONField' %}
+                                            {% if alteracao.campo.nome_campo == 'refeicoes' %}
+                                                <p>Tabela de <span>refeicoes</span> alterado</p>
+                                            {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}
+                                                <p><span>Informações da locação</span> alterado</p>
+                                            {% endif %}
+                                        {% elif alteracao.campo.tipo_campo == 'FileField' %}
+                                            <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
+                                        {% elif alteracao.campo.tipo_campo == 'TextField' %}
+                                            <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
+                                        {% else %}
+                                            <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de <span>
+                                                {% if alteracao.campo.valor_anterior is None or alteracao.campo.valor_anterior == '0' or alteração.campo.valor_anterior == '' %}
+                                                    {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
+                                                        0
+                                                    {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                        Sem data
+                                                    {% elif alteracao.campo.tipo_campo == 'CharField' %}
+                                                        "Vazio"
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if alteracao.campo.tipo_campo == 'BooleanField' %}
+                                                        {% if alteracao.campo.valor_anterior %}
+                                                            Sim
+                                                        {% else %}
+                                                            Não
+                                                        {% endif %}
+                                                    {% elif alteracao.campo.tipo_campo == 'DateField' %}
+                                                        {{ alteracao.campo.valor_anterior |date:'d/m/Y' }}
+                                                    {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                        {{ alteracao.campo.valor_anterior |date:'d/m/Y H:i' }}
+                                                    {% else %}
+                                                        {{ alteracao.campo.valor_anterior }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            </span> para
+                                            <span>
+                                                {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}
+                                                    {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
+                                                        0
+                                                    {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                        Sem data
+                                                    {% elif alteracao.campo.tipo_campo == 'CharField' %}
+                                                        "Vazio"
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if alteracao.campo.tipo_campo == 'BooleanField' %}
+                                                        {% if alteracao.campo.novo_valor %}
+                                                            Sim
+                                                        {% else %}
+                                                            Não
+                                                        {% endif %}
+                                                    {% elif alteracao.campo.tipo_campo == 'DateField' %}
+                                                        {{ alteracao.campo.novo_valor |date:'d/m/Y' }}
+                                                    {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                        {{ alteracao.campo.novo_valor |date:'d/m/Y H:i' }}
+                                                    {% else %}
+                                                        {{ alteracao.campo.novo_valor }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            </span></p>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
-            <hr>
-            <div class="dados_dashboard">
-                <div class="dados-usuario">
-                    <b>Resumo do mês:</b> {{ n_atividades }} atividade(s) e {{ n_horas }} com empresa.
-                </div>
-                <div class="escala">
-                    <b>Escala do dia:</b>
-
-                    {% if equipe_escalada %}
-                        {% for professor in equipe_escalada %}
-                            {{ forloop.counter }} - {{ professor }},
-                        {% endfor %}
-                    {% else %}
-                        Ninguém escalado para hoje!
-                    {% endif %}
-
-                </div>
-            </div>
-        </div>
-    {% else %}
+        {% endfor %}
+    {% else %}{% endcomment %}
         <div class="conteudo_dashboard_peraltas_escrito">
             <h1>SGO</h1>
         </div>
-    {% endif %}
+    {% comment %}{% endif %}{% endcomment %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
@@ -90,7 +125,7 @@
                     <div class="modal-body" style="text-align: justify">
                         {% if msg_acampamento %}
                             <div>
-                                {{ msg_acampamento | safe}}
+                                {{ msg_acampamento | safe }}
                             </div>
                         {% endif %}
                         {% if msg_acampamento and msg_hotelaria %}
@@ -111,6 +146,41 @@
         <script>
             $(window).on('load', function () {
                 $('#aviso_disponibilidade').modal('show')
+            })
+        </script>
+    {% endif %}
+
+    {% if termo_monitor %}
+        <div class="modal fade" data-backdrop="static" id="termo_aceite_monitor" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Termo de aceite</h5>
+                    </div>
+                    <div class="modal-body" style="text-align: justify">
+                        <p>
+                            Ao acessar esse sistema, você concorda em disponibilizar, nas datas pré-selecionadas, a
+                            prestação de seus serviços como Monitor para supervisão de crianças e jovens. RESSALTANDO
+                            QUE você pode recusar o trabalho quantas vezes quiser, sem necessidade de qualquer
+                            justificativa.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                            <fieldset>
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-primary" name="termo_de_aceite" value="Sim"/>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(window).on('load', function () {
+                $('#termo_aceite_monitor').modal('show')
             })
         </script>
     {% endif %}

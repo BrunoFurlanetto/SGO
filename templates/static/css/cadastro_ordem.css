@@ -38,10 +38,21 @@
     font-size: 28px;
     color: #b02a37;
 }
-#id_cronograma_peraltas{
+#id_cronograma_peraltas, #id_ficha_de_avaliacao{
     border: none;
     height: 100%;
 }
+
+#ficha_de_avaliacao-clear_id, #cronograma_peraltas-clear_id {
+    width: 20px;
+    border: 1px solid #ced4da;
+    appearance: auto;
+    background: transparent;
+    border-radius: 5px;
+    padding: 0;
+    height: 20px;
+}
+
 #id_atividades_eco input, #id_atividades_peraltas input{
     width: 18px;
     height: 18px;

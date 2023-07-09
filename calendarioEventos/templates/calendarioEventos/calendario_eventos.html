@@ -14,6 +14,7 @@
 
         <script>
             const gradiente = `linear-gradient(0deg, rgba(0,128,0,1) 0%, rgba(242,101,34,1) 60%)`
+            let hora_padrao_check_in, hora_padrao_check_out, xhr
 
             function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
@@ -23,13 +24,19 @@
                         left: '',
                         center: 'title',
                     },
+
                     eventOrderStrict: true,
                     locale: 'pt-br',
-                    {#dayMaxEvents: 5,#}
+                    dayMaxEvents: 5,
+                    fixedWeekCount: false,
+                    height: 'parent',
+                    contentHeight: 'auto',
+                    handleWindowResize: true,
 
-                    {% if comercial %}
+                    {% if perms.peraltas.add_fichadeevento %}
                         navLinks: true,
                         navLinkDayClick: function (date, jsEvent) {
+                            loading()
                             $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
                             $('#ModalCadastroPreReserva input[type!=hidden], #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').val('')
                             $('#ModalCadastroPreReserva #id_pre_reserva').val('')
@@ -38,6 +45,7 @@
                             $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
+                            $('#ModalCadastroPreReserva #id_check_out').prop('min', (moment(date).format('yyyy-MM-DD 09:00')))
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
@@ -48,17 +56,20 @@
                                 url: '',
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                 data: {'data': moment(date).format('YYYY-MM-DD')},
-                                success: function (response) {
-                                    if (response['exclusividade'] === true) {
-                                        alert('Evento exclusivo cadastrado na data em questão!')
-                                    } else {
-                                        $('#ModalCadastroPreReserva').modal('show');
-                                    }
+                            }).then((response) => {
+                                if (response['exclusividade'] === true) {
+                                    alert('Evento exclusivo cadastrado na data em questão!')
+                                } else {
+                                    $('#ModalCadastroPreReserva').modal('show');
                                 }
+                                end_loading()
                             })
                         },
+                    {% endif %}
 
+                    {% if perms.peraltas.view_fichadeevento %}
                         eventClick: function (info) {
+                            loading()
                             if (info.el.l) {
                                 let id_pre_reserva = info.event.extendedProps['id_pre_reserva']
                                 let check_in = info.event.start
@@ -80,7 +91,7 @@
                                         $('#ModalCadastroPreReserva #id_produto').val(response['produto'])
                                         $('#ModalCadastroPreReserva #id_produto_corporativo').val(response['produto_corporativo'])
                                         $('#ModalCadastroPreReserva #id_check_in').val(moment(check_in).format('yyyy-MM-DDTHH:mm'))
-                                        $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm'))
+                                        $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out).format('yyyy-MM-DDTHH:mm')).prop('min', (moment(check_in).format('yyyy-MM-DD 09:00')))
                                         $('#ModalCadastroPreReserva #id_obs_edicao_horario').val(response['obs_edicao'])
                                         $('#ModalCadastroPreReserva #id_qtd_convidada').val(response['qtd'])
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
@@ -93,6 +104,8 @@
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
+
+                                        dadosProduto(true)
 
                                         if (response['exclusividade']) {
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)
@@ -109,11 +122,22 @@
 
                                         if (response['confirmado']) {
                                             modal_footer.append('<p style="font-size: 15px">Agendamento confirmado!</p>')
-                                            modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
-                                            modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
+
+                                            {% if perms.peraltas.delete_fichadeevento %}
+                                                modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento(true)">Editar</button>')
+                                                modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
+                                            {% endif %}
+
+                                            {% if perms.peraltas.delete_fichadeevento %}
+                                                modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
+                                            {% endif %}
+
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                modal_footer.append(`<button type="button" id="ir_ficha_de_evento" class="btn btn-success" onclick="window.location.href='/cadastro/ficha_de_evento/${response["id"]}'">Ficha de evento</button>`)
+                                            {% endif %}
                                         } else {
-                                            {% if comercial or diretoria %}
-                                                {% if diretoria %}
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append('<button type="button" class="btn btn-secondary" style="background-color: #DF362D; border-color: #DF362D" onclick="editar_agendamento()"> Editar agendamento</button>')
                                                 {% else %}
                                                     if (response['editar']) {
@@ -122,11 +146,13 @@
                                                 {% endif %}
                                             {% endif %}
 
-                                            modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
-                                            modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
+                                                modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
+                                            {% endif %}
 
-                                            {% if comercial or diretoria %}
-                                                {% if diretoria %}
+                                            {% if perms.peraltas.add_fichadeevento %}
+                                                {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                 {% else %}
                                                     if (response['editar']) {
@@ -136,17 +162,18 @@
                                             {% endif %}
                                         }
                                     }
+                                }).then(() => {
+                                    $('#ModalCadastroPreReserva').modal('show');
                                 })
-
-                                $('#ModalCadastroPreReserva').modal('show');
                             }
+                            window.addEventListener('unload', cancelAjaxRequest)
                         },
                     {% endif %}
 
                     events: [
                         {% for pre_reserva in pre_reservas %}
                             {
-                                title: "{{ pre_reserva.cliente }}".replace("&#x27;", "\'"),
+                                title: "{{ pre_reserva.cliente|safe }}",
                                 start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
                                 end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
                                 extendedProps: {
@@ -166,7 +193,7 @@
                         {% for evento in eventos %}
                             {
                                 {% if professor_ceu %}
-                                    title: "{{ evento.ficha_de_evento.cliente }}".replace("&#x27;", "\'"),
+                                    title: "{{ evento.ficha_de_evento.cliente|safe }}",
                                     start: "{{ evento.check_in_ceu | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out_ceu | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
@@ -175,7 +202,7 @@
                                         'id_cliente': '{{ evento.ficha_de_evento.id }}'
                                     },
                                 {% else %}
-                                    title: "{{ evento.ficha_de_evento.cliente }}",
+                                    title: "{{ evento.ficha_de_evento.cliente|safe }}",
                                     start: "{{ evento.check_in | date:'Y-m-d H:i'}}",
                                     end: "{{ evento.check_out | date:'Y-m-d H:i'}}",
                                     url: '{% url 'ver_ordem_de_servico' evento.id %}',
@@ -202,7 +229,7 @@
                                 {
                                     {% if professor_ceu%}
                                         {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
-                                            title: "{{ ficha.cliente }}".replace("&#x27;", "\'"),
+                                            title: "{{ ficha.cliente|safe }}",
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                             url: '{% url 'ver_ficha_de_evento' ficha.id %}',
@@ -212,7 +239,7 @@
                                             },
                                         {% endif %}
                                     {% else %}
-                                        title: "{{ ficha.cliente}}",
+                                        title: "{{ ficha.cliente|safe }}",
                                         start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                         end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
                                         url: '{% url 'ver_ficha_de_evento' ficha.id %}',
@@ -254,6 +281,15 @@
                 {% endif %}
             })
 
+            function cancelAjaxRequest() {
+                if (xhr && xhr.readyState !== 4) {
+                    xhr.abort();
+                }
+
+                // Remova o manipulador do evento unload
+                window.removeEventListener('unload', cancelAjaxRequest);
+            }
+
             function gerar_lotacao() {
                 const data_base = $('tbody[role=presentation]').children().children()[7].dataset.date
                 const mes = moment(data_base).month() + 1
@@ -283,31 +319,45 @@
                 moment.locale('pt-br')
                 $('#aviso_lotacao ul').empty().removeClass('none')
 
-                for (let soma_dia = 0; soma_dia <= dias_evento; soma_dia++) {
-                    const data_busca = moment(check_in).add(soma_dia, 'days').format('YYYY-MM-DD')
-                    const data_item = moment(data_busca).format('L')
+                try {
+                    for (let soma_dia = 0; soma_dia <= dias_evento; soma_dia++) {
+                        const data_busca = moment(check_in).add(soma_dia, 'days').format('YYYY-MM-DD')
+                        const data_item = moment(data_busca).format('L')
 
-                    if (lotacao[data_busca]['total'] <= 120) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
-                    } else if (lotacao[data_busca]['total'] <= 180) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
-                    } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
-                    } else {
-                        $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: Sem vagas ou vagas excedidas</li`)
-                        $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        if (lotacao[data_busca]['total'] <= 120) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-info')
+                        } else if (lotacao[data_busca]['total'] <= 180) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-warning')
+                        } else if (lotacao[data_busca]['total'] > 180 && lotacao[data_busca]['total'] < 240) {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: ${240 - lotacao[data_busca]['total']} vagas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        } else {
+                            $('#aviso_lotacao ul').append(`<li>Dia ${data_item}: Sem vagas ou vagas excedidas</li`)
+                            $('#aviso_lotacao').removeAttr('class').addClass('alert-danger')
+                        }
                     }
+                } catch (e) {
+                    console.log(e)
+                } finally {
+                    end_loading()
                 }
-
             }
 
             function excluir_pre_agendamento() {
                 $('document').ready(function () {
+                    $('#ModalExclusaoPreReserva .alert').remove()
                     const id_pre_reserva = $('#id_pre_reserva').val()
                     const motivo = $('#motivo_cancelamento').val()
+
+                    if (motivo === '' || motivo.length < 10) {
+                        $('#ModalExclusaoPreReserva .modal-body').append(
+                            '<div class="alert alert-warning mt-2">Motivo de exclusão não pode ficar em branco ou ter menos de 10 caracteres</div>'
+                        )
+
+                        return
+                    }
 
                     $.ajax({
                         url: '',
@@ -331,10 +381,15 @@
                 document.getElementById('salvar_edicao').click()
             }
 
-            function editar_agendamento() {
+            function editar_agendamento(confirmado = false) {
                 $('#ModalCadastroPreReserva input, #ModalCadastroPreReserva select, #ModalCadastroPreReserva textarea').prop('disabled', false)
-                $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
-                $('#nova_pre_reserva').removeClass('none')
+
+                if (!confirmado) {
+                    $('#nova_pre_reserva').removeClass('none')
+                    $('#confirmar_agendamento, #input_confirmar_agendamento').remove()
+                } else {
+                    $('#editar_pre_reserva').append('<button type="submit" class="btn btn-primary">Salvar pré agendamento</button>')
+                }
             }
 
             function gerar_responsaveis(cliente) {
@@ -366,15 +421,14 @@
                 })
             }
 
-            function dadosProduto(produto) {
-                hora_padrao_check_in = hora_padrao_check_out = undefined
-                $('#ModalCadastroPreReserva #id_check_out').val('')
+            async function dadosProduto(editando = false) {
+                let produto = $('#id_produto').val()
 
                 $.ajax({
                     type: 'POST',
                     url: '',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                    data: {'id_produto': produto.value},
+                    data: {'id_produto': produto},
                     success: function (response) {
                         hora_padrao_check_in = response['hora_check_in_padrao']
                         hora_padrao_check_out = response['hora_check_out_padrao']
@@ -403,19 +457,76 @@
                                 $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`YYYY-MM-DD ${response['hora_check_in_padrao']}`)))
                                 $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`YYYY-MM-DD ${response['hora_check_out_padrao']}`)))
                             } else {
-                                $('#ModalCadastroPreReserva #id_check_out').val('')
+                                if (!editando) {
+                                    $('#ModalCadastroPreReserva #id_check_out').val('')
+                                }
                             }
                         }
                     }
                 }).done(function () {
+                    if (editando) {
+                        $('#id_produto_corporativo').trigger('change')
+                    }
                     $('#id_check_out').trigger('change')
                 })
             }
 
+            function pegarDias() {
+                let check_in = $('#id_check_in')
+                let check_out = $('#id_check_out')
+
+                if (check_out.val() !== '' && check_out.val() < check_in.val()) {
+                    check_out.val('')
+
+                    return
+                }
+
+                $('#ModalCadastroPreReserva #id_check_out').val(moment(check_out.val()).format('yyyy-MM-DDTHH:mm')).prop('min', (moment(check_in.val()).format('yyyy-MM-DD 09:00')))
+                pegar_horario_padrao(check_in, check_out)
+            }
+
+            function pegar_horario_padrao(check_in, check_out) {
+                $('#aviso_produto_n_selecionado').remove()
+                let check_editar = $('#editar_horarios').prop('checked')
+
+                if (!check_editar) {
+                    if (hora_padrao_check_in === undefined) {
+                        $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
+                        check_out.val('')
+                        end_loading()
+
+                        return
+                    } else if (hora_padrao_check_in === null) {
+
+                        end_loading()
+                        return
+                    }
+
+                    check_in.val(`${check_in.val().split('T')[0]}T${hora_padrao_check_in}`)
+
+                    if (dias_produto !== null) {
+                        check_out.val(`${moment(check_in.val()).add(dias_produto, 'days').format('YYYY-MM-DD')}T${hora_padrao_check_out}`)
+                    } else {
+                        check_out.val(`${check_out.val().split('T')[0]}T${hora_padrao_check_out}`)
+                    }
+                }
+
+                lotacao_dia_dia(check_in.val(), check_out.val())
+            }
+
+            async function corporativo(selecao) {
+                const id_produto = selecao.value
+                let check_in = $('#id_check_in')
+                let check_out = $('#id_check_out')
+                hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+                hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+                pegar_horario_padrao(check_in, check_out)
+            }
+
             function verificar_evento_dia_exclusividade() {
-                const check_in = $('#ModalCadastroPreReserva #id_check_in').val()
-                const check_out = $('#ModalCadastroPreReserva #id_check_out').val()
-                const id_cliente = $('#ModalCadastroPreReserva #id_cliente').val()
+                const check_in = $('#id_check_in').val()
+                const check_out = $('#id_check_out').val()
+                const id_cliente = $('#id_cliente').val()
                 $('#alerta_exclusividade').remove()
 
                 $.ajax({
@@ -424,7 +535,7 @@
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {'check_in': check_in, 'check_out': check_out, 'id_cliente': id_cliente},
                     success: function (response) {
-                        if (response['eventos']) {
+                        if (response['eventos'] && $('#id_exclusividade').prop('checked')) {
                             $('#ModalCadastroPreReserva .modal-body').append('<div class="alert alert-danger" id="alerta_exclusividade">Conflito entre evento exclusivo e evento já cadastrado!</div>')
                         }
                     }
@@ -467,7 +578,7 @@
                 <div id="aviso_lotacao" class="alert-info none">Vagas para os dias do evento
                     <ul></ul>
                 </div>
-                <form action="{% url 'calendario_eventos' %}" method="POST">
+                <form action="{% url 'calendario_eventos' %}" method="POST" onsubmit="loading()">
                     <fieldset>
                         {% csrf_token %}
                         <div class="modal-body">
@@ -575,7 +686,7 @@
                 </div>
                 <div class="modal-body" style="display: flex; flex-direction: column;">
                     <label for="motivo_cancelamento">Motivo do cancelamento</label>
-                    <textarea name="motivo_cancelamento" id="motivo_cancelamento" rows="5"></textarea>
+                    <input name="motivo_cancelamento" id="motivo_cancelamento" required/>
                 </div>
                 <div class="modal-footer botoes">
                     <button class="btn btn-primary" onclick="excluir_pre_agendamento()">Salvar</button>
@@ -585,7 +696,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
-    <script src="{% static 'js/scripts_ficha_de_evento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>

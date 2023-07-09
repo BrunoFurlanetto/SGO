@@ -1,3 +1,4 @@
+import datetime
 import os.path
 
 from django import forms
@@ -14,6 +15,7 @@ class DadosTransporte(models.Model):
     horario_embarque = models.TimeField(blank=True, null=True)
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
     dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
 
     def valor_veiculos(self):
@@ -55,12 +57,11 @@ class OrdemDeServico(models.Model):
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True, null=True)  # TODO: Verificar cado de exclusão de colaborador
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True,
+                                 null=True)  # TODO: Verificar cado de exclusão de colaborador
     empresa = models.CharField(choices=empresa_choices, max_length=15)
-    monitor_responsavel = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
-    dados_transporte = models.ForeignKey(DadosTransporte, null=True, blank=True, on_delete=models.CASCADE)
-    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                         related_name='monitor_embarque')
+    monitor_responsavel = models.ManyToManyField(Monitor)
+    dados_transporte = models.ManyToManyField(DadosTransporte, blank=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)
@@ -68,11 +69,15 @@ class OrdemDeServico(models.Model):
     atividades_ceu = models.JSONField(blank=True, null=True)
     locacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
+    ficha_de_avaliacao = models.FileField(blank=True, null=True, upload_to='avaliacoes/%Y/%m/%d')
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)
     ficha_avaliacao = models.BooleanField(default=False)
     escala_ceu = models.BooleanField(default=False)
     escala = models.BooleanField(default=False)
+    racional_coordenadores = models.IntegerField(default=120, blank=True)
+    permicao_coordenadores = models.BooleanField(default=False)
+    data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
 
     def dividir_atividades_ceu(self):
         atividades = []
@@ -98,6 +103,20 @@ class OrdemDeServico(models.Model):
 
         return atividades
 
+    def atividade_biologo(self):
+        if self.atividades_eco:
+            biologo = False
+
+            for atividade in self.atividades_eco.values():
+                if atividade['biologo'] == 'sim':
+                    biologo = True
+
+            return biologo
+
+    @staticmethod
+    def pegar_biologos():
+        return Monitor.objects.filter(biologo=True)
+
 
 class CadastroOrdemDeServico(forms.ModelForm):
     class Meta:
@@ -120,6 +139,14 @@ class CadastroOrdemDeServico(forms.ModelForm):
         self.fields['instituicao'].widget.attrs['readonly'] = True
         self.fields['cidade'].widget.attrs['readonly'] = True
         self.fields['responsavel_grupo'].widget.attrs['readonly'] = True
+
+        monitores = Monitor.objects.filter(nivel__nivel__contains='Coordenador')
+        monitores_selecao = []
+
+        for monitor in monitores:
+            monitores_selecao.append((monitor.id, monitor.usuario.get_full_name()))
+
+        self.fields['monitor_responsavel'].choices = monitores_selecao
 
     @staticmethod
     def opt_groups():
@@ -145,6 +172,6 @@ class CadastroDadosTransporte(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'telefone_motorista': forms.TextInput(attrs={'onclick': 'mascara_telefone()'})
+            'horario_embarque': forms.TimeInput(attrs={'type': 'time', 'step': '60'}),
+            'telefone_motorista': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'})
         }

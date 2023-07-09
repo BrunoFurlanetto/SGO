@@ -4,7 +4,6 @@ from django.db import models
 from peraltas.models import ClienteColegio, Responsavel
 
 
-# Create your models here. extend increment
 class OrcamentoMonitor(models.Model):
     nome_monitoria = models.CharField(max_length=100)
     descricao_monitoria = models.TextField(blank=True)

@@ -2,9 +2,15 @@ let corporativo
 let editando = false
 
 $(document).ready(function () {
-    if (window.location.href.split('/')[5] !== '' && window.location.href.split('/')[5] !== 'ficha') {
-        $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
+    if (window.location.href.split('/')[5] !== '') {
         $('.btn-mostrar-atividades-locacoes').attr('disabeld', false)
+
+        if (window.location.href.split('/')[5] === 'ficha') {
+            $('#ficha_de_evento').select2({disabled: 'readonly'})
+            $('#id_atividades_peraltas').select2()
+        } else {
+            $('#id_atividades_peraltas, #ficha_de_evento').select2({disabled: 'readonly'})
+        }
     } else {
         $('#id_atividades_peraltas, #ficha_de_evento').select2()
     }
@@ -13,9 +19,9 @@ $(document).ready(function () {
 
 })
 
-function mascara_telefone() {
-    $('#id_telefone_motorista').mask('(00) 0 0000-00009');
-    $('#id_telefone_motorista').blur(function (event) {
+function mascara_telefone(input) {
+    $(input).mask('(00) 0 0000-00009');
+    $(input).blur(function (event) {
         if ($(this).val().length == 16) { // Celular com 9 dígitos + 2 dígitos DDD e 4 da máscara
             $(this).mask('(00) 0 0000-0009');
         } else {
@@ -36,11 +42,11 @@ function verificar_atividades(selecao) {
 
     if (selecao.value === 'Peraltas') {
         $('.atividade-ceu, .locacao-ceu').addClass('none')
-        $('.atividades-eco, #ativs_peraltas').removeClass('none')
+        $('.atividades-eco, #ativs_peraltas, .ativs_peraltas').removeClass('none')
     }
 
     if (selecao.value === 'CEU') {
-        $('.atividades-eco, #ativs_peraltas').addClass('none')
+        $('.atividades-eco, #ativs_peraltas, .ativs_peraltas').addClass('none')
 
         if (corporativo) {
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
@@ -51,7 +57,7 @@ function verificar_atividades(selecao) {
     }
 
     if (selecao.value === 'Peraltas CEU') {
-        $('.atividade-ceu, .locacao-ceu, .atividades-eco, #ativs_peraltas').removeClass('none')
+        $('.atividade-ceu, .locacao-ceu, .atividades-eco, #ativs_peraltas, .ativs_peraltas').removeClass('none')
 
         if (corporativo) {
             $('.locacao-ceu, .atividade-ceu').removeClass('none')
@@ -116,6 +122,12 @@ function completar_dados_os(selecao) {
                 }
             }
 
+            if (response['atividades_ceu_a_definir'] !== '') {
+                for (let i = 0; i < parseInt(response['atividades_ceu_a_definir']); i++) {
+                    add_atividade('', '', response['id_serie'])
+                }
+            }
+
             if (response['locacoes_ceu'] !== '') {
                 for (let i in response['locacoes_ceu']) {
                     add_locacao(parseInt(i))
@@ -131,6 +143,10 @@ function completar_dados_os(selecao) {
     setTimeout(() => {
         $('#id_empresa').trigger('change')
     }, 600)
+}
+
+function completar_dados_cliente() {
+
 }
 
 function atualizar_participantes(participantes) {
@@ -179,7 +195,7 @@ function add_atividade(atividade_id_ = parseInt(''),
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
@@ -249,7 +265,7 @@ function remover_atividade(selecao) {
         $(select_atividade[k]).attr('id', `ativ_${k + 1}`).attr('name', `atividade_${k + 1}`);
         $(hora_atividade[k]).attr('name', 'data_hora_' + (k + 1)).attr('id', 'data_' + (k + 1));
         $(qtd_atividade[k]).attr('name', 'participantes_' + (k + 1)).attr('id', 'participantes_' + (k + 1));
-        $(icone[k]).attr('id', 'btn_' + (k + 1)).attr('id', 'btn_' + (k + 1));
+        $(icone[k]).attr('id', 'btn_' + (k + 1))
         $(serie[k]).attr('name', 'serie_participantes_' + (k + 1)).attr('id', 'serie_' + (k + 1));
     }
 
@@ -424,9 +440,9 @@ function add_locacao(id_local_ = parseInt(''), check_in_ = '',
             let label_locacao = `<label>Locação</label>`
             let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"><option></option></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
             let label_local_coffee = `<label>Local do coffee</label>`
             let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}" value="${local_coffee_}"/>`
             let label_hora_coffee = `<label>Hora</label>`
@@ -562,7 +578,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let div_participantes = `<div class="mb-2 div-participantes_eco" id="div_participantes_eco_${i}" style="width: 15%"></div>`
             let div_icone = `<div class="my-0 div-icone_eco" id="div_icone_eco_${i}" style="width: 5%"></div>`
             let div_serie = `<div class="mb-2 colegios div_serie_eco" id="div_serie_eco_${i}" style="width: 50%"></div>`;
-            let div_biologo = `<div class="mb-2 colegios div_biologo_eco" id="div_biologo_eco_${i}" style="width: 15%"></div>`;
+            let div_biologo = `<div class="mb-2 colegios div_biologo_eco" id="div_biologo_eco_${i}" style="width: 40%"></div>`;
 
             // Adição das div's na div pai
             $(`#div_pai_eco_${i}`).append(div_atividade, div_data_hora, div_participantes, div_icone, div_serie, div_biologo, `<hr class="barra" style="margin-left: 10px">`)
@@ -571,7 +587,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let label_atividade = `<label>Atividade</label>`
             let select_atividade = `<select class="atividade_eco" id="ativ_eco_${i}" name="atividade_eco_${i}" onchange="verificar_limitacoes_eco(this)" required></select>`
             let label_data = `<label>Data e hora</label>`
-            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
@@ -583,7 +599,7 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             let label_serie = `<label>Serie</label>`
             let serie = `<input class="serie_participantes_eco" id="serie_eco_${i}" type="text" name="serie_participantes_eco_${i}" value="${serie_}"/>`
             let label_biologo = '<label>Biologo</label>'
-            let biologo = `<select class="biologo_eco" id="biologo_eco_${i}" name="biologo_eco_${i}" required><option></option><<option value="sim">Sim</option><<option value="nao">Não</option></select>`
+            let biologo = `<select class="biologo_eco" id="biologo_eco_${i}" name="biologo_eco_${i}"><option></option></select>`
 
             // Adição dos elemntos em suas respectivas div's
             $(`#div_atividade_eco_${i}`).append(label_atividade, select_atividade)
@@ -593,10 +609,14 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
             $(`#div_biologo_eco_${i}`).append(label_biologo, biologo)
 
             // Todas as atividades que serão dcionadas no select da atividade
-            for (let j in response['dados']) {
-                if (response['dados'][j] != atividade_) {
-                    $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['dados'][j]}</option>`)
+            for (let j in response['atividades']) {
+                if (response['atividades'][j] != atividade_) {
+                    $(`#ativ_eco_${i}`).append(`<option value="${j}">${response['atividades'][j]}</option>`)
                 }
+            }
+
+            for (let j in response['biologos']) {
+                $(`#biologo_eco_${i}`).append(`<option value="${j}">${response['biologos'][j]}</option>`)
             }
 
             // Adição das opções no select
@@ -676,7 +696,7 @@ function verificar_limitacoes_eco(selecao) {
                 // Participante máximo da atividade em questão
                 const limite = response['participantes_maximo']
                 // A primeira verificação é do horário
-                if (data_atividade !== '') {
+                /*if (data_atividade !== '') {
 
                     // Horário informado durante o cadastro da atividade
                     let hora_atividade = parseFloat(data_atividade.split('T')[1].replace(':', '.'))
@@ -695,7 +715,7 @@ function verificar_limitacoes_eco(selecao) {
                     } else {
                         $(`#alert_noite_eco_${indice}`).remove()
                     }
-                }
+                }*/
 
                 // Verificação de número de participantes
                 if (participantes !== '') {
@@ -703,6 +723,7 @@ function verificar_limitacoes_eco(selecao) {
                     // Verifica se o número de participantes está acima do mínimo para a atividade acontecer.
                     // É lançado apenas um aviso.
                     if (participantes < response['participantes_minimo']) {
+                        $(`#alert_participantes_eco_${indice}`).remove()
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-danger" id="alert_participantes_eco_${indice}" style="margin-left: 10px">Participantes abaixo do mínimo necessário para a atividade cadsatrada!</p>`)
                     } else {
                         $(`#alert_participantes_eco_${indice}`).remove()
@@ -712,6 +733,7 @@ function verificar_limitacoes_eco(selecao) {
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
                     if (participantes > limite) {
                         dividar_atividade_eco(indice, limite)
+                        $(`#div_pai_eco_${indice} .alert-warning`).remove()
                         $(`#div_pai_eco_${indice}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
                 }
@@ -766,14 +788,95 @@ function dividar_atividade_eco(indicie, limite) {
     }
 }
 
+function adicionar_viacao() {
+    const viacoes = $('#id_empresa_onibus').html()
+    const monitores = $('#id_monitor_embarque').html()
+
+    $('#transporte').append(`
+        <div class="row">
+            <hr>
+            <div class="btn-remover-viacao">
+                <button class="buton-x" type="button" onClick="remover_vaicao(this)">
+                    <span><i class='bx bx-x'></i></span>
+                </button>
+            </div>
+            <div class="checkbox" style="width: 80%" id="viacao">
+                <label>Viação</label>
+                <select name="empresa_onibus" id="id_empresa_onibus">${viacoes}</select>
+            </div>
+            <div style="width: 20%" id="horario_embarque">
+                <label for="id_hora_embarque">Horário</label>
+                <input type="time" name="horario_embarque" id="id_horario_embarque" step="60" value="${$('#id_horario_embarque').val()}">
+            </div>
+            <div id="endereco_embarque" class="mt-2" style="width: 70%">
+                <label>Endereço de embarque</label>
+                <input type="text" name="endereco_embarque" id="id_endereco_embarque" value="${$('#id_endereco_embarque').val()}">
+            </div>
+            <div id="monitor_embarque" class="mt-2" style="width: 30%">
+                <label for="id_monitor_embarque">Monitor embarque</label>
+                <select name="monitor_embarque" id="id_monitor_embarque">${monitores}</select>
+            </div>
+            <div id="nome_motorista" class="mt-2" style="width: 70%">
+                <label>Motorista</label>
+                <input type="text" name="nome_motorista" id="id_nome_motorista">
+            </div>
+            <div id=telefone_motorista" class="mt-2" style="width: 30%">
+                <label>Telefone</label>
+                <input type="text" name="telefone_motorista" id="id_telefone_motorista" onfocus="mascara_telefone(this)" maxlength="17">
+            </div>
+            <div class="mt-3 mb-2" id="dados_veiculos"
+                 style="display: flex; justify-content: space-between">
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Micro ônibus:</label>
+                            <input type="number" name="n_micro" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Ônibus 46 lugares:</label>
+                            <input type="number" name="n_46" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label class="py-1">Ônibus 50 lugares:</label>
+                            <input type="number" name="n_50" placeholder="n" min="0"
+                                   style="width: 60px">
+                        </div>
+                    </div>
+            </div>                
+        </div>
+    `)
+}
+
+function remover_vaicao(div, id_os=null) {
+    const div_transporte = div.closest('.row')
+    const id_viacao = $(div_transporte).children('#viacao').children('#id_empresa_onibus').val()
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {
+            'id_viacao_excluida': id_viacao,
+            'id_os': id_os
+        },
+        success: function (response) {
+            if (response == "True") {
+                $(div).parent().parent().remove()
+            }
+        }
+    })
+}
+
 $('#btn_salvar_os').on('click', function (e) {
-    console.log('Foi')
     const inputs_atividade_extra = [
         $('.atividade_eco'),
         $('.hora_atividade_eco'),
         $('.qtd_participantes_eco'),
-        $('.serie_participantes_eco'),
-        $('.biologo_eco'),
     ]
     const inputs_atividade_ceu = [
         $('.atividade'),
@@ -800,7 +903,6 @@ $('#btn_salvar_os').on('click', function (e) {
     // Verificação dos campos das atividades extra
     for (let campo of inputs_atividade_extra) {
         for (let input of campo) {
-            console.log(input.value)
             if (input.value === '' || input.value === 'NaN') {
                 div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
                 e.preventDefault()

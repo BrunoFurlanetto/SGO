@@ -8,9 +8,6 @@ from .utils import verify_data
 from .budget import Budget
 
 
-# Create your views here.
-
-
 @csrf_exempt
 def calc_budget(req):
     if req.method != 'POST':
@@ -75,3 +72,10 @@ def calc_budget(req):
     return JsonResponse({
         "GET": "API BUDGET OK, CONSIDERE USAR O METODO POST"
     })
+
+from django.http import HttpResponse
+from django.shortcuts import render
+
+
+def orcamento(req):
+    return HttpResponse('Helo word!')

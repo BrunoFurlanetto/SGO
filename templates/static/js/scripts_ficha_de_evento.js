@@ -19,6 +19,59 @@ function carregar_scripts(editando) {
     }
 }
 
+function verificar_codigos_eficha() {
+    $('.container_loading').removeClass('none')
+    $('#modal_codigos_app .modal-body .alert').remove()
+
+    const codigos_eficha = $('#id_evento').val().split(',').map((codigo) => {
+        return codigo.replaceAll(/^\s+|\s+$/g, '')
+    })
+
+    $.ajax({
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'codigos_eficha': codigos_eficha},
+        success: function (response) {
+            if (response['salvar']) {
+                if (response['totais']) {
+                    $('#id_qtd_confirmada').val(response['totais']['total_confirmado'])
+
+                    if ($('#div_produto_corporativo').hasClass('none')) {
+                        $('#id_qtd_meninos').val(response['totais']['total_pagantes_masculino'])
+                        $('#id_qtd_meninas').val(response['totais']['total_pagantes_feminino'])
+                        $('#id_qtd_profs_homens').val(response['totais']['total_professores_masculino'])
+                        $('#id_qtd_profs_mulheres').val(response['totais']['total_professores_feminino'])
+                    } else {
+                        $('#id_qtd_homens').val(response['totais']['total_pagantes_masculino'])
+                        $('#id_qtd_mulheres').val(response['totais']['total_pagantes_feminino'])
+                    }
+                }
+
+                $('#btn_submit').trigger('click')
+            } else {
+                $('#modal_codigos_app .modal-body').prepend(`<div class="alert alert-danger">${response['mensagem']}</div>`)
+            }
+        }
+    }).then(() => {
+        $('.container_loading').addClass('none')
+    })
+}
+
+function pegar_cnpj() {
+    if ($('#id_cliente').val() !== '') {
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "GET",
+            data: {'id_cliente': $('#id_cliente').val()},
+            success: function (response) {
+                $('#cnpj_cliente').val(response)
+            }
+        })
+    }
+}
+
 function encaminhamento() {
     localStorage.setItem("encaminhado", true)
 }
@@ -60,12 +113,6 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
                 $('.professores, #perfil_participantes, .lanches').removeClass('none')
                 $('.corporativo, .produtos-corporativos, .coffees, #div_locacao_ceu').addClass('none')
                 $('#id_produto_corporativo').prop('required', false)
-                //
-                // if (response['outro']) {
-                //     $('.outro-produto').removeClass('none')
-                // } else {
-                //     $('.outro-produto').addClass('none')
-                // }
 
                 if (response['pernoite']) {
                     $('.alunos-pernoite, .professores-pernoite').removeClass('none')
@@ -88,20 +135,42 @@ function verQuantidades(produto, pre_reserva = false, editando = false) {
         if (evento_corporativo && $('#id_produto_corporativo').val() !== '') {
             corporativo(document.getElementById('id_produto_corporativo'))
         } else {
-            pegarDias(pre_reserva, editando)
+            pegarDias(editando)
         }
     })
 
 }
 
-function pegarDias(pre_reserva = false, editando = false) {
+function pegarDias(editando = false) {
     let check_in = $('#sessao_periodo_viagem #id_check_in')
     let check_out = $('#sessao_periodo_viagem #id_check_out')
+    let editar_refeicao = true
+    const datas_tabela = $('#corpo-tabela-refeicao .data')
 
-    if (check_in.val() === undefined) {
-        check_in = $('#ModalCadastroPreReserva #id_check_in')
-        check_out = $('#ModalCadastroPreReserva #id_check_out')
-        lotacao_dia_dia(check_in.val(), check_out.val())
+    if (datas_tabela.length > 0) {
+        if (moment(datas_tabela[0].value).format('YYYY-MM-DD') !== moment(check_in.val()).format('YYYY-MM-DD') || moment(datas_tabela[datas_tabela.length - 1].value).format('YYYY-MM-DD') !== moment(check_out.val()).format('YYYY-MM-DD')) {
+            let data = datas_tabela[0].value
+            let intervalo = moment(data, "YYYY-MM-DD").diff(moment(check_in.val(), "YYYY-MM-DD"))
+            let dias = moment.duration(intervalo).asDays()
+
+            if ($('#corpo-tabela-refeicao .alert').length === 0) $('#corpo-tabela-refeicao').append('<tr class="alert alert-primary" style="text-align: center"><td colspan="7" style="padding: 0">Dias adicionados</td></tr>')
+
+            for (let i = 1; i < dias + 1; i++) {
+                add_refeicao(moment(check_in.val()).format('YYYY-MM-DD'))
+                data = moment(check_in.val()).add(i, 'days')
+            }
+
+            data = datas_tabela[datas_tabela.length - 1].value
+            intervalo = moment(check_out.val(), "YYYY-MM-DD").diff(moment(data, "YYYY-MM-DD"))
+            dias = moment.duration(intervalo).asDays()
+
+            for (let i = 1; i < dias + 1; i++) {
+                add_refeicao(moment(data).add(i, 'days').format('YYYY-MM-DD'))
+            }
+
+        }
+
+        editar_refeicao = false
     }
 
     if (check_out.val() !== '' && check_out.val() < check_in.val()) {
@@ -110,53 +179,62 @@ function pegarDias(pre_reserva = false, editando = false) {
         return
     }
 
-    if (!editando) pegar_horario_padrao(check_in, check_out, pre_reserva)
+    if (!editando) pegar_horario_padrao(check_in, check_out)
 
-    if (!pre_reserva && (check_in.val() !== '' && check_out.val() !== '')) {
+    if (check_in.val() !== '' && check_out.val() !== '') {
         const data_1 = check_in.val().split('T')[0]
         const data_2 = check_out.val().split('T')[0]
         let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
         let dias = moment.duration(intervalo).asDays()
     }
 
-    if (!editando) {
-        const data_1 = check_in.val().split('T')[0]
-        const data_2 = check_out.val().split('T')[0]
-        let intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
-        let dias = moment.duration(intervalo).asDays()
-        $('#corpo-tabela-refeicao').empty()
-        for (let i = 0; i <= dias; i++) {
-            add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
-        }
-    }
+    if (editar_refeicao) tabela_refeicoes()
 
     if (!editando && check_in.val() !== '') {
         $('#id_data_final_inscricao').val(moment(check_in.val()).subtract(15, 'days').format('YYYY-MM-DD'))
     }
 }
 
-function corporativo(selecao, pre_reserva = false) {
+function liberar_ida_e_volta() {
+    if ($('#id_lanche_bordo').prop('checked')) {
+        $('.ida_e_volta').removeClass('none')
+    } else {
+        $('.ida_e_volta').addClass('none')
+    }
+}
+
+async function tabela_refeicoes() {
+    const data_1 = $('#sessao_periodo_viagem #id_check_in').val().split('T')[0]
+    const data_2 = $('#sessao_periodo_viagem #id_check_out').val().split('T')[0]
+    const intervalo = moment(data_2, "YYYY-MM-DD").diff(moment(data_1, "YYYY-MM-DD"))
+    const dias = moment.duration(intervalo).asDays()
+    $('#corpo-tabela-refeicao').empty()
+
+    for (let i = 0; i <= dias; i++) {
+        add_refeicao(moment(data_1).add(i, 'days').format('YYYY-MM-DD'))
+    }
+}
+
+function corporativo(selecao) {
     const id_produto = selecao.value
     let check_in = $('#id_check_in')
     let check_out = $('#id_check_out')
-    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
-    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
-    pegar_horario_padrao(check_in, check_out, pre_reserva)
+
+    if (dados_produto_corporativo) {
+        hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+        hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+    }
+
+    pegar_horario_padrao(check_in, check_out)
 }
 
-function pegar_horario_padrao(check_in, check_out, pre_reserva) {
+function pegar_horario_padrao(check_in, check_out) {
     $('#aviso_produto_n_selecionado').remove()
     let check_editar = $('#check_editar_horarios').prop('checked')
-    if (pre_reserva) check_editar = $('#ModalCadastroPreReserva #editar_horarios').prop('checked')
 
     if (!check_editar) {
         if (hora_padrao_check_in === undefined) {
-            if (pre_reserva) {
-                $('#ModalCadastroPreReserva .div-produtos').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-                check_out.val('')
-            } else {
-                $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
-            }
+            $('#sessao_periodo_viagem').append('<div id="aviso_produto_n_selecionado" class="alert-warning mt-2"><p>Selecione o produto primeiro!</p></div>')
         } else if (hora_padrao_check_in === null) {
             return
         }
@@ -428,7 +506,8 @@ function pegarIdCodigosApp() {
 
 $('document').ready(function () {
     jQuery('#codigos_app').submit(function () {
-        let dados = jQuery(this).serialize();
+        if ($('#id_cliente_sem_app').val() == '') $('#id_cliente_sem_app').val($('#id_cliente').val())
+        let dados = jQuery(this).serialize()
         //aqui voce pega o conteudo do atributo action do form
         let url = $(this).attr('action');
         $.ajax({
@@ -451,8 +530,11 @@ $('document').ready(function () {
 });
 
 function editar_ficha() {
-    $('#form_ficha, #form_adicionais, #form_app, #salvar, #excluir, #id_atividades_ceu').prop('disabled', false)
+    $('#form_ficha, #form_adicionais, #salvar, #form_app, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
+
+    $('#id_cliente_pj').prop('readonly', true)
+
     $('.ver-conteudo-ficha').addClass('conteudo-ficha')
     $('.conteudo-ficha').removeClass('ver-conteudo-ficha')
 
@@ -462,3 +544,50 @@ function editar_ficha() {
 
     lista_segurados()
 }
+
+$('#salvar').on('click', function (e) {
+    $('#refeicoes_grupo .alert, .peraltas .alert').remove()
+    const linhas_tabela_refeicao = $('.linha')
+    const atividades_selecionadas = [
+        $('#id_atividades_ceu').val(),
+        $('#id_atividades_peraltas').val(),
+        $('#id_locacoes_ceu').val(),
+    ].flat()
+    const atividades_ceu = $('#id_atividades_ceu').val()
+    const atividades_a_definir = $('#id_atividades_ceu_a_definir').val()
+
+    // Verificação das refeições
+    for (let linha of linhas_tabela_refeicao) {
+        let refeicoes = $(`#${linha.id} input[type=checkbox]`)
+        let lista_refeicoes = []
+
+        refeicoes.map((index, refeicao) => {
+            lista_refeicoes.push(refeicao.checked)
+        })
+
+        if (!lista_refeicoes.includes(true)) {
+            e.preventDefault()
+            $('html, body').animate({scrollTop: 1000}, 50)
+            $('#refeicoes_grupo').append('<div class="alert alert-warning">Todos os dias devem ter ao menos uma refeição cadastrada!</div>')
+
+            return
+        }
+    }
+
+    // Verificação das atividades
+    if (!$('#check_a_definir').prop('checked') && !($('#id_atividades_ceu_a_definir').val() != '' && $('#id_atividades_ceu_a_definir').val() > '0')) {
+        if (atividades_selecionadas.length === 0) {
+            e.preventDefault()
+            $('html, body').animate({scrollTop: 1200}, 50)
+            $('.peraltas').append('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"!</div>')
+
+            return
+        }
+    }
+
+    if (atividades_ceu.length === 0 && !$('#check_a_definir').prop('checked')) {
+        e.preventDefault()
+        $('html, body').animate({scrollTop: 1200}, 50)
+        $('.ceu').prepend('<div class="alert alert-warning mt-2">É necessário ter pelo menos uma atividade selecionada ou setada como "A definir"! Em caso de não haver atividade, selecionar "Sem atividade"</div>')
+    }
+})

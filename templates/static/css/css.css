@@ -3,10 +3,33 @@
     width: max-width;
     height: max-height;
 }
+.container_loading {
+    display: flex;
+    justify-content: center;
+}
+
+.loading {
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading img {
+    width: 50px;
+    animation: spin 2s linear infinite;
+}
 
 .box-total {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 .box-side-bar {
@@ -28,11 +51,19 @@
     align-items: center;
 }
 
-.conteudo-login, .conteudo-manutencao {
+.box-login, .conteudo-manutencao {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+.footer_login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .titulo-sistema {
@@ -227,6 +258,30 @@
     min-height: 200px;
 }
 
+#div_btn_adicionar_viacao {
+    display: flex;
+    margin-top: 10px;
+}
+
+#btn_adicionar_empresa_onibus {
+    background: transparent;
+    border: none;
+    font-size: 25px;
+    margin-top: -5px;
+}
+
+#btn_adicionar_empresa_onibus:hover {
+    color: #0a58ca;
+}
+
+.btn-remover-viacao button {
+    background: transparent;
+    border: none;
+    font-size: 30px;
+    color: #b02a37;
+    height: 35px;
+}
+
 .relatorio {
     min-height: 200px;
     background-color: #fff;
@@ -235,6 +290,8 @@
 
 .conteudo-escala {
     width: 1000px;
+    padding: 5px;
+    border-radius: 10px;
     margin: auto auto 10%;
     height: auto;
     justify-content: center;
@@ -359,17 +416,63 @@
     width: 500px;
 }
 
-.conteudo-disponibilidade-acampamento {
-    margin-left: auto;
-    padding: 30px;
-    width: 500px;
+.conteudo-disponibilidade-peraltas > div:first-child {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: end;
 }
 
-.conteudo-disponibilidade-hotelaria {
-    margin-right: auto;
-    margin-left: 10px;
-    padding: 30px;
-    width: 500px;
+.conteudo-disponibilidade-peraltas{
+    width: 1000px;
+    margin: auto auto 10%;
+    border-radius: 20px;
+    padding: 20px;
+    height: fit-content;
+    box-shadow: 5px 5px 10px;
+    background: #ffffff;
+}
+
+#nomes_monitores.sticky {
+    position: sticky;
+    bottom: 15%;
+    border: solid 1px #ced4da;
+    padding: 5px 15px 5px 5px;
+    background: #e9e9e9;
+    width: 20%;
+    height: 450px;
+    overflow: auto;
+}
+
+#nomes_monitores {
+    position: absolute;
+    border: solid 1px #ced4da;
+    padding: 5px 15px 5px 5px;
+    background: #e9e9e9;
+    width: 20%;
+    height: 100%;
+    overflow: auto;
+}
+
+
+#nomes_monitores .card-monitor {
+    background: #FF8C00;
+}
+
+#nomes_monitores .enfermeira {
+    background: #ff7474;
+
+}
+
+#calendario_escala {
+    width: 80%;
+}
+
+.conteudo-disponibilidade-peraltas .fc-daygrid-day-top a,
+.conteudo-disponibilidade-peraltas .fc-daygrid-day-top a:hover,
+.conteudo-disponibilidade-peraltas .fc-col-header-cell a,
+.conteudo-disponibilidade-peraltas .fc-col-header-cell a:hover {
+    text-decoration: none;
 }
 
 .painel-geral {
@@ -498,10 +601,6 @@
     text-overflow: ellipsis;
 }
 
-#cronograma_peraltas-clear_id {
-    display: none;
-}
-
 .colegio .cor {
     margin: 10px 5px 0 20px;
     width: 65px;
@@ -509,6 +608,15 @@
     border: solid 1px #FF8C00;
     border-radius: 8px;
     background-color: #FF8C00;
+}
+
+.conteudo-escala .colegio .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #fcc607;
+    border-radius: 8px;
+    background-color: #fcc607;
 }
 
 .empresa .cor {
@@ -520,6 +628,15 @@
     background-color: #fcc607;
 }
 
+.conteudo-escala .empresa .cor {
+    margin: 10px 5px 15px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #0A58CA;
+    border-radius: 8px;
+    background-color: #0A58CA;
+}
+
 .ficha_evento .cor {
     margin: 10px 5px 10px 20px;
     width: 65px;
@@ -527,6 +644,15 @@
     border: solid 1px #8B008B;
     border-radius: 8px;
     background-color: #8B008B;
+}
+
+.hotelaria .cor {
+    margin: 10px 5px 10px 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #008000;
+    border-radius: 8px;
+    background-color: #008000;
 }
 
 #id_material_apoio {
@@ -566,6 +692,17 @@
     width: 800px;
     padding: 10px;
     margin: auto auto 5%;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+}
+
+.conteudo_nova_senha {
+    width: 400px;
+    padding: 10px;
+    margin: 10% auto;
     justify-content: center;
     align-items: center;
     background-color: #fff;
@@ -668,7 +805,8 @@
     cursor: grabbing;
 }
 
-#legenda .tecnica, #legenda .biologo {
+#legenda .tecnica, #legenda .biologo, #legenda .monitor_1, #legenda .monitor_2, #legenda .monitor_3,
+#legenda .monitor_4 {
     padding: 5px;
     width: fit-content;
     height: fit-content;
@@ -704,6 +842,23 @@
 .tecnica {
     font-weight: bolder;
     background: #c3a06e;
+}
+
+.monitor_1 {
+    font-weight: bolder;
+    background: #BF9106;
+}
+.monitor_2 {
+    font-weight: bolder;
+    background: #999542;
+}
+.monitor_3 {
+    font-weight: bolder;
+    background: #FF8C00;
+}
+.monitor_4 {
+    font-weight: bolder;
+    background: #FFC107;
 }
 
 .biologo {
@@ -814,7 +969,7 @@
 #modal_trocar_atividade input[type=text], #modal_trocar_atividade input[type=datetime-local],
 #form_evento input[type=datetime-local], .conteudo-escalar-monitores input[type=text],
 #ModalCadastroPreReserva input[type=number], #ModalCadastroPreReserva input[type=datetime-local],
-#ModalCadastroPreReserva input[type=text] {
+#ModalCadastroPreReserva input[type=text], #motivo_cancelamento, #modal_dados_cliente input {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -824,7 +979,7 @@
     height: 38px;
 }
 
-#ModalCadastroPreReserva textarea, #ModalExclusaoPreReserva textarea {
+#ModalCadastroPreReserva textarea, #ModalExclusaoPreReserva textarea, .conteudo-escalar-monitores textarea {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -1057,6 +1212,96 @@
 
 #editar_pre_reserva {
     display: flex;
-    align-items: baseline;
+    align-items: initial;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+
+#editar_pre_reserva .confirmado {
+    flex-wrap: nowrap;
+}
+
+.not_selected {
+    background: #d7d7d799;
+}
+
+.not_selected a {
+    color: #00000080;
+}
+
+.not_selected .fc-event-main {
+    background: rgba(215, 215, 215, 0.43);
+}
+
+.fixo .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #FFC107;
+    border-radius: 8px;
+    background-color: #FFC107;
+}
+
+.tecnico .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #C3A06E;
+    border-radius: 8px;
+    background-color: #C3A06E;
+}
+
+.monitor-biologo .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #03BB85;
+    border-radius: 8px;
+    background-color: #03BB85;
+}
+
+.enfermeira .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #ff7474;
+    border-radius: 8px;
+    background-color: #ff7474;
+}
+
+.monitor .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #FF8C00;
+    border-radius: 8px;
+    background-color: #FF8C00;
+}
+
+.pre-escala .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #f36d21;
+    border-radius: 8px;
+    background-color: #f36d21;
+}
+
+.escala-confirmada .cor {
+    margin: 10px 5px 0 20px;
+    width: 65px;
+    height: 20px;
+    border: solid 1px #008000;
+    border-radius: 8px;
+    background-color: #008000;
+}
+.card-log {
+    width: 800px;
+    margin: auto auto 15px;
+    box-shadow: 2px 2px 2px;
+}
+
+.card-body span {
+    color: #0a58ca;
 }

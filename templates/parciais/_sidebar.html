@@ -62,15 +62,15 @@
                 {% else %}
                     <li>
                 {% endif %}
-{#                {% if perms.peraltas.add_listadecargos %}#}
-{#                    <a href="{% url 'painelGeral' %}">#}
-{#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
-{#                        <span class="link_name"><nobr>Painel estatístico</nobr></span>#}
-{#                    </a>#}
-{#                    <ul class="sub-menu blank">#}
-{#                        <li><a class="link_name" href="{% url 'painelGeral' %}">Painel estatístico</a></li>#}
-{#                    </ul>#}
-{#                {% endif %}#}
+                {#                {% if perms.peraltas.add_listadecargos %}#}
+                {#                    <a href="{% url 'painelGeral' %}">#}
+                {#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
+                {#                        <span class="link_name"><nobr>Painel estatístico</nobr></span>#}
+                {#                    </a>#}
+                {#                    <ul class="sub-menu blank">#}
+                {#                        <li><a class="link_name" href="{% url 'painelGeral' %}">Painel estatístico</a></li>#}
+                {#                    </ul>#}
+                {#                {% endif %}#}
                 </li>
 
                 {% if 'dashboard' in request.path %}
@@ -128,7 +128,8 @@
 
                         {% if perms.peraltas.add_fichadeevento %}
                             <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
-                            <li><a href="{% url 'lista_cliente' %}" onclick="localStorage.removeItem('encaminhado')">Cliente</a></li>
+                            <li><a href="{% url 'lista_cliente' %}" onclick="localStorage.removeItem('encaminhado')">Cliente</a>
+                            </li>
                             <li><a class="max-word" href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
                         {% endif %}
                     </ul>
@@ -165,17 +166,19 @@
                         <li><a href="{% url 'disponibilidade' %}">Disponibilidade</a></li>
 
                         {% if perms.escala.add_escala %}
-                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadeCeu' %}">Mapa de disponibilidade</a></li>
+                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadeCeu' %}">Mapa de
+                                disponibilidade</a></li>
                         {% endif %}
 
                     {% endif %}
 
-                    {% if perms.peraltas.view_escalaacampamento %}
-                        <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
+                    {% if perms.peraltas.view_escalaacampamento or perms.peraltas.add_escalahotelaria %}
                         <li><a href="{% url 'disponibilidadePeraltas' %}">Disponibilidade</a></li>
+                        <li><a href="{% url 'escalaPeraltas' %}">Visualizar</a></li>
 
-                        {% if perms.peraltas.view_escalaacampamento %}
-                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de disponibilidade</a></li>
+                        {% if perms.peraltas.add_escalaacampamento or perms.peraltas.add_escalahotelaria %}
+                            <li><a class="max-word" href="{% url 'visualizarDisponibilidadePeraltas' %}">Mapa de
+                                disponibilidade</a></li>
                         {% endif %}
 
                     {% endif %}
@@ -254,7 +257,8 @@
                     </ul>
                 {% endif %}
 
-                </li>{% if 'dashboard' in request.path %}
+                </li>
+                {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
@@ -274,6 +278,24 @@
                     </ul>
                 {% endif %}
 
+                </li>
+
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+                <a href="{% url 'alterar_senha' %}">
+                    <i class='bx bxs-shield-alt-2'></i>
+                    <span class="link_name">Alterar senha</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="{% url 'alterar_senha' %}">Alterar senha</a></li>
+                </ul>
                 </li>
 
                 <li>

@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
-# import django_heroku
 from pathlib import Path
 from django.contrib.messages import constants
 
@@ -27,7 +26,7 @@ SECRET_KEY = 'django-insecure-8e5qrlwbt$(uvb1yea)7r-!^=snfz)2wqa%^b^m4nw4^!#3+zz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '191.96.251.170']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '191.96.251.170', 'sgo.gperaltas.com.br']
 
 
 # Application definition
@@ -39,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
+    'reversion',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',
@@ -56,14 +57,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'reversion.middleware.RevisionMiddleware',
 ]
+
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 ROOT_URLCONF = 'projetoCEU.urls'
@@ -143,7 +145,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'templates/static')
 ]
 STATIC_ROOT = os.path.join('static')
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -164,5 +165,10 @@ MESSAGE_TAGS = {
 try:
     from local_settings import *
 except ImportError:
-    pass
-    # django_heroku.settings(locals())
+    ...
+
+CRONJOBS = [
+    ('0 07 * * *', 'peraltas.cron.atualizar_pagantes_ficha'),
+    ('0 11 * * *', 'peraltas.cron.envio_dados_embarque'),
+    ('0 4 */14 * *', 'peraltas.cron.deletar_versoes_antigas')
+]

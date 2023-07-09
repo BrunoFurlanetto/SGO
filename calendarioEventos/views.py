@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
@@ -11,7 +12,8 @@ from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
-    EventosCancelados
+    EventosCancelados, Eventos, Vendedor
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
 
 
@@ -32,22 +34,29 @@ def eventos(request):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
             if request.GET.get('data'):
-                fichas_data = FichaDeEvento.objects.filter(
-                    check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                    check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
-                    exclusividade=True,
-                )
-
-                return JsonResponse({'exclusividade': len(fichas_data) > 0})
+                if not User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists():
+                    return JsonResponse({
+                        'exclusividade': FichaDeEvento.objects.filter(
+                            check_in__date__lte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                            check_out__date__gte=datetime.strptime(request.GET.get('data'), '%Y-%m-%d'),
+                            exclusividade=True,
+                        ).exclude(check_out__date=datetime.strptime(request.GET.get('data'), '%Y-%m-%d')).exists()
+                    })
+                else:
+                    return JsonResponse({'exclusividade': False})
 
             if request.GET.get('check_in'):
-                fichas_intervalo = FichaDeEvento.objects.filter(
-                    check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
-                    check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
-                ).exclude(cliente__id=int(request.GET.get('id_cliente')))
+                fichas_intervalo = [
+                    FichaDeEvento.objects.filter(
+                        check_in__lte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                        check_out__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M')
+                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists(), FichaDeEvento.objects.filter(
+                        check_in__gte=datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M'),
+                        check_in__lte=datetime.strptime(request.GET.get('check_out'), '%Y-%m-%dT%H:%M')
+                    ).exclude(cliente__id=int(request.GET.get('id_cliente'))).exists()
+                ]
 
-                print(fichas_intervalo)
-                return JsonResponse({'eventos': len(fichas_intervalo) > 0})
+                return JsonResponse({'eventos': True in fichas_intervalo})
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
@@ -71,7 +80,6 @@ def eventos(request):
         pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
 
         if request.POST.get('excluir'):
-            print('Foi')
             try:
                 EventosCancelados.objects.create(
                     cliente=pre_reserva.cliente.__str__(),
@@ -121,14 +129,21 @@ def eventos(request):
     if request.POST.get('id_pre_reserva'):
         pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
 
-        if request.POST.get('confirmar_agendamento'):
+        if request.POST.get('confirmar_agendamento') and not request.POST.get('cliente'):
             try:
                 pre_reserva.agendado = True
+                pre_reserva.data_preenchimento = datetime.today().date()
                 pre_reserva.save()
             except Exception as e:
                 email_error(request.user.get_full_name(), e, __name__)
                 messages.warning(request, f'Pré agendamento não confirmado!')
                 messages.error(request, f'{e}')
+            else:
+                supervisao = Vendedor.objects.filter(supervisor=True)
+                lista_emails = [vendedora.usuario.email for vendedora in supervisao]
+                EmailSender(lista_emails).mensagem_confirmacao_evento(
+                    pre_reserva.check_in, pre_reserva.check_out, pre_reserva.cliente, pre_reserva.vendedora
+                )
             finally:
                 return redirect('calendario_eventos')
 
@@ -136,6 +151,10 @@ def eventos(request):
             editar_pre_reserva = CadastroPreReserva(request.POST, instance=pre_reserva)
             edicao = editar_pre_reserva.save(commit=False)
             edicao.pre_reserva = True
+
+            if request.POST.get('confirmar_agendamento'):
+                edicao.agendado = True
+
             editar_pre_reserva.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
@@ -153,7 +172,8 @@ def eventos(request):
         nova_pre_reserva.exclusividade = True
 
     if cadastro_de_pre_reservas.is_valid():
-        cadastro_de_pre_reservas.save()
+        pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
+        Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
 
         return redirect('calendario_eventos')
     else:

@@ -1,1 +1,0 @@
-web: gunicorn projetoCEU.wsgi

@@ -20,6 +20,10 @@
     padding: 12px;
     height: 38px;
 }
+#div_editar_horarios input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+}
 #material_apoio-clear_id{
     width: 20px;
     border: 1px solid #ced4da;
@@ -122,6 +126,9 @@
     color: black;
     width: 10px;
     margin-left: -15px;
+}
+.buton-plus:disabled{
+    cursor: pointer;
 }
 .button-cliente, .button-responsavel{
     width: auto;
@@ -238,4 +245,9 @@
     width: 100%;
     height: 35px;
     border: none;
+}
+.ida_e_volta {
+    display: flex;
+    gap: 15px;
+    margin-left: 30px;
 }

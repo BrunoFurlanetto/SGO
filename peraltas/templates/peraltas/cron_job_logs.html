@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Cron Job Logs</h1>
+    <ul>
+        {% for log in logs %}
+            <li>{{ log.start_time }} - {{ log.code }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

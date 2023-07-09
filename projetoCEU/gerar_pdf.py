@@ -1,36 +1,39 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
-from peraltas.models import AtividadesEco
+from peraltas.models import AtividadesEco, Monitor
 
 
 class PDF(FPDF):
     def __init__(self):
         super().__init__('P', 'mm', 'Letter')
-        self.set_font('Times', '', 12)
+        self.add_font('Times New Roman', '', 'times.ttf')
+        self.add_font('Times New Roman', 'B', 'timesbd.ttf')
+        self.set_font('Times New Roman', '', 12)
         self.add_page()
 
     def my_header(self, titulo):
-        self.image('templates/static/img/logoPeraltasResumo.jpg', 140, 10, 65)
+        self.image('templates/static/img/logoPeraltasFundoBranco.jpg', 140, 10, 65)
         self.ln(15)
-        self.set_font('helvetica', 'B', 20)
+        self.set_font('Times New Roman', 'B', 20)
         w_titulo = self.get_string_width(titulo) + 6
         w_pdf = self.w
         self.set_x((w_pdf - w_titulo) / 2)
         self.cell(w_titulo, 20, titulo, ln=1, align='C')
 
     def titulo_secao(self, titulo_secao, height, width):
-        self.set_font('Times', 'B', 14)
+        self.set_font('Times New Roman', 'B', 14)
         self.set_fill_color(147, 206, 235)
         self.cell(width, height, titulo_secao, ln=2, fill=True, align='c')
-        self.set_font('Times', '', 12)
+        self.set_font('Times New Roman', '', 12)
 
     def texto_negrito(self, w, h, texto):
-        self.set_font('Times', 'B', 12)
+        self.set_font('Times New Roman', 'B', 12)
         self.cell(w, h, texto)
-        self.set_font('Times', '', 12)
+        self.set_font('Times New Roman', '', 12)
 
     def tables(self, headings, rows, alings=None, col_widths=(75, 35, 56, 15, 15)):
         self.set_fill_color(23, 129, 180)
@@ -130,11 +133,12 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Produto corporativo: ') + 3, 8, 'Produto corporativo:')
         pdf_ordem.multi_cell(100, 8, ficha_de_evento.produto_corporativo.produto, ln=1)
     else:
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Perfíl do grupo: ') + 2, 8, 'Perfil do grupo:')
-        pdf_ordem.cell(pdf_ordem.get_string_width(ordem_de_servico.serie) + 10, 8, ordem_de_servico.serie)
+        if ordem_de_servico.serie:
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Perfíl do grupo: ') + 2, 8, 'Perfil do grupo:')
+            pdf_ordem.cell(pdf_ordem.get_string_width(ordem_de_servico.serie) + 10, 8, ordem_de_servico.serie)
 
-        if pdf_ordem.get_string_width(ordem_de_servico.serie) + 10 > 96:
-            pdf_ordem.ln()
+            if pdf_ordem.get_string_width(ordem_de_servico.serie) + 10 > 96:
+                pdf_ordem.ln()
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Professores: ') + 2, 8, 'Professores:')
         pdf_ordem.cell(10, 8, str(ordem_de_servico.n_professores))
@@ -158,9 +162,13 @@ def ordem_de_servico(ordem_de_servico):
     atendente = ordem_de_servico.vendedor.usuario.get_full_name()
     pdf_ordem.cell(pdf_ordem.get_string_width(atendente) + 10, 8, atendente)
 
-    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador do grupo: ') + 3, 8, 'Coordenador do grupo:')
-    monitor_responsavel = ordem_de_servico.monitor_responsavel.usuario.get_full_name()
-    pdf_ordem.cell(pdf_ordem.get_string_width(monitor_responsavel), 8, monitor_responsavel, ln=1)
+    monitor_responsavel = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
+
+    if pdf_ordem.get_string_width(', '.join(monitor_responsavel)) > 81.5:
+        pdf_ordem.ln()
+
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8, 'Coordenador(es) do grupo:')
+    pdf_ordem.cell(pdf_ordem.get_string_width(', '.join(monitor_responsavel)), 8, ', '.join(monitor_responsavel), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Seguro: ') + 1, 8, 'Seguro:')
 
@@ -242,38 +250,60 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.titulo_secao('Dados do transporte', 5, 0)
         pdf_ordem.ln(2)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Viação: ') + 1, 8, 'Viação:')
-        pdf_ordem.cell(100, 8, ordem_de_servico.dados_transporte.empresa_onibus.viacao)
+        for loop, transporte in enumerate(ordem_de_servico.dados_transporte.all()):
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Viação: ') + 1, 8, 'Viação:')
+            pdf_ordem.cell(100, 8, transporte.empresa_onibus.viacao)
 
-        if pdf_ordem.get_string_width(ordem_de_servico.dados_transporte.nome_motorista) > 59:
-            pdf_ordem.ln()
+            if pdf_ordem.get_string_width(transporte.nome_motorista) > 59:
+                pdf_ordem.ln()
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Motorista: ') + 2, 8, 'Motorista:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.dados_transporte.nome_motorista, ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Motorista: ') + 2, 8, 'Motorista:')
+            pdf_ordem.cell(0, 8, transporte.nome_motorista, ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Endereço embarque: ') + 3, 8, 'Endereço embarque:')
-        w_text = pdf_ordem.get_string_width(ordem_de_servico.dados_transporte.endereco_embarque) + 10
-        pdf_ordem.cell(w_text, 8, ordem_de_servico.dados_transporte.endereco_embarque)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Endereço embarque: ') + 3, 8, 'Endereço embarque:')
+            w_text = pdf_ordem.get_string_width(transporte.endereco_embarque) + 10
+            pdf_ordem.cell(w_text, 8, transporte.endereco_embarque)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.dados_transporte.horario_embarque.strftime('%H:%M'), ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
+            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '', ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
-        pdf_ordem.cell(40, 8, ordem_de_servico.dados_transporte.telefone_motorista)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
+            pdf_ordem.cell(40, 8, transporte.telefone_motorista)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
-        pdf_ordem.cell(0, 8, ordem_de_servico.monitor_embarque.usuario.get_full_name(), ln=1)
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Monitor embarque: ') + 3, 8, 'Monitor embarque:')
+            pdf_ordem.cell(0, 8, transporte.monitor_embarque.usuario.get_full_name(), ln=1)
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['micro_onibus']))
+            if ficha_de_evento.informacoes_adcionais.lanche_bordo:
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Lanche de bordo: ') + 2, 8, 'Lanche de bordo:')
+                pdf_ordem.cell(20, 8, 'Sim')
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ida: ') + 1, 8, 'Ida:')
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['onibus_46']))
+                if ficha_de_evento.informacoes_adcionais.ida:
+                    pdf_ordem.cell(10, 8, 'Sim')
+                else:
+                    pdf_ordem.cell(10, 8, 'Não')
 
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
-        pdf_ordem.cell(20, 8, str(ordem_de_servico.dados_transporte.dados_veiculos['onibus_50']), ln=1)
+                pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Volta: ') + 1, 8, 'Volta:')
 
-        pdf_ordem.ln(4)
+                if ficha_de_evento.informacoes_adcionais.volta:
+                    pdf_ordem.cell(10, 8, 'Sim', ln=1)
+                else:
+                    pdf_ordem.cell(10, 8, 'Não', ln=1)
+
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['micro_onibus']))
+
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_46']))
+
+            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
+            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_50']), ln=1)
+
+            pdf_ordem.ln(4)
+
+            if loop < len(ordem_de_servico.dados_transporte.all()) - 1:
+                pdf_ordem.line(pdf_ordem.l_margin, pdf_ordem.y, pdf_ordem.w - pdf_ordem.r_margin, pdf_ordem.y)
+                pdf_ordem.ln(4)
     # ----------------------------------------------- Quantidades ------------------------------------------------------
     pdf_ordem.titulo_secao('Quantidades', 5, 0)
     pdf_ordem.ln(2)
@@ -283,28 +313,28 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de meninos: ') + 3, 8, 'Número de meninos:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninos))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninos) if ficha_de_evento.qtd_meninos else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de meninas: ') + 3, 8, 'Número de meninas:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninas), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_meninas) if ficha_de_evento.qtd_meninas else '', ln=1)
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de professores: ') + 3, 8, 'Número de professores:')
-        pdf_ordem.cell(15, 8, str(ordem_de_servico.n_professores))
+        pdf_ordem.cell(15, 8, str(ordem_de_servico.n_professores) if ordem_de_servico.n_professores else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens) if ficha_de_evento.qtd_profs_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '', ln=1)
     else:
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8, 'Número de participantes:')
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_homens))
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_homens) if ficha_de_evento.qtd_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_mulheres), ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_mulheres) if ficha_de_evento.qtd_mulheres else '', ln=1)
 
     pdf_ordem.ln(4)
     # --------------------------------------------- Refeições ----------------------------------------------------------
@@ -343,6 +373,11 @@ def ordem_de_servico(ordem_de_servico):
         dados = []
 
         for atividade in ordem_de_servico.atividades_eco.values():
+            if isinstance(atividade['biologo'], int):
+                biologo = Monitor.objects.get(id=atividade['biologo']).usuario.get_full_name()
+            else:
+                biologo = ''
+
             nome_atividade = AtividadesEco.objects.get(pk=atividade['atividade'])
             data = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
 
@@ -350,7 +385,7 @@ def ordem_de_servico(ordem_de_servico):
                 nome_atividade.nome_atividade_eco,
                 data,
                 atividade['serie'],
-                atividade['biologo'].capitalize(),
+                biologo,
                 str(atividade['participantes'])
             ]
 
@@ -360,7 +395,7 @@ def ordem_de_servico(ordem_de_servico):
             ['Atividade', 'Data e hora', 'Serie', 'Biologo', 'QTD'],
             dados,
             ['L', 'C', 'L', 'C', 'C'],
-            col_widths=(75, 35, 56, 15, 15)
+            col_widths=(65, 35, 40, 41, 15)
         )
         pdf_ordem.ln(4)
     # --------------------------------------------- Atividades CEU -----------------------------------------------------
@@ -394,7 +429,7 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.titulo_secao('Locacoes CEU', 5, 0)
         pdf_ordem.ln(2)
         dados = []
-        print(ordem_de_servico.locacao_ceu.values())
+
         for espaco in ordem_de_servico.locacao_ceu.values():
             nome_espaco = Locaveis.objects.get(pk=espaco['espaco'])
             check_in = datetime.strptime(espaco['check_in'], '%Y-%m-%d %H:%M').strftime('%d/%m/%Y %H:%M')
@@ -425,3 +460,55 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.multi_cell(195, 8, ordem_de_servico.observacoes)
 
     pdf_ordem.output('temp/ordem_de_servico.pdf')
+
+
+def dados_monitores(escala):
+    consulta = [
+        escala.monitores_acampamento.all(),
+        escala.monitores_embarque.all(),
+        escala.biologos.all(),
+        escala.tecnicos.all(),
+        escala.enfermeiras.all()
+    ]
+    titulos_secoes = [
+        'Monitores Acampamento',
+        'Monitores Embarque',
+        'Biologos',
+        'Técnicos',
+        'Enfermeiras'
+    ]
+
+    pdf_escala = PDF()
+    pdf_escala.my_header('Dados dos monitores escalados')
+    pdf_escala.ln(2)
+    pdf_escala.texto_negrito(15, 8, 'Cliente:')
+    pdf_escala.cell(0, 8, escala.cliente.__str__(), ln=1)
+    pdf_escala.ln(3)
+
+    for secao, campo in enumerate(consulta):
+        lista = []
+
+        for colcaborador in campo:
+            ddd = colcaborador.telefone[0:2]
+            primeira_parte = colcaborador.telefone[4:8]
+            segunda_parte = colcaborador.telefone[7:]
+
+            lista.append([
+                colcaborador.usuario.get_full_name(),
+                colcaborador.usuario.email,
+                f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+            ])
+
+        if len(lista) > 0:
+            pdf_escala.titulo_secao(titulos_secoes[secao], 5, 0)
+            pdf_escala.ln(2)
+            pdf_escala.tables(
+                headings=['Nome Completo', 'E-mail', 'Telefone'],
+                rows=lista,
+                alings=('L', 'L', 'C'),
+                col_widths=(80, 80, 36)
+            )
+
+            pdf_escala.ln(8)
+
+    pdf_escala.output('temp/dados_monitores_escalados.pdf')
