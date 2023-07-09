@@ -7,6 +7,65 @@ select {
     height: 38px;
 }
 
+select[disabled] {
+    color: #999999;
+    background-color: #f2f2f2;
+    cursor: not-allowed;
+}
+
+input {
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+
+.checkbox input {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+}
+
+#id_hora_check_in input, #id_hora_check_out input {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: solid 1px #ced4da;
+}
+
+#id_hora_check_in, #id_hora_check_out {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: grid;
+}
+
+#id_hora_check_in div, #id_hora_check_out div {
+    display: inline-block;
+    margin-right: 8%;
+}
+
+#id_hora_check_in div > label, #id_hora_check_out div > label {
+    max-width: 230px;
+}
+
+#id_hora_check_in label, #id_hora_check_out label {
+    width: 200%;
+    font-weight: normal !important;
+}
+
+.vertical-line {
+    border-left: 1px groove #6c757d61;
+    width: 1px;
+    height: 140px;
+    position: absolute;
+    left: 600px;
+    top: 690px;
+}
+
 .conteudo-orcamento {
     margin: auto auto 5%;
     width: 650px;
@@ -23,7 +82,7 @@ select {
     padding-top: 20px;
 }
 
-.conteudo-orcamento .conteudo-primeiro{
+.conteudo-orcamento .conteudo-primeiro {
     background-color: #fff;
     box-shadow: 5px 11px 10px;
     border-radius: 0 0 15px 15px;

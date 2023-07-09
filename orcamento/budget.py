@@ -7,7 +7,7 @@ class Budget:
         self.comming_id = comming_id
         self.exit_id = exit_id
         self.period_id = period_id
-        self.days = days
+        self.days = int(days)
         self.total = 0
         self.pax = 30
         self.optional = {}

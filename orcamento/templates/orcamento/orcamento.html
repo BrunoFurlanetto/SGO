@@ -24,12 +24,45 @@
                     </form>
                 </div>
                 <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %} none {% endif %}">
-                    <h5 class="titulo-secao">Período da viagem</h5>
-                    <div>
-
+                    <h5 class="titulo-secao">Informações do cliente e responsável</h5>
+                    <div onclick="ativar_mascara()">
+                        {{ orcamento.cliente.label }}
+                        {{ orcamento.cliente }}
+                    </div>
+                    <div class="mt-2">
+                        {{ orcamento.responsavel.label }}
+                        {{ orcamento.responsavel }}
                     </div>
                 </div>
-                <div class="conteudo none"><br><br><br><br></div>
+                <div id="periodo_viagem" class="conteudo none" onchange="verificar_preenchimento()">
+                    <h5 class="titulo-secao">Período da viagem</h5>
+                    <div class="row">
+                        <div style="width: 80%">
+                            {{ orcamento.periodo_viagem.label }}
+                            {{ orcamento.periodo_viagem }}
+                        </div>
+                        <div style="width: 20%">
+                            {{ orcamento.n_dias.label }}
+                            {{ orcamento.n_dias }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="row horario_entrada checkbox form-group" style="width: 55%">
+                            <label>{{ orcamento.hora_check_in.label }}</label>
+                            {{ orcamento.hora_check_in }}
+                        </div>
+                        <div class="vertical-line"></div>
+                        <div class="row horario_saida checkbox form-group" style="width: 50%">
+                            <label>{{ orcamento.hora_check_out.label }}</label>
+                            {{ orcamento.hora_check_out }}
+                        </div>
+                    </div>
+                    <br>
+                </div>
+                <div id="monitoria" class="conteudo none">
+                    <h5 class="titulo-secao">Monitoria</h5>
+                </div>
                 <div class="conteudo none"><br><br><br><br></div>
             </fieldset>
         </form>
