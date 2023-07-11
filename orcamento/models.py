@@ -1,7 +1,7 @@
 from django import forms
 from django.db import models
 
-from peraltas.models import ClienteColegio, Responsavel
+from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus
 
 
 class OrcamentoMonitor(models.Model):
@@ -9,11 +9,17 @@ class OrcamentoMonitor(models.Model):
     descricao_monitoria = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
+    def __str__(self):
+        return self.nome_monitoria
+
 
 class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(default='Opcional combinado com o cliente')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+
+    def __str__(self):
+        return self.nome
 
 
 class OrcamentoPeriodo(models.Model):
@@ -38,6 +44,24 @@ class HorariosPadroes(models.Model):
 
     def __str__(self):
         return f'Horário {self.refeicao}'
+
+
+class ValoresTransporte(models.Model):
+    tipos_transporte = (
+        ('micro', 'Micro ônibus'),
+        ('onibus_46', 'Ônibus 46 lugares'),
+        ('onibus_50', 'Ônibus 50 lugares')
+    )
+
+    viacao = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE, verbose_name='Viação')
+    tipo_transporte = models.CharField(max_length=9, choices=tipos_transporte, verbose_name='Tipo de transporte')
+    valor_1_dia = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Valor de 1 dia')
+    valor_2_dia = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Valor de 2 dias')
+    valor_3_dia = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Valor de 3 dias')
+    valor_acrescimo = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Acréscimo')
+
+    def __str__(self):
+        return f'{self.tipo_transporte} de {self.viacao}'
 
 
 class Orcamento(models.Model):
@@ -92,7 +116,8 @@ class CadastroOrcamento(forms.ModelForm):
 
         widgets = {
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
-            'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'})
+            'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
+            'transpoorte': forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):

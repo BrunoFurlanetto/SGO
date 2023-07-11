@@ -5,14 +5,14 @@ import json
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento
+from .models import CadastroOrcamento, OrcamentoOpicional
 from .utils import verify_data
 from .budget import Budget
 
 
 # @csrf_exempt
 def calc_budget(req):
-    print(is_ajax(req))
+
     if is_ajax(req):
         if req.method == 'GET':
             cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
@@ -24,8 +24,21 @@ def calc_budget(req):
             else:
                 return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
         else:
+            if req.POST.get('novo_opcional'):
+                valor = float(req.POST.get('valor').split(' ')[1].replace(',', '.'))
+                print(valor)
+                try:
+                    novo_op = OrcamentoOpicional.objects.create(
+                        nome=req.POST.get('novo_opcional'),
+                        valor=valor,
+                        descricao=req.POST.get('descricao'),
+                    )
+                    novo_op.save()
+                except Exception as e:
+                    return JsonResponse({'adicionado': False, 'erro': e})
+                else:
+                    return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
             # JSON
-            print(req.POST)
             data = req.POST
             # data = req.body
             # data = json.loads(data.decode('utf-8'))

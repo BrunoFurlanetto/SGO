@@ -48,29 +48,103 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="row horario_entrada checkbox form-group" style="width: 55%">
+                        <div class="row horario_entrada checkbox form-group" style="width: 60%">
                             <label>{{ orcamento.hora_check_in.label }}</label>
                             {{ orcamento.hora_check_in }}
                         </div>
-                        <div class="vertical-line"></div>
-                        <div class="row horario_saida checkbox form-group" style="width: 50%">
+                        <div class="row horario_saida checkbox form-group" style="width: 40%">
                             <label>{{ orcamento.hora_check_out.label }}</label>
                             {{ orcamento.hora_check_out }}
                         </div>
                     </div>
                     <br>
                 </div>
-                <div id="monitoria" class="conteudo none">
-                    <h5 class="titulo-secao">Monitoria</h5>
+                <div id="monitoria_transporte" class="row none" style="padding: 0 10px 10px" onchange="verificar_monitoria_transporte()">
+                    <div id="monitoria" class="conteudo" style="width: 50%">
+                        <h5 class="titulo-secao">Monitoria</h5>
+                        <div>
+                            {{ orcamento.tipo_monitoria.label }}
+                            {{ orcamento.tipo_monitoria }}
+                        </div>
+                    </div>
+                    <div class="conteudo" style="width: 47%">
+                        <h5 class="titulo-secao">Transporte</h5>
+                        <div id="transporte">
+                            {{ orcamento.transporte }}
+                            {{ orcamento.transporte.label }}
+                        </div>
+                    </div>
                 </div>
-                <div class="conteudo none"><br><br><br><br></div>
+                <div id="opcionais" class="conteudo none">
+                    <h5 class="titulo-secao">Opcionais</h5>
+                    <div class="row" style="align-items: flex-end">
+                        <div class="select_opcionais">
+                            {{ orcamento.opcionais.label }}
+                            {{ orcamento.opcionais }}
+                        </div>
+                        <div style="width: 5%">
+                            <button id="botao_add_opcionais" type="button" onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                <i class='bx bx-plus'></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="finalizacao" class="conteudo none">
+                    <h5 class="titulo-secao">Observações</h5>
+                    <div>
+                        <label for="observacoes_orcamento">Observações gerais do orçamento</label>
+                        <textarea name="observacoes_orcamento" id="observacoes_orcamento" cols="30" rows="10"></textarea>
+                    </div>
+                    <div class="botoes">
+                        <button type="submit" class="btn btn-primary">Salvar orçamento</button>
+                        <button type="submit" class="btn btn-primary">Salvar orçamento</button>
+                        <button type="submit" class="btn btn-primary">Salvar orçamento</button>
+                    </div>
+                </div>
             </fieldset>
         </form>
     </div>
+
+    <!--  Modal para adicionar um novo opcional  -->
+        <div class="modal fade" id="adicionar_opcional" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Adicionar novo opcional</h5>
+                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST">
+                            <div class="row">
+                                <div style="width: 73%">
+                                    <label for="nome_opcional">Nome do opcional</label>
+                                    <input type="text" name="nome_opcional" id="nome_opcional">
+                                </div>
+                                <div style="width: 27%">
+                                    <label for="valor_opcional">Valor</label>
+                                    <input type="text" name="valor_opcional" id="valor_opcional">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="descricao_opcional">Descrição</label>
+                                <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="adicionar_novo_op()">Salvar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
+    <script src="{% static 'js/maskMoney.js' %}"></script>
 
 {% endblock %}

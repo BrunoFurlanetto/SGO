@@ -13,7 +13,7 @@ select[disabled] {
     cursor: not-allowed;
 }
 
-input {
+input:not([type="checkbox"]) {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -21,6 +21,25 @@ input {
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+
+textarea {
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding-left: 12px;
+    padding-top: 2px;
+    height: 150px;
+    resize: none;
+}
+
+#id_transporte {
+    background-color: #fff;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
 }
 
 .checkbox input {
@@ -57,15 +76,6 @@ input {
     font-weight: normal !important;
 }
 
-.vertical-line {
-    border-left: 1px groove #6c757d61;
-    width: 1px;
-    height: 140px;
-    position: absolute;
-    left: 600px;
-    top: 690px;
-}
-
 .conteudo-orcamento {
     margin: auto auto 5%;
     width: 650px;
@@ -95,4 +105,38 @@ input {
     box-shadow: 5px 11px 10px;
     border-radius: 15px;
     padding: 25px 15px 25px 15px;
+}
+
+#monitoria {
+    width: 50%;
+    margin-right: 3%;
+}
+
+#transporte {
+    display: flex;
+    gap: 5px;
+    height: 70%;
+    align-items: center;
+}
+
+.select_opcionais {
+    margin-right: -20px;
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+}
+
+#botao_add_opcionais {
+    background: none;
+    border: none;
+}
+
+#botao_add_opcionais i {
+    font-size: 25px;
+}
+
+.botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
 }

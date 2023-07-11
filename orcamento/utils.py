@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse
 from .mock import mock_optional
 
@@ -36,6 +35,7 @@ def verify_data(data):
         for target_id in data['optional']:
             if not target_id in ids_optional_db:
                 return JsonError('O opcional_id ' + f'{target_id}' + ' não foi encontrado')
+
 
 # REMOVE LATER:
 

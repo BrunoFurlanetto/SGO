@@ -1,5 +1,6 @@
 $(document).ready(() => {
     $('#id_cliente').select2()
+    $('#valor_opcional').maskMoney({prefix: 'R$ ', thousands: '.', decimal: ','})
 })
 
 function ativar_mascara() {
@@ -55,7 +56,16 @@ function verificar_preenchimento(){
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
         envio_periodo(periodo, dias, hora_entrada, hora_saida)
     } else {
-        $('#monitoria').addClass('none')
+        $('#monitoria_transporte').addClass('none')
+    }
+}
+
+function verificar_monitoria_transporte() {
+    if ($('#id_tipo_monitoria').val() !== '' && $('#id_transporte').prop('checked')) {
+        $('#id_opcionais').select2()
+        $('#opcionais, #finalizacao').removeClass('none')
+    } else {
+        $('#opcionais, #finalizacao').addClass('none')
     }
 }
 
@@ -72,9 +82,40 @@ function envio_periodo(periodo, dias, hora_entrada, hora_saida) {
         },
     }).done((response) => {
         if (response['status'] == 'success') {
-            $('#monitoria').removeClass('none')
+            $('#monitoria_transporte').removeClass('none')
         } else {
-            $('#monitoria').addClass('none')
+            $('#monitoria_transporte').addClass('none')
         }
     })
+}
+
+function adicionar_novo_op() {
+    const nome_opcional = $('#nome_opcional').val()
+    const valor_opcional = $('#valor_opcional').val()
+    const descricao_opcional = $('#descricao_opcional').val()
+    const verificacao = [nome_opcional, valor_opcional, descricao_opcional]
+
+    if (!verificacao.includes('')) {
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {
+                'novo_opcional': nome_opcional,
+                'valor': valor_opcional,
+                'descricao': descricao_opcional,
+            },
+        }).done((response) => {
+            if (response['adicionado']) {
+                let newOption = new Option(
+                    response['text'],
+                    response['id'],
+                    true,
+                    true
+                );
+                $('#id_opcionais').append(newOption).trigger('change')
+                $('#adicionar_opcional').modal('hide')
+            }
+        })
+    }
 }
