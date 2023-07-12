@@ -5,13 +5,14 @@ import json
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento, OrcamentoOpicional
+from .models import CadastroOrcamento, OrcamentoOpicional, OrcamentoPeriodo, OrcamentoMonitor
 from .utils import verify_data
 from .budget import Budget
 
 
 # @csrf_exempt
 def calc_budget(req):
+    global estadia
 
     if is_ajax(req):
         if req.method == 'GET':
@@ -40,6 +41,23 @@ def calc_budget(req):
                     return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
             # JSON
             data = req.POST
+            print(data)
+            # ----------------------------------------------------------------------------------------------------------
+            # Apenas para teste provisório front. TODO: Tirar do fluxo
+            if req.POST.get('periodo_viagem'):
+                estadia = int(req.POST.get('n_dias'))
+                valor_periodo = float(OrcamentoPeriodo.objects.get(id=req.POST.get('periodo_viagem')).valor) * estadia
+                return JsonResponse({'status': True, 'valor_etapa': f'{valor_periodo:.2f}'.replace('.', ',')})
+
+            if req.POST.get('tipo_monitoria'):
+                valor_monitoria = float(OrcamentoMonitor.objects.get(pk=req.POST.get('tipo_monitoria')).valor) * estadia
+
+                if req.POST.get('transporte') == 'sim':
+                    valor_transporte = 50 * estadia
+                else:
+                    valor_transporte = 0
+                return JsonResponse({'status': True, 'valor_etapa': f'{valor_monitoria + valor_transporte:.2f}'.replace('.', ',')})
+            # ----------------------------------------------------------------------------------------------------------
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
 

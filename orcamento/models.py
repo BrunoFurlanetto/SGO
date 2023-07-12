@@ -65,6 +65,12 @@ class ValoresTransporte(models.Model):
 
 
 class Orcamento(models.Model):
+    sim_e_nao = (
+        ('', ''),
+        ('sim', 'Sim'),
+        ('nao', 'Não')
+    )
+
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável')
     periodo_viagem = models.ForeignKey(OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Período da viagem')
@@ -82,7 +88,7 @@ class Orcamento(models.Model):
         verbose_name='Hora do check out'
     )
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
-    transporte = models.BooleanField(default=False, verbose_name='Transporte')
+    transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
     opcionais = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Opcionais')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
@@ -117,7 +123,6 @@ class CadastroOrcamento(forms.ModelForm):
         widgets = {
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
-            'transpoorte': forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):

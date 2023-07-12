@@ -5,21 +5,30 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <div class="conteudo-orcamento">
+        <div class="div-flutuante"></div>
         <div class="head-orcamento">
             <h2>Orçamento</h2>
             <hr>
         </div>
-        <form>
+
+        <form id="orcamento" name="orcamento" action="{% url 'orcamento' %}">
             <fieldset>
                 {% csrf_token %}
-                <div class="conteudo-primeiro periodo-viagem">
+                <div class="conteudo-primeiro">
                     <h5 class="titulo-secao">Tipo de orçamento</h5>
                     <form action="{% url 'orcamento' %}" method="GET">
-                        <select name="tipo_de_orcamento" id="tipo_de_orcamento" style="width: 50%" onchange="this.form.submit()">
+                        <select name="tipo_de_orcamento" id="tipo_de_orcamento" style="width: 50%"
+                                onchange="this.form.submit()">
                             <option {% if not tipo_orcamento or tipo_orcamento == '' %} selected {% endif %}></option>
-                            <option value="ceu" {% if tipo_orcamento == 'ceu' %} selected {% endif %} title="Para orçamentos com apenas atividades avulsas do CEU">Só CEU</option>
-                            <option value="padrao" {% if tipo_orcamento == 'padrao' %} selected {% endif %} title="Personalize um orçamento do zero">Padrão</option>
-                            <option value="promocional" {% if tipo_orcamento == 'promocional' %} selected {% endif %} title="Pacotes promocionais">Promocional</option>
+                            <option value="ceu" {% if tipo_orcamento == 'ceu' %} selected {% endif %}
+                                    title="Para orçamentos com apenas atividades avulsas do CEU">Só CEU
+                            </option>
+                            <option value="padrao" {% if tipo_orcamento == 'padrao' %} selected {% endif %}
+                                    title="Personalize um orçamento do zero">Padrão
+                            </option>
+                            <option value="promocional" {% if tipo_orcamento == 'promocional' %} selected {% endif %}
+                                    title="Pacotes promocionais">Promocional
+                            </option>
                         </select>
                     </form>
                 </div>
@@ -34,70 +43,89 @@
                         {{ orcamento.responsavel }}
                     </div>
                 </div>
-                <div id="periodo_viagem" class="conteudo none" onchange="verificar_preenchimento()">
-                    <h5 class="titulo-secao">Período da viagem</h5>
-                    <div class="row">
-                        <div style="width: 80%">
-                            {{ orcamento.periodo_viagem.label }}
-                            {{ orcamento.periodo_viagem }}
-                        </div>
-                        <div style="width: 20%">
-                            {{ orcamento.n_dias.label }}
-                            {{ orcamento.n_dias }}
-                        </div>
+                <div id="container_periodo" class="none"
+                     style="position: relative; height: fit-content; margin-bottom: -42px">
+                    <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
+                        <h5 class="titulo-secao">Período da viagem</h5>
+                        <form id="form_periodo_viagem" action="{% url 'orcamento' %}" method="POST">
+                            <fieldset>
+                                <div class="row">
+                                    <div style="width: 80%">
+                                        {{ orcamento.periodo_viagem.label }}:
+                                        {{ orcamento.periodo_viagem }}
+                                    </div>
+                                    <div style="width: 20%">
+                                        {{ orcamento.n_dias.label }}:
+                                        {{ orcamento.n_dias }}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="row horario_entrada checkbox form-group" style="width: 60%">
+                                        <label>{{ orcamento.hora_check_in.label }}</label>
+                                        {{ orcamento.hora_check_in }}
+                                    </div>
+                                    <div class="row horario_saida checkbox form-group" style="width: 40%">
+                                        <label>{{ orcamento.hora_check_out.label }}</label>
+                                        {{ orcamento.hora_check_out }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                        <br>
                     </div>
-                    <hr>
-                    <div class="row">
-                        <div class="row horario_entrada checkbox form-group" style="width: 60%">
-                            <label>{{ orcamento.hora_check_in.label }}</label>
-                            {{ orcamento.hora_check_in }}
-                        </div>
-                        <div class="row horario_saida checkbox form-group" style="width: 40%">
-                            <label>{{ orcamento.hora_check_out.label }}</label>
-                            {{ orcamento.hora_check_out }}
-                        </div>
-                    </div>
-                    <br>
+                    <div class="parcial"></div>
                 </div>
-                <div id="monitoria_transporte" class="row none" style="padding: 0 10px 10px" onchange="verificar_monitoria_transporte()">
-                    <div id="monitoria" class="conteudo" style="width: 50%">
-                        <h5 class="titulo-secao">Monitoria</h5>
-                        <div>
-                            {{ orcamento.tipo_monitoria.label }}
-                            {{ orcamento.tipo_monitoria }}
-                        </div>
+                <div id="container_monitoria_transporte" class="none" style="margin-bottom: -42px">
+                    <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
+                         onchange="verificar_monitoria_transporte()">
+                        <form id="form_monitoria_transporte" action="{% url 'orcamento' %}" method="POST">
+                            <fieldset class="row">
+                                <div id="monitoria" class="conteudo" style="width: 50%">
+                                    <h5 class="titulo-secao">Monitoria</h5>
+                                    <div>
+                                        {{ orcamento.tipo_monitoria.label }}
+                                        {{ orcamento.tipo_monitoria }}
+                                    </div>
+                                </div>
+                                <div class="conteudo" style="width: 47%">
+                                    <h5 class="titulo-secao">Transporte</h5>
+                                    <div id="transporte" style="width: 40%;">
+                                        {{ orcamento.transporte.label }}
+                                        {{ orcamento.transporte }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
                     </div>
-                    <div class="conteudo" style="width: 47%">
-                        <h5 class="titulo-secao">Transporte</h5>
-                        <div id="transporte">
-                            {{ orcamento.transporte }}
-                            {{ orcamento.transporte.label }}
-                        </div>
-                    </div>
+                    <div class="parcial"></div>
                 </div>
-                <div id="opcionais" class="conteudo none">
-                    <h5 class="titulo-secao">Opcionais</h5>
-                    <div class="row" style="align-items: flex-end">
-                        <div class="select_opcionais">
-                            {{ orcamento.opcionais.label }}
-                            {{ orcamento.opcionais }}
-                        </div>
-                        <div style="width: 5%">
-                            <button id="botao_add_opcionais" type="button" onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
-                                <i class='bx bx-plus'></i>
-                            </button>
+                <div id="container_opcionais" class="none" style="margin-bottom: -50px">
+                    <div id="opcionais" class="conteudo">
+                        <h5 class="titulo-secao">Opcionais</h5>
+                        <div class="row" style="align-items: flex-end">
+                            <div class="select_opcionais">
+                                {{ orcamento.opcionais.label }}
+                                {{ orcamento.opcionais }}
+                            </div>
+                            <div style="width: 5%">
+                                <button id="botao_add_opcionais" type="button"
+                                        onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    <div class="parcial">R$ 392,00</div>
                 </div>
                 <div id="finalizacao" class="conteudo none">
                     <h5 class="titulo-secao">Observações</h5>
                     <div>
                         <label for="observacoes_orcamento">Observações gerais do orçamento</label>
-                        <textarea name="observacoes_orcamento" id="observacoes_orcamento" cols="30" rows="10"></textarea>
+                        <textarea name="observacoes_orcamento" id="observacoes_orcamento" cols="30"
+                                  rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="submit" class="btn btn-primary">Salvar orçamento</button>
-                        <button type="submit" class="btn btn-primary">Salvar orçamento</button>
                         <button type="submit" class="btn btn-primary">Salvar orçamento</button>
                     </div>
                 </div>
@@ -106,40 +134,40 @@
     </div>
 
     <!--  Modal para adicionar um novo opcional  -->
-        <div class="modal fade" id="adicionar_opcional" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Adicionar novo opcional</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST">
-                            <div class="row">
-                                <div style="width: 73%">
-                                    <label for="nome_opcional">Nome do opcional</label>
-                                    <input type="text" name="nome_opcional" id="nome_opcional">
-                                </div>
-                                <div style="width: 27%">
-                                    <label for="valor_opcional">Valor</label>
-                                    <input type="text" name="valor_opcional" id="valor_opcional">
-                                </div>
+    <div class="modal fade" id="adicionar_opcional" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Adicionar novo opcional</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div style="width: 73%">
+                                <label for="nome_opcional">Nome do opcional</label>
+                                <input type="text" name="nome_opcional" id="nome_opcional">
                             </div>
-                            <div class="mt-3">
-                                <label for="descricao_opcional">Descrição</label>
-                                <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"></textarea>
+                            <div style="width: 27%">
+                                <label for="valor_opcional">Valor</label>
+                                <input type="text" name="valor_opcional" id="valor_opcional">
                             </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="adicionar_novo_op()">Salvar</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                    </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="descricao_opcional">Descrição</label>
+                            <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="adicionar_novo_op()">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
         </div>
+    </div>
 
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
