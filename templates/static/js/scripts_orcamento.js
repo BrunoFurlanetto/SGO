@@ -22,11 +22,12 @@ $(document).ready(() => {
     });
 })
 
-function enviar_form(form) {
+function enviar_form() {
+    const form = $('#orcamento')
     return new Promise(function (resolve, reject) {
         loading()
-        const dados = $(form).serialize()
-        const url = $(form).attr('action')
+        const dados = form.serialize()
+        const url = form.attr('action')
         let status
 
         $.ajax({
@@ -106,10 +107,12 @@ function verificar_preenchimento() {
     const verificacao = [periodo, dias, hora_entrada, hora_saida]
 
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
-        enviar_form($('#id_periodo_viagem').closest('form')).then(function (response) {
-            if (response['status']) {
-                $('#container_periodo .parcial').text('R$ ' + response['valor_etapa']).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + atualizar_valor('periodo', response['valor_etapa'])).addClass('mostrar')
+        enviar_form().then(function (response) {
+            const valores = response['data']
+
+            if (response['status'] == 'success') {
+                $('#container_periodo .parcial').text('R$ ' + valores['periodo'] + valores['valores']['meal']).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
                 $('#container_monitoria_transporte').removeClass('none')
             } else {
                 $('#container_monitoria_transporte').addClass('none')
@@ -133,7 +136,7 @@ function verificar_preenchimento() {
 function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('#id_transporte').val() != '') {
         $('#id_opcionais').select2()
-        enviar_form($('#id_tipo_monitoria').closest('form')).then(function (response) {
+        enviar_form().then(function (response) {
             if (response['status']) {
                 $('#container_monitoria_transporte .parcial').text('R$ ' + response['valor_etapa']).addClass('visivel')
                 console.log(response['valor_etapa'])
@@ -152,6 +155,24 @@ function verificar_monitoria_transporte() {
     } else {
         $('#container_opcionais, #finalizacao').addClass('none')
     }
+}
+
+function enviar_op(opcionais) {
+    enviar_form().then(function (response) {
+        if (response['status']) {
+            $('.div-flutuante').text('R$ ' +  atualizar_valor('opcionais', response['valor_etapa']))
+            $('#container_opcionais .parcial').text(response['valor_etapa']).addClass('visivel')
+            end_loading()
+        } else {
+            $('#container_opcionais .parcial').text('').removeClass('visivel')
+            $('.div-flutuante').text('R$ ' +  atualizar_valor('opcionais', response['valor_etapa']))
+        }
+    }).catch((xht, response, error) => {
+        $('#container_opcionais .parcial').text('').removeClass('visivel')
+        $('.div-flutuante').text('R$ ' +  atualizar_valor('opcionais', response['valor_etapa']))
+        alert(error)
+        end_loading()
+    })
 }
 
 function adicionar_novo_op() {

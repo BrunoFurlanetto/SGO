@@ -12,8 +12,6 @@ from .budget import Budget
 
 # @csrf_exempt
 def calc_budget(req):
-    global estadia
-
     if is_ajax(req):
         if req.method == 'GET':
             cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
@@ -57,6 +55,15 @@ def calc_budget(req):
                 else:
                     valor_transporte = 0
                 return JsonResponse({'status': True, 'valor_etapa': f'{valor_monitoria + valor_transporte:.2f}'.replace('.', ',')})
+
+            if req.POST.get('id_opcionais[]'):
+                valor_etapa = 0.00
+
+                for id_opcional in req.POST.getlist('id_opcionais[]'):
+                    valor_etapa += float(OrcamentoOpicional.objects.get(pk=id_opcional).valor)
+
+                return JsonResponse({'status': True, 'valores': f'{valor_etapa:.2f}'.replace('.', ',')})
+
             # ----------------------------------------------------------------------------------------------------------
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
@@ -66,6 +73,7 @@ def calc_budget(req):
                 return verify_data(data)
 
             # GERANDO ORÇAMENTO
+
             budget = Budget(data['period'], data['days'], data["comming"], data["exit"])
             value_monitor = 0
             value_transport = 0

@@ -47,31 +47,27 @@
                      style="position: relative; height: fit-content; margin-bottom: -42px">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
                         <h5 class="titulo-secao">Período da viagem</h5>
-                        <form id="form_periodo_viagem" action="{% url 'orcamento' %}" method="POST">
-                            <fieldset>
-                                <div class="row">
-                                    <div style="width: 80%">
-                                        {{ orcamento.periodo_viagem.label }}:
-                                        {{ orcamento.periodo_viagem }}
-                                    </div>
-                                    <div style="width: 20%">
-                                        {{ orcamento.n_dias.label }}:
-                                        {{ orcamento.n_dias }}
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="row horario_entrada checkbox form-group" style="width: 60%">
-                                        <label>{{ orcamento.hora_check_in.label }}</label>
-                                        {{ orcamento.hora_check_in }}
-                                    </div>
-                                    <div class="row horario_saida checkbox form-group" style="width: 40%">
-                                        <label>{{ orcamento.hora_check_out.label }}</label>
-                                        {{ orcamento.hora_check_out }}
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
+                        <div class="row">
+                            <div style="width: 80%">
+                                {{ orcamento.periodo_viagem.label }}:
+                                {{ orcamento.periodo_viagem }}
+                            </div>
+                            <div style="width: 20%">
+                                {{ orcamento.n_dias.label }}:
+                                {{ orcamento.n_dias }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="row horario_entrada checkbox form-group" style="width: 60%">
+                                <label>{{ orcamento.hora_check_in.label }}</label>
+                                {{ orcamento.hora_check_in }}
+                            </div>
+                            <div class="row horario_saida checkbox form-group" style="width: 40%">
+                                <label>{{ orcamento.hora_check_out.label }}</label>
+                                {{ orcamento.hora_check_out }}
+                            </div>
+                        </div>
                         <br>
                     </div>
                     <div class="parcial"></div>
@@ -79,24 +75,20 @@
                 <div id="container_monitoria_transporte" class="none" style="margin-bottom: -42px">
                     <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                          onchange="verificar_monitoria_transporte()">
-                        <form id="form_monitoria_transporte" action="{% url 'orcamento' %}" method="POST">
-                            <fieldset class="row">
-                                <div id="monitoria" class="conteudo" style="width: 50%">
-                                    <h5 class="titulo-secao">Monitoria</h5>
-                                    <div>
-                                        {{ orcamento.tipo_monitoria.label }}
-                                        {{ orcamento.tipo_monitoria }}
-                                    </div>
-                                </div>
-                                <div class="conteudo" style="width: 47%">
-                                    <h5 class="titulo-secao">Transporte</h5>
-                                    <div id="transporte" style="width: 40%;">
-                                        {{ orcamento.transporte.label }}
-                                        {{ orcamento.transporte }}
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
+                        <div id="monitoria" class="conteudo" style="width: 50%">
+                            <h5 class="titulo-secao">Monitoria</h5>
+                            <div>
+                                {{ orcamento.tipo_monitoria.label }}
+                                {{ orcamento.tipo_monitoria }}
+                            </div>
+                        </div>
+                        <div class="conteudo" style="width: 47%">
+                            <h5 class="titulo-secao">Transporte</h5>
+                            <div id="transporte" style="width: 40%;">
+                                {{ orcamento.transporte.label }}
+                                {{ orcamento.transporte }}
+                            </div>
+                        </div>
                     </div>
                     <div class="parcial"></div>
                 </div>
@@ -116,7 +108,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="parcial">R$ 392,00</div>
+                    <div class="parcial"></div>
                 </div>
                 <div id="finalizacao" class="conteudo none">
                     <h5 class="titulo-secao">Observações</h5>

@@ -123,6 +123,7 @@ class CadastroOrcamento(forms.ModelForm):
         widgets = {
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
+            'opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -3,7 +3,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    {% comment %}{% if False %}
+    {% if False %}
         {% for versao in ultimas_versoes %}
             <div class="card card-log">
                 {% if versao.campos_alterados == '' %}
@@ -13,6 +13,15 @@
                             <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
                         </ul>
                     </div>
+                {% elif versao.campos_alterados == 'excluido' %}
+                    <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-body">
+                        <ul>
+                            <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span></li>
+                        </ul>
+                    </div>
+
+
                 {% else %}
                     <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
                     <div class="card-body">
@@ -103,11 +112,11 @@
                 {% endif %}
             </div>
         {% endfor %}
-    {% else %}{% endcomment %}
+    {% else %}
         <div class="conteudo_dashboard_peraltas_escrito">
             <h1>SGO</h1>
         </div>
-    {% comment %}{% endif %}{% endcomment %}
+    {% endif %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
