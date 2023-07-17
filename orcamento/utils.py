@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from .mock import mock_optional
+from .models import OrcamentoOpicional
 
 
 def JsonError(msg):
@@ -11,36 +12,17 @@ def JsonError(msg):
 
 
 def verify_data(data):
-    if not "period" in data:
+    if not "periodo_viagem" in data:
         return JsonError("É necessario informar o 'periodo' como parametro!")
 
-    if not "days" in data:
+    if not "n_dias" in data:
         return JsonError("É necessario informar a 'quantidade de dias' da estada!")
 
     # if data['days'] < 2:
     #     return JsonError("No minimo 2 dias na")
 
-    if not "comming" in data:
+    if not "hora_check_in" in data:
         return JsonError("É necessario informar a hora de chegada do evento")
 
-    if not "exit" in data:
+    if not "hora_check_out" in data:
         return JsonError("É necessario informar a hora de saida!")
-
-    if "optional" in data:
-        # todo: VERIFICAR SE OS IDs dos OPCIONAIS ESTÃO CADASTRADOS
-        ids_optional_db = []
-        for optional in mock_optional:
-            ids_optional_db.append(optional['id'])
-
-        for target_id in data['optional']:
-            if not target_id in ids_optional_db:
-                return JsonError('O opcional_id ' + f'{target_id}' + ' não foi encontrado')
-
-
-# REMOVE LATER:
-
-
-def get_optional_pk(id):
-    for optional in mock_optional:
-        if optional['id'] == id:
-            return optional

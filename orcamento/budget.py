@@ -1,5 +1,6 @@
 import math
-from .utils import get_optional_pk
+from .models import OrcamentoMonitor, HorariosPadroes
+from datetime import datetime
 
 
 class Budget:
@@ -11,6 +12,9 @@ class Budget:
         self.total = 0
         self.pax = 30
         self.optional = {}
+        self.meal = 0
+        self.monitor = 0
+        self.transport = 0
 
     def get_period_id(self):
         return self.period_id
@@ -27,33 +31,49 @@ class Budget:
     def get_optional(self):
         return self.optional
 
+    def get_monitor(self):
+        return self.monitor
+
+    def get_transport(self):
+        return self.transport
+
+    def get_meal(self):
+        return self.meal
+
     def set_pax(self, int):
         self.pax = int
         return self.pax
 
-    def monitor(self, id):
-        value_monitor = 0
-        # todo: BUSCAR VALORES NO DB POR PK
-        # todo: DESCOBRIR COMO É ESCALADO OS VALORES DOS MONITORES...7
-        # 1 Monitor para 10 pax.
-        # diaria do monitor 500,
-        # id desc value/diaria
-        # 1  meia 100
-        # 2  cpm  200
+    def set_monitor(self, id):
+        object_monitor = OrcamentoMonitor.objects.get(pk=id)
+        daily_monitor = math.ceil(
+            object_monitor.valor / object_monitor.racional_monitoria)
 
-        if id == 1:  # meia monitoria
-            value_monitor = 5000
-        if id == 2:  # monitoria completa
-            value_monitor = 8000
-        value_monitor = math.ceil(value_monitor / self.pax)
-        self.total += value_monitor
-        return value_monitor
+        check_in = HorariosPadroes.objects.get(pk=self.comming_id).horario
+        check_out = HorariosPadroes.objects.get(pk=self.exit_id).horario
 
-    def meal(self):
+        first_daily_monitor = 1
+        if check_in.hour > datetime(year=2023, hour=12).hour:
+            first_daily_monitor = 0.5
+
+        intermediate_daily_monitor = self.days - 2
+        if intermediate_daily_monitor < 0:
+            intermediate_daily_monitor = 0
+
+        last_daily_monitor = 1
+        if check_out.hour < datetime(year=2023, hour=12).hour:
+            last_daily_monitor = 0.5
+
+        self.monitor = math.ceil(daily_monitor *
+                                 (first_daily_monitor + intermediate_daily_monitor + last_daily_monitor))
+
+        return self.monitor
+
+    def set_meal(self):
         # todo: pegar valores das refeições
         meal = 0
 
-        #TODO: MANDAR PARA O BD
+        # TODO: MANDAR PARA O BD
         coffe = 0
         lunch = 70
         dinner = 70
@@ -93,7 +113,7 @@ class Budget:
         self.total += meal
         return meal
 
-    def transport(self):
+    def set_transport(self):
         one_day = 2000
         two_days = 2500
         three_days = 2800

@@ -19,14 +19,16 @@ def calc_budget(req):
             cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
 
             try:
-                relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+                relacoes = RelacaoClienteResponsavel.objects.get(
+                    cliente=cliente)
             except RelacaoClienteResponsavel.DoesNotExist:
                 return JsonResponse({'responsaveis': []})
             else:
                 return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
         else:
             if req.POST.get('novo_opcional'):
-                valor = float(req.POST.get('valor').split(' ')[1].replace(',', '.'))
+                valor = float(req.POST.get('valor').split(' ')
+                              [1].replace(',', '.'))
                 print(valor)
                 try:
                     novo_op = OrcamentoOpicional.objects.create(
@@ -46,11 +48,13 @@ def calc_budget(req):
             # Apenas para teste provisório front. TODO: Tirar do fluxo
             if req.POST.get('periodo_viagem'):
                 estadia = int(req.POST.get('n_dias'))
-                valor_periodo = float(OrcamentoPeriodo.objects.get(id=req.POST.get('periodo_viagem')).valor) * estadia
+                valor_periodo = float(OrcamentoPeriodo.objects.get(
+                    id=req.POST.get('periodo_viagem')).valor) * estadia
                 return JsonResponse({'status': True, 'valor_etapa': f'{valor_periodo:.2f}'.replace('.', ',')})
 
             if req.POST.get('tipo_monitoria'):
-                valor_monitoria = float(OrcamentoMonitor.objects.get(pk=req.POST.get('tipo_monitoria')).valor) * estadia
+                valor_monitoria = float(OrcamentoMonitor.objects.get(
+                    pk=req.POST.get('tipo_monitoria')).valor) * estadia
 
                 if req.POST.get('transporte') == 'sim':
                     valor_transporte = 50 * estadia
@@ -66,27 +70,23 @@ def calc_budget(req):
                 return verify_data(data)
 
             # GERANDO ORÇAMENTO
-            budget = Budget(data['period'], data['days'], data["comming"], data["exit"])
-            value_monitor = 0
-            value_transport = 0
+            budget = Budget(data['periodo_viagem'], data['n_dias'],
+                            data["hora_check_in"], data["hora_check_out"])
 
-            if "pax" in data:  # numero de participantes
-                budget.set_pax(data["pax"])
+            if "participantes" in data:  # numero de participantes
+                budget.set_pax(data["participantes"])
 
-            if "monitor" in data:
-                value_monitor = budget.monitor(data['monitor'])
+            if "tipo_monitoria" in data:
+                budget.set_monitor(data['tipo_monitoria'])
 
-            if "transport" in data:
-                if data['transport']:
-                    value_transport = budget.transport()
+            if "transporte" in data:
+                budget.set_transport(data["transporte"])
 
-            if "optional" in data:
-                budget.add_optional(data['optional'])
+            if "opicionais[]" in data:
+                budget.add_optional(data['opicionais[]'])
 
-            if "others" in data:
-                budget.add_others(data['others'])
-
-            value_meal = budget.meal()
+            if "outros[]" in data:
+                budget.add_others(data['outros[]'])
 
             # RESPOSTA
             return JsonResponse({
@@ -96,9 +96,9 @@ def calc_budget(req):
                     "days": budget.get_days(),
                     "pax": budget.get_pax(),
                     "description_values": {
-                        "monitor": value_monitor,
-                        "meal": value_meal,
-                        "transport": value_transport,
+                        "monitor": budget.get_monitor(),
+                        "meal": budget.get_meal(),
+                        "transport": budget.get_transport(),
                         "optional": budget.som_optional()
                     },
                     "description_optional_values": budget.get_optional(),
