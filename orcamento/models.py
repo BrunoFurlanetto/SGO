@@ -17,6 +17,7 @@ class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(default='Opcional combinado com o cliente')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    fixo = models.BooleanField(default=False, verbose_name='Opcional fixo')
 
     def __str__(self):
         return self.nome
@@ -89,7 +90,13 @@ class Orcamento(models.Model):
     )
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
-    opcionais = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Opcionais')
+    opcionais = models.ManyToManyField(
+        OrcamentoOpicional,
+        blank=True,
+        verbose_name='Opcionais',
+        related_name='opcionais'
+    )
+    outros = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Outros', related_name='outros')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     motivo_recusa = models.CharField(max_length=255, verbose_name='Motivo da recusa')
@@ -124,6 +131,7 @@ class CadastroOrcamento(forms.ModelForm):
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
             'opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'outros': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -131,9 +139,12 @@ class CadastroOrcamento(forms.ModelForm):
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         horarios = HorariosPadroes.objects.all()
+        opcionais = OrcamentoOpicional.objects.all()
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         horario_refeicao = []
+        opcionais_fixo = []
+        outros = []
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -153,7 +164,15 @@ class CadastroOrcamento(forms.ModelForm):
         for horario in horarios:
             horario_refeicao.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
 
+        for opcional in opcionais:
+            if opcional.fixo:
+                opcionais_fixo.append((opcional.id, opcional.nome))
+            else:
+                outros.append((opcional.id, opcional.nome))
+
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['hora_check_in'].choices = horario_refeicao
         self.fields['hora_check_out'].choices = horario_refeicao
+        self.fields['outros'].choices = outros
+        self.fields['opcionais'].choices = opcionais_fixo

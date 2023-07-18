@@ -6,26 +6,44 @@ import json
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, OrcamentoPeriodo, OrcamentoMonitor
-from .utils import verify_data
+from .utils import verify_data, processar_formulario
 from .budget import Budget
 
 
 # @csrf_exempt
 def calc_budget(req):
+
     if is_ajax(req):
         if req.method == 'GET':
-            cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
+            if req.GET.get('id_cliente'):
+                cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
 
-            try:
-                relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
-            except RelacaoClienteResponsavel.DoesNotExist:
-                return JsonResponse({'responsaveis': []})
-            else:
-                return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
+                try:
+                    relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+                except RelacaoClienteResponsavel.DoesNotExist:
+                    return JsonResponse({'responsaveis': []})
+                else:
+                    return JsonResponse({
+                        'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]
+                    })
+
+            if req.GET.get('lista_opcionais[]'):
+                opcionais = OrcamentoOpicional.objects.filter(id__in=req.GET.getlist('lista_opcionais[]'))
+                opcionais_json = []
+
+                for opcional in opcionais:
+                    opcionais_json.append({
+                        'id': opcional.id,
+                        'nome': opcional.nome,
+                        'valor': float(opcional.valor),
+                        'fixo': opcional.fixo,
+                    })
+
+                return JsonResponse({'retorno': opcionais_json})
         else:
             if req.POST.get('novo_opcional'):
                 valor = float(req.POST.get('valor').split(' ')[1].replace(',', '.'))
-                print(valor)
+
                 try:
                     novo_op = OrcamentoOpicional.objects.create(
                         nome=req.POST.get('novo_opcional'),
@@ -38,43 +56,18 @@ def calc_budget(req):
                 else:
                     return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
             # JSON
-            data = req.POST
-            print(data)
-            # ----------------------------------------------------------------------------------------------------------
-            # Apenas para teste provisório front. TODO: Tirar do fluxo
-            if req.POST.get('periodo_viagem'):
-                estadia = int(req.POST.get('n_dias'))
-                valor_periodo = float(OrcamentoPeriodo.objects.get(id=req.POST.get('periodo_viagem')).valor) * estadia
-                return JsonResponse({'status': True, 'valor_etapa': f'{valor_periodo:.2f}'.replace('.', ',')})
-
-            if req.POST.get('tipo_monitoria'):
-                valor_monitoria = float(OrcamentoMonitor.objects.get(pk=req.POST.get('tipo_monitoria')).valor) * estadia
-
-                if req.POST.get('transporte') == 'sim':
-                    valor_transporte = 50 * estadia
-                else:
-                    valor_transporte = 0
-                return JsonResponse({'status': True, 'valor_etapa': f'{valor_monitoria + valor_transporte:.2f}'.replace('.', ',')})
-
-            if req.POST.get('id_opcionais[]'):
-                valor_etapa = 0.00
-
-                for id_opcional in req.POST.getlist('id_opcionais[]'):
-                    valor_etapa += float(OrcamentoOpicional.objects.get(pk=id_opcional).valor)
-
-                return JsonResponse({'status': True, 'valores': f'{valor_etapa:.2f}'.replace('.', ',')})
-
-            # ----------------------------------------------------------------------------------------------------------
+            dados = processar_formulario(req.POST)
+            data = dados['orcamento']
+            valores_op = dados['valores_op']
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
-
+            print(data, valores_op)
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
 
             # GERANDO ORÇAMENTO
-
-            budget = Budget(data['period'], data['days'], data["comming"], data["exit"])
+            budget = Budget(data['periodo_viagem'], data['n_dias'], data['hora_check_in'], data['hora_check_out'])
             value_monitor = 0
             value_transport = 0
 
