@@ -19,6 +19,7 @@ class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(default='Opcional combinado com o cliente')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    fixo = models.BooleanField(default=False, verbose_name="Opcional fixo")
 
     def __str__(self):
         return self.nome
@@ -35,9 +36,19 @@ class OrcamentoPeriodo(models.Model):
 
 
 class OrcamentoAlimentacao(models.Model):
+    # não apaguei, caso queira usa-la para ter o controle dos valores de alimentações.
+    # ao invés disso criei a OrcamentoDiaria!
     tipo_alimentacao = models.CharField(max_length=100)
     descricao = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+
+
+class OrcamentoDiaria(models.Model):
+    periodo = models.ForeignKey(
+        OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Periodo'
+    )
+    descricao = models.TextField(blank=True)
+    valor = models.DecimalField(decimal_places=2, max_digits=7, default=0.00)
 
 
 class HorariosPadroes(models.Model):

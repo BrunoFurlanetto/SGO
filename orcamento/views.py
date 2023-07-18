@@ -10,7 +10,7 @@ from .utils import verify_data
 from .budget import Budget
 
 
-# @csrf_exempt
+# @csrf_exempt  # comentar antes do git
 def calc_budget(req):
     global estadia
 
@@ -44,24 +44,7 @@ def calc_budget(req):
             # JSON
             data = req.POST
             print(data)
-            # ----------------------------------------------------------------------------------------------------------
-            # Apenas para teste provisório front. TODO: Tirar do fluxo
-            if req.POST.get('periodo_viagem'):
-                estadia = int(req.POST.get('n_dias'))
-                valor_periodo = float(OrcamentoPeriodo.objects.get(
-                    id=req.POST.get('periodo_viagem')).valor) * estadia
-                return JsonResponse({'status': True, 'valor_etapa': f'{valor_periodo:.2f}'.replace('.', ',')})
-
-            if req.POST.get('tipo_monitoria'):
-                valor_monitoria = float(OrcamentoMonitor.objects.get(
-                    pk=req.POST.get('tipo_monitoria')).valor) * estadia
-
-                if req.POST.get('transporte') == 'sim':
-                    valor_transporte = 50 * estadia
-                else:
-                    valor_transporte = 0
-                return JsonResponse({'status': True, 'valor_etapa': f'{valor_monitoria + valor_transporte:.2f}'.replace('.', ',')})
-            # ----------------------------------------------------------------------------------------------------------
+            # req.POST.get("periodo_viagem")
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
 
@@ -73,36 +56,34 @@ def calc_budget(req):
             budget = Budget(data['periodo_viagem'], data['n_dias'],
                             data["hora_check_in"], data["hora_check_out"])
 
-            if "participantes" in data:  # numero de participantes
-                budget.set_pax(data["participantes"])
-
             if "tipo_monitoria" in data:
-                budget.set_monitor(data['tipo_monitoria'])
+                budget.monitor.calc_value_monitor(data['tipo_monitoria'])
+
+            if "minimo_pagantes" in data:  # numero de minimo_pagantes
+                budget.tranport.min_payers(data["minimo_pagantes"])
 
             if "transporte" in data:
-                budget.set_transport(data["transporte"])
+                budget.tranport.calc_value_trasport(data["transporte"])
 
-            if "opicionais[]" in data:
-                budget.add_optional(data['opicionais[]'])
-
-            if "outros[]" in data:
-                budget.add_others(data['outros[]'])
+            if "opicionais" in data:
+                budget.set_optional(data["opicionais"])
+                budget.optional.calc_value_optional(data['opicionais'])
 
             # RESPOSTA
             return JsonResponse({
                 "status": "success",
                 "data": {
-                    "period": budget.get_period_id(),
-                    "days": budget.get_days(),
-                    "pax": budget.get_pax(),
-                    "description_values": {
-                        "monitor": budget.get_monitor(),
-                        "meal": budget.get_meal(),
-                        "transport": budget.get_transport(),
-                        "optional": budget.som_optional()
+                    "periodo_viagem": budget.period.object,
+                    "n_dias": budget.days,
+                    "minimo_pagantes": budget.tranport.min_payers,
+                    "valores": {
+                        "tipo_monitoria": budget.monitor.object,
+                        "diaria": budget.daily_rate.object,
+                        "transport": budget.tranport.object,
+                        "optional": budget.optional.object
                     },
-                    "description_optional_values": budget.get_optional(),
-                    "total": budget.get_total()
+                    "description_optional_values": budget.array_description_optional,
+                    "total": 0
                 },
                 "msg": "",
             })
