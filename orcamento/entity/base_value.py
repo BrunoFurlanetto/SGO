@@ -1,5 +1,7 @@
 class Base_Value:
     def __init__(self, value):
+        self.comission = 0
+        self.business_fee = 0
         self.value = value
         self.discount = 0
         self.value_with_discount = self.calc_value_with_discount()
@@ -14,7 +16,7 @@ class Base_Value:
         return self.value
 
     def calc_value_with_discount(self):
-        return (self.value - self.discount)
+        return self.value - self.discount
 
     def calc_business_fee(self, percent):
         self.business_fee = self.value_with_discount * percent

@@ -29,7 +29,6 @@ function enviar_form(form_opcionais = null) {
     const orcamento = form.serializeObject()
     let dados = { orcamento }
     const url = form.attr('action')
-    console.log(orcamento)
 
     return new Promise(function (resolve, reject) {
         loading()

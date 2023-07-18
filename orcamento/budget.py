@@ -34,8 +34,8 @@ class Budget:
         self.array_description_optional = []
 
     def set_optional(self, arr):
-
         optional_array = []
+
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
@@ -49,6 +49,7 @@ class Budget:
             description = Optional_Description(
                 db_optional.valor, db_optional.fixo, db_optional.id, db_optional.nome)
             description.set_discount(discount)
-            optional_array.append(description.do_object)
+            optional_array.append(description.do_object())
         self.optional = optional_array
+
         return self.optional

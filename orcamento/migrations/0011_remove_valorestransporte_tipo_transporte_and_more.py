@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('orcamento', '0010_orcamentomonitor_racional_monitoria'),
+        ('orcamento', '0010_orcamento_outros_orcamentoopicional_fixo_and_more'),
     ]
 
     operations = [

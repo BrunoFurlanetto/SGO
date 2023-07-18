@@ -105,7 +105,13 @@ class Orcamento(models.Model):
     )
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
-    opcionais = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Opcionais')
+    opcionais = models.ManyToManyField(
+        OrcamentoOpicional,
+        blank=True,
+        verbose_name='Opcionais',
+        related_name='opcionais'
+    )
+    outros = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Outros', related_name='outros')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     motivo_recusa = models.CharField(max_length=255, verbose_name='Motivo da recusa')

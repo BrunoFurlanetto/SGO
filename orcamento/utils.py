@@ -1,3 +1,5 @@
+import re
+
 from django.http import JsonResponse
 from .mock import mock_optional
 from .models import OrcamentoOpicional
@@ -35,7 +37,6 @@ def processar_formulario(dados):
     padrao_valores_op = r'dados_op\[(\w+)\]'
 
     for key, valor in dados.items():
-        print(key, valor, dados.getlist(key))
         correspondencia_orcamento = re.match(padrao_orcamento, key)
         correspondencia_valores_op = re.match(padrao_valores_op, key)
 

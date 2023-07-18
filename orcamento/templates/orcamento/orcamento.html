@@ -184,18 +184,65 @@
                     <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
                         <table id="tabela_de_opcionais" class="table table-hover table-striped">
                             <thead>
-                                <tr>
-                                    <th style="width: 50%">Opcional</th>
-                                    <th style="width: 25%">Valor</th>
-                                    <th style="width: 25%">Desconto</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 50%">Opcional</th>
+                                <th style="width: 25%">Valor</th>
+                                <th style="width: 25%">Desconto</th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="enviar_form($('#forms_valores_op'))">Salvar</button>
+                    <button type="button" class="btn btn-primary" onclick="enviar_form($('#forms_valores_op'))">Salvar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  Modal valores dos outros opcionais  -->
+    <div class="modal fade" id="modal_gerencia" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Gerência</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
+                        <h5 class="titulo-secao">Descontos</h5>
+                        <div class="descontos" style="display: flex; flex-direction: column">
+                            <div style="display: flex">
+                                <div>
+                                    <label for="desconto_produto">Produto</label>
+                                    <input type="text" id="desconto_produto" name="desconto_produto">
+                                </div>
+                                <div>
+                                    <label for="desconto_monitoria">Monitoria</label>
+                                    <input type="text" id="desconto_monitoria" name="desconto_monitoria">
+                                </div>
+                            </div>
+                            <div class="mt-3" style="display: flex">
+                                <div>
+                                    <label for="desconto_trasnporte">Transporte</label>
+                                    <input type="text" id="desconto_trasnporte" name="desconto_trasnporte">
+                                </div>
+                                <div>
+                                    <label for="desconto_geral">Geral</label>
+                                    <input type="text" id="desconto_geral" name="desconto_geral">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="enviar_form($('#forms_valores_op'))">Salvar
+                    </button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
@@ -207,7 +254,5 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/maskMoney.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/2.9.0/jquery.serializejson.min.js"></script>
-
 
 {% endblock %}
