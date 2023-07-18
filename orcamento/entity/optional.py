@@ -1,7 +1,7 @@
-from .base_value import Base_Value
+from .basevalue import BaseValue
 
 
-class Optional(Base_Value):
+class Optional(BaseValue):
     pass
 
     def calc_value_optional(self, optional_description):

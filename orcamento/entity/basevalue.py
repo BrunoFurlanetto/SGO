@@ -1,11 +1,8 @@
-class Base_Value:
+class BaseValue:
     def __init__(self, value):
-        self.comission = 0
-        self.business_fee = 0
         self.value = value
         self.discount = 0
         self.value_with_discount = self.calc_value_with_discount()
-        self.object = self.do_object()
 
     def set_discount(self, value):
         self.discount = value
@@ -19,18 +16,16 @@ class Base_Value:
         return self.value - self.discount
 
     def calc_business_fee(self, percent):
-        self.business_fee = self.value_with_discount * percent
-        return self.business_fee
+        return self.value_with_discount * percent
 
-    def calc_comission(self, percent):
-        self.comission = self.value_with_discount * percent
-        return self.comission
+    def calc_commission(self, percent):
+        return self.value_with_discount * percent
 
-    def do_object(self, percent_business_fee, percent_comission):
+    def do_object(self, percent_business_fee, percent_commission):
         return {
             "valor": self.value,
             "desconto": self.discount,
             "valor_com_desconto": self.value_with_discount,
             "taxa_comercial": self.calc_business_fee(percent_business_fee),
-            "comissao_de_vendas": self.calc_comission(percent_comission)
+            "comissao_de_vendas": self.calc_commission(percent_commission)
         }

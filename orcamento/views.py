@@ -1,11 +1,10 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-import json
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento, OrcamentoOpicional, OrcamentoPeriodo, OrcamentoMonitor
+from .models import CadastroOrcamento, OrcamentoOpicional
 from .utils import verify_data, processar_formulario
 from .budget import Budget
 
@@ -74,10 +73,10 @@ def calc_budget(req):
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
 
             if "minimo_pagantes" in data:  # numero de minimo_pagantes
-                budget.tranport.min_payers(data["minimo_pagantes"])
+                budget.transport.min_payers(data["minimo_pagantes"])
 
             if "transporte" in data:
-                budget.tranport.calc_value_trasport(data["transporte"])
+                budget.transport.calc_value_transport(data["transporte"])
 
             if "opicionais" in data:
                 budget.set_optional(data["opicionais"])
@@ -87,17 +86,39 @@ def calc_budget(req):
             return JsonResponse({
                 "status": "success",
                 "data": {
-                    "periodo_viagem": budget.period.object,
+                    "periodo_viagem": budget.period.do_object(
+                        percent_commission=budget.commission,
+                        percent_business_fee=budget.commission
+                    ),
                     "n_dias": budget.days,
-                    "minimo_pagantes": budget.tranport.min_payers,
+                    "minimo_pagantes": budget.transport.min_payers,
                     "valores": {
-                        "tipo_monitoria": budget.monitor.object,
-                        "diaria": budget.daily_rate.object,
-                        "transport": budget.tranport.object,
-                        "optional": budget.optional.object
+                        "tipo_monitoria": budget.monitor.do_object(
+                            percent_commission=budget.commission,
+                            percent_business_fee=budget.commission
+                        ),
+                        "diaria": budget.daily_rate.do_object(
+                            percent_commission=budget.commission,
+                            percent_business_fee=budget.commission
+                        ),
+                        "transport": budget.transport.do_object(
+                            percent_commission=budget.commission,
+                            percent_business_fee=budget.commission
+                        ),
+                        "optional": budget.optional.do_object(
+                            percent_commission=budget.commission,
+                            percent_business_fee=budget.commission
+                        )
                     },
                     "description_optional_values": budget.array_description_optional,
-                    "total": 0
+                    "total": {
+                        "valor": 0,
+                        "desconto": 0,
+                        "valor_com_desconto": 0,
+                        "taxa_comercial": 0,
+                        "comissao_de_vendas": 0,
+                    },
+                    "desconto_geral": 0,
                 },
                 "msg": "",
             })

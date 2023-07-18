@@ -1,9 +1,9 @@
-from .base_value import Base_Value
+from .basevalue import BaseValue
 from ..models import HorariosPadroes, OrcamentoDiaria
 from datetime import datetime
 
 
-class Daily_Rate(Base_Value):
+class DailyRate(BaseValue):
     def __init__(self, check_in_id, check_out_id, period_id, days):
         super().__init__(self.calc_daily_rate())
         self.check_in_id = check_in_id

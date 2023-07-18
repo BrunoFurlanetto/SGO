@@ -1,8 +1,8 @@
-from .base_value import Base_Value
+from .basevalue import BaseValue
 from ..models import ValoresTransporte
 
 
-class Transport(Base_Value):
+class Transport(BaseValue):
     def __init__(self, value, period_id, days):
         super().__init__(value)
         self.period_id = period_id
@@ -13,7 +13,7 @@ class Transport(Base_Value):
         self.min_payers = min_payers
         return self.min_payers
 
-    def calc_value_trasport(self, is_transport):
+    def calc_value_transport(self, is_transport):
         if is_transport == 'nao':
             self.value = 0
             return self.value

@@ -1,13 +1,15 @@
 
-from .base_value import Base_Value
+from .basevalue import BaseValue
 from ..models import OrcamentoMonitor, HorariosPadroes
 from datetime import datetime
 import math
 
 
-class Monitor(Base_Value):
-    def __init__(self, value, days):
+class Monitor(BaseValue):
+    def __init__(self, value, days, coming_id, exit_id):
         super().__init__(value)
+        self.coming_id = coming_id
+        self.exit_id = exit_id
         self.days = days
 
     def calc_value_monitor(self, id):
@@ -15,7 +17,7 @@ class Monitor(Base_Value):
         daily_monitor = math.ceil(
             object_monitor.valor / object_monitor.racional_monitoria)
 
-        check_in = HorariosPadroes.objects.get(pk=self.comming_id).horario
+        check_in = HorariosPadroes.objects.get(pk=self.coming_id).horario
         check_out = HorariosPadroes.objects.get(pk=self.exit_id).horario
 
         first_daily_monitor = 1
