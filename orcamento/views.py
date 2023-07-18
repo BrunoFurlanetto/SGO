@@ -6,30 +6,44 @@ import json
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, OrcamentoPeriodo, OrcamentoMonitor
-from .utils import verify_data
+from .utils import verify_data, processar_formulario
 from .budget import Budget
 
 
-# @csrf_exempt  # comentar antes do git
+# @csrf_exempt
 def calc_budget(req):
-    global estadia
 
     if is_ajax(req):
         if req.method == 'GET':
-            cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
+            if req.GET.get('id_cliente'):
+                cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
 
-            try:
-                relacoes = RelacaoClienteResponsavel.objects.get(
-                    cliente=cliente)
-            except RelacaoClienteResponsavel.DoesNotExist:
-                return JsonResponse({'responsaveis': []})
-            else:
-                return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
+                try:
+                    relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+                except RelacaoClienteResponsavel.DoesNotExist:
+                    return JsonResponse({'responsaveis': []})
+                else:
+                    return JsonResponse({
+                        'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]
+                    })
+
+            if req.GET.get('lista_opcionais[]'):
+                opcionais = OrcamentoOpicional.objects.filter(id__in=req.GET.getlist('lista_opcionais[]'))
+                opcionais_json = []
+
+                for opcional in opcionais:
+                    opcionais_json.append({
+                        'id': opcional.id,
+                        'nome': opcional.nome,
+                        'valor': float(opcional.valor),
+                        'fixo': opcional.fixo,
+                    })
+
+                return JsonResponse({'retorno': opcionais_json})
         else:
             if req.POST.get('novo_opcional'):
-                valor = float(req.POST.get('valor').split(' ')
-                              [1].replace(',', '.'))
-                print(valor)
+                valor = float(req.POST.get('valor').split(' ')[1].replace(',', '.'))
+
                 try:
                     novo_op = OrcamentoOpicional.objects.create(
                         nome=req.POST.get('novo_opcional'),
@@ -42,12 +56,12 @@ def calc_budget(req):
                 else:
                     return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
             # JSON
-            data = req.POST
-            print(data)
-            # req.POST.get("periodo_viagem")
+            dados = processar_formulario(req.POST)
+            data = dados['orcamento']
+            valores_op = dados['valores_op']
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
-
+            print(data, valores_op)
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)

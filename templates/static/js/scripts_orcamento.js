@@ -22,18 +22,28 @@ $(document).ready(() => {
     });
 })
 
-function enviar_form(form) {
+function enviar_form(form_opcionais = null) {
+    let dados_op
+    const form = $('#orcamento')
+    const valores_opcionais = form_opcionais
+    const orcamento = form.serializeObject()
+    let dados = { orcamento }
+    const url = form.attr('action')
+    console.log(orcamento)
+
     return new Promise(function (resolve, reject) {
         loading()
-        const dados = $(form).serialize()
-        const url = $(form).attr('action')
-        let status
+
+        if (valores_opcionais !== null) {
+            dados_op =  valores_opcionais.serializeObject()
+        }
 
         $.ajax({
             url: url,
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
-            data: dados,
+            dataType: 'JSON',
+            data: {orcamento, dados_op},
             success: function (response) {
                 resolve(response)
             },
@@ -42,6 +52,24 @@ function enviar_form(form) {
             }
         })
     })
+}
+
+$.fn.serializeObject = function(){
+    let obj = {}
+    let array = this.serializeArray()
+
+    $.each(array, function () {
+        if (obj[this.name]) {
+            if (!obj[this.name].push) {
+                obj[this.name] = [obj[this.name]]
+            }
+            obj[this.name].push(this.value || '')
+        } else {
+            obj[this.name] = this.value || ''
+        }
+    })
+
+    return obj
 }
 
 function atualizar_valor(etapa, valor_etapa) {
@@ -106,52 +134,142 @@ function verificar_preenchimento() {
     const verificacao = [periodo, dias, hora_entrada, hora_saida]
 
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
-        enviar_form($('#id_periodo_viagem').closest('form')).then(function (response) {
-            if (response['status']) {
-                $('#container_periodo .parcial').text('R$ ' + response['valor_etapa']).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + atualizar_valor('periodo', response['valor_etapa'])).addClass('mostrar')
+        enviar_form().then(function (response) {
+            const valores = response['data']
+            console.log(response)
+            if (response['status'] == 'success') {
+                $('#container_periodo .parcial').text('R$ ' + valores['periodo'] + valores['description_values']['meal']).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+                setTimeout(() => {
+                    $('.div-flutuante').addClass('visivel')
+                }, 10)
                 $('#container_monitoria_transporte').removeClass('none')
             } else {
                 $('#container_monitoria_transporte').addClass('none')
                 $('#container_periodo .parcial').text('').removeClass('visivel')
-                $('.div-flutuante').text('').removeClass('mostrar')
+                $('.div-flutuante').removeClass('visivel')
+                setTimeout(() => {
+                    $('.div-flutuante').text('').removeClass('mostrar')
+                }, 1000)
             }
-            end_loading()
         }).catch(function (error) {
             $('#container_periodo .parcial').text('').removeClass('visivel')
             $('.div-flutuante').text('').removeClass('mostrar')
-            end_loading()
             alert(error)
         })
     } else {
         $('#container_periodo .parcial').text('').removeClass('visivel')
-        $('.div-flutuante').removeClass('mostrar')
-        $('#container_monitoria_transporte').addClass('none')
+        $('.div-flutuante').removeClass('visivel')
+        setTimeout(() => {
+            $('.div-flutuante').text('').removeClass('mostrar')
+        }, 1000)
     }
+    end_loading()
 }
 
 function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('#id_transporte').val() != '') {
-        $('#id_opcionais').select2()
-        enviar_form($('#id_tipo_monitoria').closest('form')).then(function (response) {
-            if (response['status']) {
-                $('#container_monitoria_transporte .parcial').text('R$ ' + response['valor_etapa']).addClass('visivel')
-                console.log(response['valor_etapa'])
-                $('.div-flutuante').text('R$ ' + atualizar_valor('monitoria_transporte', response['valor_etapa'])).addClass('mostrar')
+        $('#id_opcionais, #id_outros').select2()
+
+        enviar_form().then(function (response) {
+            const valores = response['data']
+
+            if (response['status'] === 'success') {
+                $('#container_monitoria_transporte .parcial').text('R$ ' + valores['description_values']['meal']).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+                setTimeout(() => {
+                    $('.div-flutuante').addClass('visivel')
+                }, 10)
                 $('#container_opcionais, #finalizacao').removeClass('none')
             } else {
-                $('.div-flutuante').text('R$ ' + atualizar_valor('monitoria_transporte', response['valor_etapa'])).addClass('mostrar')
                 $('#container_opcionais, #finalizacao').addClass('none')
             }
-            end_loading()
         }).catch(function (error) {
-
-            end_loading()
             alert(error)
         })
     } else {
         $('#container_opcionais, #finalizacao').addClass('none')
     }
+    end_loading()
+}
+
+function enviar_op(opcionais) {
+    enviar_form().then(function (response) {
+        if (response['status'] === 'success') {
+            const valores = response['data']
+
+            $('.div-flutuante').text('R$ ' + atualizar_valor(valores['total']))
+            $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+            setTimeout(() => {
+                $('.div-flutuante').addClass('visivel')
+            }, 10)
+        } else {
+            $('#container_opcionais .parcial').text('').removeClass('visivel')
+        }
+    }).catch((xht, response, error) => {
+        $('#container_opcionais .parcial').text('').removeClass('visivel')
+        alert(error)
+    })
+    atualizar_lista_valores()
+    end_loading()
+}
+
+function atualizar_lista_valores() {
+    const opcionais_fixo = $('#id_opcionais').val()
+    const outros = $('#id_outros').val()
+    const opcionais = [opcionais_fixo, outros].flat()
+    $('#tabela_de_opcionais tbody').empty()
+
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'lista_opcionais': opcionais, 'teste': 'teste'},
+    }).then((response) => {
+        let i = 1
+        let readonly = ''
+
+        for (let opcional of response['retorno']) {
+            if (opcional['fixo']) {
+                readonly = 'disabled'
+            }
+
+            $('#tabela_de_opcionais tbody').append(
+                `<tr>
+                    <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional['nome']}" disabled></th>
+                    <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcional['id']}">
+                    <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${opcional['valor']}">
+                    <th><input type="text" id="valor_opcional_${i}" ${readonly} name="opcional_${i}" value="${opcional['valor'].toFixed(2).replace('.', ',')}"></th>
+                    <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th>
+                </tr>`
+            )
+            $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
+                prefix: 'R$ ',
+                thousands: '.',
+                decimal: ',',
+                allowZero: true,
+                affixesStay: false
+            })
+            i++
+        }
+    }).catch((xht, response, error) => {
+        alert(error)
+    })
+}
+
+function aplicar_desconto(desconto) {
+    const posicao = $(desconto).prop('name').split('_')[1]
+    const opcional = $(`#valor_opcional_${posicao}`)
+    const valor_bd_opcional = parseFloat($(`#valor_bd_opcional_${posicao}`).val().replace(',', '.'))
+    const valor_opcional = parseFloat($(opcional).val().replace(',', '.'))
+    const desconto_aplicado = parseFloat($(desconto).val().replace(',', '.'))
+    const novo_valor = valor_bd_opcional - desconto_aplicado
+    opcional.val(`${novo_valor.toFixed(2).replace('.', ',')}`)
+    console.log(opcional, valor_opcional)
+}
+
+function enviar_atualizacao() {
+    const form = $('#valores_outros_opcionais')
 }
 
 function adicionar_novo_op() {
@@ -178,7 +296,7 @@ function adicionar_novo_op() {
                     true,
                     true
                 );
-                $('#id_opcionais').append(newOption).trigger('change')
+                $('#id_outros').append(newOption).trigger('change')
                 $('#adicionar_opcional').modal('hide')
             }
         })

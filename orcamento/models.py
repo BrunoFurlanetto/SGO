@@ -19,7 +19,7 @@ class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(default='Opcional combinado com o cliente')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    fixo = models.BooleanField(default=False, verbose_name="Opcional fixo")
+    fixo = models.BooleanField(default=False, verbose_name='Opcional fixo')
 
     def __str__(self):
         return self.nome
@@ -36,8 +36,6 @@ class OrcamentoPeriodo(models.Model):
 
 
 class OrcamentoAlimentacao(models.Model):
-    # não apaguei, caso queira usa-la para ter o controle dos valores de alimentações.
-    # ao invés disso criei a OrcamentoDiaria!
     tipo_alimentacao = models.CharField(max_length=100)
     descricao = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
@@ -89,12 +87,9 @@ class Orcamento(models.Model):
         ('nao', 'Não')
     )
 
-    cliente = models.ForeignKey(
-        ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
-    responsavel = models.ForeignKey(
-        Responsavel, on_delete=models.CASCADE, verbose_name='Responsável')
-    periodo_viagem = models.ForeignKey(
-        OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Período da viagem')
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável')
+    periodo_viagem = models.ForeignKey(OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Período da viagem')
     n_dias = models.PositiveIntegerField(default=0, verbose_name='Nº de dias')
     hora_check_in = models.ForeignKey(
         HorariosPadroes,
@@ -108,21 +103,15 @@ class Orcamento(models.Model):
         related_name='horario_saida',
         verbose_name='Hora do check out'
     )
-    tipo_monitoria = models.ForeignKey(
-        OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
-    transporte = models.CharField(
-        max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
-    opcionais = models.ManyToManyField(
-        OrcamentoOpicional, blank=True, verbose_name='Opcionais')
-    desconto = models.DecimalField(
-        blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
+    tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
+    transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
+    opcionais = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Opcionais')
+    desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
-    motivo_recusa = models.CharField(
-        max_length=255, verbose_name='Motivo da recusa')
+    motivo_recusa = models.CharField(max_length=255, verbose_name='Motivo da recusa')
     promocional = models.BooleanField(default=False)
     aprovado = models.BooleanField(default=False)
-    necessita_aprovacao_gerencia = models.BooleanField(
-        default=False, verbose_name='Necessita de aprovação da gerência')
+    necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')
 
     def __str__(self):
         return f'Orçamento de {self.cliente}'
@@ -150,6 +139,8 @@ class CadastroOrcamento(forms.ModelForm):
         widgets = {
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
+            'opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'outros': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -157,9 +148,12 @@ class CadastroOrcamento(forms.ModelForm):
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         horarios = HorariosPadroes.objects.all()
+        opcionais = OrcamentoOpicional.objects.all()
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         horario_refeicao = []
+        opcionais_fixo = []
+        outros = []
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -172,16 +166,22 @@ class CadastroOrcamento(forms.ModelForm):
                     cargos.append(cargo.cargo)
 
             if len(cargos) > 0:
-                responsaveis_cargo.append(
-                    (responsavel.id, f'{responsavel.nome} ({", ".join(cargos)})'))
+                responsaveis_cargo.append((responsavel.id, f'{responsavel.nome} ({", ".join(cargos)})'))
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
         for horario in horarios:
-            horario_refeicao.append(
-                (horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
+            horario_refeicao.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
+
+        for opcional in opcionais:
+            if opcional.fixo:
+                opcionais_fixo.append((opcional.id, opcional.nome))
+            else:
+                outros.append((opcional.id, opcional.nome))
 
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['hora_check_in'].choices = horario_refeicao
         self.fields['hora_check_out'].choices = horario_refeicao
+        self.fields['outros'].choices = outros
+        self.fields['opcionais'].choices = opcionais_fixo

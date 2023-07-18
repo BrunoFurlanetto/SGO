@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import ManyToManyField
 from django.utils import timezone
@@ -425,6 +426,9 @@ class FichaDeEvento(models.Model):
 
         return many_to_many_fields
 
+    def listar_atividades_ceu(self):
+        return ', '.join([atividade.atividade for atividade in self.atividades_ceu.all()])
+
     # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------
     @classmethod
     def logs_de_alteracao(cls):
@@ -438,9 +442,26 @@ class FichaDeEvento(models.Model):
         )
 
         versoes_agrupadas = cls.__agrupar_versoes(pre_alteracoes)
+        # cls.teste()
 
         for obj, versoes in versoes_agrupadas.items():
             campos_alterados = []
+
+            if obj == 'excluidas':
+                for versao in versoes:
+                    motivo_cancelamento = cls.__pegar_motivo_cancelamento(versao.field_dict['cliente_id'])
+                    dados_alterados.append({
+                        'ficha': {
+                            'ficha': versao,
+                            'id_ficha': '',
+                        },
+                        'campos_alterados': 'excluido',
+                        'motivo': motivo_cancelamento,
+                        'colaborador': versao.revision.user.get_full_name() if versao.revision.user else '',
+                        'data_e_hora': timezone.localtime(versao.revision.date_created).strftime('%d/%m/%Y às %H:%M')
+                    })
+
+                continue
 
             if len(versoes) == 1 or (versoes[1].field_dict['pre_reserva'] and not versoes[0].field_dict['pre_reserva']):
                 versao = versoes[0]
@@ -475,12 +496,42 @@ class FichaDeEvento(models.Model):
         return dados_alterados
 
     @staticmethod
+    def __pegar_motivo_cancelamento(id_cliente):
+        cliente = ClienteColegio.objects.get(pk=id_cliente)
+        evento_cancelado = EventosCancelados.objects.filter(cnpj_cliente=cliente.cnpj).last()
+
+        return evento_cancelado.motivo_cancelamento
+
+    @staticmethod
+    def teste():
+        pre_alteracoes = (
+            Version.objects
+            .get_for_model(FichaDeEvento)
+            .select_related('revision')
+            .order_by('-revision__date_created')[1]
+        )
+
+        previous_version = pre_alteracoes.revision.get_previous()
+        diff = pre_alteracoes.difference()
+
+        print(diff)
+
+    @staticmethod
     def __agrupar_versoes(pre_alteracoes):
         versoes_agrupadas = defaultdict(list)
+        excluidas = []
 
         for versao in pre_alteracoes:
-            if not versao.object.pre_reserva and versao.revision.user and len(versoes_agrupadas) < 10:
-                versoes_agrupadas[versao.object].append(versao)
+            try:
+                ficha = versao.content_type.get_object_for_this_type(pk=versao.object_id)
+            except ObjectDoesNotExist:
+                ...
+            else:
+                if versao not in versoes_agrupadas['excluidas']:
+                    if not ficha.pre_reserva and versao.revision.user and len(versoes_agrupadas) < 10:
+                        versoes_agrupadas[ficha].append(versao)
+
+        versoes_agrupadas['excluidas'] = excluidas
 
         for obj, versoes in versoes_agrupadas.items():
             versoes_agrupadas[obj] = nlargest(2, versoes, key=lambda x: x.revision.date_created)

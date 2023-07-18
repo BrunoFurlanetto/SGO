@@ -1,3 +1,7 @@
+:root {
+    --parcial-height: fit-content
+}
+
 select {
     background-color: #fff;
     width: 100%;
@@ -101,12 +105,18 @@ textarea {
     z-index: 2;
 }
 
+#container_periodo {
+    position: relative;
+    height: fit-content;
+    margin-bottom: -45px;
+}
+
 #monitoria {
     width: 50%;
     margin-right: 3%;
 }
 
-.select_opcionais {
+.select_outros {
     margin-right: -20px;
     width: 95%;
     display: flex;
@@ -139,11 +149,16 @@ textarea {
     border-radius: 15px;
     box-shadow: 5px 5px 10px;
     transition: left 1s ease-out;
+    display: none;
 }
 
 .div-flutuante.mostrar {
-    left: 20%;
-    transition: left 2s ease-out;
+    display: block;
+}
+
+.div-flutuante.visivel {
+    left: calc(50% - 400px);
+    transition: left 1s ease-out;
 }
 
 .parcial {
@@ -153,7 +168,7 @@ textarea {
     background-color: #fff;
     padding: 10px;
     width: fit-content;
-    height: fit-content;
+    height: 45px;
     border-radius: 15px;
     box-shadow: 10px 5px 15px;
     z-index: 1;
@@ -164,4 +179,32 @@ textarea {
 .parcial.visivel {
     left: 102%;
     transition: left 1s ease-out;
+}
+
+.select_opcionais {
+    display: flex;
+    flex-direction: column;
+}
+
+#botao_lista_valores {
+    background: none;
+    border: none;
+    width: fit-content;
+    display: flex;
+}
+
+#botao_lista_valores i{
+    margin-left: 5px;
+    font-size: 25px;
+}
+
+#tabela_de_opcionais input {
+    border: none;
+    margin-bottom: 10px;
+    padding-right: 0;
+    background: none;
+}
+
+#tabela_de_opcionais > tbody th {
+    border-bottom: dashed 1px #ced4da;
 }
