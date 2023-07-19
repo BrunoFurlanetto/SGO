@@ -203,3 +203,23 @@ textarea {
 #tabela_de_opcionais > tbody th {
     border-bottom: dashed 1px #ced4da;
 }
+
+.descontos .valores {
+    display: flex;
+    flex-wrap: wrap;
+    width: 50%;
+}
+
+.descontos .valores div {
+    width: 40%;
+}
+
+#taxas_e_racionais {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 30px;
+}
+
+#taxas_e_racionais div:not(:last-child){
+    width: 20%;
+}

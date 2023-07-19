@@ -1,8 +1,22 @@
-let lista_valores = {}
+let resultado_ultima_consulta = {}
 
 $(document).ready(() => {
     $('#id_cliente').select2()
-    $('#valor_opcional').maskMoney({prefix: 'R$ ', thousands: '.', decimal: ','})
+    $('#valor_opcional, #desconto_produto, #desconto_monitoria').maskMoney({
+        prefix: 'R$ ',
+        thousands: '.',
+        decimal: ',',
+        allowZero: true,
+        affixesStay: false
+    })
+    $('#desconto_trasnporte, #desconto_geral').maskMoney({
+        prefix: 'R$ ',
+        thousands: '.',
+        decimal: ',',
+        allowZero: true,
+        affixesStay: false
+    })
+    $('#comissao, #taxa_comercial').mask('00,00%', { reverse: true });
 
     jQuery('#orcamento').submit(function () {
         const dados = jQuery(this).serialize()
@@ -27,14 +41,14 @@ function enviar_form(form_opcionais = null) {
     const form = $('#orcamento')
     const valores_opcionais = form_opcionais
     const orcamento = form.serializeObject()
-    let dados = { orcamento }
+    let dados = {orcamento}
     const url = form.attr('action')
 
     return new Promise(function (resolve, reject) {
         loading()
 
         if (valores_opcionais !== null) {
-            dados_op =  valores_opcionais.serializeObject()
+            dados_op = valores_opcionais.serializeObject()
         }
 
         $.ajax({
@@ -44,6 +58,7 @@ function enviar_form(form_opcionais = null) {
             dataType: 'JSON',
             data: {orcamento, dados_op},
             success: function (response) {
+                resultado_ultima_consulta = response
                 resolve(response)
             },
             error: function (xht, status, error) {
@@ -53,7 +68,7 @@ function enviar_form(form_opcionais = null) {
     })
 }
 
-$.fn.serializeObject = function(){
+$.fn.serializeObject = function () {
     let obj = {}
     let array = this.serializeArray()
 
@@ -69,17 +84,6 @@ $.fn.serializeObject = function(){
     })
 
     return obj
-}
-
-function atualizar_valor(etapa, valor_etapa) {
-    let valor_total = 0.00
-    lista_valores[etapa] = parseFloat(valor_etapa)
-    console.log(lista_valores)
-    for (let etapa in lista_valores) {
-        valor_total += lista_valores[etapa]
-    }
-
-    return String(valor_total.toFixed(2)).replace('.', ',')
 }
 
 function ativar_mascara() {
@@ -136,7 +140,7 @@ function verificar_preenchimento() {
         enviar_form().then(function (response) {
             const valores = response['data']['valores']
             const valor_somado = (response['data']['periodo_viagem']['valor'] + valores['diaria']['valor_com_desconto']).toFixed(2)
-            console.log(response)
+
             if (response['status'] == 'success') {
                 $('#container_periodo .parcial').text('R$ ' + valor_somado.replace('.', ',')).addClass('visivel')
                 $('.div-flutuante').text('R$ ' + response['data']['total']['valor'].toFixed(2).replace('.', ',')).addClass('visivel')
@@ -186,7 +190,7 @@ function enviar_op(opcionais) {
     enviar_form().then(function (response) {
         if (response['status'] === 'success') {
             const valores = response['data']['valores']
-            console.log(response)
+
             $('.div-flutuante').text('R$ ' + response['data']['total']['valor'].toFixed(2).replace('.', ',')).addClass('mostrar')
             $('#container_opcionais .parcial').text('R$ ' + valores['opcionais']['valor_com_desconto'].toFixed(2).replace('.', ',')).addClass('visivel')
         } else {
@@ -252,7 +256,6 @@ function aplicar_desconto(desconto) {
     const desconto_aplicado = parseFloat($(desconto).val().replace(',', '.'))
     const novo_valor = valor_bd_opcional - desconto_aplicado
     opcional.val(`${novo_valor.toFixed(2).replace('.', ',')}`)
-    console.log(opcional, valor_opcional)
 }
 
 function enviar_atualizacao() {
