@@ -94,7 +94,7 @@ function gerar_responsaveis(cliente) {
 
     if (id_cliente === '') {
         $('#id_responsavel').prop('disabled', true).val('')
-        $('#periodo_viagem').addClass('none')
+        $('#periodo_viagem, #subtotal').addClass('none')
 
         return
     }
@@ -119,9 +119,9 @@ function gerar_responsaveis(cliente) {
 
 function liberar_periodo(id_responsavel) {
     if (id_responsavel !== '') {
-        $('#container_periodo').removeClass('none')
+        $('#container_periodo, #subtotal').removeClass('none')
     } else {
-        $('#container_periodo').addClass('none')
+        $('#container_periodo, #subtotal').addClass('none')
     }
 }
 
@@ -134,23 +134,17 @@ function verificar_preenchimento() {
 
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
         enviar_form().then(function (response) {
-            const valores = response['data']
-            const valor_somado = valores['periodo_viagem']['valor'] + valores['valores']['diaria']['valor']
+            const valores = response['data']['valores']
+            const valor_somado = (response['data']['periodo_viagem']['valor'] + valores['diaria']['valor_com_desconto']).toFixed(2)
             console.log(response)
             if (response['status'] == 'success') {
-                $('#container_periodo .parcial').text('R$ ' + valor_somado).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + valores['total']['valor']).addClass('mostrar')
-                setTimeout(() => {
-                    $('.div-flutuante').addClass('visivel')
-                }, 10)
+                $('#container_periodo .parcial').text('R$ ' + valor_somado.replace('.', ',')).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + response['data']['total']['valor'].toFixed(2).replace('.', ',')).addClass('visivel')
                 $('#container_monitoria_transporte').removeClass('none')
             } else {
                 $('#container_monitoria_transporte').addClass('none')
                 $('#container_periodo .parcial').text('').removeClass('visivel')
                 $('.div-flutuante').removeClass('visivel')
-                setTimeout(() => {
-                    $('.div-flutuante').text('').removeClass('mostrar')
-                }, 1000)
             }
         }).catch(function (error) {
             $('#container_periodo .parcial').text('').removeClass('visivel')
@@ -160,9 +154,6 @@ function verificar_preenchimento() {
     } else {
         $('#container_periodo .parcial').text('').removeClass('visivel')
         $('.div-flutuante').removeClass('visivel')
-        setTimeout(() => {
-            $('.div-flutuante').text('').removeClass('mostrar')
-        }, 1000)
     }
     end_loading()
 }
@@ -172,15 +163,12 @@ function verificar_monitoria_transporte() {
         $('#id_opcionais, #id_outros').select2()
 
         enviar_form().then(function (response) {
-            const valores = response['data']
-            const valor_somado = valores['valores']['transporte']['valor'] + valores['valores']['tipo_monitoria']['valor']
+            const valores = response['data']['valores']
+            const valor_somado = (valores['transporte']['valor'] + valores['tipo_monitoria']['valor']).toFixed(2)
 
             if (response['status'] === 'success') {
-                $('#container_monitoria_transporte .parcial').text('R$ ' + valor_somado).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + valores['total']['valor']).addClass('mostrar')
-                setTimeout(() => {
-                    $('.div-flutuante').addClass('visivel')
-                }, 10)
+                $('#container_monitoria_transporte .parcial').text('R$ ' + valor_somado.replace('.', ',')).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + response['data']['total']['valor'].toFixed(2).replace('.', ',')).addClass('visivel')
                 $('#container_opcionais, #finalizacao').removeClass('none')
             } else {
                 $('#container_opcionais, #finalizacao').addClass('none')
@@ -197,14 +185,10 @@ function verificar_monitoria_transporte() {
 function enviar_op(opcionais) {
     enviar_form().then(function (response) {
         if (response['status'] === 'success') {
-            const valores = response['data']
-
-            // $('.div-flutuante').text('R$ ' + atualizar_valor(valores['total']))
-            $('.div-flutuante').text('R$ ' + valores['total']['valor_com_desconto']).addClass('mostrar')
-
-            setTimeout(() => {
-                $('.div-flutuante').addClass('visivel')
-            }, 10)
+            const valores = response['data']['valores']
+            console.log(response)
+            $('.div-flutuante').text('R$ ' + response['data']['total']['valor'].toFixed(2).replace('.', ',')).addClass('mostrar')
+            $('#container_opcionais .parcial').text('R$ ' + valores['opcionais']['valor_com_desconto'].toFixed(2).replace('.', ',')).addClass('visivel')
         } else {
             $('#container_opcionais .parcial').text('').removeClass('visivel')
         }
@@ -212,6 +196,7 @@ function enviar_op(opcionais) {
         $('#container_opcionais .parcial').text('').removeClass('visivel')
         alert(error)
     })
+
     atualizar_lista_valores()
     end_loading()
 }

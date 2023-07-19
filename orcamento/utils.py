@@ -41,7 +41,11 @@ def processar_formulario(dados):
         correspondencia_valores_op = re.match(padrao_valores_op, key)
 
         if correspondencia_orcamento:
-            orcamento[correspondencia_orcamento.group(1)] = valor
+            if len(dados.getlist(key)) > 1:
+                orcamento[correspondencia_orcamento.group(1)] = list(map(int, dados.getlist(key)))
+            else:
+                orcamento[correspondencia_orcamento.group(1)] = valor
+
         elif correspondencia_valores_op:
             lista = []
 
