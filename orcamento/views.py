@@ -69,8 +69,24 @@ def calc_budget(req):
             budget = Budget(data['periodo_viagem'], data['n_dias'],
                             data["hora_check_in"], data["hora_check_out"])
 
+
+            if "taxa_comercial" in data:
+                budget.set_business_fee(data["taxa_comercial"])
+
+            if "comissao_de_vendas" in data:
+                budget.set_commission(data["comissao_de_vendas"])
+
+            if "desconto_periodo_viagem" in data:
+                budget.period.set_discount(data["desconto_periodo_viagem"])
+
+            if "desconto_diarias" in data:
+                budget.daily_rate.set_discount(data["desconto_diarias"])
+
             if "tipo_monitoria" in data:
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
+
+            if "desconto_tipo_monitoria" in data:
+                budget.monitor.set_discount(data["desconto_tipo_monitoria"])
 
             if "minimo_pagantes" in data:  # numero de minimo_pagantes
                 budget.transport.min_payers(data["minimo_pagantes"])
@@ -78,10 +94,22 @@ def calc_budget(req):
             if "transporte" in data:
                 budget.transport.calc_value_transport(data["transporte"])
 
+            if "desconto_transporte" in data:
+                budget.transport.set_discount(data["desconto_transporte"])
+
             if "opicionais" in data:
                 budget.set_optional(data["opicionais"])
                 budget.optional.calc_value_optional(data['opicionais'])
 
+
+            # CAlCULAR TOTAL
+            budget.total.calc_total_value(
+                monitor=budget.monitor,
+                period=budget.period,
+                optional=budget.optional,
+                daily_rate=budget.daily_rate,
+                transport=budget.transport,
+            )
             # RESPOSTA
             return JsonResponse({
                 "status": "success",
@@ -111,14 +139,11 @@ def calc_budget(req):
                         )
                     },
                     "description_optional_values": budget.array_description_optional,
-                    "total": {
-                        "valor": 0,
-                        "desconto": 0,
-                        "valor_com_desconto": 0,
-                        "taxa_comercial": 0,
-                        "comissao_de_vendas": 0,
-                    },
-                    "desconto_geral": 0,
+                    "total": budget.total.do_object(
+                        percent_commission=budget.commission,
+                        percent_business_fee=budget.business_fee
+                    ),
+                    "desconto_geral": budget.total.general_discount,
                 },
                 "msg": "",
             })

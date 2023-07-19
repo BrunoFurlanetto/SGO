@@ -6,6 +6,7 @@ from .entity.dailyrate import DailyRate
 from .entity.transport import Transport
 from .entity.optional import Optional
 from .entity.optionaldescription import OptionalDescription
+from .entity.total import Total
 
 
 class Budget:
@@ -38,6 +39,7 @@ class Budget:
         )
         self.optional = Optional(0)
         self.array_description_optional = coming_id
+        self.total = Total(0)
 
     def set_business_fee(self, business_fee):
         self.business_fee = business_fee
