@@ -1,15 +1,15 @@
 class BaseValue:
     def __init__(self, value):
-        self.value = value
+        self.value = float(value)
         self.discount = 0
         self.value_with_discount = self.calc_value_with_discount()
 
     def set_discount(self, value):
-        self.discount = value
+        self.discount = float(value)
         return self.discount
 
     def set_value(self, value):
-        self.value = value
+        self.value = float(value)
         return self.value
 
     def calc_value_with_discount(self):

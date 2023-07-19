@@ -1,7 +1,7 @@
 
 from .basevalue import BaseValue
 from ..models import OrcamentoMonitor, HorariosPadroes
-from datetime import datetime
+from datetime import datetime, time
 import math
 
 
@@ -21,7 +21,7 @@ class Monitor(BaseValue):
         check_out = HorariosPadroes.objects.get(pk=self.exit_id).horario
 
         first_daily_monitor = 1
-        if check_in.hour > datetime(year=2023, hour=12).hour:
+        if check_in.hour > time(12, 0, 0).hour:
             first_daily_monitor = 0.5
 
         intermediate_daily_monitor = self.days - 2
@@ -29,7 +29,7 @@ class Monitor(BaseValue):
             intermediate_daily_monitor = 0
 
         last_daily_monitor = 1
-        if check_out.hour < datetime(year=2023, hour=12).hour:
+        if check_out.hour < time(12, 0, 0).hour:
             last_daily_monitor = 0.5
 
         self.value = math.ceil(daily_monitor *

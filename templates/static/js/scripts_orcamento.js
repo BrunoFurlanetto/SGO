@@ -135,10 +135,11 @@ function verificar_preenchimento() {
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
         enviar_form().then(function (response) {
             const valores = response['data']
+            const valor_somado = valores['periodo_viagem']['valor'] + valores['valores']['diaria']['valor']
             console.log(response)
             if (response['status'] == 'success') {
-                $('#container_periodo .parcial').text('R$ ' + valores['periodo'] + valores['description_values']['meal']).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+                $('#container_periodo .parcial').text('R$ ' + valor_somado).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + valores['total']['valor']).addClass('mostrar')
                 setTimeout(() => {
                     $('.div-flutuante').addClass('visivel')
                 }, 10)
@@ -172,10 +173,11 @@ function verificar_monitoria_transporte() {
 
         enviar_form().then(function (response) {
             const valores = response['data']
+            const valor_somado = valores['valores']['transporte']['valor'] + valores['valores']['tipo_monitoria']['valor']
 
             if (response['status'] === 'success') {
-                $('#container_monitoria_transporte .parcial').text('R$ ' + valores['description_values']['meal']).addClass('visivel')
-                $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+                $('#container_monitoria_transporte .parcial').text('R$ ' + valor_somado).addClass('visivel')
+                $('.div-flutuante').text('R$ ' + valores['total']['valor']).addClass('mostrar')
                 setTimeout(() => {
                     $('.div-flutuante').addClass('visivel')
                 }, 10)
@@ -197,8 +199,9 @@ function enviar_op(opcionais) {
         if (response['status'] === 'success') {
             const valores = response['data']
 
-            $('.div-flutuante').text('R$ ' + atualizar_valor(valores['total']))
-            $('.div-flutuante').text('R$ ' + valores['total']).addClass('mostrar')
+            // $('.div-flutuante').text('R$ ' + atualizar_valor(valores['total']))
+            $('.div-flutuante').text('R$ ' + valores['total']['valor_com_desconto']).addClass('mostrar')
+
             setTimeout(() => {
                 $('.div-flutuante').addClass('visivel')
             }, 10)

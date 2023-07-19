@@ -60,7 +60,7 @@ def calc_budget(req):
             valores_op = dados['valores_op']
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
-            print(data, valores_op)
+            print(data)
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -68,7 +68,6 @@ def calc_budget(req):
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'],
                             data["hora_check_in"], data["hora_check_out"])
-
 
             if "taxa_comercial" in data:
                 budget.set_business_fee(data["taxa_comercial"])
@@ -82,7 +81,7 @@ def calc_budget(req):
             if "desconto_diarias" in data:
                 budget.daily_rate.set_discount(data["desconto_diarias"])
 
-            if "tipo_monitoria" in data:
+            if "tipo_monitoria" in data and data['tipo_monitoria'] != '':
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
 
             if "desconto_tipo_monitoria" in data:
@@ -100,7 +99,6 @@ def calc_budget(req):
             if "opicionais" in data:
                 budget.set_optional(data["opicionais"])
                 budget.optional.calc_value_optional(data['opicionais'])
-
 
             # CAlCULAR TOTAL
             budget.total.calc_total_value(
@@ -129,21 +127,23 @@ def calc_budget(req):
                             percent_commission=budget.commission,
                             percent_business_fee=budget.commission
                         ),
-                        "transport": budget.transport.do_object(
+                        "transporte": budget.transport.do_object(
                             percent_commission=budget.commission,
                             percent_business_fee=budget.commission
                         ),
-                        "optional": budget.optional.do_object(
+                        "opcionais": budget.optional.do_object(
                             percent_commission=budget.commission,
                             percent_business_fee=budget.commission
                         )
                     },
-                    "description_optional_values": budget.array_description_optional,
+                    "descricao_opcionais": budget.array_description_optional,
                     "total": budget.total.do_object(
                         percent_commission=budget.commission,
                         percent_business_fee=budget.business_fee
                     ),
                     "desconto_geral": budget.total.general_discount,
+                    "taxa_comercial": budget.business_fee,
+                    "comissao_de_vendas": budget.commission
                 },
                 "msg": "",
             })

@@ -12,10 +12,9 @@ from .entity.total import Total
 class Budget:
     def __init__(self, period_id, days, coming_id, exit_id):
         db_period = OrcamentoPeriodo.objects.get(pk=period_id)
-
         self.coming_id = coming_id
         self.exit_id = exit_id
-        self.days = days
+        self.days = int(days)
         self.business_fee = 0.09
         self.commission = 0.05
 
@@ -40,6 +39,7 @@ class Budget:
         self.optional = Optional(0)
         self.array_description_optional = coming_id
         self.total = Total(0)
+        self.daily_rate.calc_daily_rate()
 
     def set_business_fee(self, business_fee):
         self.business_fee = business_fee
@@ -55,19 +55,26 @@ class Budget:
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
+
             if db_optional.fixo:
                 discount = float(opt[2])
             else:
                 discount = float(opt[3])
                 db_optional.valor = opt[2]
                 db_optional.save()
+
             description = OptionalDescription(
-                db_optional.valor, db_optional.fixo, db_optional.id, db_optional.nome)
+                db_optional.valor,
+                db_optional.fixo,
+                db_optional.id,
+                db_optional.nome
+            )
             description.set_discount(discount)
             optional_array.append(description.do_object(
                 percent_commission=self.commission,
                 percent_business_fee=self.business_fee
             ))
+
         self.optional = optional_array
 
         return self.optional

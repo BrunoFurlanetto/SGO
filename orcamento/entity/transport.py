@@ -18,22 +18,26 @@ class Transport(BaseValue):
             self.value = 0
             return self.value
 
-        obj_transport = ValoresTransporte.objects.get(
-            periodo__pk=self.period_id)
-        if not obj_transport:
+        try:
+            obj_transport = ValoresTransporte.objects.get(periodo__pk=self.period_id)
+        except ValoresTransporte.DoesNotExist:
             self.value = 0
+
             return self.value
 
         if self.days == 1:
-            self.value = (obj_transport.valor_1_dia /
-                          (1 - obj_transport.percentual)) / self.min_payers
+            self.value = (float(obj_transport.valor_1_dia) /
+                          (1 - float(obj_transport.percentual))) / self.min_payers
             return self.value
 
         if self.days == 2:
-            self.value = (obj_transport.valor_2_dia /
-                          (1 - obj_transport.percentual)) / self.min_payers
+            self.value = (float(obj_transport.valor_2_dia) /
+                          (1 - float(obj_transport.percentual))) / self.min_payers
             return self.value
 
-        self.value = ((obj_transport.valor_3_dia / (1 - obj_transport.percentual)
-                       ) + ((self.days - 3) * (obj_transport.valor_acrescimo / (1 - obj_transport.percentual)))) / self.min_payers
+        self.value = ((float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))
+                       ) + ((self.days - 3) *
+                            (float(obj_transport.valor_acrescimo) / (
+                                        1 - float(obj_transport.percentual))))) / self.min_payers
+
         return self.value
