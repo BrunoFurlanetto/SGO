@@ -33,12 +33,15 @@ def verify_data(data):
 def processar_formulario(dados):
     orcamento = {}
     valores_opcionais = {}
+    gerencia = {}
     padrao_orcamento = r'orcamento\[(\w+)\]'
     padrao_valores_op = r'dados_op\[(\w+)\]'
+    padrao_gerencia = r'gerencia\[(\w+)\]'
 
     for key, valor in dados.items():
         correspondencia_orcamento = re.match(padrao_orcamento, key)
         correspondencia_valores_op = re.match(padrao_valores_op, key)
+        correspondencia_gerencia = re.match(padrao_gerencia, key)
 
         if correspondencia_orcamento:
             if len(dados.getlist(key)) > 1:
@@ -46,7 +49,7 @@ def processar_formulario(dados):
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
 
-        elif correspondencia_valores_op:
+        if correspondencia_valores_op:
             lista = []
 
             for i, item in enumerate(dados.getlist(key)):
@@ -57,4 +60,13 @@ def processar_formulario(dados):
 
             valores_opcionais[correspondencia_valores_op.group(1)] = lista
 
-    return {'orcamento': orcamento, 'valores_op': valores_opcionais}
+        if correspondencia_gerencia:
+            if 'observacoes' in key:
+                gerencia[correspondencia_gerencia.group(1)] = valor
+            else:
+                try:
+                    gerencia[correspondencia_gerencia.group(1)] = float(valor.replace('%', '').replace(',', '.'))
+                except ValueError:
+                    gerencia[correspondencia_gerencia.group(1)] = valor
+
+    return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}

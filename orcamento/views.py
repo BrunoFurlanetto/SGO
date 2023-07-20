@@ -26,22 +26,13 @@ def calc_budget(req):
                         'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]
                     })
 
-            if req.GET.get('lista_opcionais[]'):
-                opcionais = OrcamentoOpicional.objects.filter(id__in=req.GET.getlist('lista_opcionais[]'))
-                opcionais_json = []
-
-                for opcional in opcionais:
-                    opcionais_json.append({
-                        'id': opcional.id,
-                        'nome': opcional.nome,
-                        'valor': float(opcional.valor),
-                        'fixo': opcional.fixo,
-                    })
-
-                return JsonResponse({'retorno': opcionais_json})
+            if req.GET.get('id_opcional'):
+                opcional = OrcamentoOpicional.objects.get(pk=req.GET.get('id_opcional'))
+                print(opcional.nome, opcional.fixo)
+                return JsonResponse({'fixo': opcional.fixo, 'valor': opcional.valor})
         else:
             if req.POST.get('novo_opcional'):
-                valor = float(req.POST.get('valor').split(' ')[1].replace(',', '.'))
+                valor = float(req.POST.get('valor').replace(',', '.'))
 
                 try:
                     novo_op = OrcamentoOpicional.objects.create(
@@ -58,9 +49,10 @@ def calc_budget(req):
             dados = processar_formulario(req.POST)
             data = dados['orcamento']
             valores_op = dados['valores_op']
+            gerencia = dados['gerencia']
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
-            print(data)
+            print(dados)
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)

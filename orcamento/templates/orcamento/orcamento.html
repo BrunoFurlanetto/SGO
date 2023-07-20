@@ -198,8 +198,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary"
-                            onclick="enviar_form($('#forms_valores_op')).then(end_loading).catch(end_loading)">Salvar
+                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op()">
+                        Salvar
                     </button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
@@ -212,13 +212,13 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Gerência</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Pedidos à gerência</h5>
                     <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
+                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
                         <h5 class="titulo-secao">Descontos</h5>
                         <div class="descontos" style="display: flex">
                             <div class="valores">
@@ -260,13 +260,13 @@
                             </div>
                             <div style="width: 28%">
                                 <label for="data_pagamento">Data de pagamento</label>
-                                <input type="date" id="data_pagamento" name="data_pagamento">
+                                <input type="date" id="data_pagamento" name="data_pagamento" value="">
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-primary" onclick="enviar_infos_gerencia()">Salvar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
