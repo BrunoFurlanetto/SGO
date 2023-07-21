@@ -108,8 +108,8 @@ def calc_budget(req):
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
                     pre_orcamento.objeto_orcamento = budget.return_object()
-                    pre_orcamento.necessita_aprovacao_gerencia = verificar_gerencia(dados['gerencia'])
-                    pre_orcamento.aprovado = pre_orcamento.necessita_aprovacao_gerencia is not True
+                    pre_orcamento.necessita_aprovacao_gerencia = budget.total.general_discount != 0
+                    pre_orcamento.aprovado = budget.total.general_discount == 0
                     pre_orcamento.colaborador = req.user
                     orcamento.save()
                 except Exception as e:
