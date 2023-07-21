@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import re
 
 from django.http import JsonResponse
@@ -44,7 +45,7 @@ def processar_formulario(dados):
         correspondencia_gerencia = re.match(padrao_gerencia, key)
 
         if correspondencia_orcamento:
-            if len(dados.getlist(key)) > 1:
+            if 'opcionais' in key or 'outros' in key:
                 orcamento[correspondencia_orcamento.group(1)] = list(map(int, dados.getlist(key)))
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
@@ -63,6 +64,8 @@ def processar_formulario(dados):
         if correspondencia_gerencia:
             if 'observacoes' in key:
                 gerencia[correspondencia_gerencia.group(1)] = valor
+            elif key == 'minimo_onibus':
+                gerencia[correspondencia_gerencia.group(1)] = int(valor)
             else:
                 try:
                     gerencia[correspondencia_gerencia.group(1)] = float(valor.replace('%', '').replace(',', '.'))
@@ -70,3 +73,23 @@ def processar_formulario(dados):
                     gerencia[correspondencia_gerencia.group(1)] = valor
 
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
+
+
+def verificar_gerencia(dados):
+    data_pagamento_padrao = datetime.today() + timedelta(days=15)
+    descontos = [
+        dados['desconto_produto'],
+        dados['desconto_monitoria'],
+        dados['desconto_trasnporte'],
+        dados['desconto_geral'],
+    ]
+
+    for desconto in descontos:
+        if desconto != 0.00:
+            return True
+
+    if dados['comissao'] != 9.0 or dados['taxa_comercial'] != 5.0 or dados['minimo_onibus'] != 30.0:
+        return True
+
+    if dados['data_pagamento'] != data_pagamento_padrao.strftime('%Y-%m-%d'):
+        return True

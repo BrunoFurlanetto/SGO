@@ -110,7 +110,7 @@
                                 </button>
                             </div>
                             <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
-                                                                                                $('#salvar_orcamento').prop('disabled', false)">
+                                                                                                $('#btn_salvar_orcamento').prop('disabled', false)">
                                 <i class='bx bxs-food-menu'></i>
                                 Lista de valores
                             </button>
@@ -129,7 +129,8 @@
                         <button type="button" id="abrir_modal_gerencia" class="btn btn-secondary" name="abrir_modal_gerencia"
                                 onclick="$('#modal_gerencia').modal('show')">Gerência
                         </button>
-                        <button type="submit" id="salvar_orcamento" class="btn btn-primary" disabled>Salvar orçamento
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" disabled onclick="salvar_orcamento()">
+                            Salvar orçamento
                         </button>
                     </div>
                 </div>

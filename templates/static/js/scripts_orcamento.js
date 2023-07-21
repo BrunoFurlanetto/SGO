@@ -1,6 +1,9 @@
 let resultado_ultima_consulta = {}
 
 $(document).ready(() => {
+    let hoje = new Date()
+    $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
+
     $('#id_cliente').select2()
     $('#valor_opcional, #desconto_produto, #desconto_monitoria').maskMoney({
         prefix: 'R$ ',
@@ -36,7 +39,6 @@ $(document).ready(() => {
     })
 
     $("#id_opcionais, #id_outros").on("select2:select", function (e) {
-        console.log(e)
         enviar_form().then((status) => {
             const opcional = e.params.data;
             const opcionais = $('.opcionais').length
@@ -47,7 +49,6 @@ $(document).ready(() => {
                 url: '',
                 data: {'id_opcional': opcional['id']},
                 success: function (response) {
-                    console.log(response)
                     const valor_op = response['valor'].toLocaleString(
                         undefined,
                         {
@@ -95,20 +96,19 @@ $(document).ready(() => {
     });
 })
 
-function enviar_form(form_opcionais = null, form_gerencia = null) {
-    loading()
+function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false) {
     let dados_op, gerencia
     const form = $('#orcamento')
-    const valores_opcionais = form_opcionais
     const orcamento = form.serializeObject()
     const url = form.attr('action')
+    loading()
 
-    if (valores_opcionais !== null) {
-        dados_op = valores_opcionais.serializeObject()
+    if (form_opcionais || salvar) {
+        dados_op = $('#forms_valores_op').serializeObject()
     }
 
-    if (form_gerencia !== null) {
-        gerencia = form_gerencia.serializeObject()
+    if (form_gerencia || salvar) {
+        gerencia = $('#form_gerencia').serializeObject()
     }
 
     return new Promise(function (resolve, reject) {
@@ -117,63 +117,66 @@ function enviar_form(form_opcionais = null, form_gerencia = null) {
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             dataType: 'JSON',
-            data: {orcamento, dados_op, gerencia},
+            data: {orcamento, dados_op, gerencia, 'salvar': salvar},
             success: function (response) {
-                const valores = response['data']['valores'];
-                const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
-                const diaria = valores['diaria']['valor'];
-                const periodo_diaria = (periodo + diaria);
+                if (!salvar) {
+                    const valores = response['data']['valores'];
+                    const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
+                    const diaria = valores['diaria']['valor'];
+                    const periodo_diaria = (periodo + diaria);
 
-                // Adicionando ponto de separação de milhar em periodo_diaria
-                const periodo_diaria_formatado = periodo_diaria.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                )
+                    // Adicionando ponto de separação de milhar em periodo_diaria
+                    const periodo_diaria_formatado = periodo_diaria.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )
 
-                const valor_monitoria = valores['tipo_monitoria']['valor'];
-                const transporte = valores['transporte']['valor'];
-                const monitoria_transporte = (valor_monitoria + transporte);
+                    const valor_monitoria = valores['tipo_monitoria']['valor'];
+                    const transporte = valores['transporte']['valor'];
+                    const monitoria_transporte = (valor_monitoria + transporte);
 
-                // Adicionando ponto de separação de milhar em monitoria_transporte
-                const monitoria_transporte_formatado = monitoria_transporte.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                )
+                    // Adicionando ponto de separação de milhar em monitoria_transporte
+                    const monitoria_transporte_formatado = monitoria_transporte.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )
 
-                const opcionais = valores['opcionais']['valor'];
-                const total = response['data']['total']['valor'];
+                    const opcionais = valores['opcionais']['valor'];
+                    const total = response['data']['total']['valor'];
 
-                // Adicionando ponto de separação de milhar em opcionais e total
-                const opcionais_formatado = opcionais.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                )
+                    // Adicionando ponto de separação de milhar em opcionais e total
+                    const opcionais_formatado = opcionais.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )
 
-                const total_formatado = total.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                )
+                    const total_formatado = total.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )
 
-                // Alteração dos valores das seções
-                $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
-                $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
-                $('#container_opcionais .parcial').text('R$ ' + opcionais_formatado); // Opcionais
+                    // Alteração dos valores das seções
+                    $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
+                    $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
+                    $('#container_opcionais .parcial').text('R$ ' + opcionais_formatado); // Opcionais
 
-                $('.div-flutuante').text('R$ ' + total_formatado); // Total
+                    $('.div-flutuante').text('R$ ' + total_formatado); // Total
 
-                resultado_ultima_consulta = response
+                    resultado_ultima_consulta = response
+                }
+
                 resolve(response['status'])
             },
             error: function (xht, status, error) {
@@ -370,5 +373,14 @@ function enviar_infos_gerencia() {
         alert(error)
         end_loading()
         $('#modal_gerencia').modal('hide')
+    })
+}
+
+function salvar_orcamento() {
+    enviar_form(false, false, true).then((status) => {
+        window.location.href = '/'
+    }).catch((error) => {
+        alert(error)
+        end_loading()
     })
 }

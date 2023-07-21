@@ -1,7 +1,8 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.db import models
 
-from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus
+from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor
 
 
 class OrcamentoMonitor(models.Model):
@@ -113,8 +114,11 @@ class Orcamento(models.Model):
     )
     outros = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Outros', related_name='outros')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
+    colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
-    motivo_recusa = models.CharField(max_length=255, verbose_name='Motivo da recusa')
+    motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')
+    objeto_gerencia = models.JSONField(blank=True, null=True)
+    objeto_orcamento = models.JSONField(blank=True, null=True)
     promocional = models.BooleanField(default=False)
     aprovado = models.BooleanField(default=False)
     necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')

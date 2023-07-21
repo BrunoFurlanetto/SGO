@@ -1,8 +1,15 @@
 from django.contrib import admin
 
-from orcamento.models import HorariosPadroes, ValoresTransporte
+from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento
 
 
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
     list_display = ('refeicao', 'horario')
+
+
+@admin.register(Orcamento)
+class OrcamentoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'cliente', 'responsavel', 'periodo_viagem', 'aprovado', 'necessita_aprovacao_gerencia')
+    list_editable = ('necessita_aprovacao_gerencia',)
+    list_display_links = ('cliente',)

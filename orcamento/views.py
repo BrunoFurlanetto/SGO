@@ -1,17 +1,16 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from peraltas.models import ClienteColegio, RelacaoClienteResponsavel
+from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional
-from .utils import verify_data, processar_formulario
+from .utils import verify_data, processar_formulario, verificar_gerencia
 from .budget import Budget
 
 
 # @csrf_exempt
 def calc_budget(req):
-
     if is_ajax(req):
         if req.method == 'GET':
             if req.GET.get('id_cliente'):
@@ -45,6 +44,7 @@ def calc_budget(req):
                     return JsonResponse({'adicionado': False, 'erro': e})
                 else:
                     return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
+
             # JSON
             dados = processar_formulario(req.POST)
             data = dados['orcamento']
@@ -52,7 +52,7 @@ def calc_budget(req):
             gerencia = dados['gerencia']
             # data = req.body
             # data = json.loads(data.decode('utf-8'))
-            print(dados)
+            print(gerencia)
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -101,44 +101,34 @@ def calc_budget(req):
                 transport=budget.transport,
             )
             # RESPOSTA
-            return JsonResponse({
-                "status": "success",
-                "data": {
-                    "periodo_viagem": budget.period.do_object(
-                        percent_commission=budget.commission,
-                        percent_business_fee=budget.commission
-                    ),
-                    "n_dias": budget.days,
-                    "minimo_pagantes": budget.transport.min_payers,
-                    "valores": {
-                        "tipo_monitoria": budget.monitor.do_object(
-                            percent_commission=budget.commission,
-                            percent_business_fee=budget.commission
-                        ),
-                        "diaria": budget.daily_rate.do_object(
-                            percent_commission=budget.commission,
-                            percent_business_fee=budget.commission
-                        ),
-                        "transporte": budget.transport.do_object(
-                            percent_commission=budget.commission,
-                            percent_business_fee=budget.commission
-                        ),
-                        "opcionais": budget.optional.do_object(
-                            percent_commission=budget.commission,
-                            percent_business_fee=budget.commission
-                        )
-                    },
-                    "descricao_opcionais": budget.array_description_optional,
-                    "total": budget.total.do_object(
-                        percent_commission=budget.commission,
-                        percent_business_fee=budget.business_fee
-                    ),
-                    "desconto_geral": budget.total.general_discount,
-                    "taxa_comercial": budget.business_fee,
-                    "comissao_de_vendas": budget.commission
-                },
-                "msg": "",
-            })
+
+            if req.POST.get('salvar') == 'true':
+                try:
+                    orcamento = CadastroOrcamento(dados['orcamento'])
+                    pre_orcamento = orcamento.save(commit=False)
+                    pre_orcamento.objeto_gerencia = dados['gerencia']
+                    pre_orcamento.objeto_orcamento = budget.return_object()
+                    pre_orcamento.necessita_aprovacao_gerencia = verificar_gerencia(dados['gerencia'])
+                    pre_orcamento.aprovado = pre_orcamento.necessita_aprovacao_gerencia is not True
+                    pre_orcamento.colaborador = req.user
+                    orcamento.save()
+                except Exception as e:
+                    return JsonResponse({
+                        "status": "error",
+                        "data": budget.return_object(),
+                        "msg": e,
+                    })
+                else:
+                    return JsonResponse({
+                        "status": "success",
+                        "msg": "",
+                    })
+            else:
+                return JsonResponse({
+                    "status": "success",
+                    "data": budget.return_object(),
+                    "msg": "",
+                })
 
     if req.method != 'POST':
         cadastro_orcamento = CadastroOrcamento()

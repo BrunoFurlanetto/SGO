@@ -78,3 +78,39 @@ class Budget:
         self.optional = optional_array
 
         return self.optional
+
+    def return_object(self):
+        return {
+            "periodo_viagem": self.period.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ),
+            "n_dias": self.days,
+            "minimo_pagantes": self.transport.min_payers,
+            "valores": {
+                "tipo_monitoria": self.monitor.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "diaria": self.daily_rate.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "transporte": self.transport.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "opcionais": self.optional.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                )
+            },
+            "descricao_opcionais": self.array_description_optional,
+            "total": self.total.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ),
+            "desconto_geral": self.total.general_discount,
+            "taxa_comercial": self.business_fee,
+            "comissao_de_vendas": self.commission
+        }
