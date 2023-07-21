@@ -84,6 +84,7 @@ TEMPLATES = [
             ],
             'libraries':  {
                             'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
+                            'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
                         }
         },
     },

@@ -114,6 +114,7 @@ class Orcamento(models.Model):
     )
     outros = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Outros', related_name='outros')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
+    valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')

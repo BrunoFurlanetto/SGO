@@ -5,7 +5,7 @@ from itertools import chain
 import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -14,6 +14,7 @@ from reversion.models import Version
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from orcamento.models import Orcamento
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
@@ -23,7 +24,6 @@ from ceu.models import Professores
 
 @login_required(login_url='login')
 def dashboard(request):
-
     if request.user.has_perm('cadastro.view_relatoriodeatendimentopublicoceu'):
         return redirect('dashboardCeu')
     elif not request.user.has_perm('fichaAvaliacao.add_fichadeavaliacao'):
@@ -113,31 +113,34 @@ def dashboardCeu(request):
         relatorios = list(chain(publico, colegio, empresa))
         dados = juntar_dados(relatorios)
 
-        return JsonResponse({'dados': dados,})
+        return JsonResponse({'dados': dados, })
 
     if request.method != 'POST':
         professores = Professores.objects.all()
 
-        return render(request, 'dashboard/dashboardCeu.html', {'professores': professores, 'relatorios': dados_iniciais,
-                                                               'data': data_hoje,# 'equipe_escalada': equipe_escalada,
-                                                               'professor': professor_logado,
-                                                               # 'n_atividades': n_atividades, 'n_horas': n_horas,
-                                                               'mostrar_aviso': mostrar_aviso_disponibilidade,
-                                                               'depois_25': depois_25
-                                                               })
+        return render(request, 'dashboard/dashboardCeu.html', {
+            'professores': professores, 'relatorios': dados_iniciais,
+            'data': data_hoje,  # 'equipe_escalada': equipe_escalada,
+            'professor': professor_logado,
+            # 'n_atividades': n_atividades, 'n_horas': n_horas,
+            'mostrar_aviso': mostrar_aviso_disponibilidade,
+            'depois_25': depois_25
+        })
 
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
+    orcamentos_para_gerencia = Orcamento.objects.filter(necessita_aprovacao_gerencia=True)
     msg_monitor = None
+    grupos_usuario = request.user.groups.all()
+    diretoria = Group.objects.get(name='Diretoria')
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
     except Monitor.DoesNotExist:
         monitor = None
     else:
-
         msg_monitor = teste_aviso_monitoria(
             request.user.last_login.astimezone(),
             monitor,
@@ -151,5 +154,7 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
+        'diretoria': diretoria in grupos_usuario,
+        'orcamentos': orcamentos_para_gerencia,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filter_tags %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -20,7 +21,6 @@
                             <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span></li>
                         </ul>
                     </div>
-
 
                 {% else %}
                     <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
@@ -113,9 +113,41 @@
             </div>
         {% endfor %}
     {% else %}
-        <div class="conteudo_dashboard_peraltas_escrito">
-            <h1>SGO</h1>
-        </div>
+        {% if diretoria %}
+            <div id="conteudo">
+                <div id="abas" style="display: flex">
+                    <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para aprovação</div>
+                    <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
+                </div>
+                <div class="section-content ativo" id="orcamentos_aprovacao">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Cliente</th>
+                            <th style="width: 25%">Colaborador</th>
+                            <th style="width: 25%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for orcamento in orcamentos %}
+                            <tr id="orcamento_{{ orcamento.id }}" onclick="console.log($(this))">
+                                <td>{{ orcamento.cliente }}</td>
+                                <td>{{ orcamento.colaborador.get_full_name }}</td>
+                                <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section-content" id="log">
+                    Sem dados
+                </div>
+            </div>
+        {% else %}
+            <div class="conteudo_dashboard_peraltas_escrito">
+                <h1>SGO</h1>
+            </div>
+        {% endif %}
     {% endif %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
@@ -193,4 +225,6 @@
             })
         </script>
     {% endif %}
+
+    <script src="{% static 'js/scripts_dashboard.js' %}"></script>
 {% endblock %}

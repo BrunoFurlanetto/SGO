@@ -1305,3 +1305,39 @@
 .card-body span {
     color: #0a58ca;
 }
+
+#conteudo {
+    margin: auto;
+    width: 900px;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.folder {
+    background-color: #6c757db0;
+    color: #fff;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 15px 15px 0 0;
+}
+
+.folder.ativo {
+    background: #f1f1f1;
+    color: #6c757d;
+}
+
+.section-content {
+    background-color: #f1f1f1;
+    padding: 10px;
+    display: none;
+    border: 1px solid #ddd;
+    border-radius: 0 0 5px 5px;
+}
+
+.section-content.ativo {
+    display: block;
+}
