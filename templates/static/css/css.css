@@ -1341,3 +1341,15 @@
 .section-content.ativo {
     display: block;
 }
+
+#permissao_orcamentos table thead {
+    text-align: center;
+}
+
+#permissao_orcamentos table thead tr > th:first-child {
+    width: 50%;
+}
+
+#permissao_orcamentos table tbody tr > *:not(:first-child) {
+    text-align: center;
+}

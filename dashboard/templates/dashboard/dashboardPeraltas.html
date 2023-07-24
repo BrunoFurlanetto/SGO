@@ -4,18 +4,22 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
+    {% csrf_token %}
     {% if False %}
         {% for versao in ultimas_versoes %}
             <div class="card card-log">
                 {% if versao.campos_alterados == '' %}
-                    <div class="card-header">Criação da <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-header">Criação da <a
+                            href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
+                        por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
                     <div class="card-body">
                         <ul>
                             <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
                         </ul>
                     </div>
                 {% elif versao.campos_alterados == 'excluido' %}
-                    <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }}
+                        em {{ versao.data_e_hora }}</div>
                     <div class="card-body">
                         <ul>
                             <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span></li>
@@ -23,7 +27,9 @@
                     </div>
 
                 {% else %}
-                    <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                    <div class="card-header">Alteração em <a
+                            href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
+                        por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
                     <div class="card-body">
                         <ul>
                             {% if versao.campos_alterados|length > 4 %}
@@ -31,9 +37,9 @@
                                     <p>Campos
                                         {% for alteracao in versao.campos_alterados %}
                                             {% if not forloop.last %}
-                                                 <span>{{ alteracao.campo.nome_campo }}</span>,
+                                                <span>{{ alteracao.campo.nome_campo }}</span>,
                                             {% else %}
-                                                 e <span>{{ alteracao.campo.nome_campo }}</span>
+                                                e <span>{{ alteracao.campo.nome_campo }}</span>
                                             {% endif %}
                                         {% endfor %}
                                         alterados
@@ -78,7 +84,7 @@
                                                     {% endif %}
                                                 {% endif %}
                                             </span> para
-                                            <span>
+                                                <span>
                                                 {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}
                                                     {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
                                                         0
@@ -116,7 +122,9 @@
         {% if diretoria %}
             <div id="conteudo">
                 <div id="abas" style="display: flex">
-                    <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para aprovação</div>
+                    <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para
+                        aprovação
+                    </div>
                     <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
                 </div>
                 <div class="section-content ativo" id="orcamentos_aprovacao">
@@ -130,7 +138,7 @@
                         </thead>
                         <tbody>
                         {% for orcamento in orcamentos %}
-                            <tr id="orcamento_{{ orcamento.id }}" onclick="console.log($(this))">
+                            <tr id="orcamento_{{ orcamento.id }}" onclick="mostrar_modal_aprovacao($(this))">
                                 <td>{{ orcamento.cliente }}</td>
                                 <td>{{ orcamento.colaborador.get_full_name }}</td>
                                 <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
@@ -225,6 +233,57 @@
             })
         </script>
     {% endif %}
+
+    <div class="modal fade" id="permissao_orcamentos" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Campos que precisam de permissão</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="tabela_pedidos" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                        <caption>Pedidos de alteração</caption>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Valor padrão</th>
+                                <th>Valor tratativa</th>
+                                <th><input type="checkbox" name="select_all" id="select_all"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p id="comentario_pedido"></p>
+                    <hr>
+                    <table id="tabela_descontos_opcionais" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                        <caption>Opcionais com descontos</caption>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Valor base</th>
+                                <th>Desconto</th>
+                                <th>Valor tratativa</th>
+                                <th><input type="checkbox" name="select_all" id="select_all"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <hr>
+                    <div id="valores">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{% static 'js/scripts_dashboard.js' %}"></script>
 {% endblock %}

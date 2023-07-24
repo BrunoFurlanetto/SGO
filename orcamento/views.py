@@ -104,6 +104,7 @@ def calc_budget(req):
 
             if req.POST.get('salvar') == 'true':
                 try:
+                    dados['orcamento']['valor'] = f'{budget.total.value:.2f}'
                     orcamento = CadastroOrcamento(dados['orcamento'])
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']

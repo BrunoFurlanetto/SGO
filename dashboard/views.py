@@ -20,6 +20,7 @@ from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
 from ceu.models import Professores
+from .utils_peraltas import campos_necessarios_aprovacao
 
 
 @login_required(login_url='login')
@@ -135,6 +136,11 @@ def dashboardPeraltas(request):
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
+
+    if is_ajax(request):
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+
+        return JsonResponse(campos_necessarios_aprovacao(orcamento))
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
