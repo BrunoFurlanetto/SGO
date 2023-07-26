@@ -246,37 +246,42 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="tabela_pedidos" class="table table-bordered table-hover table-striped" style="caption-side: top">
-                        <caption>Pedidos de alteração</caption>
-                        <thead>
-                            <tr>
-                                <th>Campo</th>
-                                <th>Valor padrão</th>
-                                <th>Valor tratativa</th>
-                                <th><input type="checkbox" name="select_all" id="select_all"></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    <p id="comentario_pedido"></p>
-                    <hr>
-                    <table id="tabela_descontos_opcionais" class="table table-bordered table-hover table-striped" style="caption-side: top">
-                        <caption>Opcionais com descontos</caption>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Valor base</th>
-                                <th>Desconto</th>
-                                <th>Valor tratativa</th>
-                                <th><input type="checkbox" name="select_all" id="select_all"></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    <hr>
-                    <div id="valores">
-
-                    </div>
+                    <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                        <fieldset>
+                            <table id="tabela_pedidos" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                                <caption>Pedidos de alteração</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Campo</th>
+                                        <th>Valor padrão</th>
+                                        <th>Valor tratativa</th>
+                                        <th><input type="checkbox" name="select_all" id="select_all_pedidos" onclick="selecionar_todos(this)"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <p id="comentario_pedido"></p>
+                            <hr>
+                            <table id="tabela_descontos_opcionais" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                                <caption>Opcionais com descontos</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Valor base</th>
+                                        <th>Desconto</th>
+                                        <th>Valor tratativa</th>
+                                        <th><input type="checkbox" name="select_all" id="select_all_op" onclick="selecionar_todos(this)"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <hr>
+                            <div id="valores">
+                                <div><strong>Valor da tratativa: </strong><p id="valor_tratativa"></p></div>
+                                <div><strong>Valor atual: </strong><p id="valor_atual"></p></div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>

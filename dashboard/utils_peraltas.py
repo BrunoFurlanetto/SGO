@@ -21,17 +21,20 @@ def campos_necessarios_aprovacao(orcamento):
     for chave in gerencia_default:
         if chave != 'data_pagamento' and (gerencia_default[chave][0] != gerencia[chave]):
             campos_alterados['pedidos'].append({
-                gerencia_default[chave][1]: [gerencia[chave], gerencia_default[chave][0]]
+                gerencia_default[chave][1]: [gerencia[chave], gerencia_default[chave][0], chave]
             })
         elif chave == 'data_pagamento':
             data_pagamento = datetime.strptime(gerencia[chave], '%Y-%m-%d').strftime('%d/%m/%Y')
 
             if data_pagamento != gerencia_default[chave][1]:
                 campos_alterados['pedidos'].append({
-                    gerencia_default[chave][1]: [data_pagamento, gerencia_default[chave][0]]
+                    gerencia_default[chave][1]: [data_pagamento, gerencia_default[chave][0], chave]
                 })
-    print(gerencia['observacoes_desconto'])
+
     campos_alterados['observacoes'] = gerencia['observacoes_desconto']
+    campos_alterados['valor_com_desconto'] = float(orcamento.valor)
+    campos_alterados['valor_sem_desconto'] = orcamento.objeto_orcamento['total']['valor']
+    campos_alterados['valor_base'] = orcamento.objeto_orcamento['total']['valor_base']
     campos_alterados['opcionais'] = verifricar_descontos_opcionais(orcamento.objeto_orcamento['descricao_opcionais'])
 
     return campos_alterados

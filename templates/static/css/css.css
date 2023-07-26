@@ -1353,3 +1353,13 @@
 #permissao_orcamentos table tbody tr > *:not(:first-child) {
     text-align: center;
 }
+
+#valores {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+#valores div {
+    display: flex;
+}
