@@ -14,7 +14,7 @@ class Transport(BaseValue):
         return self.min_payers
 
     def calc_value_transport(self, is_transport):
-        if is_transport == 'nao':
+        if is_transport != 'sim':
             self.value = 0
             return self.value
 

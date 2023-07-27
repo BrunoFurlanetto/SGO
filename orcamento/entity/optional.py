@@ -8,8 +8,8 @@ class Optional(BaseValue):
         total = 0
         discount = 0
         for opt in optional_description:
-            total += opt.total
-            discount += opt.discount
+            total += opt["valor"]
+            discount += opt["desconto"]
 
         self.set_value(total)
         self.set_discount(discount)

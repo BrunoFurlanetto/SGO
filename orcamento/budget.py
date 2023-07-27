@@ -37,7 +37,7 @@ class Budget:
             period_id=self.period.id,
         )
         self.optional = Optional(0)
-        self.array_description_optional = coming_id
+        self.array_description_optional = []
         self.total = Total(0)
         self.daily_rate.calc_daily_rate()
 
@@ -49,7 +49,7 @@ class Budget:
         self.commission = commission
         return commission
 
-    def set_optional(self, arr):
+    def set_optional(self, arr, save=True):
         optional_array = []
 
         for opt in arr:
@@ -60,8 +60,9 @@ class Budget:
                 discount = float(opt[2])
             else:
                 discount = float(opt[3])
-                db_optional.valor = opt[2]
-                db_optional.save()
+                if save and discount != 0:
+                    db_optional.valor = opt[2]
+                    db_optional.save()
 
             description = OptionalDescription(
                 db_optional.valor,
@@ -75,9 +76,8 @@ class Budget:
                 percent_business_fee=self.business_fee
             ))
 
-        self.optional = optional_array
-
-        return self.optional
+        self.array_description_optional = optional_array
+        return self.array_description_optional
 
     def return_object(self):
         return {

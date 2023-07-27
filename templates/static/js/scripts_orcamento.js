@@ -119,10 +119,11 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, 'salvar': salvar},
             success: function (response) {
+                console.log(response)
                 if (!salvar) {
                     const valores = response['data']['valores'];
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
-                    const diaria = valores['diaria']['valor'];
+                    const diaria = valores['diaria']['valor_com_desconto'];
                     const periodo_diaria = (periodo + diaria);
 
                     // Adicionando ponto de separação de milhar em periodo_diaria
@@ -134,8 +135,8 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false
                         }
                     )
 
-                    const valor_monitoria = valores['tipo_monitoria']['valor'];
-                    const transporte = valores['transporte']['valor'];
+                    const valor_monitoria = valores['tipo_monitoria']['valor_com_desconto'];
+                    const transporte = valores['transporte']['valor_com_desconto'];
                     const monitoria_transporte = (valor_monitoria + transporte);
 
                     // Adicionando ponto de separação de milhar em monitoria_transporte
@@ -147,8 +148,8 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false
                         }
                     )
 
-                    const opcionais = valores['opcionais']['valor'];
-                    const total = response['data']['total']['valor'];
+                    const opcionais = valores['opcionais']['valor_com_desconto'];
+                    const total = response['data']['total']['valor_final'];
 
                     // Adicionando ponto de separação de milhar em opcionais e total
                     const opcionais_formatado = opcionais.toLocaleString(
