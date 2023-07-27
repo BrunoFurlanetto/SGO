@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento, OrcamentoOpicional
+from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento
 from .utils import verify_data, processar_formulario, verificar_gerencia
 from .budget import Budget
 

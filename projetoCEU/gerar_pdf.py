@@ -1,9 +1,14 @@
+import io
 from datetime import datetime
 
-from django.contrib.auth.models import User
+import pdfkit
+from django.http import HttpResponse
+from django.template.loader import get_template
 from fpdf import FPDF
+from xhtml2pdf import pisa
 
 from ceu.models import Atividades, Locaveis
+from orcamento.models import Orcamento
 from peraltas.models import AtividadesEco, Monitor
 
 
@@ -167,7 +172,8 @@ def ordem_de_servico(ordem_de_servico):
     if pdf_ordem.get_string_width(', '.join(monitor_responsavel)) > 81.5:
         pdf_ordem.ln()
 
-    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8, 'Coordenador(es) do grupo:')
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8,
+                            'Coordenador(es) do grupo:')
     pdf_ordem.cell(pdf_ordem.get_string_width(', '.join(monitor_responsavel)), 8, ', '.join(monitor_responsavel), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Seguro: ') + 1, 8, 'Seguro:')
@@ -265,7 +271,8 @@ def ordem_de_servico(ordem_de_servico):
             pdf_ordem.cell(w_text, 8, transporte.endereco_embarque)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
-            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '', ln=1)
+            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '',
+                           ln=1)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
             pdf_ordem.cell(40, 8, transporte.telefone_motorista)
@@ -325,9 +332,11 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens) if ficha_de_evento.qtd_profs_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '', ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '',
+                       ln=1)
     else:
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8, 'Número de participantes:')
+        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8,
+                                'Número de participantes:')
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
@@ -512,3 +521,26 @@ def dados_monitores(escala):
             pdf_escala.ln(8)
 
     pdf_escala.output('temp/dados_monitores_escalados.pdf')
+
+
+def pdf_orcamento(request, id_orcamento):
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+
+    context = {
+        'cliente': 'Nome da Empresa',
+        'logo_url': 'templates/static/img/logoPeraltasFundoBranco.jpg',
+        'dynamic_data': 'Dados dinâmicos do banco de dados aqui',
+    }
+
+    template = get_template('./orcamento/pdf_orcamento.html')
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="output.pdf"'
+
+    # Criando o PDF usando o HTML gerado dinamicamente
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar o PDF', status=500)
+
+    return response
