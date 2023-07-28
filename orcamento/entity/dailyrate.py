@@ -37,6 +37,8 @@ class DailyRate(BaseValue):
             last_daily_rate = 0.2
         if check_out.hour > time(12, 0, 0).hour:
             last_daily_rate = 1.2
+        if self.days == 1:
+            last_daily_rate = 0
 
         self.value = daily_rate_value * (first_daily_rate + intermediate_daily_rate + last_daily_rate)
 
