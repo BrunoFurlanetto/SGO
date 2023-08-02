@@ -14,8 +14,7 @@ class Monitor(BaseValue):
 
     def calc_value_monitor(self, id):
         object_monitor = OrcamentoMonitor.objects.get(pk=id)
-        daily_monitor = math.ceil(
-            object_monitor.valor / object_monitor.racional_monitoria)
+        daily_monitor = float(object_monitor.valor) / float(object_monitor.racional_monitoria)
 
         check_in = HorariosPadroes.objects.get(pk=self.coming_id).horario
         check_out = HorariosPadroes.objects.get(pk=self.exit_id).horario
@@ -32,7 +31,6 @@ class Monitor(BaseValue):
         if check_out.hour < time(12, 0, 0).hour:
             last_daily_monitor = 0.5
 
-        self.value = math.ceil(daily_monitor *
-                               (first_daily_monitor + intermediate_daily_monitor + last_daily_monitor))
+        self.value = daily_monitor * (first_daily_monitor + intermediate_daily_monitor + last_daily_monitor)
 
         return self.value
