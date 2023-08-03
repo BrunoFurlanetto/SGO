@@ -15,6 +15,7 @@ class Budget:
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = int(days)
+        # todo: PEGAR INIT TAXAS DO BD
         self.business_fee = 0.09
         self.commission = 0.05
 
