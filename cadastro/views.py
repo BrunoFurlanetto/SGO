@@ -23,7 +23,7 @@ from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu, \
     slavar_atividades_ecoturismo
-from .funcoesPublico import salvar_atividades, salvar_equipe, requisicao_ajax
+from .funcoesPublico import salvar_atividades, salvar_equipe, requisicao_ajax, teste_participantes_por_atividade
 from django.core.paginator import Paginator
 
 
@@ -246,7 +246,9 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
                 data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                participantes=ordem_servico.n_participantes,
+                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo'
             )
             ordem_servico.ficha_de_evento.os = False
             ordem_servico.ficha_de_evento.save()
@@ -444,7 +446,9 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
                 data_entrada=ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                participantes=ficha_de_evento.qtd_convidada,
+                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'
             )
             ficha_de_evento.delete()
         except Exception as e:

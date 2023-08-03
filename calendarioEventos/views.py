@@ -90,7 +90,9 @@ def eventos(request):
                     produto_corporativo_contratado=pre_reserva.produto_corporativo,
                     data_entrada=pre_reserva.data_preenchimento,
                     data_saida=datetime.now().date(),
-                    motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes=pre_reserva.qtd_convidada,
+                    tipo_evento='corporativo' if pre_reserva.produto_corporativo else 'colegio'
                 )
                 pre_reserva.delete()
             except Exception as e:

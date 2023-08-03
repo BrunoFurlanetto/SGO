@@ -146,7 +146,16 @@ class CodigosAppAdmin(admin.ModelAdmin):
 
 @admin.register(EventosCancelados)
 class EventosCanceladosAdmin(admin.ModelAdmin):
-    list_display = ('cliente', 'estagio_evento', 'atendente', 'motivo_cancelamento')
+    list_display = (
+        'cliente',
+        'estagio_evento',
+        'atendente',
+        'motivo_cancelamento',
+        'data_entrada',
+        'data_saida',
+        'participantes',
+        'tipo_evento'
+    )
     list_filter = ('estagio_evento', 'atendente')
 
 
