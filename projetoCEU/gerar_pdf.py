@@ -1,15 +1,16 @@
 import io
 from datetime import datetime
 
-import pdfkit
-from django.http import HttpResponse
-from django.template.loader import get_template
 from fpdf import FPDF
-from xhtml2pdf import pisa
 
 from ceu.models import Atividades, Locaveis
 from orcamento.models import Orcamento
 from peraltas.models import AtividadesEco, Monitor
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak
 
 
 class PDF(FPDF):
@@ -523,24 +524,73 @@ def dados_monitores(escala):
     pdf_escala.output('temp/dados_monitores_escalados.pdf')
 
 
-def pdf_orcamento(request, id_orcamento):
-    orcamento = Orcamento.objects.get(pk=id_orcamento)
+def pdf_orcamento():
+    doc = SimpleDocTemplate("exemplo.pdf", pagesize=letter)
+    story = []
 
-    context = {
-        'cliente': 'Nome da Empresa',
-        'logo_url': 'templates/static/img/logoPeraltasFundoBranco.jpg',
-        'dynamic_data': 'Dados dinâmicos do banco de dados aqui',
-    }
+    # Adicionar um título
+    styles = getSampleStyleSheet()
+    title = Paragraph("Exemplo de PDF com ReportLab", styles['h1'])
+    story.append(title)
 
-    template = get_template('./orcamento/pdf_orcamento.html')
-    html = template.render(context)
+    # Adicionar um parágrafo
+    paragraph_text = "Este é um exemplo simples de criação de um PDF usando a biblioteca ReportLab."
+    paragraph = Paragraph(paragraph_text, styles['Normal'])
+    story.append(paragraph)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename="output.pdf"'
+    # Adicionar uma tabela
+    data = [['Nome', 'Idade', 'Profissão'],
+            ['João', '30', 'Engenheiro'],
+            ['Maria', '25', 'Designer'],
+            ['José', '40', 'Programador']]
+    table = Table(data, colWidths=[100, 50, 150])
+    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                               ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                               ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                               ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                               ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                               ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                               ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
 
-    # Criando o PDF usando o HTML gerado dinamicamente
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('Erro ao gerar o PDF', status=500)
 
-    return response
+from reportlab.pdfgen import canvas
+from PyPDF2 import PdfReader, PdfWriter
+
+
+def add_text_to_pdf(input_path, output_path, text):
+    # Lê o PDF base
+    pdf_reader = PdfReader(input_path)
+
+    # Cria um novo PDF com o texto adicionado ao PDF base
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet)
+    can.drawString(72, 72, text)  # Adicione o texto na posição (x, y) na unidade de pontos (1 polegada = 72 pontos)
+    can.save()
+
+    # Move o cursor do buffer para o início
+    packet.seek(0)
+
+    # Abre o PDF base e adiciona o texto na página
+    pdf_writer = PdfWriter()
+    for page_number, page in enumerate(pdf_reader.pages):
+        # Copia a página original do PDF base
+        page_new = pdf_writer.add_page(page)
+
+        # Mescla com o conteúdo do buffer apenas na primeira página
+        if page_number == 0:
+            new_pdf = PdfReader(packet)
+            page_new.mergePage(new_pdf.pages[0])
+
+    # Salva o PDF final com o texto adicionado
+    with open(output_path, 'wb') as f:
+        pdf_writer.write(f)
+
+
+# if __name__ == "__main__":
+# input_pdf_path = "vazio.pdf"  # Substitua pelo caminho do seu PDF base
+# output_pdf_path = "exemplo.pdf"  # Substitua pelo caminho desejado para o PDF final
+# texto_a_adicionar = "Este é o texto que será adicionado ao final do PDF."
+# add_text_to_pdf(input_pdf_path, output_pdf_path, texto_a_adicionar)
+
+
