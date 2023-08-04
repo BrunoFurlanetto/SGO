@@ -2,14 +2,12 @@ import json
 from datetime import datetime
 from itertools import chain
 
-import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from reversion.models import Version
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
@@ -133,6 +131,7 @@ def dashboardCeu(request):
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     orcamentos_para_gerencia = Orcamento.objects.filter(necessita_aprovacao_gerencia=True)
+    orcamentos = Orcamento.objects.filter(colaborador=request.user, necessita_aprovacao_gerencia=False)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
@@ -161,6 +160,7 @@ def dashboardPeraltas(request):
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
         'diretoria': diretoria in grupos_usuario,
-        'orcamentos': orcamentos_para_gerencia,
+        'orcamentos_gerencia': orcamentos_para_gerencia,
+        'orcamentos': orcamentos,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

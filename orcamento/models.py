@@ -77,10 +77,17 @@ class ValoresTransporte(models.Model):
         max_digits=7, decimal_places=2, verbose_name='Vai e Volta', default=0.00)
     percentual = models.DecimalField(
         max_digits=3, decimal_places=2, verbose_name='Percentual', default=0.10)
-    decricao = models.TextField(verbose_name="Descrição", default="")
+    descricao = models.TextField(verbose_name="Descrição", default="")
 
     def __str__(self):
         return f'Valores transporte periodo {self.periodo.nome_periodo}'
+
+
+class StatusOrcamento(models.Model):
+    status = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.status
 
 
 class Orcamento(models.Model):
@@ -125,8 +132,16 @@ class Orcamento(models.Model):
     promocional = models.BooleanField(default=False)
     aprovado = models.BooleanField(default=False)
     necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')
+    status_orcamento = models.ForeignKey(
+        StatusOrcamento,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        verbose_name='Status'
+    )
     data_preenchimento = models.DateField(auto_now_add=True, verbose_name='Data de preenchimento')
-    data_ulitma_edicao = models.DateField(
+    data_vencimento = models.DateField(verbose_name='Data de vencimento')
+    data_ultima_edicao = models.DateField(
         blank=True,
         null=True,
         default=datetime.datetime.now,

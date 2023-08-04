@@ -119,14 +119,13 @@
             </div>
         {% endfor %}
     {% else %}
-        {% if diretoria %}
-            <div id="conteudo">
-                <div id="abas" style="display: flex">
-                    <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para
-                        aprovação
-                    </div>
-                    <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
-                </div>
+        <div id="conteudo">
+            <div id="abas" style="display: flex">
+                {% if diretoria %}<div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para aprovação </div>{% endif %}
+                <div class="folder {% if not diretoria %} ativo {% endif %}" onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos</div>
+                <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
+            </div>
+            {% if diretoria %}
                 <div class="section-content ativo" id="orcamentos_aprovacao">
                     <table class="table table-hover table-striped">
                         <thead>
@@ -137,25 +136,48 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for orcamento in orcamentos %}
+                        {% for orcamento_gerencia in orcamentos_gerencia %}
                             <tr id="orcamento_{{ orcamento.id }}" onclick="mostrar_modal_aprovacao($(this))">
-                                <td>{{ orcamento.cliente }}</td>
-                                <td>{{ orcamento.colaborador.get_full_name }}</td>
-                                <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
+                                <td>{{ orcamento_gerencia.cliente }}</td>
+                                <td>{{ orcamento_gerencia.colaborador.get_full_name }}</td>
+                                <td>R$ {{ orcamento_gerencia.valor|substituir_ponto }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <div class="section-content" id="log">
-                    Sem dados
-                </div>
+            {% endif %}
+            <div id="orcamentos_aprovados" class="section-content {% if not diretoria %} ativo {% endif %}">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width: 40%">Cliente</th>
+                        <th style="width: 20%">Vencimento</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 20%">Valor</th>
+                        <th style="width: 5%">Ganho/Perdido</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for orcamento in orcamentos %}
+                        <tr id="orcamento_{{ orcamento.id }}">
+                            <td>{{ orcamento.cliente }}</td>
+                            <td>{{ orcamento.data_vencimento|date:'d/m/Y' }}</td>
+                            <td>{{ orcamento.status_orcamento }}</td>
+                            <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
+                            <td style="white-space: nowrap">
+                                <button type="button" class="button_ganho"><i class='bx bx-check'></i></button>
+                                <button type="button" class="button_perdido"><i class='bx bx-x'></i></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        {% else %}
-            <div class="conteudo_dashboard_peraltas_escrito">
-                <h1>SGO</h1>
+            <div class="section-content" id="log">
+                Sem dados
             </div>
-        {% endif %}
+        </div>
     {% endif %}
 
     <!--------------------------------------------------------------------------------------------------------------------->
@@ -248,37 +270,43 @@
                 <div class="modal-body">
                     <form action="{% url 'dashboardPeraltas' %}" method="POST">
                         <fieldset>
-                            <table id="tabela_pedidos" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                            <table id="tabela_pedidos" class="table table-bordered table-hover table-striped"
+                                   style="caption-side: top">
                                 <caption>Pedidos de alteração</caption>
                                 <thead>
-                                    <tr>
-                                        <th>Campo</th>
-                                        <th>Valor padrão</th>
-                                        <th>Valor tratativa</th>
-                                        <th><input type="checkbox" name="select_all" id="select_all_pedidos" onclick="selecionar_todos(this)"></th>
-                                    </tr>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor padrão</th>
+                                    <th>Valor tratativa</th>
+                                    <th><input type="checkbox" name="select_all" id="select_all_pedidos"
+                                               onclick="selecionar_todos(this)"></th>
+                                </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
                             <p id="comentario_pedido"></p>
                             <hr>
-                            <table id="tabela_descontos_opcionais" class="table table-bordered table-hover table-striped" style="caption-side: top">
+                            <table id="tabela_descontos_opcionais"
+                                   class="table table-bordered table-hover table-striped" style="caption-side: top">
                                 <caption>Opcionais com descontos</caption>
                                 <thead>
-                                    <tr>
-                                        <th>Nome</th>
-                                        <th>Valor base</th>
-                                        <th>Desconto</th>
-                                        <th>Valor tratativa</th>
-                                        <th><input type="checkbox" name="select_all" id="select_all_op" onclick="selecionar_todos(this)"></th>
-                                    </tr>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Valor base</th>
+                                    <th>Desconto</th>
+                                    <th>Valor tratativa</th>
+                                    <th><input type="checkbox" name="select_all" id="select_all_op"
+                                               onclick="selecionar_todos(this)"></th>
+                                </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
                             <hr>
                             <div id="valores">
-                                <div><strong>Valor da tratativa: </strong><p id="valor_tratativa"></p></div>
-                                <div><strong>Valor atual: </strong><p id="valor_atual"></p></div>
+                                <div><strong>Valor da tratativa: </strong>
+                                    <p id="valor_tratativa"></p></div>
+                                <div><strong>Valor atual: </strong>
+                                    <p id="valor_atual"></p></div>
                             </div>
                         </fieldset>
                     </form>

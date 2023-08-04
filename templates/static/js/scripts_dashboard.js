@@ -11,6 +11,7 @@ let taxa_aplicada = false
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = [
         'orcamentos_aprovacao',
+        'orcamentos_aprovados',
         'log'
     ]
     $('.folder:not([ativo])').removeClass('ativo')

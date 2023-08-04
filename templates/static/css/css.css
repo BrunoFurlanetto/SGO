@@ -1350,8 +1350,14 @@
     width: 50%;
 }
 
-#permissao_orcamentos table tbody tr > *:not(:first-child) {
+#permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
+#orcamentos_aprovados table tbody tr > *:not(:first-child){
     text-align: center;
+    vertical-align: middle;
+}
+
+#orcamentos_aprovados table tbody tr:first-child {
+    vertical-align: middle;
 }
 
 #valores {
@@ -1362,4 +1368,18 @@
 
 #valores div {
     display: flex;
+}
+
+.button_ganho{
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    color: #2fff00;
+}
+
+.button_perdido {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    color: #b00000;
 }

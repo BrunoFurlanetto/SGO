@@ -1,10 +1,12 @@
+import datetime
+
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento
+from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento
 from .utils import verify_data, processar_formulario, verificar_gerencia
 from .budget import Budget
 
@@ -49,7 +51,6 @@ def calc_budget(req):
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
             opt_data = []
-            print(gerencia)
 
             # Verificar parametros obrigatórios
             if verify_data(data):
@@ -87,9 +88,7 @@ def calc_budget(req):
                 budget.set_optional(opt_data, False)
                 budget.optional.calc_value_optional(budget.array_description_optional)
             if len(valores_op) > 0:
-                print(valores_op)
                 opt_data = [opt for opt in valores_op.values()]
-                print(opt_data)
                 budget.set_optional(opt_data)
                 budget.optional.calc_value_optional(budget.array_description_optional)
 
@@ -105,9 +104,11 @@ def calc_budget(req):
 
             if req.POST.get('salvar') == 'true':
                 try:
-                    dados['orcamento'][
-                        'valor'] = f'{budget.total.value:.2f}'  # TODO: Alterar para valor com desconto quando a API estiver pronta
-                    orcamento = CadastroOrcamento(dados['orcamento'])
+                    data['valor'] = f'{budget.total.calc_value_with_discount():.2f}'
+                    data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
+                    data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
+
+                    orcamento = CadastroOrcamento(data)
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
                     pre_orcamento.objeto_orcamento = budget.return_object()
