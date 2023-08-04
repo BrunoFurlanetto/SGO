@@ -246,6 +246,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
                 data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
+                data_evento=ordem_servico.check_in.date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                 participantes=ordem_servico.n_participantes,
                 tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo'
@@ -446,6 +447,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
                 data_entrada=ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
+                data_evento=ficha_de_evento.check_in.date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                 participantes=ficha_de_evento.qtd_convidada,
                 tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
@@ -90,6 +91,7 @@ def eventos(request):
                     produto_corporativo_contratado=pre_reserva.produto_corporativo,
                     data_entrada=pre_reserva.data_preenchimento,
                     data_saida=datetime.now().date(),
+                    data_evento=pre_reserva.check_in.date(),
                     motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                     participantes=pre_reserva.qtd_convidada,
                     tipo_evento='corporativo' if pre_reserva.produto_corporativo else 'colegio'

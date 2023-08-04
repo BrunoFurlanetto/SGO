@@ -265,6 +265,7 @@ class EventosCancelados(models.Model):
     )
     data_entrada = models.DateField()
     data_saida = models.DateField()
+    data_evento = models.DateField()
     motivo_cancelamento = models.TextField()
     tipo_evento = models.CharField(choices=(('colegio','Colégio'), ('corporativo','Corporativo')), max_length=12)
     participantes = models.PositiveIntegerField()

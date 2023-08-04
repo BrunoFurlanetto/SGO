@@ -153,6 +153,7 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
         'motivo_cancelamento',
         'data_entrada',
         'data_saida',
+        'data_evento',
         'participantes',
         'tipo_evento'
     )
