@@ -32,12 +32,23 @@ def verify_data(data):
 
 
 def processar_formulario(dados):
-    orcamento = {}
     valores_opcionais = {}
     gerencia = {}
+    outros = []
+    op_extras = 0
+    orcamento = {}
     padrao_orcamento = r'orcamento\[(\w+)\]'
     padrao_valores_op = r'dados_op\[(\w+)\]'
     padrao_gerencia = r'gerencia\[(\w+)\]'
+    padrao_outros = re.compile('.*outros.*')
+
+
+    for key in dados.keys():
+        if padrao_outros.match(key):
+            op_extras += 1 / 4
+
+    if op_extras > 0:
+        orcamento['outros'] = compilar_outros(dados, int(op_extras))
 
     for key, valor in dados.items():
         correspondencia_orcamento = re.match(padrao_orcamento, key)
@@ -93,3 +104,16 @@ def verificar_gerencia(dados):
 
     if dados['data_pagamento'] != data_pagamento_padrao.strftime('%Y-%m-%d'):
         return True
+
+def compilar_outros(dados, op_extras):
+    outros = []
+
+    for i in range(0, op_extras):
+        outros.append({
+            'id': dados[f'outros[{i}][id]'],
+            'nome': dados[f'outros[{i}][nome]'],
+            'valor': float(dados[f'outros[{i}][valor]'].replace(',', '.')),
+            'descricao': dados[f'outros[{i}][descricao]'],
+        })
+
+    return outros

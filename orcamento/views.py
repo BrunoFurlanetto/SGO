@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -30,28 +31,12 @@ def calc_budget(req):
                 opcional = OrcamentoOpicional.objects.get(pk=req.GET.get('id_opcional'))
                 return JsonResponse({'fixo': opcional.fixo, 'valor': opcional.valor})
         else:
-            if req.POST.get('novo_opcional'):
-                valor = float(req.POST.get('valor').replace(',', '.'))
-
-                try:
-                    novo_op = OrcamentoOpicional.objects.create(
-                        nome=req.POST.get('novo_opcional'),
-                        valor=valor,
-                        descricao=req.POST.get('descricao'),
-                    )
-                    novo_op.save()
-                except Exception as e:
-                    return JsonResponse({'adicionado': False, 'erro': e})
-                else:
-                    return JsonResponse({'adicionado': True, 'text': novo_op.nome, 'id': novo_op.id})
-
             # JSON
             dados = processar_formulario(req.POST)
             data = dados['orcamento']
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
             opt_data = []
-
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -68,8 +53,10 @@ def calc_budget(req):
             budget.period.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
             budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
+
             if "tipo_monitoria" in data and data['tipo_monitoria'] != '':
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
+
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
             budget.monitor.set_discount(data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
             budget.transport.calc_value_transport(data["transporte"]) if "transporte" in data else ...

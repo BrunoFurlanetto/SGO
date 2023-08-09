@@ -1,4 +1,5 @@
 let resultado_ultima_consulta = {}
+let op_extras = []
 
 $(document).ready(() => {
     let hoje = new Date()
@@ -38,53 +39,75 @@ $(document).ready(() => {
         return false
     })
 
-    $("#id_opcionais, #id_outros").on("select2:select", function (e) {
-        enviar_form().then((status) => {
-            const opcional = e.params.data;
-            const opcionais = $('.opcionais').length
-            const i = opcionais + 1
+    $("#id_opcionais, #op_extras").on("select2:select", function (e) {
+        const opcional = e.params.data;
+        const opcionais = $('.opcionais').length
+        const i = opcionais + 1
 
-            $.ajax({
-                type: 'GET',
-                url: '',
-                data: {'id_opcional': opcional['id']},
-                success: function (response) {
-                    const valor_op = response['valor'].toLocaleString(
-                        undefined,
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    ).replace('.', ',')
+        if (this.id === 'id_opcionais') {
+            enviar_form().then((status) => {
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    data: {'id_opcional': opcional['id']},
+                    success: function (response) {
+                        const valor_op = response['valor'].toLocaleString(
+                            undefined,
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        ).replace('.', ',')
 
-                    $('#tabela_de_opcionais tbody').append(`
-                    <tr id="op_${opcional['id']}" class="opcionais">
-                        <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional['text']}" disabled></th>
-                        <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcional['id']}">                    
-                        <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${valor_op}">
-                        <th><input type="text" id="valor_opcional_${i}" ${response['fixo'] ? 'disabled' : ''} name="opcional_${i}" value="${valor_op}"></th>
-                        <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
-                    </tr>`
-                    )
-                }
-            }).done(() => {
-                $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
-                    prefix: 'R$ ',
-                    thousands: '.',
-                    decimal: ',',
-                    allowZero: true,
-                    affixesStay: false
+                        $('#tabela_de_opcionais tbody').append(`
+                            <tr id="op_${opcional['id']}" class="opcionais">
+                                <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional['text']}" disabled></th>
+                                <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcional['id']}">                    
+                                <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${valor_op}" disabled>
+                                <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${valor_op}"></th>
+                                <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                            </tr>
+                        `)
+                    }
+                }).done(() => {
+                    $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
+                        prefix: 'R$ ',
+                        thousands: '.',
+                        decimal: ',',
+                        allowZero: true,
+                        affixesStay: false
+                    })
+
+                    end_loading()
                 })
-
+            }).catch((error) => {
+                alert(error)
                 end_loading()
             })
-        }).catch((error) => {
-            alert(error)
-            end_loading()
-        })
+        } else {
+            enviar_form().then(() => {
+                let opcional_extra = op_extras.filter((op, index) => {
+                    console.log(op['id'], opcional['id'])
+                    if (op['id'] === opcional['id']) {
+                        return op
+                    }
+                })[0]
+
+                $('#tabela_de_opcionais tbody').append(`
+                    <tr id="op_${opcional_extra['id']}" class="opcionais">
+                        <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
+                        <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>
+                        <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
+                    </tr>
+                `)
+            }).catch((error) => {
+                alert(error)
+                end_loading()
+            })
+        }
     });
 
-    $("#id_opcionais, #id_outros").on("select2:unselect", function (e) {
+    $("#id_opcionais, #op_extras").on("select2:unselect", function (e) {
         enviar_form().then((status) => {
             const opcional = e.params.data;
             $(`#op_${opcional['id']}`).remove()
@@ -93,15 +116,24 @@ $(document).ready(() => {
             alert(error)
             end_loading()
         })
-    });
+    })
 })
 
-function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false) {
-    let dados_op, gerencia
+function enviar_form(form_opcionais = false, form_gerencia = false, salvar = false) {
+    let dados_op, gerencia, outros
     const form = $('#orcamento')
     const orcamento = form.serializeObject()
     const url = form.attr('action')
     loading()
+
+    if (op_extras.length > 0) {
+        outros = op_extras.filter((op, index) => {
+            console.log(op)
+            if ($('#op_extras').val().includes(op['id'])) {
+                return op
+            }
+        })
+    }
 
     if (form_opcionais || salvar) {
         dados_op = $('#forms_valores_op').serializeObject()
@@ -117,7 +149,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar=false
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             dataType: 'JSON',
-            data: {orcamento, dados_op, gerencia, 'salvar': salvar},
+            data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
                 console.log(response)
                 if (!salvar) {
@@ -276,7 +308,7 @@ function verificar_preenchimento() {
 
 function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('#id_transporte').val() != '') {
-        $('#id_opcionais, #id_outros').select2()
+        $('#id_opcionais, #op_extras').select2()
 
         enviar_form().then(function (status) {
             $('#container_monitoria_transporte .parcial').addClass('visivel')
@@ -317,42 +349,36 @@ function adicionar_novo_op() {
     const nome_opcional = $('#nome_opcional').val()
     const valor_opcional = $('#valor_opcional').val()
     const descricao_opcional = $('#descricao_opcional').val()
-    const verificacao = [nome_opcional, valor_opcional, descricao_opcional]
+    const n_op = op_extras.length + 1
 
-    if (!verificacao.includes('')) {
-        $.ajax({
-            type: 'POST',
-            url: '',
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+    op_extras.push({
+        'id': `OPCEXT${n_op.toString().padStart(2, '0')}`,
+        'nome': nome_opcional,
+        'valor': valor_opcional,
+        'descricao': descricao_opcional,
+    })
+
+    let newOption = new Option(
+        nome_opcional,
+        `OPCEXT${n_op.toString().padStart(2, '0')}`,
+        true,
+        true
+    );
+
+    $('#op_extras').append(newOption).trigger('change')
+
+    $('#op_extras').trigger({
+        type: 'select2:select',
+        params: {
             data: {
-                'novo_opcional': nome_opcional,
-                'valor': valor_opcional,
-                'descricao': descricao_opcional,
-            },
-        }).done((response) => {
-            if (response['adicionado']) {
-                let newOption = new Option(
-                    response['text'],
-                    response['id'],
-                    true,
-                    true
-                );
-                $('#id_outros').append(newOption).trigger('change')
-
-                $('#id_outros').trigger({
-                    type: 'select2:select',
-                    params: {
-                        data: {
-                            id: response['id'],
-                            text: response['text']
-                        }
-                    }
-                })
-
-                $('#adicionar_opcional').modal('hide')
+                id: `OPCEXT${n_op.toString().padStart(2, '0')}`,
+                text: nome_opcional
             }
-        })
-    }
+        }
+    })
+
+    $('#adicionar_opcional').modal('hide')
+    console.log(op_extras)
 }
 
 function atualizar_valores_op() {

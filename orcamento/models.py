@@ -121,7 +121,7 @@ class Orcamento(models.Model):
         verbose_name='Opcionais',
         related_name='opcionais'
     )
-    outros = models.ManyToManyField(OrcamentoOpicional, blank=True, verbose_name='Outros', related_name='outros')
+    opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
@@ -183,12 +183,9 @@ class CadastroOrcamento(forms.ModelForm):
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         horarios = HorariosPadroes.objects.all()
-        opcionais = OrcamentoOpicional.objects.all()
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         horario_refeicao = []
-        opcionais_fixo = []
-        outros = []
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -208,15 +205,7 @@ class CadastroOrcamento(forms.ModelForm):
         for horario in horarios:
             horario_refeicao.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
 
-        for opcional in opcionais:
-            if opcional.fixo:
-                opcionais_fixo.append((opcional.id, opcional.nome))
-            else:
-                outros.append((opcional.id, opcional.nome))
-
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['hora_check_in'].choices = horario_refeicao
         self.fields['hora_check_out'].choices = horario_refeicao
-        self.fields['outros'].choices = outros
-        self.fields['opcionais'].choices = opcionais_fixo
