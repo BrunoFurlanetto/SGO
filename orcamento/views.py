@@ -33,6 +33,7 @@ def calc_budget(req):
         else:
             # JSON
             dados = processar_formulario(req.POST)
+            print(dados)
             data = dados['orcamento']
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
@@ -67,10 +68,6 @@ def calc_budget(req):
             # OPICIONAIS
             if "opcionais" in data:
                 opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
-            if "outros" in data:
-                other_data = [[opt, 0, 0, 0] for opt in data['outros']]
-                for other in other_data:
-                    opt_data.append(other)
             if len(opt_data) > 0:
                 budget.set_optional(opt_data, False)
                 budget.optional.calc_value_optional(budget.array_description_optional)
@@ -79,6 +76,9 @@ def calc_budget(req):
                 budget.set_optional(opt_data)
                 budget.optional.calc_value_optional(budget.array_description_optional)
 
+            if "outros" in data:
+               budget.set_others(data["outros"])
+               budget.others.calc_value_optional(budget.array_description_others)
 
             # CAlCULAR TOTAL
             budget.total.calc_total_value(

@@ -39,6 +39,8 @@ class Budget:
         )
         self.optional = Optional(0)
         self.array_description_optional = []
+        self.others = Optional(0)
+        self.array_description_others = []
         self.total = Total(0)
         self.daily_rate.calc_daily_rate()
 
@@ -50,6 +52,19 @@ class Budget:
         self.commission = commission
         return commission
 
+    def set_others(self, arr):
+        other_array = []
+        for other in arr:
+            obj_other = OptionalDescription(other['valor'], False, other['id'], other['nome'], other['descricao'])
+            other_array.append(obj_other.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee,
+                description=True
+            ))
+
+        self.array_description_others = other_array
+        return self.array_description_others
+
     def set_optional(self, arr, save=True):
         optional_array = []
 
@@ -57,13 +72,9 @@ class Budget:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
 
-            if db_optional.fixo:
-                discount = float(opt[2])
-            else:
-                discount = float(opt[3])
-                if save and discount != 0:
-                    db_optional.valor = opt[2]
-                    db_optional.save()
+            if opt[1]:
+                discount=opt[1]
+
 
             description = OptionalDescription(
                 db_optional.valor,
@@ -81,6 +92,10 @@ class Budget:
         return self.array_description_optional
 
     def return_object(self):
+        description_options = self.array_description_optional
+        description_options.append({
+            "outros": self.array_description_others
+        })
         return {
             "periodo_viagem": self.period.do_object(
                 percent_commission=self.commission,
@@ -104,9 +119,13 @@ class Budget:
                 "opcionais": self.optional.do_object(
                     percent_commission=self.commission,
                     percent_business_fee=self.business_fee
+                ),
+                "outros": self.others.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
                 )
             },
-            "descricao_opcionais": self.array_description_optional,
+            "descricao_opcionais": description_options,
             "total": self.total.do_object(
                 percent_commission=self.commission,
                 percent_business_fee=self.business_fee
