@@ -1383,3 +1383,13 @@
     font-size: 30px;
     color: #b00000;
 }
+
+.button_perdido:disabled, .button_ganho:disabled {
+    opacity: 0.4;
+}
+
+.button_pdf {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+}

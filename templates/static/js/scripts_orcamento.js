@@ -93,7 +93,7 @@ $(document).ready(() => {
                     }
                 })[0]
 
-                $('#tabela_de_opcionais tbody').append(`
+                $('#t   abela_de_opcionais tbody').append(`
                     <tr id="op_${opcional_extra['id']}" class="opcionais">
                         <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
                         <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>
@@ -102,8 +102,9 @@ $(document).ready(() => {
                 `)
             }).catch((error) => {
                 alert(error)
-                end_loading()
             })
+
+            end_loading()
         }
     });
 
@@ -151,7 +152,6 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
-                console.log(response)
                 if (!salvar) {
                     const valores = response['data']['valores'];
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
@@ -166,7 +166,6 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                             maximumFractionDigits: 2
                         }
                     )
-
                     const valor_monitoria = valores['tipo_monitoria']['valor_com_desconto'];
                     const transporte = valores['transporte']['valor_com_desconto'];
                     const monitoria_transporte = (valor_monitoria + transporte);
@@ -181,10 +180,11 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                     )
 
                     const opcionais = valores['opcionais']['valor_com_desconto'];
+                    const outros = valores['outros']['valor_com_desconto']
                     const total = response['data']['total']['valor_final'];
 
                     // Adicionando ponto de separação de milhar em opcionais e total
-                    const opcionais_formatado = opcionais.toLocaleString(
+                    const opcionais_formatado = (opcionais + outros).toLocaleString(
                         undefined,
                         {
                             minimumFractionDigits: 2,

@@ -50,7 +50,7 @@ def calc_budget(req):
             budget.transport.set_min_payers(data["minimo_pagantes"]) if "minimo_pagantes" in data else ...
             budget.transport.set_min_payers(gerencia["minimo_onibus"]) if "minimo_onibus" in gerencia else ...
             budget.set_business_fee(data["taxa_comercial"]) if "taxa_comercial" in data else ...
-            budget.set_commission(data["comissao_de_vendas"])  if "comissao_de_vendas" in data else ...
+            budget.set_commission(data["comissao_de_vendas"]) if "comissao_de_vendas" in data else ...
             budget.period.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
             budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
@@ -59,7 +59,8 @@ def calc_budget(req):
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
 
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
-            budget.monitor.set_discount(data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
+            budget.monitor.set_discount(
+                data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
             budget.transport.calc_value_transport(data["transporte"]) if "transporte" in data else ...
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
             budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
@@ -77,21 +78,24 @@ def calc_budget(req):
                 budget.optional.calc_value_optional(budget.array_description_optional)
 
             if "outros" in data:
-               budget.set_others(data["outros"])
-               budget.others.calc_value_optional(budget.array_description_others)
+                budget.set_others(data["outros"])
+                budget.others.calc_value_optional(budget.array_description_others)
 
             # CAlCULAR TOTAL
             budget.total.calc_total_value(
                 monitor=budget.monitor,
                 period=budget.period,
                 optional=budget.optional,
+                others=budget.others,
                 daily_rate=budget.daily_rate,
                 transport=budget.transport,
             )
 
             if req.POST.get('salvar') == 'true':
                 try:
-                    data['valor'] = f'{budget.total.calc_value_with_discount():.2f}'
+                    valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
+                        budget.business_fee) + budget.total.calc_commission(budget.commission)
+                    data['valor'] = f'{valor_final:.2f}'
                     data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
                     data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
@@ -129,5 +133,3 @@ def calc_budget(req):
             'orcamento': cadastro_orcamento,
             'tipo_orcamento': req.GET.get('tipo_de_orcamento')
         })
-
-

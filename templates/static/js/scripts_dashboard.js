@@ -1,7 +1,8 @@
-let valor_atual, valores_descontos, valores_op, valor_base, taxas_base
+let valor_atual, valores_op, valor_base, taxas_base
 let taxa_comercial_base = null
 let comisao_base = null
 let taxa_comercial = null
+let valores_descontos
 let comissao = null
 let descontos_aplicados = 0
 let novas_taxas = 0
@@ -26,7 +27,25 @@ function alterar_aba(aba, sectionId) {
     }
 }
 
+function reiniciar_variaveis() {
+    valor_atual = null
+    valores_op = null
+    valor_base = null
+    taxas_base = null
+    taxa_comercial_base = null
+    comisao_base = null
+    taxa_comercial = null
+    valores_descontos = 0
+    comissao = null
+    descontos_aplicados = 0
+    novas_taxas = 0
+    comissao_aplicada = false
+    taxa_aplicada = false
+}
+
 function mostrar_modal_aprovacao(id_linha) {
+    reiniciar_variaveis()
+    $('#select_all_pedidos, #select_all_op').prop('checked', false)
     const id_orcamento = parseInt($(id_linha).attr('id').split('_')[1])
     loading()
 
@@ -42,48 +61,44 @@ function mostrar_modal_aprovacao(id_linha) {
             comisao_base = 9  // TODO: Alterar para pegar valores base do back
             taxas_base = taxa_comercial_base + comisao_base  // TODO: Alterar para pegar valores base do back
             valor_base = response['valor_base']
+            let taxas = calcular_taxas()
             valores_descontos = response['pedidos']
             valores_op = response['opcionais']
-            valor_atual = valor_base / (1 - (taxas_base / 100))
+            valor_atual = valor_base + taxas
             $('#comentario_pedido').text('OBS do colaborador: ' + response['observacoes'])
             $('#valores #valor_tratativa').text(convert_money(response['valor_com_desconto']))
             $('#valores #valor_atual').text(convert_money(valor_atual))
-
-
+            console.log(response)
             for (let pedido of response['pedidos']) {
                 let valor_formatado, valor_padrao
+                console.log(pedido)
+                if (pedido['campo'].includes('desconto')) {
+                    valor_formatado = convert_money(pedido['valor_tratativa'])
+                    valor_padrao = convert_money(pedido['base'])
+                } else if (pedido['campo'] !== 'data_pagamento') {
+                    valor_formatado = pedido['valor_tratativa'].toLocaleString() + '%'
+                    valor_padrao = pedido['base'].toLocaleString() + '%'
 
-                Object.entries(pedido).forEach(([chave, valor]) => {
-                    if (chave != 'observacoes') {
-                        if (chave.includes('Desconto')) {
-                            valor_formatado = convert_money(valor[0])
-                            valor_padrao = convert_money(valor[1])
-                        } else if (chave !== 'Data de pagamento') {
-                            valor_formatado = valor[0].toLocaleString() + '%'
-                            valor_padrao = valor[1].toLocaleString() + '%'
-
-                            if (valor[2] === 'comissao') {
-                                comissao = valor[0]
-                            }
-
-                            if (valor[2] === 'taxa_comercial') {
-                                taxa_comercial = valor[0]
-                            }
-                        } else {
-                            valor_formatado = valor[0]
-                            valor_padrao = valor[1]
-                        }
-
-                        tabela_pedidos.append(`
-                            <tr>
-                                <td>${chave}</td>
-                                <td>${valor_padrao}</td>
-                                <td>${valor_formatado}</td>
-                                <td><input type="checkbox" class="check" onchange="calcular_aceites(this)" id="${valor[2]}" name="${valor[2]}"></td>
-                            </tr>
-                        `)
+                    if (pedido['campo'] === 'comissao') {
+                        comissao = pedido['valor_tratativa']
                     }
-                })
+
+                    if (pedido['campo'] === 'taxa_comercial') {
+                        taxa_comercial = pedido['valor_tratativa']
+                    }
+                } else {
+                    valor_formatado = pedido['valor_tratativa']
+                    valor_padrao = pedido['base']
+                }
+
+                tabela_pedidos.append(`
+                    <tr>
+                        <td>${pedido['verbose']}</td>
+                        <td>${valor_padrao}</td>
+                        <td>${valor_formatado}</td>
+                        <td><input type="checkbox" class="check" onchange="calcular_aceites(this)" id="${pedido['campo']}" name="${pedido['campo']}"></td>
+                    </tr>
+                `)
             }
 
             for (let op of response['opcionais']) {
@@ -98,14 +113,14 @@ function mostrar_modal_aprovacao(id_linha) {
                 `)
             }
         }
-    }).done(() => {
+    }).done((response) => {
         end_loading()
         $('#permissao_orcamentos').modal('show')
         if (!taxa_comercial) {
-            taxa_comercial = 5
+            taxa_comercial = 5 // TODO: Pegar valores do banco de dados depois
         }
         if (!comissao) {
-            comissao = 9
+            comissao = 9 // TODO: Pegar valores do banco de dados depois
         }
     }).catch((error) => {
         alert(error)
@@ -129,50 +144,65 @@ function selecionar_todos(select_all) {
 function calcular_aceites(aceite) {
     const nome = $(aceite).attr('name')
 
-    for (let objeto of valores_descontos) {
-        let chave = Object.keys(objeto)[0]
-
-        if (objeto[chave][2] === nome) {
-            if (nome.includes('desconto')) {
+    if (nome.includes('desconto')) {
+        for (let pedido of valores_descontos) {
+            if (nome === pedido['campo']) {
                 if ($(aceite).prop('checked')) {
-                    descontos_aplicados += objeto[chave][0]
+                    descontos_aplicados += pedido['valor_tratativa']
                 } else {
-                    descontos_aplicados -= objeto[chave][0]
+                    descontos_aplicados -= pedido['valor_tratativa']
                 }
-            }
-
-            if (nome === 'comissao') {
-                comissao_aplicada = !!$(aceite).prop('checked');
-            }
-
-            if (nome === 'taxa_comercial') {
-                taxa_aplicada = !!$(aceite).prop('checked');
             }
         }
     }
 
-     for (let objeto of valores_op) {
-        if (nome == objeto['nome'].toLowerCase().replaceAll(' ', '_')) {
-            if ($(aceite).prop('checked')) {
-                descontos_aplicados += objeto['desconto']
-            } else {
-                descontos_aplicados -= objeto['desconto']
+    if (nome === 'comissao') {
+        comissao_aplicada = !!$(aceite).prop('checked');
+    }
+
+    if (nome === 'taxa_comercial') {
+        taxa_aplicada = !!$(aceite).prop('checked');
+    }
+
+    if (valores_op) {
+        for (let objeto of valores_op) {
+            if (nome == objeto['nome'].toLowerCase().replaceAll(' ', '_')) {
+                if ($(aceite).prop('checked')) {
+                    descontos_aplicados += objeto['desconto']
+                } else {
+                    descontos_aplicados -= objeto['desconto']
+                }
             }
         }
     }
     novas_taxas = calcular_taxas()
-    valor_atual = (valor_base - descontos_aplicados) / (1 - (novas_taxas / 100))
+    valor_atual = (valor_base - descontos_aplicados) + novas_taxas
     $('#valores #valor_atual').text(convert_money(valor_atual))
 }
 
 function calcular_taxas() {
+    let valor_comissao, valor_taxa
+    console.log(comissao_aplicada, taxa_aplicada)
+
     if (comissao_aplicada && taxa_aplicada) {
-        return comissao + taxa_comercial
+        valor_comissao = ((valor_base - descontos_aplicados) / (1 - (comissao / 100))) - (valor_base - descontos_aplicados)
+        valor_taxa = ((valor_base - descontos_aplicados) / (1 - (taxa_comercial / 100))) - (valor_base - descontos_aplicados)
+
+        return valor_comissao + valor_taxa
     } else if (comissao_aplicada && !taxa_aplicada) {
-        return comissao + taxa_comercial_base
+        valor_comissao = ((valor_base - descontos_aplicados) / (1 - (comissao / 100))) - (valor_base - descontos_aplicados)
+        valor_taxa = ((valor_base - descontos_aplicados) / (1 - (taxa_comercial_base / 100))) - (valor_base - descontos_aplicados)
+
+        return valor_comissao + valor_taxa
     } else if (taxa_aplicada && !comissao_aplicada) {
-        return taxa_aplicada + comisao_base
+        valor_comissao = ((valor_base - descontos_aplicados) / (1 - (comisao_base / 100))) - (valor_base - descontos_aplicados)
+        valor_taxa = ((valor_base - descontos_aplicados) / (1 - (taxa_comercial / 100))) - (valor_base - descontos_aplicados)
+
+        return valor_comissao + valor_taxa
     } else {
-        return taxas_base
+        valor_comissao = ((valor_base - descontos_aplicados) / (1 - (comisao_base / 100))) - (valor_base - descontos_aplicados)
+        valor_taxa = ((valor_base - descontos_aplicados) / (1 - (taxa_comercial_base / 100))) - (valor_base - descontos_aplicados)
+
+        return valor_comissao + valor_taxa
     }
 }

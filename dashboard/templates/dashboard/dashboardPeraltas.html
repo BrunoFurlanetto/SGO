@@ -137,7 +137,7 @@
                         </thead>
                         <tbody>
                         {% for orcamento_gerencia in orcamentos_gerencia %}
-                            <tr id="orcamento_{{ orcamento.id }}" onclick="mostrar_modal_aprovacao($(this))">
+                            <tr id="orcamento_{{ orcamento_gerencia.id }}" onclick="mostrar_modal_aprovacao($(this))">
                                 <td>{{ orcamento_gerencia.cliente }}</td>
                                 <td>{{ orcamento_gerencia.colaborador.get_full_name }}</td>
                                 <td>R$ {{ orcamento_gerencia.valor|substituir_ponto }}</td>
@@ -152,23 +152,25 @@
                     <thead>
                     <tr>
                         <th style="width: 40%">Cliente</th>
-                        <th style="width: 20%">Vencimento</th>
+                        <th style="width: 15%">Vencimento</th>
                         <th style="width: 15%">Status</th>
                         <th style="width: 20%">Valor</th>
                         <th style="width: 5%">Ganho/Perdido</th>
+                        <th style="width: 5%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for orcamento in orcamentos %}
                         <tr id="orcamento_{{ orcamento.id }}">
-                            <td>{{ orcamento.cliente }}</td>
+                            <td><a {% if orcamento.status_orcamento.status not in 'Perdido, Vencido, Ganho' %} href="" {% endif %}>{{ orcamento.cliente }}</a></td>
                             <td>{{ orcamento.data_vencimento|date:'d/m/Y' }}</td>
                             <td>{{ orcamento.status_orcamento }}</td>
                             <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
                             <td style="white-space: nowrap">
-                                <button type="button" class="button_ganho"><i class='bx bx-check'></i></button>
-                                <button type="button" class="button_perdido"><i class='bx bx-x'></i></button>
+                                <button type="button" class="button_ganho" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %}><i class='bx bx-check'></i></button>
+                                <button type="button" class="button_perdido" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %}><i class='bx bx-x'></i></button>
                             </td>
+                            <td><button type="button" class="button_pdf" {% if orcamento.status_orcamento.status in 'Perdido, Vencido' %} disabled {% endif %}><i class='bx bxs-file-pdf'></i></button></td>
                         </tr>
                     {% endfor %}
                     </tbody>
