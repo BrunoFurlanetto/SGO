@@ -41,6 +41,7 @@ def campos_necessarios_aprovacao(orcamento):
     campos_alterados['valor_com_desconto'] = float(orcamento.valor)
     campos_alterados['valor_base'] = orcamento.objeto_orcamento['total']['valor']
     campos_alterados['opcionais'] = verifricar_descontos_opcionais(orcamento.objeto_orcamento['descricao_opcionais'])
+    campos_alterados['id_orcamento'] = orcamento.id
 
     return campos_alterados
 

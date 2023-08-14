@@ -93,7 +93,7 @@ $(document).ready(() => {
                     }
                 })[0]
 
-                $('#t   abela_de_opcionais tbody').append(`
+                $('#tabela_de_opcionais tbody').append(`
                     <tr id="op_${opcional_extra['id']}" class="opcionais">
                         <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
                         <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>

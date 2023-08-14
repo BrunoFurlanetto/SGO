@@ -68,7 +68,8 @@ function mostrar_modal_aprovacao(id_linha) {
             $('#comentario_pedido').text('OBS do colaborador: ' + response['observacoes'])
             $('#valores #valor_tratativa').text(convert_money(response['valor_com_desconto']))
             $('#valores #valor_atual').text(convert_money(valor_atual))
-            console.log(response)
+            $('#id_orcamento').val(response['id_orcamento'])
+
             for (let pedido of response['pedidos']) {
                 let valor_formatado, valor_padrao
                 console.log(pedido)
@@ -108,7 +109,7 @@ function mostrar_modal_aprovacao(id_linha) {
                         <td>${convert_money(op['valor'])}</td>                    
                         <td>${convert_money(op['desconto'])}</td>                    
                         <td>${convert_money(op['valor_com_desconto'])}</td>                    
-                        <td><input type="checkbox" onchange="calcular_aceites(this)" class="check" id="${op['id']}" name="${op['nome'].toLowerCase().replaceAll(' ', '_')}"></td>                    
+                        <td><input type="checkbox" onchange="calcular_aceites(this)" class="check" id="${op['id']}" name="opcional_${op['id']}"></td>                    
                     </tr>
                 `)
             }
@@ -142,39 +143,42 @@ function selecionar_todos(select_all) {
 }
 
 function calcular_aceites(aceite) {
-    const nome = $(aceite).attr('name')
+    const lista_aceites = $('#tabela_pedidos .check, #tabela_descontos_opcionais .check')
+    descontos_aplicados = 0
 
-    if (nome.includes('desconto')) {
-        for (let pedido of valores_descontos) {
-            if (nome === pedido['campo']) {
-                if ($(aceite).prop('checked')) {
-                    descontos_aplicados += pedido['valor_tratativa']
-                } else {
-                    descontos_aplicados -= pedido['valor_tratativa']
+    for (let aceite of lista_aceites) {
+        let nome = aceite.id
+
+        if (nome.includes('desconto')) {
+            for (let pedido of valores_descontos) {
+                if (nome === pedido['campo']) {
+                    if ($(aceite).prop('checked')) {
+                        descontos_aplicados += pedido['valor_tratativa']
+                    }
+                }
+            }
+        }
+
+
+        if (nome === 'comissao') {
+            comissao_aplicada = !!$(aceite).prop('checked');
+        }
+
+        if (nome === 'taxa_comercial') {
+            taxa_aplicada = !!$(aceite).prop('checked');
+        }
+
+        if (valores_op) {
+            for (let objeto of valores_op) {
+                if (nome == objeto['id']) {
+                    if ($(aceite).prop('checked')) {
+                        descontos_aplicados += objeto['desconto']
+                    }
                 }
             }
         }
     }
 
-    if (nome === 'comissao') {
-        comissao_aplicada = !!$(aceite).prop('checked');
-    }
-
-    if (nome === 'taxa_comercial') {
-        taxa_aplicada = !!$(aceite).prop('checked');
-    }
-
-    if (valores_op) {
-        for (let objeto of valores_op) {
-            if (nome == objeto['nome'].toLowerCase().replaceAll(' ', '_')) {
-                if ($(aceite).prop('checked')) {
-                    descontos_aplicados += objeto['desconto']
-                } else {
-                    descontos_aplicados -= objeto['desconto']
-                }
-            }
-        }
-    }
     novas_taxas = calcular_taxas()
     valor_atual = (valor_base - descontos_aplicados) + novas_taxas
     $('#valores #valor_atual').text(convert_money(valor_atual))
@@ -182,7 +186,6 @@ function calcular_aceites(aceite) {
 
 function calcular_taxas() {
     let valor_comissao, valor_taxa
-    console.log(comissao_aplicada, taxa_aplicada)
 
     if (comissao_aplicada && taxa_aplicada) {
         valor_comissao = ((valor_base - descontos_aplicados) / (1 - (comissao / 100))) - (valor_base - descontos_aplicados)

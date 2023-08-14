@@ -14,7 +14,7 @@ class Total(BaseValue):
                                  period.discount + transport.discount + self.discount)
 
     def calc_value_with_discount(self):
-        return self.value - self.discount - self.general_discount
+        return self.value - self.general_discount
 
     def do_object(self, percent_business_fee, percent_commission):
         return {

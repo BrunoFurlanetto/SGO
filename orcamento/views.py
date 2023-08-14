@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +13,7 @@ from .utils import verify_data, processar_formulario, verificar_gerencia
 from .budget import Budget
 
 
+@login_required(login_url='login')
 def calc_budget(req):
     if is_ajax(req):
         if req.method == 'GET':
