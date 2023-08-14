@@ -144,7 +144,13 @@ function selecionar_todos(select_all) {
 
 function calcular_aceites(aceite) {
     const lista_aceites = $('#tabela_pedidos .check, #tabela_descontos_opcionais .check')
+    const linhaAceite = $(aceite).closest('tr')
+    const idTabelaPai = linhaAceite.closest('table').attr('id')
     descontos_aplicados = 0
+
+    if (!$(aceite).prop('checked')){
+        $(`#${idTabelaPai} .select-all`).prop('checked', false)
+    }
 
     for (let aceite of lista_aceites) {
         let nome = aceite.id

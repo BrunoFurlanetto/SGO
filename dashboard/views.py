@@ -155,7 +155,42 @@ def dashboardPeraltas(request):
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
-    print(request.POST)
+
+    if request.POST.get('id_orcamento'):
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        opcionais = orcamento.objeto_orcamento['descricao_opcionais']
+        aceite_opcionais = []
+
+        for chave, valor in orcamento.objeto_gerencia.items():
+            if chave != 'observacoes_desconto':
+                orcamento.objeto_gerencia[chave] = {'valor': valor, 'aceite': request.POST.get(chave) == 'on'}
+
+        for chave, valor in request.POST.items():
+            if 'opcional_' in chave:
+                id_opcional = int(chave.split('_')[1])
+
+                for opcional in opcionais:
+                    if not opcional.get('outros'):
+                        if id_opcional == opcional['id']:
+                            aceite_opcionais.append({
+                                'id': id_opcional,
+                                'valor': opcional['valor_com_desconto'],
+                                'aceite': valor == 'on'
+                            })
+        orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
+
+        orcamento.necessita_aprovacao_gerencia = False
+
+        try:
+            orcamento.save()
+        except Exception as e:
+            messages.error(
+                request,
+                f'Um erro inesperado durante a aprovação ocorreu ({e}). Tente novamente mais tarde'
+            )
+        else:
+            messages.success(request, f'Orçamento de {orcamento.cliente} aprovado com sucesso')
+
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
