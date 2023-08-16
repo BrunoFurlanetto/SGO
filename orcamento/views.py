@@ -112,7 +112,6 @@ def calc_budget(req):
                     if budget.total.general_discount != 0 or dados['gerencia']['data_pagamento'] != datetime.datetime.today().date() + datetime.timedelta(days=15):
                         pre_orcamento.necessita_aprovacao_gerencia = True
 
-                    pre_orcamento.aprovado = budget.total.general_discount == 0
                     pre_orcamento.colaborador = req.user
                     orcamento_salvo = orcamento.save()
                 except Exception as e:
