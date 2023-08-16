@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento
+from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria
 
 
 @admin.register(HorariosPadroes)
@@ -13,3 +13,13 @@ class OrcamentoAdmin(admin.ModelAdmin):
     list_display = ('id', 'cliente', 'responsavel', 'periodo_viagem', 'aprovado', 'necessita_aprovacao_gerencia')
     list_editable = ('necessita_aprovacao_gerencia',)
     list_display_links = ('cliente',)
+
+
+@admin.register(OrcamentoDiaria)
+class OrcamentoDiariaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'periodo')
+
+
+@admin.register(ValoresTransporte)
+class ValoresTransporteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'periodo')

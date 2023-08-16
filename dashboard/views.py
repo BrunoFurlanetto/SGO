@@ -12,8 +12,9 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from orcamento.models import Orcamento
+from orcamento.models import Orcamento, StatusOrcamento
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
@@ -137,6 +138,22 @@ def dashboardPeraltas(request):
     diretoria = Group.objects.get(name='Diretoria')
 
     if is_ajax(request):
+        if request.POST.get('novo_status'):
+            status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
+            orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+            orcamento.status_orcamento = status
+
+            if request.POST.get('motivo_recusa') != '':
+                orcamento.motivo_recusa = request.POST.get('motivo_recusa')
+                orcamento.aprovado = False
+
+            try:
+                orcamento.save()
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'msg': e})
+            else:
+                return JsonResponse({'status': 'success'})
+
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
 
         return JsonResponse(campos_necessarios_aprovacao(orcamento))
@@ -178,7 +195,7 @@ def dashboardPeraltas(request):
                                 'aceite': valor == 'on'
                             })
         orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
-
+        orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
         orcamento.necessita_aprovacao_gerencia = False
 
         try:
@@ -189,6 +206,7 @@ def dashboardPeraltas(request):
                 f'Um erro inesperado durante a aprovação ocorreu ({e}). Tente novamente mais tarde'
             )
         else:
+            EmailSender([orcamento.colaborador.email, 'bruno.furlanetto@hotmail.com']).orcamento_aprovado(orcamento.id, request.user.get_full_name())
             messages.success(request, f'Orçamento de {orcamento.cliente} aprovado com sucesso')
 
     return render(request, 'dashboard/dashboardPeraltas.html', {

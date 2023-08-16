@@ -1,4 +1,4 @@
-let valor_atual, valores_op, valor_base, taxas_base
+let valor_atual, valores_op, valor_base, taxas_base, btn
 let taxa_comercial_base = null
 let comisao_base = null
 let taxa_comercial = null
@@ -148,7 +148,7 @@ function calcular_aceites(aceite) {
     const idTabelaPai = linhaAceite.closest('table').attr('id')
     descontos_aplicados = 0
 
-    if (!$(aceite).prop('checked')){
+    if (!$(aceite).prop('checked')) {
         $(`#${idTabelaPai} .select-all`).prop('checked', false)
     }
 
@@ -214,4 +214,34 @@ function calcular_taxas() {
 
         return valor_comissao + valor_taxa
     }
+}
+
+function alterar_status(btn) {
+    console.log(btn)
+    const id_orcamento = $(btn).closest('tr').attr('id').split('_')[1]
+    const novo_status = $(btn).attr('id')
+    let motivo_recusa = ''
+    loading()
+
+    if (novo_status === 'perdido') {
+        motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_orcamento': id_orcamento, 'novo_status': novo_status, 'motivo_recusa': motivo_recusa},
+    }).done((response) => {
+        if (response['status'] === 'error') {
+            alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)
+        } else {
+            setTimeout(() => {
+                window.location.reload()
+            }, 500)
+        }
+    }).catch((error) => {
+        alert(error)
+        end_loading()
+    })
 }

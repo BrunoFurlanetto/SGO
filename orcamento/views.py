@@ -2,11 +2,13 @@ import datetime
 import json
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento
 from .utils import verify_data, processar_formulario, verificar_gerencia
@@ -98,6 +100,7 @@ def calc_budget(req):
                     valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
                         budget.business_fee) + budget.total.calc_commission(budget.commission)
                     data['valor'] = f'{valor_final:.2f}'
+                    data['opcionais_extra'] = data['outros']
                     data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
                     data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
@@ -105,10 +108,13 @@ def calc_budget(req):
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
                     pre_orcamento.objeto_orcamento = budget.return_object()
-                    pre_orcamento.necessita_aprovacao_gerencia = budget.total.general_discount != 0
+
+                    if budget.total.general_discount != 0 or dados['gerencia']['data_pagamento'] != datetime.datetime.today().date() + datetime.timedelta(days=15):
+                        pre_orcamento.necessita_aprovacao_gerencia = True
+
                     pre_orcamento.aprovado = budget.total.general_discount == 0
                     pre_orcamento.colaborador = req.user
-                    orcamento.save()
+                    orcamento_salvo = orcamento.save()
                 except Exception as e:
                     return JsonResponse({
                         "status": "error",
@@ -116,6 +122,13 @@ def calc_budget(req):
                         "msg": e,
                     })
                 else:
+                    diretoria = User.objects.filter(groups__name__icontains='Diretoria')
+                    lista_emails = set()
+
+                    for colaborador in diretoria:
+                        lista_emails.add(colaborador.email)
+                    lista_emails.add('bruno.furlanetto@hotmail.com')
+                    EmailSender(lista_emails).orcamento_aprovacao(orcamento_salvo.id)
                     return JsonResponse({
                         "status": "success",
                         "msg": "",

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from reversion.models import Version
 
+from orcamento.models import Orcamento, StatusOrcamento
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
@@ -99,3 +100,13 @@ def deletar_versoes_antigas():
     data_de_corte = datetime.now() - timedelta(days=15)
     versoes_antigas = Version.objects.get_for_model(FichaDeEvento).filter(revision__date_created__lt=data_de_corte)
     versoes_antigas.delete()
+
+
+def verificar_validade_orcamento():
+    orcamentos = Orcamento.objects.filter(data_vencimento=datetime.today().date() - timedelta(days=1))
+
+    for orcamento in orcamentos:
+        if 'aberto' in orcamento.status_orcamento.status.lower() or 'analise' in orcamento.status_orcamento.status.lower():
+            status = StatusOrcamento.objects.get(status__icontains='vencido')
+            orcamento.status_orcamento = status
+            orcamento.save()

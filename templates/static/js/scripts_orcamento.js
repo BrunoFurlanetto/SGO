@@ -349,6 +349,15 @@ function adicionar_novo_op() {
     const nome_opcional = $('#nome_opcional').val()
     const valor_opcional = $('#valor_opcional').val()
     const descricao_opcional = $('#descricao_opcional').val()
+    const teste = [nome_opcional, valor_opcional, descricao_opcional]
+    $('#adicionar_opcional #aviso').addClass('none')
+
+    if (teste.includes('')) {
+        $('#adicionar_opcional #aviso').removeClass('none').text('Verifique se todos os campos estão preenchidos corretamente!')
+
+        return
+    }
+
     const n_op = op_extras.length + 1
 
     op_extras.push({

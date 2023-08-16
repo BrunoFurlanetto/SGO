@@ -55,6 +55,7 @@ class OrcamentoDiaria(models.Model):
 class HorariosPadroes(models.Model):
     refeicao = models.CharField(max_length=50, verbose_name='Refeição')
     horario = models.TimeField(verbose_name='Horário')
+    entrada = models.BooleanField(default=True)
 
     def __str__(self):
         return f'Horário {self.refeicao}'
@@ -185,7 +186,8 @@ class CadastroOrcamento(forms.ModelForm):
         horarios = HorariosPadroes.objects.all()
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
-        horario_refeicao = []
+        horario_refeicao_entrada = []
+        horario_refeicao_saida = []
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -203,9 +205,12 @@ class CadastroOrcamento(forms.ModelForm):
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
         for horario in horarios:
-            horario_refeicao.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
+            if horario.entrada:
+                horario_refeicao_entrada.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
+            else:
+                horario_refeicao_saida.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
 
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
-        self.fields['hora_check_in'].choices = horario_refeicao
-        self.fields['hora_check_out'].choices = horario_refeicao
+        self.fields['hora_check_in'].choices = horario_refeicao_entrada
+        self.fields['hora_check_out'].choices = horario_refeicao_saida

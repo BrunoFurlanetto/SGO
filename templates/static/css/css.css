@@ -1393,3 +1393,13 @@
     background: transparent;
     font-size: 30px;
 }
+
+#modal_orcamento_perdido input[type='text'] {
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
