@@ -51,15 +51,14 @@ def gerar_lotacao(mes, ano):
                 if ficha.check_in.date() <= _data <= ficha.check_out.date():
                     convidados = ficha.qtd_convidada if ficha.qtd_convidada else 0
                     confirmados = ficha.qtd_confirmada if ficha.qtd_confirmada else 0
-                    confirmados += ficha.qtd_professores if ficha.qtd_professores else 0
                     n_pessoas_confirmadas += confirmados
 
                     if convidados - confirmados > 0:
-                        n_pessoas_reservadas = convidados - confirmados
+                        n_pessoas_reservadas += convidados - confirmados
                     else:
-                        n_pessoas_reservadas = 0
+                        n_pessoas_reservadas += 0
 
-
+                    n_pessoas_confirmadas += ficha.qtd_professores if ficha.qtd_professores else 0
 
             for pre_reserva in pre_reservas_mes:
                 if pre_reserva.check_in.date() <= _data <= pre_reserva.check_out.date():
