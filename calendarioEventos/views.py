@@ -31,7 +31,6 @@ def eventos(request):
 
     if is_ajax(request):
         if request.method == 'GET':
-            print(request.GET)
             if request.GET.get('data_descritivo'):
                 data_base = datetime.strptime(request.GET.get('data_descritivo'), '%Y-%m-%d').date()
 
@@ -108,7 +107,7 @@ def eventos(request):
                 return redirect('calendario_eventos')
             else:
                 return redirect('calendario_eventos')
-
+        print(pre_reserva.agencia)
         return JsonResponse({
             'id': pre_reserva.id,
             'cliente': pre_reserva.cliente.id,
@@ -117,6 +116,7 @@ def eventos(request):
             'produto_corporativo': pre_reserva.produto_corporativo.id if pre_reserva.produto_corporativo else None,
             'obs_edicao': pre_reserva.obs_edicao_horario,
             'exclusividade': pre_reserva.exclusividade,
+            'agencia': pre_reserva.agencia,
             'qtd': pre_reserva.qtd_convidada,
             'vendedor': pre_reserva.vendedora.id,
             'editar': pre_reserva.vendedora.usuario.id == request.user.id,
@@ -180,6 +180,9 @@ def eventos(request):
     # Esse if está aqui devido a existência de um bug no envio do formulário todo: Verificar se ainda está com bug!
     if 'exclusividade' in request.POST:
         nova_pre_reserva.exclusividade = True
+
+    if 'agencia' in request.POST:
+        nova_pre_reserva.agencia = True
 
     if cadastro_de_pre_reservas.is_valid():
         pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()

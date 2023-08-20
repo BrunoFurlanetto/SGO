@@ -1204,7 +1204,8 @@
     flex-direction: column;
 }
 
-#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade {
+#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade,
+#ModalCadastroPreReserva #id_agencia {
     width: 20px;
     height: 20px;
     border: 1px solid #ced4da;

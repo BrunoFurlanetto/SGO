@@ -399,6 +399,7 @@ class FichaDeEvento(models.Model):
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d', verbose_name='Material de apoio')
     data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Códigos APP')
+    agencia = models.BooleanField(default=False)
     exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
     pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
     agendado = models.BooleanField(default=False, verbose_name='Agendado')
@@ -900,7 +901,7 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario', 'agencia'
         ]
 
         widgets = {
@@ -908,6 +909,7 @@ class CadastroPreReserva(forms.ModelForm):
             'produto': forms.Select(attrs={'onChange': 'dadosProduto()'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
+            'agencia': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'exclusividade': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
                 'onchange': 'verificar_evento_dia_exclusividade()'

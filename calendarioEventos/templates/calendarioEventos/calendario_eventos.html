@@ -43,6 +43,7 @@
                             $('#ModalCadastroPreReserva #id_cliente').trigger('change')
                             $('#ModalCadastroPreReserva #id_cliente').prop('disabled', false)
                             $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
+                            $('#ModalCadastroPreReserva #id_agencia').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
                             $('#ModalCadastroPreReserva #id_check_in').val((moment(date).format('yyyy-MM-DD 09:00')))
                             $('#ModalCadastroPreReserva #id_check_out').prop('min', (moment(date).format('yyyy-MM-DD 09:00')))
@@ -111,6 +112,12 @@
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)
                                         } else {
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
+                                        }
+
+                                        if (response['agencia']) {
+                                            $('#ModalCadastroPreReserva #id_agencia').prop('checked', true)
+                                        } else {
+                                            $('#ModalCadastroPreReserva #id_agencia').prop('checked', false)
                                         }
 
                                         if (response['obs_edicao'] !== null) {
@@ -746,6 +753,10 @@
                                     <div id="obs_edicao" class="mt-2">E
                                         <label>Motivo da edição:</label>
                                         {{ cadastro_pre_reserva.obs_edicao_horario }}
+                                    </div>
+                                    <div>
+                                        {{ cadastro_pre_reserva.agencia }}
+                                        {{ cadastro_pre_reserva.agencia.label }}
                                     </div>
                                 </div>
                                 <div style="width: 30%">
