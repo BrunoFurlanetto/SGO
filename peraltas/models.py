@@ -695,6 +695,21 @@ class Eventos(models.Model):
         else:
             return ''
 
+    def tipo_evento(self):
+        if self.ordem_de_servico:
+            return self.ordem_de_servico.tipo
+        else:
+            if self.ficha_de_evento.produto.colegio:
+                return 'Colégio'
+            else:
+                return 'Empresa'
+
+    def dias_evento(self):
+        if self.ordem_de_servico:
+            return (self.ordem_de_servico.check_out.date() - self.ordem_de_servico.check_in.date()).days
+        else:
+            return (self.ficha_de_evento.check_out.date() - self.ficha_de_evento.check_in.date()).days
+
 
 class DisponibilidadePeraltas(models.Model):
     meses = (
