@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 
 import cadastro.funcoes
 from cadastro.funcoes import is_ajax
-from calendarioEventos.funcoes import gerar_lotacao
+from calendarioEventos.funcoes import gerar_lotacao, gerar_descritivo_data
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
     EventosCancelados, Eventos, Vendedor
@@ -31,6 +31,12 @@ def eventos(request):
 
     if is_ajax(request):
         if request.method == 'GET':
+            print(request.GET)
+            if request.GET.get('data_descritivo'):
+                data_base = datetime.strptime(request.GET.get('data_descritivo'), '%Y-%m-%d').date()
+
+                return JsonResponse(gerar_descritivo_data(data_base))
+
             if request.GET.get('mes'):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 

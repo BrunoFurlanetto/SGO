@@ -43,12 +43,12 @@ def gerar_lotacao(mes, ano):
             n_pessoas_confirmadas = n_pessoas_reservadas = 0
 
             for ordem in ordens_mes_ano:
-                if ordem.check_in.date() <= _data <= ordem.check_out.date():
+                if ordem.check_in.date() <= _data < ordem.check_out.date():
                     n_pessoas_confirmadas += ordem.n_participantes
                     n_pessoas_confirmadas += ordem.n_professores if ordem.n_professores else 0
 
             for ficha in fichas_mes_ano:
-                if ficha.check_in.date() <= _data <= ficha.check_out.date():
+                if ficha.check_in.date() <= _data < ficha.check_out.date():
                     convidados = ficha.qtd_convidada if ficha.qtd_convidada else 0
                     confirmados = ficha.qtd_confirmada if ficha.qtd_confirmada else 0
                     n_pessoas_confirmadas += confirmados
@@ -61,7 +61,7 @@ def gerar_lotacao(mes, ano):
                     n_pessoas_confirmadas += ficha.qtd_professores if ficha.qtd_professores else 0
 
             for pre_reserva in pre_reservas_mes:
-                if pre_reserva.check_in.date() <= _data <= pre_reserva.check_out.date():
+                if pre_reserva.check_in.date() <= _data < pre_reserva.check_out.date():
                     n_pessoas_reservadas += pre_reserva.qtd_convidada if pre_reserva.qtd_convidada else 0
 
             lista_pessoas_datas[f'{datetime(_ano, _mes, dia).strftime("%Y-%m-%d")}'] = {
@@ -71,3 +71,48 @@ def gerar_lotacao(mes, ano):
             }
 
     return lista_pessoas_datas
+
+def gerar_descritivo_data(data_base):
+    obj_response = {'fichas_de_evento': [], 'ordens_de_servico': [], 'pre_reservas': []}
+
+    ordens_data = OrdemDeServico.objects.filter(
+        check_in__date__lte=data_base,
+        check_out__date__gt=data_base
+    )
+    fichas_data = FichaDeEvento.objects.filter(os=False, pre_reserva=False).filter(
+        check_in__date__lte=data_base,
+        check_out__date__gt=data_base
+    )
+    pre_reservas_data = FichaDeEvento.objects.filter(pre_reserva=True).filter(
+        check_in__date__lte=data_base,
+        check_out__date__gt=data_base
+    )
+
+    for ordem in ordens_data:
+        obj_response['ordens_de_servico'].append({
+            'cliente': ordem.ficha_de_evento.cliente.__str__(),
+            'reservas': ordem.n_participantes,
+            'professores': ordem.n_professores if ordem.n_professores else 0
+        })
+
+    for ficha in fichas_data:
+        convidada = ficha.qtd_convidada if ficha.qtd_convidada else 0
+        confirmada = ficha.qtd_confirmada if ficha.qtd_confirmada else 0
+        diferenca = convidada - confirmada
+
+        obj_response['fichas_de_evento'].append({
+            'cliente': ficha.cliente.__str__(),
+            'reservas': ficha.qtd_confirmada if ficha.qtd_confirmada else 0,
+            'convidadas': ficha.qtd_convidada if ficha.qtd_convidada else 0,
+            'diferenca': diferenca,
+            'professores': ficha.qtd_professores if ficha.qtd_professores else 0
+        })
+
+    for pre_reserva in pre_reservas_data:
+        obj_response['pre_reservas'].append({
+            'cliente': pre_reserva.cliente.__str__(),
+            'convidada': pre_reserva.qtd_convidada,
+            'confirmada': pre_reserva.agendado
+        })
+    print(obj_response)
+    return obj_response

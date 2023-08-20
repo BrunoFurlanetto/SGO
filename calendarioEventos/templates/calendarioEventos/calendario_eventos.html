@@ -16,7 +16,7 @@
             const gradiente = `linear-gradient(0deg, rgba(0,128,0,1) 0%, rgba(242,101,34,1) 60%)`
             let hora_padrao_check_in, hora_padrao_check_out, xhr
 
-            function montar_calendario() {
+            async function montar_calendario() {
                 const calendarUI = document.getElementById('calendar');
                 const calendar = new FullCalendar.Calendar(calendarUI, {
 
@@ -273,11 +273,107 @@
 
             let lotacao = {}
 
+            function gerar_descritivo_dia(icone) {
+                const lotacao_dia = lotacao[$(icone).closest('td').data('date')]
+
+                if (lotacao_dia['confirmadas'] == 0 && lotacao_dia['reservadas'] == 0) {
+                    return
+                }
+
+                loading()
+                const data = $(icone).closest('td').data('date')
+
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'data_descritivo': data}
+                }).then((response) => {
+                    const fichas_de_evento = response['fichas_de_evento']
+                    const ordens_de_servico = response['ordens_de_servico']
+                    const pre_reservas = response['pre_reservas']
+                    $('#fichas_de_evento tbody, #ordens_de_servico tbody, #pre_reservas tbody').empty()
+
+                    if (fichas_de_evento.length > 0) {
+                        $('#div_fichas_de_evento').removeClass('none')
+
+                        for (let evento of fichas_de_evento) {
+                            let diferenca = evento['diferenca'] < 0 ? evento['diferenca'] + '*' : evento['diferenca']
+
+                            $('#fichas_de_evento tbody').append(`
+                                <tr>
+                                    <td>${evento['cliente']}</td>
+                                    <td>${evento['reservas']}</td>
+                                    <td>${evento['convidadas']}</td>
+                                    <td>${diferenca}</td>
+                                    <td>${evento['professores']}</td>
+                                </tr>
+                            `)
+                        }
+                    } else {
+                        $('#div_fichas_de_evento').addClass('none')
+                    }
+
+                    if (ordens_de_servico.length > 0) {
+                        $('#div_ordens_de_servico').removeClass('none')
+
+                        for (let evento of ordens_de_servico) {
+                            $('#ordens_de_servico tbody').append(`
+                                <tr>
+                                    <td>${evento['cliente']}</td>
+                                    <td>${evento['reservas']}</td>
+                                    <td>${evento['professores']}</td>
+                                </tr>
+                            `)
+                        }
+                    } else {
+                        $('#div_ordens_de_servico').addClass('none')
+                    }
+
+                    if (pre_reservas.length > 0) {
+                        $('#div_pre_reservas').removeClass('none')
+
+                        for (let evento of pre_reservas) {
+                            let icone = evento['confirmada'] ? "<i class='bx bx-check-circle'></i>" : "<i class='bx bx-x-circle'></i>"
+
+                            $('#pre_reservas tbody').append(`
+                                <tr>
+                                    <td>${evento['cliente']}</td>
+                                    <td>${evento['convidada']}</td>
+                                    <td>${icone}</td>
+                                </tr>
+                            `)
+                        }
+                    } else {
+                        $('#div_pre_reservas').addClass('none')
+                    }
+
+                }).done(() => {
+                    end_loading()
+                    $('#descritivo_dia').modal('show')
+                })
+            }
+
             $(document).ready(function () {
-                montar_calendario()
+
+                montar_calendario().then(() => {
+                    $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                    end_loading()
+                }).catch((error) => {
+                    alert(error)
+                    end_loading()
+                })
+
                 {% if comercial %}
                     gerar_lotacao()
-                    $('.fc-toolbar-chunk').on('click', () => gerar_lotacao())
+
+                    $('.fc-toolbar-chunk').on('click', () => {
+                        $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                        gerar_lotacao()
+                    }).catch((error) => {
+                        alert(error)
+                        end_loading()
+                    })
                 {% endif %}
             })
 
@@ -308,9 +404,9 @@
             }
 
             {% if comercial %}
-                $('body').on('mouseover', 'td.fc-day, td.fc-day-number', function () {
-                    const lotacao_dia = lotacao[$(this).data('date')]
-                    this.title = `Confirmados: ${lotacao_dia['confirmadas']} \n Reservadas: ${lotacao_dia['reservadas']} \n Total: ${lotacao_dia['total']}`
+                $('body').on('mouseover', '.bx.bx-list-ul', function () {
+                    const lotacao_dia = lotacao[$(this).closest('td').data('date')]
+                    this.title = `Reservadas: ${lotacao_dia['confirmadas']} \nConvidadas: ${lotacao_dia['reservadas']}`
                 });
             {% endif %}
 
@@ -696,6 +792,65 @@
         </div>
     </div>
 
+    <div class="modal fade" id="descritivo_dia" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Descrito de lotação</h5>
+                    <button class="btn-close" data-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="div_ordens_de_servico" class="none">
+                        <table id="ordens_de_servico" class="table table-striped table-hovered" style="caption-side: top">
+                            <caption>Ordens de serviço</caption>
+                            <thead class="thead-dark" style="vertical-align: middle; text-align: center">
+                                <tr>
+                                    <th style="width: 80%">Cliente</th>
+                                    <th>Reservadas</th>
+                                    <th>Professores</th>
+                                </tr>
+                            </thead>
+                            <tbody style="vertical-align: middle"></tbody>
+                        </table>
+                    </div>
+                    <div id="div_fichas_de_evento" class="none">
+                        <hr>
+                        <table id="fichas_de_evento" class="table table-striped table-hovered" style="caption-side: top">
+                            <caption>Fichas de evento</caption>
+                            <thead class="thead-dark" style="vertical-align: middle; text-align: center">
+                                <tr>
+                                    <th style="width: 60%">Cliente</th>
+                                    <th>Reservadas</th>
+                                    <th>Convidadas</th>
+                                    <th>Não confirmados</th>
+                                    <th>Professores</th>
+                                </tr>
+                            </thead>
+                            <tbody style="vertical-align: middle"></tbody>
+                        </table>
+                        <p style="color: #808080FF; font-size: 13px; margin-top: -13px;">*Mais participantes confirmados do que o número de convidados do grupo.</p>
+                    </div>
+                    <div id="div_pre_reservas" class="none">
+                        <hr>
+                        <table id="pre_reservas" class="table table-striped table-hovered" style="caption-side: top">
+                            <caption>Pre reservas</caption>
+                            <thead class="thead-dark" style="vertical-align: middle; text-align: center">
+                                <tr>
+                                    <th style="width: 80%">Cliente</th>
+                                    <th>Convidados</th>
+                                    <th>Evento confirmado</th>
+                                </tr>
+                            </thead>
+                            <tbody style="vertical-align: middle"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
@@ -717,6 +872,10 @@
             let data = $('#clientes').select2('data');
             $('#id_cliente').val(data[0].id)
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loading()
+        });
     </script>
 
 {% endblock %}
