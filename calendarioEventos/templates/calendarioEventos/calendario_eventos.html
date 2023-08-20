@@ -290,7 +290,7 @@
                 loading()
                 const data = $(icone).closest('td').data('date')
                 console.log(data, moment(data).format('DD/MM/YYYY'))
-                $('#modal-title span').empty().append(`<p>${moment(data).format('DD/MM/YYYY')}</p>`)
+                $('#data_descritivo').empty().append(moment(data).format('DD/MM/YYYY'))
 
                 $.ajax({
                     type: 'GET',
@@ -814,7 +814,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Descrito de lotação <span></span></h5>
+                    <h5 class="modal-title">Descrito de lotação <span id="data_descritivo"></span></h5>
                     <button class="btn-close" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
