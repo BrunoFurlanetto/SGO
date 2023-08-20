@@ -282,6 +282,8 @@
 
                 loading()
                 const data = $(icone).closest('td').data('date')
+                console.log(data, moment(data).format('DD/MM/YYYY'))
+                $('#modal-title span').empty().append(`<p>${moment(data).format('DD/MM/YYYY')}</p>`)
 
                 $.ajax({
                     type: 'GET',
@@ -357,7 +359,9 @@
             $(document).ready(function () {
 
                 montar_calendario().then(() => {
-                    $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                    {% if comercial %}
+                        $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                    {% endif %}
                     end_loading()
                 }).catch((error) => {
                     alert(error)
@@ -368,7 +372,9 @@
                     gerar_lotacao()
 
                     $('.fc-toolbar-chunk').on('click', () => {
-                        $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                        {% if comercial %}
+                            $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
+                        {% endif %}
                         gerar_lotacao()
                     }).catch((error) => {
                         alert(error)
@@ -797,7 +803,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Descrito de lotação</h5>
+                    <h5 class="modal-title">Descrito de lotação <span></span></h5>
                     <button class="btn-close" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
