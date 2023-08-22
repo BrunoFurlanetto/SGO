@@ -711,6 +711,14 @@ class Eventos(models.Model):
         else:
             return (self.ficha_de_evento.check_out.date() - self.ficha_de_evento.check_in.date()).days
 
+    def produto_peraltas(self):
+        return self.ficha_de_evento.produto.produto
+
+    def produto_corporativo(self):
+        if self.ficha_de_evento.produto_corporativo:
+            return self.ficha_de_evento.produto_corporativo.produto
+
+
 
 class DisponibilidadePeraltas(models.Model):
     meses = (
