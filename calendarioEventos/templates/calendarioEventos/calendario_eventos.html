@@ -301,13 +301,22 @@
                     const fichas_de_evento = response['fichas_de_evento']
                     const ordens_de_servico = response['ordens_de_servico']
                     const pre_reservas = response['pre_reservas']
+                    var soma_reserva, soma_convidadas, soma_diferenca, soma_professores
                     $('#fichas_de_evento tbody, #ordens_de_servico tbody, #pre_reservas tbody').empty()
 
                     if (fichas_de_evento.length > 0) {
                         $('#div_fichas_de_evento').removeClass('none')
+                        soma_reserva = 0
+                        soma_convidadas = 0
+                        soma_diferenca = 0
+                        soma_professores = 0
 
                         for (let evento of fichas_de_evento) {
                             let diferenca = evento['diferenca'] < 0 ? evento['diferenca'] + '*' : evento['diferenca']
+                            soma_reserva += evento['reservas']
+                            soma_convidadas += evento['convidadas']
+                            soma_diferenca += diferenca
+                            soma_professores += evento['professores']
 
                             $('#fichas_de_evento tbody').append(`
                                 <tr>
@@ -319,14 +328,28 @@
                                 </tr>
                             `)
                         }
+                        $('#fichas_de_evento tbody').append(`
+                            <tr style="border-top: 3px dashed #878787">
+                                <td style="text-align: center"> <strong>Totais</strong></td>
+                                <td><strong>${soma_reserva}</strong></td>
+                                <td><strong>${soma_convidadas}</strong></td>
+                                <td><strong>${soma_diferenca}</strong></td>
+                                <td><strong>${soma_professores}</strong></td>
+                            </tr>
+                        `)
                     } else {
                         $('#div_fichas_de_evento').addClass('none')
                     }
 
                     if (ordens_de_servico.length > 0) {
                         $('#div_ordens_de_servico').removeClass('none')
+                        soma_reserva = 0
+                        soma_professores = 0
 
                         for (let evento of ordens_de_servico) {
+                            soma_reserva += evento['reservas']
+                            soma_professores += evento['professores']
+
                             $('#ordens_de_servico tbody').append(`
                                 <tr>
                                     <td>${evento['cliente']}</td>
@@ -335,15 +358,25 @@
                                 </tr>
                             `)
                         }
+
+                        $('#ordens_de_servico tbody').append(`
+                            <tr style="border-top: 3px dashed #878787">
+                                <td style="text-align: center"> <strong>Totais</strong></td>
+                                <td><strong>${soma_reserva}</strong></td>
+                                <td><strong>${soma_professores}</strong></td>
+                            </tr>
+                        `)
                     } else {
                         $('#div_ordens_de_servico').addClass('none')
                     }
 
                     if (pre_reservas.length > 0) {
                         $('#div_pre_reservas').removeClass('none')
+                        soma_convidadas = 0
 
                         for (let evento of pre_reservas) {
                             let icone = evento['confirmada'] ? "<i class='bx bx-check-circle'></i>" : "<i class='bx bx-x-circle'></i>"
+                            soma_convidadas += evento['convidada']
 
                             $('#pre_reservas tbody').append(`
                                 <tr>
@@ -353,6 +386,14 @@
                                 </tr>
                             `)
                         }
+
+                        $('#pre_reservas tbody').append(`
+                            <tr style="border-top: 3px dashed #878787">
+                                <td style="text-align: center"> <strong>Totais</strong></td>
+                                <td><strong>${soma_convidadas}</strong></td>
+                                <td><strong>-</strong></td>
+                            </tr>
+                        `)
                     } else {
                         $('#div_pre_reservas').addClass('none')
                     }
@@ -819,45 +860,48 @@
                 </div>
                 <div class="modal-body">
                     <div id="div_ordens_de_servico" class="none">
-                        <table id="ordens_de_servico" class="table table-striped table-hovered" style="caption-side: top">
+                        <table id="ordens_de_servico" class="table table-striped table-hovered"
+                               style="caption-side: top">
                             <caption>Ordens de serviço</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
-                                <tr>
-                                    <th style="width: 80%">Cliente</th>
-                                    <th>Reservadas</th>
-                                    <th>Professores</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 80%">Cliente</th>
+                                <th>Reservadas</th>
+                                <th>Professores</th>
+                            </tr>
                             </thead>
                             <tbody style="vertical-align: middle"></tbody>
                         </table>
                     </div>
                     <div id="div_fichas_de_evento" class="none">
                         <hr>
-                        <table id="fichas_de_evento" class="table table-striped table-hovered" style="caption-side: top">
+                        <table id="fichas_de_evento" class="table table-striped table-hovered"
+                               style="caption-side: top">
                             <caption>Fichas de evento</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
-                                <tr>
-                                    <th style="width: 60%">Cliente</th>
-                                    <th>Reservadas</th>
-                                    <th>Convidadas</th>
-                                    <th>Não confirmados</th>
-                                    <th>Professores</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 60%">Cliente</th>
+                                <th>Reservadas</th>
+                                <th>Convidadas</th>
+                                <th>Não confirmados</th>
+                                <th>Professores</th>
+                            </tr>
                             </thead>
                             <tbody style="vertical-align: middle"></tbody>
                         </table>
-                        <p style="color: #808080FF; font-size: 13px; margin-top: -13px;">*Mais participantes confirmados do que o número de convidados do grupo.</p>
+                        <p style="color: #808080FF; font-size: 13px; margin-top: -13px;">*Mais participantes confirmados
+                            do que o número de convidados do grupo.</p>
                     </div>
                     <div id="div_pre_reservas" class="none">
                         <hr>
                         <table id="pre_reservas" class="table table-striped table-hovered" style="caption-side: top">
                             <caption>Pre reservas</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
-                                <tr>
-                                    <th style="width: 80%">Cliente</th>
-                                    <th>Convidados</th>
-                                    <th>Evento confirmado</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 80%">Cliente</th>
+                                <th>Convidados</th>
+                                <th>Evento confirmado</th>
+                            </tr>
                             </thead>
                             <tbody style="vertical-align: middle"></tbody>
                         </table>
