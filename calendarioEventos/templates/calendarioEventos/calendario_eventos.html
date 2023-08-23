@@ -301,29 +301,36 @@
                     const fichas_de_evento = response['fichas_de_evento']
                     const ordens_de_servico = response['ordens_de_servico']
                     const pre_reservas = response['pre_reservas']
-                    var soma_reserva, soma_convidadas, soma_diferenca, soma_professores
+                    var soma_reservadas, soma_estimadas, soma_professores
+                    var soma_reservadas_check_out, soma_estimadas_check_out, soma_professores_check_out
                     $('#fichas_de_evento tbody, #ordens_de_servico tbody, #pre_reservas tbody').empty()
 
                     if (fichas_de_evento.length > 0) {
                         $('#div_fichas_de_evento').removeClass('none')
-                        soma_reserva = 0
-                        soma_convidadas = 0
-                        soma_diferenca = 0
+                        soma_reservadas = 0
+                        soma_estimadas = 0
                         soma_professores = 0
+                        soma_reservadas_check_out = 0
+                        soma_estimadas_check_out = 0
+                        soma_professores_check_out = 0
 
                         for (let evento of fichas_de_evento) {
-                            let diferenca = evento['diferenca'] < 0 ? evento['diferenca'] + '*' : evento['diferenca']
-                            soma_reserva += evento['reservas']
-                            soma_convidadas += evento['convidadas']
-                            soma_diferenca += diferenca
+                            soma_reservadas += evento['reservadas']
+                            soma_estimadas += evento['estimadas']
                             soma_professores += evento['professores']
+
+                            if (evento['check_out']) {
+                                soma_reservadas_check_out += evento['reservadas']
+                                soma_estimadas_check_out += evento['estimadas']
+                                soma_professores_check_out += evento['professores']
+                            }
 
                             $('#fichas_de_evento tbody').append(`
                                 <tr>
                                     <td>${evento['cliente']}</td>
-                                    <td>${evento['reservas']}</td>
-                                    <td>${evento['convidadas']}</td>
-                                    <td>${diferenca}</td>
+                                    <td>${evento['produto']}</td>
+                                    <td>${evento['estimadas']}</td>
+                                    <td>${evento['reservadas']}</td>
                                     <td>${evento['professores']}</td>
                                 </tr>
                             `)
@@ -331,10 +338,20 @@
                         $('#fichas_de_evento tbody').append(`
                             <tr style="border-top: 3px dashed #878787">
                                 <td style="text-align: center"> <strong>Totais</strong></td>
-                                <td><strong>${soma_reserva}</strong></td>
-                                <td><strong>${soma_convidadas}</strong></td>
-                                <td><strong>${soma_diferenca}</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_estimadas}</strong></td>
+                                <td><strong>${soma_reservadas}</strong></td>
                                 <td><strong>${soma_professores}</strong></td>
+                            </tr>
+                        `)
+
+                        $('#fichas_de_evento tbody').append(`
+                            <tr>
+                                <td style="text-align: center"> <strong>Totais (Check out e Day use)</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_estimadas_check_out}</strong></td>
+                                <td><strong>${soma_reservadas_check_out}</strong></td>
+                                <td><strong>${soma_professores_check_out}</strong></td>
                             </tr>
                         `)
                     } else {
@@ -343,17 +360,25 @@
 
                     if (ordens_de_servico.length > 0) {
                         $('#div_ordens_de_servico').removeClass('none')
-                        soma_reserva = 0
+                        soma_reservadas = 0
                         soma_professores = 0
+                        soma_reservadas_check_out = 0
+                        soma_professores_check_out = 0
 
                         for (let evento of ordens_de_servico) {
-                            soma_reserva += evento['reservas']
+                            soma_reservadas += evento['reservadas']
                             soma_professores += evento['professores']
+
+                            if (evento['check_out']) {
+                                soma_reservadas_check_out += evento['reservadas']
+                                soma_professores_check_out += evento['professores']
+                            }
 
                             $('#ordens_de_servico tbody').append(`
                                 <tr>
                                     <td>${evento['cliente']}</td>
-                                    <td>${evento['reservas']}</td>
+                                    <td>${evento['produto']}</td>
+                                    <td>${evento['reservadas']}</td>
                                     <td>${evento['professores']}</td>
                                 </tr>
                             `)
@@ -362,8 +387,18 @@
                         $('#ordens_de_servico tbody').append(`
                             <tr style="border-top: 3px dashed #878787">
                                 <td style="text-align: center"> <strong>Totais</strong></td>
-                                <td><strong>${soma_reserva}</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_reservadas}</strong></td>
                                 <td><strong>${soma_professores}</strong></td>
+                            </tr>
+                        `)
+
+                        $('#ordens_de_servico tbody').append(`
+                            <tr>
+                                <td style="text-align: center"> <strong>Totais (Check out e Day use)</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_reservadas_check_out}</strong></td>
+                                <td><strong>${soma_professores_check_out}</strong></td>
                             </tr>
                         `)
                     } else {
@@ -372,16 +407,22 @@
 
                     if (pre_reservas.length > 0) {
                         $('#div_pre_reservas').removeClass('none')
-                        soma_convidadas = 0
+                        soma_estimadas = 0
+                        soma_estimadas_check_out = 0
 
                         for (let evento of pre_reservas) {
                             let icone = evento['confirmada'] ? "<i class='bx bx-check-circle'></i>" : "<i class='bx bx-x-circle'></i>"
-                            soma_convidadas += evento['convidada']
+                            soma_estimadas += evento['estimadas']
+
+                            if (evento['check_out']) {
+                                soma_estimadas_check_out += evento['estimadas']
+                            }
 
                             $('#pre_reservas tbody').append(`
                                 <tr>
                                     <td>${evento['cliente']}</td>
-                                    <td>${evento['convidada']}</td>
+                                    <td>${evento['produto']}</td>
+                                    <td>${evento['estimadas']}</td>
                                     <td>${icone}</td>
                                 </tr>
                             `)
@@ -390,7 +431,17 @@
                         $('#pre_reservas tbody').append(`
                             <tr style="border-top: 3px dashed #878787">
                                 <td style="text-align: center"> <strong>Totais</strong></td>
-                                <td><strong>${soma_convidadas}</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_estimadas}</strong></td>
+                                <td><strong>-</strong></td>
+                            </tr>
+                        `)
+
+                        $('#pre_reservas tbody').append(`
+                            <tr>
+                                <td style="text-align: center"> <strong>Totais (Check out e Day use)</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${soma_estimadas_check_out}</strong></td>
                                 <td><strong>-</strong></td>
                             </tr>
                         `)
@@ -865,7 +916,8 @@
                             <caption>Ordens de serviço</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
                             <tr>
-                                <th style="width: 80%">Cliente</th>
+                                <th style="width: 45%">Cliente</th>
+                                <th>Produto</th>
                                 <th>Reservadas</th>
                                 <th>Professores</th>
                             </tr>
@@ -880,17 +932,18 @@
                             <caption>Fichas de evento</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
                             <tr>
-                                <th style="width: 60%">Cliente</th>
+                                <th style="width: 40%">Cliente</th>
+                                <th>Produto</th>
+                                <th>Estimadas</th>
                                 <th>Reservadas</th>
-                                <th>Convidadas</th>
-                                <th>Não confirmados</th>
                                 <th>Professores</th>
                             </tr>
                             </thead>
                             <tbody style="vertical-align: middle"></tbody>
                         </table>
-                        <p style="color: #808080FF; font-size: 13px; margin-top: -13px;">*Mais participantes confirmados
-                            do que o número de convidados do grupo.</p>
+                        <p style="color: #808080FF; font-size: 13px; margin-top: -13px;">
+                            *Mais participantes confirmados do que o número de convidados do grupos
+                        </p>
                     </div>
                     <div id="div_pre_reservas" class="none">
                         <hr>
@@ -898,8 +951,9 @@
                             <caption>Pre reservas</caption>
                             <thead class="thead-dark" style="vertical-align: middle; text-align: center">
                             <tr>
-                                <th style="width: 80%">Cliente</th>
-                                <th>Convidados</th>
+                                <th style="width: 50%">Cliente</th>
+                                <th>Produto</th>
+                                <th>Estimada</th>
                                 <th>Evento confirmado</th>
                             </tr>
                             </thead>

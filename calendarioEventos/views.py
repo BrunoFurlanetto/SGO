@@ -107,7 +107,7 @@ def eventos(request):
                 return redirect('calendario_eventos')
             else:
                 return redirect('calendario_eventos')
-        print(pre_reserva.agencia)
+
         return JsonResponse({
             'id': pre_reserva.id,
             'cliente': pre_reserva.cliente.id,
