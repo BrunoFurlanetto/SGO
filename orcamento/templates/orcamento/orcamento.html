@@ -5,7 +5,10 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <div class="conteudo-orcamento">
-        <div id="subtotal" class="div-flutuante none"></div>
+        <div id="subtotal" class="div-flutuante none" onmouseover="$('#modal_descritivo').modal('show')">
+            <div class="floating-box none" id="floatingBox">Passe o mouse</div>
+            <strong>Valor final</strong><span></span>
+        </div>
         <div class="head-orcamento">
             <h2>Orçamento</h2>
             <hr>
@@ -267,6 +270,37 @@
                                 <input type="date" id="data_pagamento" name="data_pagamento" value="">
                             </div>
                         </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="enviar_infos_gerencia()">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                        <table id="tabela_de_opcionais" class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Seção</th>
+                                <th style="width: 25%">Valor</th>
+                                <th style="width: 25%">Desconto</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </form>
                 </div>
                 <div class="modal-footer">

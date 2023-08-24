@@ -139,6 +139,9 @@ textarea {
 }
 
 .div-flutuante {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: fixed;
     width: fit-content;
     height: fit-content;
@@ -149,6 +152,28 @@ textarea {
     border-radius: 15px;
     box-shadow: 5px 5px 10px;
     transition: left 1s ease-out
+}
+
+.floating-box {
+    background: #fff;
+    border-radius: inherit;
+    position: absolute;
+    top: -60px;
+    display: flex;
+    text-align: center;
+    box-shadow: 5px 5px 10px;
+}
+
+.floating-box:after{
+    content: "";
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #fff;
+    bottom: -10px;
+    left: 20%;
 }
 
 .div-flutuante.visivel {

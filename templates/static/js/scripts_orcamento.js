@@ -1,8 +1,10 @@
 let resultado_ultima_consulta = {}
 let op_extras = []
+let mostrar_instrucao = true
 
 $(document).ready(() => {
     let hoje = new Date()
+
     $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
 
     $('#id_cliente').select2()
@@ -20,7 +22,7 @@ $(document).ready(() => {
         allowZero: true,
         affixesStay: false
     })
-    $('#comissao, #taxa_comercial').mask('00,00%', {reverse: true});
+    $('#comissao, #taxa_comercial').mask('00,00%', {reverse: true})
 
     jQuery('#orcamento').submit(function () {
         const dados = jQuery(this).serialize()
@@ -152,6 +154,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
+                console.log(response)
                 if (!salvar) {
                     const valores = response['data']['valores'];
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
@@ -205,7 +208,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                     $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
                     $('#container_opcionais .parcial').text('R$ ' + opcionais_formatado); // Opcionais
 
-                    $('.div-flutuante').text('R$ ' + total_formatado); // Total
+                    $('#subtotal span').text('R$ ' + total_formatado); // Total
 
                     resultado_ultima_consulta = response
                 }
@@ -286,6 +289,7 @@ function verificar_preenchimento() {
     const hora_entrada = $('input[name="hora_check_in"]:checked').val()
     const hora_saida = $('input[name="hora_check_out"]:checked').val()
     const verificacao = [periodo, dias, hora_entrada, hora_saida]
+    const floatingBox = $("#floatingBox")
     $('.div-flutuante').removeClass('none')
 
     if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
@@ -293,6 +297,16 @@ function verificar_preenchimento() {
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
             $('#container_monitoria_transporte').removeClass('none')
+
+            if (mostrar_instrucao) {
+                setTimeout(() => {
+                    floatingBox.removeClass('none')
+                }, 900)
+                setTimeout(() => {
+                    floatingBox.addClass('none')
+                }, 2000)
+                mostrar_instrucao = false
+            }
         }).catch(function (error) {
             $('#container_periodo .parcial').removeClass('visivel')
             $('.div-flutuante').removeClass('visivel').addClass('none')
