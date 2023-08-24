@@ -154,7 +154,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
-                console.log(response)
+
                 if (!salvar) {
                     const valores = response['data']['valores'];
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
