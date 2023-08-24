@@ -447,11 +447,11 @@
         <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
                name="info_adicionais_ok" {% if ficha_de_evento %} checked {% endif %} required>
         <label for="add_infos" class="my-1">Informações adicionais</label>
-        <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+        <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
                 data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()"
                 style="margin-left: 5px; margin-top: -15px">
             <span><i class='bx bxs-plus-circle'></i></span>
-        </button>
+        </a>
     </div>
     {{ form.informacoes_adcionais.as_hidden }}
     <hr>
@@ -459,11 +459,11 @@
         <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok"
                name="codigos_app_ok" {% if ficha_de_evento %} checked {% endif %} required>
         <label class="my-1">Códigos APP</label>
-        <button class="buton-plus" type="button" id="add_infos" data-toggle="modal"
+        <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
                 data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
                 style="margin-left: 5px; margin-top: -15px">
             <span><i class='bx bxs-plus-circle'></i></span>
-        </button>
+        </a>
     </div>
     {{ form.codigos_app.as_hidden }}
     <hr>
