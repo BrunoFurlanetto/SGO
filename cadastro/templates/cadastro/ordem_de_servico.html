@@ -250,7 +250,7 @@
                                             <label>Atividade</label>
                                             <select class="atividade_eco" id="ativ_eco_{{ forloop.counter }}"
                                                     name="atividade_eco_{{ forloop.counter }}"
-                                                    onchange="verificar_limitacoes_eco(this)" required>
+                                                    onchange="verificar_limitacoes_eco(this)">
                                                 <option></option>
                                                 {% for ativ in atividades_eco %}
                                                     <option value="{{ ativ.id }}"
@@ -265,7 +265,7 @@
                                                    type="datetime-local" name="data_hora_eco_{{ forloop.counter }}"
                                                    min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
                                                    max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
-                                                   onchange="verificar_limitacoes_eco(this)" required
+                                                   onchange="verificar_limitacoes_eco(this)"
                                                    value="{{ atividade.data_e_hora }}"/>
                                         </div>
                                         <div class="mb-2 div-participantes_eco"
@@ -275,7 +275,7 @@
                                                    id="participantes_eco_{{ forloop.counter }}" type="number"
                                                    name="participantes_eco_{{ forloop.counter }}"
                                                    onchange="verificar_limitacoes_eco(this)"
-                                                   onclick="$(this).removeClass('revisar')" required
+                                                   onclick="$(this).removeClass('revisar')"
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone_eco" id="div_icone_eco_{{ forloop.counter }}"
@@ -333,7 +333,7 @@
                                             <label>Atividade</label>
                                             <select class="atividade" id="ativ_{{ forloop.counter }}"
                                                     name="atividade_{{ forloop.counter }}"
-                                                    onchange="verificar_limitacoes(this)" required>
+                                                    onchange="verificar_limitacoes(this)">
                                                 <option></option>
                                                 {% for ativ in atividades_ceu %}
                                                     <option value="{{ ativ.id }}"
@@ -348,7 +348,7 @@
                                                    type="datetime-local" name="data_hora_{{ forloop.counter }}"
                                                    min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
                                                    max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
-                                                   onchange="verificar_limitacoes(this)" required
+                                                   onchange="verificar_limitacoes(this)"
                                                    value="{{ atividade.data_e_hora }}"/>
                                         </div>
                                         <div class="mb-2 div-participantes" id="div_participantes_{{ forloop.counter }}"
@@ -357,7 +357,7 @@
                                             <input class="qtd_participantes" id="participantes_{{ forloop.counter }}"
                                                    type="number" name="participantes_{{ forloop.counter }}"
                                                    onchange="verificar_limitacoes(this)"
-                                                   onclick="$(this).removeClass('revisar')" required
+                                                   onclick="$(this).removeClass('revisar')"
                                                    value="{{ atividade.participantes }}"/>
                                         </div>
                                         <div class="my-0 div-icone" id="div_icone_{{ forloop.counter }}"
@@ -403,7 +403,7 @@
                                             <label>Locação</label>
                                             <select class="locacao" id="loc_{{ forloop.counter }}"
                                                     name="locacao_{{ forloop.counter }}"
-                                                    onchange="verificar_lotacao(this)" required>
+                                                    onchange="verificar_lotacao(this)">
                                                 <option></option>
                                                 {% for espaco in espacos %}
                                                     <option value="{{ espaco.id }}" {% if espaco.id == locacao.espaco %}
@@ -418,7 +418,7 @@
                                                    type="datetime-local" name="entrada_{{ forloop.counter }}"
                                                    min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
                                                    max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
-                                                   onchange="verificar_lotacao(this)" required
+                                                   onchange="verificar_lotacao(this)"
                                                    value="{{ locacao.check_in }}"/>
                                         </div>
                                         <div class="mb-2 div-saida-loc" id="div_saida_{{ forloop.counter }}"
@@ -428,7 +428,7 @@
                                                    name="saida_{{ forloop.counter }}" onchange="verificar_lotacao(this)"
                                                    min="{{ ordem_servico.check_in | date:'Y-m-d H:i' }}"
                                                    max="{{ ordem_servico.check_out | date:'Y-m-d H:i' }}"
-                                                   required value="{{ locacao.check_out }}"/>
+                                                   value="{{ locacao.check_out }}"/>
                                         </div>
                                         <div class="my-0 div-icone-loc" id="div_icone_loc_{{ forloop.counter }}"
                                              style="width: 4%; margin-top: auto">
@@ -459,7 +459,7 @@
                                                    id="participantes-loc_{{ forloop.counter }}" type="number"
                                                    name="participantes-loc_{{ forloop.counter }}"
                                                    onchange="verificar_lotacao(this)"
-                                                   onclick="$(this).removeClass('revisar')" required
+                                                   onclick="$(this).removeClass('revisar')"
                                                    value="{{ locacao.participantes }}"/>
                                         </div>
                                         <hr class="barra" style="margin-left: 10px">

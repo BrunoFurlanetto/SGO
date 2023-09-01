@@ -17,6 +17,69 @@ $(document).ready(function () {
 
     mascara_telefone()
 
+    const inputs_atividade_extra = [
+        $('.atividade_eco'),
+        $('.hora_atividade_eco'),
+        $('.qtd_participantes_eco'),
+    ]
+    const inputs_atividade_ceu = [
+        $('.atividade'),
+        $('.hora_atividade'),
+        $('.qtd_participantes'),
+        $('.serie_participantes'),
+    ]
+    const inputs_locacao_ceu = [
+        $('.locacao'),
+        $('.entrada'),
+        $('.saida'),
+        $('.qtd_participantes_loc'),
+    ]
+    const div_mensagem_erro_atividades = $('#mensagens_preenchimento_atividades')
+    const lotacoes_nao_revisadas = $('.revisar')
+
+    if (lotacoes_nao_revisadas.length > 0) {
+        $('#fieldset_pdf').prop('disabled', true)
+
+        return
+    }
+
+    div_mensagem_erro_atividades.empty()
+    // Verificação dos campos das atividades extra
+    for (let campo of inputs_atividade_extra) {
+        for (let input of campo) {
+            if (input.value === '' || input.value === 'NaN') {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
+                $('#fieldset_pdf').prop('disabled', true)
+
+                return
+            }
+        }
+    }
+
+    // Verificação dos campos das atividades CEU
+    for (let campo of inputs_atividade_ceu) {
+        for (let input of campo) {
+            if (input.value === '' || input.value === 'NaN') {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades do CEU!</p>')
+                $('#fieldset_pdf').prop('disabled', true)
+
+                return
+            }
+        }
+    }
+
+    // Verificação dos campos das locacoes CEU
+    for (let campo of inputs_locacao_ceu) {
+        for (let input of campo) {
+            if (input.value === '' || input.value === 'NaN') {
+                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das locacoes do CEU!</p>')
+                $('#fieldset_pdf').prop('disabled', true)
+
+                return
+            }
+        }
+    }
+
 })
 
 function mascara_telefone(input) {
@@ -193,15 +256,15 @@ function add_atividade(atividade_id_ = parseInt(''),
 
             //Criação dos elementos html necessários par o cadastro de uma nova atividade contratada pelo cliente
             let label_atividade = `<label>Atividade</label>`
-            let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)" required></select>`
+            let select_atividade = `<select class="atividade" id="ativ_${i}" name="atividade_${i}" onchange="verificar_limitacoes(this)"></select>`
             let label_data = `<label>Data e hora da atividade</label>`
-            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade" id="data_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_${i}" onchange="verificar_limitacoes(this)" value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
-                var participantes = `<input class="qtd_participantes divi" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required/>`
+                var participantes = `<input class="qtd_participantes divi" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')"/>`
             } else {
-                var participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')" required/>`
+                var participantes = `<input class="qtd_participantes" id="participantes_${i}" type="number" name="participantes_${i}" onchange="verificar_limitacoes(this)" onclick="$(this).removeClass('revisar')"/>`
             }
 
             let label_serie = `<label>Serie</label>`
@@ -291,6 +354,7 @@ function verificar_limitacoes(selecao) {
             data: {"atividade": atividade},
             success: function (response) {
                 // Participantes máximo da atividade em questão
+                console.log(response)
                 var limite = response['participantes_maximo']
 
                 // A primeira verificação é do horário
@@ -351,7 +415,7 @@ function verificar_limitacoes(selecao) {
 
                     // Verifica se o número de participantes está acimsa do limite de lotação.
                     // Essa verificação já chama a função responsável pela divisão das turmas, já que é uma limitação física.
-                    if (participantes > limite) {
+                    if (participantes > limite && limite != 0) {
                         dividar_atividade(selecao.id.split('_')[1], limite)
                         $(`#div_pai_${selecao.id.split('_')[1]}`).prepend(`<p class="alert-warning" style="margin-left: 10px">O grupo foi dividido por execeder a lotação máxima!</p>`)
                     }
@@ -438,17 +502,17 @@ function add_locacao(id_local_ = parseInt(''), check_in_ = '',
             $(`#div_pai_loc_${i}`).append(div_locacao, div_entrada, div_saida, div_icone_loc, div_local_coffee, div_hora_coffee, div_participantes_loc, `<hr class="barra" style="margin-left: 10px">`)
 
             let label_locacao = `<label>Locação</label>`
-            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" required value="${id_local_}"><option></option></select>`
+            let select_locacao = `<select class="locacao" id="loc_${i}" name="locacao_${i}" onchange="verificar_lotacao(this)" value="${id_local_}"><option></option></select>`
             let label_entrada = `<label>Check in</label>`
-            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="entrada_${i}" onchange="verificar_lotacao(this)" required value="${check_in_}"/>`
+            let entrada = `<input class="entrada" id="entrada_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="entrada_${i}" onchange="verificar_lotacao(this)" value="${check_in_}"/>`
             let label_saida = `<label>Check out</label>`
-            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="saida_${i}" onchange="verificar_lotacao(this)" required value="${check_out_}"/>`
+            let saida = `<input class="saida" id="saida_${i}" type="datetime-local" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" name="saida_${i}" onchange="verificar_lotacao(this)" value="${check_out_}"/>`
             let label_local_coffee = `<label>Local do coffee</label>`
             let local_coffee = `<input class="local_coffee" id="local-coffee_${i}" type="text" name="local-coffee_${i}" value="${local_coffee_}"/>`
             let label_hora_coffee = `<label>Hora</label>`
             let hora_coffee = `<input class="hora_coffee" id="hora-coffee_${i}" type="time" name="hora-coffee_${i}" onchange="verificar_lotacao(this)" value="${hora_coffee_}"/>`
             let label_participantes_loc = `<label>QTD</label>`
-            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)" required/>`
+            let participantes_loc = `<input class="qtd_participantes_loc" id="participantes-loc_${i}" type="number" name="participantes-loc_${i}" onchange="verificar_lotacao(this)"/>`
 
             $(`#div_locacao_${i}`).append(label_locacao, select_locacao)
             $(`#div_entrada_${i}`).append(label_entrada, entrada)
@@ -585,15 +649,15 @@ function add_atividade_eco(atividade_id_ = parseInt(''),
 
             //Criação dos elementos html necessários par o cadastro de uma nova atividade contratada pelo cliente
             let label_atividade = `<label>Atividade</label>`
-            let select_atividade = `<select class="atividade_eco" id="ativ_eco_${i}" name="atividade_eco_${i}" onchange="verificar_limitacoes_eco(this)" required></select>`
+            let select_atividade = `<select class="atividade_eco" id="ativ_eco_${i}" name="atividade_eco_${i}" onchange="verificar_limitacoes_eco(this)"></select>`
             let label_data = `<label>Data e hora</label>`
-            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" required value="${data_}"/>`
+            let data_hora_atividade = `<input class="hora_atividade_eco" id="data_eco_${i}" min="${$('#id_check_in').val()}" max="${$('#id_check_out').val()}" type="datetime-local" name="data_hora_eco_${i}" onchange="verificar_limitacoes_eco(this)" value="${data_}"/>`
             let label_participantes = `<label>QTD</label>`
 
             if (divisao) {
-                var participantes = `<input class="qtd_participantes_eco divi" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required/>`
+                var participantes = `<input class="qtd_participantes_eco divi" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')"/>`
             } else {
-                var participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')" required/>`
+                var participantes = `<input class="qtd_participantes_eco" id="participantes_eco_${i}" type="number" name="participantes_eco_${i}" onchange="verificar_limitacoes_eco(this)" onclick="$(this).removeClass('revisar')"/>`
             }
 
             let label_serie = `<label>Serie</label>`
@@ -871,68 +935,3 @@ function remover_vaicao(div, id_os=null) {
         }
     })
 }
-
-$('#btn_salvar_os').on('click', function (e) {
-    const inputs_atividade_extra = [
-        $('.atividade_eco'),
-        $('.hora_atividade_eco'),
-        $('.qtd_participantes_eco'),
-    ]
-    const inputs_atividade_ceu = [
-        $('.atividade'),
-        $('.hora_atividade'),
-        $('.qtd_participantes'),
-        $('.serie_participantes'),
-    ]
-    const inputs_locacao_ceu = [
-        $('.locacao'),
-        $('.entrada'),
-        $('.saida'),
-        $('.qtd_participantes_loc'),
-    ]
-    const div_mensagem_erro_atividades = $('#mensagens_preenchimento_atividades')
-    const lotacoes_nao_revisadas = $('.revisar')
-
-    if (lotacoes_nao_revisadas.length > 0) {
-        e.preventDefault()
-
-        return
-    }
-
-    div_mensagem_erro_atividades.empty()
-    // Verificação dos campos das atividades extra
-    for (let campo of inputs_atividade_extra) {
-        for (let input of campo) {
-            if (input.value === '' || input.value === 'NaN') {
-                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades extra!</p>')
-                e.preventDefault()
-
-                return
-            }
-        }
-    }
-
-    // Verificação dos campos das atividades CEU
-    for (let campo of inputs_atividade_ceu) {
-        for (let input of campo) {
-            if (input.value === '' || input.value === 'NaN') {
-                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das atividades do CEU!</p>')
-                e.preventDefault()
-
-                return
-            }
-        }
-    }
-
-    // Verificação dos campos das locacoes CEU
-    for (let campo of inputs_locacao_ceu) {
-        for (let input of campo) {
-            if (input.value === '' || input.value === 'NaN') {
-                div_mensagem_erro_atividades.append('<p class="alert-warning">Verificar preenchimento das locacoes do CEU!</p>')
-                e.preventDefault()
-
-                return
-            }
-        }
-    }
-})

@@ -322,7 +322,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado ao salvar a ordem de serviço, por favor tente mais tarde,'
-                                'ou entre em contato com o desenvolvedor.')
+                                f' ou entre em contato com o desenvolvedor. ({e})')
 
         return redirect('dashboardPeraltas')
     else:
