@@ -4,6 +4,7 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
+    <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}" />
     <div class="conteudo-orcamento">
         <div id="subtotal" class="div-flutuante none" onmouseover="$('#modal_descritivo').modal('show')">
             <div class="floating-box none" id="floatingBox">Passe o mouse</div>
@@ -49,28 +50,16 @@
                 <div id="container_periodo" class="none">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
                         <h5 class="titulo-secao">Período da viagem</h5>
-                        <div class="row">
-                            <div style="width: 80%">
-                                {{ orcamento.periodo_viagem.label }}:
-                                {{ orcamento.periodo_viagem }}
-                            </div>
-                            <div style="width: 20%">
-                                {{ orcamento.n_dias.label }}:
-                                {{ orcamento.n_dias }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="row horario_entrada checkbox form-group" style="width: 60%">
-                                <label>{{ orcamento.hora_check_in.label }}</label>
-                                {{ orcamento.hora_check_in }}
-                            </div>
-                            <div class="row horario_saida checkbox form-group" style="width: 40%">
-                                <label>{{ orcamento.hora_check_out.label }}</label>
-                                {{ orcamento.hora_check_out }}
-                            </div>
-                        </div>
-                        <br>
+                        <label for="data_viagem">Data da viagem</label>
+                        <input type="text" name="data_viagem" id="data_viagem"/>
+                        <label for="produto">Produto</label>
+                        <select name="teste" id="teste">
+                            <option></option>
+                            <option>Day use</option>
+                            <option>AC 2 dias</option>
+                            <option>AC 3 dias</option>
+                            <option>AC 3 dias ou mais</option>
+                        </select>
                     </div>
                     <div class="parcial"></div>
                 </div>
@@ -316,5 +305,6 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/maskMoney.js' %}"></script>
+    <script src="{% static 'datepicker/daterangepicker.js' %}"></script>
 
 {% endblock %}

@@ -4,7 +4,43 @@ let mostrar_instrucao = true
 
 $(document).ready(() => {
     let hoje = new Date()
-
+    $('#data_viagem').daterangepicker({
+        "timePicker": true,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 30,
+        "locale": {
+            "format": "DD/MM/YYYY HH:mm",
+            "separator": " - ",
+            "applyLabel": "Salvar",
+            "cancelLabel": "Limpar",
+            "daysOfWeek": [
+                "Dom",
+                "Seg",
+                "Ter",
+                "Qua",
+                "Qui",
+                "Sex",
+                "Sab"
+            ],
+            "monthNames": [
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro"
+            ]
+        },
+        "showCustomRangeLabel": false,
+        "alwaysShowCalendars": true,
+        "drops": "up"
+    })
     $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
 
     $('#id_cliente').select2()
@@ -434,3 +470,4 @@ function salvar_orcamento() {
         end_loading()
     })
 }
+
