@@ -1,5 +1,6 @@
 import datetime
 import json
+from itertools import chain
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -7,7 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor
+from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor, ProdutosPeraltas
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento
@@ -19,6 +20,22 @@ from .budget import Budget
 def calc_budget(req):
     if is_ajax(req):
         if req.method == 'GET':
+            if req.GET.get('check_in') and req.GET.get('check_out'):
+                check_in = datetime.datetime.strptime(req.GET.get('check_in'), '%d/%m/%Y %H:%M')
+                check_out = datetime.datetime.strptime(req.GET.get('check_out'), '%d/%m/%Y %H:%M')
+                n_pernoites = (check_out.date() - check_in.date()).days
+                produtos = list(chain(ProdutosPeraltas.objects.filter(n_dias=n_pernoites)))
+                produtos.append(ProdutosPeraltas.objects.get(produto__icontains='all party'))
+
+                if n_pernoites == 0:
+                    produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
+                    produtos.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica'))
+
+                if n_pernoites >= 2:
+                    produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ac 3 dias ou mais'))
+
+                return JsonResponse({'ids': [produto.id for produto in produtos]})
+
             if req.GET.get('id_cliente'):
                 cliente = ClienteColegio.objects.get(pk=req.GET.get('id_cliente'))
 

@@ -1,9 +1,10 @@
 let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
+let enviar = false
 
 $(document).ready(() => {
-    let hoje = new Date()
+    $('#id_cliente, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').select2()
     $('#data_viagem').daterangepicker({
         "timePicker": true,
         "timePicker24Hour": true,
@@ -41,9 +42,9 @@ $(document).ready(() => {
         "alwaysShowCalendars": true,
         "drops": "up"
     })
-    $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
 
-    $('#id_cliente').select2()
+    let hoje = new Date()
+    $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     $('#valor_opcional, #desconto_produto, #desconto_monitoria').maskMoney({
         prefix: 'R$ ',
         thousands: '.',
@@ -317,6 +318,31 @@ function liberar_periodo(id_responsavel) {
     } else {
         $('#container_periodo, #subtotal').addClass('none')
     }
+}
+
+function separar_produtos(periodo) {
+    if (!enviar) {
+        enviar = true;
+        return
+    }
+
+    let check_in = $(periodo).val().split(' - ')[0]
+    let check_out = $(periodo).val().split(' - ')[1]
+
+    $.ajax({
+        type: 'GET',
+        url: '',
+        data: {'check_in': check_in, 'check_out': check_out},
+        success: function (response) {
+            for (let produto of $('#id_produto option')) {
+                if (response['ids'].includes(parseInt($(produto).val()))) {
+                    $(produto).prop('disabled', false)
+                } else {
+                    $(produto).prop('disabled', true)
+                }
+            }
+        }
+    })
 }
 
 function verificar_preenchimento() {

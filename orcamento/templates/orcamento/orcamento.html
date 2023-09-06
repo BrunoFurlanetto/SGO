@@ -4,7 +4,7 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
-    <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}" />
+    <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
     <div class="conteudo-orcamento">
         <div id="subtotal" class="div-flutuante none" onmouseover="$('#modal_descritivo').modal('show')">
             <div class="floating-box none" id="floatingBox">Passe o mouse</div>
@@ -47,45 +47,38 @@
                         {{ orcamento.responsavel }}
                     </div>
                 </div>
-                <div id="container_periodo" class="none">
+                <div id="container_periodo">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
                         <h5 class="titulo-secao">Período da viagem</h5>
                         <label for="data_viagem">Data da viagem</label>
-                        <input type="text" name="data_viagem" id="data_viagem"/>
+                        <input type="text" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
                         <label for="produto">Produto</label>
-                        <select name="teste" id="teste">
-                            <option></option>
-                            <option>Day use</option>
-                            <option>AC 2 dias</option>
-                            <option>AC 3 dias</option>
-                            <option>AC 3 dias ou mais</option>
-                        </select>
+                        {{ orcamento.produto }}
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="container_monitoria_transporte" class="none" style="margin-bottom: -55px">
+                <div id="container_monitoria_transporte" style="margin-bottom: -55px">
                     <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                          onchange="verificar_monitoria_transporte()">
-                        <div id="monitoria" class="conteudo" style="width: 50%">
+                        <div id="monitoria" class="conteudo" style="width: 62%">
                             <h5 class="titulo-secao">Monitoria</h5>
                             <div>
                                 {{ orcamento.tipo_monitoria.label }}
                                 {{ orcamento.tipo_monitoria }}
                             </div>
                         </div>
-                        <div class="conteudo" style="width: 47%">
+                        <div class="conteudo" style="width: 35%">
                             <h5 class="titulo-secao">Transporte</h5>
-                            <div id="transporte" style="width: 40%;">
-                                {{ orcamento.transporte.label }}
+                            <div id="transporte">
                                 {{ orcamento.transporte }}
                             </div>
                         </div>
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="container_opcionais" class="none" style="margin-bottom: -45px">
+                <div id="container_opcionais" style="margin-bottom: -45px">
                     <div id="opcionais" class="conteudo">
-                        <h5 class="titulo-secao">Opcionais</h5>
+                        <h5 class="titulo-secao">Atividades e Opcionais</h5>
                         <div class="select_opcionais">
                             {{ orcamento.opcionais.label }}
                             {{ orcamento.opcionais }}
@@ -101,16 +94,25 @@
                                     <i class='bx bx-plus'></i>
                                 </button>
                             </div>
-                            <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
-                                                                                                $('#btn_salvar_orcamento').prop('disabled', false)">
-                                <i class='bx bxs-food-menu'></i>
-                                Lista de valores
-                            </button>
                         </div>
+                        <hr>
+                        <div>
+                            {{ orcamento.atividades.label }}
+                            {{ orcamento.atividades }}
+                        </div>
+                        <div class="mt-3">
+                            {{ orcamento.atividades_ceu.label }}
+                            {{ orcamento.atividades_ceu }}
+                        </div>
+                        <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
+                                                                                                $('#btn_salvar_orcamento').prop('disabled', false)">
+                            <i class='bx bxs-food-menu'></i>
+                            Lista de valores
+                        </button>
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="finalizacao" class="conteudo none">
+                <div id="finalizacao" class="conteudo">
                     <h5 class="titulo-secao">Observações</h5>
                     <div>
                         <label for="observacoes_orcamento">Observações gerais do orçamento</label>
@@ -118,10 +120,12 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="button" id="abrir_modal_gerencia" class="btn btn-secondary" name="abrir_modal_gerencia"
+                        <button type="button" id="abrir_modal_gerencia" class="btn btn-secondary"
+                                name="abrir_modal_gerencia"
                                 onclick="$('#modal_gerencia').modal('show')">Gerência
                         </button>
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" disabled onclick="salvar_orcamento()">
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" disabled
+                                onclick="salvar_orcamento()">
                             Salvar orçamento
                         </button>
                     </div>
@@ -157,7 +161,8 @@
                         </div>
                         <div class="mt-3">
                             <label for="descricao_opcional">Descrição</label>
-                            <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10" required></textarea>
+                            <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"
+                                      required></textarea>
                         </div>
                     </form>
                 </div>
@@ -204,7 +209,8 @@
     </div>
 
     <!--  Modal valores dos outros opcionais  -->
-    <div class="modal fade bd-example-modal-lg" id="modal_gerencia" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="modal_gerencia" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -237,7 +243,8 @@
                             </div>
                             <div>
                                 <label for="observacoes_desconto">Observações</label>
-                                <textarea name="observacoes_desconto" id="observacoes_desconto" style="height: auto" cols="40" rows="5"></textarea>
+                                <textarea name="observacoes_desconto" id="observacoes_desconto" style="height: auto"
+                                          cols="40" rows="5"></textarea>
                             </div>
                         </div>
                         <hr>
@@ -269,7 +276,8 @@
         </div>
     </div>
 
-    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
