@@ -150,6 +150,7 @@ class CadastroOrcamento(forms.ModelForm):
         exclude = ()
 
         widgets = {
+            'produto': forms.Select(attrs={'disabled': True}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),

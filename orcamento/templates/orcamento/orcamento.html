@@ -36,7 +36,7 @@
                         </select>
                     </form>
                 </div>
-                <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %} none {% endif %}">
+                <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %}none{% endif %}">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
                         {{ orcamento.cliente.label }}
@@ -47,7 +47,7 @@
                         {{ orcamento.responsavel }}
                     </div>
                 </div>
-                <div id="container_periodo">
+                <div id="container_periodo" class="none">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
                         <h5 class="titulo-secao">Período da viagem</h5>
                         <label for="data_viagem">Data da viagem</label>
@@ -57,7 +57,7 @@
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="container_monitoria_transporte" style="margin-bottom: -55px">
+                <div id="container_monitoria_transporte" style="margin-bottom: -55px" class="none">
                     <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                          onchange="verificar_monitoria_transporte()">
                         <div id="monitoria" class="conteudo" style="width: 62%">
@@ -76,7 +76,7 @@
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="container_opcionais" style="margin-bottom: -45px">
+                <div id="container_opcionais" style="margin-bottom: -45px" class="none">
                     <div id="opcionais" class="conteudo">
                         <h5 class="titulo-secao">Atividades e Opcionais</h5>
                         <div class="select_opcionais">
@@ -112,7 +112,7 @@
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="finalizacao" class="conteudo">
+                <div id="finalizacao" class="conteudo none">
                     <h5 class="titulo-secao">Observações</h5>
                     <div>
                         <label for="observacoes_orcamento">Observações gerais do orçamento</label>

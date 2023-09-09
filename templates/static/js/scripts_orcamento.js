@@ -4,7 +4,7 @@ let mostrar_instrucao = true
 let enviar = false
 
 $(document).ready(() => {
-    $('#id_cliente, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').select2()
+    $('#id_cliente').select2()
     $('#data_viagem').daterangepicker({
         "timePicker": true,
         "timePicker24Hour": true,
@@ -78,19 +78,20 @@ $(document).ready(() => {
         return false
     })
 
-    $("#id_opcionais, #op_extras").on("select2:select", function (e) {
-        const opcional = e.params.data;
+    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:select", function (e) {
+        const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
+        let nome_id = $(this).attr('id')
 
-        if (this.id === 'id_opcionais') {
+        if (nome_id !== 'op_extras') {
             enviar_form().then((status) => {
                 $.ajax({
                     type: 'GET',
                     url: '',
-                    data: {'id_opcional': opcional['id']},
+                    data: {'nome_id': nome_id, 'id': opcao['id']},
                     success: function (response) {
-                        const valor_op = response['valor'].toLocaleString(
+                        const valor_selecao = response['valor'].toLocaleString(
                             undefined,
                             {
                                 minimumFractionDigits: 2,
@@ -99,11 +100,11 @@ $(document).ready(() => {
                         ).replace('.', ',')
 
                         $('#tabela_de_opcionais tbody').append(`
-                            <tr id="op_${opcional['id']}" class="opcionais">
-                                <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional['text']}" disabled></th>
-                                <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcional['id']}">                    
-                                <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${valor_op}" disabled>
-                                <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${valor_op}"></th>
+                            <tr id="op_${opcao['id']}" class="opcionais">
+                                <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcao['text']}" disabled></th>
+                                <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
+                                <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${valor_selecao}" disabled>
+                                <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${valor_selecao}"></th>
                                 <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
                             </tr>
                         `)
@@ -126,8 +127,8 @@ $(document).ready(() => {
         } else {
             enviar_form().then(() => {
                 let opcional_extra = op_extras.filter((op, index) => {
-                    console.log(op['id'], opcional['id'])
-                    if (op['id'] === opcional['id']) {
+                    console.log(op['id'], opcao['id'])
+                    if (op['id'] === opcao['id']) {
                         return op
                     }
                 })[0]
@@ -147,10 +148,10 @@ $(document).ready(() => {
         }
     });
 
-    $("#id_opcionais, #op_extras").on("select2:unselect", function (e) {
+    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", function (e) {
         enviar_form().then((status) => {
-            const opcional = e.params.data;
-            $(`#op_${opcional['id']}`).remove()
+            const opcao = e.params.data;
+            $(`#op_${opcao['id']}`).remove()
             end_loading()
         }).catch((error) => {
             alert(error)
@@ -168,7 +169,6 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
 
     if (op_extras.length > 0) {
         outros = op_extras.filter((op, index) => {
-            console.log(op)
             if ($('#op_extras').val().includes(op['id'])) {
                 return op
             }
@@ -342,19 +342,14 @@ function separar_produtos(periodo) {
                 }
             }
         }
-    })
+    }).done(() => {$('#id_produto').prop('disabled', false)})
 }
 
 function verificar_preenchimento() {
-    const periodo = $('#id_periodo_viagem').val()
-    const dias = $('#id_n_dias').val()
-    const hora_entrada = $('input[name="hora_check_in"]:checked').val()
-    const hora_saida = $('input[name="hora_check_out"]:checked').val()
-    const verificacao = [periodo, dias, hora_entrada, hora_saida]
-    const floatingBox = $("#floatingBox")
+    const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
 
-    if (!verificacao.includes(undefined) && !verificacao.includes('') && !verificacao.includes('0')) {
+    if ($('#id_cliente').val() != '' && $('#id_produto').val() != '') {
         enviar_form().then(function (status) {
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
@@ -383,8 +378,10 @@ function verificar_preenchimento() {
 }
 
 function verificar_monitoria_transporte() {
-    if ($('#id_tipo_monitoria').val() !== '' && $('#id_transporte').val() != '') {
-        $('#id_opcionais, #op_extras').select2()
+    if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
+        setTimeout(() => {
+            $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').select2()
+        }, 300)
 
         enviar_form().then(function (status) {
             $('#container_monitoria_transporte .parcial').addClass('visivel')
