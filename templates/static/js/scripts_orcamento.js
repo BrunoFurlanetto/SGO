@@ -191,7 +191,6 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
-
                 if (!salvar) {
                     const valores = response['data']['valores'];
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
@@ -349,7 +348,7 @@ function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
 
-    if ($('#id_cliente').val() != '' && $('#id_produto').val() != '') {
+    if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         enviar_form().then(function (status) {
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
