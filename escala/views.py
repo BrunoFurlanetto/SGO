@@ -363,8 +363,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
 
     if request.GET.get('gerar_pdf'):
-        escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
-        gerar_pdf.dados_monitores(escala_acampamento)
+        print(setor == 'acampamento')
+        if setor == 'acampamento':
+            escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
+            gerar_pdf.dados_monitores(escala_acampamento)
+
+        if setor == 'hotelaria':
+            escala_hotelaria = EscalaHotelaria.objects.get(pk=request.GET.get('id_escala'))
+            gerar_pdf.dados_monitores_hotelaria(escala_hotelaria)
 
         return FileResponse(
             open('temp/dados_monitores_escalados.pdf', 'rb'),

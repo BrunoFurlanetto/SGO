@@ -167,7 +167,8 @@ def ordem_de_servico(ordem_de_servico):
     if pdf_ordem.get_string_width(', '.join(monitor_responsavel)) > 81.5:
         pdf_ordem.ln()
 
-    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8, 'Coordenador(es) do grupo:')
+    pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Coordenador(es) do grupo: ') + 3, 8,
+                            'Coordenador(es) do grupo:')
     pdf_ordem.cell(pdf_ordem.get_string_width(', '.join(monitor_responsavel)), 8, ', '.join(monitor_responsavel), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Seguro: ') + 1, 8, 'Seguro:')
@@ -265,7 +266,8 @@ def ordem_de_servico(ordem_de_servico):
             pdf_ordem.cell(w_text, 8, transporte.endereco_embarque)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Hora: ') + 1, 8, 'Hora:')
-            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '', ln=1)
+            pdf_ordem.cell(0, 8, transporte.horario_embarque.strftime('%H:%M') if transporte.horario_embarque else '',
+                           ln=1)
 
             pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Telefone motorista: ') + 2, 8, 'Telefone motorista:')
             pdf_ordem.cell(40, 8, transporte.telefone_motorista)
@@ -325,9 +327,11 @@ def ordem_de_servico(ordem_de_servico):
         pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_homens) if ficha_de_evento.qtd_profs_homens else '')
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de mulheres: ') + 2, 8, 'Número de mulheres:')
-        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '', ln=1)
+        pdf_ordem.cell(15, 8, str(ficha_de_evento.qtd_profs_mulheres) if ficha_de_evento.qtd_profs_mulheres else '',
+                       ln=1)
     else:
-        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8, 'Número de participantes:')
+        pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de participantes: ') + 3, 8,
+                                'Número de participantes:')
         pdf_ordem.cell(15, 8, str(ordem_de_servico.n_participantes))
 
         pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Número de homens: ') + 2, 8, 'Número de homens:')
@@ -488,14 +492,14 @@ def dados_monitores(escala):
     for secao, campo in enumerate(consulta):
         lista = []
 
-        for colcaborador in campo:
-            ddd = colcaborador.telefone[0:2]
-            primeira_parte = colcaborador.telefone[4:8]
-            segunda_parte = colcaborador.telefone[7:]
+        for colaborador in campo:
+            ddd = colaborador.telefone[0:2]
+            primeira_parte = colaborador.telefone[4:8]
+            segunda_parte = colaborador.telefone[7:]
 
             lista.append([
-                colcaborador.usuario.get_full_name(),
-                colcaborador.usuario.email,
+                colaborador.usuario.get_full_name(),
+                colaborador.usuario.email,
                 f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
             ])
 
@@ -510,5 +514,70 @@ def dados_monitores(escala):
             )
 
             pdf_escala.ln(8)
+
+    pdf_escala.output('temp/dados_monitores_escalados.pdf')
+
+
+def dados_monitores_hotelaria(escala):
+    def tabela(titulo_secao, linhas):
+        pdf_escala.titulo_secao(titulo_secao, 5, 0)
+        pdf_escala.ln(2)
+        pdf_escala.tables(
+            headings=['Nome Completo', 'E-mail', 'Telefone'],
+            rows=linhas,
+            alings=('L', 'L', 'C'),
+            col_widths=(80, 80, 36)
+        )
+
+        pdf_escala.ln(8)
+
+    pdf_escala = PDF()
+    pdf_escala.my_header('Dados dos monitores escalados')
+    pdf_escala.ln(2)
+    pdf_escala.texto_negrito(15, 8, 'Data:')
+    pdf_escala.cell(0, 8, escala.data.strftime('%d/%m/%Y'), ln=1)
+    pdf_escala.ln(3)
+    escalados = []
+
+    for monitor in escala.coordenadores.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Coordenadores', escalados)
+        escalados = []
+
+    for monitor in escala.tecnicos_hotelaria.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Tecnicos', escalados)
+        escalados = []
+
+    for monitor in escala.monitores_escalados.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Monitores', escalados)
 
     pdf_escala.output('temp/dados_monitores_escalados.pdf')
