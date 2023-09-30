@@ -1,4 +1,13 @@
 const date = new Date();
+const queryString = window.location.search
+const url = window.location.href
+const urlParams = new URLSearchParams(queryString)
+let data_relatorios = new Date()
+
+if (url.indexOf("data_relatorios=") !== -1) {
+    let data_url = urlParams.get('data_relatorios').split('-')
+    data_relatorios = new Date(data_url[0], data_url[1] - 1, data_url[2]);
+}
 
 const months = [
     "Janeiro",
@@ -74,9 +83,8 @@ const renderCalendar = () => {
     let dia_mes = String(data.getDate());
     let mes = months[data.getMonth()];
     let ano = data.getFullYear();
-    document.querySelector(".date p").innerHTML = dia_semana + ' ' + dia_mes + ' ' + mes + ' ' + ano;
-
     let days = "";
+    document.querySelector(".date p").innerHTML = dia_semana + ' ' + dia_mes + ' ' + mes + ' ' + ano;
 
     for (let x = firstDayIndex; x > 0; x--) {
         days += `<div class="prev-date ${x}">${prevLastDay - x + 1}</div>`;
@@ -84,13 +92,15 @@ const renderCalendar = () => {
 
     for (let i = 1; i <= lastDay; i++) {
         if (i === new Date().getDate() && date.getMonth() === new Date().getMonth()) {
-              days += `<div class="${i} today">${i}</div>`;
+            days += `<div class="${i} today">${i}</div>`;
+        } else if (i === data_relatorios.getDate() && data_relatorios.getMonth() == date.getMonth()) {
+            days += `<div class="${i} selected">${i}</div>`;
         } else {
-              days += `<div class="${i}">${i}</div>`;
+            days += `<div class="${i}">${i}</div>`;
         }
     }
 
-    if(nextDays !== 0){
+    if (nextDays !== 0) {
         for (let j = 1; j <= nextDays; j++) {
             days += `<div class="next-date ${j}">${j}</div>`;
             monthDays.innerHTML = days;
@@ -111,8 +121,8 @@ document.querySelector(".next").addEventListener("click", () => {
     renderCalendar();
 });
 
-jQuery(document).ready(function($) {
-    $(".clickable-row").click(function() {
+jQuery(document).ready(function ($) {
+    $(".clickable-row").click(function () {
         window.location = $(this).data("href");
     });
 });
@@ -136,13 +146,13 @@ document.querySelector(".days").addEventListener("click", (event) => {
     /* e remover para que não fique com duas div's selecionadas */
     var selecionado = document.getElementsByClassName("selected");
 
-    if (selecionado.length > 0){
+    if (selecionado.length > 0) {
         selecionado[0].classList.remove("selected");
     }
 
     /* Testes para conseguir adcionar a class 'selected' na div certa, já que tem diferença */
     /* entre as div's do mês mostrado pelo calendário e as div's do próximo mês e do anterior */
-    if (event.target.classList.contains("next-date")){
+    if (event.target.classList.contains("next-date")) {
         divAntiga = event.target.classList[1];
         /* Pulando pro próximo mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() + 1);
@@ -155,20 +165,20 @@ document.querySelector(".days").addEventListener("click", (event) => {
         ano_selecionado = date.getFullYear();
         dia_selecionado = event.target.classList[1];
         data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado)
-    }else if (event.target.classList.contains("prev-date")){
+    } else if (event.target.classList.contains("prev-date")) {
         divAntiga = event.target.classList[1];
         /* Voltando o mês antes de fazer a seleção do dia */
         date.setMonth(date.getMonth() - 1);
         renderCalendar();
         /* Fazendo a conta utilizando a div antiga pra poder selecionar a div certa */
-        novaDiv = document.getElementsByClassName(String(prevLastDay-(parseInt(divAntiga)-1)));
+        novaDiv = document.getElementsByClassName(String(prevLastDay - (parseInt(divAntiga) - 1)));
         /* Pegando os valores do dia, mês e ano pra poder retornar a data completa */
         /* Será usada com o BD */
         mes_selecionado = date.getMonth();
         ano_selecionado = date.getFullYear();
         dia_selecionado = novaDiv[0].classList;
         data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
-    }else{
+    } else {
         /* Caso que a seleção é dentro do mês que está sendo mostrados */
         divAntiga = event.target.classList[0];
         novaDiv = document.getElementsByClassName(divAntiga);
@@ -180,60 +190,14 @@ document.querySelector(".days").addEventListener("click", (event) => {
         data_selecionada = new Date(ano_selecionado, mes_selecionado, dia_selecionado);
     }
 
-    /* Adcionando a class 'selected' na posição certa */
-    if (novaDiv.length > 1){
-        novaDiv[1].classList.add("selected");
-    }else{
-        novaDiv[0].classList.add("selected");
-    }
+    completar_data(data_selecionada).then(() => {
+        $('#form_data_relatorios').submit()
+    })
 
-    $.ajax({
-        type: 'POST',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'data_selecionada': data_selecionada.toLocaleDateString('fr-CA')},
-        success: function(response){
-            $('#dados').empty()
-            $('h5').empty();
-            $('h5').append('Relatórios do dia: ' + data_selecionada.toLocaleDateString('pt-BR'))
-
-            if (Object.keys(response['dados']).length === 0){
-                let mensagem = "<tr><td colspan='5'>"+'Sem relatórios para o dia '+ data_selecionada.toLocaleDateString('pt-BR') +'</td></tr>'
-                $('#dados').append(mensagem)
-            }
-
-            let i = 1
-            for (let relatorio in response['dados']){
-                var equipe_tabela = []
-
-                /* ---------------------- Parte necesária para tornar a linha toda da coluna clicável e mandar o ida correto -------------------------- */
-                let novaLinha = `<tr id='dados${i}' class='linha-clicavel' data-href="/visualizacao/${response['dados'][relatorio]['tipo']}/${response['dados'][relatorio]['id']}"></tr>`
-                $('#dados').append(novaLinha)
-                let script_tag = document.createElement('script')
-                script_tag.text = 'jQuery(document).ready(function($){$(".linha-clicavel").click(function(){window.location = $(this).data("href");});});'
-                $('#dados').append(script_tag)
-                /* ------------------------------------------------------------------------------------------------------------------------------------ */
-
-                /* ------------------------------------------------- Criação das linhas da tabela ----------------------------------------------------- */
-                let tipo = '<td>'+response['dados'][relatorio]['tipo']+'</td>';
-                let instituicao = '<td>'+ response['dados'][relatorio]['instituicao'] +'</td>';
-                let coordenador = '<td>'+ response['dados'][relatorio]['coordenador'] +'</td>';
-
-                for (let profesor in response['dados'][relatorio]['equipe']){
-                    equipe_tabela.push(response['dados'][relatorio]['equipe'][profesor])
-                }
-
-                let equipe = '<td>'+ equipe_tabela.join(', ') +'</td>';
-                let data_atendimento = '<td>'+ data_selecionada.getDate() + ' de ' + months[data_selecionada.getMonth()] + ' de ' + data_selecionada.getFullYear()+'</td>';
-                /* ------------------------------------------------------------------------------------------------------------------------------------ */
-
-                /* Adição da nova linha da tabela */
-                $('#dados'+i).append(tipo, instituicao, coordenador, equipe, data_atendimento)
-
-                i++
-            }
-        }
-    });
 });
 
 renderCalendar();
+
+async function completar_data(data_selecionada) {
+    $('#data_relatorios').val(moment(data_selecionada).format('YYYY-MM-DD'))
+}

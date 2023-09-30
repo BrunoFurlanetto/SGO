@@ -23,7 +23,6 @@ from ceu.models import Professores
 
 @login_required(login_url='login')
 def dashboard(request):
-
     if request.user.has_perm('cadastro.view_relatoriodeatendimentopublicoceu'):
         return redirect('dashboardCeu')
     elif not request.user.has_perm('fichaAvaliacao.add_fichadeavaliacao'):
@@ -34,20 +33,6 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def dashboardCeu(request):
-    # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
-    # Relatórios de atendimento ao público
-    dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        data_atendimento=datetime.now().date())
-    # Relatórios de atendimento com colégio
-    dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
-    # Relatórios de atendimento com empresa
-    dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
-        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
-
-    dados_iniciais = list(chain(dados_publico, dados_colegio, dados_empresa))
-    data_hoje = datetime.now().date()
-
     # ------------------ Relatórios para conta de atividades e horas do mês --------------------
     try:  # Try necessário devido ao usuário da Gla ser do CEU e não ser professor
         usuario_logado = Professores.objects.get(usuario=request.user)
@@ -113,18 +98,39 @@ def dashboardCeu(request):
         relatorios = list(chain(publico, colegio, empresa))
         dados = juntar_dados(relatorios)
 
-        return JsonResponse({'dados': dados,})
+        return JsonResponse({'dados': dados, })
 
     if request.method != 'POST':
+        # --------------------------------- Dados apresentados na tabela -----------------------------------------------
+        data_relatorio = datetime.today().date()
+
+        if request.GET.get('data_relatorios'):
+            data_relatorio = datetime.strptime(request.GET.get('data_relatorios'), '%Y-%m-%d')
+
+        dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by(
+            'atividades__atividade_1__inicio').filter(data_atendimento=data_relatorio)
+        # Relatórios de atendimento com colégio
+        dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by(
+            'atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_relatorio, check_out__date__gte=data_relatorio
+        )
+        # Relatórios de atendimento com empresa
+        dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
+            check_in__date__lte=data_relatorio, check_out__date__gte=data_relatorio
+        )
+
+        dados_tabela = list(chain(dados_publico, dados_colegio, dados_empresa))
+        data_hoje = datetime.now().date()
         professores = Professores.objects.all()
 
-        return render(request, 'dashboard/dashboardCeu.html', {'professores': professores, 'relatorios': dados_iniciais,
-                                                               'data': data_hoje,# 'equipe_escalada': equipe_escalada,
-                                                               'professor': professor_logado,
-                                                               # 'n_atividades': n_atividades, 'n_horas': n_horas,
-                                                               'mostrar_aviso': mostrar_aviso_disponibilidade,
-                                                               'depois_25': depois_25
-                                                               })
+        return render(request, 'dashboard/dashboardCeu.html', {
+            'professores': professores, 'relatorios': dados_tabela,
+            'data': data_relatorio,  # 'equipe_escalada': equipe_escalada,
+            'professor': professor_logado,
+            # 'n_atividades': n_atividades, 'n_horas': n_horas,
+            'mostrar_aviso': mostrar_aviso_disponibilidade,
+            'depois_25': depois_25
+        })
 
 
 @login_required(login_url='login')

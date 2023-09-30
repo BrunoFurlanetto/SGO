@@ -31,18 +31,20 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
 
     # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
-        professores = []
+        return list(self.equipe.values())
 
-        for id_professor in self.equipe.values():
-            professor = Professores.objects.get(id=id_professor)
-            professores.append(professor.usuario.first_name)
-
-        return ', '.join(professores)
+    def listar_atividades(self):
+        print(list(self.atividades.values()))
+        return list(self.atividades.values())
 
     def coordenador_escalado(self):
-        coordenador = Professores.objects.get(id=self.equipe['coordenador'])
+        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe.values()]
+        return equipe[0]
 
-        return coordenador.usuario.first_name
+    def nome_professores(self):
+        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe.values()]
+
+        return ', '.join(equipe)
 
 
 # --------------------------------------------------------------------------------------------------------------

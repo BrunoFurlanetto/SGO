@@ -17,7 +17,7 @@ from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
-from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
+from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa, RelatorioDeAtendimentoPublicoCeu
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
@@ -29,7 +29,15 @@ from django.core.paginator import Paginator
 
 @login_required(login_url='login')
 def publico(request, id_relatorio=None):
-    relatorio_publico = RelatorioPublico()
+    if id_relatorio:
+        relatorio = RelatorioDeAtendimentoPublicoCeu.objects.get(pk=id_relatorio)
+        relatorio_publico = RelatorioPublico(instance=relatorio)
+        coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+        editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
+    else:
+        relatorio = coordenador_relatorio = editar = None
+        relatorio_publico = RelatorioPublico()
+
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
 
@@ -38,28 +46,40 @@ def publico(request, id_relatorio=None):
 
     if request.method != 'POST':
         return render(request, 'cadastro/publico.html', {
+            'relatorio': relatorio,
             'formulario': relatorio_publico,
             'atividades': atividades,
-            'professores': professores
+            'professores': professores,
+            'editar': editar
         })
-    print(request.POST)
-    relatorio_publico = RelatorioPublico(request.POST)
-    relatorio = relatorio_publico.save(commit=False)
-    salvar_equipe(request.POST, relatorio)
-    salvar_atividades(request.POST, relatorio)
 
-    try:
-        relatorio.save()
-    except Exception as e:
-        messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
-        return render(request, 'cadastro/publico.html', {
-            'formulario': relatorio_publico,
-            'atividades': atividades,
-            'professores': professores
-        })
+    if request.POST.get('excluir'):
+        try:
+            relatorio.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Relatório de atendimento ao público apagado com sucesso')
+            return redirect('dashboard')
     else:
-        messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
-        return redirect('dashboard')
+        if id_relatorio:
+            relatorio_publico = RelatorioPublico(request.POST, instance=relatorio)
+        else:
+            relatorio_publico = RelatorioPublico(request.POST)
+
+        relatorio = relatorio_publico.save(commit=False)
+        salvar_equipe(request.POST, relatorio)
+        salvar_atividades(request.POST, relatorio)
+
+        try:
+            relatorio.save()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
+            return redirect('dashboard')
 
 
 @login_required(login_url='login')

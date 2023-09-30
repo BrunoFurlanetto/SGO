@@ -226,6 +226,11 @@
     height: 400px;
 }
 
+.tabela-conteudo #dados td {
+    white-space: normal;
+    text-align: center;
+}
+
 .conteudo_dashboard_peraltas_escrito {
     height: 85vh;
     display: flex;

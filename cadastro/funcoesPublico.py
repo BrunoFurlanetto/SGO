@@ -37,7 +37,7 @@ def salvar_atividades(dados, relatorio):
             professores = [
                 int(id_professor) for id_professor in dados.getlist(f'professores_ativ_{i}') if id_professor != ''
             ]
-            data_e_hora = f'{dados.get("data_atendimento")} {dados.getlist(f"ativ_{i}")[0]}'
+            inicio = dados.getlist(f"ativ_{i}")[0]
 
             # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
             if dados.get('participantes_confirmados', None):
@@ -65,7 +65,7 @@ def salvar_atividades(dados, relatorio):
             dados_atividade[f'atividade_{i}'] = {
                 'atividade': int(dados.getlist(f'ativ_{i}')[1]),
                 'professores': professores,
-                'data_e_hora': data_e_hora,
+                'inicio': inicio,
                 'participantes': participantes
             }
         else:
