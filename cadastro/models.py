@@ -59,7 +59,7 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     check_out = models.DateTimeField(blank=True)
     responsaveis = models.IntegerField(blank=True, null=True)
     serie = models.CharField(max_length=100, blank=True)
-    coordenador_peraltas = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
+    coordenador_peraltas = models.ManyToManyField(Monitor)
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
     atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}

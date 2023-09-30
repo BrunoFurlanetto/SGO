@@ -9,15 +9,12 @@ import unidecode
 
 
 def pegar_colegios_no_ceu():
-    Ordens_de_servico = OrdemDeServico.objects.filter(tipo='Colégio').filter(relatorio_ceu_entregue=False)
-    colegios = []
+    ordens_de_servico = OrdemDeServico.objects.filter(tipo='Colégio').filter(
+        relatorio_ceu_entregue=False,
+        check_out_ceu__date__lte=datetime.today().date()
+    )
 
-    for ordem in Ordens_de_servico:
-        if ordem.atividades_ceu or ordem.locacao_ceu:
-            colegios.append({'id': ordem.id,
-                             'instituicao': ordem.instituicao})
-
-    return colegios
+    return ordens_de_servico
 
 
 def pegar_empresas_no_ceu():
@@ -54,20 +51,25 @@ def pegar_informacoes_cliente(cliente):
 
 def salvar_atividades_colegio(dados, relatorio):
     dados_atividade = {}
-    n_atividades = 0
+    n_atividades = 1
 
-    for campo in dados:
-        if 'qtd_ativ' in campo:
-            n_atividades += 1
+    while True:
+        if dados.getlist(f'ativ_{n_atividades}', None):
+            lista_professores = [
+                int(id_professor) for id_professor in dados.getlist(f'professores_ativ_{n_atividades}') if
+                id_professor != ''
+            ]
 
-        for i in range(1, n_atividades + 1):
-            professores = pegar_professores_colegio(dados, i)
-            data_e_hora = dados.get(f'data_hora_ativ_{i}')
-            participantes = dados.get(f'qtd_ativ_{i}')
+            dados_atividade[f'atividade_{n_atividades}'] = {
+                'atividade': int(dados.getlist(f'ativ_{n_atividades}')[0]),
+                'professores': lista_professores,
+                'data_e_hora': dados.getlist(f'ativ_{n_atividades}')[1],
+                'participantes': int(dados.getlist(f'ativ_{n_atividades}')[2])
+            }
+        else:
+            break
 
-            # ------------------------------------ Salvando as atividades ----------------------------------------------
-            dados_atividade[f'atividade_{i}'] = {'atividade': int(dados.get(f'ativ_{i}')), 'professores': professores,
-                                                 'data_e_hora': data_e_hora, 'participantes': participantes}
+        n_atividades += 1
 
     relatorio.atividades = dados_atividade
 
@@ -92,13 +94,14 @@ def salvar_locacoes_empresa(dados, relatorio):
             participantes = dados.get(f'qtd_loc_{i}')
 
             # ------------------------------------ Salvando as atividades ----------------------------------------------
-            dados_locacoes[f'locacao_{i}'] = {'espaco': int(dados.get(f'loc_{i}')),
-                                              'professor': int(dados.get(f'prf_loc_{i}')),
-                                              'check_in': check_in,
-                                              'check_out': check_out,
-                                              'soma_horas': str(horas_parciais),
-                                              'participantes': participantes
-                                              }
+            dados_locacoes[f'locacao_{i}'] = {
+                'espaco': int(dados.get(f'loc_{i}')),
+                'professor': int(dados.get(f'prf_loc_{i}')),
+                'check_in': check_in,
+                'check_out': check_out,
+                'soma_horas': str(horas_parciais),
+                'participantes': participantes
+            }
 
     relatorio.horas_totais_locacoes = horas_totais
     relatorio.locacoes = dados_locacoes
@@ -119,11 +122,11 @@ def pegar_professores_colegio(dados, j):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def salvar_equipe_colegio(dados, relatorio):
-    professores = {'coordenador': int(dados.get('coordenador'))}
+    lista_professores = [int(id_professor) for id_professor in dados.getlist('professores') if id_professor != '']
+    professores = {'coordenador': lista_professores.pop(0)}
 
-    for i in range(2, 6):
-        if dados.get(f'professor_{i}') != '':
-            professores[f'professor_{i}'] = int(dados.get(f'professor_{i}'))
+    for i, id_professor in enumerate(lista_professores, start=2):
+        professores[f'professor_{i}'] = id_professor
 
     relatorio.equipe = professores
 

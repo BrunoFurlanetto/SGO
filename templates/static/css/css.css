@@ -231,6 +231,11 @@
     text-align: center;
 }
 
+.conteudo-colegio .select2-selection {
+    border: 1px solid #ccc;
+    pointer-events: none;
+}
+
 .conteudo_dashboard_peraltas_escrito {
     height: 85vh;
     display: flex;

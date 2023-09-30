@@ -117,6 +117,9 @@ class OrdemDeServico(models.Model):
     def pegar_biologos():
         return Monitor.objects.filter(biologo=True)
 
+    def listar_id_monitor_responsavel(self):
+        return [monitor.id for monitor in self.monitor_responsavel.all()]
+
 
 class CadastroOrdemDeServico(forms.ModelForm):
     class Meta:

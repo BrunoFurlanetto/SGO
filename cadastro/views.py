@@ -11,7 +11,8 @@ from django.shortcuts import render, redirect
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
+    Monitor
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
@@ -35,7 +36,7 @@ def publico(request, id_relatorio=None):
         coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
         editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
     else:
-        relatorio = coordenador_relatorio = editar = None
+        relatorio = editar = None
         relatorio_publico = RelatorioPublico()
 
     atividades = Atividades.objects.filter(publico=True)
@@ -83,17 +84,31 @@ def publico(request, id_relatorio=None):
 
 
 @login_required(login_url='login')
-def colegio(request):
+def colegio(request, id_relatorio=None):
     relatorio_colegio = RelatorioColegio()
     professores = Professores.objects.all()
-    colegios_no_ceu = pegar_colegios_no_ceu()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    ordens = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html', {
-            'formulario': relatorio_colegio,
-            'colegios': colegios_no_ceu,
-            'professores': professores
-        })
+        if request.GET.get('colegio'):
+            ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('colegio'))
+
+            return render(request, 'cadastro/colegio.html', {
+                'formulario': relatorio_colegio,
+                'ordens': ordens,
+                'ordem': ordem_de_servico,
+                'professores': professores,
+                'monitores': monitores,
+                'atividades': atividades
+            })
+        else:
+            return render(request, 'cadastro/colegio.html', {
+                'formulario': relatorio_colegio,
+                'ordens': ordens,
+                'professores': professores
+            })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -103,39 +118,40 @@ def colegio(request):
     if relatorio_colegio.is_valid():
         relatorio = relatorio_colegio.save(commit=False)
         ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        relatorio.check_in = ordem.check_in_ceu
+        relatorio.check_out = ordem.check_out_ceu
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_atividades_colegio(request.POST, relatorio)
 
         if request.POST.get('loc_1'):
             salvar_locacoes_empresa(request.POST, relatorio)
 
+        novo_colegio = relatorio_colegio.save()
         try:
-            novo_colegio = relatorio_colegio.save()
+            pass
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
             relatorio_colegio = RelatorioColegio()
-            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'colegios': colegios_no_ceu,
-                                                             'professores': professores})
+            return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
-
             email, senha = criar_usuario_colegio(novo_colegio)
 
-            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'colegios': colegios_no_ceu,
-                                                             'professores': professores,
-                                                             'mostrar': True,
-                                                             'email': email,
-                                                             'senha': senha})
-
+            return render(request, 'cadastro/colegio.html', {
+                'formulario': relatorio_colegio,
+                'professores': professores,
+                'mostrar': True,
+                'email': email,
+                'senha': senha
+            })
     else:
         messages.warning(request, relatorio_colegio.errors)
-        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+        return render(request, 'cadastro/colegio.html', {
+            'formulario': relatorio_colegio,
+            'professores': professores
+        })
 
 
 @login_required(login_url='login')
