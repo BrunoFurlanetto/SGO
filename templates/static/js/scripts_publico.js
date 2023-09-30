@@ -10,8 +10,9 @@ function validacao(selecao){
     let professor_2 = $('#professor_2').val()
     let professor_3 = $('#professor_3').val()
     let professor_4 = $('#professor_4').val()
+    let professor_5 = $('#professor_5').val()
 
-    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4){
+    if(professor !== coordenador && professor !== professor_2 && professor !== professor_3 && professor !== professor_4 && professor !== professor_5){
         $('#alert').remove()
         $($(`#${selecao.id}`).parent().parent().parent()).prepend(`<td colspan="5" class="alert-danger" id="alert"><center>Professor não escalado</center></td>`)
         $(`#${selecao.id}`).val('')
@@ -77,10 +78,10 @@ function popular_professores(i){
     for(let j = 0; j < 4; j++) {
         // Faz a verificação para poder deixar o campo requerido para 2 professores
         if(j < 1) {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select id="prf${j + 1}atv${i + 1}" class="professores" name="prf${j + 1}atv${i + 1}" style="width: 23%" onchange="validacao(this)" required></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select id="prf${j + 1}atv${i + 1}" class="professores" name="professores_ativ_${i + 1}" style="width: 23%" onchange="validacao(this)" required></select>`)
             $(`#prf${j + 1}atv${i + 1}`).append(`<option selected></option>`)
         } else {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select id="prf${j + 1}atv${i + 1}" class="professores" name="prf${j + 1}atv${i + 1}" style="width: 23%" onchange="validacao(this)"></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select id="prf${j + 1}atv${i + 1}" class="professores" name="professores_ativ_${i + 1}" style="width: 23%" onchange="validacao(this)"></select>`)
             $(`#prf${j + 1}atv${i + 1}`).append(`<option selected></option>`)
         }
     }
@@ -106,8 +107,8 @@ function add_linha_atividade() {
     popular_professores(i) // Cria e popula os select's de professores
 
     // Crianção dos elementos da atividade, data/hora, quantidade e botão
-    $(`#coluna_2_linha_${i+1}`).append(`<input class="horas" type="time" style="width: 100px" id="horaAtividade${ i+1 }" name="horaAtividade_${ i+1 }" onchange="validarTabelaPublico()"/>`)
-    $(`#coluna_3_linha_${i+1}`).append(`<select class="atividades" style="width: 100%" name="ativ${ i+1 }" id="ativ${ i+1 }" onchange="validarTabelaPublico()"></select>`)
+    $(`#coluna_2_linha_${i+1}`).append(`<input class="horas" type="time" style="width: 100px" id="horaAtividade_${ i+1 }" name="ativ_${ i+1 }" onchange="validarTabelaPublico()"/>`)
+    $(`#coluna_3_linha_${i+1}`).append(`<select class="atividades" style="width: 100%" name="ativ_${ i+1 }" id="ativ${ i+1 }" onchange="validarTabelaPublico()"></select>`)
     $(`#coluna_4_linha_${i+1}`).append(`<button type="button" id="btn_${ i+1 }" class="btn-close" style="height: 2px; width: 1px" onclick="remover_linha(this)"></button>`)
 
     colocar_atividades(null, `ativ${i+1}`) // Populando o select das atividades
@@ -143,12 +144,12 @@ function remover_linha(selecao){
         // Renumeração dos atributos dos professores. É necessário toda uma lógica para
         // que a renumeração seja feita corretamente, devido há presença de 4 selects por linha
         for(let j = 0; j < 4; j++) {
-            $(professores[j+(k*4)]).attr('id', `prf_${(j+1)}_ativ_${k+1}`).attr('name', `prf_${j+2}_ativ_${k+1}`)
+            $(professores[j+(k*4)]).attr('id', `prf_${(j+1)}_ativ_${k+1}`).attr('name', `professores_ativ_${k+1}`)
         }
 
         // Renumeração dos atributos dos demais elementos
         $(atividades[k]).attr('id', `ativ_${k+1}`).attr('name', `ativ_${k+1}`)
-        $(datas[k]).attr('id', `data_hora_ativ${k+1}`).attr('name', `data_hora_ativ_${k+1}`)
+        $(datas[k]).attr('id', `horaAtividade_${k+1}`).attr('name', `ativ_${k+1}`)
         $(buton[k]).attr('id', `btn_${k+1}`)
     }
 }

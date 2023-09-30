@@ -9,7 +9,6 @@ from django.forms import DateField
 from ceu.models import Professores
 from peraltas.models import Monitor
 
-
 # ----------------------- Model para cadsatro de atendimento ao público ----------------------------------------
 from projetoCEU import settings
 
@@ -19,9 +18,8 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     data_atendimento = models.DateField()
-    equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
-    atividades = models.JSONField(blank=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
-    # 'n_participantes':]}
+    equipe = models.JSONField(blank=True)  # dict{'coordenador': ID, 'professor_2': ID, 'professor_3': ID, 'professor_4': ID}
+    atividades = models.JSONField(blank=True)  # dict{['atividade': ID, 'profs_ativ':[IDs], 'data_hora_ativ':, 'n_participantes':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
     data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
 
@@ -34,6 +32,7 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
     # ------------------------------ Funções para vizualização no template -------------------------------------
     def equipe_escalada(self):
         professores = []
+
         for id_professor in self.equipe.values():
             professor = Professores.objects.get(id=id_professor)
             professores.append(professor.usuario.first_name)
@@ -42,21 +41,8 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
 
     def coordenador_escalado(self):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
-        print(coordenador.usuario.first_name)
+
         return coordenador.usuario.first_name
-# --------------------------------------------------------------------------------------------------------------
-
-
-# ------------------------ Formulario para cadastro de atendimento ao público ----------------------------------
-class RelatorioPublico(forms.ModelForm):
-    class Meta:
-        model = RelatorioDeAtendimentoPublicoCeu
-        exclude = ()
-
-        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
-                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   'data_atendimento': forms.DateInput(attrs={'type': 'date'})
-                   }
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -101,19 +87,6 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
         print(coordenador.usuario.first_name)
         return coordenador.usuario.first_name
-# --------------------------------------------------------------------------------------------------------------
-
-
-# --------------------------- Formulário para cadastro de atendimento à colégio --------------------------------
-class RelatorioColegio(forms.ModelForm):
-    class Meta:
-        model = RelatorioDeAtendimentoColegioCeu
-        exclude = ()
-
-        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
-                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   }
-# --------------------------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -155,10 +128,31 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
         print(coordenador.usuario.first_name)
         return coordenador.usuario.first_name
-# --------------------------------------------------------------------------------------------------------------
 
 
-# ----------------------------- Formulário para atendimento com empresa ----------------------------------------
+# ---------------------------------------------- Forms -----------------------------------------------------------------
+class RelatorioPublico(forms.ModelForm):
+    class Meta:
+        model = RelatorioDeAtendimentoPublicoCeu
+        exclude = ()
+
+        widgets = {
+            'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+            'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+            'data_atendimento': forms.DateInput(attrs={'type': 'date'})
+        }
+
+
+class RelatorioColegio(forms.ModelForm):
+    class Meta:
+        model = RelatorioDeAtendimentoColegioCeu
+        exclude = ()
+
+        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+                   }
+
+
 class RelatorioEmpresa(forms.ModelForm):
     class Meta:
         model = RelatorioDeAtendimentoEmpresaCeu

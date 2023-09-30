@@ -5,10 +5,8 @@
 {% block conteudo %}
     <!-------------------------------- LINHA 1 ---------------------------->
     <div class="row conteudo-publico">
-        <div class="titulo-publico">
-            <center>
-                <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
-            </center>
+        <div class="titulo-publico" style="text-align: center">
+            <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
         </div>
         <hr>
         <form action="{% url 'publico' %}" method="POST">
@@ -44,7 +42,7 @@
             <div class="row">
                 <div style="width: 20%">
                     <label>Professor 2: </label>
-                    <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
+                    <select class="form-select mr-sm-2" id="professor_2" name="professores" required>
                         <option selected></option>
                         {% for professor in professores %}
                             <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
@@ -53,7 +51,7 @@
                 </div>
                 <div style="width: 20%">
                     <label>Professor 3: </label>
-                    <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
+                    <select class="form-select mr-sm-2" id="professor_3" name="professores">
                         <option selected></option>
                         {% for professor in professores %}
                             <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
@@ -62,7 +60,16 @@
                 </div>
                 <div style="width: 20%">
                     <label>Professor 4: </label>
-                    <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
+                    <select class="form-select mr-sm-2" id="professor_4" name="professores">
+                        <option selected></option>
+                        {% for professor in professores %}
+                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width: 20%">
+                    <label>Professor 5: </label>
+                    <select class="form-select mr-sm-2" id="professor_5" name="professores">
                         <option selected></option>
                         {% for professor in professores %}
                             <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
@@ -73,17 +80,17 @@
             <hr>
             <!-------------------------------- LINHA 3 ---------------------------->
             <table class="table table-striped table-sm" style="caption-side: top">
-                <caption>Atividades realizadas no CEU:</caption>
+                <caption>Atividades realizadas:</caption>
                 <thead>
                 <tr>
-                    <th style="width: 550px">
-                        <center>Nome dos professores</center>
+                    <th style="width: 550px; text-align: center">
+                        Nome dos professores
                     </th>
-                    <th style="width: 100px">
-                        <center>Início</center>
+                    <th style="width: 100px; text-align: center">
+                        Início
                     </th>
-                    <th style="width: 250px">
-                        <center>Atividade</center>
+                    <th style="width: 250px; text-align: center">
+                        Atividade
                     </th>
                     <th></th>
                 </tr>
@@ -92,7 +99,7 @@
             </table>
             <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
                 <span><i class='bx bxs-plus-circle'></i></span>
-                <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
+                <span class="text-black-50" style="font-size: 15px">Adicionar atividade</span>
             </button>
             <!-------------------------------- RELATÓRIO FINAL ---------------------------->
             <div>

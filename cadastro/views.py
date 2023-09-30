@@ -28,20 +28,21 @@ from django.core.paginator import Paginator
 
 
 @login_required(login_url='login')
-def publico(request):
+def publico(request, id_relatorio=None):
     relatorio_publico = RelatorioPublico()
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
-    range_j = range(1, 5)
 
     if is_ajax(request):
         return JsonResponse(requisicao_ajax(request.POST))
 
     if request.method != 'POST':
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
-                                                         'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
-
+        return render(request, 'cadastro/publico.html', {
+            'formulario': relatorio_publico,
+            'atividades': atividades,
+            'professores': professores
+        })
+    print(request.POST)
     relatorio_publico = RelatorioPublico(request.POST)
     relatorio = relatorio_publico.save(commit=False)
     salvar_equipe(request.POST, relatorio)
@@ -50,11 +51,12 @@ def publico(request):
     try:
         relatorio.save()
     except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
-                                                         'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
+        messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
+        return render(request, 'cadastro/publico.html', {
+            'formulario': relatorio_publico,
+            'atividades': atividades,
+            'professores': professores
+        })
     else:
         messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
         return redirect('dashboard')
@@ -67,9 +69,11 @@ def colegio(request):
     colegios_no_ceu = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+        return render(request, 'cadastro/colegio.html', {
+            'formulario': relatorio_colegio,
+            'colegios': colegios_no_ceu,
+            'professores': professores
+        })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
@@ -277,7 +281,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
 
         if len(ordem_servico.dados_transporte.all()) < len(request.POST.getlist('empresa_onibus')):
-            for tranporte_n in range(len(ordem_servico.dados_transporte.all()), len(request.POST.getlist('empresa_onibus'))):
+            for tranporte_n in range(len(ordem_servico.dados_transporte.all()),
+                                     len(request.POST.getlist('empresa_onibus'))):
                 dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
                 form_transporte = CadastroDadosTransporte(dados_transporte)
                 transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
