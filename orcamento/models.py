@@ -4,7 +4,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 
-from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor
+from ceu.models import Atividades
+from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
 
 
 class OrcamentoMonitor(models.Model):
@@ -93,27 +94,15 @@ class StatusOrcamento(models.Model):
 
 class Orcamento(models.Model):
     sim_e_nao = (
-        ('', ''),
         ('sim', 'Sim'),
         ('nao', 'Não')
     )
 
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável')
-    periodo_viagem = models.ForeignKey(OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Período da viagem')
-    n_dias = models.PositiveIntegerField(default=0, verbose_name='Nº de dias')
-    hora_check_in = models.ForeignKey(
-        HorariosPadroes,
-        on_delete=models.CASCADE,
-        related_name='horario_entrada',
-        verbose_name='Hora do check in'
-    )
-    hora_check_out = models.ForeignKey(
-        HorariosPadroes,
-        on_delete=models.CASCADE,
-        related_name='horario_saida',
-        verbose_name='Hora do check out'
-    )
+    check_in = models.DateTimeField(verbose_name='Check in')
+    check_out = models.DateTimeField(verbose_name='Check out')
+    produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.CASCADE, verbose_name='Produto Peraltas')
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
     opcionais = models.ManyToManyField(
@@ -123,6 +112,8 @@ class Orcamento(models.Model):
         related_name='opcionais'
     )
     opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
+    atividades = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades Peraltas')
+    atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
     desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
@@ -154,25 +145,13 @@ class Orcamento(models.Model):
 
 
 class CadastroOrcamento(forms.ModelForm):
-    hora_check_in = forms.ModelChoiceField(
-        queryset=HorariosPadroes.objects.all(),
-        widget=forms.RadioSelect,
-        required=True
-    )
-    hora_check_in.widget.attrs['class'] = 'form-check-input'
-
-    hora_check_out = forms.ModelChoiceField(
-        queryset=HorariosPadroes.objects.all(),
-        widget=forms.RadioSelect,
-        required=True
-    )
-    hora_check_out.widget.attrs['class'] = 'form-check-input'
-
     class Meta:
         model = Orcamento
         exclude = ()
 
         widgets = {
+            'produto': forms.Select(attrs={'disabled': True}),
+            'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
             'opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
@@ -183,11 +162,8 @@ class CadastroOrcamento(forms.ModelForm):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
-        horarios = HorariosPadroes.objects.all()
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
-        horario_refeicao_entrada = []
-        horario_refeicao_saida = []
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -204,13 +180,5 @@ class CadastroOrcamento(forms.ModelForm):
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
-        for horario in horarios:
-            if horario.entrada:
-                horario_refeicao_entrada.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
-            else:
-                horario_refeicao_saida.append((horario.id, f'{horario.refeicao} ({horario.horario.strftime("%H:%M")})'))
-
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
-        self.fields['hora_check_in'].choices = horario_refeicao_entrada
-        self.fields['hora_check_out'].choices = horario_refeicao_saida

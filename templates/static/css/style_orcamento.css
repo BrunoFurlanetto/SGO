@@ -17,7 +17,7 @@ select[disabled] {
     cursor: not-allowed;
 }
 
-input:not([type="checkbox"]) {
+input:not([type="checkbox"]):not([type='radio']) {
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
@@ -25,6 +25,11 @@ input:not([type="checkbox"]) {
     appearance: none;
     padding: 12px;
     height: 38px;
+}
+
+input[type="radio"] {
+    height: 25px;
+    width: 20px;
 }
 
 textarea {
@@ -44,11 +49,22 @@ textarea {
     border: 1px solid #ced4da;
 }
 
-#id_hora_check_in input, #id_hora_check_out input {
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: solid 1px #ced4da;
+#transporte {
+    display: flex;
+    flex-direction: column;
+}
+
+#id_transporte {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#id_transporte label {
+    display: flex;
+    gap: 8px;
+    font-size: 18px;
+    align-items: center;
 }
 
 #id_hora_check_in, #id_hora_check_out {
