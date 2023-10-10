@@ -102,3 +102,34 @@
     transition: all 0.2s ease;
     transform: rotate(45deg);
 }
+
+#dados_veiculos {
+    display: flex;
+    gap: 20px;
+}
+
+#dados_veiculos div{
+    display: flex;
+}
+
+#dados_veiculos div select{
+    border-radius: 5px 0 0 5px !important;
+}
+
+#dados_veiculos div input {
+    width: 25%;
+    border-left: none;
+    border-radius: 0 5px 5px 0;
+}
+
+.informacoes_transporte {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 15px;
+}
+
+.btn-remover-viacao {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}

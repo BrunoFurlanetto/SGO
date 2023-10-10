@@ -9,6 +9,13 @@ from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEv
 from peraltas.models import Vendedor
 
 
+class TipoVeiculo(models.Model):
+    tipo_veiculo = models.CharField(max_length=255, verbose_name='Tipo de veículo')
+
+    def __str__(self):
+        return self.tipo_veiculo
+
+
 class DadosTransporte(models.Model):
     empresa_onibus = models.ForeignKey(EmpresaOnibus, on_delete=models.CASCADE, blank=True, null=True)
     endereco_embarque = models.CharField(max_length=255, blank=True, null=True)
@@ -16,7 +23,59 @@ class DadosTransporte(models.Model):
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
     monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
-    dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': str}
+    dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': int}
+
+    @staticmethod
+    def salvar_dados(dados_transporte):
+        def listar_veiculos(n):
+            return [
+                {
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0]),
+                    'n': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1])},
+                {
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0]),
+                    'n': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1])},
+                {
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0]),
+                    'n': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1])
+                }
+            ]
+
+        def salvar_formularios():
+            id_salvos = []
+            print(id_instancias)
+            for n, dado in enumerate(lista_dados):
+                print(id_instancias, dado, n)
+                try:
+                    dados_transporte_salvo = DadosTransporte.objects.get(pk=id_instancias[n])
+                    form = CadastroDadosTransporte(dado, instance=dados_transporte_salvo).save()
+                    id_salvos.append(form.id)
+                except IndexError:
+                    form = CadastroDadosTransporte(dado).save()
+                    id_salvos.append(form.id)
+            print(id_salvos)
+            return id_salvos
+
+        campos = list(CadastroDadosTransporte().fields.keys())
+        lista_dados = []
+        id_instancias = list(map(int, dados_transporte.getlist('id_dados_transporte')))
+        n_transportes = len([
+            int(id_viacao) for id_viacao in dados_transporte.getlist('empresa_onibus') if id_viacao != ''
+        ])
+        print(dados_transporte)
+        for transporte in range(0, n_transportes):
+            dados = {}
+
+            for campo in campos:
+                if campo == 'dados_veiculos':
+                    dados[campo] = listar_veiculos(transporte + 1)
+                else:
+                    dados[campo] = dados_transporte.getlist(campo)[transporte]
+
+            lista_dados.append(dados)
+            print(lista_dados)
+
+        return salvar_formularios()
 
     def valor_veiculos(self):
         return [

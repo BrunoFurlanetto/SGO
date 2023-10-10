@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
-from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
+from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte, \
+    TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
@@ -126,13 +127,11 @@ def colegio(request, id_relatorio=None):
         if request.POST.get('loc_1'):
             salvar_locacoes_empresa(request.POST, relatorio)
 
-        novo_colegio = relatorio_colegio.save()
         try:
-            pass
+            novo_colegio = relatorio_colegio.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
-            relatorio_colegio = RelatorioColegio()
             return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
@@ -148,9 +147,15 @@ def colegio(request, id_relatorio=None):
             })
     else:
         messages.warning(request, relatorio_colegio.errors)
+        ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+
         return render(request, 'cadastro/colegio.html', {
             'formulario': relatorio_colegio,
-            'professores': professores
+            'ordens': ordens,
+            'ordem': ordem_de_servico,
+            'professores': professores,
+            'monitores': monitores,
+            'atividades': atividades
         })
 
 
@@ -204,22 +209,18 @@ def empresa(request):
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
+    tipos_veiculos = TipoVeiculo.objects.all()
     form_transporte = CadastroDadosTransporte()
     forms_transporte = []
     transportes_salvos = []
     transporte = None
 
     if is_ajax(request):
-        if request.POST.get('id_viacao_excluida'):
-            print(request.POST)
-            if request.POST.get('id_os') == '':
-                return HttpResponse(True)
-
+        if request.POST.get('id_dado'):
+            print(request.POST.get('id_dado'))
             try:
-                ordem = OrdemDeServico.objects.get(pk=request.POST.get('id_os'))
-                for dados_transporte in ordem.dados_transporte.all():
-                    if dados_transporte.empresa_onibus.id == int(request.POST.get('id_viacao_excluida')):
-                        dados_transporte.delete()
+                transporte_excluido = DadosTransporte.objects.get(pk=request.POST.get('id_dado'))
+                transporte_excluido.delete()
             except Exception as e:
                 return HttpResponse(e)
             else:
@@ -272,6 +273,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             'atividades_eco': atividades_eco,
             'atividades_ceu': atividades_ceu,
             'espacos': espacos,
+            'tipos_veiculos': tipos_veiculos,
             'n_coordenadores': numero_coordenadores(ficha_de_evento)
         })
 
@@ -310,27 +312,14 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
         permicao_coordenacao = ordem_servico.permicao_coordenadores
 
-        if len(ordem_servico.dados_transporte.all()) > 0:
-            for tranporte_n, transporte in enumerate(ordem_servico.dados_transporte.all()):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte, instance=transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
-
-        if len(ordem_servico.dados_transporte.all()) < len(request.POST.getlist('empresa_onibus')):
-            for tranporte_n in range(len(ordem_servico.dados_transporte.all()),
-                                     len(request.POST.getlist('empresa_onibus'))):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
+        if request.POST.get('empresa_onibus'):
+            transportes_salvos = DadosTransporte.salvar_dados(request.POST)
     else:
         permicao_coordenacao = False
         form = CadastroOrdemDeServico(request.POST, request.FILES)
 
-        if len(request.POST.getlist('empresa_onibus')) > 0:
-            for tranporte_n in range(0, len(request.POST.getlist('empresa_onibus'))):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
+        if request.POST.get('empresa_onibus'):
+            transportes_salvos = DadosTransporte.salvar_dados(request.POST)
 
     ordem_de_servico = form.save(commit=False)
     ordem_de_servico.permicao_coordenadores = permicao_coordenacao

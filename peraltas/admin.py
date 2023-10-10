@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ordemDeServico.models import DadosTransporte
+from ordemDeServico.models import DadosTransporte, TipoVeiculo
 from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
@@ -122,6 +122,11 @@ class OpcionaisGeraisAdmin(admin.ModelAdmin):
 @admin.register(OpcionaisFormatura)
 class OpcionaisFormaturaAdmin(admin.ModelAdmin):
     list_display = ('id', 'opcional_formatura')
+
+
+@admin.register(TipoVeiculo)
+class TipoVeiculoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tipo_veiculo')
 
 
 @admin.register(DadosTransporte)
