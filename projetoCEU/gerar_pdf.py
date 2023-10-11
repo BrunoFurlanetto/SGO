@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
+from ordemDeServico.models import TipoVeiculo
 from peraltas.models import AtividadesEco, Monitor
 
 
@@ -247,7 +248,7 @@ def ordem_de_servico(ordem_de_servico):
 
     pdf_ordem.ln(4)
     # ------------------------------------------- Dados de transporte --------------------------------------------------
-    if ficha_de_evento.informacoes_adcionais.transporte and ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 1:
+    if len(ordem_de_servico.dados_transporte.all()) > 0:
         pdf_ordem.titulo_secao('Dados do transporte', 5, 0)
         pdf_ordem.ln(2)
 
@@ -292,16 +293,13 @@ def ordem_de_servico(ordem_de_servico):
                 else:
                     pdf_ordem.cell(10, 8, 'Não', ln=1)
 
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['micro_onibus']))
+            for veiculo in transporte.dados_veiculos:
+                if veiculo['veiculo'] != '':
+                    tipo = TipoVeiculo.objects.get(pk=veiculo['veiculo']).tipo_veiculo
+                    pdf_ordem.texto_negrito(pdf_ordem.get_string_width(f'{tipo}: ') + 2, 8, f'{tipo}:')
+                    pdf_ordem.cell(20, 8, f'{veiculo["n"]}')
 
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_46']))
-
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_50']), ln=1)
-
-            pdf_ordem.ln(4)
+            pdf_ordem.ln(10)
 
             if loop < len(ordem_de_servico.dados_transporte.all()) - 1:
                 pdf_ordem.line(pdf_ordem.l_margin, pdf_ordem.y, pdf_ordem.w - pdf_ordem.r_margin, pdf_ordem.y)

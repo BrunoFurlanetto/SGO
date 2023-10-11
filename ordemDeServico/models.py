@@ -31,10 +31,12 @@ class DadosTransporte(models.Model):
             return [
                 {
                     'veiculo': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0] != '' else '',
-                    'n': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1])} if dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1] != '' else '',
+                    'n': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1]) if dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1] != '' else ''
+                },
                 {
                     'veiculo': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0] != '' else '',
-                    'n': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1])} if dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1] != '' else '',
+                    'n': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1]) if dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1] != '' else ''
+                },
                 {
                     'veiculo': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0] != '' else '',
                     'n': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1]) if dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1] != '' else ''
