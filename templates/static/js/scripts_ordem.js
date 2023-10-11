@@ -853,87 +853,123 @@ function dividar_atividade_eco(indicie, limite) {
 }
 
 function adicionar_viacao() {
-    const viacoes = $('#id_empresa_onibus').html()
     const monitores = $('#id_monitor_embarque').html()
     const n_viacoes = $('.informacoes_transporte').length
 
-    $('#transporte').append(`
-        <hr>
-        <div class="informacoes_transporte" style="margin-top: 60px">
-            <div class="btn-remover-viacao">
-                <button class="buton-x" type="button" onClick="remover_viacao(this)">
-                    <span><i class='bx bx-x'></i></span>
-                </button>
-            </div>
-            <div class="checkbox" style="width: 75%" id="viacao">
-                <label>Viação</label>
-                <select name="empresa_onibus" id="id_empresa_onibus">${viacoes}</select>
-            </div>
-            <div style="width: 22%" id="horario_embarque">
-                <label for="id_hora_embarque">Horário</label>
-                <input type="time" id="id_horario_embarque_${n_viacoes + 1}" name="horario_embarque" step="60" value="${$('#id_horario_embarque').val()}">
-            </div>
-            <div id="endereco_embarque" class="mt-2" style="width: 70%">
-                <label>Endereço de embarque</label>
-                <input type="text" id="id_endereco_embarque_${n_viacoes + 1}" name="endereco_embarque" value="${$('#id_endereco_embarque').val()}">
-            </div>
-            <div id="monitor_embarque" class="mt-2" style="width: 27%">
-                <label for="id_monitor_embarque">Monitor embarque</label>
-                <select id="id_monitor_embarque_${n_viacoes + 1}" name="monitor_embarque">${monitores}</select>
-            </div>
-            <div id="nome_motorista" class="mt-2" style="width: 70%">
-                <label>Motorista</label>
-                <input type="text" id="id_nome_motorista_${n_viacoes + 1}" name="nome_motorista">
-            </div>
-            <div id=telefone_motorista" class="mt-2" style="width: 27%">
-                <label>Telefone</label>
-                <input type="text" id="id_telefone_motorista_${n_viacoes + 1}" name="telefone_motorista" onfocus="mascara_telefone(this)" maxlength="17">
-            </div>
-            <div class="mt-3 mb-2" id="dados_veiculos"
-                 style="display: flex; justify-content: space-between">
-                    <div>
-                        <select name="veiculo_1_viacao_${n_viacoes + 1}" id="veiculo_1_viacao_${n_viacoes + 1}">                            
-                        </select>
-                        <input type="number" name="veiculo_1_viacao_${n_viacoes + 1}" placeholder="n" min="0">
-                    </div>
-                    <div>
-                        <select name="veiculo_2_viacao_${n_viacoes + 1}" id="veiculo_1_viacao_${n_viacoes + 1}">
-                        </select>
-                        <input type="number" name="veiculo_2_viacao_${n_viacoes + 1}" placeholder="n" min="0">
-                    </div>
-                    <div>
-                        <select name="veiculo_3_viacao_${n_viacoes + 1}" id="veiculo_1_viacao_${n_viacoes + 1}">
-                        </select>
-                        <input type="number" name="veiculo_3_viacao_${n_viacoes + 1}" placeholder="n" min="0">
-                    </div>
-            </div>                
-        </div>
-    `)
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+    }).then((response) => {
+        const viacoes = response['viacoes'].map((viacao) => {
+            return `<option value="${viacao['id']}">${viacao['tipo']}</option>`
+        })
+        const veiculos = response['veiculos'].map((veiculo) => {
+            return `<option value="${veiculo['id']}">${veiculo['tipo']}</option>`
+        })
 
-    let selectOrigem = $("#veiculo_1_viacao_1")
-    let selectDestino = $(`#veiculo_1_viacao_${n_viacoes + 1}, #veiculo_2_viacao_${n_viacoes + 1}, #veiculo_3_viacao_${n_viacoes + 1}`)
-
-    selectOrigem.children("option").each(function () {
-        console.log($(this))
-        let optionClone = $(this).clone()
-        selectDestino.append(optionClone.attr('selected', false))
-    });
+        $('#transporte').append(`        
+            <div class="dados_transporte">
+                <div class="informacoes_transporte" style="margin-top: 60px">
+                    <div class="btn-remover-viacao">
+                        <button class="buton-x" type="button" onClick="remover_viacao(this)">
+                            <span><i class='bx bx-x'></i></span>
+                        </button>
+                    </div>
+                    <div class="checkbox" style="width: 75%" id="viacao">
+                        <label>Viação</label>
+                        <select name="empresa_onibus" id="id_empresa_onibus">
+                            <option></option>
+                            ${viacoes.join('')}
+                        </select>
+                    </div>
+                    <div style="width: 22%" id="horario_embarque">
+                        <label for="id_hora_embarque">Horário</label>
+                        <input type="time" id="id_horario_embarque_${n_viacoes + 1}" name="horario_embarque" step="60">
+                    </div>
+                    <div id="endereco_embarque" class="mt-2" style="width: 70%">
+                        <label>Endereço de embarque</label>
+                        <input type="text" id="id_endereco_embarque_${n_viacoes + 1}" name="endereco_embarque">
+                    </div>
+                    <div id="monitor_embarque" class="mt-2" style="width: 27%">
+                        <label for="id_monitor_embarque">Monitor embarque</label>
+                        <select id="id_monitor_embarque_${n_viacoes + 1}" name="monitor_embarque">${monitores}</select>
+                    </div>
+                    <div id="nome_motorista" class="mt-2" style="width: 70%">
+                        <label>Motorista</label>
+                        <input type="text" id="id_nome_motorista_${n_viacoes + 1}" name="nome_motorista">
+                    </div>
+                    <div id=telefone_motorista" class="mt-2" style="width: 27%">
+                        <label>Telefone</label>
+                        <input type="text" id="id_telefone_motorista_${n_viacoes + 1}" name="telefone_motorista" onfocus="mascara_telefone(this)" maxlength="17">
+                    </div>
+                </div>
+                <hr>
+                <h5 class="titulo-secao">Contagem de veículos</h5>
+                <div class="mt-3 mb-2" id="dados_veiculos"
+                     style="display: flex; justify-content: space-between">
+                         <div>
+                            <select name="veiculo_1_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" id="veiculo_1_viacao_${n_viacoes + 1}"> 
+                                <option></option>    
+                                ${veiculos.join('')}                       
+                            </select>
+                            <input type="number" name="veiculo_1_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" placeholder="n" min="0">
+                         </div>
+                         <div>
+                            <select name="veiculo_2_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" id="veiculo_1_viacao_${n_viacoes + 1}">
+                                <option></option>
+                                ${veiculos.join('')}
+                            </select>
+                            <input type="number" name="veiculo_2_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" placeholder="n" min="0">
+                         </div>
+                         <div>
+                            <select name="veiculo_3_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" id="veiculo_1_viacao_${n_viacoes + 1}">
+                                <option></option>
+                                ${veiculos.join('')}
+                            </select>
+                            <input type="number" name="veiculo_3_viacao_${n_viacoes + 1}" class="input_contagem_veiculos" placeholder="n" min="0">
+                         </div>
+                </div>
+                <hr>
+            </div>
+        `)
+    })
 }
 
 function remover_viacao(div) {
-    const id_dado = $('#id_dado').val()
-    if (!id_dado) {$(div).parent().parent().remove()}
+    const id_dado = $('#id_dado')
+    if (id_dado.length == 0) {
+        $(div).closest('.dados_transporte').remove()
+        renomear_inputs_transporte()
+
+        return
+    }
+
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {
-            'id_dado': id_dado,
+            'id_dado': id_dado.val(),
         },
         success: function (response) {
             if (response == "True") {
-                $(div).parent().parent().remove()
+                $(div).closest('.dados_transporte').remove()
             }
+
+            renomear_inputs_transporte()
         }
     })
+}
+
+function renomear_inputs_transporte() {
+    const n_viacoes = $('.informacoes_transporte').length
+    const inputs = $('.input_contagem_veiculos')
+
+    for (let i = 1; i <= n_viacoes * 6; i++) {
+        console.log(i, Math.floor(i / 7), Math.floor(i / 7) + 1)
+        let name_list = $(inputs[i - 1]).attr('name').split('_')
+        name_list[3] = String(Math.floor(i / 7) + 1)
+        $(inputs[i - 1]).attr('name', name_list.join('_')).attr('id', name_list.join('_'))
+    }
 }

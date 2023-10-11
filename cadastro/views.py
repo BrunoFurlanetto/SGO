@@ -13,7 +13,7 @@ from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, Cadast
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
-    Monitor
+    Monitor, EmpresaOnibus
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
@@ -216,8 +216,13 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     transporte = None
 
     if is_ajax(request):
+        if request.method == 'GET':
+            viacoes = [{'id': viacao.id, 'tipo': viacao.viacao} for viacao in EmpresaOnibus.objects.all()]
+            veiculos = [{'id': veiculo.id, 'tipo': veiculo.tipo_veiculo} for veiculo in tipos_veiculos]
+
+            return JsonResponse({'viacoes': viacoes, 'veiculos': veiculos})
+
         if request.POST.get('id_dado'):
-            print(request.POST.get('id_dado'))
             try:
                 transporte_excluido = DadosTransporte.objects.get(pk=request.POST.get('id_dado'))
                 transporte_excluido.delete()

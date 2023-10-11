@@ -30,22 +30,21 @@ class DadosTransporte(models.Model):
         def listar_veiculos(n):
             return [
                 {
-                    'veiculo': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0]),
-                    'n': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1])},
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_1_viacao_{n}')[0] != '' else '',
+                    'n': int(dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1])} if dados_transporte.getlist(f'veiculo_1_viacao_{n}')[1] != '' else '',
                 {
-                    'veiculo': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0]),
-                    'n': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1])},
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_2_viacao_{n}')[0] != '' else '',
+                    'n': int(dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1])} if dados_transporte.getlist(f'veiculo_2_viacao_{n}')[1] != '' else '',
                 {
-                    'veiculo': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0]),
-                    'n': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1])
+                    'veiculo': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0]) if dados_transporte.getlist(f'veiculo_3_viacao_{n}')[0] != '' else '',
+                    'n': int(dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1]) if dados_transporte.getlist(f'veiculo_3_viacao_{n}')[1] != '' else ''
                 }
             ]
 
         def salvar_formularios():
             id_salvos = []
-            print(id_instancias)
+
             for n, dado in enumerate(lista_dados):
-                print(id_instancias, dado, n)
                 try:
                     dados_transporte_salvo = DadosTransporte.objects.get(pk=id_instancias[n])
                     form = CadastroDadosTransporte(dado, instance=dados_transporte_salvo).save()
@@ -53,7 +52,7 @@ class DadosTransporte(models.Model):
                 except IndexError:
                     form = CadastroDadosTransporte(dado).save()
                     id_salvos.append(form.id)
-            print(id_salvos)
+
             return id_salvos
 
         campos = list(CadastroDadosTransporte().fields.keys())
@@ -62,7 +61,7 @@ class DadosTransporte(models.Model):
         n_transportes = len([
             int(id_viacao) for id_viacao in dados_transporte.getlist('empresa_onibus') if id_viacao != ''
         ])
-        print(dados_transporte)
+
         for transporte in range(0, n_transportes):
             dados = {}
 
@@ -73,7 +72,6 @@ class DadosTransporte(models.Model):
                     dados[campo] = dados_transporte.getlist(campo)[transporte]
 
             lista_dados.append(dados)
-            print(lista_dados)
 
         return salvar_formularios()
 
@@ -85,11 +83,11 @@ class DadosTransporte(models.Model):
         ]
 
     @staticmethod
-    def reunir_veiculos(daddos_transporte):
+    def reunir_veiculos(dados_transporte):
         return {
-            'micro_onibus': int(daddos_transporte.get('n_micro')) if daddos_transporte.get('n_micro') else 0,
-            'onibus_46': int(daddos_transporte.get('n_46')) if daddos_transporte.get('n_46') else 0,
-            'onibus_50': int(daddos_transporte.get('n_50')) if daddos_transporte.get('n_50') else 0,
+            'micro_onibus': int(dados_transporte.get('n_micro')) if dados_transporte.get('n_micro') else 0,
+            'onibus_46': int(dados_transporte.get('n_46')) if dados_transporte.get('n_46') else 0,
+            'onibus_50': int(dados_transporte.get('n_50')) if dados_transporte.get('n_50') else 0,
         }
 
 
