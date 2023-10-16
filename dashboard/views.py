@@ -1,4 +1,5 @@
 import json
+import locale
 from datetime import datetime
 from itertools import chain
 
@@ -14,7 +15,7 @@ from reversion.models import Version
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
@@ -137,7 +138,39 @@ def dashboardCeu(request):
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = None
+    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
+    if is_ajax(request):
+        if request.method == 'GET':
+            if request.GET.get('colaboradora'):
+                ...
+            else:
+                id_vendedora = Vendedor.objects.get(usuario=request.user).id
+                return JsonResponse({'fichas': FichaDeEvento.aplicar_filtros(request.GET, id_vendedora)})
+
+    if diretoria:
+        ...
+    else:
+        fichas_adesao = FichaDeEvento.objects.filter(
+            vendedora__usuario=request.user,
+            os=False,
+            pre_reserva=False,
+            check_in__month__gte=datetime.today().month
+        ).order_by('adesao')[:15]
+        fichas_colaborador = FichaDeEvento.objects.filter(
+            vendedora__usuario=request.user,
+            os=False,
+            # check_in__month__gte=datetime.today().month,
+            pre_reserva=False
+        ).order_by('check_in')
+        meses = set() # TODO: Alterar pra uma estrutura que preserve a ordem
+        for ficha in fichas_colaborador:
+            print(ficha.check_in)
+            meses.add((
+                f'{ficha.check_in.month}_{ficha.check_in.year}',
+                f'{ficha.check_in.strftime("%B")} ({ficha.check_in.year})'.capitalize()
+            ))
     try:
         monitor = Monitor.objects.get(usuario=request.user)
     except Monitor.DoesNotExist:
@@ -157,5 +190,7 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
+        'fichas_adesao': fichas_adesao,
+        'meses': meses
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

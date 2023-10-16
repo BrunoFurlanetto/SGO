@@ -3,112 +3,196 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    {% comment %}{% if False %}
-        {% for versao in ultimas_versoes %}
-            <div class="card card-log">
-                {% if versao.campos_alterados == '' %}
-                    <div class="card-header">Criação da <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
-                    <div class="card-body">
-                        <ul>
-                            <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
-                        </ul>
-                    </div>
-                {% else %}
-                    <div class="card-header">Alteração em <a href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a> por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
-                    <div class="card-body">
-                        <ul>
-                            {% if versao.campos_alterados|length > 4 %}
-                                <li>
-                                    <p>Campos
-                                        {% for alteracao in versao.campos_alterados %}
-                                            {% if not forloop.last %}
-                                                 <span>{{ alteracao.campo.nome_campo }}</span>,
-                                            {% else %}
-                                                 e <span>{{ alteracao.campo.nome_campo }}</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                        alterados
-                                    </p>
+    {% csrf_token %}
+    {% if perms.peraltas.add_fichadeevento %}
+        {% if False %}
+            {% for versao in ultimas_versoes %}
+                <div class="card card-log">
+                    {% if versao.campos_alterados == '' %}
+                        <div class="card-header">Criação da <a
+                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
+                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                        <div class="card-body">
+                            <ul>
+                                <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
+                            </ul>
+                        </div>
+                    {% elif versao.campos_alterados == 'excluido' %}
+                        <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }}
+                            em {{ versao.data_e_hora }}</div>
+                        <div class="card-body">
+                            <ul>
+                                <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span>
                                 </li>
-                            {% else %}
-                                {% for alteracao in versao.campos_alterados %}
+                            </ul>
+                        </div>
+
+                    {% else %}
+                        <div class="card-header">Alteração em <a
+                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
+                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
+                        <div class="card-body">
+                            <ul>
+                                {% if versao.campos_alterados|length > 4 %}
                                     <li>
-                                        {% if alteracao.campo.tipo_campo == 'JSONField' %}
-                                            {% if alteracao.campo.nome_campo == 'refeicoes' %}
-                                                <p>Tabela de <span>refeicoes</span> alterado</p>
-                                            {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}
-                                                <p><span>Informações da locação</span> alterado</p>
-                                            {% endif %}
-                                        {% elif alteracao.campo.tipo_campo == 'FileField' %}
-                                            <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
-                                        {% elif alteracao.campo.tipo_campo == 'TextField' %}
-                                            <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
-                                        {% else %}
-                                            <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de <span>
-                                                {% if alteracao.campo.valor_anterior is None or alteracao.campo.valor_anterior == '0' or alteração.campo.valor_anterior == '' %}
-                                                    {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
-                                                        0
-                                                    {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                        Sem data
-                                                    {% elif alteracao.campo.tipo_campo == 'CharField' %}
-                                                        "Vazio"
-                                                    {% endif %}
+                                        <p>Campos
+                                            {% for alteracao in versao.campos_alterados %}
+                                                {% if not forloop.last %}
+                                                    <span>{{ alteracao.campo.nome_campo }}</span>,
                                                 {% else %}
-                                                    {% if alteracao.campo.tipo_campo == 'BooleanField' %}
-                                                        {% if alteracao.campo.valor_anterior %}
-                                                            Sim
-                                                        {% else %}
-                                                            Não
-                                                        {% endif %}
-                                                    {% elif alteracao.campo.tipo_campo == 'DateField' %}
-                                                        {{ alteracao.campo.valor_anterior |date:'d/m/Y' }}
-                                                    {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                        {{ alteracao.campo.valor_anterior |date:'d/m/Y H:i' }}
-                                                    {% else %}
-                                                        {{ alteracao.campo.valor_anterior }}
-                                                    {% endif %}
+                                                    e <span>{{ alteracao.campo.nome_campo }}</span>
                                                 {% endif %}
-                                            </span> para
-                                            <span>
-                                                {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}
-                                                    {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
-                                                        0
-                                                    {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                        Sem data
-                                                    {% elif alteracao.campo.tipo_campo == 'CharField' %}
-                                                        "Vazio"
-                                                    {% endif %}
-                                                {% else %}
-                                                    {% if alteracao.campo.tipo_campo == 'BooleanField' %}
-                                                        {% if alteracao.campo.novo_valor %}
-                                                            Sim
-                                                        {% else %}
-                                                            Não
-                                                        {% endif %}
-                                                    {% elif alteracao.campo.tipo_campo == 'DateField' %}
-                                                        {{ alteracao.campo.novo_valor |date:'d/m/Y' }}
-                                                    {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                        {{ alteracao.campo.novo_valor |date:'d/m/Y H:i' }}
-                                                    {% else %}
-                                                        {{ alteracao.campo.novo_valor }}
-                                                    {% endif %}
-                                                {% endif %}
-                                            </span></p>
-                                        {% endif %}
+                                            {% endfor %}
+                                            alterados
+                                        </p>
                                     </li>
-                                {% endfor %}
-                            {% endif %}
-                        </ul>
+                                {% else %}
+                                    {% for alteracao in versao.campos_alterados %}
+                                        <li>
+                                            {% if alteracao.campo.tipo_campo == 'JSONField' %}
+                                                {% if alteracao.campo.nome_campo == 'refeicoes' %}
+                                                    <p>Tabela de <span>refeicoes</span> alterado</p>
+                                                {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}
+                                                    <p><span>Informações da locação</span> alterado</p>
+                                                {% endif %}
+                                            {% elif alteracao.campo.tipo_campo == 'FileField' %}
+                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
+                                            {% elif alteracao.campo.tipo_campo == 'TextField' %}
+                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
+                                            {% else %}
+                                                <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de
+                                                    <span>
+                                                    {% if alteracao.campo.valor_anterior is None or alteracao.campo.valor_anterior == '0' or alteração.campo.valor_anterior == '' %}
+                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
+                                                            0
+                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                            Sem data
+                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}
+                                                            "Vazio"
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}
+                                                            {% if alteracao.campo.valor_anterior %}
+                                                                Sim
+                                                            {% else %}
+                                                                Não
+                                                            {% endif %}
+                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}
+                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y' }}
+                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y H:i' }}
+                                                        {% else %}
+                                                            {{ alteracao.campo.valor_anterior }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </span> para
+                                                    <span>
+                                                    {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}
+                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
+                                                            0
+                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                            Sem data
+                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}
+                                                            "Vazio"
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}
+                                                            {% if alteracao.campo.novo_valor %}
+                                                                Sim
+                                                            {% else %}
+                                                                Não
+                                                            {% endif %}
+                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}
+                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y' }}
+                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
+                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y H:i' }}
+                                                        {% else %}
+                                                            {{ alteracao.campo.novo_valor }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </span></p>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div id="conteudo">
+                <div id="abas" style="display: flex">
+                    {% if diretoria %}
+                        <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para
+                            aprovação
+                        </div>
+                    {% endif %}
+                    <div class="folder {% if not diretoria %} ativo {% endif %}"
+                         onclick="alterar_aba(this, 'orcamentos_aprovados')">Adesão
+                    </div>
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'orcamentos_aprovados')">Status
+                    </div>
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'orcamentos_aprovados')">Avisos
+                    </div>
+                </div>
+                {% if diretoria %}
+                    <div class="section-content ativo" id="adesao">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Cliente</th>
+                                <th style="width: 25%">Colaborador</th>
+                                <th style="width: 25%">Valor</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
                     </div>
                 {% endif %}
+                <div id="adesao" class="section-content {% if not diretoria %} ativo {% endif %}">
+                    <div class="div_filtro">
+                        <label for="mes_filtro">Mês</label>
+                        <select class="filtros" name="mes" id="mes_filtro" onchange="filtros()">
+                            <option>Atual</option>
+                            {% for mes in meses %}
+                                <option value="{{ mes.0 }}">{{ mes.1|safe }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" class="filtros" name="teste" value="teste">
+                    </div>
+                    <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Estimado</th>
+                            <th style="width: 5%">Reservado</th>
+                            <th style="width: 5%">Adesao</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for ficha in fichas_adesao %}
+                                <tr class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %} 0 {% endif %}</td>
+                                    <td>{{ ficha.adesao|floatformat:2 }}%</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        {% endfor %}
-    {% else %}{% endcomment %}
+        {% endif %}
+    {% else %}
         <div class="conteudo_dashboard_peraltas_escrito">
             <h1>SGO</h1>
         </div>
-    {% comment %}{% endif %}{% endcomment %}
-
+    {% endif %}
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
     <!--------------------------------------------------------------------------------------------------------------------->
@@ -184,4 +268,5 @@
             })
         </script>
     {% endif %}
+    <script src="{% static 'js/scripts_dashboard.js' %}"></script>
 {% endblock %}

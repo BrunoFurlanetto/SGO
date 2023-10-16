@@ -960,7 +960,8 @@
 }
 
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
-#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select {
+#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select,
+#conteudo select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -1326,4 +1327,97 @@
 
 #descritivo_dia table tbody td:not(:first-child) {
     text-align: center;
+}
+
+.card-log {
+    width: 800px;
+    margin: auto auto 15px;
+    box-shadow: 2px 2px 2px;
+}
+
+.card-body span {
+    color: #0a58ca;
+}
+
+#conteudo {
+    margin: auto;
+    width: 900px;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.folder {
+    background-color: #6c757db0;
+    color: #fff;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 15px 15px 0 0;
+}
+
+.folder.ativo {
+    background: #f1f1f1;
+    color: #6c757d;
+    box-shadow: 0px -2px 5px 1px rgba(0, 0, 0, 0.5);
+}
+
+.section-content {
+    background-color: #f1f1f1;
+    padding: 10px;
+    display: none;
+    border: 1px solid #ddd;
+    border-radius: 0 0 5px 5px;
+}
+
+.section-content.ativo {
+    display: block;
+}
+
+#permissao_orcamentos table thead {
+    text-align: center;
+}
+
+#permissao_orcamentos table thead tr > th:first-child {
+    width: 50%;
+}
+
+#permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
+#orcamentos_aprovados table tbody tr > *:not(:first-child){
+    text-align: center;
+    vertical-align: middle;
+}
+
+#orcamentos_aprovados table tbody tr:first-child {
+    vertical-align: middle;
+}
+
+.div_filtro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.div_filtro select {
+    width: 20% !important;
+}
+
+#tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_adesao .baixa {
+    background: #e90d0d5c;
+}
+
+#tabela_adesao .media {
+    background: #f3c31761;
+}
+
+#tabela_adesao .alta {
+    background: #43ff647a
 }

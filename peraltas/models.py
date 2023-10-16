@@ -399,6 +399,7 @@ class FichaDeEvento(models.Model):
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d', verbose_name='Material de apoio')
     data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Códigos APP')
+    adesao = models.FloatField(blank=True, null=True, verbose_name='Adesão')
     agencia = models.BooleanField(default=False)
     exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
     pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
@@ -409,6 +410,61 @@ class FichaDeEvento(models.Model):
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
+
+    @staticmethod
+    def preparar_filtros(filtros):
+        filtros_tratados = {}
+
+        for filtro, valor in filtros.items():
+            if filtro == 'mes':
+                mes, ano = valor.split('_')
+                filtros_tratados = {
+                    'check_in__month': int(mes),
+                    'check_in__year': int(ano),
+                    'pre_reserva': False,
+                    'os': False
+                }
+            elif filtro == 'status':
+                if valor == 'pre_reserva':
+                    filtros_tratados['pre_reserva'] = True
+                elif valor == 'confirmado':
+                    filtros_tratados = {'pre_reserva': True, 'agendado': True}
+                elif valor == 'ficha_de_evento':
+                    filtros_tratados = {'pre_reserva': False, 'os': False}
+                else:
+                    filtros_tratados['os'] = True
+            elif filtro == 'produto':
+                filtros_tratados['produto__id'] = int(valor)
+            elif filtro == 'colaborador':
+                filtros_tratados['vendedora__id'] = int(valor)
+
+        return filtros_tratados
+
+    @classmethod
+    def aplicar_filtros(cls, filtros, id_vendedora=None):
+        filtros_preparados = cls.preparar_filtros(filtros)
+        resultados = cls.objects.filter(**filtros_preparados).order_by('adesao')
+
+        if id_vendedora:
+            resultados = resultados.filter(vendedora_id=id_vendedora)
+
+        resultados = resultados.select_related('cliente', 'produto')
+
+        resultados_formatados = []
+
+        for ficha in resultados:
+            resultado_dict = {
+                'cliente': ficha.cliente.__str__(),
+                'produto': ficha.produto.produto,
+                'convidada': ficha.qtd_convidada if ficha.qtd_convidada else 0,
+                'confirmada': ficha.qtd_confirmada if ficha.qtd_confirmada else 0,
+                'adesao': round(ficha.adesao, 2),
+                'escala': ficha.escala,
+            }
+
+            resultados_formatados.append(resultado_dict)
+
+        return resultados_formatados
 
     def get_all_fields(self):
         return [field.name for field in self._meta.fields]
