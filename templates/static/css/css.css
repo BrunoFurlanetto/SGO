@@ -1410,12 +1410,12 @@
 }
 
 #tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
-#status table tr > th{
+#status table tr > th, #tabela_avisos tr > th, #tabela_avisos tr > td:not(:first-child){
     text-align: center;
     vertical-align: middle;
 }
 
-#status table tr > td:first-child {
+#status table tr > td:first-child, #tabela_avisos tr > td:first-child, #tabela_adesao tr > td:first-child{
     vertical-align: middle;
 }
 
@@ -1437,4 +1437,27 @@
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 6px 3px;
+}
+
+#abas img {
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+#avisos > div:first-child{
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 1px #afafaf;
 }

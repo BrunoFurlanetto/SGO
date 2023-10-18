@@ -45,7 +45,7 @@ $(document).ready(() => {
         order: [4, 'asc']
     })
 
-    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem').DataTable({
+    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos').DataTable({
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
             infoEmpty: 'Sem dados',

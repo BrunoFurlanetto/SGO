@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -136,7 +137,7 @@
                          onclick="alterar_aba(this, 'status')">Status
                     </div>
                     <div class="folder"
-                         onclick="alterar_aba(this, 'avisos')">Avisos
+                         onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %} <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
                     </div>
                 </div>
                 {% if diretoria %}
@@ -276,6 +277,38 @@
                                     <td>{{ ordem.ficha_de_evento.produto }}</td>
                                     <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %} 0 {% endif %}</td>
                                     <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="avisos" class="section-content">
+                    <div>
+                        Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém com a
+                        ausência da ficha de evento.
+                    </div>
+                    <hr>
+                    <div class="tabelas">
+                        <table id="tabela_avisos" class="table table-hover table-striped"
+                               style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th style="width: 450px">Cliente</th>
+                                <th style="width: 150px">Produto</th>
+                                <th>Estimado</th>
+                                <th style="width: 250px">Check in</th>
+                                <th>Confirmado</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for aviso in avisos %}
+                                <tr class="pre_reservas">
+                                    <td>{{ aviso.cliente }}</td>
+                                    <td>{{ aviso.produto }}</td>
+                                    <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
+                                    <td>{{ aviso.agendado|yesno:'Sim,Não'  }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

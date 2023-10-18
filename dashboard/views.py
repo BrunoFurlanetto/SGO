@@ -1,6 +1,6 @@
 import json
 import locale
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 import reversion
@@ -172,6 +172,11 @@ def dashboardPeraltas(request):
             vendedor__usuario=request.user,
             check_in__month__gte=datetime.today().month
         )
+        avisos = fichas_colaborador.filter(
+            pre_reserva=True,
+            check_in__date__gte=datetime.today().date(),
+            check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
+        )
         meses = set() # TODO: Alterar pra uma estrutura que preserve a ordem
 
         for ficha in fichas_colaborador:
@@ -203,6 +208,7 @@ def dashboardPeraltas(request):
         'ordens_colaborador': ordens_colaborador,
         'pre_reservas': pre_reservas,
         'confirmados': confirmados,
+        'avisos': avisos,
         'meses': meses
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     }) # TODO: Separar os returns para perfis diferentes
