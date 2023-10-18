@@ -961,7 +961,7 @@
 
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
 #modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select,
-#conteudo select{
+.div_filtros select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -1399,14 +1399,23 @@
     flex-direction: column;
     align-items: flex-end;
     margin-bottom: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    border: solid 1px #afafaf;
 }
 
 .div_filtro select {
     width: 20% !important;
 }
 
-#tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th {
+#tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
+#status table tr > th{
     text-align: center;
+    vertical-align: middle;
+}
+
+#status table tr > td:first-child {
     vertical-align: middle;
 }
 
@@ -1420,4 +1429,12 @@
 
 #tabela_adesao .alta {
     background: #43ff647a
+}
+
+.tabelas {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
 }

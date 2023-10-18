@@ -58,6 +58,7 @@ def atualizar_pagantes_ficha():
                         ficha.qtd_profs_mulheres = total_professores_feminino
 
                     ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
+                    ficha.adesao = (ficha.qtd_confirmada / ficha.qtd_convidada) * 100
                     ficha.save()
 
                     if ficha.os:

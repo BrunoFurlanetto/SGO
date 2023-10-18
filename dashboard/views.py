@@ -15,6 +15,7 @@ from reversion.models import Version
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
@@ -141,32 +142,39 @@ def dashboardPeraltas(request):
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
-    if is_ajax(request):
-        if request.method == 'GET':
-            if request.GET.get('colaboradora'):
-                ...
-            else:
-                id_vendedora = Vendedor.objects.get(usuario=request.user).id
-                return JsonResponse({'fichas': FichaDeEvento.aplicar_filtros(request.GET, id_vendedora)})
+    # if is_ajax(request):
+    #     if request.method == 'GET':
+    #         if request.GET.get('colaboradora'):
+    #             ...
+    #         else:
+    #             id_vendedora = Vendedor.objects.get(usuario=request.user).id
+    #             fichas = FichaDeEvento.aplicar_filtros(request.GET, id_vendedora)
+    #             ordens = []
+    #
+    #             if 'status' in request.GET.get('filtro'):
+    #                 ordens = OrdemDeServico.pegar_ordens_filtro(fichas)
+    #
+    #             return JsonResponse({'fichas': fichas, 'ordens': ordens})
 
     if diretoria:
         ...
     else:
-        fichas_adesao = FichaDeEvento.objects.filter(
-            vendedora__usuario=request.user,
-            os=False,
-            pre_reserva=False,
-            check_in__month__gte=datetime.today().month
-        ).order_by('adesao')[:15]
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
             os=False,
             # check_in__month__gte=datetime.today().month,
-            pre_reserva=False
-        ).order_by('check_in')
+        )
+        fichas = fichas_colaborador.filter(pre_reserva=False)
+        pre_reservas = fichas_colaborador.filter(pre_reserva=True, agendado=False)
+        confirmados = fichas_colaborador.filter(pre_reserva=True, agendado=True)
+        fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
+        ordens_colaborador = OrdemDeServico.objects.filter(
+            vendedor__usuario=request.user,
+            check_in__month__gte=datetime.today().month
+        )
         meses = set() # TODO: Alterar pra uma estrutura que preserve a ordem
+
         for ficha in fichas_colaborador:
-            print(ficha.check_in)
             meses.add((
                 f'{ficha.check_in.month}_{ficha.check_in.year}',
                 f'{ficha.check_in.strftime("%B")} ({ficha.check_in.year})'.capitalize()
@@ -191,6 +199,10 @@ def dashboardPeraltas(request):
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
         'fichas_adesao': fichas_adesao,
+        'fichas': fichas,
+        'ordens_colaborador': ordens_colaborador,
+        'pre_reservas': pre_reservas,
+        'confirmados': confirmados,
         'meses': meses
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
-    })
+    }) # TODO: Separar os returns para perfis diferentes

@@ -5,7 +5,6 @@ from django import forms
 from django.db import models
 
 from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus
-
 from peraltas.models import Vendedor
 
 
@@ -178,6 +177,23 @@ class OrdemDeServico(models.Model):
 
     def listar_id_monitor_responsavel(self):
         return [monitor.id for monitor in self.monitor_responsavel.all()]
+
+    # @classmethod
+    # def pegar_ordens_filtro(cls, fichas):
+    #     ordens_formatadas = []
+    #
+    #     for ficha in fichas:
+    #         if ficha['os']:
+    #             ordem = cls.objects.get(pk=ficha['id'])
+    #
+    #             ordens_formatadas.append({
+    #                 'ficha': ficha,
+    #                 'id': ordem.id,
+    #                 'qtd': ordem.n_participantes,
+    #                 'colaborador': ordem.vendedor.usuario.get_full_name()
+    #             })
+    #
+    #     return ordens_formatadas
 
 
 class CadastroOrdemDeServico(forms.ModelForm):
