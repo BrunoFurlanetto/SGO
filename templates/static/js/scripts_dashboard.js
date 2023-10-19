@@ -39,6 +39,7 @@ $(document).ready(() => {
                 if (type === 'display' || type === 'filter') {
                     return moment(data).format('D [de] MMMM [de] YYYY')
                 }
+
                 return data;
             }
         }],
@@ -96,53 +97,3 @@ function alterar_aba(aba, sectionId) {
         }
     }
 }
-
-/*
-function filtros(filtro) {
-    loading()
-    const id_filtro = $(filtro).parent().attr('id')
-    let filtros_aplicados = {'filtro': id_filtro}
-
-    $(`#${id_filtro} .filtros`).each(function () {
-        const valor = $(this).val().trim()
-        const chave = $(this).attr('name')
-
-        if (valor !== '') {
-            console.log(chave, valor)
-            filtros_aplicados[chave] = valor
-        }
-    });
-
-    $.ajax({
-        type: 'GET',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: filtros_aplicados,
-        success: function (response) {
-            console.log(response)
-            if (id_filtro.includes('adesao')) {
-                tabelar_adesao(response['fichas'])
-            } else if (id_filtro.includes('status')) {
-                tabelar_status()
-            }
-        }
-    }).done(() => end_loading())
-}
-
-function tabelar_adesao(fichas) {
-    $('#tabela_adesao').DataTable().destroy();
-
-    $('#tabela_adesao').DataTable({
-        data: fichas,
-        columns: [
-            {data: 'cliente_nome'},
-            {data: 'convidada'},
-            {data: 'confirmada'},
-            {data: 'adesao'},
-        ]
-    });
-}
-
-function tabelar_status() {
-
-}*/

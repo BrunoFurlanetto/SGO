@@ -137,7 +137,8 @@
                          onclick="alterar_aba(this, 'status')">Status
                     </div>
                     <div class="folder"
-                         onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %} <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
+                         onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
+                        <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
                     </div>
                 </div>
                 {% if diretoria %}
@@ -169,9 +170,13 @@
                             </thead>
                             <tbody>
                             {% for ficha in fichas_adesao %}
-                                <tr class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
+                                <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
+                                    onclick="window.location = $(this).data('href')"
+                                    style="cursor: pointer"
+                                    class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
                                     <td>{{ ficha.cliente }}</td>
-                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{{ ficha.adesao|floatformat:2 }}%</td>
@@ -200,7 +205,8 @@
                                 <tr class="pre_reservas">
                                     <td>{{ pre_reserva.cliente }}</td>
                                     <td>{{ pre_reserva.produto }}</td>
-                                    <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
                                 </tr>
                             {% endfor %}
@@ -225,7 +231,8 @@
                                 <tr class="agendados">
                                     <td>{{ confirmado.cliente }}</td>
                                     <td>{{ confirmado.produto }}</td>
-                                    <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
                                 </tr>
                             {% endfor %}
@@ -234,8 +241,9 @@
                     </div>
                     <hr>
                     <div class="tabelas">
-                    <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
-                        <table id="tabela_status_ficha" class="table table-hover table-striped" style="border-top: solid">
+                        <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
+                        <table id="tabela_status_ficha" class="table table-hover table-striped"
+                               style="border-top: solid">
                             <thead>
                             <tr>
                                 <th style="width: 500px">Cliente</th>
@@ -247,11 +255,14 @@
                             </thead>
                             <tbody>
                             {% for ficha in fichas %}
-                                <tr class="fichas">
+                                <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}" onclick="window.location = $(this).data('href')"
+                                    style="cursor: pointer" class="fichas">
                                     <td>{{ ficha.cliente }}</td>
                                     <td>{{ ficha.produto }}</td>
-                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %} 0 {% endif %}</td>
-                                    <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
+                                    <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
                                 </tr>
                             {% endfor %}
@@ -261,7 +272,8 @@
                     <hr>
                     <div class="tabelas">
                         <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>
-                        <table id="tabela_status_ordem" class="table table-hover table-striped" style="border-top: solid">
+                        <table id="tabela_status_ordem" class="table table-hover table-striped"
+                               style="border-top: solid">
                             <thead>
                             <tr>
                                 <th style="width: 450px">Cliente</th>
@@ -272,10 +284,12 @@
                             </thead>
                             <tbody>
                             {% for ordem in ordens_colaborador %}
-                                <tr class="ordens">
+                                <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}" onclick="window.location = $(this).data('href')"
+                                    style="cursor: pointer" class="ordens">
                                     <td>{{ ordem.ficha_de_evento.cliente }}</td>
                                     <td>{{ ordem.ficha_de_evento.produto }}</td>
-                                    <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 </tr>
                             {% endfor %}
@@ -306,9 +320,10 @@
                                 <tr class="pre_reservas">
                                     <td>{{ aviso.cliente }}</td>
                                     <td>{{ aviso.produto }}</td>
-                                    <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %} 0 {% endif %}</td>
+                                    <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
                                     <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
-                                    <td>{{ aviso.agendado|yesno:'Sim,Não'  }}</td>
+                                    <td>{{ aviso.agendado|yesno:'Sim,Não' }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

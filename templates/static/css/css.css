@@ -1340,7 +1340,6 @@
 }
 
 #conteudo {
-    margin: auto;
     width: 900px;
     justify-content: center;
     align-items: center;
@@ -1348,6 +1347,7 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
     padding: 20px;
+    margin: auto auto 10%;
 }
 
 .folder {

@@ -411,68 +411,6 @@ class FichaDeEvento(models.Model):
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
 
-    # @staticmethod
-    # def preparar_filtros(filtros):
-    #     filtros_tratados = {}
-    #
-    #     for filtro, valor in filtros.items():
-    #         if filtro == 'mes':
-    #             mes, ano = valor.split('_')
-    #             filtros_tratados = {
-    #                 'check_in__month': int(mes),
-    #                 'check_in__year': int(ano),
-    #                 'pre_reserva': False,
-    #                 'os': False
-    #             }
-    #         elif filtro == 'status':
-    #             if valor == 'pre_reserva':
-    #                 filtros_tratados['pre_reserva'] = True
-    #             elif valor == 'confirmado':
-    #                 filtros_tratados = {'pre_reserva': True, 'agendado': True}
-    #             elif valor == 'ficha_de_evento':
-    #                 filtros_tratados = {'pre_reserva': False, 'os': False}
-    #             else:
-    #                 filtros_tratados['os'] = True
-    #         elif filtro == 'produto':
-    #             filtros_tratados['produto__id'] = int(valor)
-    #         elif filtro == 'colaborador':
-    #             filtros_tratados['vendedora__id'] = int(valor)
-    #
-    #     return filtros_tratados
-    #
-    # @classmethod
-    # def aplicar_filtros(cls, filtros, id_vendedora=None):
-    #     filtros_preparados = cls.preparar_filtros(filtros)
-    #     resultados = cls.objects.filter(**filtros_preparados).order_by('adesao')
-    #
-    #     if id_vendedora:
-    #         resultados = resultados.filter(vendedora_id=id_vendedora)
-    #
-    #     resultados = resultados.select_related('cliente', 'produto')
-    #     fichas_formatadas = []
-    #     ordens_formatadas = []
-    #
-    #     for ficha in resultados:
-    #         resultado_dict = {
-    #             'id': ficha.id,
-    #             'cliente_nome': ficha.cliente.__str__(),
-    #             'cliente_id': ficha.cliente.id,
-    #             'produto_nome': ficha.produto.produto,
-    #             'produto_id': ficha.produto.id,
-    #             'convidada': ficha.qtd_convidada if ficha.qtd_convidada else 0,
-    #             'confirmada': ficha.qtd_confirmada if ficha.qtd_confirmada else 0,
-    #             'adesao': f'{round(ficha.adesao, 2)}%',
-    #             'escala': ficha.escala,
-    #             'pre_reserva': ficha.pre_reserva,
-    #             'confirmado': ficha.agendado,
-    #             'os': ficha.os,
-    #             'colaborador': ficha.vendedora.usuario.get_full_name()
-    #         }
-    #
-    #         fichas_formatadas.append(resultado_dict)
-    #
-    #     return fichas_formatadas
-
     def get_all_fields(self):
         return [field.name for field in self._meta.fields]
 
