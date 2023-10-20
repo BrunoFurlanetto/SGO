@@ -46,7 +46,7 @@ $(document).ready(() => {
         order: [4, 'asc']
     })
 
-    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos').DataTable({
+    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').DataTable({
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
             infoEmpty: 'Sem dados',
@@ -67,20 +67,6 @@ $(document).ready(() => {
         order: [3, 'asc']
     })
 })
-
-function inicializar_datatables(dados, colunas, alvo) {
-    $(alvo).DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        data: dados,
-        columns: colunas,
-    })
-}
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = $('.section-content').map((index, aba) => {

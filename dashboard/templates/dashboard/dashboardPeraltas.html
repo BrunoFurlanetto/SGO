@@ -125,12 +125,7 @@
         {% else %}
             <div id="conteudo">
                 <div id="abas" style="display: flex">
-                    {% if diretoria %}
-                        <div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para
-                            aprovação
-                        </div>
-                    {% endif %}
-                    <div class="folder {% if not diretoria %} ativo {% endif %}"
+                    <div class="folder ativo"
                          onclick="alterar_aba(this, 'adesao')">Adesão
                     </div>
                     <div class="folder"
@@ -140,23 +135,13 @@
                          onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
                         <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
                     </div>
+                    {% if diretoria %}
+                        <div class="folder"
+                             onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
+                        </div>
+                    {% endif %}
                 </div>
-                {% if diretoria %}
-                    <div class="section-content ativo" id="adesao">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th style="width: 50%">Cliente</th>
-                                <th style="width: 25%">Colaborador</th>
-                                <th style="width: 25%">Valor</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
-                <div id="adesao" class="section-content {% if not diretoria %} ativo {% endif %}">
+                <div id="adesao" class="section-content ativo">
                     <div class="tabelas">
                         <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
                             <thead>
@@ -166,6 +151,8 @@
                                 <th>Reservado</th>
                                 <th>Adesao</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -181,6 +168,8 @@
                                         0 {% endif %}</td>
                                     <td>{{ ficha.adesao|floatformat:2 }}%</td>
                                     <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ ficha.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -198,6 +187,8 @@
                                 <th style="width: 150px">Produto</th>
                                 <th>Estimado</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -208,6 +199,8 @@
                                     <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ pre_reserva.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -224,6 +217,8 @@
                                 <th style="width: 150px">Produto</th>
                                 <th>Estimado</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -234,6 +229,8 @@
                                     <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ confirmado.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -251,11 +248,14 @@
                                 <th>Estimado</th>
                                 <th>Reservado</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
                             {% for ficha in fichas %}
-                                <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}" onclick="window.location = $(this).data('href')"
+                                <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
+                                    onclick="window.location = $(this).data('href')"
                                     style="cursor: pointer" class="fichas">
                                     <td>{{ ficha.cliente }}</td>
                                     <td>{{ ficha.produto }}</td>
@@ -264,6 +264,8 @@
                                     <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ ficha.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -280,17 +282,22 @@
                                 <th style="width: 150px">Produto</th>
                                 <th>Participantes</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
                             {% for ordem in ordens_colaborador %}
-                                <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}" onclick="window.location = $(this).data('href')"
+                                <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}"
+                                    onclick="window.location = $(this).data('href')"
                                     style="cursor: pointer" class="ordens">
                                     <td>{{ ordem.ficha_de_evento.cliente }}</td>
                                     <td>{{ ordem.ficha_de_evento.produto }}</td>
                                     <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ ordem.vendedor }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -312,6 +319,8 @@
                                 <th style="width: 150px">Produto</th>
                                 <th>Estimado</th>
                                 <th style="width: 250px">Check in</th>
+                                {% if diretoria %}
+                                    <th>Colaborador</th> {% endif %}
                                 <th>Confirmado</th>
                             </tr>
                             </thead>
@@ -324,12 +333,44 @@
                                         0 {% endif %}</td>
                                     <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
                                     <td>{{ aviso.agendado|yesno:'Sim,Não' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ aviso.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
+                {% if diretoria %}
+                    <div id="sem_escala" class="section-content">
+                        <div class="tabelas">
+                            <table id="tabela_sem_escala" class="table table-hover table-striped"
+                                   style="border-top: solid">
+                                <thead>
+                                <tr>
+                                    <th style="width: 450px">Cliente</th>
+                                    <th style="width: 150px">Produto</th>
+                                    <th>Estimado</th>
+                                    <th style="width: 250px">Check in</th>
+                                        <th>Colaborador</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for sem_escala in sem_escalas %}
+                                    <tr class="pre_reservas">
+                                        <td>{{ sem_escala.cliente }}</td>
+                                        <td>{{ sem_escala.produto }}</td>
+                                        <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
+                                            0 {% endif %}</td>
+                                        <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
+                                        <td> {{ sem_escala.vendedora }} </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
     {% else %}

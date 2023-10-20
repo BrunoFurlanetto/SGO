@@ -138,7 +138,7 @@ def dashboardCeu(request):
 @login_required(login_url='login')
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
-    msg_monitor = None
+    msg_monitor = sem_escalas = None
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
@@ -157,33 +157,32 @@ def dashboardPeraltas(request):
     #             return JsonResponse({'fichas': fichas, 'ordens': ordens})
 
     if diretoria:
-        ...
+        fichas_colaborador = FichaDeEvento.objects.filter(
+            os=False,
+            # check_in__month__gte=datetime.today().month,
+        )
+        sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
     else:
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
             os=False,
             # check_in__month__gte=datetime.today().month,
         )
-        fichas = fichas_colaborador.filter(pre_reserva=False)
-        pre_reservas = fichas_colaborador.filter(pre_reserva=True, agendado=False)
-        confirmados = fichas_colaborador.filter(pre_reserva=True, agendado=True)
-        fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
-        ordens_colaborador = OrdemDeServico.objects.filter(
-            vendedor__usuario=request.user,
-            check_in__month__gte=datetime.today().month
-        )
-        avisos = fichas_colaborador.filter(
-            pre_reserva=True,
-            check_in__date__gte=datetime.today().date(),
-            check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
-        )
-        meses = set() # TODO: Alterar pra uma estrutura que preserve a ordem
 
-        for ficha in fichas_colaborador:
-            meses.add((
-                f'{ficha.check_in.month}_{ficha.check_in.year}',
-                f'{ficha.check_in.strftime("%B")} ({ficha.check_in.year})'.capitalize()
-            ))
+    fichas = fichas_colaborador.filter(pre_reserva=False)
+    pre_reservas = fichas_colaborador.filter(pre_reserva=True, agendado=False)
+    confirmados = fichas_colaborador.filter(pre_reserva=True, agendado=True)
+    fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
+    ordens_colaborador = OrdemDeServico.objects.filter(
+        vendedor__usuario=request.user,
+        check_in__month__gte=datetime.today().month
+    )
+    avisos = fichas_colaborador.filter(
+        pre_reserva=True,
+        check_in__date__gte=datetime.today().date(),
+        check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
+    )
+
     try:
         monitor = Monitor.objects.get(usuario=request.user)
     except Monitor.DoesNotExist:
@@ -203,12 +202,13 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
+        'diretoria': diretoria,
         'fichas_adesao': fichas_adesao,
         'fichas': fichas,
         'ordens_colaborador': ordens_colaborador,
         'pre_reservas': pre_reservas,
         'confirmados': confirmados,
+        'sem_escalas': sem_escalas,
         'avisos': avisos,
-        'meses': meses
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     }) # TODO: Separar os returns para perfis diferentes
