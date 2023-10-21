@@ -363,7 +363,7 @@
 
 .conteudo-avaliacao img {
     padding: 10px;
-    width: 210px;
+    width: 345px;
 }
 
 .head {
@@ -399,12 +399,6 @@
 
 .margem-label {
     margin-right: 22px;
-}
-
-.logo-final {
-    margin-top: 25px;
-    margin-left: -110px;
-    width: 200px;
 }
 
 .logo-final img {

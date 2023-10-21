@@ -2,6 +2,8 @@ import json
 from datetime import time, datetime
 from io import BytesIO
 from itertools import chain
+
+import django.db.utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -19,7 +21,8 @@ from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
-from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa, RelatorioDeAtendimentoPublicoCeu
+from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa, RelatorioDeAtendimentoPublicoCeu, \
+    RelatorioDeAtendimentoColegioCeu
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
@@ -93,32 +96,56 @@ def colegio(request, id_relatorio=None):
     ordens = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
-        if request.GET.get('colegio'):
-            ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('colegio'))
+        if not id_relatorio:
+            if request.GET.get('colegio'):
+                ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('colegio'))
+                relatorio_colegio = RelatorioColegio(
+                    initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem_de_servico)
+                )
+
+                return render(request, 'cadastro/colegio.html', {
+                    'formulario': relatorio_colegio,
+                    'ordens': ordens,
+                    'ordem': ordem_de_servico,
+                    'professores': professores,
+                    'monitores': monitores,
+                    'atividades': atividades
+                })
+            else:
+                return render(request, 'cadastro/colegio.html', {
+                    'formulario': relatorio_colegio,
+                    'ordens': ordens,
+                    'professores': professores
+                })
+        else:
+            relatorio = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
+            relatorio_colegio = RelatorioColegio(instance=relatorio)
+            coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+            editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
 
             return render(request, 'cadastro/colegio.html', {
+                'relatorio': relatorio,
                 'formulario': relatorio_colegio,
-                'ordens': ordens,
-                'ordem': ordem_de_servico,
                 'professores': professores,
                 'monitores': monitores,
-                'atividades': atividades
-            })
-        else:
-            return render(request, 'cadastro/colegio.html', {
-                'formulario': relatorio_colegio,
-                'ordens': ordens,
-                'professores': professores
+                'atividades': atividades,
+                'editar': editar
             })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    relatorio_colegio = RelatorioColegio(request.POST)
+    if id_relatorio:
+        relatorio_editado = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
+        relatorio_colegio = RelatorioColegio(request.POST, instance=relatorio_editado)
+    else:
+        print(request.POST)
+        ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
+        relatorio_colegio = RelatorioColegio(request.POST, initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem))
 
     if relatorio_colegio.is_valid():
         relatorio = relatorio_colegio.save(commit=False)
-        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('ordem')))
         relatorio.check_in = ordem.check_in_ceu
         relatorio.check_out = ordem.check_out_ceu
         salvar_equipe_colegio(request.POST, relatorio)
@@ -136,7 +163,11 @@ def colegio(request, id_relatorio=None):
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
-            email, senha = criar_usuario_colegio(novo_colegio)
+
+            if not id_relatorio:
+                email, senha = criar_usuario_colegio(novo_colegio, ordem.id)
+            else:
+                return redirect('dashboardCeu')
 
             return render(request, 'cadastro/colegio.html', {
                 'formulario': relatorio_colegio,

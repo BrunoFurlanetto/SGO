@@ -23,17 +23,16 @@ from projetoCEU.utils import verificar_grupo, email_error
 
 @login_required(login_url='login')
 def fichaAvaliacao(request):
-    colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=request.user.last_name)
     grupos = verificar_grupo(request.user.groups.all())
 
     if not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
         return redirect('dashboard')
 
     formulario = FichaDeAvaliacaoForm()
-    formulario.dados_colegio = pegar_dados_colegio(colegio_avaliando)
-    formulario.dados_avaliador = pegar_dados_avaliador(colegio_avaliando)
-    formulario.atividades = pegar_atividades_relatorio(colegio_avaliando)
-    professores = formulario.professores = pegar_professores_relatorio(colegio_avaliando)
+    formulario.dados_colegio = pegar_dados_colegio(request.user.username)
+    formulario.dados_avaliador = pegar_dados_avaliador(request.user.username)
+    formulario.atividades = pegar_atividades_relatorio(request.user.username)
+    professores = formulario.professores = pegar_professores_relatorio(request.user.username)
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':

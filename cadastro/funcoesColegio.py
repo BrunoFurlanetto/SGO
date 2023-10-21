@@ -12,7 +12,7 @@ def pegar_colegios_no_ceu():
     ordens_de_servico = OrdemDeServico.objects.filter(tipo='Colégio').filter(
         relatorio_ceu_entregue=False,
         check_out_ceu__date__lte=datetime.today().date()
-    )
+    ).order_by('check_out')
 
     return ordens_de_servico
 
@@ -140,16 +140,20 @@ def somar_horas_parciais(entrada, saida):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-def criar_usuario_colegio(dados_colegio):
+def criar_usuario_colegio(dados_colegio, id_ordem):
     identificacao = randint(11111, 99999)
-    colegio_username = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}_{identificacao}'
+    colegio_username = id_ordem
     colegio_password = f'colegio_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].capitalize())}'
     colegio_last_name = dados_colegio.instituicao
     colegio_email = f'avaliacao_{unidecode.unidecode(dados_colegio.instituicao.split(" ")[0].lower())}_{identificacao}@fundacaoceu.com'
 
-    user = User.objects.create_user(username=colegio_username, email=colegio_email,
-                                    password=colegio_password, first_name='Colégio',
-                                    last_name=colegio_last_name)
+    user = User.objects.create_user(
+        username=colegio_username,
+        email=colegio_email,
+        password=colegio_password,
+        first_name='Colégio',
+        last_name=colegio_last_name
+    )
 
     user.save()
 

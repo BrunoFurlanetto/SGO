@@ -1,25 +1,25 @@
 import json
 from datetime import datetime
-from json import JSONEncoder
 
 from django.db import models
 from django import forms
-from django.forms import DateField
 
 from ceu.models import Professores
 from peraltas.models import Monitor
 
-# ----------------------- Model para cadsatro de atendimento ao público ----------------------------------------
-from projetoCEU import settings
+from ordemDeServico.models import OrdemDeServico
+
 
 
 class RelatorioDeAtendimentoPublicoCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Público', blank=True)
+    tipo = models.CharField(max_length=7, default='publico', blank=True)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     data_atendimento = models.DateField()
-    equipe = models.JSONField(blank=True)  # dict{'coordenador': ID, 'professor_2': ID, 'professor_3': ID, 'professor_4': ID}
-    atividades = models.JSONField(blank=True)  # dict{['atividade': ID, 'profs_ativ':[IDs], 'data_hora_ativ':, 'n_participantes':]}
+    equipe = models.JSONField(
+        blank=True)  # dict{'coordenador': ID, 'professor_2': ID, 'professor_3': ID, 'professor_4': ID}
+    atividades = models.JSONField(
+        blank=True)  # dict{['atividade': ID, 'profs_ativ':[IDs], 'data_hora_ativ':, 'n_participantes':]}
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
     data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
 
@@ -38,11 +38,13 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
         return list(self.atividades.values())
 
     def coordenador_escalado(self):
-        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe.values()]
+        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                  self.equipe.values()]
         return equipe[0]
 
     def nome_professores(self):
-        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe.values()]
+        equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                  self.equipe.values()]
 
         return ', '.join(equipe)
 
@@ -51,8 +53,9 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
 # --------------------------- Model para cadsatro do atendimento com colégio -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoColegioCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Colégio', blank=True)
+    tipo = models.CharField(max_length=7, default='colegio', blank=True)
     instituicao = models.CharField(max_length=255)
+    ordem = models.ForeignKey(OrdemDeServico, on_delete=models.CASCADE)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     check_in = models.DateTimeField(blank=True)
@@ -69,6 +72,19 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
     relatorio = models.TextField(max_length=400, default='Atividades realizadas com sucesso')
     data_hora_salvo = models.DateTimeField(default=datetime.now, blank=True)
     ficha_avaliacao = models.BooleanField(default=False)
+
+    @staticmethod
+    def dados_iniciais(ordem):
+        return {
+            'ordem': ordem.id,
+            'instituicao': ordem.ficha_de_evento.cliente,
+            'participantes_previa': ordem.n_participantes,
+            'check_in': ordem.check_in,
+            'check_out': ordem.check_out,
+            'responsaveis': ordem.n_professores,
+            'serie': ordem.serie,
+            'coordenador_peraltas': ordem.monitor_responsavel.all(),
+        }
 
     class Meta:
         verbose_name_plural = "Relatórios de atendimento com colégio (CEU)"
@@ -87,16 +103,25 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
 
     def coordenador_escalado(self):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
-        print(coordenador.usuario.first_name)
+
         return coordenador.usuario.first_name
+
+    def dividir_atividades(self):
+        atividades = []
+
+        for atividade in self.atividades.values():
+            atividades.append(atividade)
+
+        return atividades
 
 
 # --------------------------------------------------------------------------------------------------------------
 # --------------------------- Model para cadsatro do atendimento com empresa -----------------------------------
 # --------------------------------------------------------------------------------------------------------------
 class RelatorioDeAtendimentoEmpresaCeu(models.Model):
-    tipo = models.CharField(max_length=7, default='Empresa', blank=True)
+    tipo = models.CharField(max_length=7, default='empresa', blank=True)
     instituicao = models.CharField(max_length=255)
+    ordem = models.ForeignKey(OrdemDeServico, on_delete=models.CASCADE)
     participantes_previa = models.IntegerField()
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     check_in = models.DateTimeField()
@@ -150,9 +175,12 @@ class RelatorioColegio(forms.ModelForm):
         model = RelatorioDeAtendimentoColegioCeu
         exclude = ()
 
-        widgets = {'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
-                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   }
+        widgets = {
+            'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia', 'readonly': True}),
+            'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+            'serie': forms.TextInput(attrs={'readonly': True}),
+            'responsaveis': forms.TextInput(attrs={'readonly': True}),
+        }
 
 
 class RelatorioEmpresa(forms.ModelForm):

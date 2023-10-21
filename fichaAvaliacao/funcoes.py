@@ -6,40 +6,40 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio, Responsavel, RelacaoClienteResponsavel, Vendedor
 
 
-def pegar_dados_colegio(colegio):
-    colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando, ficha_avaliacao=False)
+def pegar_dados_colegio(id_ordem):
+    ordem_colegio = OrdemDeServico.objects.get(pk=id_ordem)
     dados_colegio = {}
 
-    dados_colegio = {'instituicao': colegio_avaliando.id,
-                     'cidade': ordem_colegio.cidade,
-                     'n_alunos': ordem_colegio.n_participantes,
-                     'n_professores': ordem_colegio.n_professores,
-                     'serie': ordem_colegio.serie,
-                     'id_vendedor': ordem_colegio.vendedor.id,
-                     'nome_vendedor': ordem_colegio.vendedor.usuario.get_full_name()}
+    dados_colegio = {
+        'instituicao': ordem_colegio.ficha_de_evento.cliente.id,
+        'cidade': ordem_colegio.cidade,
+        'n_alunos': ordem_colegio.n_participantes,
+        'n_professores': ordem_colegio.n_professores,
+        'serie': ordem_colegio.serie,
+        'id_vendedor': ordem_colegio.vendedor.id,
+        'nome_vendedor': ordem_colegio.vendedor.usuario.get_full_name()
+    }
 
     return dados_colegio
 
 
-def pegar_dados_avaliador(colegio):
-    colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando, ficha_avaliacao=False)
-    responsavel = Responsavel.objects.get(nome=ordem_colegio.responsavel_grupo)
+def pegar_dados_avaliador(id_ordem):
+    ordem_colegio = OrdemDeServico.objects.get(pk=id_ordem)
+    responsavel = Responsavel.objects.get(pk=ordem_colegio.ficha_de_evento.responsavel_evento.id)
     dados_responsavel = {}
 
-    dados_responsavel = {'id': responsavel.id,
-                         'nome': responsavel.nome,
-                         'cargo': responsavel.cargo,
-                         'email': responsavel.email_responsavel_evento, }
+    dados_responsavel = {
+        'id': responsavel.id,
+        'nome': responsavel.nome,
+        'cargo': responsavel.cargo,
+        'email': responsavel.email_responsavel_evento,
+    }
 
     return dados_responsavel
 
 
-def pegar_atividades_relatorio(colegio):
-    colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando,
-                                                                     ficha_avaliacao=False)
+def pegar_atividades_relatorio(id_ordem):
+    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(ordem__id=id_ordem)
     atividades = []
 
     for i in range(1, len(relatorio_colegio.atividades) + 1):
@@ -50,10 +50,8 @@ def pegar_atividades_relatorio(colegio):
     return atividades
 
 
-def pegar_professores_relatorio(colegio):
-    colegio_avaliando = ClienteColegio.objects.get(nome_fantasia=colegio)
-    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando,
-                                                                     ficha_avaliacao=False)
+def pegar_professores_relatorio(id_ordem):
+    relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(ordem__id=id_ordem)
     professores = []
 
     for i in relatorio_colegio.equipe:

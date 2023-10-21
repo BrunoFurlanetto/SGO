@@ -2,7 +2,7 @@
 // já existêntes na ficha de evento
 // Função para verificar se o check da locação/atividade está ativo
 $('document').ready(function () {
-    $('#coordenador_peraltas').select2({'style': "pointer-events: none"})
+    $('#id_coordenador_peraltas').select2({'style': "pointer-events: none"})
 })
 function check_locacao(){
 

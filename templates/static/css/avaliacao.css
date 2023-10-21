@@ -1,7 +1,7 @@
 .conteudo-avaliacao input[type=text], .conteudo-avaliacao input[type=number],
 .conteudo-avaliacao input[type=email] {
     background-color: #fff;
-    max-width: 100%;
+    width: 100%;
     border-width: 0 0 2px;
     border-color: #007ec1;
     border-radius: 5px;
@@ -12,7 +12,7 @@
 
 .conteudo-avaliacao select {
     background-color: #fff;
-    max-width: 100%;
+    width: 100%;
     border-width: 0 0 2px;
     border-color: #007ec1;
     border-radius: 5px;
@@ -35,47 +35,16 @@
     resize: none;
 }
 
-.conteudo-avaliacao [id*="avaliacao"], .conteudo-avaliacao [id*="atividade"] {
-    width: 100%
-}
-
-.conteudo-avaliacao [id*="avaliacao_professor"] {
-    width: 100px;
+.conteudo-avaliacao #dados_grupo {
+    display: flex;
+    column-gap: 30px;
+    flex-wrap: wrap;
+    row-gap: 15px;
 }
 
 select:hover, select:focus, input:hover, input:focus,
 textarea:hover, textarea:focus {
     border-color: #fcc607;
-}
-
-.conteudo-avaliacao #id_instituicao {
-    width: 400px;
-    height: 38px;
-    font-weight: 400;
-}
-
-.conteudo-avaliacao #id_cidade {
-    width: 300px;
-}
-
-.conteudo-avaliacao #id_n_alunos, #id_n_educadores {
-    width: 100px;
-}
-
-.conteudo-avaliacao #id_serie {
-    width: 150px;
-}
-
-.conteudo-avaliacao #id_nome_vendedor, .conteudo-avaliacao #id_observacoes,
-.conteudo-avaliacao #id_motivo_trazer_grupo, .conteudo-avaliacao #id_o_que_quer_proxima,
-.conteudo-avaliacao #id_serie, .conteudo-avaliacao #id_email_avaliador {
-    width: 100%;
-}
-
-.conteudo-avaliacao #id_limpeza_instalacoes, .conteudo-avaliacao #id_avaliacao_conteudo_pedagogico,
-.conteudo-avaliacao #id_estado_conservacao {
-    margin-left: -10%;
-    width: 80%
 }
 
 /* Pra parte da animação */
@@ -150,10 +119,8 @@ textarea:hover, textarea:focus {
 }
 
 .conteudo-avaliacao {
-    width: 700px;
-    margin: auto;
-    margin-bottom: 5%;
-    margin-top: 5%;
+    width: 800px;
+    margin: 5% auto;
     background-color: #fff;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;

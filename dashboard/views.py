@@ -44,8 +44,7 @@ def dashboardCeu(request):
         mostrar_aviso_disponibilidade = False
         depois_25 = False
     except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde')
+        messages.error(request, f'Houve um erro inesperado ({e}), tente novamente mais tarde')
         return redirect('logout')
     else:
         # Relatórios de atendimento ao público
@@ -83,25 +82,6 @@ def dashboardCeu(request):
     #     for escala in escalas:
     #         equipe_escalada = escala.equipe.split(', ')
 
-    # ------------ Ajax enviado para construir as linhas da tabela para a data selecionada ----------------
-    if is_ajax(request) and request.method == 'POST':
-        data_selecao = request.POST.get('data_selecionada')
-
-        # Relatórios de atendimento ao público
-        publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-            data_atendimento=data_selecao)
-        # Relatórios de atendimento de colégio
-        colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
-        # Relatórios de atendimento de empresa
-        empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
-
-        relatorios = list(chain(publico, colegio, empresa))
-        dados = juntar_dados(relatorios)
-
-        return JsonResponse({'dados': dados, })
-
     if request.method != 'POST':
         # --------------------------------- Dados apresentados na tabela -----------------------------------------------
         data_relatorio = datetime.today().date()
@@ -120,7 +100,6 @@ def dashboardCeu(request):
         dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
             check_in__date__lte=data_relatorio, check_out__date__gte=data_relatorio
         )
-
         dados_tabela = list(chain(dados_publico, dados_colegio, dados_empresa))
         data_hoje = datetime.now().date()
         professores = Professores.objects.all()

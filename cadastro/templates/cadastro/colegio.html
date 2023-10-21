@@ -13,66 +13,58 @@
         <hr>
         <script src="{% static 'js/script_base.js' %}"></script>
         <script src="{% static 'js/scripts_colegio.js' %}"></script>
-        <div>
-            <div style="width: 66%">
-                <form action="{% url 'colegio' %}" method="GET">
-                    <fieldset>
-                        <label for="colegio">Colégio</label>
-                        <select class="select-control mr-sm-2" id="colegio" name="colegio"
-                                onchange="this.form.submit()" required>
-                            <option selected></option>
-                            {% for ordem_bd in ordens %}
-                                <option value="{{ ordem_bd.id }}" {% if ordem.id == ordem_bd.id %}
-                                        selected {% endif %}>{{ ordem_bd.ficha_de_evento.cliente }}</option>
-                            {% endfor %}
-                        </select>
-                    </fieldset>
-                </form>
+        {% if not relatorio %}
+            <div>
+                <div style="width: 66%">
+                    <form action="{% url 'colegio' %}" method="GET">
+                        <fieldset>
+                            <label for="colegio">Colégio</label>
+                            <select class="select-control mr-sm-2" id="colegio" name="colegio"
+                                    onchange="this.form.submit()" required>
+                                <option selected></option>
+                                {% for ordem_bd in ordens %}
+                                    <option value="{{ ordem_bd.id }}" {% if ordem.id == ordem_bd.id %}
+                                            selected {% endif %}>{{ ordem_bd.ficha_de_evento.cliente }}</option>
+                                {% endfor %}
+                            </select>
+                        </fieldset>
+                    </form>
+                </div>
+                <hr>
             </div>
-            <hr>
-        </div>
+        {% endif %}
         <!------------------------------------------------------------------------------>
-        {% if ordem %}
-            <form action="{% url 'colegio' %}" method="POST">
-                <fieldset id="relatorio">
+        {% if ordem or relatorio %}
+            <form {% if not relatorio %} action="{% url 'colegio' %}" {% else %} action="{% url 'editar_colegio' relatorio.id %}" {% endif %} method="POST">
+                <fieldset id="relatorio" {% if relatorio %} disabled {% endif %}>
                     {% csrf_token %}
-                    <input type="hidden" name="instituicao" id="instituicao" value="{{ ordem.instituicao }}">
-                    <input type="hidden" name="id_ordem" id="id_ordem" value="{{ ordem.id }}">
+                    {{ formulario.instituicao.as_hidden }}
+                    {{ formulario.ordem.as_hidden }}
                     <h5 class="titulo-secao">Dados cliente</h5>
                     <div class="mb-2" style="display: flex; column-gap: 15px;">
                         <div style="width: 30%">
-                            <label>Coordenador peraltas</label>
-                            <select name="coordenador_peraltas" id="coordenador_peraltas" multiple>
-                                <option></option>
-                                {% for monitor in monitores %}
-                                    <option value="{{ monitor.id }}"
-                                            {% if monitor.id in ordem.listar_id_monitor_responsavel %}
-                                            selected {% endif %}>{{ monitor.usuario.get_full_name }}</option>
-                                {% endfor %}
-                            </select>
+                            {{ formulario.coordenador_peraltas.label }}
+                            {{ formulario.coordenador_peraltas }}
                         </div>
                         <div style="width: 33%; text-align: center">
                             <label>Participantes: </label>
                             <div style="display: flex; column-gap: 5px">
                                 <div style="width: 45%">
-                                    <input type="number" min="0" id="participantes_previa" name="participantes_previa"
-                                           placeholder="Prévia" value="{{ ordem.n_participantes }}" readonly>
+                                    {{ formulario.participantes_previa }}
                                 </div>
                                 <div style="width: 55%">
-                                    <input type="number" min="0" id="participantes_confirmados"
-                                           name="participantes_confirmados" placeholder="Confirmados">
+                                    {{ formulario.participantes_confirmados }}
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <label>Série</label>
-                            <input type="text" id="serie" name="serie" readonly value="{{ ordem.serie }}">
+                            {{ formulario.serie.label }}
+                            {{ formulario.serie }}
                         </div>
                     </div>
                     <div style="width: 15%">
-                        <label>Professores</label>
-                        <input type="number" min="0" id="responsaveis" name="responsaveis" readonly
-                               value="{{ ordem.n_professores }}">
+                        {{ formulario.responsaveis.label }}
+                        {{ formulario.responsaveis }}
                     </div>
                     <hr>
                     <h5 class="titulo-secao">Escala</h5>
@@ -80,54 +72,66 @@
                         <div style="width: 30%">
                             <label for="coordenador">Coordenador</label>
                             <select class="select-control mr-sm-2" id="coordenador" name="professores" required>
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.coordenador %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="width: 30%">
                             <label>Professor 2: </label>
                             <select class="select-control mr-sm-2" id="professor_2" name="professores">
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.professor_2 %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="width: 30%">
                             <label>Professor 3: </label>
                             <select class="select-control mr-sm-2" id="professor_3" name="professores">
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.professor_3 %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="width: 30%">
                             <label>Professor 4: </label>
                             <select class="select-control mr-sm-2" id="professor_4" name="professores">
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.professor_4 %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="width: 30%">
                             <label>Professor 5: </label>
                             <select class="select-control mr-sm-2" id="professor_5" name="professores">
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.professor_5 %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="width: 30%">
                             <label>Professor 6: </label>
                             <select class="select-control mr-sm-2" id="professor_6" name="professor_6">
-                                <option selected></option>
+                                <option></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if professor.id == relatorio.equipe.professor_6 %}
+                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -139,81 +143,153 @@
                         <caption>Atividades do colégio no CEU:</caption>
                         <thead>
                         <tr>
-                            <th style="width: 25%; text-align: center">
-                                Nome dos professores
-                            </th>
-                            <th style="width: 25%; text-align: center">
-                                Atividade
-                            </th>
-                            <th style="width: 20%; text-align: center">
-                                Data e Hora
-                            </th>
-                            <th style="width: 10%; text-align: center">
-                                QTD
-                            </th>
-                            <th style="width: 5%; text-align: center">
-
-                            </th>
+                            <th style="width: 25%; text-align: center">Nome dos professores</th>
+                            <th style="width: 25%; text-align: center">Atividade</th>
+                            <th style="width: 20%; text-align: center">Data e Hora</th>
+                            <th style="width: 10%; text-align: center">QTD</th>
+                            <th style="width: 5%; text-align: center"></th>
                         </tr>
                         </thead>
                         <tbody class="auto" id="corpo_tabela_atividade">
-                        {% for atividade_bd in ordem.dividir_atividades_ceu %}
-                            <tr class="linhas" id="linha_{{ forloop.counter }}" style="vertical-align: middle">
-                                <td class="colunas_1" id="coluna_1_linha_{{ forloop.counter }}"
-                                    style="display: flex; flex-wrap: wrap">
-                                    <select class="professores" id="prof_1_ativ_{{ forloop.counter }}"
-                                            name="professores_ativ_{{ forloop.counter }}"
-                                            style="width: 45%; margin: 2px;" onchange="validacao(this)" required>
-                                        <option selected></option>
+                        {% if relatorio %}
+                            {% for atividade_bd in relatorio.dividir_atividades %}
+                                <tr class="linhas" id="linha_{{ forloop.counter }}" style="vertical-align: middle">
+                                    <td class="colunas_1" id="coluna_1_linha_{{ forloop.counter }}"
+                                        style="display: flex; flex-wrap: wrap">
+                                        <select class="professores" id="prof_1_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)" required>
+                                            <option></option>
                                             {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                                <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.0 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                             {% endfor %}
-                                    </select>
-                                    <select class="professores" id="prof_2_ativ_{{ forloop.counter }}"
-                                            name="professores_ativ_{{ forloop.counter }}"
-                                            style="width: 45%; margin: 2px;" onchange="validacao(this)">
-                                        <option selected="">
-                                            {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                        </select>
+                                        <select class="professores" id="prof_2_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.1 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                        <select class="professores" id="prof_3_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.2 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                        <select class="professores" id="prof_4_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.3 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td class="colunas_2" id="coluna_2_linha_{{ forloop.counter }}">
+                                        <select class="atividades" id="ativ_{{ forloop.counter }}"
+                                                name="ativ_{{ forloop.counter }}" onchange="verificar_n_professores()"
+                                                required>
+                                            <option></option>
+                                            {% for atividade in atividades %}
+                                                <option value="{{ atividade.id }}"
+                                                        {% if atividade.id == atividade_bd.atividade %}
+                                                        selected {% endif %}>{{ atividade.atividade }}</option>
                                             {% endfor %}
-                                    </select>
-                                    <select class="professores" id="prof_3_ativ_{{ forloop.counter }}"
-                                            name="professores_ativ_{{ forloop.counter }}"
-                                            style="width: 45%; margin: 2px;" onchange="validacao(this)">
-                                        <option selected="">
-                                            {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                                            {% endfor %}
-                                    </select>
-                                    <select class="professores" id="prof_4_ativ_{{ forloop.counter }}"
-                                            name="professores_ativ_{{ forloop.counter }}"
-                                            style="width: 45%; margin: 2px;" onchange="validacao(this)">
-                                        <option selected="">
-                                            {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                                            {% endfor %}
-                                    </select>
-                                </td>
-                                <td class="colunas_2" id="coluna_2_linha_{{ forloop.counter }}">
-                                    <select class="atividades" id="ativ_{{ forloop.counter }}" name="ativ_{{ forloop.counter }}" onchange="verificar_n_professores()" required>
-                                        <option></option>
-                                        {% for atividade in atividades %}
-                                            <option value="{{ atividade.id }}" {% if atividade.id == atividade_bd.atividade %} selected {% endif %}>{{ atividade.atividade }}</option>
-                                        {% endfor %}
 
-                                    </select>
-                                </td>
-                                <td class="colunas_3" id="coluna_3_linha_{{ forloop.counter }}">
-                                    <input class="datas" type="datetime-local" id="data_hora_ativ{{ forloop.counter }}" name="ativ_{{ forloop.counter }}" value="{{ atividade_bd.data_e_hora }}" required/>
-                                </td>
-                                <td class="colunas_4" id="coluna_4_linha_{{ forloop.counter }}">
-                                    <input class="qtds" type="number" id="qtd_ativ{{ forloop.counter }}" name="ativ_{{ forloop.counter }}" value="{{ atividade_bd.participantes }}" required/>
-                                </td>
-                                <td class="colunas_5" id="coluna_5_linha_{{ forloop.counter }}">
-                                    <button class="buton-x-" id="btn_{{ forloop.counter }}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x'></i></span></button>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td class="colunas_3" id="coluna_3_linha_{{ forloop.counter }}">
+                                        <input class="datas" type="datetime-local"
+                                               id="data_hora_ativ{{ forloop.counter }}"
+                                               name="ativ_{{ forloop.counter }}" value="{{ atividade_bd.data_e_hora }}"
+                                               required/>
+                                    </td>
+                                    <td class="colunas_4" id="coluna_4_linha_{{ forloop.counter }}">
+                                        <input class="qtds" type="number" id="qtd_ativ{{ forloop.counter }}"
+                                               name="ativ_{{ forloop.counter }}"
+                                               value="{{ atividade_bd.participantes }}" required/>
+                                    </td>
+                                    <td class="colunas_5" id="coluna_5_linha_{{ forloop.counter }}">
+                                        <button class="buton-x-" id="btn_{{ forloop.counter }}" type="button"
+                                                onClick="remover_linha(this)"><span><i class='bx bx-x'></i></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            {% for atividade_bd in ordem.dividir_atividades_ceu %}
+                                <tr class="linhas" id="linha_{{ forloop.counter }}" style="vertical-align: middle">
+                                    <td class="colunas_1" id="coluna_1_linha_{{ forloop.counter }}"
+                                        style="display: flex; flex-wrap: wrap">
+                                        <select class="professores" id="prof_1_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)" required>
+                                            <option selected></option>
+                                            {% for professor in professores %}
+                                                <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <select class="professores" id="prof_2_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option selected="">
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                        <select class="professores" id="prof_3_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option selected="">
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                        <select class="professores" id="prof_4_ativ_{{ forloop.counter }}"
+                                                name="professores_ativ_{{ forloop.counter }}"
+                                                style="width: 45%; margin: 2px;" onchange="validacao(this)">
+                                            <option selected="">
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
+                                                {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td class="colunas_2" id="coluna_2_linha_{{ forloop.counter }}">
+                                        <select class="atividades" id="ativ_{{ forloop.counter }}"
+                                                name="ativ_{{ forloop.counter }}" onchange="verificar_n_professores()"
+                                                required>
+                                            <option></option>
+                                            {% for atividade in atividades %}
+                                                <option value="{{ atividade.id }}"
+                                                        {% if atividade.id == atividade_bd.atividade %}
+                                                        selected {% endif %}>{{ atividade.atividade }}</option>
+                                            {% endfor %}
+
+                                        </select>
+                                    </td>
+                                    <td class="colunas_3" id="coluna_3_linha_{{ forloop.counter }}">
+                                        <input class="datas" type="datetime-local"
+                                               id="data_hora_ativ{{ forloop.counter }}"
+                                               name="ativ_{{ forloop.counter }}" value="{{ atividade_bd.data_e_hora }}"
+                                               required/>
+                                    </td>
+                                    <td class="colunas_4" id="coluna_4_linha_{{ forloop.counter }}">
+                                        <input class="qtds" type="number" id="qtd_ativ{{ forloop.counter }}"
+                                               name="ativ_{{ forloop.counter }}"
+                                               value="{{ atividade_bd.participantes }}" required/>
+                                    </td>
+                                    <td class="colunas_5" id="coluna_5_linha_{{ forloop.counter }}">
+                                        <button class="buton-x-" id="btn_{{ forloop.counter }}" type="button"
+                                                onClick="remover_linha(this)"><span><i class='bx bx-x'></i></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                         </tbody>
                     </table>
                     <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
@@ -266,11 +342,16 @@
                     <!-------------------------------- RELATÓRIO FINAL ---------------------------->
                     <div class="form-group">
                         <label>Relatório do dia:</label>
-                        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio"> Atividades realizadas com sucesso! </textarea>
-                        <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
-                        <script src="{% static 'js/script_base.js' %}"></script>
+                        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio">{% if relatorio %}{{ relatorio.relatorio }}{% else %}Atividades realizadas com sucesso!{% endif %}</textarea>
                     </div>
                 </fieldset>
+                <div class="botoes">
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5" {% if relatorio %} disabled {% endif %}>Salvar</button>
+                    {% if editar %}
+                        <button type="button" class="btn btn-secondary" onclick="$('#relatorio, #salvar').prop('disabled', false)">Editar</button>
+                    {% endif %}
+                    <script src="{% static 'js/script_base.js' %}"></script>
+                </div>
             </form>
         {% endif %}
 
