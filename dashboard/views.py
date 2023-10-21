@@ -139,34 +139,19 @@ def dashboardCeu(request):
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = sem_escalas = None
-    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
-
-    # if is_ajax(request):
-    #     if request.method == 'GET':
-    #         if request.GET.get('colaboradora'):
-    #             ...
-    #         else:
-    #             id_vendedora = Vendedor.objects.get(usuario=request.user).id
-    #             fichas = FichaDeEvento.aplicar_filtros(request.GET, id_vendedora)
-    #             ordens = []
-    #
-    #             if 'status' in request.GET.get('filtro'):
-    #                 ordens = OrdemDeServico.pegar_ordens_filtro(fichas)
-    #
-    #             return JsonResponse({'fichas': fichas, 'ordens': ordens})
 
     if diretoria:
         fichas_colaborador = FichaDeEvento.objects.filter(
             os=False,
-            # check_in__month__gte=datetime.today().month,
+            check_in__date__gte=datetime.today(),
         )
         sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
     else:
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
             os=False,
-            # check_in__month__gte=datetime.today().month,
+            check_in__date__gte=datetime.today(),
         )
 
     fichas = fichas_colaborador.filter(pre_reserva=False)
@@ -175,7 +160,7 @@ def dashboardPeraltas(request):
     fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
     ordens_colaborador = OrdemDeServico.objects.filter(
         vendedor__usuario=request.user,
-        check_in__month__gte=datetime.today().month
+        check_in__date__gte=datetime.today(),
     )
     avisos = fichas_colaborador.filter(
         pre_reserva=True,
