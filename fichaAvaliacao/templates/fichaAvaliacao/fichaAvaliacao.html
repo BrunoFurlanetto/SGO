@@ -4,33 +4,33 @@
 
 {% block conteudo %}
     <!-------------------------------- LINHA 1 ---------------------------->
-    <div class="conteudo-inicio">
-        <center>
-            <img class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
-            <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
+    {% if not avaliacao %}
+        <div class="conteudo-inicio">
+            <center>
+                <img class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
+                <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
 
-            <hr>
-            <p>
-                Olá cara professora, caro professor
-            </p>
-            <p class="texto-animacao" align="justify">
-                Esta é uma ficha de avaliação das atividades feitas pelo seu grupo. Para nós, os dados aqui coletados
-                são
-                de grande importância na busca pela excelência de nossos serviços e na qualidade da infraestrutura.
-            </p>
-            <p align="right">
-                Ass. Grupo Peraltas e Fundação CEU
-            </p>
-            <hr>
-            <button onClick="animacao()">
-                <span><h4>Iniciar</h4></span>
-            </button>
-        </center>
-    </div>
+                <hr>
+                <p>
+                    Olá cara professora, caro professor
+                </p>
+                <p class="texto-animacao" align="justify">
+                    Esta é uma ficha de avaliação das atividades feitas pelo seu grupo. Para nós, os dados aqui coletados
+                    são
+                    de grande importância na busca pela excelência de nossos serviços e na qualidade da infraestrutura.
+                </p>
+                <p align="right">
+                    Ass. Grupo Peraltas e Fundação CEU
+                </p>
+                <hr>
+                <button onClick="animacao()">
+                    <span><h4>Iniciar</h4></span>
+                </button>
+            </center>
+        </div>
+    {% endif %}
 
-    <div class="conteudo-avaliacao hide" style="padding: 10px">
-        <script src="{% static 'js/script_base.js' %}"></script>
-
+    <div class="conteudo-avaliacao {% if not avaliacao %} hide {% endif %}" style="padding: 10px">
         <div class="head">
             <img src="{% static  'img/logoAvalicao.png' %}">
             <p>Ficha de Avaliação das atividades</p>
@@ -39,6 +39,7 @@
 
         <form action="{% url 'fichaAvaliacao' %}" method="POST">
             {% csrf_token %}
+            {{ form.ordem_de_servico.as_hidden }}
             <script src="{% static 'js/script_base.js' %}"></script>
             <script src="{% static 'js/jquery.js' %}"></script>
             <link rel="stylesheet" href="{% static 'css/avaliacao.css' %}">
@@ -347,11 +348,14 @@
                 <label>Outras observações:</label>
                 {{ form.observacoes }}
             </div>
-            <hr class="divisao">
-            <div style="display: flex; justify-content: end; padding-right: 20px; margin-bottom: 20px;">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-            </div>
+            {% if not avaliacao %}
+                <hr class="divisao">
+                <div style="display: flex; justify-content: end; padding-right: 20px; margin-bottom: 20px;">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            {% endif %}
         </form>
     </div>
 
+    <script src="{% static 'js/script_base.js' %}"></script>
 {% endblock %}

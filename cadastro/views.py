@@ -139,7 +139,6 @@ def colegio(request, id_relatorio=None):
         relatorio_editado = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
         relatorio_colegio = RelatorioColegio(request.POST, instance=relatorio_editado)
     else:
-        print(request.POST)
         ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
         relatorio_colegio = RelatorioColegio(request.POST, initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem))
 

@@ -22,13 +22,38 @@ from projetoCEU.utils import verificar_grupo, email_error
 
 
 @login_required(login_url='login')
-def fichaAvaliacao(request):
+def fichaAvaliacao(request, id_ficha=None):
+    if id_ficha:
+        ficha = FichaDeAvaliacao.objects.get(pk=id_ficha)
+        ficha_form = FichaDeAvaliacaoForm(instance=ficha)
+        grupos = verificar_grupo(request.user.groups.all())
+        atividades = []
+        professores = []
+
+        ficha_form.nota_agilidade_vendedor = ficha.avaliacao_vendedor['agilidade']
+        ficha_form.nota_clareza_vendedor = ficha.avaliacao_vendedor['clareza_ideias']
+
+        for i in range(1, len(ficha.avaliacoes_atividades) + 1):
+            atividades.append(ficha.avaliacoes_atividades[f'atividade_{i}'])
+
+        for i in range(1, len(ficha.avaliacoes_professores) + 1):
+            professores.append(ficha.avaliacoes_professores[f'professor_{i}'])
+
+        ficha_form.atividades = atividades
+        ficha_form.professores = professores
+
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
+            'form': ficha_form,
+            'avaliacao': ficha
+        })
+
     grupos = verificar_grupo(request.user.groups.all())
 
     if not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
         return redirect('dashboard')
 
-    formulario = FichaDeAvaliacaoForm()
+    ordem = OrdemDeServico.objects.get(pk=request.user.username)
+    formulario = FichaDeAvaliacaoForm(initial=FichaDeAvaliacao.dados_iniciais(ordem))
     formulario.dados_colegio = pegar_dados_colegio(request.user.username)
     formulario.dados_avaliador = pegar_dados_avaliador(request.user.username)
     formulario.atividades = pegar_atividades_relatorio(request.user.username)
@@ -36,8 +61,10 @@ def fichaAvaliacao(request):
     ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
 
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
-                                                                      'grupos': grupos})
+        return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
+            'ver': ver_icons, 'form': formulario,
+            'grupos': grupos
+        })
 
     formulario = FichaDeAvaliacaoForm(request.POST)
 
@@ -54,14 +81,10 @@ def fichaAvaliacao(request):
             return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
                                                                           'grupos': grupos})
         else:
-            ordem_colegio = OrdemDeServico.objects.get(instituicao=colegio_avaliando,
-                                                       ficha_avaliacao=False)
-            relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(instituicao=colegio_avaliando,
-                                                                             ficha_avaliacao=False)
-
+            ordem_colegio = OrdemDeServico.objects.get(pk=request.user.username)
+            relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(ordem=ordem_colegio)
             ordem_colegio.ficha_avaliacao = True
             relatorio_colegio.ficha_avaliacao = True
-
             ordem_colegio.save()
             relatorio_colegio.save()
 
@@ -114,27 +137,3 @@ def entregues(request):
     if request.method != 'POST':
         return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas,
                                                                             'grupos': grupos})
-
-
-@login_required(login_url='login')
-def verFicha(request, id_fichaDeAvaliacao):
-    ficha = FichaDeAvaliacao.objects.get(id=int(id_fichaDeAvaliacao))
-    ficha_form = FichaDeAvaliacaoForm(instance=ficha)
-    grupos = verificar_grupo(request.user.groups.all())
-    atividades = []
-    professores = []
-
-    ficha_form.nota_agilidade_vendedor = ficha.avaliacao_vendedor['agilidade']
-    ficha_form.nota_clareza_vendedor = ficha.avaliacao_vendedor['clareza_ideias']
-
-    for i in range(1, len(ficha.avaliacoes_atividades) + 1):
-        atividades.append(ficha.avaliacoes_atividades[f'atividade_{i}'])
-
-    for i in range(1, len(ficha.avaliacoes_professores) + 1):
-        professores.append(ficha.avaliacoes_professores[f'professor_{i}'])
-
-    ficha_form.atividades = atividades
-    ficha_form.professores = professores
-
-    return render(request, 'fichaAvaliacao/verFichaAvaliacao.html', {'form': ficha_form,
-                                                                     'grupos': grupos})

@@ -72,11 +72,13 @@ def salvar_avaliacoes_vendedor(dados, ficha):
     vendedora.nota = (vendedora.nota + media) / vendedora.n_avaliacoes
     vendedora.save()
 
-    dados_avaliacao = {'vendedora': vendedora.usuario.get_full_name(),
-                       'cordialidade': dados.get('cordialidade_vendedor'),
-                       'agilidade': dados.get('agilidade_vendedor'),
-                       'clareza_ideias': dados.get('clareza_vendedor'),
-                       'media': media}
+    dados_avaliacao = {
+        'vendedora': vendedora.id,
+        'cordialidade': dados.get('cordialidade_vendedor'),
+        'agilidade': dados.get('agilidade_vendedor'),
+        'clareza_ideias': dados.get('clareza_vendedor'),
+        'media': media
+    }
 
     ficha.avaliacao_vendedor = dados_avaliacao
 
@@ -97,8 +99,10 @@ def salvar_avaliacoes_atividades(dados, ficha):
         atividade.nota = (atividade.nota + int(dados.get(f'avaliacao_atividade_{i}'))) / atividade.n_avaliacoes
         atividade.save()
 
-        avaliacoes[f'atividade_{i}'] = {'atividade': atividade.atividade,
-                                        'avaliacao': dados.get(f'avaliacao_atividade_{i}')}
+        avaliacoes[f'atividade_{i}'] = {
+            'atividade': atividade.id,
+            'avaliacao': dados.get(f'avaliacao_atividade_{i}')
+        }
 
     ficha.avaliacoes_atividades = avaliacoes
 
@@ -117,11 +121,12 @@ def salvar_avaliacoes_professores(dados, ficha, dados_professores):
         professor.nota = (professor.nota + media) / professor.n_avaliacoes
         professor.save()
 
-        avaliacoes[f'professor_{i}'] = {'professor': professor.usuario.get_full_name(),
-                                        'dominio': dados.get(f'dominio_professor_{i}'),
-                                        'cordialidade': dados.get(f'cordialidade_professor_{i}'),
-                                        'desenvoltura': dados.get(f'desenvoltura_professor_{i}'),
-                                        'media': media}
+        avaliacoes[f'professor_{i}'] = {
+            'professor': professor.id,
+            'dominio': dados.get(f'dominio_professor_{i}'),
+            'cordialidade': dados.get(f'cordialidade_professor_{i}'),
+            'desenvoltura': dados.get(f'desenvoltura_professor_{i}'),
+            'media': media
+        }
 
     ficha.avaliacoes_professores = avaliacoes
-    print(ficha.avaliacoes_professores)
