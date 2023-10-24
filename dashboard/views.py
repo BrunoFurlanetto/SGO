@@ -118,9 +118,11 @@ def dashboardCeu(request):
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = sem_escalas = None
-    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
+    operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
+    coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
 
-    if diretoria:
+    if diretoria or operacional or coordenador_monitoria:
         fichas_colaborador = FichaDeEvento.objects.filter(
             os=False,
             check_in__date__gte=datetime.today(),
@@ -174,5 +176,8 @@ def dashboardPeraltas(request):
         'confirmados': confirmados,
         'sem_escalas': sem_escalas,
         'avisos': avisos,
+        'operacional': operacional,
+        'coordenador_monitoria': coordenador_monitoria,
+        'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     }) # TODO: Separar os returns para perfis diferentes

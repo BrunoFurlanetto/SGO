@@ -541,6 +541,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         novo_evento.pre_reserva = False
         novo_evento.os = os
         novo_evento.escala = escala
+        novo_evento.adesao = (novo_evento.qtd_confirmada / novo_evento.qtd_convidada) * 100
 
         if not id_ficha_de_evento:
             novo_evento.data_preenchimento = datetime.today().date()
