@@ -23,6 +23,9 @@ from projetoCEU.utils import verificar_grupo, email_error
 
 @login_required(login_url='login')
 def fichaAvaliacao(request, id_ficha=None):
+    atividades_bd = Atividades.objects.all()
+    professores_bd = Professores.objects.all()
+
     if id_ficha:
         ficha = FichaDeAvaliacao.objects.get(pk=id_ficha)
         ficha_form = FichaDeAvaliacaoForm(instance=ficha)
@@ -44,7 +47,9 @@ def fichaAvaliacao(request, id_ficha=None):
 
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
             'form': ficha_form,
-            'avaliacao': ficha
+            'avaliacao': ficha,
+            'atividades': atividades_bd,
+            'professores': professores_bd
         })
 
     grupos = verificar_grupo(request.user.groups.all())
@@ -62,19 +67,23 @@ def fichaAvaliacao(request, id_ficha=None):
 
     if request.method != 'POST':
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
-            'ver': ver_icons, 'form': formulario,
-            'grupos': grupos
+            'ver': ver_icons,
+            'form': formulario,
+            'grupos': grupos,
+            'atividades': atividades_bd,
+            'professores': professores_bd
         })
 
     formulario = FichaDeAvaliacaoForm(request.POST)
 
     if formulario.is_valid():
+        nova_avaliacao = formulario.save(commit=False)
+        salvar_avaliacoes_vendedor(request.POST, nova_avaliacao)
+        salvar_avaliacoes_atividades(request.POST, nova_avaliacao)
+        salvar_avaliacoes_professores(request.POST, nova_avaliacao, professores)
+        formulario.save()
         try:
-            nova_avaliacao = formulario.save(commit=False)
-            salvar_avaliacoes_vendedor(request.POST, nova_avaliacao)
-            salvar_avaliacoes_atividades(request.POST, nova_avaliacao)
-            salvar_avaliacoes_professores(request.POST, nova_avaliacao, professores)
-            formulario.save()
+            pass
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor chame um professor!')

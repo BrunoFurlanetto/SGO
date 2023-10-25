@@ -138,6 +138,10 @@ textarea:hover, textarea:focus {
     animation: sumir 2s;
 }
 
+.conteudo-avaliacao select:not(.avaliacao) {
+    pointer-events: none;
+}
+
 /* As animações */
 @keyframes fadeIn {
     from {

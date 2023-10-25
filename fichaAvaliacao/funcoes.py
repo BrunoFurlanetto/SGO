@@ -44,8 +44,7 @@ def pegar_atividades_relatorio(id_ordem):
 
     for i in range(1, len(relatorio_colegio.atividades) + 1):
         if relatorio_colegio.atividades[f'atividade_{i}']['atividade'] not in atividades:
-            atividade = Atividades.objects.get(id=relatorio_colegio.atividades[f'atividade_{i}']['atividade'])
-            atividades.append(atividade)
+            atividades.append(relatorio_colegio.atividades[f'atividade_{i}']['atividade'])
 
     return atividades
 
@@ -94,7 +93,7 @@ def salvar_avaliacoes_atividades(dados, ficha):
     n_atividades = int(n_atividades / 2)
 
     for i in range(1, n_atividades + 1):
-        atividade = Atividades.objects.get(atividade=dados.get(f'atividade_{i}'))
+        atividade = Atividades.objects.get(pk=dados.get(f'atividade_{i}'))
         atividade.n_avaliacoes += 1
         atividade.nota = (atividade.nota + int(dados.get(f'avaliacao_atividade_{i}'))) / atividade.n_avaliacoes
         atividade.save()

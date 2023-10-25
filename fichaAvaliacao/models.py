@@ -53,19 +53,22 @@ class FichaDeAvaliacao(models.Model):
             'nome_vendedor': ordem.vendedor,
         }
 
+    def nota_vendedor(self):
+        return self.avaliacao_vendedor
+
 
 class FichaDeAvaliacaoForm(forms.ModelForm):
     class Meta:
         model = FichaDeAvaliacao
         exclude = ()
         widgets = {
-            'instituicao': forms.Select(attrs={'style': 'pointer-events: none'}),
-            'nome_avaliador': forms.Select(attrs={'style': 'pointer-events: none'}),
-            'nome_vendedor': forms.Select(attrs={'style': 'pointer-events: none'}),
             'cidade': forms.TextInput(attrs={'readonly': True}),
             'n_alunos': forms.NumberInput(attrs={'readonly': True}),
             'n_professores': forms.NumberInput(attrs={'readonly': True}),
             'serie': forms.TextInput(attrs={'readonly': True}),
             'cargo_avaliador': forms.TextInput(attrs={'readonly': True}),
             'email_avaliador': forms.TextInput(attrs={'readonly': True}),
+            'avaliacao_conteudo_pedagogico': forms.Select(attrs={'class': 'avaliacao'}),
+            'limpeza_instalacoes': forms.Select(attrs={'class': 'avaliacao'}),
+            'estado_conservacao': forms.Select(attrs={'class': 'avaliacao'}),
         }

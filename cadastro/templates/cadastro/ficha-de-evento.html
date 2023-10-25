@@ -23,7 +23,6 @@
                     <div style="width: 55%; margin-right: -15px; {% if pre_reserva or ficha_de_evento %} margin-right: 10% {% endif %}">
                         <label for="cliente">Cliente</label>
                         {{ form.cliente.as_hidden }}
-
                         {% if pre_reserva %}
                             <input type="text" id="cliente" readonly
                                    value="{{ pre_reserva.cliente.nome_fantasia }}" onclick="pegarCliente()"
