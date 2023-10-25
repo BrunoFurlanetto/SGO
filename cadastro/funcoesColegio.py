@@ -9,24 +9,17 @@ import unidecode
 
 
 def pegar_colegios_no_ceu():
-    ordens_de_servico = OrdemDeServico.objects.filter(tipo='Colégio').filter(
+    return OrdemDeServico.objects.filter(tipo='Colégio').filter(
         relatorio_ceu_entregue=False,
         check_out_ceu__date__lte=datetime.today().date()
     ).order_by('check_out')
 
-    return ordens_de_servico
-
 
 def pegar_empresas_no_ceu():
-    ordens = OrdemDeServico.objects.filter(tipo='Empresa').filter(relatorio_ceu_entregue=False)
-    empresas = []
-
-    for ordem in ordens:
-        if ordem.atividades_ceu or ordem.locacao_ceu:
-            empresas.append({'id': ordem.id,
-                             'instituicao': ordem.instituicao})
-
-    return empresas
+    return OrdemDeServico.objects.filter(tipo='Empresa').filter(
+        relatorio_ceu_entregue=False,
+        check_out_ceu__date__lte=datetime.today().date()
+    ).order_by('check_out')
 
 
 def pegar_informacoes_cliente(cliente):

@@ -26,7 +26,7 @@
     resize: none;
 }
 .conteudo-colegio .switch, .conteudo-empresa .switch{
-    padding: 0px;
+    padding: 0;
     height: 15px;
 }
 .none{
@@ -45,4 +45,7 @@
     font-size: 25px;
     border: none;
     background-color: #fff;
+}
+#locacao select, #locacao input {
+    padding: 0 5px;
 }

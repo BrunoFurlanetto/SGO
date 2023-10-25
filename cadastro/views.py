@@ -22,7 +22,7 @@ from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
 from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa, RelatorioDeAtendimentoPublicoCeu, \
-    RelatorioDeAtendimentoColegioCeu
+    RelatorioDeAtendimentoColegioCeu, RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
@@ -140,7 +140,8 @@ def colegio(request, id_relatorio=None):
         relatorio_colegio = RelatorioColegio(request.POST, instance=relatorio_editado)
     else:
         ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
-        relatorio_colegio = RelatorioColegio(request.POST, initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem))
+        relatorio_colegio = RelatorioColegio(request.POST,
+                                             initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem))
 
     if relatorio_colegio.is_valid():
         relatorio = relatorio_colegio.save(commit=False)
@@ -196,9 +197,31 @@ def empresa(request):
     empresas = pegar_empresas_no_ceu()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                         'professores': professores,
-                                                         'empresas': empresas})
+        monitores = Monitor.objects.all()
+        atividades = Atividades.objects.all()
+        locais = Locaveis.objects.all()
+
+        if request.GET.get('empresa'):
+            ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
+            relatorio_colegio = RelatorioColegio(
+                initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
+            )
+
+            return render(request, 'cadastro/empresa.html', {
+                'formulario': relatorio_colegio,
+                'empresas': empresas,
+                'ordem': ordem_de_servico,
+                'professores': professores,
+                'monitores': monitores,
+                'atividades': atividades,
+                'locais': locais
+            })
+
+        return render(request, 'cadastro/empresa.html', {
+            'formulario': relatorio_empresa,
+            'professores': professores,
+            'empresas': empresas
+        })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))

@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{#{% load pipes %}#}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -11,8 +10,6 @@
             <h2>RELATÓRIO DE ATENDIMENTO DO COLÉGIO</h2>
         </div>
         <hr>
-        <script src="{% static 'js/script_base.js' %}"></script>
-        <script src="{% static 'js/scripts_colegio.js' %}"></script>
         {% if not relatorio %}
             <div>
                 <div style="width: 66%">
@@ -390,4 +387,6 @@
         </div>
     </div>
 
+    <script src="{% static 'js/script_base.js' %}"></script>
+    <script src="{% static 'js/scripts_colegio.js' %}"></script>
 {% endblock %}

@@ -87,8 +87,11 @@ def fichaAvaliacao(request, id_ficha=None):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor chame um professor!')
-            return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {'ver': ver_icons, 'form': formulario,
-                                                                          'grupos': grupos})
+            return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
+                'ver': ver_icons,
+                'form': formulario,
+                'grupos': grupos
+            })
         else:
             ordem_colegio = OrdemDeServico.objects.get(pk=request.user.username)
             relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(ordem=ordem_colegio)

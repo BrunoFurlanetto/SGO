@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',
     'dashboard.apps.DashboardConfig',
-    'verDocumento.apps.VerdocumentoConfig',
     'cadastro.apps.CadastroConfig',
     'escala.apps.EscalaConfig',
     'fichaAvaliacao.apps.FichaavaliacaoConfig',

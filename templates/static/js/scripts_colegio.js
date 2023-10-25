@@ -5,7 +5,6 @@ $('document').ready(function () {
     $('#id_coordenador_peraltas').select2({'style': "pointer-events: none"})
 })
 function check_locacao(){
-
     if($("#checkAtividade").is(":checked")){
         $('#tabela').removeClass('none')
     }else{

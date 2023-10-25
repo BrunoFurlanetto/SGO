@@ -142,6 +142,15 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     def __str__(self):
         return f'Relatório de atendimento à empresa do dia {self.instituicao}'
 
+    @staticmethod
+    def dados_iniciais(ordem):
+        return {
+            'instituicao': ordem.ficha_de_evento.cliente.id,
+            'ordem':ordem.id,
+            'participantes_previa': ordem.n_participantes,
+            'coordenador_peraltas': ordem.monitor_responsavel.all()
+        }
+
     # ------------------------------ Funções para vizualização no template -----------------------------------------
     def equipe_escalada(self):
         professores = []

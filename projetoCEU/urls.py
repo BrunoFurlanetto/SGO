@@ -32,7 +32,6 @@ if not em_manutencao:
         path('dashboard/', include('dashboard.urls')),
         path('cadastro/', include('cadastro.urls')),
         path('escala/', include('escala.urls')),
-        path('visualizacao/', include('verDocumento.urls')),
         path('ficha-de-avaliacao/', include('fichaAvaliacao.urls')),
         path('painel-geral/', include('painelAdm.urls')),
         path('ordem-de-servico/', include('ordemDeServico.urls')),
