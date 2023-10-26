@@ -227,9 +227,9 @@ def empresa(request):
         return JsonResponse(requests_ajax(request.POST))
 
     relatorio_empresa = RelatorioEmpresa(request.POST)
-
+    print(request.POST)
     if relatorio_empresa.is_valid():
-        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
         relatorio = relatorio_empresa.save(commit=False)
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_locacoes_empresa(request.POST, relatorio)

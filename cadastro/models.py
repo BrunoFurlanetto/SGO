@@ -106,6 +106,16 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
 
         return coordenador.usuario.first_name
 
+    def nome_professores(self):
+        professores = []
+
+        for id_professor in self.equipe.values():
+            nome_professor = Professores.objects.get(pk=id_professor).usuario.first_name
+            professores.append(nome_professor)
+
+        return ', '.join(professores)
+
+
     def dividir_atividades(self):
         atividades = []
 
@@ -145,24 +155,27 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     @staticmethod
     def dados_iniciais(ordem):
         return {
-            'instituicao': ordem.ficha_de_evento.cliente.id,
+            'instituicao': ordem.ficha_de_evento.cliente,
+            'check_in': ordem.check_in_ceu,
+            'check_out': ordem.check_out_ceu,
             'ordem':ordem.id,
             'participantes_previa': ordem.n_participantes,
             'coordenador_peraltas': ordem.monitor_responsavel.all()
         }
 
     # ------------------------------ Funções para vizualização no template -----------------------------------------
-    def equipe_escalada(self):
+    def nome_professores(self):
         professores = []
+
         for id_professor in self.equipe.values():
-            professor = Professores.objects.get(id=id_professor)
-            professores.append(professor.usuario.first_name)
+            nome_professor = Professores.objects.get(pk=id_professor).usuario.first_name
+            professores.append(nome_professor)
 
         return ', '.join(professores)
 
     def coordenador_escalado(self):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
-        print(coordenador.usuario.first_name)
+
         return coordenador.usuario.first_name
 
 

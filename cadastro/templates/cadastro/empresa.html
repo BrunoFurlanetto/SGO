@@ -37,10 +37,10 @@
                         {{ formulario.instituicao.as_hidden }}
                         {{ formulario.check_in.as_hidden }}
                         {{ formulario.check_out.as_hidden }}
-                        <input type="hidden" name="id_ordem" id="id_ordem">
+                        {{ formulario.ordem.as_hidden }}
                         <div class="col-3">
                             <label for="coordenador">Coordenador</label>
-                            <select class="select-control d mr-sm-2" id="coordenador" name="coordenador" required>
+                            <select class="select-control d mr-sm-2" id="coordenador" name="professores" required>
                                 <option selected></option>
                                 {% for professor in professores %}
                                     <option value="{{ professor.id }}">{{ professor }}</option>
@@ -68,7 +68,7 @@
                     <div class="row mb-3">
                         <div style="width: 25%">
                             <label>Professor 2: </label>
-                            <select class="select-control d mr-sm-2" id="professor_2" name="professor_2">
+                            <select class="select-control d mr-sm-2" id="professor_2" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
                                     <option value="{{ professor.id }}">{{ professor }}</option>
@@ -77,7 +77,7 @@
                         </div>
                         <div style="width: 25%">
                             <label>Professor 3: </label>
-                            <select class="select-control d mr-sm-2" id="professor_3" name="professor_3">
+                            <select class="select-control d mr-sm-2" id="professor_3" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
                                     <option value="{{ professor.id }}">{{ professor }}</option>
@@ -86,7 +86,7 @@
                         </div>
                         <div style="width: 25%">
                             <label>Professor 4: </label>
-                            <select class="select-control d mr-sm-2" id="professor_4" name="professor_4">
+                            <select class="select-control d mr-sm-2" id="professor_4" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
                                     <option value="{{ professor.id }}">{{ professor }}</option>
@@ -95,7 +95,7 @@
                         </div>
                         <div style="width: 25%">
                             <label>Professor 5: </label>
-                            <select class="select-control d mr-sm-2" id="professor_5" name="professor_5">
+                            <select class="select-control d mr-sm-2" id="professor_5" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
                                     <option value="{{ professor.id }}">{{ professor }}</option>
