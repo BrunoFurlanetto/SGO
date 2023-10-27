@@ -28,7 +28,7 @@
                 <hr>
             </div>
         {% endif %}
-        {% if ordem %}
+        {% if ordem or relatorio %}
             <div class="relatorio">
                 <form action="{% url 'empresa' %}" method="POST">
                     {% csrf_token %}
@@ -43,7 +43,9 @@
                             <select class="select-control d mr-sm-2" id="coordenador" name="professores" required>
                                 <option selected></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                    <option value="{{ professor.id }}"
+                                            {% if relatorio.equipe.coordenador == professor.id %}
+                                            selected {% endif %}>{{ professor }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -71,7 +73,8 @@
                             <select class="select-control d mr-sm-2" id="professor_2" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                    <option value="{{ professor.id }}" {% if relatorio.equipe.professor_2 == professor.id %}
+                                            selected {% endif %}>{{ professor }}>{{ professor }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -80,7 +83,8 @@
                             <select class="select-control d mr-sm-2" id="professor_3" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                    <option value="{{ professor.id }}" {% if relatorio.equipe.professor_3 == professor.id %}
+                                            selected {% endif %}>{{ professor }}>{{ professor }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -89,7 +93,8 @@
                             <select class="select-control d mr-sm-2" id="professor_4" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                    <option value="{{ professor.id }}" {% if relatorio.equipe.professor_4 == professor.id %}
+                                            selected {% endif %}>{{ professor }}>{{ professor }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -98,7 +103,8 @@
                             <select class="select-control d mr-sm-2" id="professor_5" name="professores">
                                 <option selected></option>
                                 {% for professor in professores %}
-                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                    <option value="{{ professor.id }}" {% if relatorio.equipe.professor_5 == professor.id %}
+                                            selected {% endif %}>{{ professor }}>{{ professor }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -119,61 +125,119 @@
                             </tr>
                             </thead>
                             <tbody id="corpo_tabela_locacao">
-                            {% for locacao in ordem.dividir_locacoes_ceu %}
-                                <tr class="linhas_loc" id="linha_loc_{{ forloop.counter }}"
-                                    style="vertical-align: middle">
-                                    <td class="colunas_loc_1" id="coluna_1_linha_loc_{{ forloop.counter }}"
-                                        style="display: flex; flex-wrap: wrap; gap: 5px">
-                                        <select class="form-control escalados professores_loc"
-                                                id="prof_1_loc_{{ forloop.counter }}"
-                                                name="professores_locacao_{{ forloop.counter }}"
-                                                onchange="validacao(this)" required>
-                                            <option></option>
-                                            {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <select class="form-control escalados professores_loc"
-                                                id="prof_2_loc_{{ forloop.counter }}"
-                                                name="professores_locacao_{{ forloop.counter }}"
-                                                onchange="validacao(this)">
-                                            <option></option>
-                                            {% for professor in professores %}
-                                                <option value="{{ professor.id }}">{{ professor }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
-                                    <td class="colunas_loc_2" id="coluna_2_linha_loc_{{ forloop.counter }}">
-                                        <select class="form-control locacoes" id="loc_{{ forloop.counter }}"
-                                                name="loc_{{ forloop.counter }}">
-                                            <option></option>
-                                            {% for local in locais %}
-                                                <option value="{{ local.id }}" {% if locacao.espaco == local.id %}
-                                                        selected {% endif %}>{{ local }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
-                                    <td class="colunas_loc_3" id="coluna_3_linha_loc_{{ forloop.counter }}">
-                                        <input class="check_in" type="datetime-local"
-                                               id="check_in_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
-                                               value="{{ locacao.check_in }}"/>
-                                    </td>
-                                    <td class="colunas_loc_4" id="coluna_4_linha_loc_{{ forloop.counter }}">
-                                        <input class="check_out" type="datetime-local"
-                                               id="check_out_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
-                                               value="{{ locacao.check_out }}"/>
-                                    </td>
-                                    <td class="colunas_loc_5" id="coluna_5_linha_loc_{{ forloop.counter }}">
-                                        <input class="qtds_loc" type="number" id="qtd_loc_{{ forloop.counter }}"
-                                               name="loc_{{ forloop.counter }}" value="{{ locacao.participantes }}"/>
-                                    </td>
-                                    <td class="colunas_loc_6" id="coluna_6_linha_loc_{{ forloop.counter }}">
-                                        <button class="buton-x-loc" id="btn-loc_{{ forloop.counter }}" type="button"
-                                                onClick="remover_linha_locacao(this)"><span><i
-                                                class='bx bx-x'></i></span></button>
-                                    </td>
-                                </tr>
-                            {% endfor %}
+                            {% if relatorio %}
+                            	{% for locacao in relatorio.dividir_locacoes_ceu %}
+                                    <tr class="linhas_loc" id="linha_loc_{{ forloop.counter }}"
+                                        style="vertical-align: middle">
+                                        <td class="colunas_loc_1" id="coluna_1_linha_loc_{{ forloop.counter }}"
+                                            style="display: flex; flex-wrap: wrap; gap: 5px">
+                                            <select class="form-control escalados professores_loc"
+                                                    id="prof_1_loc_{{ forloop.counter }}"
+                                                    name="professores_locacao_{{ forloop.counter }}"
+                                                    onchange="validacao(this)" required>
+                                                <option></option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="form-control escalados professores_loc"
+                                                    id="prof_2_loc_{{ forloop.counter }}"
+                                                    name="professores_locacao_{{ forloop.counter }}"
+                                                    onchange="validacao(this)">
+                                                <option></option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td class="colunas_loc_2" id="coluna_2_linha_loc_{{ forloop.counter }}">
+                                            <select class="form-control locacoes" id="loc_{{ forloop.counter }}"
+                                                    name="loc_{{ forloop.counter }}">
+                                                <option></option>
+                                                {% for local in locais %}
+                                                    <option value="{{ local.id }}" {% if locacao.espaco == local.id %}
+                                                            selected {% endif %}>{{ local }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td class="colunas_loc_3" id="coluna_3_linha_loc_{{ forloop.counter }}">
+                                            <input class="check_in" type="datetime-local"
+                                                   id="check_in_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
+                                                   value="{{ locacao.check_in }}"/>
+                                        </td>
+                                        <td class="colunas_loc_4" id="coluna_4_linha_loc_{{ forloop.counter }}">
+                                            <input class="check_out" type="datetime-local"
+                                                   id="check_out_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
+                                                   value="{{ locacao.check_out }}"/>
+                                        </td>
+                                        <td class="colunas_loc_5" id="coluna_5_linha_loc_{{ forloop.counter }}">
+                                            <input class="qtds_loc" type="number" id="qtd_loc_{{ forloop.counter }}"
+                                                   name="loc_{{ forloop.counter }}" value="{{ locacao.participantes }}"/>
+                                        </td>
+                                        <td class="colunas_loc_6" id="coluna_6_linha_loc_{{ forloop.counter }}">
+                                            <button class="buton-x-loc" id="btn-loc_{{ forloop.counter }}" type="button"
+                                                    onClick="remover_linha_locacao(this)"><span><i
+                                                    class='bx bx-x'></i></span></button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                {% for locacao in ordem.dividir_locacoes_ceu %}
+                                    <tr class="linhas_loc" id="linha_loc_{{ forloop.counter }}"
+                                        style="vertical-align: middle">
+                                        <td class="colunas_loc_1" id="coluna_1_linha_loc_{{ forloop.counter }}"
+                                            style="display: flex; flex-wrap: wrap; gap: 5px">
+                                            <select class="form-control escalados professores_loc"
+                                                    id="prof_1_loc_{{ forloop.counter }}"
+                                                    name="professores_locacao_{{ forloop.counter }}"
+                                                    onchange="validacao(this)" required>
+                                                <option></option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="form-control escalados professores_loc"
+                                                    id="prof_2_loc_{{ forloop.counter }}"
+                                                    name="professores_locacao_{{ forloop.counter }}"
+                                                    onchange="validacao(this)">
+                                                <option></option>
+                                                {% for professor in professores %}
+                                                    <option value="{{ professor.id }}">{{ professor }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td class="colunas_loc_2" id="coluna_2_linha_loc_{{ forloop.counter }}">
+                                            <select class="form-control locacoes" id="loc_{{ forloop.counter }}"
+                                                    name="loc_{{ forloop.counter }}">
+                                                <option></option>
+                                                {% for local in locais %}
+                                                    <option value="{{ local.id }}" {% if locacao.espaco == local.id %}
+                                                            selected {% endif %}>{{ local }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td class="colunas_loc_3" id="coluna_3_linha_loc_{{ forloop.counter }}">
+                                            <input class="check_in" type="datetime-local"
+                                                   id="check_in_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
+                                                   value="{{ locacao.check_in }}"/>
+                                        </td>
+                                        <td class="colunas_loc_4" id="coluna_4_linha_loc_{{ forloop.counter }}">
+                                            <input class="check_out" type="datetime-local"
+                                                   id="check_out_{{ forloop.counter }}" name="loc_{{ forloop.counter }}"
+                                                   value="{{ locacao.check_out }}"/>
+                                        </td>
+                                        <td class="colunas_loc_5" id="coluna_5_linha_loc_{{ forloop.counter }}">
+                                            <input class="qtds_loc" type="number" id="qtd_loc_{{ forloop.counter }}"
+                                                   name="loc_{{ forloop.counter }}" value="{{ locacao.participantes }}"/>
+                                        </td>
+                                        <td class="colunas_loc_6" id="coluna_6_linha_loc_{{ forloop.counter }}">
+                                            <button class="buton-x-loc" id="btn-loc_{{ forloop.counter }}" type="button"
+                                                    onClick="remover_linha_locacao(this)"><span><i
+                                                    class='bx bx-x'></i></span></button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
                             </tbody>
                         </table>
                         <button class="buton-plus-" type="button" onclick="add_linha_locacao()">

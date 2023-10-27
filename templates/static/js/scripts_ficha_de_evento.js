@@ -11,10 +11,17 @@ function carregar_scripts(editando) {
             dropdownParent: $("#modal-adicionais .modal-content"),
             disabled: 'readonly'
         })
+        $('#id_tipo_de_pagamento').select2({
+            dropdownParent: $("#modal_codigos_app .modal-content"),
+            disabled: 'readonly'
+        })
     } else {
         $("#id_atividades_ceu, #id_locacoes_ceu, #id_atividades_eco, #id_atividades_peraltas").select2()
         $('#id_opcionais_geral, #id_opcionais_formatura, #id_quais_atividades').select2({
             dropdownParent: $("#modal-adicionais .modal-content")
+        })
+        $('#id_tipo_de_pagamento').select2({
+            dropdownParent: $("#modal_codigos_app .modal-content")
         })
     }
 }
@@ -23,7 +30,7 @@ function verificar_codigos_eficha() {
     $('.container_loading').removeClass('none')
     $('#modal_codigos_app .modal-body .alert').remove()
 
-    const codigos_eficha = $('#id_evento').val().split(',').map((codigo) => {
+    const codigos_eficha = $('#id_eficha').val().split(',').map((codigo) => {
         return codigo.replaceAll(/^\s+|\s+$/g, '')
     })
 
@@ -532,6 +539,7 @@ $('document').ready(function () {
 function editar_ficha() {
     $('#form_ficha, #form_adicionais, #salvar, #form_app, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
+    $('#id_tipo_de_pagamento, #id_opcionais_geral, #id_opcionais_formatura').prop('disabled', false)
 
     $('#id_cliente_pj').prop('readonly', true)
 

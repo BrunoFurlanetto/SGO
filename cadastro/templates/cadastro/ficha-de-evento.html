@@ -669,29 +669,48 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Códigos APP</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Códigos e Dados de Financeiros</h5>
                             <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body app">
                             <input type="hidden" name="infos" value="app">
-                            <div class="row" style="justify-content: center">
-                                <div style="width: 33%">
+                            <h5 class="titulo-secao">Códdigos</h5>
+                            <div style="display: flex; flex-wrap: wrap; column-gap: 20px">
+                                <div style="width: 30%">
                                     <label>Cliente PJ</label>
                                     {{ formApp.cliente_pj }}
                                 </div>
-                                <div style="width: 33%">
+                                <div style="width: 30%">
                                     <label>Cliente PF</label>
                                     {{ formApp.cliente_pf }}
                                 </div>
-                                <div class="codigo_editavel" style="width: 33%">
+                                <div class="codigo_editavel" style="width: 30%">
                                     <label>Reserva APP</label>
                                     {{ formApp.reserva }}
                                 </div>
-                                <div class="codigo_editavel mt-2">
-                                    <label>Código eficha</label>
-                                    {{ formApp.evento }}
+                                <div class="mt-2" style="display: flex; gap: 20px">
+                                    <div class="codigo_editavel" style="width: 75%">
+                                        <label>Código eficha</label>
+                                        {{ formApp.eficha }}
+                                    </div>
+                                    <div style="width: 25%">
+                                        <label>Evento APP</label>
+                                        {{ formApp.evento_app }}
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Dados financeiros</h5>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap">
+                                <div style="width: 100%">
+                                    <label>Tipo de pagamento</label>
+                                    {{ formApp.tipo_de_pagamento }}
+                                </div>
+                                <div style="width: 50%">
+                                    <label>Ficha financeira</label>
+                                    {{ formApp.ficha_financeira }}
                                 </div>
                             </div>
                         </div>

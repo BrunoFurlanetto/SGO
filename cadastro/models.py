@@ -136,7 +136,7 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
     participantes_confirmados = models.IntegerField(blank=True, null=True)
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
-    coordenador_peraltas = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
+    coordenador_peraltas = models.ManyToManyField(Monitor)
     equipe = models.JSONField(blank=True)  # dict{'coordenador':, 'professor_2':, 'professor_3':, 'professor_4':}
     atividades = models.JSONField(blank=True, null=True)  # dict{['atividade':, 'profs_ativ':[], 'data_hora_ativ':,
     # 'n_participantes':]}
@@ -177,6 +177,22 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
         coordenador = Professores.objects.get(id=self.equipe['coordenador'])
 
         return coordenador.usuario.first_name
+
+    def dividir_atividades(self):
+        atividades = []
+
+        for atividade in self.atividades.values():
+            atividades.append(atividade)
+
+        return atividades
+
+    def dividir_locacoes_ceu(self):
+        locacoes = []
+
+        for locacao in self.locacoes.values():
+            locacoes.append(locacao)
+
+        return locacoes
 
 
 # ---------------------------------------------- Forms -----------------------------------------------------------------

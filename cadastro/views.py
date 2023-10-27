@@ -191,43 +191,58 @@ def colegio(request, id_relatorio=None):
 
 
 @login_required(login_url='login')
-def empresa(request):
-    relatorio_empresa = RelatorioEmpresa()
-    professores = Professores.objects.all()
-    empresas = pegar_empresas_no_ceu()
-
+def empresa(request, id_relatorio=None):
     if request.method != 'POST':
+        professores = Professores.objects.all()
         monitores = Monitor.objects.all()
         atividades = Atividades.objects.all()
         locais = Locaveis.objects.all()
 
-        if request.GET.get('empresa'):
-            ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
-            relatorio_colegio = RelatorioColegio(
-                initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
-            )
+        if not id_relatorio:
+            relatorio_empresa = RelatorioEmpresa()
+            empresas = pegar_empresas_no_ceu()
+
+            if request.GET.get('empresa'):
+                ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
+                relatorio_colegio = RelatorioColegio(
+                    initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
+                )
+
+                return render(request, 'cadastro/empresa.html', {
+                    'formulario': relatorio_colegio,
+                    'empresas': empresas,
+                    'ordem': ordem_de_servico,
+                    'professores': professores,
+                    'monitores': monitores,
+                    'atividades': atividades,
+                    'locais': locais
+                })
 
             return render(request, 'cadastro/empresa.html', {
-                'formulario': relatorio_colegio,
-                'empresas': empresas,
-                'ordem': ordem_de_servico,
+                'formulario': relatorio_empresa,
+                'professores': professores,
+                'empresas': empresas
+            })
+        else:
+            relatorio = RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio)
+            relatorio_empresa = RelatorioEmpresa(instance=relatorio)
+            coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+            editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
+
+            return render(request, 'cadastro/empresa.html', {
+                'relatorio': relatorio,
+                'formulario': relatorio_empresa,
                 'professores': professores,
                 'monitores': monitores,
                 'atividades': atividades,
-                'locais': locais
+                'editar': editar
             })
-
-        return render(request, 'cadastro/empresa.html', {
-            'formulario': relatorio_empresa,
-            'professores': professores,
-            'empresas': empresas
-        })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
     relatorio_empresa = RelatorioEmpresa(request.POST)
-    print(request.POST)
+
     if relatorio_empresa.is_valid():
         ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
         relatorio = relatorio_empresa.save(commit=False)
