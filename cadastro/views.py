@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
+from local_settings import STATUS_RD
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte, \
     TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
@@ -18,6 +19,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     Monitor, EmpresaOnibus
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
+from projetoCEU.integracao_rd import alterar_status
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
@@ -588,7 +590,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
 
         try:
-            form.save()
+            evento_salvo = form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
@@ -596,6 +598,12 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             return redirect('ficha_de_evento')
         else:
             if not id_ficha_de_evento:
+                if evento_salvo.produto.colegio:
+                    if 'Visita' in evento_salvo.produto.produto:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['VT'])
+                    else:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['PI'])
+
                 coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
                 operacional = User.objects.filter(groups__name='Operacional')
                 lista_emails = set()

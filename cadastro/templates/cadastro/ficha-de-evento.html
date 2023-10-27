@@ -99,431 +99,439 @@
                         {{ form.check_out }}
                     </div>
                     <div id="div_editar_horarios" class="checkbox">
-                    <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
-                           style="margin-right: 5px; padding: 0" {% if form.obs_edicao_horario.value != None %}
-                           checked {% endif %}
-                           onclick="$('#obs_edicao').toggleClass('none');
+                        <input type="checkbox" class="form-check-input" name="editar_horario" id="check_editar_horarios"
+                               style="margin-right: 5px; padding: 0" {% if form.obs_edicao_horario.value != None %}
+                               checked {% endif %}
+                               onclick="$('#obs_edicao').toggleClass('none');
                                            if ($('#obs_edicao').attr('class').includes('none')){
                                                $('#id_obs_edicao_horario').prop('required', false)}
                                            else{
                                                $('#id_obs_edicao_horario').prop('required', true)}">
-                    <label for="check_editar_horarios">Editar horários</label>
-                </div>
-                <div id="obs_edicao" class="mt-2 {% if form.obs_edicao_horario.value == None %} none {% endif %}">
-                    <label>Justificativa</label>
-                    {{ form.obs_edicao_horario }}
-                </div>
-    </div>
-    <hr>
-    <div class="row mb-2">
-        <h5 class="titulo-secao">Quantidades</h5>
-        <div style="width: 15%">
-            <label>QTD estimada</label>
-            {{ form.qtd_convidada }}
-        </div>
-        <div style="width: 15%">
-            <label>QTD reservada</label>
-            {{ form.qtd_confirmada }}
-        </div>
-        {% if ficha_de_evento %}
-            <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD meninas</label>
-                {{ form.qtd_meninas }}
-            </div>
-            <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD meninos</label>
-                {{ form.qtd_meninos }}
-            </div>
-            <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
-                 style="width: 15%;">
-                <label>QTD homens</label>
-                {{ form.qtd_homens }}
-            </div>
-            <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD mulheres</label>
-                {{ form.qtd_mulheres }}
-            </div>
-        {% else %}
-            <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD meninas</label>
-                {{ form.qtd_meninas }}
-            </div>
-            <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD meninos</label>
-                {{ form.qtd_meninos }}
-            </div>
-            <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
-                 style="width: 15%;">
-                <label>QTD homens</label>
-                {{ form.qtd_homens }}
-            </div>
-            <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD mulheres</label>
-                {{ form.qtd_mulheres }}
-            </div>
-        {% endif %}
-    </div>
-    {% if ficha_de_evento %}
-        <div class="row professores {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
-            <div style="width: 16%">
-                <label>QTD professores</label>
-                {{ form.qtd_professores }}
-            </div>
-            <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD profs. homens</label>
-                {{ form.qtd_profs_homens }}
-            </div>
-            <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD profs. mulheres</label>
-                {{ form.qtd_profs_mulheres }}
-            </div>
-            <div class="mt-2 professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}">
-                {{ form.professores_com_alunos }}
-                <label class="my-1">Professores dormirão com os alunos?</label>
-            </div>
-        </div>
-    {% else %}
-        <div class="row professores {% if not pre_reserva.produto.colegio %} none {% endif %}">
-            <div style="width: 16%">
-                <label>QTD professores</label>
-                {{ form.qtd_professores }}
-            </div>
-            <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD profs. homens</label>
-                {{ form.qtd_profs_homens }}
-            </div>
-            <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
-                 style="width: 15%">
-                <label>QTD profs. mulheres</label>
-                {{ form.qtd_profs_mulheres }}
-            </div>
-            <div class="mt-2 professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}">
-                {{ form.professores_com_alunos }}
-                <label class="my-1">Professores dormirão com os alunos?</label>
-            </div>
-        </div>
-    {% endif %}
-    <hr>
-    <div class="row" style="width: 100%" id="perfil_participantes">
-        <h5 class="titulo-secao">Perfil dos participantes</h5>
-        <div class="row perfil checkbox">
-            {{ form.perfil_participantes }}
-        </div>
-    </div>
-    <hr>
-    <div id="refeicoes_grupo">
-        <h5 class="titulo-secao">Refeições</h5>
-        <table class="table">
-            {% if ficha_de_evento %}
-                <thead>
-                <tr>
-                    <th style="width: 5px">Data</th>
-                    <th style="width: 5px"><small>Café</small></th>
-                    <th style="width: 5px"
-                        class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
-                        manhã</small></th>
-                    <th style="width: 5px"><small>Almoço</small></th>
-                    <th style="width: 5px"
-                        class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}"><small>Lanche
-                        tarde</small></th>
-                    <th style="width: 5px"
-                        class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
-                        tarde</small></th>
-                    <th style="width: 5px"><small>Jantar</small></th>
-                    <th style="width: 5px"
-                        class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}"><small>Lanche
-                        noite</small></th>
-                    <th style="width: 2px"><small></small></th>
-                </tr>
-                </thead>
-            {% else %}
-                <thead>
-                <tr>
-                    <th style="width: 5px">Data</th>
-                    <th style="width: 5px"><small>Café</small></th>
-                    <th style="width: 5px"
-                        class="coffees {% if pre_reserva.produto.colegio %} none {% endif %}"><small>Coffe
-                        manhã</small></th>
-                    <th style="width: 5px"><small>Almoço</small></th>
-                    <th style="width: 5px"
-                        class="lanches {% if not pre_reserva.produto.colegio %} none {% endif %}"><small>Lanche
-                        tarde</small></th>
-                    <th style="width: 5px"
-                        class="coffees {% if pre_reserva.produto.colegio %} none {% endif %}"><small>Coffe
-                        tarde</small></th>
-                    <th style="width: 5px"><small>Jantar</small></th>
-                    <th style="width: 5px"
-                        class="lanches {% if not pre_reserva.produto.colegio %} none {% endif %}"><small>Lanche
-                        noite</small></th>
-                    <th style="width: 2px"><small></small></th>
-                </tr>
-                </thead>
-            {% endif %}
-            <tbody id="corpo-tabela-refeicao">
-            {% for dados_refeicoes in ficha_de_evento.tabelar_refeicoes %}
-                <tr class="linha" id="linha_{{ forloop.counter }}">
-                    <td><input type="date" class="data" name="data_refeicao_{{ forloop.counter }}"
-                               style="width:  180px" value="{{ dados_refeicoes.dia }}">
-                    </td>
-                    <td><input type="checkbox" class="form-check-input cafe" id="cafe_{{ forloop.counter }}"
-                               name="cafe_{{ forloop.counter }}" {% if dados_refeicoes.refeicoes.0 %}
-                               checked {% endif %} style="width: 5px; height: 5px">
-                    </td>
-                    {% if not ficha_de_evento.produto.colegio %}
-                        <td><input type="checkbox" class="form-check-input coffee_m"
-                                   id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
-                                {% if dados_refeicoes.refeicoes.1 %} checked {% endif %}
-                                   style="width: 5px; height: 5px">
-                        </td>
-                    {% endif %}
-                    <td><input type="checkbox" class="form-check-input almoco"
-                               id="almoco_{{ forloop.counter }}" name="almoco_{{ forloop.counter }}"
-                            {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
-                               style="width: 5px; height: 5px">
-                    </td>
-                    {% if ficha_de_evento.produto.colegio %}
-                        <td><input type="checkbox" class="form-check-input lanche_t"
-                                   id="lanche_t_{{ forloop.counter }}" name="lanche_t_{{ forloop.counter }}"
-                                {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
-                                   style="width: 5px; height: 5px">
-                        </td>
-                    {% endif %}
-                    {% if not ficha_de_evento.produto.colegio %}
-                        <td><input type="checkbox" class="form-check-input coffee_t"
-                                   id="coffee_t_{{ forloop.counter }}" name="coffee_t_{{ forloop.counter }}"
-                                {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
-                                   style="width: 5px; height: 5px">
-                        </td> {% endif %}
-                    <td><input type="checkbox" class="form-check-input jantar"
-                               id="jantar_{{ forloop.counter }}" name="jantar_{{ forloop.counter }}"
-                            {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
-                               style="width: 5px; height: 5px">
-                    </td>
-                    {% if ficha_de_evento.produto.colegio %}
-                        <td><input type="checkbox" class="form-check-input lanche_n"
-                                   id="lanche_n_{{ forloop.counter }}" name="lanche_n_{{ forloop.counter }}"
-                                {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}
-                                   style="width: 5px; height: 5px">
-                        </td>
-                    {% endif %}
-                    <td>
-                        <button class="buton-x-ref" id="btn-ref_{{ forloop.counter }}" type="button"
-                                onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x'></i></span>
-                        </button>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <button class="buton-plus" type="button" onclick="add_refeicao()"
-                style="margin-left: 5px; margin-top: -15px">
-            <span><i class='bx bxs-plus-circle'></i></span>
-        </button>
-        <div class="form-group form-check form-switch mb-3 mt-3">
-            <input type="checkbox" class="form-check-input switch"
-                    {% if ficha_de_evento and ficha_de_evento.observacoes_refeicoes %}
-                   checked {% endif %} onChange="obs()">
-            <label class="form-check-label">Observações</label>
-        </div>
-        <div id="observacoes_refeicoes"
-                {% if not ficha_de_evento or not ficha_de_evento.observacoes_refeicoes %}
-             class="none" {% endif %}>
-            <label>Observações</label>
-            {{ form.observacoes_refeicoes }}
-        </div>
-    </div>
-    <hr>
-    <div class="row ceu">
-        <h5 class="titulo-secao">CEU</h5>
-        <div style="width: 60%">
-            <label>Atividades</label>
-            {{ form.atividades_ceu }}
-            <div class="mt-2 mb-2" style="display: flex; align-items: center">
-                <input type="checkbox" id="check_a_definir" class="form-check-input"
-                       style="width: 7px; height: 7px; margin-right: 5px" onchange="atividades_a_definir()"
-                        {% if form.atividades_ceu_a_definir.value != None %} checked {% endif %}>
-                <label>A definir?</label>
-                <div id="atividades_ceu_a_definir" {% if form.atividades_ceu_a_definir.value == None %}
-                     class="none" {% endif %} style="width: 15%; margin-left: 8px">
-                    {{ form.atividades_ceu_a_definir }}
-                </div>
-            </div>
-        </div>
-        {% if ficha_de_evento %}
-            <div style="width: 40%" id="div_locacao_ceu" class="{% if ficha_de_evento.produto.colegio %} none {% endif %}">
-                <label>Locações</label>
-                {{ form.locacoes_ceu }}
-            </div>
-        {% else %}
-            <div style="width: 40%" id="div_locacao_ceu" class="{% if pre_reserva.produto.colegio %} none {% endif %}">
-                <label>Locações</label>
-                {{ form.locacoes_ceu }}
-            </div>
-        {% endif %}
-    </div>
-    <hr class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
-    <div id="dados_locacoes"
-         class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
-        <h5 class="titulo-secao">Dados das locações</h5>
-        {% if not ficha_de_evento.produto.colegio and ficha_de_evento.informacoes_locacoes %}
-            {% for espaco in ficha_de_evento.separar_informacoes_locacoes %}
-                <div class="row" id="espaco_{{ espaco.id_espaco }}">
-                    <div style="width: 40%">
-                        <label>Espaço</label>
-                        <input type="text" name=espaco readonly required value="{{ espaco.espaco }}">
-                        <input type="hidden" id="id_espaco" name="id_espaco" value="{{ espaco.id_espaco }}">
+                        <label for="check_editar_horarios">Editar horários</label>
                     </div>
-                    <div style="width: 20%">
-                        <label>Intervalo</label>
-                        <select name="intervalo" id="id_intervalo" required>
-                            <option></option>
-                            <option value="4" {% if espaco.intervalo == '4' %} selected {% endif %} >4
-                                horas
-                            </option>
-                            <option value="8" {% if espaco.intervalo == '8' %} selected {% endif %}>8
-                                horas
-                            </option>
-                        </select>
+                    <div id="obs_edicao" class="mt-2 {% if form.obs_edicao_horario.value == None %} none {% endif %}">
+                        <label>Justificativa</label>
+                        {{ form.obs_edicao_horario }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-2">
+                    <h5 class="titulo-secao">Quantidades</h5>
+                    <div style="width: 15%">
+                        <label>QTD estimada</label>
+                        {{ form.qtd_convidada }}
+                    </div>
+                    <div style="width: 15%">
+                        <label>QTD reservada</label>
+                        {{ form.qtd_confirmada }}
+                    </div>
+                    {% if ficha_de_evento %}
+                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD meninas</label>
+                            {{ form.qtd_meninas }}
+                        </div>
+                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD meninos</label>
+                            {{ form.qtd_meninos }}
+                        </div>
+                        <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
+                             style="width: 15%;">
+                            <label>QTD homens</label>
+                            {{ form.qtd_homens }}
+                        </div>
+                        <div class="corporativo {% if ficha_de_evento.produto.colegio %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD mulheres</label>
+                            {{ form.qtd_mulheres }}
+                        </div>
+                    {% else %}
+                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD meninas</label>
+                            {{ form.qtd_meninas }}
+                        </div>
+                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD meninos</label>
+                            {{ form.qtd_meninos }}
+                        </div>
+                        <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
+                             style="width: 15%;">
+                            <label>QTD homens</label>
+                            {{ form.qtd_homens }}
+                        </div>
+                        <div class="corporativo {% if pre_reserva.produto.colegio %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD mulheres</label>
+                            {{ form.qtd_mulheres }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if ficha_de_evento %}
+                    <div class="row professores {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
+                        <div style="width: 16%">
+                            <label>QTD professores</label>
+                            {{ form.qtd_professores }}
+                        </div>
+                        <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD profs. homens</label>
+                            {{ form.qtd_profs_homens }}
+                        </div>
+                        <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD profs. mulheres</label>
+                            {{ form.qtd_profs_mulheres }}
+                        </div>
+                        <div class="mt-2 professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}">
+                            {{ form.professores_com_alunos }}
+                            <label class="my-1">Professores dormirão com os alunos?</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row professores {% if not pre_reserva.produto.colegio %} none {% endif %}">
+                        <div style="width: 16%">
+                            <label>QTD professores</label>
+                            {{ form.qtd_professores }}
+                        </div>
+                        <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD profs. homens</label>
+                            {{ form.qtd_profs_homens }}
+                        </div>
+                        <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
+                             style="width: 15%">
+                            <label>QTD profs. mulheres</label>
+                            {{ form.qtd_profs_mulheres }}
+                        </div>
+                        <div class="mt-2 professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}">
+                            {{ form.professores_com_alunos }}
+                            <label class="my-1">Professores dormirão com os alunos?</label>
+                        </div>
+                    </div>
+                {% endif %}
+                <hr>
+                <div class="row" style="width: 100%" id="perfil_participantes">
+                    <h5 class="titulo-secao">Perfil dos participantes</h5>
+                    <div class="row perfil checkbox">
+                        {{ form.perfil_participantes }}
+                    </div>
+                </div>
+                <hr>
+                <div id="refeicoes_grupo">
+                    <h5 class="titulo-secao">Refeições</h5>
+                    <table class="table">
+                        {% if ficha_de_evento %}
+                            <thead>
+                            <tr>
+                                <th style="width: 5px">Data</th>
+                                <th style="width: 5px"><small>Café</small></th>
+                                <th style="width: 5px"
+                                    class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
+                                    manhã</small></th>
+                                <th style="width: 5px"><small>Almoço</small></th>
+                                <th style="width: 5px"
+                                    class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
+                                    <small>Lanche
+                                        tarde</small></th>
+                                <th style="width: 5px"
+                                    class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
+                                    tarde</small></th>
+                                <th style="width: 5px"><small>Jantar</small></th>
+                                <th style="width: 5px"
+                                    class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}">
+                                    <small>Lanche
+                                        noite</small></th>
+                                <th style="width: 2px"><small></small></th>
+                            </tr>
+                            </thead>
+                        {% else %}
+                            <thead>
+                            <tr>
+                                <th style="width: 5px">Data</th>
+                                <th style="width: 5px"><small>Café</small></th>
+                                <th style="width: 5px"
+                                    class="coffees {% if pre_reserva.produto.colegio %} none {% endif %}"><small>Coffe
+                                    manhã</small></th>
+                                <th style="width: 5px"><small>Almoço</small></th>
+                                <th style="width: 5px"
+                                    class="lanches {% if not pre_reserva.produto.colegio %} none {% endif %}"><small>Lanche
+                                    tarde</small></th>
+                                <th style="width: 5px"
+                                    class="coffees {% if pre_reserva.produto.colegio %} none {% endif %}"><small>Coffe
+                                    tarde</small></th>
+                                <th style="width: 5px"><small>Jantar</small></th>
+                                <th style="width: 5px"
+                                    class="lanches {% if not pre_reserva.produto.colegio %} none {% endif %}"><small>Lanche
+                                    noite</small></th>
+                                <th style="width: 2px"><small></small></th>
+                            </tr>
+                            </thead>
+                        {% endif %}
+                        <tbody id="corpo-tabela-refeicao">
+                        {% for dados_refeicoes in ficha_de_evento.tabelar_refeicoes %}
+                            <tr class="linha" id="linha_{{ forloop.counter }}">
+                                <td><input type="date" class="data" name="data_refeicao_{{ forloop.counter }}"
+                                           style="width:  180px" value="{{ dados_refeicoes.dia }}">
+                                </td>
+                                <td><input type="checkbox" class="form-check-input cafe" id="cafe_{{ forloop.counter }}"
+                                           name="cafe_{{ forloop.counter }}" {% if dados_refeicoes.refeicoes.0 %}
+                                           checked {% endif %} style="width: 5px; height: 5px">
+                                </td>
+                                {% if not ficha_de_evento.produto.colegio %}
+                                    <td><input type="checkbox" class="form-check-input coffee_m"
+                                               id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.1 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                <td><input type="checkbox" class="form-check-input almoco"
+                                           id="almoco_{{ forloop.counter }}" name="almoco_{{ forloop.counter }}"
+                                        {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
+                                           style="width: 5px; height: 5px">
+                                </td>
+                                {% if ficha_de_evento.produto.colegio %}
+                                    <td><input type="checkbox" class="form-check-input lanche_t"
+                                               id="lanche_t_{{ forloop.counter }}" name="lanche_t_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                {% if not ficha_de_evento.produto.colegio %}
+                                    <td><input type="checkbox" class="form-check-input coffee_t"
+                                               id="coffee_t_{{ forloop.counter }}" name="coffee_t_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td> {% endif %}
+                                <td><input type="checkbox" class="form-check-input jantar"
+                                           id="jantar_{{ forloop.counter }}" name="jantar_{{ forloop.counter }}"
+                                        {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
+                                           style="width: 5px; height: 5px">
+                                </td>
+                                {% if ficha_de_evento.produto.colegio %}
+                                    <td><input type="checkbox" class="form-check-input lanche_n"
+                                               id="lanche_n_{{ forloop.counter }}" name="lanche_n_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    <button class="buton-x-ref" id="btn-ref_{{ forloop.counter }}" type="button"
+                                            onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x'></i></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button class="buton-plus" type="button" onclick="add_refeicao()"
+                            style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </button>
+                    <div class="form-group form-check form-switch mb-3 mt-3">
+                        <input type="checkbox" class="form-check-input switch"
+                                {% if ficha_de_evento and ficha_de_evento.observacoes_refeicoes %}
+                               checked {% endif %} onChange="obs()">
+                        <label class="form-check-label">Observações</label>
+                    </div>
+                    <div id="observacoes_refeicoes"
+                            {% if not ficha_de_evento or not ficha_de_evento.observacoes_refeicoes %}
+                         class="none" {% endif %}>
+                        <label>Observações</label>
+                        {{ form.observacoes_refeicoes }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row ceu">
+                    <h5 class="titulo-secao">CEU</h5>
+                    <div style="width: 60%">
+                        <label>Atividades</label>
+                        {{ form.atividades_ceu }}
+                        <div class="mt-2 mb-2" style="display: flex; align-items: center">
+                            <input type="checkbox" id="check_a_definir" class="form-check-input"
+                                   style="width: 7px; height: 7px; margin-right: 5px" onchange="atividades_a_definir()"
+                                    {% if form.atividades_ceu_a_definir.value != None %} checked {% endif %}>
+                            <label>A definir?</label>
+                            <div id="atividades_ceu_a_definir" {% if form.atividades_ceu_a_definir.value == None %}
+                                 class="none" {% endif %} style="width: 15%; margin-left: 8px">
+                                {{ form.atividades_ceu_a_definir }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if ficha_de_evento %}
+                        <div style="width: 40%" id="div_locacao_ceu"
+                             class="{% if ficha_de_evento.produto.colegio %} none {% endif %}">
+                            <label>Locações</label>
+                            {{ form.locacoes_ceu }}
+                        </div>
+                    {% else %}
+                        <div style="width: 40%" id="div_locacao_ceu"
+                             class="{% if pre_reserva.produto.colegio %} none {% endif %}">
+                            <label>Locações</label>
+                            {{ form.locacoes_ceu }}
+                        </div>
+                    {% endif %}
+                </div>
+                <hr class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
+                <div id="dados_locacoes"
+                     class="dados_locacoes_ {% if not ficha_de_evento or ficha_de_evento.produto.colegio %} none {% endif %}">
+                    <h5 class="titulo-secao">Dados das locações</h5>
+                    {% if not ficha_de_evento.produto.colegio and ficha_de_evento.informacoes_locacoes %}
+                        {% for espaco in ficha_de_evento.separar_informacoes_locacoes %}
+                            <div class="row" id="espaco_{{ espaco.id_espaco }}">
+                                <div style="width: 40%">
+                                    <label>Espaço</label>
+                                    <input type="text" name=espaco readonly required value="{{ espaco.espaco }}">
+                                    <input type="hidden" id="id_espaco" name="id_espaco" value="{{ espaco.id_espaco }}">
+                                </div>
+                                <div style="width: 20%">
+                                    <label>Intervalo</label>
+                                    <select name="intervalo" id="id_intervalo" required>
+                                        <option></option>
+                                        <option value="4" {% if espaco.intervalo == '4' %} selected {% endif %} >4
+                                            horas
+                                        </option>
+                                        <option value="8" {% if espaco.intervalo == '8' %} selected {% endif %}>8
+                                            horas
+                                        </option>
+                                    </select>
+                                </div>
+                                <div style="width: 30%">
+                                    <label>Formato da sala</label>
+                                    <select name="formato_sala" id="id_formato_sala" required>
+                                        {% if espaco.espaco == 'Auditório' %}
+                                            <option value="auditorio">Auditório</option>
+                                        {% elif espaco.espaco == 'Outro' %}
+                                            <option value="livre">Formato livre</option>
+                                        {% else %}
+                                            <option></option>
+                                            <option value="auditorio" {% if espaco.formato_sala == 'auditorio' %}
+                                                    selected {% endif %}>Auditório
+                                            </option>
+                                            <option value="u" {% if espaco.formato_sala == 'u' %} selected {% endif %}>
+                                                Formato U
+                                            </option>
+                                            <option value="redondo" {% if espaco.formato_sala == 'redondo' %}
+                                                    selected {% endif %}>Formato redondo
+                                            </option>
+                                            <option value="escolar" {% if espaco.formato_sala == 'escolar' %}
+                                                    selected {% endif %}>Formato escolar
+                                            </option>
+                                            <option value="coquetel" {% if espaco.formato_sala == 'coquetel' %}
+                                                    selected {% endif %}>Coquetel
+                                            </option>
+                                            <option value="livre" {% if espaco.formato_sala == 'livre' %}
+                                                    selected {% endif %}>Formato livre
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="row peraltas">
+                    <h5 class="titulo-secao">Peraltas</h5>
+                    <div id="atividades_ecoturismo" style="width: 50%;">
+                        <label>Atividades extra</label>
+                        {{ form.atividades_eco }}
+                    </div>
+                    <div style="width: 50%">
+                        <label>Acampamento</label>
+                        {{ form.atividades_peraltas }}
+                    </div>
+                </div>
+                <hr class="peraltas">
+                <div class="form-check">
+                    <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
+                           name="info_adicionais_ok" {% if ficha_de_evento %} checked {% endif %} required>
+                    <label for="add_infos" class="my-1">Informações adicionais</label>
+                    <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
+                       data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()"
+                       style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </a>
+                </div>
+                {{ form.informacoes_adcionais.as_hidden }}
+                <hr>
+                <div class="form-check">
+                    <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok"
+                           name="codigos_app_ok" {% if ficha_de_evento %} checked {% endif %} required>
+                    <label class="my-1">Códigos APP</label>
+                    <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
+                       data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
+                       style="margin-left: 5px; margin-top: -15px">
+                        <span><i class='bx bxs-plus-circle'></i></span>
+                    </a>
+                </div>
+                {{ form.codigos_app.as_hidden }}
+                <hr>
+                <div class="form-check" style="display: flex; align-items: center">
+                    {{ form.exclusividade }}
+                    <label for="check_exclusivo">Exclusividade</label>
+                </div>
+                <hr>
+                <div class="row">
+                    <div>
+                        <label for="id_vendedora">Atendente</label>
+                    </div>
+                    <div style="width: 35%">
+                        {{ form.vendedora }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div style="width: 30%">
+                        <label>Data final de inscrição</label>
+                        {{ form.data_final_inscricao }}
                     </div>
                     <div style="width: 30%">
-                        <label>Formato da sala</label>
-                        <select name="formato_sala" id="id_formato_sala" required>
-                            {% if espaco.espaco == 'Auditório' %}
-                                <option value="auditorio">Auditório</option>
-                            {% elif espaco.espaco == 'Outro' %}
-                                <option value="livre">Formato livre</option>
-                            {% else %}
-                                <option></option>
-                                <option value="auditorio" {% if espaco.formato_sala == 'auditorio' %}
-                                        selected {% endif %}>Auditório
-                                </option>
-                                <option value="u" {% if espaco.formato_sala == 'u' %} selected {% endif %}>
-                                    Formato U
-                                </option>
-                                <option value="redondo" {% if espaco.formato_sala == 'redondo' %}
-                                        selected {% endif %}>Formato redondo
-                                </option>
-                                <option value="escolar" {% if espaco.formato_sala == 'escolar' %}
-                                        selected {% endif %}>Formato escolar
-                                </option>
-                                <option value="coquetel" {% if espaco.formato_sala == 'coquetel' %}
-                                        selected {% endif %}>Coquetel
-                                </option>
-                                <option value="livre" {% if espaco.formato_sala == 'livre' %}
-                                        selected {% endif %}>Formato livre
-                                </option>
-                            {% endif %}
-                        </select>
+                        <label>Data para divulgação</label>
+                        {{ form.data_divulgacao }}
+                    </div>
+                    <div style="width: 40%">
+                        <label>ID negócio (RD)</label>
+                        {{ form.id_negocio }}
                     </div>
                 </div>
-            {% endfor %}
+                <hr>
+                <div style="display: table-caption; width: 700px">
+                    <h5 class="titulo-secao">Material de apoio</h5>
+                    {{ form.material_apoio }}
+                </div>
+                <hr>
+                <div class="mb-3 row">
+                    <h5 class="titulo-secao">Observações</h5>
+                    {{ form.observacoes }}
+                </div>
+                {{ form.empresa.as_hidden }}
+            </fieldset>
+            <div class="botoes">
+                {% if not ficha_de_evento %}
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
+                {% elif request.user == ficha_de_evento.vendedora.usuario or diretoria %}
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
+                    <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
+                {% endif %}
 
-        {% endif %}
-    </div>
-    <hr>
-    <div class="row peraltas">
-        <h5 class="titulo-secao">Peraltas</h5>
-        <div id="atividades_ecoturismo" style="width: 50%;">
-            <label>Atividades extra</label>
-            {{ form.atividades_eco }}
-        </div>
-        <div style="width: 50%">
-            <label>Acampamento</label>
-            {{ form.atividades_peraltas }}
-        </div>
-    </div>
-    <hr class="peraltas">
-    <div class="form-check">
-        <input class="form-check-input info" type="checkbox" value="" id="info_adicionais_ok"
-               name="info_adicionais_ok" {% if ficha_de_evento %} checked {% endif %} required>
-        <label for="add_infos" class="my-1">Informações adicionais</label>
-        <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
-                data-target="#modal-adicionais" onclick="pegarIdInfosAdicionais()"
-                style="margin-left: 5px; margin-top: -15px">
-            <span><i class='bx bxs-plus-circle'></i></span>
-        </a>
-    </div>
-    {{ form.informacoes_adcionais.as_hidden }}
-    <hr>
-    <div class="form-check">
-        <input class="form-check-input info" type="checkbox" value="" id="codigos_app_ok"
-               name="codigos_app_ok" {% if ficha_de_evento %} checked {% endif %} required>
-        <label class="my-1">Códigos APP</label>
-        <a class="buton-plus" href="" id="add_infos" data-toggle="modal"
-                data-target="#modal_codigos_app" onclick="pegarIdCodigosApp()"
-                style="margin-left: 5px; margin-top: -15px">
-            <span><i class='bx bxs-plus-circle'></i></span>
-        </a>
-    </div>
-    {{ form.codigos_app.as_hidden }}
-    <hr>
-    <div class="form-check" style="display: flex; align-items: center">
-        {{ form.exclusividade }}
-        <label for="check_exclusivo">Exclusividade</label>
-    </div>
-    <hr>
-    <div class="row">
-        <div>
-            <label for="id_vendedora">Atendente</label>
-        </div>
-        <div style="width: 35%">
-            {{ form.vendedora }}
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div style="width: 30%">
-            <label>Data final de inscrição</label>
-            {{ form.data_final_inscricao }}
-        </div>
-        <div style="width: 30%">
-            <label>Data para divulgação</label>
-            {{ form.data_divulgacao }}
-        </div>
-    </div>
-    <hr>
-    <div style="display: table-caption; width: 700px">
-        <h5 class="titulo-secao">Material de apoio</h5>
-        {{ form.material_apoio }}
-    </div>
-    <hr>
-    <div class="mb-3 row">
-        <h5 class="titulo-secao">Observações</h5>
-        {{ form.observacoes }}
-    </div>
-    {{ form.empresa.as_hidden }}
-    </fieldset>
-    <div class="botoes">
-        {% if not ficha_de_evento %}
-            <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
-        {% elif request.user == ficha_de_evento.vendedora.usuario or diretoria %}
-            <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
-            <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
-        {% endif %}
+                {% if ficha_de_evento and perms.peraltas.delete_fichadeevento %}
+                    <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
+                            data-target="#excluir_ficha_evento">Excluir
+                    </button>
+                {% endif %}
 
-        {% if ficha_de_evento and perms.peraltas.delete_fichadeevento %}
-            <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
-                    data-target="#excluir_ficha_evento">Excluir
-            </button>
-        {% endif %}
-
-        {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
-            <button type="button" class="btn btn-outline-primary ml-5" style="float: right"
-                    onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">
-                Ordem de serviço
-            </button>
-        {% endif %}
-    </div>
-    </form>
+                {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
+                    <button type="button" class="btn btn-outline-primary ml-5" style="float: right"
+                            onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">
+                        Ordem de serviço
+                    </button>
+                {% endif %}
+            </div>
+        </form>
     </div>
 
     <form method="POST" action="{% url 'ficha_de_evento' %}" id="infos" enctype="multipart/form-data">
@@ -720,7 +728,8 @@
                                         {% if pre_reserva %} value="{{ pre_reserva.cliente.id }} {% endif %}">
                             {% endif %}
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                            <button type="button" class="btn btn-primary" onclick="verificar_codigos_eficha()">Salvar</button>
+                            <button type="button" class="btn btn-primary" onclick="verificar_codigos_eficha()">Salvar
+                            </button>
                             <button type="submit" id="btn_submit" class="none">Salvar</button>
                         </div>
                     </div>

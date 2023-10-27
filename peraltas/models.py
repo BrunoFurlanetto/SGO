@@ -422,6 +422,7 @@ class FichaDeEvento(models.Model):
                                     verbose_name='Códigos APP')
     adesao = models.FloatField(blank=True, null=True, verbose_name='Adesão')
     agencia = models.BooleanField(default=False)
+    id_negocio = models.CharField(max_length=255, verbose_name='ID negócio', blank=True)
     exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
     pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
     agendado = models.BooleanField(default=False, verbose_name='Agendado')
@@ -858,6 +859,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'data_divulgacao': forms.TextInput(attrs={'type': 'date'}),
             'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
                                                                  'class': 'form-check-input'}),
+            'id_negocio': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -932,7 +934,7 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario', 'agencia'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario', 'agencia', 'id_negocio'
         ]
 
         widgets = {

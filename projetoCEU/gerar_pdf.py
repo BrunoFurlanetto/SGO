@@ -148,7 +148,7 @@ def ordem_de_servico(ordem_de_servico):
     pdf_ordem.cell(10, 8, str(ordem_de_servico.n_participantes), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Código eficha: ') + 1, 8, 'Código eficha:')
-    pdf_ordem.multi_cell(100, 8, ficha_de_evento.codigos_app.evento, ln=1)
+    pdf_ordem.multi_cell(100, 8, ficha_de_evento.codigos_app.eficha, ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Código APP reserva: ') + 2, 8, 'Código APP reserva:')
     pdf_ordem.cell(100, 8, ficha_de_evento.codigos_app.reserva, ln=1)

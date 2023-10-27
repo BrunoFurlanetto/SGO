@@ -15,7 +15,9 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
     EventosCancelados, Eventos, Vendedor
 from projetoCEU.envio_de_emails import EmailSender
+from projetoCEU.integracao_rd import alterar_status
 from projetoCEU.utils import verificar_grupo, email_error
+from local_settings import STATUS_RD
 
 
 @login_required(login_url='login')
@@ -121,6 +123,7 @@ def eventos(request):
             'vendedor': pre_reserva.vendedora.id,
             'editar': pre_reserva.vendedora.usuario.id == request.user.id,
             'confirmado': pre_reserva.agendado,
+            'id_negocio': pre_reserva.id_negocio,
             'observacoes': pre_reserva.observacoes
         })
 
@@ -185,8 +188,15 @@ def eventos(request):
         nova_pre_reserva.agencia = True
 
     if cadastro_de_pre_reservas.is_valid():
-        pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
-        Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
+        try:
+            pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
+        except Exception as e:
+            ...
+        else:
+            if pre_reserva_dcadastrada.produto.colegio:
+                alterar_status(pre_reserva_dcadastrada.id_negocio, STATUS_RD['PA-S'])
+
+            Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
 
         return redirect('calendario_eventos')
     else:
