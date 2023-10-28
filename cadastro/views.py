@@ -629,7 +629,11 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                     novo_evento.vendedora
                 )
 
-            alterar_campos_personalizados(evento_salvo.id_negocio, evento_salvo)
+            try:
+                alterar_campos_personalizados(evento_salvo.id_negocio, evento_salvo)
+            except KeyError:
+                messages.warning(request, 'ID de negócio no RD incorreto')
+
             messages.success(
                 request,
                 'Ficha de evento salva com sucesso' if not ficha_de_evento else 'Ficha de evento editada com sucesso'

@@ -42,6 +42,7 @@
                             $('#ModalCadastroPreReserva #id_pre_reserva').val('')
                             $('#ModalCadastroPreReserva #id_cliente').trigger('change')
                             $('#ModalCadastroPreReserva #id_cliente').prop('disabled', false)
+                            $('#ModalCadastroPreReserva #id_id_negocio').prop('readonly', false)
                             $('#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade').prop('checked', false)
                             $('#ModalCadastroPreReserva #id_agencia').prop('checked', false)
                             $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
@@ -50,7 +51,9 @@
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
+                            $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', true)
                             $('#alerta_exclusividade').remove()
+                            $('#ModalCadastroPreReserva .modal-body .alert').remove()
 
                             $.ajax({
                                 type: 'GET',
@@ -96,11 +99,13 @@
                                         $('#ModalCadastroPreReserva #id_obs_edicao_horario').val(response['obs_edicao'])
                                         $('#ModalCadastroPreReserva #id_qtd_convidada').val(response['qtd'])
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
-                                        $('#ModalCadastroPreReserva #id_id_negocio').val(response['id_negocio'])
+                                        $('#ModalCadastroPreReserva #id_id_negocio').val(response['id_negocio']).prop('readonly', true)
                                         $('#ModalCadastroPreReserva #id_observacoes').val(response['observacoes'])
+                                        $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', false)
                                         $('#nova_pre_reserva').addClass('none')
                                         $('#aviso_lotacao').addClass('none')
                                         $('#alerta_exclusividade').remove()
+                                        $('#ModalCadastroPreReserva .modal-body .alert').remove()
                                         const modal_footer = $('#editar_pre_reserva').empty().removeClass('none')
                                         $('#ModalCadastroPreReserva #id_cliente').val(response['cliente']).trigger('change').select2({
                                             'disabled': 'readonly',
@@ -744,6 +749,29 @@
                     }
                 })
             }
+
+            function verificar_id_negocio(id_negocio) {
+                loading()
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'id_negocio': $(id_negocio).val()},
+                    success: function (response) {
+                        $('#ModalCadastroPreReserva .modal-body .alert').remove()
+
+                        if (response == 'False') {
+                            $('#id_id_negocio').val('')
+                            $('#ModalCadastroPreReserva .modal-body').append('<p class="alert alert-warning">ID de negócio não encontrado</p>')
+                        } else {
+                            $('#salvar_pre_agendamento').prop('disabled', false)
+                        }
+                    }
+                }).done(() => end_loading()).catch((error) => {
+                    alert(error)
+                    end_loading()
+                })
+            }
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
@@ -856,7 +884,7 @@
                                     <label for="participantes">QTD estimada</label>
                                     {{ cadastro_pre_reserva.qtd_convidada }}
                                 </div>
-                                <div style="width: 70%">
+                                <div id="id_negocio_rd" style="width: 70%">
                                     <label>ID negócio (RD)</label>
                                     {{ cadastro_pre_reserva.id_negocio }}
                                 </div>
@@ -877,7 +905,7 @@
                                         onclick="window.location.href='{% url 'ficha_de_evento' %}'">
                                     Ficha de evento
                                 </button>
-                                <button type="submit" class="btn btn-primary">Salvar pré agendamento</button>
+                                <button id="salvar_pre_agendamento" type="submit" disabled class="btn btn-primary">Salvar pré agendamento</button>
                             </div>
                             <div id="editar_pre_reserva" class="none"></div>
                         </div>

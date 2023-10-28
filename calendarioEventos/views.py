@@ -15,7 +15,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
     EventosCancelados, Eventos, Vendedor
 from projetoCEU.envio_de_emails import EmailSender
-from projetoCEU.integracao_rd import alterar_status
+from projetoCEU.integracao_rd import alterar_status, verificar_id
 from projetoCEU.utils import verificar_grupo, email_error
 from local_settings import STATUS_RD
 
@@ -33,6 +33,9 @@ def eventos(request):
 
     if is_ajax(request):
         if request.method == 'GET':
+            if request.GET.get('id_negocio'):
+                return HttpResponse(verificar_id(request.GET.get('id_negocio')))
+
             if request.GET.get('data_descritivo'):
                 data_base = datetime.strptime(request.GET.get('data_descritivo'), '%Y-%m-%d').date()
 

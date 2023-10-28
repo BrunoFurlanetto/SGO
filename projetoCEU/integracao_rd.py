@@ -17,7 +17,7 @@ def alterar_status(id_negocio, id_novo_status, corporativo=False):
 
 def alterar_campos_personalizados(id_negocio, ficha_de_evento):
     url = url_padrao + id_negocio + f'?token={TOKEN_RD}'
-    payload = {"deal": formatar_envio_valores(id_negocio, ficha_de_evento)}
+    payload = {"deal": formatar_envio_valores('', ficha_de_evento)}
     headers = {
         "accept": "application/json",
         "content-type": "application/json"
@@ -38,7 +38,14 @@ def formatar_envio_valores(id_negocio, ficha_de_evento):
     url = url_padrao + id_negocio + f'?token={TOKEN_RD}'
     headers = {"accept": "application/json"}
     response = requests.get(url, headers=headers)
-    campos_personalizados = response.json()['deal_custom_fields']
+
+    try:
+        campos_personalizados = response.json()['deal_custom_fields']
+    except KeyError as e:
+        raise e
+    except Exception as e:
+        ...
+
     campos = {d['custom_field_id']: d['value'] for d in campos_personalizados}
 
     for campo, id_campo_id in id_campos_alteraveis.items():
@@ -54,3 +61,13 @@ def formatar_envio_valores(id_negocio, ficha_de_evento):
             campos[id_campo_id] = str(valor if valor else 0)
 
     return {"deal_custom_fields": [{'value': valor, 'custom_field_id': id_campo} for id_campo, valor in campos.items()]}
+
+def verificar_id(id_negocio):
+    print(id_negocio)
+    url = f'https://crm.rdstation.com/api/v1/deals?token={TOKEN_RD}&limit=200'
+    headers = {"accept": "application/json"}
+    response = requests.get(url, headers=headers)
+    negocios = response.json()['deals']
+    ids_negocios = [negocio['id'] for negocio in negocios]
+
+    return id_negocio in ids_negocios
