@@ -19,7 +19,7 @@ from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColeg
     Monitor, EmpresaOnibus
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
-from projetoCEU.integracao_rd import alterar_status
+from projetoCEU.integracao_rd import alterar_status, alterar_campos_personalizados
 from projetoCEU.utils import verificar_grupo, email_error
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
@@ -440,6 +440,9 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             messages.success(request, f'Ordem de serviço do colégio {ordem_de_servico.instituicao} salva com sucesso')
 
         if not id_ordem_de_servico:
+            if ficha.produto.colegio:
+                alterar_status(ficha.id_negocio, STATUS_RD['ODS-EC'])
+
             EmailSender([ficha.vendedora.usuario.email]).mensagem_cadastro_ordem(
                 ordem_de_servico.check_in, ordem_de_servico.check_out, ordem_de_servico.ficha_de_evento.cliente
             )
@@ -603,6 +606,11 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                         alterar_status(evento_salvo.id_negocio, STATUS_RD['VT'])
                     else:
                         alterar_status(evento_salvo.id_negocio, STATUS_RD['PI'])
+                else:
+                    if 'Visita' in evento_salvo.produto_corporativo.produto:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['C_VT'])
+                    else:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['C_FDES'])
 
                 coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
                 operacional = User.objects.filter(groups__name='Operacional')
@@ -621,6 +629,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                     novo_evento.vendedora
                 )
 
+            alterar_campos_personalizados(evento_salvo.id_negocio, evento_salvo)
             messages.success(
                 request,
                 'Ficha de evento salva com sucesso' if not ficha_de_evento else 'Ficha de evento editada com sucesso'

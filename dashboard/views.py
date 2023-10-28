@@ -17,6 +17,7 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
 from escala.models import Escala, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
+from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
@@ -180,4 +181,4 @@ def dashboardPeraltas(request):
         'coordenador_monitoria': coordenador_monitoria,
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
-    }) # TODO: Separar os returns para perfis diferentes
+    })  # TODO: Separar os returns para perfis diferentes

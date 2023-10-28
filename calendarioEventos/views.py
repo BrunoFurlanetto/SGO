@@ -189,14 +189,16 @@ def eventos(request):
 
     if cadastro_de_pre_reservas.is_valid():
         try:
-            pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
+            pre_reserva_cadastrada = cadastro_de_pre_reservas.save()
         except Exception as e:
             ...
         else:
-            if pre_reserva_dcadastrada.produto.colegio:
-                alterar_status(pre_reserva_dcadastrada.id_negocio, STATUS_RD['PA-S'])
+            if pre_reserva_cadastrada.produto.colegio:
+                alterar_status(pre_reserva_cadastrada.id_negocio, STATUS_RD['PA-S'])
+            else:
+                alterar_status(pre_reserva_cadastrada.id_negocio, STATUS_RD['C_OS'])
 
-            Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
+            Eventos.objects.create(ficha_de_evento=pre_reserva_cadastrada).save()
 
         return redirect('calendario_eventos')
     else:

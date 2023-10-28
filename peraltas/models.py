@@ -959,6 +959,7 @@ class CadastroPreReserva(forms.ModelForm):
                 'onkeyup': '$("#ModalCadastroPreReserva #id_check_out").val("")',
                 'onclick': 'this.showPicker()'
             }),
+            'id_negocio': forms.TextInput(attrs={'required': 'required'})
         }
 
     def __init__(self, *args, **kwargs):
