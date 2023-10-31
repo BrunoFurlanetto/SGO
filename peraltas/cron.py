@@ -7,6 +7,7 @@ from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
 
 from projetoCEU.envio_de_emails import EmailSender
+from projetoCEU.integracao_rd import alterar_campos_personalizados
 from projetoCEU.utils import enviar_email_erro
 
 
@@ -59,6 +60,7 @@ def atualizar_pagantes_ficha():
 
                     ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
                     ficha.adesao = (ficha.qtd_confirmada / ficha.qtd_convidada) * 100
+                    alterar_campos_personalizados(ficha.id_negocio, ficha)
                     ficha.save()
 
                     if ficha.os:

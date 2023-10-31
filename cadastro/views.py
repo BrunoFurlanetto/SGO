@@ -442,6 +442,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         if not id_ordem_de_servico:
             if ficha.produto.colegio:
                 alterar_status(ficha.id_negocio, STATUS_RD['ODS-EC'])
+            else:
+                alterar_status(ficha.id_negocio, STATUS_RD['C_ODSS'])
 
             EmailSender([ficha.vendedora.usuario.email]).mensagem_cadastro_ordem(
                 ordem_de_servico.check_in, ordem_de_servico.check_out, ordem_de_servico.ficha_de_evento.cliente
