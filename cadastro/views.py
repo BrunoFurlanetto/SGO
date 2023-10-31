@@ -482,7 +482,6 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if is_ajax(request):
-        enviar_email_erro(f'{request.POST}', 'Er')
         if request.method == 'GET':
             if request.GET.getlist('codigos_eficha[]'):
                 return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
@@ -497,13 +496,15 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         if request.FILES != {}:
             return JsonResponse(requests_ajax(request.POST, request.FILES))
         else:
-            if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
-                cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
-                cliente.codigo_app_pf = request.POST.get('cliente_pf')
-                cliente.codigo_app_pj = request.POST.get('cliente_pj')
-                cliente.save()
-
-            return JsonResponse(requests_ajax(request.POST))
+            try:
+                if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
+                    cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
+                    cliente.codigo_app_pj = request.POST.get('cliente_pj')
+                    cliente.save()
+            except Exception as e:
+                enviar_email_erro(e, 'Erro')
+            else:
+                return JsonResponse(requests_ajax(request.POST))
 
     if request.method != 'POST':
         if id_pre_reserva:

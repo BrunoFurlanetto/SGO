@@ -354,15 +354,10 @@ def requests_ajax(requisicao, files=None, usuario=None):
             form = CadastroCodigoApp(requisicao, instance=codigo)
         else:
             form = CadastroCodigoApp(requisicao)
-
+        enviar_email_erro(f'{form.errors}', 'ERRO')
         if form.is_valid():
-            try:
-                novo_codigo = form.save()
-            except Exception as e:
-                enviar_email_erro(f'{e}', 'ERRO')
-            else:
-                enviar_email_erro(f'{novo_codigo, novo_codigo.id}', 'Erro')
-                return {'id': novo_codigo.id}
+            novo_codigo = form.save()
+            return {'id': novo_codigo.id}
 
     if requisicao.get('id_produto'):
         produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
