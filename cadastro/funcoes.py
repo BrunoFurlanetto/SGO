@@ -359,8 +359,9 @@ def requests_ajax(requisicao, files=None, usuario=None):
             try:
                 novo_codigo = form.save()
             except Exception as e:
-                enviar_email_erro(f'{e}', 'ERROO')
+                enviar_email_erro(f'{e}', 'ERRO')
             else:
+                enviar_email_erro(f'{novo_codigo, novo_codigo.id}', 'Erro')
                 return {'id': novo_codigo.id}
 
     if requisicao.get('id_produto'):
