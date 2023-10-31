@@ -552,7 +552,7 @@ $('document').ready(function () {
                     $('#codigos_app_ok').prop('checked', true)
                 }
             }
-        });
+        }).catch((error) => console.error(error))
 
         return false;
     });
