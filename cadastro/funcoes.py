@@ -7,6 +7,7 @@ from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais,
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
     AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor, CodigosPadrao
+from projetoCEU.utils import enviar_email_erro
 
 
 def is_ajax(request):
@@ -359,7 +360,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 novo_codigo = form.save()
                 return {'id': novo_codigo.id}
         except Exception as e:
-            return {'id': e}
+            enviar_email_erro(f'Erro {e}', 'ERROOOOOO')
 
     if requisicao.get('id_produto'):
         produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
