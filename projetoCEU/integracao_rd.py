@@ -63,11 +63,25 @@ def formatar_envio_valores(id_negocio, ficha_de_evento):
     return {"deal_custom_fields": [{'value': valor, 'custom_field_id': id_campo} for id_campo, valor in campos.items()]}
 
 def verificar_id(id_negocio):
-    print(id_negocio)
-    url = f'https://crm.rdstation.com/api/v1/deals?token={TOKEN_RD}&limit=200'
+    url = f'https://crm.rdstation.com/api/v1/deals?token={TOKEN_RD}&closed_at=false&limit=200'
     headers = {"accept": "application/json"}
     response = requests.get(url, headers=headers)
+    negocios_total = response.json()['total']
+    paginas = int(negocios_total // 200) if negocios_total % 200 == 0 else int(negocios_total // 200) + 1
     negocios = response.json()['deals']
     ids_negocios = [negocio['id'] for negocio in negocios]
 
-    return id_negocio in ids_negocios
+    if id_negocio in ids_negocios:
+        return True
+
+    for pagina in range(2, paginas + 1):
+        url = f'https://crm.rdstation.com/api/v1/deals?token={TOKEN_RD}&closed_at=false&limit=200&page={pagina}'
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        negocios = response.json()['deals']
+        ids_negocios = [negocio['id'] for negocio in negocios]
+
+        if id_negocio in ids_negocios:
+            return True
+
+    return False
