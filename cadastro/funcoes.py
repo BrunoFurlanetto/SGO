@@ -7,7 +7,6 @@ from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais,
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
     AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor, CodigosPadrao
-from projetoCEU.utils import enviar_email_erro
 
 
 def is_ajax(request):
@@ -349,18 +348,15 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 return {'salvo': True, 'id': novo_op_formatura.id}
 
     if requisicao.get('infos') == 'app':
-        try:
-            if requisicao.get('id_codigo_app'):
-                codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
-                form = CadastroCodigoApp(requisicao, instance=codigo)
-            else:
-                form = CadastroCodigoApp(requisicao)
+        if requisicao.get('id_codigo_app'):
+            codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
+            form = CadastroCodigoApp(requisicao, instance=codigo)
+        else:
+            form = CadastroCodigoApp(requisicao)
 
-            if form.is_valid():
-                novo_codigo = form.save()
-                return {'id': novo_codigo.id}
-        except Exception as e:
-            enviar_email_erro(f'Erro {e}', 'ERROOOOOO')
+        if form.is_valid():
+            novo_codigo = form.save()
+            return {'id': novo_codigo.id}
 
     if requisicao.get('id_produto'):
         produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
