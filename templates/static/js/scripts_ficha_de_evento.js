@@ -545,6 +545,7 @@ $('document').ready(function () {
             type: "POST",
             data: dados,
             success: function (response) {
+                console.log(response)
                 $('#id_codigos_app').val(response['id'])
                 $('#modal_codigos_app').modal('hide')
 

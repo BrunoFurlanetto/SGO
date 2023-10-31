@@ -348,16 +348,18 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 return {'salvo': True, 'id': novo_op_formatura.id}
 
     if requisicao.get('infos') == 'app':
+        try:
+            if requisicao.get('id_codigo_app'):
+                codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
+                form = CadastroCodigoApp(requisicao, instance=codigo)
+            else:
+                form = CadastroCodigoApp(requisicao)
 
-        if requisicao.get('id_codigo_app'):
-            codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
-            form = CadastroCodigoApp(requisicao, instance=codigo)
-        else:
-            form = CadastroCodigoApp(requisicao)
-
-        if form.is_valid():
-            novo_codigo = form.save()
-            return {'id': novo_codigo.id}
+            if form.is_valid():
+                novo_codigo = form.save()
+                return {'id': novo_codigo.id}
+        except Exception as e:
+            return {'id': e}
 
     if requisicao.get('id_produto'):
         produto = ProdutosPeraltas.objects.get(id=int(requisicao.get('id_produto')))
