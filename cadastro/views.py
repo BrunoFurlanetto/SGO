@@ -482,6 +482,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if is_ajax(request):
+        enviar_email_erro(f'{request.POST}', 'Er')
         if request.method == 'GET':
             if request.GET.getlist('codigos_eficha[]'):
                 return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
