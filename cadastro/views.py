@@ -505,7 +505,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
 
                 return JsonResponse(requests_ajax(request.POST))
         except Exception as e:
-            enviar_email_erro(f'Erro {e}', 'ERROOOO')
+            enviar_email_erro(f'Erro {e}',  'ERROOOO')
 
     if request.method != 'POST':
         if id_pre_reserva:
