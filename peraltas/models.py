@@ -928,8 +928,8 @@ class CadastroCodigoApp(forms.ModelForm):
             'eficha': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
             'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%', 'onchange': ''}),
-            'ficha_financeira': forms.NumberInput(attrs={'min': '0'}),
-            'evento_app': forms.NumberInput(attrs={'min': '0'}),
+            'ficha_financeira': forms.TextInput(attrs={'pattern': '\d*', 'min': '0'}),
+            'evento_app': forms.TextInput(attrs={'pattern': '\d*', 'min': '0'}),
         }
 
 
