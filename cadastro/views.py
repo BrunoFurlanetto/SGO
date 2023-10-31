@@ -496,15 +496,12 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         if request.FILES != {}:
             return JsonResponse(requests_ajax(request.POST, request.FILES))
         else:
-            try:
-                if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
-                    cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
-                    cliente.codigo_app_pj = request.POST.get('cliente_pj')
-                    cliente.save()
-            except Exception as e:
-                enviar_email_erro(e, 'Erro')
-            else:
-                return JsonResponse(requests_ajax(request.POST))
+            if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
+                cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
+                cliente.codigo_app_pj = request.POST.get('cliente_pj')
+                cliente.save()
+
+            return JsonResponse(requests_ajax(request.POST))
 
     if request.method != 'POST':
         if id_pre_reserva:

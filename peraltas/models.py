@@ -180,10 +180,10 @@ class TiposPagamentos(models.Model):
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
-    evento_app = models.IntegerField(null=True, blank=True)
+    evento_app = models.CharField(max_length=255, null=True, blank=True)
     eficha = models.CharField(max_length=255)
     reserva = models.CharField(max_length=255)
-    ficha_financeira = models.PositiveIntegerField(null=True, blank=True)
+    ficha_financeira = models.CharField(max_length=255, null=True, blank=True)
     tipo_de_pagamento = models.ManyToManyField(TiposPagamentos, blank=True)
 
     def __str__(self):
@@ -925,9 +925,11 @@ class CadastroCodigoApp(forms.ModelForm):
         widgets = {
             'cliente_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
             'cliente_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
-            'evento': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
+            'eficha': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
-            'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%', 'onchange': ''})
+            'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%', 'onchange': ''}),
+            'ficha_financeira': forms.NumberInput(attrs={'min': '0'}),
+            'evento_app': forms.NumberInput(attrs={'min': '0'}),
         }
 
 
