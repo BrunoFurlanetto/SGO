@@ -482,30 +482,27 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         return redirect('dashboard')
 
     if is_ajax(request):
-        try:
-            if request.method == 'GET':
-                if request.GET.getlist('codigos_eficha[]'):
-                    return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
+        if request.method == 'GET':
+            if request.GET.getlist('codigos_eficha[]'):
+                return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
 
-                if request.GET.get('tipo_pagamento'):
-                    tipo = TiposPagamentos.objects.get(pk=request.GET.get('tipo_pagamento'))
+            if request.GET.get('tipo_pagamento'):
+                tipo = TiposPagamentos.objects.get(pk=request.GET.get('tipo_pagamento'))
 
-                    return JsonResponse({'avulso': tipo.offline})
+                return JsonResponse({'avulso': tipo.offline})
 
-                return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
+            return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
 
-            if request.FILES != {}:
-                return JsonResponse(requests_ajax(request.POST, request.FILES))
-            else:
-                if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
-                    cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
-                    cliente.codigo_app_pf = request.POST.get('cliente_pf')
-                    cliente.codigo_app_pj = request.POST.get('cliente_pj')
-                    cliente.save()
+        if request.FILES != {}:
+            return JsonResponse(requests_ajax(request.POST, request.FILES))
+        else:
+            if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
+                cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
+                cliente.codigo_app_pf = request.POST.get('cliente_pf')
+                cliente.codigo_app_pj = request.POST.get('cliente_pj')
+                cliente.save()
 
-                return JsonResponse(requests_ajax(request.POST))
-        except Exception as e:
-            enviar_email_erro(f'Erro {e}',  'ERROOOO')
+            return JsonResponse(requests_ajax(request.POST))
 
     if request.method != 'POST':
         if id_pre_reserva:
