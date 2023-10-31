@@ -43,6 +43,12 @@ function verificar_codigos_eficha() {
             if (response['salvar']) {
                 if (response['totais']) {
                     $('#id_qtd_confirmada').val(response['totais']['total_confirmado'])
+                    $('#id_qtd_eficha').val(response['totais']['total_eficha'])
+
+                    if (response['totais']['total_eficha'] != 0) {
+
+                        $('#div_eficha').removeClass('none')
+                    }
 
                     if ($('#div_produto_corporativo').hasClass('none')) {
                         $('#id_qtd_meninos').val(response['totais']['total_pagantes_masculino'])
@@ -425,6 +431,23 @@ function salvar_novo_op_formatura() {
 }
 
 $('document').ready(function () {
+    $("#id_tipo_de_pagamento").on("select2:select", function (e) {
+        const opcao = e.params.data;
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "GET",
+            data: {'tipo_pagamento': opcao['id']},
+            success: function (response) {
+                console.log(response)
+                if (response['avulso']) {
+                    $('#div_avulso').toggleClass('none')
+                    $('#id_qtd_offline').val(0)
+                }
+            }
+        })
+    })
+
     $('#id_locacoes_ceu').on('select2:select', function (e) {
         $('.dados_locacoes_').removeClass('none')
         const infos_locacao = `
@@ -505,7 +528,6 @@ jQuery('document').ready(function () {
 });
 
 function pegarIdCodigosApp() {
-
     if ($('#id_codigos_app').val() !== '') {
         $('#codigos_app').append(`<input type="hidden" name="id_codigo_app" value="${$('#id_codigos_app').val()}"/>`)
     }

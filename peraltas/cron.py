@@ -19,20 +19,19 @@ def atualizar_pagantes_ficha():
 
     if response.status_code == 200:
         eventos = response.json()
-
         eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
 
         fichas = FichaDeEvento.objects.filter(
             pre_reserva=False,
             check_in__date__gte=datetime.today().date()
         ).exclude(
-            codigos_app__evento__in=codigos_padrao
+            codigos_app__eficha__in=codigos_padrao
         )
 
         try:
             for ficha in fichas:
                 alterar = False
-                codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.evento.split(',')]
+                codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.eficha.split(',')]
 
                 total_pagantes_masculino = 0
                 total_pagantes_feminino = 0
@@ -58,17 +57,21 @@ def atualizar_pagantes_ficha():
                         ficha.qtd_profs_homens = total_professores_masculino
                         ficha.qtd_profs_mulheres = total_professores_feminino
 
-                    ficha.qtd_confirmada = total_pagantes_masculino + total_pagantes_feminino
+                    ficha.qtd_eficha = total_pagantes_masculino + total_pagantes_feminino
+                    ficha.qtd_confirmada = ficha.qtd_eficha + (ficha.qtd_offline if ficha.qtd_offline else 0)
                     ficha.adesao = (ficha.qtd_confirmada / ficha.qtd_convidada) * 100
-                    alterar_campos_personalizados(ficha.id_negocio, ficha)
                     ficha.save()
+
+                    try:
+                        alterar_campos_personalizados(ficha.id_negocio, ficha)
+                    except Exception as e:
+                        ...
 
                     if ficha.os:
                         ordem = OrdemDeServico.objects.get(ficha_de_evento=ficha)
                         ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
                         ordem.n_professores = total_professores_masculino + total_professores_feminino
                         ordem.save()
-
         except Exception as e:
             mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
             enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')

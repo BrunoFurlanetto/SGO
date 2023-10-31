@@ -125,6 +125,14 @@
                         <label>QTD reservada</label>
                         {{ form.qtd_confirmada }}
                     </div>
+                    <div id="div_eficha" style="width: 15%" class="{% if not form.qtd_eficha.value or form.qtd_eficha.value == 0 %} none {% endif %}">
+                        <label>QTD E-ficha</label>
+                        {{ form.qtd_eficha }}
+                    </div>
+                    <div id="div_avulso" style="width: 15%" class="{% if not form.qtd_offline.value >= 0 %} none {% endif %}">
+                        <label>QTD avulso</label>
+                        {{ form.qtd_offline }}
+                    </div>
                     {% if ficha_de_evento %}
                         <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
                              style="width: 15%">

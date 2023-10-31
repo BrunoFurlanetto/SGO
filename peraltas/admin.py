@@ -5,7 +5,8 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao)
+                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
+                             TiposPagamentos)
 from peraltas.models import Vendedor
 
 
@@ -147,6 +148,11 @@ class CodigosPadraoAdmin(admin.ModelAdmin):
 @admin.register(CodigosApp)
 class CodigosAppAdmin(admin.ModelAdmin):
     list_display = ('cliente_pj',)
+
+
+@admin.register(TiposPagamentos)
+class TiposPagamentosAdmin(admin.ModelAdmin):
+    list_display = ('tipo_pagamento', 'offline')
 
 
 @admin.register(EventosCancelados)

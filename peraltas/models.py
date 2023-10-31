@@ -170,6 +170,7 @@ class CodigosPadrao(models.Model):
 
 class TiposPagamentos(models.Model):
     tipo_pagamento = models.CharField(max_length=255)
+    offline = models.BooleanField(default=False)
 
     def __str__(self):
         return self.tipo_pagamento
@@ -393,6 +394,8 @@ class FichaDeEvento(models.Model):
                                                      verbose_name='Quantidade de professores mulheres')
     qtd_convidada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade reservada')
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade confirmada')
+    qtd_eficha = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade E-ficha')
+    qtd_offline = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade offline')
     qtd_meninos = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de menino')
     qtd_meninas = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de meninas')
     qtd_homens = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de homens')
@@ -924,7 +927,7 @@ class CadastroCodigoApp(forms.ModelForm):
             'cliente_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
             'evento': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
-            'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%'})
+            'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%', 'onchange': ''})
         }
 
 

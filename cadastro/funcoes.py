@@ -538,6 +538,7 @@ def verificar_codigos(codigos):
             'total_pagantes_feminino': total_pagantes_feminino,
             'total_professores_masculino': total_professores_masculino,
             'total_professores_feminino': total_professores_feminino,
-            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino
+            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino,
+            'total_eficha': total_pagantes_masculino + total_pagantes_feminino,
         }
     }

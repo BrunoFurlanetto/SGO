@@ -16,7 +16,7 @@ from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, Cadast
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
-    Monitor, EmpresaOnibus
+    Monitor, EmpresaOnibus, TiposPagamentos
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.integracao_rd import alterar_status, alterar_campos_personalizados
@@ -486,7 +486,14 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             if request.GET.getlist('codigos_eficha[]'):
                 return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
 
+            if request.GET.get('tipo_pagamento'):
+                tipo = TiposPagamentos.objects.get(pk=request.GET.get('tipo_pagamento'))
+
+                return JsonResponse({'avulso': tipo.offline})
+
             return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
+
+
 
         if request.FILES != {}:
             return JsonResponse(requests_ajax(request.POST, request.FILES))
