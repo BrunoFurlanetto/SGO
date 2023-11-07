@@ -643,6 +643,9 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         except TypeError:
             novo_evento.qtd_confirmada = 0
             novo_evento.adesao = 0.00
+        except ZeroDivisionError:
+            novo_evento.qtd_convidada = 0
+            novo_evento.adesao = 100.00
 
         if not id_ficha_de_evento:
             novo_evento.data_preenchimento = datetime.today().date()
