@@ -10,7 +10,6 @@ from peraltas.models import Monitor
 from ordemDeServico.models import OrdemDeServico
 
 
-
 class RelatorioDeAtendimentoPublicoCeu(models.Model):
     tipo = models.CharField(max_length=7, default='publico', blank=True)
     participantes_previa = models.IntegerField()
@@ -115,7 +114,6 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
 
         return ', '.join(professores)
 
-
     def dividir_atividades(self):
         atividades = []
 
@@ -123,6 +121,14 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
             atividades.append(atividade)
 
         return atividades
+
+    def dividir_locacoes_ceu(self):
+        locacoes = []
+
+        for locacao in self.locacoes.values():
+            locacoes.append(locacao)
+        print(locacoes)
+        return locacoes
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -158,7 +164,7 @@ class RelatorioDeAtendimentoEmpresaCeu(models.Model):
             'instituicao': ordem.ficha_de_evento.cliente,
             'check_in': ordem.check_in_ceu,
             'check_out': ordem.check_out_ceu,
-            'ordem':ordem.id,
+            'ordem': ordem.id,
             'participantes_previa': ordem.n_participantes,
             'coordenador_peraltas': ordem.monitor_responsavel.all()
         }
@@ -226,7 +232,8 @@ class RelatorioEmpresa(forms.ModelForm):
         model = RelatorioDeAtendimentoEmpresaCeu
         exclude = ()
 
-        widgets = {'instituicao': forms.TimeInput(attrs={'onClick': 'verificarObrigatoriedade()'}),
-                   'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
-                   'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
-                   }
+        widgets = {
+            'instituicao': forms.TimeInput(attrs={'onClick': 'verificarObrigatoriedade()'}),
+            'participantes_previa': forms.NumberInput(attrs={'placeholder': 'Prévia'}),
+            'participantes_confirmados': forms.NumberInput(attrs={'placeholder': 'Confirmados'}),
+        }

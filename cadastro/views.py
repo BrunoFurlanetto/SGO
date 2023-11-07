@@ -92,9 +92,12 @@ def publico(request, id_relatorio=None):
 @login_required(login_url='login')
 def colegio(request, id_relatorio=None):
     relatorio_colegio = RelatorioColegio()
+    relatorio = None
+    editar = False
     professores = Professores.objects.all()
     monitores = Monitor.objects.all()
     atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
     ordens = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
@@ -111,7 +114,8 @@ def colegio(request, id_relatorio=None):
                     'ordem': ordem_de_servico,
                     'professores': professores,
                     'monitores': monitores,
-                    'atividades': atividades
+                    'atividades': atividades,
+                    'locais': locais
                 })
             else:
                 return render(request, 'cadastro/colegio.html', {
@@ -131,7 +135,8 @@ def colegio(request, id_relatorio=None):
                 'professores': professores,
                 'monitores': monitores,
                 'atividades': atividades,
-                'editar': editar
+                'editar': editar,
+                'locais': locais
             })
 
     if is_ajax(request):
@@ -139,11 +144,28 @@ def colegio(request, id_relatorio=None):
 
     if id_relatorio:
         relatorio_editado = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
+
+        if request.POST.get('excluir') and request.POST.get('excluir') == 'Sim':
+            try:
+                ordem = relatorio_editado.ordem
+                relatorio_editado.delete()
+            except Exception as e:
+                messages.error(request, f'Houve um erro inesperado ({e}). Por favor, tente novamente mais tarde!')
+                return redirect('dashboard')
+            else:
+                ordem.relatorio_ceu_entregue = False
+                ordem.save()
+                messages.success(request, 'Relatório de atendimento apagado com sucesso!')
+
+                return redirect('dashboard')
+
         relatorio_colegio = RelatorioColegio(request.POST, instance=relatorio_editado)
     else:
         ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
-        relatorio_colegio = RelatorioColegio(request.POST,
-                                             initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem))
+        relatorio_colegio = RelatorioColegio(
+            request.POST,
+            initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem)
+        )
 
     if relatorio_colegio.is_valid():
         relatorio = relatorio_colegio.save(commit=False)
@@ -183,23 +205,25 @@ def colegio(request, id_relatorio=None):
         ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
 
         return render(request, 'cadastro/colegio.html', {
+            'relatorio': relatorio,
             'formulario': relatorio_colegio,
-            'ordens': ordens,
-            'ordem': ordem_de_servico,
             'professores': professores,
             'monitores': monitores,
-            'atividades': atividades
+            'atividades': atividades,
+            'editar': editar,
+            'locais': locais
         })
 
 
 @login_required(login_url='login')
 def empresa(request, id_relatorio=None):
-    if request.method != 'POST':
-        professores = Professores.objects.all()
-        monitores = Monitor.objects.all()
-        atividades = Atividades.objects.all()
-        locais = Locaveis.objects.all()
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    editar = False
 
+    if request.method != 'POST':
         if not id_relatorio:
             relatorio_empresa = RelatorioEmpresa()
             empresas = pegar_empresas_no_ceu()
@@ -237,32 +261,49 @@ def empresa(request, id_relatorio=None):
                 'professores': professores,
                 'monitores': monitores,
                 'atividades': atividades,
-                'editar': editar
+                'editar': editar,
+                'locais': locais
             })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    relatorio_empresa = RelatorioEmpresa(request.POST)
+    if id_relatorio:
+        relatorio = RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio)
+
+        if request.POST.get('excluir') and request.POST.get('excluir') == 'Sim':
+            try:
+                ordem = relatorio.ordem
+                relatorio.delete()
+            except Exception as e:
+                messages.error(request, f'Houve um erro inesperado ({e}), por favor tente novamente mais tarde!')
+
+                return redirect('dashboard')
+            else:
+                ordem.relatorio_ceu_entregue = False
+                ordem.save()
+                messages.success(request, f'Relatório deletado com sucesso!')
+
+                return redirect('dashboard')
+
+        relatorio_empresa = RelatorioEmpresa(request.POST, instance=relatorio)
+    else:
+        relatorio_empresa = RelatorioEmpresa(request.POST)
 
     if relatorio_empresa.is_valid():
         ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
         relatorio = relatorio_empresa.save(commit=False)
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_locacoes_empresa(request.POST, relatorio)
-
-        if request.POST.get('ativ_1'):
+        print(request.POST)
+        if request.POST.get('ativ_1', None):
             salvar_atividades_colegio(request.POST, relatorio)
 
         try:
             relatorio_empresa.save()
         except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
-            relatorio_empresa = RelatorioEmpresa()
-            return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                             'professores': professores,
-                                                             'empresas': empresas})
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor, tente mais tarde')
+            return redirect('dashboard')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
@@ -270,9 +311,15 @@ def empresa(request, id_relatorio=None):
             return redirect('dashboard')
     else:
         messages.warning(request, relatorio_empresa.errors)
-        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                         'professores': professores,
-                                                         'empresas': empresas})
+        return render(request, 'cadastro/empresa.html', {
+            'relatorio': RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio) if id_relatorio else None,
+            'formulario': relatorio_empresa,
+            'professores': professores,
+            'monitores': monitores,
+            'atividades': atividades,
+            'editar': editar,
+            'locais': locais
+        })
 
 
 @login_required(login_url='login')

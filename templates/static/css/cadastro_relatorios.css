@@ -49,3 +49,7 @@
 #locacao select, #locacao input {
     padding: 0 5px;
 }
+
+.conteudo-empresa .select2-container{
+    pointer-events: none;
+}

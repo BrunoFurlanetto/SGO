@@ -72,29 +72,32 @@ def salvar_atividades_colegio(dados, relatorio):
 def salvar_locacoes_empresa(dados, relatorio):
     dados_locacoes = {}
     horas_totais = timedelta()
-    n_locacoes = 0
+    locacao = 1
 
-    for campo in dados:
-        if 'qtd_loc' in campo:
-            n_locacoes += 1
-
-        for i in range(1, n_locacoes + 1):
-            check_in = dados.get(f'check_in_{i}')
-            check_out = dados.get(f'check_out_{i}')
+    while True:
+        if dados.getlist(f'loc_{locacao}', None):
+            check_in = dados.getlist(f'loc_{locacao}')[1]
+            check_out = dados.getlist(f'loc_{locacao}')[2]
             horas_parciais = somar_horas_parciais(check_in, check_out)
             horas_totais += horas_parciais
-            print(horas_totais)
-            participantes = dados.get(f'qtd_loc_{i}')
+            participantes = dados.getlist(f'loc_{locacao}')[3]
 
             # ------------------------------------ Salvando as atividades ----------------------------------------------
-            dados_locacoes[f'locacao_{i}'] = {
-                'espaco': int(dados.get(f'loc_{i}')),
-                'professor': int(dados.get(f'prf_loc_{i}')),
+            dados_locacoes[f'locacao_{locacao}'] = {
+                'espaco': int(dados.getlist(f'loc_{locacao}')[0]),
+                'professor': [
+                    int(id_professor) for id_professor in dados.getlist(f'professores_locacao_{locacao}')
+                    if id_professor != ''
+                ],
                 'check_in': check_in,
                 'check_out': check_out,
                 'soma_horas': str(horas_parciais),
                 'participantes': participantes
             }
+        else:
+            break
+
+        locacao += 1
 
     relatorio.horas_totais_locacoes = horas_totais
     relatorio.locacoes = dados_locacoes
@@ -127,7 +130,7 @@ def salvar_equipe_colegio(dados, relatorio):
 # ----------------------------------------------------------------------------------------------------------------------
 def somar_horas_parciais(entrada, saida):
     f = '%Y-%m-%dT%H:%M'
-    diferenca = (datetime.strptime(str(saida), f) - datetime.strptime(str(entrada), f))
+    diferenca = (datetime.strptime(str(saida), '%Y-%m-%dT%H:%M') - datetime.strptime(str(entrada), '%Y-%m-%dT%H:%M'))
 
     return diferenca
 

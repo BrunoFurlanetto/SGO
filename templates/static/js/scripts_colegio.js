@@ -243,7 +243,7 @@ function criar_linhas_colunas_locacao(){
 function popular_professores_locacao(i){
 
     // Nesse caso é apenas um professor por locação
-    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="professores_loc_${i + 1}" onchange="validacao(this)" required></select>`)
+    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="professores_locacao_${i + 1}" onchange="validacao(this)" required></select>`)
     $(`#prof_loc_${i+1}`).append(`<option selected></option>`)
 
     $.ajax({
@@ -303,10 +303,10 @@ function add_linha_locacao(){
     let i = criar_linhas_colunas_locacao()
     popular_professores_locacao(i)
 
-    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"></select>`)
-    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="loc_${i + 1}"/>`)
-    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="loc_${i + 1}"/>`)
-    $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="loc_${i + 1}"/>`)
+    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" required></select>`)
+    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="loc_${i + 1}" required/>`)
+    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="loc_${i + 1}" required/>`)
+    $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="loc_${i + 1}" required/>`)
     $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x'></i></span></button>`)
 
     colocar_locacoes(null, `loc_${i+1}`)
@@ -319,7 +319,7 @@ function montar_tabela_locacoes(dados) {
         criar_linhas_colunas_locacao()
         popular_professores_locacao(i)
 
-        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"required></select>`)
+        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" required></select>`)
         colocar_locacoes(dados['locacoes'][`locacao_${i + 1}`]['espaco'], `loc_${i + 1}`)
 
         let check_in = dados['locacoes'][`locacao_${i + 1}`]['check_in'].replace(' ', 'T')
