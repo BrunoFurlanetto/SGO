@@ -90,6 +90,7 @@ class AtividadePeraltas(models.Model):
     nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
                                         verbose_name='Manual')
+    valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
     def __str__(self):
         return self.nome_atividade

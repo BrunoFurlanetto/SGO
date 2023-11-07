@@ -57,6 +57,8 @@ class HorariosPadroes(models.Model):
     refeicao = models.CharField(max_length=50, verbose_name='Refeição')
     horario = models.TimeField(verbose_name='Horário')
     entrada = models.BooleanField(default=True)
+    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
+    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
 
     def __str__(self):
         return f'Horário {self.refeicao}'

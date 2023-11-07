@@ -3,9 +3,9 @@ from ..models import ValoresTransporte
 
 
 class Transport(BaseValue):
-    def __init__(self, value, period_id, days):
-        super().__init__(value)
-        self.period_id = period_id
+    def __init__(self, values, periods, days):
+        super().__init__(values)
+        self.periods = periods
         self.days = days
         self.min_payers = 30
 
@@ -15,29 +15,30 @@ class Transport(BaseValue):
 
     def calc_value_transport(self, is_transport):
         if is_transport != 'sim':
-            self.value = 0
-            return self.value
+            self.values = []
+            return self.values
 
         try:
-            obj_transport = ValoresTransporte.objects.get(periodo__pk=self.period_id)
+            obj_transport = ValoresTransporte.objects.get(periodo__pk=self.periods[0].id)
         except ValoresTransporte.DoesNotExist:
-            self.value = 0
+            self.values = []
+            return self.values
 
-            return self.value
-
+        values = []
         if self.days == 1:
-            self.value = (float(obj_transport.valor_1_dia) /
-                          (1 - float(obj_transport.percentual))) / self.min_payers
-            return self.value
+            value = (float(obj_transport.valor_1_dia) /
+                     (1 - float(obj_transport.percentual))) / self.min_payers
+        elif self.days == 2:
+            value = (float(obj_transport.valor_2_dia) /
+                     (1 - float(obj_transport.percentual))) / self.min_payers
+        else:
+            value = ((float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))
+                      ) + ((self.days - 3) *
+                           (float(obj_transport.valor_acrescimo) / (
+                                   1 - float(obj_transport.percentual))))) / self.min_payers
+        values.append(value)
+        for i in range(1, self.days):
+            values.append(0)
 
-        if self.days == 2:
-            self.value = (float(obj_transport.valor_2_dia) /
-                          (1 - float(obj_transport.percentual))) / self.min_payers
-            return self.value
-
-        self.value = ((float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))
-                       ) + ((self.days - 3) *
-                            (float(obj_transport.valor_acrescimo) / (
-                                        1 - float(obj_transport.percentual))))) / self.min_payers
-
-        return self.value
+        self.values = values
+        return self.values

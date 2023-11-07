@@ -3,7 +3,7 @@ import re
 
 from django.http import JsonResponse
 from .mock import mock_optional
-from .models import OrcamentoOpicional
+from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo
 
 
 def JsonError(msg):
@@ -61,6 +61,8 @@ def processar_formulario(dados):
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
 
+
+
         if correspondencia_valores_op:
             lista = []
 
@@ -82,6 +84,60 @@ def processar_formulario(dados):
                     gerencia[correspondencia_gerencia.group(1)] = float(valor.replace('%', '').replace(',', '.'))
                 except ValueError:
                     gerencia[correspondencia_gerencia.group(1)] = valor
+
+    # Tratamento de informações apartir do campo data_viagem
+    if "data_viagem" in orcamento and orcamento['data_viagem'] != '':
+        checks = orcamento['data_viagem'].split(' - ')
+        check_in_complete = checks[0].split(' ')
+        check_out_complete = checks[1].split(' ')
+
+        # convert str to time obj
+        hour_check_in = datetime.strptime(check_in_complete[1], '%H:%M').time()
+        hour_check_out = datetime.strptime(check_out_complete[1], '%H:%M').time()
+
+        # Convert str to date obj
+        date_check_in = datetime.strptime(check_in_complete[0], '%d/%m/%Y').date()
+        date_check_out = datetime.strptime(check_out_complete[0], '%d/%m/%Y').date()
+
+        # filter check_in and check_out
+        time_in = HorariosPadroes.objects.filter(entrada=1)
+        time_in = time_in.filter(horario__gte=hour_check_in).order_by('horario')
+        time_out = HorariosPadroes.objects.filter(entrada=0)
+        time_out = time_out.filter(horario__lte=hour_check_out).order_by('-horario')
+
+        # Do period list
+        period_days = []
+        days_list = []
+        current_date = date_check_in
+        while current_date <= date_check_out:
+            days_list.append(current_date)
+            is_first_semester = current_date.month <= 6
+            is_mdw = current_date.weekday() <= 2
+            year = current_date.year
+            find_id = ""
+            find_id += "MS" if is_mdw else "FS"
+            find_id += "PS" if is_first_semester else "SS"
+            find_id += str(year)
+
+            # verificar se sempre o segundo semestre é QD... ************
+            find_id = find_id.replace("MSSS", "QDSS")
+            find_id = find_id.replace("FSSS", "QDSS")
+
+            period = OrcamentoPeriodo.objects.get(id=find_id)
+            period_days.append(period)
+            current_date += timedelta(days=1)
+
+        # Calc num days
+        num_days = len(period_days)
+
+        # Get ID for hours, Num Days And IDs for Periods:
+        orcamento['hora_check_in'] = (time_in[0]).id
+        orcamento['hora_check_out'] = (time_out[0]).id
+        orcamento['n_dias'] = num_days
+        orcamento['periodo_viagem'] = period_days
+        orcamento['lista_de_dias'] = days_list
+
+
 
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 

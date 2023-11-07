@@ -1,3 +1,5 @@
+from ceu.models import Atividades
+from peraltas.models import AtividadePeraltas
 from .models import OrcamentoOpicional, \
     OrcamentoPeriodo
 from .entity.period import Period
@@ -10,38 +12,42 @@ from .entity.total import Total
 
 
 class Budget:
-    def __init__(self, period_id, days, coming_id, exit_id):
-        db_period = OrcamentoPeriodo.objects.get(pk=period_id)
+    def __init__(self, periods, days, coming_id, exit_id, days_list):
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = int(days)
+        self.days_list = days_list
         # todo: PEGAR INIT TAXAS DO BD
         self.business_fee = 0.09
         self.commission = 0.05
 
-        self.period = Period(id=db_period.id, value=db_period.valor)
+        self.period = Period(periods)
         self.daily_rate = DailyRate(
             check_in_id=self.coming_id,
             check_out_id=self.exit_id,
-            period_id=self.period.id,
+            periods=periods,
             days=self.days
         )
         self.monitor = Monitor(
-            value=0,
+            values=[],
             coming_id=self.coming_id,
             exit_id=self.exit_id,
             days=self.days
         )
         self.transport = Transport(
             days=self.days,
-            value=0,
-            period_id=self.period.id,
+            values=[],
+            periods=periods,
         )
-        self.optional = Optional(0)
+        self.optional = Optional([], days)
         self.array_description_optional = []
-        self.others = Optional(0)
+        self.others = Optional([], days)
         self.array_description_others = []
-        self.total = Total(0)
+        self.activities = Optional([], days)
+        self.array_description_activities = []
+        self.activities_sky = Optional([], days)
+        self.array_description_activities_sky = []
+        self.total = Total([])
         self.daily_rate.calc_daily_rate()
 
     def set_business_fee(self, business_fee):
@@ -55,7 +61,8 @@ class Budget:
     def set_others(self, arr):
         other_array = []
         for other in arr:
-            obj_other = OptionalDescription(other['valor'], False, other['id'], other['nome'], other['descricao'])
+            obj_other = OptionalDescription(other['valor'], False, other['id'],
+                                            other['nome'], self.days, other['descricao'])
             other_array.append(obj_other.do_object(
                 percent_commission=self.commission,
                 percent_business_fee=self.business_fee,
@@ -73,14 +80,14 @@ class Budget:
             discount = 0
 
             if opt[1]:
-                discount=opt[1]
-
+                discount = opt[1]
 
             description = OptionalDescription(
                 db_optional.valor,
                 db_optional.fixo,
                 db_optional.id,
-                db_optional.nome
+                db_optional.nome,
+                self.days
             )
             description.set_discount(discount)
             optional_array.append(description.do_object(
@@ -91,10 +98,64 @@ class Budget:
         self.array_description_optional = optional_array
         return self.array_description_optional
 
+    def set_activities(self, arr):
+        activities_array = []
+
+        for opt in arr:
+            db_optional = AtividadePeraltas.objects.get(pk=opt[0])
+            discount = 0
+
+            if opt[1]:
+                discount = opt[1]
+
+            description = OptionalDescription(
+                db_optional.valor,
+                1,
+                db_optional.id,
+                db_optional.nome_atividade,
+                self.days
+            )
+            description.set_discount(discount)
+            activities_array.append(description.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ))
+
+        self.array_description_activities = activities_array
+        return self.array_description_activities
+
+    def set_activities_sky(self, arr):
+        activities_array = []
+
+        for opt in arr:
+            db_optional = Atividades.objects.get(pk=opt[0])
+            discount = 0
+
+            if opt[1]:
+                discount = opt[1]
+
+            description = OptionalDescription(
+                db_optional.valor,
+                1,
+                db_optional.id,
+                db_optional.atividade,
+                self.days
+            )
+            description.set_discount(discount)
+            activities_array.append(description.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ))
+
+        self.array_description_activities_sky = activities_array
+        return self.array_description_activities_sky
+
     def return_object(self):
         description_options = self.array_description_optional
         description_options.append({
-            "outros": self.array_description_others
+            "outros": self.array_description_others,
+            "atividades": self.array_description_activities,
+            "atividades_ceu": self.array_description_activities_sky
         })
         return {
             "periodo_viagem": self.period.do_object(
@@ -123,7 +184,16 @@ class Budget:
                 "outros": self.others.do_object(
                     percent_commission=self.commission,
                     percent_business_fee=self.business_fee
+                ),
+                "atividades": self.activities.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "atividades_ceu": self.activities_sky.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
                 )
+
             },
             "descricao_opcionais": description_options,
             "total": self.total.do_object(
@@ -132,5 +202,7 @@ class Budget:
             ),
             "desconto_geral": self.total.general_discount,
             "taxa_comercial": self.business_fee,
-            "comissao_de_vendas": self.commission
+            "comissao_de_vendas": self.commission,
+            "periodos": self.period.get_periods(),
+            "days": self.days_list,
         }

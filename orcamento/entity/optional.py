@@ -2,7 +2,9 @@ from .basevalue import BaseValue
 
 
 class Optional(BaseValue):
-    pass
+    def __init__(self, values, days):
+        super().__init__(values)
+        self.days = days
 
     def calc_value_optional(self, optional_description):
         total = 0
@@ -12,7 +14,11 @@ class Optional(BaseValue):
             total += opt["valor"]
             discount += opt["desconto"]
 
-        self.set_value(total)
+        value = [total]
+        for i in range(1, self.days):
+            value.append(0)
+
+        self.set_values(value)
         self.set_discount(discount)
 
-        return self.value
+        return self.values

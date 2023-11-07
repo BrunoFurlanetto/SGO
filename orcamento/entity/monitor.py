@@ -6,8 +6,8 @@ import math
 
 
 class Monitor(BaseValue):
-    def __init__(self, value, days, coming_id, exit_id):
-        super().__init__(value)
+    def __init__(self, values, days, coming_id, exit_id):
+        super().__init__(values)
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = days
@@ -15,22 +15,14 @@ class Monitor(BaseValue):
     def calc_value_monitor(self, id):
         object_monitor = OrcamentoMonitor.objects.get(pk=id)
         daily_monitor = float(object_monitor.valor) / float(object_monitor.racional_monitoria)
+        values = []
+        check_in = HorariosPadroes.objects.get(pk=self.coming_id).racional_monitor
+        check_out = HorariosPadroes.objects.get(pk=self.exit_id).racional_monitor
 
-        check_in = HorariosPadroes.objects.get(pk=self.coming_id).horario
-        check_out = HorariosPadroes.objects.get(pk=self.exit_id).horario
+        values.append(float(daily_monitor) * float(check_in))
+        for i in range(1, (self.days - 1)):
+            values.append(float(daily_monitor))
+        values.append(float(daily_monitor) * float(check_out))
 
-        first_daily_monitor = 1
-        if check_in.hour > time(12, 0, 0).hour:
-            first_daily_monitor = 0.5
-
-        intermediate_daily_monitor = self.days - 2
-        if intermediate_daily_monitor < 0:
-            intermediate_daily_monitor = 0
-
-        last_daily_monitor = 1
-        if check_out.hour < time(12, 0, 0).hour:
-            last_daily_monitor = 0.5
-
-        self.value = daily_monitor * (first_daily_monitor + intermediate_daily_monitor + last_daily_monitor)
-
-        return self.value
+        self.values = values
+        return self.values

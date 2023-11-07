@@ -61,54 +61,57 @@ def calc_budget(req):
                 return JsonResponse({'valor': 222.50}) # TODO: Esperar pra poder colocar os valores no banco pra não ferrar todo o banco de produção
         else:
             # JSON
-            return JsonResponse({'data': {
-                "periodo_viagem": {"valor": 50.0, "desconto": 0.0, "valor_final": 57.57663389242337,
-                                   "valor_com_desconto": 50.0, "taxa_comercial": 2.631578947368425,
-                                   "comissao_de_vendas": 4.945054945054942}, "n_dias": 2, "minimo_pagantes": 30.0,
-                "valores": {"tipo_monitoria": {"valor": 18.75, "desconto": 0.0, "valor_final": 21.59123770965876,
-                                               "valor_com_desconto": 18.75, "taxa_comercial": 0.9868421052631575,
-                                               "comissao_de_vendas": 1.8543956043956022},
-                            "diaria": {"valor": 165.0, "desconto": 0, "valor_final": 190.00289184499712,
-                                       "valor_com_desconto": 165.0, "taxa_comercial": 8.684210526315809,
-                                       "comissao_de_vendas": 16.318681318681314},
-                            "transporte": {"valor": 240.74074074074073, "desconto": 0, "valor_final": 277.2208298524088,
-                                           "valor_com_desconto": 240.74074074074073,
-                                           "taxa_comercial": 12.670565302144269,
-                                           "comissao_de_vendas": 23.809523809523824},
-                            "opcionais": {"valor": 65.0, "desconto": 0.0, "valor_final": 74.84962406015038,
-                                          "valor_com_desconto": 65.0, "taxa_comercial": 3.421052631578945,
-                                          "comissao_de_vendas": 6.428571428571431},
-                            "outros": {"valor": 25.0, "desconto": 0.0, "valor_final": 28.788316946211683,
-                                       "valor_com_desconto": 25.0, "taxa_comercial": 1.3157894736842124,
-                                       "comissao_de_vendas": 2.472527472527471}}, "descricao_opcionais": [
-                    {"valor": 10.0, "desconto": 0.0, "valor_final": 11.515326778484674, "valor_com_desconto": 10.0,
-                     "taxa_comercial": 0.526315789473685, "comissao_de_vendas": 0.989010989010989, "id": 1,
-                     "nome": "Festa a fantasia - Gin\u00e1si", "fixo": False},
-                    {"valor": 55.0, "desconto": 0.0, "valor_final": 63.334297281665705, "valor_com_desconto": 55.0,
-                     "taxa_comercial": 2.8947368421052673, "comissao_de_vendas": 5.439560439560438, "id": 4,
-                     "nome": "Jantar do branco", "fixo": True}, {"outros": [
-                        {"valor": 0.0, "desconto": 0, "valor_final": 0.0, "valor_com_desconto": 0.0,
-                         "taxa_comercial": 0.0, "comissao_de_vendas": 0.0, "id": "OPCEXT01", "nome": "Teste 1",
-                         "fixo": False, "description": "Teste"},
-                        {"valor": 25.0, "desconto": 0, "valor_final": 28.788316946211683, "valor_com_desconto": 25.0,
-                         "taxa_comercial": 1.3157894736842124, "comissao_de_vendas": 2.472527472527471,
-                         "id": "OPCEXT02", "nome": "Teste 2", "fixo": False, "description": "Teste 2"}]}],
-                "total": {"valor": 564.4907407407408, "desconto": 0.0, "desconto_geral": 0.0,
-                          "valor_final": 650.0295343058501, "valor_com_desconto": 564.4907407407408,
-                          "taxa_comercial": 29.71003898635479, "comissao_de_vendas": 55.82875457875457},
-                "desconto_geral": 0.0, "taxa_comercial": 0.05, "comissao_de_vendas": 0.09}})
+            # return JsonResponse({'data': {
+            #     "periodo_viagem": {"valor": 50.0, "desconto": 0.0, "valor_final": 57.57663389242337,
+            #                        "valor_com_desconto": 50.0, "taxa_comercial": 2.631578947368425,
+            #                        "comissao_de_vendas": 4.945054945054942}, "n_dias": 2, "minimo_pagantes": 30.0,
+            #     "valores": {"tipo_monitoria": {"valor": 18.75, "desconto": 0.0, "valor_final": 21.59123770965876,
+            #                                    "valor_com_desconto": 18.75, "taxa_comercial": 0.9868421052631575,
+            #                                    "comissao_de_vendas": 1.8543956043956022},
+            #                 "diaria": {"valor": 165.0, "desconto": 0, "valor_final": 190.00289184499712,
+            #                            "valor_com_desconto": 165.0, "taxa_comercial": 8.684210526315809,
+            #                            "comissao_de_vendas": 16.318681318681314},
+            #                 "transporte": {"valor": 240.74074074074073, "desconto": 0, "valor_final": 277.2208298524088,
+            #                                "valor_com_desconto": 240.74074074074073,
+            #                                "taxa_comercial": 12.670565302144269,
+            #                                "comissao_de_vendas": 23.809523809523824},
+            #                 "opcionais": {"valor": 65.0, "desconto": 0.0, "valor_final": 74.84962406015038,
+            #                               "valor_com_desconto": 65.0, "taxa_comercial": 3.421052631578945,
+            #                               "comissao_de_vendas": 6.428571428571431},
+            #                 "outros": {"valor": 25.0, "desconto": 0.0, "valor_final": 28.788316946211683,
+            #                            "valor_com_desconto": 25.0, "taxa_comercial": 1.3157894736842124,
+            #                            "comissao_de_vendas": 2.472527472527471}}, "descricao_opcionais": [
+            #         {"valor": 10.0, "desconto": 0.0, "valor_final": 11.515326778484674, "valor_com_desconto": 10.0,
+            #          "taxa_comercial": 0.526315789473685, "comissao_de_vendas": 0.989010989010989, "id": 1,
+            #          "nome": "Festa a fantasia - Gin\u00e1si", "fixo": False},
+            #         {"valor": 55.0, "desconto": 0.0, "valor_final": 63.334297281665705, "valor_com_desconto": 55.0,
+            #          "taxa_comercial": 2.8947368421052673, "comissao_de_vendas": 5.439560439560438, "id": 4,
+            #          "nome": "Jantar do branco", "fixo": True}, {"outros": [
+            #             {"valor": 0.0, "desconto": 0, "valor_final": 0.0, "valor_com_desconto": 0.0,
+            #              "taxa_comercial": 0.0, "comissao_de_vendas": 0.0, "id": "OPCEXT01", "nome": "Teste 1",
+            #              "fixo": False, "description": "Teste"},
+            #             {"valor": 25.0, "desconto": 0, "valor_final": 28.788316946211683, "valor_com_desconto": 25.0,
+            #              "taxa_comercial": 1.3157894736842124, "comissao_de_vendas": 2.472527472527471,
+            #              "id": "OPCEXT02", "nome": "Teste 2", "fixo": False, "description": "Teste 2"}]}],
+            #     "total": {"valor": 564.4907407407408, "desconto": 0.0, "desconto_geral": 0.0,
+            #               "valor_final": 650.0295343058501, "valor_com_desconto": 564.4907407407408,
+            #               "taxa_comercial": 29.71003898635479, "comissao_de_vendas": 55.82875457875457},
+            #     "desconto_geral": 0.0, "taxa_comercial": 0.05, "comissao_de_vendas": 0.09}})
             dados = processar_formulario(req.POST)
             print()
             data = dados['orcamento']
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
             opt_data = []
+            act_data = []
+            act_sky_data = []
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
 
             # GERANDO ORÇAMENTO
-            budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"], data["hora_check_out"])
+            budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
+                            data["hora_check_out"], data["lista_de_dias"])
             # TAXAS
             budget.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
             budget.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
@@ -138,9 +141,22 @@ def calc_budget(req):
                 budget.set_optional(opt_data, False)
                 budget.optional.calc_value_optional(budget.array_description_optional)
             if len(valores_op) > 0:
+                print(valores_op)               # TODO: verificar se vai mandar só o que foi editado ou todos ¬¬
                 opt_data = [opt for opt in valores_op.values()]
                 budget.set_optional(opt_data)
                 budget.optional.calc_value_optional(budget.array_description_optional)
+
+            if "atividades" in data:
+                act_data = [[act, 0, 0, 0] for act in data["atividades"]]
+            if len(act_data) > 0:
+                budget.set_activities(act_data)
+                budget.activities.calc_value_optional(budget.array_description_activities)
+
+            if "atividades_ceu" in data:
+                act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
+            if len(act_sky_data) > 0:
+                budget.set_activities_sky(act_sky_data)
+                budget.activities_sky.calc_value_optional(budget.array_description_activities_sky)
 
             if "outros" in data:
                 budget.set_others(data["outros"])
@@ -152,8 +168,11 @@ def calc_budget(req):
                 period=budget.period,
                 optional=budget.optional,
                 others=budget.others,
+                activities=budget.activities,
+                activities_sky=budget.activities_sky,
                 daily_rate=budget.daily_rate,
                 transport=budget.transport,
+                days=data["n_dias"],
             )
 
             if req.POST.get('salvar') == 'true':
