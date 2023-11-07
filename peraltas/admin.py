@@ -176,7 +176,7 @@ class EventosAdmin(admin.ModelAdmin):
     list_display = (
         'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
         'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento',
-        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento'
+        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento'
     )
     list_display_links = ('cliente', )
     list_per_page = 100

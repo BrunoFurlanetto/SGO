@@ -719,7 +719,7 @@ class Eventos(models.Model):
 
     def codigo_pagamento(self):
         if not self.ficha_de_evento.pre_reserva:
-            return self.ficha_de_evento.codigos_app.evento
+            return self.ficha_de_evento.codigos_app.eficha
         else:
             return ''
 
@@ -744,6 +744,9 @@ class Eventos(models.Model):
     def produto_corporativo(self):
         if self.ficha_de_evento.produto_corporativo:
             return self.ficha_de_evento.produto_corporativo.produto
+
+    def adesao_evento(self):
+        return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
 
 
 class DisponibilidadePeraltas(models.Model):
