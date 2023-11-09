@@ -7,8 +7,13 @@
 
 <body style="background-color: #E4E9F7">
 <div class="container_loading none">
-    <div class="loading">
-        <img src="{% static 'img/GP.png' %}" alt="">
+    <div class="{% if perms.cadastro.add_relatoriodeatendimentopublicoceu %} loading_ceu {% else %} loading {% endif %}">
+        {% if perms.cadastro.add_relatoriodeatendimentopublicoceu %}
+            <img class="centro" src="{% static 'img/centro_logo_ceu.png' %}" alt="">
+            <img class="escrito" src="{% static 'img/escritos_logo_ceu.png' %}" alt="">
+        {% else %}
+            <img src="{% static 'img/GP.png' %}" alt="">
+        {% endif %}
     </div>
 </div>
 {% if user.groups.all %}

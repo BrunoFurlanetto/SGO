@@ -32,6 +32,7 @@ def escala(request):
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request):
+        print(request.GET.get('data_selecionada'))
         return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
 
     if request.method != 'POST':
@@ -39,14 +40,8 @@ def escala(request):
                                                       'escalas': escalas, 'edita': edita})
 
     # ------------------------ Savando a nova escalaa -------------------------
-    equipe = {}
+    equipe = list(int(id_professor) for id_professor in request.POST.getlist('escalados') if id_professor != '')
     data_escala = datetime.strptime(request.POST.get('data_escala'), '%Y-%m-%d')
-
-    for i in range(1, 6):
-        if i == 1:
-            equipe['coordenador'] = int(request.POST.get('coordenador'))
-        elif i > 1 and request.POST.get(f'professor_{i}') != '':
-            equipe[f'professor_{i}'] = request.POST.get(f'professor_{i}')
 
     try:
         nova_escala = Escala.objects.create(
@@ -58,8 +53,11 @@ def escala(request):
         nova_escala.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado: {e}')
+
         return redirect('escala')
     else:
+        messages.success(request, 'Escala salva com sucesso')
+
         return redirect('escala')
 
 

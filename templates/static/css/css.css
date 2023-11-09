@@ -8,7 +8,7 @@
     justify-content: center;
 }
 
-.loading {
+.loading, .loading_ceu {
     position: fixed;
     z-index: 9999;
     top: 0;
@@ -24,6 +24,15 @@
 .loading img {
     width: 50px;
     animation: spin 2s linear infinite;
+}
+
+.loading_ceu img {
+    width: 150px;
+    position: absolute;
+}
+
+.loading_ceu .escrito {
+    animation: spin 4s linear infinite;
 }
 
 .box-total {
