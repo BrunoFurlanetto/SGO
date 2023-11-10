@@ -35,11 +35,7 @@ class Escala(models.Model):
         return [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe]
 
     def pegar_equipe(self):
-        lista_equipe = []
-
-        for valor in self.equipe.values():
-            professor = Professores.objects.get(id=valor)
-            lista_equipe.append(professor.usuario.get_full_name())
+        lista_equipe = [Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in self.equipe]
 
         return ', '.join(lista_equipe)
 

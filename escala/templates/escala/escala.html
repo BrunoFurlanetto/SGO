@@ -35,7 +35,7 @@
                                 url: '',
                                 data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
                                 success: function (response) {
-                                    console.log(response)
+                                    let posicao = 0
                                     let professores_disponiveis = response['disponiveis']
                                     let selects_professores = $('.professores-disponiveis')
                                     let lista_disponiveis = $('.disponiveis')
@@ -47,9 +47,19 @@
                                     lista_disponiveis.empty()
                                     $('#mensagem_erro').empty()
 
-                                    for (let i in professores_disponiveis) {
-                                        lista_disponiveis.append('<li>' + professores_disponiveis[i]['nome'] + '</li>');
-                                        selects_professores.append(`<option value="${professores_disponiveis[i]['id']}"> ${professores_disponiveis[i]['nome']} </option>`);
+                                    for (let professor in professores_disponiveis) {
+                                        lista_disponiveis.append('<li>' + professores_disponiveis[professor]['nome'] + '</li>')
+                                        selects_professores.append(`<option value="${professores_disponiveis[professor]['id']}"> ${professores_disponiveis[professor]['nome']} </option>`);
+                                    }
+
+                                    for (let select of selects_professores) {
+                                        for (let opt of select.children) {
+                                            if (opt.value == response['escalados'][posicao]) {
+                                                $(opt).prop('selected', true)
+                                            }
+                                        }
+
+                                        posicao += 1
                                     }
 
                                 }

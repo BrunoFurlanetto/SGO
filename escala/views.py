@@ -32,25 +32,32 @@ def escala(request):
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request):
-        print(request.GET.get('data_selecionada'))
         return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
 
     if request.method != 'POST':
-        return render(request, 'escala/escala.html', {'user_logado': user_logado,
-                                                      'escalas': escalas, 'edita': edita})
+        return render(request, 'escala/escala.html', {
+            'user_logado': user_logado,
+            'escalas': escalas,
+            'edita': edita
+        })
 
     # ------------------------ Savando a nova escalaa -------------------------
     equipe = list(int(id_professor) for id_professor in request.POST.getlist('escalados') if id_professor != '')
     data_escala = datetime.strptime(request.POST.get('data_escala'), '%Y-%m-%d')
 
     try:
-        nova_escala = Escala.objects.create(
-            data_escala=data_escala,
-            equipe=equipe,
-            mes=data_escala.month,
-            ano=data_escala.year
-        )
-        nova_escala.save()
+        if Escala.objects.filter(data_escala=data_escala).exists():
+            escala_professores = Escala.objects.get(data_escala=data_escala)
+            escala_professores.equipe = equipe
+        else:
+            escala_professores = Escala.objects.create(
+                data_escala=data_escala,
+                equipe=equipe,
+                mes=data_escala.month,
+                ano=data_escala.year
+            )
+
+        escala_professores.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado: {e}')
 
