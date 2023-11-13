@@ -42,7 +42,6 @@ def processar_formulario(dados):
     padrao_gerencia = r'gerencia\[(\w+)\]'
     padrao_outros = re.compile('.*outros.*')
 
-
     for key in dados.keys():
         if padrao_outros.match(key):
             op_extras += 1 / 4
@@ -56,12 +55,10 @@ def processar_formulario(dados):
         correspondencia_gerencia = re.match(padrao_gerencia, key)
 
         if correspondencia_orcamento:
-            if 'opcionais' in key or 'outros' in key:
+            if 'opcionais' in key or 'outros' in key or 'atividades' in key:
                 orcamento[correspondencia_orcamento.group(1)] = list(map(int, dados.getlist(key)))
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
-
-
 
         if correspondencia_valores_op:
             lista = []
@@ -100,10 +97,18 @@ def processar_formulario(dados):
         date_check_out = datetime.strptime(check_out_complete[0], '%d/%m/%Y').date()
 
         # filter check_in and check_out
-        time_in = HorariosPadroes.objects.filter(entrada=1)
-        time_in = time_in.filter(horario__gte=hour_check_in).order_by('horario')
-        time_out = HorariosPadroes.objects.filter(entrada=0)
-        time_out = time_out.filter(horario__lte=hour_check_out).order_by('-horario')
+        time_in_all = HorariosPadroes.objects.filter(entrada=1)
+        time_in = time_in_all.filter(horario__gte=hour_check_in).order_by('horario')
+        time_out_all = HorariosPadroes.objects.filter(entrada=0)
+        time_out = time_out_all.filter(horario__lte=hour_check_out).order_by('-horario')
+
+        if len(time_in) == 0:
+            time_error = time_in_all.order_by('-horario')[0]
+            return JsonError(f'O ultimo horário de check-in valido é {time_error.horario}')
+
+        if len(time_out) == 0:
+            time_error = time_out_all.order_by('horario')[0]
+            return JsonError(f'O ultimo horário de check-out valido é {time_error.horario}')
 
         # Do period list
         period_days = []
@@ -137,8 +142,6 @@ def processar_formulario(dados):
         orcamento['periodo_viagem'] = period_days
         orcamento['lista_de_dias'] = days_list
 
-
-
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 
 
@@ -160,6 +163,7 @@ def verificar_gerencia(dados):
 
     if dados['data_pagamento'] != data_pagamento_padrao.strftime('%Y-%m-%d'):
         return True
+
 
 def compilar_outros(dados, op_extras):
     outros = []

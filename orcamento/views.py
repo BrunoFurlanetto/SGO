@@ -99,6 +99,8 @@ def calc_budget(req):
             #     "desconto_geral": 0.0, "taxa_comercial": 0.05, "comissao_de_vendas": 0.09}})
             dados = processar_formulario(req.POST)
             print()
+            if 'orcamento' not in dados:
+                return dados
             data = dados['orcamento']
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
@@ -147,12 +149,14 @@ def calc_budget(req):
                 budget.optional.calc_value_optional(budget.array_description_optional)
 
             if "atividades" in data:
+                print('atividade_ceu:', data['atividades'])
                 act_data = [[act, 0, 0, 0] for act in data["atividades"]]
             if len(act_data) > 0:
                 budget.set_activities(act_data)
                 budget.activities.calc_value_optional(budget.array_description_activities)
 
             if "atividades_ceu" in data:
+                print('atividade ceu:', data['atividades_ceu'])
                 act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
             if len(act_sky_data) > 0:
                 budget.set_activities_sky(act_sky_data)
