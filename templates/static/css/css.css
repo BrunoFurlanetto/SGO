@@ -712,6 +712,11 @@
     border-radius: 15px;
 }
 
+.atividades_detector {
+    display: flex;
+    flex-direction: column;
+}
+
 .conteudo_nova_senha {
     width: 400px;
     padding: 10px;

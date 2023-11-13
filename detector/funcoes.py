@@ -120,7 +120,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
                                 })
 
         dados_eventos = {
-            'atividades': atividades_ceu,
+            'atividades_ceu': atividades_ceu,
             'locacoes': locacoes,
             'atividades_extra': atividades_extra,
             'atividades_acampamento': atividades_acampamento
@@ -128,7 +128,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
         return dados_eventos
     else:
-        detector = DetectorDeBombas.objects.get(id=int(dados_detector.get('id_detector')))
+        detector = DetectorDeBombas.objects.get(pk=dados_detector.get('id_detector'))
         dados_atividades = detector.dados_atividades
         professores_atividades = {}
 
@@ -137,15 +137,23 @@ def pegar_dados_evento(dados_detector, editando, setor):
             local_i = 1
 
             while True:
-                try:
-                    id_atividade = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['id_atividade']
-                except KeyError:
-                    id_atividade = None
+                if len(detector.dados_atividades[f'grupo_{grupo_n}']['atividades']) > 0:
+                    try:
+                        id_atividade = detector.dados_atividades[f'grupo_{grupo_n}']['atividades'][f'atividade_{atividade_i}']['id_atividade']
+                        dados_atividade = detector.dados_atividades[f'grupo_{grupo_n}']['atividades'][f'atividade_{atividade_i}']
+                    except KeyError:
+                        id_atividade = dados_atividade = None
+                else:
+                    id_atividade = dados_atividade = None
 
-                try:
-                    id_local = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['id_espaco']
-                except KeyError:
-                    id_local = None
+                if len(detector.dados_atividades[f'grupo_{grupo_n}']['locacoes']) > 0:
+                    try:
+                        id_local = detector.dados_atividades[f'grupo_{grupo_n}']['locacoes'][f'locacao_{local_i}']['id_espaco']
+                        dados_locacao = detector.dados_atividades[f'grupo_{grupo_n}']['locacoes'][f'locacao_{local_i}']
+                    except KeyError:
+                        id_local = dados_locacao = None
+                else:
+                    id_local = dados_locacao = None
 
                 if id_atividade is None and id_local is None:
                     break
@@ -153,25 +161,25 @@ def pegar_dados_evento(dados_detector, editando, setor):
                 if id_atividade:
                     atividade = Atividades.objects.get(id=id_atividade)
                     cliente = ClienteColegio.objects.get(id=grupo.id)
-                    qtd = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['participantes']
+                    qtd = dados_atividade['participantes']
                     atividades_ceu.append({
                         'atividade': {
                             'id': id_atividade,
                             'nome': atividade.atividade,
                             'qtd': qtd
                         },
-                        'inicio_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['inicio'],
-                        'fim_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['fim'],
+                        'inicio_atividade': dados_atividade['inicio'],
+                        'fim_atividade': dados_atividade['fim'],
                         'color': cores_escolhidas[grupo_n - 1],
                         'grupo': {
                             'id': grupo.id,
                             'nome': cliente.nome_fantasia
                         }
                     })
-
+                    print(grupo_n)
                     professores_atividades[
-                        f'professores_atividade_{atividade_i}_grupo_{grupo_n}'
-                    ] = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['professores']
+                        f'professores_atividades_ceu_{atividade_i}_grupo_{grupo_n}'
+                    ] = dados_atividade['professores']
 
                     atividade_i += 1
 
@@ -182,10 +190,10 @@ def pegar_dados_evento(dados_detector, editando, setor):
                         'local': {
                             'id': id_local,
                             'nome': espaco.local.estrutura,
-                            'qtd': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['participantes']
+                            'qtd': dados_locacao['participantes']
                         },
-                        'check_in': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_in'],
-                        'check_out': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_out'],
+                        'check_in': dados_locacao['check_in'],
+                        'check_out': dados_locacao['check_out'],
                         'color': cores_escolhidas[grupo_n - 1],
                         'grupo': {
                             'id': grupo.id,
@@ -195,7 +203,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
                     professores_atividades[
                         f'professores_locacao_{local_i}_grupo_{grupo_n}'
-                    ] = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['professores']
+                    ] = dados_locacao['professores']
 
                     local_i += 1
 
@@ -204,7 +212,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
             'locacoes': locacoes,
             'professores': professores_atividades
         }
-
+        print(dados_eventos)
         return dados_eventos
 
 
@@ -322,8 +330,8 @@ def pegar_escalas(dados_eventos, setor):
             except Escala.DoesNotExist:
                 datas_sem_professor_monitor.append(data.strftime('%Y-%m-%d'))
             else:
-                for id_professor in escala.equipe.values():
-                    professor = Professores.objects.get(id=id_professor)
+                for id_professor in escala.equipe:
+                    professor = Professores.objects.get(pk=id_professor)
                     professores_monitores.append({'id': professor.id, 'nome': professor.usuario.get_full_name()})
             escalados.append({'data': data, 'escalados': professores_monitores})
 
@@ -383,15 +391,23 @@ def tratar_dados_detector_selecionado(detector_selecionado):
         j = 1
 
         while True:
-            try:
-                id_atividade = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['id_atividade']
-            except KeyError:
-                id_atividade = None
+            if len(detector_selecionado.dados_atividades[f'grupo_{i}']['atividades']) > 0:
+                try:
+                    id_atividade = detector_selecionado.dados_atividades[f'grupo_{i}']['atividades'][f'atividade_{j}']['id_atividade']
+                    dados_atividade = detector_selecionado.dados_atividades[f'grupo_{i}']['atividades'][f'atividade_{j}']
+                except KeyError:
+                    id_atividade = dados_atividade = None
+            else:
+                id_atividade = dados_atividade = None
 
-            try:
-                id_espaco = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['id_espaco']
-            except KeyError:
-                id_espaco = None
+            if len(detector_selecionado.dados_atividades[f'grupo_{i}']['locacoes']) > 0:
+                try:
+                    id_espaco = detector_selecionado.dados_atividades[f'grupo_{i}']['locacoes'][f'locacao_{j}']['id_espaco']
+                    dados_locacao = detector_selecionado.dados_atividades[f'grupo_{i}']['locacoes'][f'locacao_{j}']
+                except KeyError:
+                    id_espaco = dados_locacao = None
+            else:
+                id_espaco = dados_locacao = None
 
             if id_atividade is None and id_espaco is None:
                 break
@@ -400,17 +416,17 @@ def tratar_dados_detector_selecionado(detector_selecionado):
                 atividade_bd = Atividades.objects.get(id=id_atividade)
 
                 if detector_selecionado.setor == 'ceu':
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['professores']
+                    escalados_atv = dados_atividade['professores']
                     professores_monitores = retornar_nome_de_professores(escalados_atv)
                 else:
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['monitores']
+                    escalados_atv = dados_atividade['monitores']
                     professores_monitores = retornar_nome_de_monitores(escalados_atv)
 
                 atividades.append({
                     'title': atividade_bd.atividade,
-                    'start': detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['inicio'],
+                    'start': dados_atividade['inicio'],
                     'description': ", ".join(professores_monitores),
-                    'end': detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['fim'],
+                    'end': dados_atividade['fim'],
                     'color': cores_legenda[i - 1],
                 })
 
@@ -418,23 +434,24 @@ def tratar_dados_detector_selecionado(detector_selecionado):
                 espaco = Locaveis.objects.get(id=id_espaco)
 
                 if detector_selecionado.setor == 'ceu':
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['professores']
+                    escalados_atv = dados_locacao['professores']
                     professores_monitores = retornar_nome_de_professores(escalados_atv)
                 else:
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['monitores']
+                    escalados_atv = dados_locacao['monitores']
                     professores_monitores = retornar_nome_de_monitores(escalados_atv)
 
                 atividades.append({
                     'title': espaco.local.estrutura,
-                    'start': detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['check_in'],
+                    'start': dados_locacao['check_in'],
                     'description': ", ".join(professores_monitores),
-                    'end': detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['check_out'],
+                    'end': dados_locacao['check_out'],
                     'color': cores_legenda[i - 1]
                 })
 
             j += 1
 
     dados_detector = {'grupos': grupos, 'events': atividades, 'datas': [data_1, intervalo]}
+
     return dados_detector
 
 

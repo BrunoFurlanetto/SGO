@@ -127,7 +127,7 @@ class RelatorioDeAtendimentoColegioCeu(models.Model):
 
         for locacao in self.locacoes.values():
             locacoes.append(locacao)
-        print(locacoes)
+
         return locacoes
 
 

@@ -82,13 +82,12 @@ function pegar_dados_eventos(editando = false) {
             let eventos = []
             let classes_select_selecionados = $('.select2-selection__choice')
             let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
-
+            console.log(response)
             for (let area in response['atividades_eventos']) {
                 for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
-                    if (area === 'atividades') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
+                    if (area === 'atividades_ceu') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
                     if (area === 'locacoes') eventos.push(pegar_dados_locacoes(response['atividades_eventos'][area][i]))
                     if (area === 'atividades_extra') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
-                    if (area === 'atividades_acampamento' && response['atividades_eventos'][area].length !== 0) pegar_atividades_acampamento(response['atividades_eventos'][area][i])
 
                     for (let j = 0; j < classes_select_selecionados.length; j++) {
                         if (classes_select_selecionados[j].title === response['atividades_eventos'][area][i]['grupo']['nome']) {
@@ -100,11 +99,7 @@ function pegar_dados_eventos(editando = false) {
                 }
             }
 
-            if (response['atividades_eventos']['atividades_acampamento'].length > 0) {
-                detector_de_bombas(eventos, true, true)
-            } else {
-                detector_de_bombas(eventos, false, false)
-            }
+            detector_de_bombas(eventos, false, false)
 
             if (editando) {
                 mostrar_por_atividade(response['atividades_eventos'], response['escalas'], true, response['atividades_eventos']['professores'])
@@ -117,13 +112,13 @@ function pegar_dados_eventos(editando = false) {
                     if (response['escalas'][response['escalas'].length - 1]['datas_sem'].includes(colunas_agenda[i].attributes[2].value)) {
                         colunas_agenda[i].classList.add('sem-monitor')
                     }
+
                 } catch (e) {
                 }
             }
 
         }
     })
-
 }
 
 function pegar_dados_atividades(dados_atividade) {
@@ -328,12 +323,10 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
     formulario_detector.empty()
     grupos = juntar_grupos(dados_eventos)
 
-    if (dados_eventos['atividades_acampamento'].length > 0) professores_monitores = 'monitores'
-
-    /*if (editando) {
+    if (editando) {
         const id_detector = $('#id_detector').val()
         $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="id_detector" value="${id_detector}">`)
-    }*/
+    }
 
     formulario_detector.append(`
         <input type="hidden" name="inicio" id="id_inicio" value="${$('#id_data_inicio').val()}">
@@ -343,12 +336,12 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
 //--------------------------------------------- Adição de todas divs -----------------------------------------------------------
     for (let area in dados_eventos) {
         for (let i = 0; i < dados_eventos[area].length; i++) {
-            if (area !== 'locacoes' && area !== 'atividades_acampamento') {
+            if (area !== 'locacoes') {
                 if (!datas.includes(moment(dados_eventos[area][i]['inicio_atividade']).format('L'))) {
                     datas.push(moment(dados_eventos[area][i]['inicio_atividade']).format('L'))
                     criar_divs_atividades(formulario_detector, moment(dados_eventos[area][i]['inicio_atividade']))
                 }
-            } else if (area !== 'atividades_acampamento') {
+            } else {
                 if (!datas.includes(moment(dados_eventos[area][i]['check_in']).format('L'))) {
                     datas.push(moment(dados_eventos[area][i]['check_in']).format('L'))
                     criar_divs_atividades(formulario_detector, moment(dados_eventos[area][i]['check_in']))
@@ -374,8 +367,8 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
 
             if (area === 'locacoes') {
                 criar_inputs_locacoes(professores_monitores, dados_eventos[area][i], i + 1, grupos, area)
-            } else if (area !== 'atividades_acampamento') {
-                criar_inputs_atividades(professores_monitores, i + 1, grupos, dados_eventos[area][i], area)
+            } else {
+                criar_inputs_atividades(professores_monitores, n_atividades[dados_eventos[area][i]['grupo']['id']], grupos, dados_eventos[area][i], area)
             }
         }
     }
@@ -390,6 +383,12 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false, profe
     }
 
     $('#formulario-escala-professores-atividades select').select2()
+
+    for (let professor in professores) {
+        $(`#${professor}`).val(professores[professor])
+        $(`#${professor}`).trigger('change.select2')
+    }
+
     formulario_detector.append(`<div class="botoes">
         <button type="button" id="btn_salvar" onclick="validar()" class="btn btn-primary">Salvar detector</button>
         <button type="submit" id="salvar" class="none">Salvar detector</button>
@@ -405,10 +404,10 @@ function criar_divs_atividades(formulario_detector, data_inicio) {
                 <h5 class="titulo-secao">${data_inicio.format('LL')}</h5>
                 <button type="button" class="btn-mostrar-atividades-locacoes" onclick="mostrar_esconder_tividades(this)"><i class='bx bx-plus'></i></button>
             </div>                    
-            <div class="atividades none"></div>
-            <div class="atividades_extra none"></div>
-            <div class="atividades_acampamento none"></div>
-            <div class="locacoes none"></div>
+            <div class="atividades_ceu none atividades_detector"></div>
+            <div class="atividades_extra none atividades_detector"></div>
+            <div class="atividades_acampamento none atividades_detector"></div>
+            <div class="locacoes none atividades_detector"></div>
         </div>
     `)
 }
@@ -450,7 +449,7 @@ function criar_inputs_atividades(professores_monitores, atividade_n, grupos, dad
     const value_atividade = dados_eventos['atividade']['id']
     const value_data_e_hora = dados_eventos['inicio_atividade']
     const value_qtd = dados_eventos['atividade']['qtd']
-
+    console.log(dados_eventos['atividade']['nome'])
     $(`#${div_append}`).append(`
         <label>${label_atividade}</label>
         <input type="hidden" name="grupo_${grupos.indexOf(dados_eventos['grupo']['id']) + 1}_${area}_${atividade_n}" value="${value_atividade}">
@@ -496,17 +495,17 @@ function popular_select_monitores(selects_existentes, select_append){
 function mostrar_esconder_tividades(div) {
     const id_div_avo = div.parentNode.parentNode.id
 
-    $(`#${id_div_avo} .atividades, #${id_div_avo} .locacoes, #${id_div_avo} .atividades_extra, #${id_div_avo} .atividades_acampamento`).toggleClass('none')
+    $(`#${id_div_avo} .atividades_ceu, #${id_div_avo} .locacoes, #${id_div_avo} .atividades_extra, #${id_div_avo} .atividades_acampamento`).toggleClass('none')
 }
 
 function juntar_grupos(dados_eventos) {
     let grupos = []
     let j = 1
 
-    for (let i = 0; i < dados_eventos['atividades'].length; i++) {
-        if (!grupos.includes(dados_eventos['atividades'][i]['grupo']['id'])) {
-            grupos.push(dados_eventos['atividades'][i]['grupo']['id'])
-            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['atividades'][i]['grupo']['id']}">`)
+    for (let i = 0; i < dados_eventos['atividades_ceu'].length; i++) {
+        if (!grupos.includes(dados_eventos['atividades_ceu'][i]['grupo']['id'])) {
+            grupos.push(dados_eventos['atividades_ceu'][i]['grupo']['id'])
+            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['atividades_ceu'][i]['grupo']['id']}">`)
             j++
         }
     }
