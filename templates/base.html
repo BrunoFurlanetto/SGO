@@ -6,7 +6,7 @@
 </head>
 
 <body style="background-color: #E4E9F7">
-<div class="container_loading none">
+<div class="container_loading">
     <div class="{% if perms.cadastro.add_relatoriodeatendimentopublicoceu %} loading_ceu {% else %} loading {% endif %}">
         {% if perms.cadastro.add_relatoriodeatendimentopublicoceu %}
             <img class="centro" src="{% static 'img/centro_logo_ceu.png' %}" alt="">
@@ -41,6 +41,8 @@
     function end_loading() {
         $('.container_loading').addClass('none')
     }
+
+    $(document).ready(() => {end_loading()})
 </script>
 </body>
 </html>

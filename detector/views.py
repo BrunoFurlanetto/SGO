@@ -74,6 +74,7 @@ def detector_de_bombas(request, id_detector=None):
                     atividade = Atividades.objects.get(atividade=request.POST.get('atividade_local'))
                 except Atividades.DoesNotExist:
                     espaco = Locaveis.objects.get(local__estrutura=request.POST.get('atividade_local'))
+
                     return JsonResponse({'id_local': espaco.id})
                 else:
                     return JsonResponse({'id_atividade': atividade.id})
