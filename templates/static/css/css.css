@@ -935,7 +935,7 @@
         transform: translateX(15%);
     }
     to {
-        transform: translateX(-5%);
+        transform: translateX(-30%);
     }
 }
 
