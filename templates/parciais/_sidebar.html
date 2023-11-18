@@ -15,7 +15,6 @@
     {% if request.user.is_authenticated %}
         {% if not ver %}
             <ul class="nav-links">
-
                 {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                     {% if 'dashboard' in request.path %}
                         <li>
@@ -48,8 +47,29 @@
                     <i class='bx bx-grid-alt'></i>
                     <span class="link_name">Dashboard</span>
                 </a>
+
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="{% url 'dashboard' %}">Dashboard</a></li>
+                </ul>
+                </li>
+
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+
+                <a href="{% url 'resumo_atividades' %}">
+                    <i class='bx bx-notepad'></i>
+                    <span class="link_name">Resumo professores</span>
+                </a>
+
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>
                 </ul>
                 </li>
 

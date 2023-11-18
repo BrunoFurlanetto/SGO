@@ -728,14 +728,13 @@
     border-radius: 15px;
 }
 
-.conteudo-fichas-entregues {
+.conteudo-fichas-entregues, .conteudo-resumo_ceu {
     background-color: #fff;
     margin: auto auto 5%;
     width: 650px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
-    display: flex;
     justify-content: center;
 }
 
