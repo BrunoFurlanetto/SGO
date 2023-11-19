@@ -79,13 +79,21 @@
                 <div id="container_opcionais" style="margin-bottom: -45px" class="none">
                     <div id="opcionais" class="conteudo">
                         <h5 class="titulo-secao">Atividades e Opcionais</h5>
-                        <div class="select_opcionais">
-                            {{ orcamento.opcionais.label }}
+                        <div>
+                            <label>Opcionais</label>
+                            {{ orcamento.atividades }}
+                        </div>
+                        <div class="mt-3">
+                            {{ orcamento.atividades_ceu.label }}
+                            {{ orcamento.atividades_ceu }}
+                        </div>
+                        <div class="select_opcionais mt-3">
+                            <label>Atividades Peraltas</label>
                             {{ orcamento.opcionais }}
                         </div>
                         <div class="row mt-3" style="align-items: flex-end">
                             <div class="select_outros">
-                                <label for="op_extras">Opcionais extra</label>
+                                <label for="op_extras">Outros itens</label>
                                 <select name="op_extra" id="op_extras" multiple></select>
                             </div>
                             <div style="width: 5%">
@@ -96,14 +104,6 @@
                             </div>
                         </div>
                         <hr>
-                        <div>
-                            {{ orcamento.atividades.label }}
-                            {{ orcamento.atividades }}
-                        </div>
-                        <div class="mt-3">
-                            {{ orcamento.atividades_ceu.label }}
-                            {{ orcamento.atividades_ceu }}
-                        </div>
                         <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
                                                                                                 $('#btn_salvar_orcamento').prop('disabled', false)">
                             <i class='bx bxs-food-menu'></i>

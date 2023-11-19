@@ -123,6 +123,7 @@ class AtividadesEco(models.Model):
     lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
     biologo = models.BooleanField(default=False)
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
+    valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
     def __str__(self):
         return self.nome_atividade_eco

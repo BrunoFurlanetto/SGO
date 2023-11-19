@@ -83,7 +83,7 @@ $(document).ready(() => {
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
         let nome_id = $(this).attr('id')
-
+        console.log(opcao['text'])
         if (nome_id !== 'op_extras') {
             enviar_form().then((status) => {
                 $.ajax({
@@ -99,15 +99,38 @@ $(document).ready(() => {
                             }
                         ).replace('.', ',')
 
-                        $('#tabela_de_opcionais tbody').append(`
-                            <tr id="op_${opcao['id']}" class="opcionais">
-                                <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcao['text']}" disabled></th>
-                                <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
-                                <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value="${valor_selecao}" disabled>
-                                <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${valor_selecao}"></th>
-                                <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
-                            </tr>
-                        `)
+                        if (nome_id == 'id_atividades') {
+                            $('#tabela_de_opcionais tbody').append(`
+                                <tr id="op_${opcao['id']}" class="opcionais">
+                                    <th><input type="text" id="atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${opcao['text']}' disabled></th>
+                                    <input type="hidden" id="id_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="${opcao['id']}">                    
+                                    <input type="hidden" id="valor_bd_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${valor_selecao}' disabled>
+                                    <th><input type="text" id="valor_atividade_peraltas_${i}" disabled name="atividade_peraltas_${i}" value='${valor_selecao}'></th>
+                                    <th><input type="text" id="desconto_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                                </tr>
+                            `)
+                        } else if (nome_id == 'id_atividades_ceu') {
+                            $('#tabela_de_opcionais tbody').append(`
+                                <tr id="op_${opcao['id']}" class="opcionais">
+                                    <th><input type="text" id="atividade_ceu_${i}" name="atividade_ceu_${i}" value='${opcao['text']}' disabled></th>
+                                    <input type="hidden" id="id_atividade_ceu_${i}" name="atividade_ceu_${i}" value="${opcao['id']}">                    
+                                    <input type="hidden" id="valor_bd_atividade_ceu_${i}" name="atividade_ceu_${i}" value='${valor_selecao}' disabled>
+                                    <th><input type="text" id="valor_atividade_ceu_${i}" disabled name="atividade_ceu_${i}" value='${valor_selecao}'></th>
+                                    <th><input type="text" id="desconto_atividade_ceu_${i}" name="atividade_ceu_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                                </tr>
+                            `)
+                        } else {
+                            $('#tabela_de_opcionais tbody').append(`
+                                <tr id="op_${opcao['id']}" class="opcionais">
+                                    <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcao['text']}" disabled></th>
+                                    <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
+                                    <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value='${valor_selecao}' disabled>
+                                    <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value='${valor_selecao}'></th>
+                                    <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                                </tr>
+                            `)
+                        }
+
                     }
                 }).done(() => {
                     $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
@@ -182,7 +205,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
     if (form_gerencia || salvar) {
         gerencia = $('#form_gerencia').serializeObject()
     }
-
+    console.log(orcamento)
     return new Promise(function (resolve, reject) {
         $.ajax({
             url: url,
@@ -196,7 +219,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                     const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
                     const diaria = valores['diaria']['valor_com_desconto'];
                     const periodo_diaria = (periodo + diaria);
-
+                    console.log(response['data']['valores'])
                     // Adicionando ponto de separação de milhar em periodo_diaria
                     const periodo_diaria_formatado = periodo_diaria.toLocaleString(
                         undefined,
@@ -218,12 +241,14 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                         }
                     )
 
-                    const opcionais = valores['opcionais']['valor_com_desconto'];
+                    const opcionais = valores['opcionais']['valor_com_desconto']
+                    const atividades = valores['atividades']['valor_com_desconto']
+                    const atividade_ceu = valores['atividades_ceu']['valor_com_desconto']
                     const outros = valores['outros']['valor_com_desconto']
-                    const total = response['data']['total']['valor_final'];
+                    const total = response['data']['total']['valor_final']
 
                     // Adicionando ponto de separação de milhar em opcionais e total
-                    const opcionais_formatado = (opcionais + outros).toLocaleString(
+                    const opcionais_e_atividades_formatado = (opcionais + outros + atividades + atividade_ceu).toLocaleString(
                         undefined,
                         {
                             minimumFractionDigits: 2,
@@ -242,7 +267,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                     // Alteração dos valores das seções
                     $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
                     $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
-                    $('#container_opcionais .parcial').text('R$ ' + opcionais_formatado); // Opcionais
+                    $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
 
                     $('#subtotal span').text('R$ ' + total_formatado); // Total
 
@@ -341,7 +366,9 @@ function separar_produtos(periodo) {
                 }
             }
         }
-    }).done(() => {$('#id_produto').prop('disabled', false)})
+    }).done(() => {
+        $('#id_produto').prop('disabled', false)
+    })
 }
 
 function verificar_preenchimento() {

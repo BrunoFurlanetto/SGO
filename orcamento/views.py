@@ -9,7 +9,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from ceu.models import Atividades
-from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor, ProdutosPeraltas, AtividadesEco
+from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor, ProdutosPeraltas, AtividadesEco, \
+    AtividadePeraltas
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento
@@ -20,7 +21,6 @@ from .budget import Budget
 @login_required(login_url='login')
 def calc_budget(req):
     if is_ajax(req):
-        print(req.GET)
         if req.method == 'GET':
             if req.GET.get('check_in') and req.GET.get('check_out'):
                 check_in = datetime.datetime.strptime(req.GET.get('check_in'), '%d/%m/%Y %H:%M')
@@ -58,49 +58,13 @@ def calc_budget(req):
                 else:
                     selecao = Atividades.objects.get(id=req.GET.get('id'))
 
-                return JsonResponse({'valor': 222.50}) # TODO: Esperar pra poder colocar os valores no banco pra não ferrar todo o banco de produção
+                return JsonResponse({'valor': selecao.valor})
         else:
-            # JSON
-            # return JsonResponse({'data': {
-            #     "periodo_viagem": {"valor": 50.0, "desconto": 0.0, "valor_final": 57.57663389242337,
-            #                        "valor_com_desconto": 50.0, "taxa_comercial": 2.631578947368425,
-            #                        "comissao_de_vendas": 4.945054945054942}, "n_dias": 2, "minimo_pagantes": 30.0,
-            #     "valores": {"tipo_monitoria": {"valor": 18.75, "desconto": 0.0, "valor_final": 21.59123770965876,
-            #                                    "valor_com_desconto": 18.75, "taxa_comercial": 0.9868421052631575,
-            #                                    "comissao_de_vendas": 1.8543956043956022},
-            #                 "diaria": {"valor": 165.0, "desconto": 0, "valor_final": 190.00289184499712,
-            #                            "valor_com_desconto": 165.0, "taxa_comercial": 8.684210526315809,
-            #                            "comissao_de_vendas": 16.318681318681314},
-            #                 "transporte": {"valor": 240.74074074074073, "desconto": 0, "valor_final": 277.2208298524088,
-            #                                "valor_com_desconto": 240.74074074074073,
-            #                                "taxa_comercial": 12.670565302144269,
-            #                                "comissao_de_vendas": 23.809523809523824},
-            #                 "opcionais": {"valor": 65.0, "desconto": 0.0, "valor_final": 74.84962406015038,
-            #                               "valor_com_desconto": 65.0, "taxa_comercial": 3.421052631578945,
-            #                               "comissao_de_vendas": 6.428571428571431},
-            #                 "outros": {"valor": 25.0, "desconto": 0.0, "valor_final": 28.788316946211683,
-            #                            "valor_com_desconto": 25.0, "taxa_comercial": 1.3157894736842124,
-            #                            "comissao_de_vendas": 2.472527472527471}}, "descricao_opcionais": [
-            #         {"valor": 10.0, "desconto": 0.0, "valor_final": 11.515326778484674, "valor_com_desconto": 10.0,
-            #          "taxa_comercial": 0.526315789473685, "comissao_de_vendas": 0.989010989010989, "id": 1,
-            #          "nome": "Festa a fantasia - Gin\u00e1si", "fixo": False},
-            #         {"valor": 55.0, "desconto": 0.0, "valor_final": 63.334297281665705, "valor_com_desconto": 55.0,
-            #          "taxa_comercial": 2.8947368421052673, "comissao_de_vendas": 5.439560439560438, "id": 4,
-            #          "nome": "Jantar do branco", "fixo": True}, {"outros": [
-            #             {"valor": 0.0, "desconto": 0, "valor_final": 0.0, "valor_com_desconto": 0.0,
-            #              "taxa_comercial": 0.0, "comissao_de_vendas": 0.0, "id": "OPCEXT01", "nome": "Teste 1",
-            #              "fixo": False, "description": "Teste"},
-            #             {"valor": 25.0, "desconto": 0, "valor_final": 28.788316946211683, "valor_com_desconto": 25.0,
-            #              "taxa_comercial": 1.3157894736842124, "comissao_de_vendas": 2.472527472527471,
-            #              "id": "OPCEXT02", "nome": "Teste 2", "fixo": False, "description": "Teste 2"}]}],
-            #     "total": {"valor": 564.4907407407408, "desconto": 0.0, "desconto_geral": 0.0,
-            #               "valor_final": 650.0295343058501, "valor_com_desconto": 564.4907407407408,
-            #               "taxa_comercial": 29.71003898635479, "comissao_de_vendas": 55.82875457875457},
-            #     "desconto_geral": 0.0, "taxa_comercial": 0.05, "comissao_de_vendas": 0.09}})
             dados = processar_formulario(req.POST)
-            print()
+
             if 'orcamento' not in dados:
                 return dados
+
             data = dados['orcamento']
             valores_op = dados['valores_op']
             gerencia = dados['gerencia']
@@ -129,8 +93,7 @@ def calc_budget(req):
                 budget.monitor.calc_value_monitor(data['tipo_monitoria'])
 
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
-            budget.monitor.set_discount(
-                data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
+            budget.monitor.set_discount(data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
             budget.transport.calc_value_transport(data["transporte"]) if "transporte" in data else ...
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
             budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
@@ -149,14 +112,12 @@ def calc_budget(req):
                 budget.optional.calc_value_optional(budget.array_description_optional)
 
             if "atividades" in data:
-                print('atividade_ceu:', data['atividades'])
                 act_data = [[act, 0, 0, 0] for act in data["atividades"]]
             if len(act_data) > 0:
                 budget.set_activities(act_data)
                 budget.activities.calc_value_optional(budget.array_description_activities)
 
             if "atividades_ceu" in data:
-                print('atividade ceu:', data['atividades_ceu'])
                 act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
             if len(act_sky_data) > 0:
                 budget.set_activities_sky(act_sky_data)

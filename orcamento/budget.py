@@ -1,5 +1,5 @@
 from ceu.models import Atividades
-from peraltas.models import AtividadePeraltas
+from peraltas.models import AtividadePeraltas, AtividadesEco
 from .models import OrcamentoOpicional, \
     OrcamentoPeriodo
 from .entity.period import Period
@@ -102,7 +102,7 @@ class Budget:
         activities_array = []
 
         for opt in arr:
-            db_optional = AtividadePeraltas.objects.get(pk=opt[0])
+            db_optional = AtividadesEco.objects.get(pk=opt[0])
             discount = 0
 
             if opt[1]:
@@ -112,7 +112,7 @@ class Budget:
                 db_optional.valor,
                 1,
                 db_optional.id,
-                db_optional.nome_atividade,
+                db_optional.nome_atividade_eco,
                 self.days
             )
             description.set_discount(discount)
