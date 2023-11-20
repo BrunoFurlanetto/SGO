@@ -2,6 +2,7 @@ let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar = false
+const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
 
 $(document).ready(() => {
     $('#id_cliente').select2()
@@ -183,6 +184,123 @@ $(document).ready(() => {
     })
 })
 
+function formatar_dinheiro(valor) {
+    return valor.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+}
+
+function criar_linhas_tabela_valores() {
+    const tabela_valores = $('#tabela_de_valores tbody').empty()
+    tabela_valores.append(`<tr id="diaria"><td colspan="2">Diarias</td></tr>`)
+    tabela_valores.append(`<tr id="tipo_monitoria"><td colspan="2">Monitoria</td></tr>`)
+    tabela_valores.append(`<tr id="transporte"><td colspan="2">Transporte</td></tr>`)
+    tabela_valores.append(`<tr id='opcionais'><td colspan="2">Atividades Peraltas<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_descritivo').toggleClass('none')"></i></td></tr>`)
+    tabela_valores.append(`<tr id='atividades'><td colspan='2'>Opcionais<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_descritivo').toggleClass('none')"></i></td></tr><tr id='atividades_descritivo'></tr>`)
+    tabela_valores.append(`<tr id='atividades_ceu'><td colspan='2'>Atividades CEU<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_ceu_descritivo').toggleClass('none')"></i></td></tr><tr id='ceu_descritivo'></tr>`)
+    tabela_valores.append(`<tr id='outros'><td colspan='2'>Outros<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .outros_descritivo').toggleClass('none')"></i></td></tr><tr id='outros_descritivo'></tr>`)
+}
+
+function separar_atividades(opcionais) {
+    let opts = []
+
+    for (let opt in opcionais) {
+        if (opcionais[opt] !== opcionais[opcionais.length - 1]) {
+            opts.push(opcionais[opt])
+        }
+    }
+
+    return opts
+}
+
+function linhas_descritivo_opcionais(opcionais, id_linha) {
+    let i = 1
+    let classe_ultima_linha = ''
+
+    for (let opt in opcionais) {
+        let opcional = opcionais[opt]
+        let linhaEspecifica = $(`#tabela_de_valores #${id_linha}`);
+        let classe_ultimo_valor = ''
+
+        if (i == 1) {
+            classe_ultima_linha = 'ultima_linha'
+        }
+
+        let novaLinha = `<tr id='${id_linha}_${i}' class="${id_linha}_descritivo none atividade_ou_opcional">
+            <td></td>
+            <td>${opcional['nome']}</td>
+            <td><nobr>R$ ${formatar_dinheiro(opcional['valor'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opcional['taxa_comercial'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opcional['comissao_de_vendas'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opcional['valor'] - opcional['valor_com_desconto'])}</nobr></td>
+            <td class="valor_final_tabela ${classe_ultima_linha}"><nobr>R$ ${formatar_dinheiro(opcional['valor_final'])}</nobr></td>
+        </tr>`
+        linhaEspecifica.after(novaLinha)
+
+        for (let valor_dia of opcional['valores']) {
+            $(`#tabela_de_valores #${id_linha}_${i}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+        }
+
+        i++
+    }
+}
+
+function tabela_descrito(valores, dias, opcionais, totais) {
+    $('#tabela_de_valores .datas').remove()
+    $('.tag_datas').prop('colspan', dias.length)
+    let classe_datas = ''
+
+    for (let data of dias) {
+        let dia = moment(data)
+
+        if (data == dias[dias.length - 1]) {
+            classe_datas = 'ultima_data'
+        }
+
+        $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM')}</th>`)
+    }
+
+    criar_linhas_tabela_valores(secoes)
+
+    for (let secao of secoes) {
+        $(`#tabela_de_valores #${secao}`).append(`
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>
+            <td class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(valores[secao]['valor_final'])}</nobr></td>
+        `)
+
+        for (let valor_dia of valores[secao]['valores']) {
+            $(`#tabela_de_valores #${secao}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+        }
+        console.log(opcionais[opcionais.length - 1]['atividades'])
+        if (opcionais.length > 1 && secao == 'opcionais') {
+            linhas_descritivo_opcionais(separar_atividades(opcionais), 'opcionais')
+        } else if (opcionais[opcionais.length - 1]['atividades'].length > 0 && secao == 'atividades') {
+            linhas_descritivo_opcionais(opcionais[opcionais.length - 1]['atividades'], 'atividades')
+        } else if (opcionais[opcionais.length - 1]['atividades_ceu'].length > 0 && secao == 'atividades_ceu') {
+            linhas_descritivo_opcionais(opcionais[opcionais.length - 1]['atividades_ceu'], 'atividades_ceu')
+        } else if (opcionais[opcionais.length - 1]['outros'].length > 0 && secao == 'outros') {
+            linhas_descritivo_opcionais(opcionais[opcionais.length - 1]['outros'], 'outros')
+        }
+    }
+    console.log(totais)
+    $('#tabela_de_valores tbody').append(`
+        <tr id="totais" style="border-top: dashed #000000 2px; border-bottom: solid #000000 2px">
+            <td></td>
+            <th>Total</th>
+            <th><nobr>R$ ${formatar_dinheiro(totais['valor'])}</nobr></th>            
+            <th><nobr>R$ ${formatar_dinheiro(totais['taxa_comercial'])}</nobr></th>            
+            <th><nobr>R$ ${formatar_dinheiro(totais['comissao_de_vendas'])}</nobr></th>            
+            <th><nobr>R$ ${formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])}</nobr></th>            
+            <th class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(totais['valor_final'])}</nobr></th>            
+        </tr>
+    `)
+
+    for (let valor of totais['descricao_valores']) {
+        $('#tabela_de_valores #totais').append(`<td><nobr>R$ ${formatar_dinheiro(valor)}</nobr></td>`)
+    }
+}
+
 function enviar_form(form_opcionais = false, form_gerencia = false, salvar = false) {
     let dados_op, gerencia, outros
     const form = $('#orcamento')
@@ -205,7 +323,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
     if (form_gerencia || salvar) {
         gerencia = $('#form_gerencia').serializeObject()
     }
-    console.log(orcamento)
+
     return new Promise(function (resolve, reject) {
         $.ajax({
             url: url,
@@ -214,11 +332,12 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
             dataType: 'JSON',
             data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
             success: function (response) {
+                console.log(response)
                 if (!salvar) {
-                    const valores = response['data']['valores'];
-                    const periodo = response['data']['periodo_viagem']['valor_com_desconto'];
-                    const diaria = valores['diaria']['valor_com_desconto'];
-                    const periodo_diaria = (periodo + diaria);
+                    const valores = response['data']['valores']
+                    const periodo = response['data']['periodo_viagem']['valor_com_desconto']
+                    const diaria = valores['diaria']['valor_com_desconto']
+                    const periodo_diaria = (periodo + diaria)
                     console.log(response['data']['valores'])
                     // Adicionando ponto de separação de milhar em periodo_diaria
                     const periodo_diaria_formatado = periodo_diaria.toLocaleString(
@@ -271,6 +390,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
 
                     $('#subtotal span').text('R$ ' + total_formatado); // Total
 
+                    tabela_descrito(valores, response['data']['days'], response['data']['descricao_opcionais'], response['data']['total'])
                     resultado_ultima_consulta = response
                 }
 

@@ -49,7 +49,7 @@ textarea {
     border: 1px solid #ced4da;
 }
 
-#transporte {
+.conteudo #transporte {
     display: flex;
     flex-direction: column;
 }
@@ -263,4 +263,49 @@ textarea {
 
 #taxas_e_racionais div:not(:last-child){
     width: 20%;
+}
+
+#tabela_de_valores tr > th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_de_valores tr {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_de_valores tr > td:nth-child(1) {
+    text-align: left;
+}
+
+#tabela_de_valores .valor_final_tabela {
+    border-right: dashed #000000 2px;
+}
+
+#tabela_de_valores .atividade_ou_opcional {
+    background: #6764646d;
+}
+.tag_datas {
+    border-left: dashed #000000 2px;
+    border-right: dashed #000000 2px;
+    border-top: dashed #000000 2px;
+}
+
+#tabela_de_valores .ultima_data, #tabela_de_valores .ultimo_valor, #tabela_de_valores tr > td:last-child {
+    border-right: dashed #000000 2px;
+}
+
+#tabela_de_valores tr > td:first-child, #tabela_de_valores tr:not(:first-child) and:not(:nth-child(2)) > th:first-child {
+    border-left: solid #000000 2px;
+}
+
+#tabela_de_valores tbody > tr {
+    border-bottom: dashed 1px #ced4da;
+}
+
+#tabela_de_valores thead tr:nth-child(2) {
+    border-left: solid 1px #ced4da;
+    border-top: solid 1px #ced4da;
+    border-bottom: solid 2px #000000;
 }
