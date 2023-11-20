@@ -297,7 +297,7 @@ function tabela_descrito(valores, dias, opcionais, totais) {
     `)
 
     for (let valor of totais['descricao_valores']) {
-        $('#tabela_de_valores #totais').append(`<td><nobr>R$ ${formatar_dinheiro(valor)}</nobr></td>`)
+        $('#tabela_de_valores #totais').append(`<th><nobr>R$ ${formatar_dinheiro(valor)}</nobr></th>`)
     }
 }
 
