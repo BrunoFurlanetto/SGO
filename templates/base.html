@@ -42,7 +42,13 @@
         $('.container_loading').addClass('none')
     }
 
-    $(document).ready(() => {end_loading()})
+    function formatar_dinheiro(valor) {
+        return valor.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')
+    }
+
+    $(document).ready(() => {
+        end_loading()
+    })
 </script>
 </body>
 </html>

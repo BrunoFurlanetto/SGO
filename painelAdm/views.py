@@ -1,3 +1,4 @@
+import calendar
 import locale
 from datetime import datetime, timedelta
 from datetime import datetime
@@ -11,7 +12,7 @@ from ceu.models import Professores
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from painelAdm.funcoes import contar_atividades, contar_horas, contar_diaria, verificar_anos, is_ajax, pegar_mes, \
-    pegar_atividades, contar_atividades_professor
+    pegar_atividades, contar_atividades_professor, resumir_atividades, pegar_relatorios_mes
 from projetoCEU.utils import verificar_grupo
 
 
@@ -64,11 +65,11 @@ def painelGeral(request):
 
         if request.POST.get('grafico') == '3':
             professor_selecionado = Professores.objects.get(pk=request.POST.get('id_professor'))
-            ordens_prof = RelatorioDeAtendimentoPublicoCeu.objects.filter(Q(coordenador=professor_selecionado) |
-                                                                          Q(professor_2=professor_selecionado) |
-                                                                          Q(professor_3=professor_selecionado) |
-                                                                          Q(professor_4=professor_selecionado)).order_by(
-                '-data_atendimento')[:300]
+            ordens_prof = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+                Q(coordenador=professor_selecionado) |
+                Q(professor_2=professor_selecionado) |
+                Q(professor_3=professor_selecionado) |
+                Q(professor_4=professor_selecionado)).order_by('-data_atendimento')[:300]
 
             atividades_realizadas = contar_atividades_professor(professor_selecionado, ordens_prof)
             return JsonResponse({'dados': atividades_realizadas})
@@ -76,67 +77,19 @@ def painelGeral(request):
 
 @login_required(login_url='login')
 def resumo_ceu(request):
+    if is_ajax(request):
+        locale.setlocale(locale.LC_TIME, 'pt_BR')
+        mes, ano = request.POST.get('mes_ano').split('_')
+        mes = list(calendar.month_name).index(mes.lower())
+
+        return JsonResponse({'dados': pegar_relatorios_mes(mes, int(ano))})
+
     locale.setlocale(locale.LC_TIME, 'pt_BR')
     relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.all()[:200]
     relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.all()[:200]
     relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.all()[:200]
     relatorios = list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))
-    datas_relatorio = []
-    meses_relatorios = []
-    dados_atividades = []
 
-    for relatorio in relatorios:
-        if relatorio.data_hora_salvo.date() not in datas_relatorio:
-
-            try:
-                datas_relatorio.append(relatorio.check_in.date())
-            except AttributeError:
-                datas_relatorio.append(relatorio.data_hora_salvo.date())
-
-    datas_relatorio = sorted(datas_relatorio, reverse=True)
-
-    for data in datas_relatorio:
-        if {'mes': data.month, 'ano': data.year} not in meses_relatorios:
-            meses_relatorios.append({'mes': data.month, 'ano': data.year})
-
-    for data in meses_relatorios:
-        participantes_mes = n_atividades = 0
-        horas_locacoes = timedelta()
-        relatorios_colegio_mes = RelatorioDeAtendimentoColegioCeu.objects.filter(
-            check_in__month=data['mes'],
-            check_in__year=data['ano']
-        )
-        relatorios_empresa_mes = RelatorioDeAtendimentoEmpresaCeu.objects.filter(
-            check_in__month=data['mes'],
-            check_in__year=data['ano']
-        )
-        relatorios_publico_mes = RelatorioDeAtendimentoPublicoCeu.objects.filter(
-            data_atendimento__month=data['mes'],
-            data_atendimento__year=data['ano']
-        )
-        relatorios_mes = list(chain(relatorios_publico_mes, relatorios_empresa_mes, relatorios_colegio_mes))
-
-        for relatorio_mes in relatorios_mes:
-            try:
-                participantes_mes += relatorio_mes.participantes_confirmados if relatorio_mes.participantes_confirmados else 0
-                n_atividades = len(relatorio_mes.atividades) if relatorio_mes.atividades else 0
-                horas_locacoes += relatorio_mes.horas_totais_locacoes if relatorio_mes.horas_totais_locacoes else timedelta()
-                print(horas_locacoes, relatorio_mes.horas_totais_locacoes, data['mes'])
-            except AttributeError:
-                ...
-
-        total_seconds = horas_locacoes.total_seconds()
-        horas, remainder = divmod(total_seconds, 3600)
-        minutos, segundos = divmod(remainder, 60)
-        dados_atividades.append({
-            'mes': datetime(1, data['mes'], 1).strftime('%B').capitalize(),
-            'ano': data['ano'],
-            'participantes': participantes_mes,
-            'n_atividades': n_atividades,
-            'horas_locadas': f'{int(horas):02}:{int(minutos):02}'
-        })
-
-    print(dados_atividades)
     return render(request, 'painelAdm/resumo_ceu.html', {
-        'dados_atividades': dados_atividades
+        'dados_atividades': resumir_atividades(relatorios)
     })

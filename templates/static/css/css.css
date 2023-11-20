@@ -1470,3 +1470,12 @@
     border-radius: 5px;
     border: solid 1px #afafaf;
 }
+
+#tabela_detalhe_mes thead tr > th, #tabela_detalhe_mes tbody tr > td:not(:first-child) {
+    text-align: center;
+    vert-align: middle;
+}
+
+#tabela_detalhe_mes tbody tr > td {
+    vertical-align: middle;
+}
