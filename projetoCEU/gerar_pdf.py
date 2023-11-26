@@ -5,6 +5,7 @@ from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
 from ordemDeServico.models import TipoVeiculo
+from painelAdm.funcoes import pegar_dados_relatorios_mes
 from peraltas.models import AtividadesEco, Monitor
 
 
@@ -579,3 +580,39 @@ def dados_monitores_hotelaria(escala):
         tabela('Monitores', escalados)
 
     pdf_escala.output('temp/dados_monitores_escalados.pdf')
+
+
+def dados_atividades(mes, mes_escrito, ano):
+    def tabela_resumo(titulo_secao, linhas):
+        pdf_resumo.titulo_secao(titulo_secao, 5, 0)
+        pdf_resumo.ln(2)
+        pdf_resumo.tables(
+            headings=['Professor', 'N atividades', 'Horas', 'Valor atividades', 'Valor horas', 'Valor total'],
+            rows=linhas,
+            alings=('L', 'C', 'C', 'C', 'C', 'C'),
+            col_widths=(46, 30, 20, 35, 35, 30)
+        )
+
+        pdf_resumo.ln(8)
+
+    def formatar_dinheiro(valor):
+        return f'R$ {valor:.2f}'.replace('.', ',')
+
+    pdf_resumo = PDF()
+    pdf_resumo.my_header(f'Resumo das atividades de {mes_escrito} de {ano}')
+    pdf_resumo.ln(2)
+    dados_tabela = []
+
+    for dados in pegar_dados_relatorios_mes(mes, ano):
+        dados_tabela.append([
+            dados['nome'],
+            str(dados['atividades']),
+            dados['horas'],
+            formatar_dinheiro(dados['valor_atividades']),
+            formatar_dinheiro(dados['valor_horas']),
+            formatar_dinheiro(dados['valor_atividades'] + dados['valor_horas'])
+        ])
+    print(dados_tabela)
+    tabela_resumo('Resumo do mês', dados_tabela)
+
+    pdf_resumo.output('temp/resumo_atividades.pdf')

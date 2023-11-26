@@ -1,4 +1,5 @@
 import json
+import locale
 from datetime import timedelta, datetime
 import operator
 from itertools import chain
@@ -197,7 +198,12 @@ def ordenar_dicionario(dicionario):
 
     return dict((x, y) for x, y in tuplas_ordenada)
 
-def resumir_atividades(relatorios):
+def resumir_atividades():
+    locale.setlocale(locale.LC_TIME, 'pt_BR')
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.all()[:200]
+    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.all()[:200]
+    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.all()[:200]
+    relatorios = list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))
     datas_relatorio = []
     meses_relatorios = []
     dados_atividades = []
@@ -254,7 +260,7 @@ def resumir_atividades(relatorios):
 
     return dados_atividades
 
-def pegar_relatorios_mes(mes, ano):
+def pegar_dados_relatorios_mes(mes, ano):
     relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__month=mes, data_atendimento__year=ano)
     relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(check_in__month=mes, check_in__year=ano)
     relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(check_in__month=mes, check_in__year=ano)
@@ -288,13 +294,21 @@ def pegar_relatorios_mes(mes, ano):
         total_seconds = soma_horas.total_seconds()
         horas, remainder = divmod(total_seconds, 3600)
         minutos, segundos = divmod(remainder, 60)
+
         dados_professores.append({
             'id': professor.id,
             'nome': professor.usuario.get_full_name(),
             'atividades': professores_atividades.count(professor.id),
             'horas': f'{int(horas):02}:{int(minutos):02}',
-            'valor_atividades': professores_atividades.count(professor.id) * 32,
-            'valor_horas': round(total_seconds * 0.00347222, 2)
+            'valor_atividades': professores_atividades.count(professor.id) * 32, # TODO: Passar para o banco
+            'valor_horas': round(total_seconds * 0.00347222, 2) # TODO: Passar para o banco
         })
 
     return dados_professores
+
+def pegar_relatorios_mes(mes, ano):
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__month=mes, data_atendimento__year=ano)
+    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+
+    return list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))

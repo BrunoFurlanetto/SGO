@@ -22,6 +22,7 @@ function tabelar_mes(linha) {
         data: {'mes_ano': mes_ano},
         success: function (response) {
             const tabela_detalhes = $('#tabela_detalhe_mes tbody').empty()
+            $('#form_gerar_pdf #mes_ano').val(mes_ano)
 
             for (let professor of response['dados']) {
                 tabela_detalhes.append(`

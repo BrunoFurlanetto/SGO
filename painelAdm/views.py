@@ -6,13 +6,14 @@ from itertools import chain
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from painelAdm.funcoes import contar_atividades, contar_horas, contar_diaria, verificar_anos, is_ajax, pegar_mes, \
-    pegar_atividades, contar_atividades_professor, resumir_atividades, pegar_relatorios_mes
+    pegar_atividades, contar_atividades_professor, resumir_atividades, pegar_dados_relatorios_mes, pegar_relatorios_mes
+from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo
 
 
@@ -77,19 +78,28 @@ def painelGeral(request):
 
 @login_required(login_url='login')
 def resumo_ceu(request):
-    if is_ajax(request):
+    mes = ano = 0
+
+    if request.POST.get('mes_ano'):
         locale.setlocale(locale.LC_TIME, 'pt_BR')
         mes, ano = request.POST.get('mes_ano').split('_')
         mes = list(calendar.month_name).index(mes.lower())
 
-        return JsonResponse({'dados': pegar_relatorios_mes(mes, int(ano))})
+    if is_ajax(request):
+        return JsonResponse({'dados': pegar_dados_relatorios_mes(mes, int(ano))})
 
-    locale.setlocale(locale.LC_TIME, 'pt_BR')
-    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.all()[:200]
-    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.all()[:200]
-    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.all()[:200]
-    relatorios = list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))
+    if request.method != 'POST':
+        return render(request, 'painelAdm/resumo_ceu.html', {
+            'dados_atividades': resumir_atividades()
+        })
 
-    return render(request, 'painelAdm/resumo_ceu.html', {
-        'dados_atividades': resumir_atividades(relatorios)
-    })
+    if request.POST.get('gerar_pdf'):
+        mes_escrito = request.POST.get('mes_ano').split('_')[0]
+        gerar_pdf.dados_atividades(mes, mes_escrito, ano)
+
+        return FileResponse(
+            open('temp/resumo_atividades.pdf', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Resumo atividades de {mes_escrito} de {ano}.pdf'
+        )

@@ -5,7 +5,7 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    {% csrf_token %}
+
     <div class="conteudo-resumo_ceu">
         <div style="text-align: center">
             <h4>Resumos das atividades</h4>
@@ -62,7 +62,12 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+                    <form id="form_gerar_pdf" action="{% url 'resumo_atividades' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" id="gerar_pdf" name="gerar_pdf" value="True">
+                        <input type="hidden" id="mes_ano" name="mes_ano">
+                        <button type="submit" class="btn btn-primary">Imprimir</button>
+                    </form>
                 </div>
             </div>
         </div>
