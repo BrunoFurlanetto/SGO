@@ -519,24 +519,31 @@
                 {{ form.empresa.as_hidden }}
             </fieldset>
             <div class="botoes">
-                {% if not ficha_de_evento %}
-                    <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
-                {% elif request.user == ficha_de_evento.vendedora.usuario or diretoria %}
-                    <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
-                    <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
-                {% endif %}
+                {% if ficha_de_evento and not ficha_de_evento.os %}
+                    {% if not ficha_de_evento %}
+                        <button type="submit" id="salvar" class="btn btn-primary ml-5">Salvar</button>
+                    {% elif request.user == ficha_de_evento.vendedora.usuario or diretoria %}
+                        <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
+                        <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
+                    {% endif %}
 
-                {% if ficha_de_evento and perms.peraltas.delete_fichadeevento %}
-                    <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
-                            data-target="#excluir_ficha_evento">Excluir
-                    </button>
-                {% endif %}
+                    {% if ficha_de_evento and perms.peraltas.delete_fichadeevento %}
+                        <button type="button" id="excluir" class="btn btn-danger ml-5" data-toggle="modal"
+                                data-target="#excluir_ficha_evento">Excluir
+                        </button>
+                    {% endif %}
 
-                {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
-                    <button type="button" class="btn btn-outline-primary ml-5" style="float: right"
-                            onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">
-                        Ordem de serviço
-                    </button>
+                    {% if ficha_de_evento and perms.ordemDeServico.add_ordemdeservico %}
+                        <button type="button" class="btn btn-outline-primary ml-5" style="float: right"
+                                onclick="window.location.href='{% url 'ordem_de_servico_com_ficha' ficha_de_evento.id %}'">
+                            Ordem de serviço
+                        </button>
+                    {% endif %}
+                {% else %}
+                    {% if perms.ordemDeServico.add_ordemdeservico %}
+                        <button type="submit" id="salvar" class="btn btn-primary ml-5" disabled>Salvar</button>
+                        <button type="button" class="btn btn-secondary ml-5" onclick="editar_ficha()">Editar</button>
+                    {% endif %}
                 {% endif %}
             </div>
         </form>
