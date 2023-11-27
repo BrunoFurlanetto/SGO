@@ -220,26 +220,12 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                    <form action="{% url 'orcamento' %}" method="POST">
                         <h5 class="titulo-secao">Descontos</h5>
                         <div class="descontos" style="display: flex">
                             <div class="valores">
-                                <div style="margin: 0 30px 18px 0">
-                                    <label for="desconto_produto">Produto</label>
-                                    <input type="text" id="desconto_produto" name="desconto_produto" value="0,00">
-                                </div>
-                                <div>
-                                    <label for="desconto_monitoria">Monitoria</label>
-                                    <input type="text" id="desconto_monitoria" name="desconto_monitoria" value="0,00">
-                                </div>
-                                <div style="margin-right: 30px">
-                                    <label for="desconto_trasnporte">Transporte</label>
-                                    <input type="text" id="desconto_trasnporte" name="desconto_trasnporte" value="0,00">
-                                </div>
-                                <div>
-                                    <label for="desconto_geral">Geral</label>
-                                    <input type="text" id="desconto_geral" name="desconto_geral" value="0,00">
-                                </div>
+
+
                             </div>
                             <div>
                                 <label for="observacoes_desconto">Observações</label>
@@ -249,22 +235,7 @@
                         </div>
                         <hr>
                         <div id="taxas_e_racionais">
-                            <div>
-                                <label for="comissao">Comissão</label>
-                                <input type="text" id="comissao" name="comissao" value="9">
-                            </div>
-                            <div>
-                                <label for="taxa_comercial">Taxa Comercial</label>
-                                <input type="text" id="taxa_comercial" name="taxa_comercial" value="5">
-                            </div>
-                            <div>
-                                <label for="minimo_onibus">Mínimo no ônibus</label>
-                                <input type="number" id="minimo_onibus" name="minimo_onibus" value="30">
-                            </div>
-                            <div style="width: 28%">
-                                <label for="data_pagamento">Data de pagamento</label>
-                                <input type="date" id="data_pagamento" name="data_pagamento" value="">
-                            </div>
+
                         </div>
                     </form>
                 </div>
@@ -287,25 +258,89 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <div style="border: dashed 1px #5c636a">
+                                <div style="display: flex; column-gap: 50px; padding: 20px">
+                                    <div>
+                                        <label for="comissao">Comissão</label>
+                                        <input type="text" id="comissao" name="comissao" value="9"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="taxa_comercial">Taxa Comercial</label>
+                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="minimo_onibus">Mínimo no ônibus</label>
+                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div style="width: 28%">
+                                        <label for="data_pagamento">Data de pagamento</label>
+                                        <input type="date" id="data_pagamento" name="data_pagamento" value=""
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_geral">Desconto</label>
+                                        <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                </div>
+                                <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
+                                    *Alterações nessa parte necessitarão de aprovação da diretoria antes do orçamento ser encaminhado ao cliente.
+                                </p>
+                            </div>
+                            {% if True %}
+                                <hr>
+                                <div>
+                                    <h5 class="titulo-secao">Descontos</h5>
+                                    <div style="display: flex; column-gap: 50px; padding: 20px; border: dashed 1px #5c636a">
+                                        <div>
+                                            <label for="desconto_produto">Diaria</label>
+                                            <input type="text" id="desconto_produto" name="desconto_produto" value="0,00" onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="desconto_monitoria">Monitoria</label>
+                                            <input type="text" id="desconto_monitoria" name="desconto_monitoria"
+                                                   value="0,00" onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div style="margin-right: 30px">
+                                            <label for="desconto_trasnporte">Transporte</label>
+                                            <input type="text" id="desconto_trasnporte" name="desconto_trasnporte"
+                                                   value="0,00" onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                    <hr>
                     <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST">
-                        <table id="tabela_de_valores" class="table table-hover table-borderless table-striped">
-                            <thead>
-                            <tr>
-                                <th colspan="7"></th>
-                                <th class="tag_datas">Datas</th>
-                            </tr>
-                            <tr class="cabecalho">
-                                <th></th>
-                                <th style="width: 50%">Seção</th>
-                                <th style="width: 25%">Valor</th>
-                                <th style="width: 25%">Taxa comercial</th>
-                                <th style="width: 25%">Comissão</th>
-                                <th style="width: 25%">Desconto</th>
-                                <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <fieldset>
+                            {% csrf_token %}
+                            <h5 class="titulo-secao">Tabela de valores</h5>
+                            <table id="tabela_de_valores" class="table table-hover table-borderless table-striped">
+                                <thead>
+                                <tr>
+                                    <th colspan="7"></th>
+                                    <th class="tag_datas">Datas</th>
+                                </tr>
+                                <tr class="cabecalho">
+                                    <th></th>
+                                    <th style="width: 50%">Seção</th>
+                                    <th style="width: 25%">Valor</th>
+                                    <th style="width: 25%">Taxa comercial</th>
+                                    <th style="width: 25%">Comissão</th>
+                                    <th style="width: 25%">Desconto</th>
+                                    <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
                     </form>
                 </div>
                 <div class="modal-footer">

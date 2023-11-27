@@ -128,9 +128,13 @@ def processar_formulario(dados):
             find_id = find_id.replace("MSSS", "QDSS")
             find_id = find_id.replace("FSSS", "QDSS")
 
-            period = OrcamentoPeriodo.objects.get(id=find_id)
-            period_days.append(period)
-            current_date += timedelta(days=1)
+            try:
+                period = OrcamentoPeriodo.objects.get(id=find_id)
+            except OrcamentoPeriodo.DoesNotExist:
+                return JsonError(f'Período não encontrado na base, por favor peça o cadastro do período {find_id} a diretoria')
+            else:
+                period_days.append(period)
+                current_date += timedelta(days=1)
 
         # Calc num days
         num_days = len(period_days)

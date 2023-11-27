@@ -74,7 +74,7 @@ def calc_budget(req):
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
-
+            
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
                             data["hora_check_out"], data["lista_de_dias"])

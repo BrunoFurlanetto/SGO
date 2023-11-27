@@ -397,7 +397,7 @@ function enviar_form(form_opcionais = false, form_gerencia = false, salvar = fal
                 resolve(response['status'])
             },
             error: function (xht, status, error) {
-                reject(error)
+                reject(xht['responseJSON']['msg'])
             }
         })
     })
