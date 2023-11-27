@@ -375,7 +375,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
 
         return {
             'colegio': produto.colegio,
-            'pernoite': produto.pernoite,
+            'pernoite': produto.pernoite or produto.meninos_e_meninas,
             'vt': produto.produto == 'Visita Técnica',
             'outro': produto.produto == 'Outro',
             'so_ceu': produto.produto == 'Só CEU',

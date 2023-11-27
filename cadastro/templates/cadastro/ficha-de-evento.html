@@ -134,12 +134,12 @@
                         {{ form.qtd_offline }}
                     </div>
                     {% if ficha_de_evento %}
-                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD meninas</label>
                             {{ form.qtd_meninas }}
                         </div>
-                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                        <div class="alunos-pernoite {% if not ficha_de_evento.produto.colegio or not ficha_de_evento.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD meninos</label>
                             {{ form.qtd_meninos }}
@@ -155,12 +155,12 @@
                             {{ form.qtd_mulheres }}
                         </div>
                     {% else %}
-                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD meninas</label>
                             {{ form.qtd_meninas }}
                         </div>
-                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.pernoite %} none {% endif %}"
+                        <div class="alunos-pernoite {% if not pre_reserva.produto.colegio or not pre_reserva.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD meninos</label>
                             {{ form.qtd_meninos }}
@@ -183,12 +183,12 @@
                             <label>QTD professores</label>
                             {{ form.qtd_professores }}
                         </div>
-                        <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                        <div class="professores-pernoite {% if not ficha_de_evento.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD profs. homens</label>
                             {{ form.qtd_profs_homens }}
                         </div>
-                        <div class="professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}"
+                        <div class="professores-pernoite {% if not ficha_de_evento.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD profs. mulheres</label>
                             {{ form.qtd_profs_mulheres }}
@@ -204,12 +204,12 @@
                             <label>QTD professores</label>
                             {{ form.qtd_professores }}
                         </div>
-                        <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
+                        <div class="professores-pernoite {% if not pre_reserva.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD profs. homens</label>
                             {{ form.qtd_profs_homens }}
                         </div>
-                        <div class="professores-pernoite {% if not pre_reserva.produto.pernoite %} none {% endif %}"
+                        <div class="professores-pernoite {% if not pre_reserva.produto.meninos_e_meninas %} none {% endif %}"
                              style="width: 15%">
                             <label>QTD profs. mulheres</label>
                             {{ form.qtd_profs_mulheres }}
