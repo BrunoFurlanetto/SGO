@@ -209,5 +209,5 @@ class Budget:
             "taxa_comercial": self.business_fee,
             "comissao_de_vendas": self.commission,
             "periodos": self.period.get_periods(),
-            "days": self.days_list,
+            "days": [day.strftime('%Y-%m-%d') for day in self.days_list],
         }

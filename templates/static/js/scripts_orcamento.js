@@ -322,9 +322,9 @@ async function enviar_form(form_opcionais = false, form_gerencia = false, salvar
         });
     }
 
-    if (form_opcionais || salvar) {
-        dados_op = $('#forms_valores_op').serializeObject();
-    }
+
+    dados_op = $('#forms_valores_op').serializeObject();
+
 
     if (form_gerencia || salvar) {
         gerencia = $('#form_gerencia').serializeObject();

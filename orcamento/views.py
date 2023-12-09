@@ -144,18 +144,21 @@ def calc_budget(req):
                     valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
                         budget.business_fee) + budget.total.calc_commission(budget.commission)
                     data['valor'] = f'{valor_final:.2f}'
-                    data['opcionais_extra'] = data['outros']
+
+                    data['opcionais_extra'] = data.get('outros', [])
                     data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
                     data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
                     orcamento = CadastroOrcamento(data)
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
-                    pre_orcamento.objeto_orcamento = budget.return_object()
 
                     if budget.total.general_discount != 0 or dados['gerencia'][
                         'data_pagamento'] != datetime.datetime.today().date() + datetime.timedelta(days=15):
                         pre_orcamento.necessita_aprovacao_gerencia = True
+
+                    pre_orcamento.objeto_orcamento = budget.return_object()
+
 
                     pre_orcamento.colaborador = req.user
                     orcamento_salvo = orcamento.save()
