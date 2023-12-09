@@ -6,6 +6,9 @@ const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividad
 
 $(document).ready(() => {
     $('#id_cliente').select2()
+    let hoje = new Date()
+    $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
+
     $('#data_viagem').daterangepicker({
         "timePicker": true,
         "timePicker24Hour": true,
@@ -44,8 +47,6 @@ $(document).ready(() => {
         "drops": "up"
     })
 
-    let hoje = new Date()
-    $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     $('#valor_opcional, #desconto_produto, #desconto_monitoria').maskMoney({
         prefix: 'R$ ',
         thousands: '.',
@@ -53,7 +54,7 @@ $(document).ready(() => {
         allowZero: true,
         affixesStay: false
     })
-    $('#desconto_trasnporte, #desconto_geral').maskMoney({
+    $('#desconto_transporte, #desconto_geral').maskMoney({
         prefix: 'R$ ',
         thousands: '.',
         decimal: ',',
@@ -79,14 +80,17 @@ $(document).ready(() => {
         return false
     })
 
-    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:select", function (e) {
+    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:select", async function (e) {
         const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
         let nome_id = $(this).attr('id')
-        console.log(opcao['text'])
-        if (nome_id !== 'op_extras') {
-            enviar_form().then((status) => {
+        loading()
+
+        try {
+            if (nome_id !== 'op_extras') {
+                await enviar_form()
+
                 $.ajax({
                     type: 'GET',
                     url: '',
@@ -133,7 +137,7 @@ $(document).ready(() => {
                         }
 
                     }
-                }).done(() => {
+                }).done(async () => {
                     $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
                         prefix: 'R$ ',
                         thousands: '.',
@@ -142,14 +146,11 @@ $(document).ready(() => {
                         affixesStay: false
                     })
 
-                    end_loading()
+                    await atualizar_valores_op()
                 })
-            }).catch((error) => {
-                alert(error)
-                end_loading()
-            })
-        } else {
-            enviar_form().then(() => {
+            } else {
+                await enviar_form()
+
                 let opcional_extra = op_extras.filter((op, index) => {
                     console.log(op['id'], opcao['id'])
                     if (op['id'] === opcao['id']) {
@@ -164,23 +165,29 @@ $(document).ready(() => {
                         <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
                     </tr>
                 `)
-            }).catch((error) => {
-                alert(error)
-            })
 
+            }
+        } catch (error) {
+            alert(error)
+        } finally {
             end_loading()
         }
-    });
+        end_loading()
+    })
 
-    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", function (e) {
-        enviar_form().then((status) => {
+    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", async function (e) {
+        loading()
+
+        try {
+            await enviar_form()
             const opcao = e.params.data;
             $(`#op_${opcao['id']}`).remove()
-            end_loading()
-        }).catch((error) => {
+        } catch (error) {
             alert(error)
+        } finally {
+            await atualizar_valores_op()
             end_loading()
-        })
+        }
     })
 })
 
@@ -272,7 +279,7 @@ function tabela_descrito(valores, dias, opcionais, totais) {
         for (let valor_dia of valores[secao]['valores']) {
             $(`#tabela_de_valores #${secao}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
         }
-        console.log(opcionais[opcionais.length - 1]['atividades'])
+
         if (opcionais.length > 1 && secao == 'opcionais') {
             linhas_descritivo_opcionais(separar_atividades(opcionais), 'opcionais')
         } else if (opcionais[opcionais.length - 1]['atividades'].length > 0 && secao == 'atividades') {
@@ -283,9 +290,9 @@ function tabela_descrito(valores, dias, opcionais, totais) {
             linhas_descritivo_opcionais(opcionais[opcionais.length - 1]['outros'], 'outros')
         }
     }
-    console.log(totais)
+
     $('#tabela_de_valores tbody').append(`
-        <tr id="totais" style="border-top: dashed #000000 2px; border-bottom: solid #000000 2px">
+        <tr id="totais">
             <td></td>
             <th>Total</th>
             <th><nobr>R$ ${formatar_dinheiro(totais['valor'])}</nobr></th>            
@@ -301,107 +308,83 @@ function tabela_descrito(valores, dias, opcionais, totais) {
     }
 }
 
-function enviar_form(form_opcionais = false, form_gerencia = false, salvar = false) {
-    let dados_op, gerencia, outros
-    const form = $('#orcamento')
-    const orcamento = form.serializeObject()
-    const url = form.attr('action')
-    loading()
+async function enviar_form(form_opcionais = false, form_gerencia = false, salvar = false) {
+    let dados_op, gerencia, outros;
+    const form = $('#orcamento');
+    const orcamento = form.serializeObject();
+    const url = form.attr('action');
 
     if (op_extras.length > 0) {
         outros = op_extras.filter((op, index) => {
             if ($('#op_extras').val().includes(op['id'])) {
-                return op
+                return op;
             }
-        })
+        });
     }
 
     if (form_opcionais || salvar) {
-        dados_op = $('#forms_valores_op').serializeObject()
+        dados_op = $('#forms_valores_op').serializeObject();
     }
 
     if (form_gerencia || salvar) {
-        gerencia = $('#form_gerencia').serializeObject()
+        gerencia = $('#form_gerencia').serializeObject();
     }
 
-    return new Promise(function (resolve, reject) {
-        $.ajax({
-            url: url,
-            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-            type: "POST",
-            dataType: 'JSON',
-            data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
-            success: function (response) {
-                console.log(response)
-                if (!salvar) {
-                    const valores = response['data']['valores']
-                    const periodo = response['data']['periodo_viagem']['valor_com_desconto']
-                    const diaria = valores['diaria']['valor_com_desconto']
-                    const periodo_diaria = (periodo + diaria)
-                    console.log(response['data']['valores'])
-                    // Adicionando ponto de separação de milhar em periodo_diaria
-                    const periodo_diaria_formatado = periodo_diaria.toLocaleString(
-                        undefined,
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )
-                    const valor_monitoria = valores['tipo_monitoria']['valor_com_desconto'];
-                    const transporte = valores['transporte']['valor_com_desconto'];
-                    const monitoria_transporte = (valor_monitoria + transporte);
+    try {
+        const response = await new Promise(function (resolve, reject) {
+            $.ajax({
+                url: url,
+                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                type: "POST",
+                dataType: 'JSON',
+                data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
+                success: function (response) {
+                    if (!salvar) {
+                        const valores = response['data']['valores']
+                        const periodo = response['data']['periodo_viagem']['valor_com_desconto']
+                        const diaria = valores['diaria']['valor_com_desconto']
+                        const periodo_diaria = (periodo + diaria)
+                        const periodo_diaria_formatado = formatar_dinheiro(periodo_diaria)
 
-                    // Adicionando ponto de separação de milhar em monitoria_transporte
-                    const monitoria_transporte_formatado = monitoria_transporte.toLocaleString(
-                        undefined,
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )
+                        const valor_monitoria = valores['tipo_monitoria']['valor_com_desconto'];
+                        const transporte = valores['transporte']['valor_com_desconto'];
+                        const monitoria_transporte = (valor_monitoria + transporte);
+                        const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
 
-                    const opcionais = valores['opcionais']['valor_com_desconto']
-                    const atividades = valores['atividades']['valor_com_desconto']
-                    const atividade_ceu = valores['atividades_ceu']['valor_com_desconto']
-                    const outros = valores['outros']['valor_com_desconto']
-                    const total = response['data']['total']['valor_final']
+                        const opcionais = valores['opcionais']['valor_com_desconto']
+                        const atividades = valores['atividades']['valor_com_desconto']
+                        const atividade_ceu = valores['atividades_ceu']['valor_com_desconto']
+                        const outros = valores['outros']['valor_com_desconto']
+                        const total = response['data']['total']['valor_final']
+                        const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros + atividades + atividade_ceu)
+                        const total_formatado = formatar_dinheiro(total)
 
-                    // Adicionando ponto de separação de milhar em opcionais e total
-                    const opcionais_e_atividades_formatado = (opcionais + outros + atividades + atividade_ceu).toLocaleString(
-                        undefined,
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )
+                        // Alteração dos valores das seções
+                        $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
+                        $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
+                        $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
+                        $('#subtotal span').text('R$ ' + total_formatado); // Total
 
-                    const total_formatado = total.toLocaleString(
-                        undefined,
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )
+                        tabela_descrito(valores, response['data']['days'], response['data']['descricao_opcionais'], response['data']['total'])
+                        resultado_ultima_consulta = response
+                    }
 
-                    // Alteração dos valores das seções
-                    $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
-                    $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
-                    $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
 
-                    $('#subtotal span').text('R$ ' + total_formatado); // Total
-
-                    tabela_descrito(valores, response['data']['days'], response['data']['descricao_opcionais'], response['data']['total'])
-                    resultado_ultima_consulta = response
+                    resolve(response['status']);
+                },
+                error: function (xht, status, error) {
+                    reject(xht['responseJSON']['msg']);
                 }
+            });
+        });
 
-                resolve(response['status'])
-            },
-            error: function (xht, status, error) {
-                reject(xht['responseJSON']['msg'])
-            }
-        })
-    })
+        return response;
+    } catch (error) {
+        alert(error);
+        throw error; // Lança o erro novamente para que a chamada de enviar_form() a capture
+    }
 }
+
 
 $.fn.serializeObject = function () {
     let obj = {}
@@ -491,12 +474,15 @@ function separar_produtos(periodo) {
     })
 }
 
-function verificar_preenchimento() {
+async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
-        enviar_form().then(function (status) {
+        loading()
+
+        try {
+            await enviar_form()
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
             $('#container_monitoria_transporte').removeClass('none')
@@ -510,48 +496,57 @@ function verificar_preenchimento() {
                 }, 2000)
                 mostrar_instrucao = false
             }
-        }).catch(function (error) {
+        } catch (error) {
             $('#container_periodo .parcial').removeClass('visivel')
             $('.div-flutuante').removeClass('visivel').addClass('none')
 
             alert(error)
-        })
+        } finally {
+            end_loading()
+        }
     } else {
         $('#container_periodo .parcial').removeClass('visivel')
         $('.div-flutuante').removeClass('visivel').addClass('none')
     }
-    end_loading()
+
 }
 
-function verificar_monitoria_transporte() {
+async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
         setTimeout(() => {
             $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').select2()
         }, 300)
+        loading()
 
-        enviar_form().then(function (status) {
+        try {
+            await enviar_form()
             $('#container_monitoria_transporte .parcial').addClass('visivel')
             $('#container_opcionais, #finalizacao').removeClass('none')
-        }).catch(function (error) {
+        } catch (error) {
             $('#container_monitoria_transporte .parcial').removeClass('visivel')
             $('#container_opcionais, #finalizacao').addClass('none')
 
             alert(error)
-        })
+        } finally {
+            end_loading()
+        }
     } else {
         $('#container_opcionais, #finalizacao').addClass('none')
     }
-    end_loading()
 }
 
-function enviar_op(opcionais) {
-    enviar_form().then(function (status) {
+async function enviar_op(opcionais) {
+    loading()
+
+    try {
+        await enviar_form()
         $('#container_opcionais .parcial').addClass('visivel')
-    }).catch((xht, response, error) => {
+    } catch (error) {
         $('#container_opcionais .parcial').text('').removeClass('visivel')
         alert(error)
-    })
-    end_loading()
+    } finally {
+        end_loading()
+    }
 }
 
 function aplicar_desconto(desconto) {
@@ -609,34 +604,48 @@ function adicionar_novo_op() {
     console.log(op_extras)
 }
 
-function atualizar_valores_op() {
-    enviar_form($('#forms_valores_op'), null).then((status) => {
-        end_loading()
+async function atualizar_valores_op(carregar=false) {
+    if (carregar) {
+        loading()
+    }
+
+    try {
+        await enviar_form($('#forms_valores_op'), null)
         $('#valores_outros_opcionais').modal('hide')
-    }).catch((error) => {
+    } catch (error) {
         alert(error)
         $('#valores_outros_opcionais').modal('hide')
-        end_loading()
-    })
+    } finally {
+        if (carregar) {
+            end_loading()
+        }
+    }
 }
 
-function enviar_infos_gerencia() {
-    enviar_form(null, $('#form_gerencia')).then((status) => {
-        end_loading()
+async function enviar_infos_gerencia() {
+    loading()
+
+    try {
+        await enviar_form(null, $('#form_gerencia'))
         $('#modal_gerencia').modal('hide')
-    }).catch((error) => {
+    } catch (error) {
         alert(error)
-        end_loading()
         $('#modal_gerencia').modal('hide')
-    })
+    } finally {
+        end_loading()
+    }
 }
 
-function salvar_orcamento() {
-    enviar_form(false, false, true).then((status) => {
+async function salvar_orcamento() {
+    loading()
+
+    try {
+        await enviar_form(false, false, true)
         window.location.href = '/'
-    }).catch((error) => {
+    } catch (error) {
         alert(error)
+    } finally {
         end_loading()
-    })
+    }
 }
 

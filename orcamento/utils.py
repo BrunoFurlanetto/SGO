@@ -114,6 +114,7 @@ def processar_formulario(dados):
         period_days = []
         days_list = []
         current_date = date_check_in
+
         while current_date <= date_check_out:
             days_list.append(current_date)
             is_first_semester = current_date.month <= 6

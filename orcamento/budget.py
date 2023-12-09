@@ -60,17 +60,22 @@ class Budget:
 
     def set_others(self, arr):
         other_array = []
-        for other in arr:
-            obj_other = OptionalDescription(other['valor'], False, other['id'],
-                                            other['nome'], self.days, other['descricao'])
-            other_array.append(obj_other.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee,
-                description=True
-            ))
 
-        self.array_description_others = other_array
-        return self.array_description_others
+        try:
+            for other in arr:
+                obj_other = OptionalDescription(other['valor'], False, other['id'],
+                                                other['nome'], self.days, other['descricao'])
+                other_array.append(obj_other.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee,
+                    description=True
+                ))
+        except TypeError:
+            ...
+        else:
+            self.array_description_others = other_array
+
+            return self.array_description_others
 
     def set_optional(self, arr, save=True):
         optional_array = []

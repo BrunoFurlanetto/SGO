@@ -89,44 +89,42 @@ def calc_budget(req):
             budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
             budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
             budget.daily_rate.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
-
-            if "tipo_monitoria" in data and data['tipo_monitoria'] != '':
-                budget.monitor.calc_value_monitor(data['tipo_monitoria'])
-
+            budget.monitor.calc_value_monitor(data['tipo_monitoria'])
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
             budget.monitor.set_discount(data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
-            budget.transport.calc_value_transport(data["transporte"]) if "transporte" in data else ...
+            budget.transport.calc_value_transport(data.get("transporte"))
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
             budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
             budget.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
 
             # OPICIONAIS
-            if "opcionais" in data:
-                opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
-            if len(opt_data) > 0:
-                budget.set_optional(opt_data, False)
-                budget.optional.calc_value_optional(budget.array_description_optional)
-            if len(valores_op) > 0:
-                print(valores_op)               # TODO: verificar se vai mandar só o que foi editado ou todos ¬¬
-                opt_data = [opt for opt in valores_op.values()]
-                budget.set_optional(opt_data)
-                budget.optional.calc_value_optional(budget.array_description_optional)
+            if len(valores_op) == 0:
+                if "opcionais" in data:
+                    opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
 
-            if "atividades" in data:
-                act_data = [[act, 0, 0, 0] for act in data["atividades"]]
-            if len(act_data) > 0:
-                budget.set_activities(act_data)
-                budget.activities.calc_value_optional(budget.array_description_activities)
+                if "atividades" in data:
+                    act_data = [[act, 0, 0, 0] for act in data["atividades"]]
 
-            if "atividades_ceu" in data:
-                act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
-            if len(act_sky_data) > 0:
-                budget.set_activities_sky(act_sky_data)
-                budget.activities_sky.calc_value_optional(budget.array_description_activities_sky)
+                if "atividades_ceu" in data:
+                    act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
+            else:
+                for key, value in valores_op.items():
+                    if  'opcional' in key:
+                        opt_data.append(value)
+                    elif 'peraltas' in key:
+                        act_data.append(value)
+                    elif 'ceu' in key:
+                        act_sky_data.append(value)
 
-            if "outros" in data:
-                budget.set_others(data["outros"])
-                budget.others.calc_value_optional(budget.array_description_others)
+
+            budget.set_optional(opt_data)
+            budget.optional.calc_value_optional(budget.array_description_optional)
+            budget.set_activities(act_data)
+            budget.activities.calc_value_optional(budget.array_description_activities)
+            budget.set_activities_sky(act_sky_data)
+            budget.activities_sky.calc_value_optional(budget.array_description_activities_sky)
+            budget.set_others(data.get("outros"))
+            budget.others.calc_value_optional(budget.array_description_others)
 
             # CAlCULAR TOTAL
             budget.total.calc_total_value(

@@ -300,12 +300,18 @@ textarea {
     border-left: solid #000000 2px;
 }
 
-#tabela_de_valores tbody > tr {
-    border-bottom: dashed 1px #ced4da;
+#tabela_de_valores tbody > tr:not(#totais) {
+    border-top: dashed 1px #a9a9a9;
 }
 
 #tabela_de_valores thead tr:nth-child(2) {
     border-left: solid 1px #ced4da;
     border-top: solid 1px #ced4da;
     border-bottom: solid 2px #000000;
+}
+
+#tabela_de_valores tbody #totais {
+    border-top: dashed #000000 2px;
+    border-bottom: solid #000000 2px;
+    border-right: dashed #000000 2px;
 }

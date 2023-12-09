@@ -18,6 +18,7 @@ class OptionalDescription(BaseValue):
         information["id"] = self.id
         information["nome"] = self.name
         information["fixo"] = self.is_fixed
+
         if description:
             information["description"] = self.description
         return information

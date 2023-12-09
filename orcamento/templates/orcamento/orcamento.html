@@ -5,6 +5,8 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
     <div class="conteudo-orcamento">
         <div id="subtotal" class="div-flutuante none" onmouseover="$('#modal_descritivo').modal('show')">
             <div class="floating-box none" id="floatingBox">Passe o mouse</div>
@@ -199,48 +201,9 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op()">
+                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
                         Salvar
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--  Modal valores dos outros opcionais  -->
-    <div class="modal fade bd-example-modal-lg" id="modal_gerencia" tabindex="-1" role="dialog"
-         aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Pedidos à gerência</h5>
-                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="{% url 'orcamento' %}" method="POST">
-                        <h5 class="titulo-secao">Descontos</h5>
-                        <div class="descontos" style="display: flex">
-                            <div class="valores">
-
-
-                            </div>
-                            <div>
-                                <label for="observacoes_desconto">Observações</label>
-                                <textarea name="observacoes_desconto" id="observacoes_desconto" style="height: auto"
-                                          cols="40" rows="5"></textarea>
-                            </div>
-                        </div>
-                        <hr>
-                        <div id="taxas_e_racionais">
-
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="enviar_infos_gerencia()">Salvar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
@@ -308,8 +271,8 @@
                                                    value="0,00" onchange="enviar_infos_gerencia()">
                                         </div>
                                         <div style="margin-right: 30px">
-                                            <label for="desconto_trasnporte">Transporte</label>
-                                            <input type="text" id="desconto_trasnporte" name="desconto_trasnporte"
+                                            <label for="desconto_transporte">Transporte</label>
+                                            <input type="text" id="desconto_transporte" name="desconto_transporte"
                                                    value="0,00" onchange="enviar_infos_gerencia()">
                                         </div>
                                     </div>
@@ -322,7 +285,7 @@
                         <fieldset>
                             {% csrf_token %}
                             <h5 class="titulo-secao">Tabela de valores</h5>
-                            <table id="tabela_de_valores" class="table table-hover table-borderless table-striped">
+                            <table id="tabela_de_valores" class="table table-hover table-borderless">
                                 <thead>
                                 <tr>
                                     <th colspan="7"></th>
@@ -344,7 +307,6 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="enviar_infos_gerencia()">Salvar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
@@ -357,5 +319,4 @@
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/maskMoney.js' %}"></script>
     <script src="{% static 'datepicker/daterangepicker.js' %}"></script>
-
 {% endblock %}
