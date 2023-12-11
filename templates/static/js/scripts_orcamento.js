@@ -89,107 +89,102 @@ $(document).ready(() => {
 
         try {
             if (nome_id !== 'op_extras') {
-                await enviar_form()
-
                 $.ajax({
                     type: 'GET',
                     url: '',
                     data: {'nome_id': nome_id, 'id': opcao['id']},
-                    success: function (response) {
-                        const valor_selecao = response['valor'].toLocaleString(
-                            undefined,
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        ).replace('.', ',')
-
-                        if (nome_id == 'id_atividades') {
-                            $('#tabela_de_opcionais tbody').append(`
-                                <tr id="op_${opcao['id']}" class="opcionais">
-                                    <th><input type="text" id="atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${opcao['text']}' disabled></th>
-                                    <input type="hidden" id="id_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="${opcao['id']}">                    
-                                    <input type="hidden" id="valor_bd_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${valor_selecao}' disabled>
-                                    <th><input type="text" id="valor_atividade_peraltas_${i}" disabled name="atividade_peraltas_${i}" value='${valor_selecao}'></th>
-                                    <th><input type="text" id="desconto_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
-                                </tr>
-                            `)
-                        } else if (nome_id == 'id_atividades_ceu') {
-                            $('#tabela_de_opcionais tbody').append(`
-                                <tr id="op_${opcao['id']}" class="opcionais">
-                                    <th><input type="text" id="atividade_ceu_${i}" name="atividade_ceu_${i}" value='${opcao['text']}' disabled></th>
-                                    <input type="hidden" id="id_atividade_ceu_${i}" name="atividade_ceu_${i}" value="${opcao['id']}">                    
-                                    <input type="hidden" id="valor_bd_atividade_ceu_${i}" name="atividade_ceu_${i}" value='${valor_selecao}' disabled>
-                                    <th><input type="text" id="valor_atividade_ceu_${i}" disabled name="atividade_ceu_${i}" value='${valor_selecao}'></th>
-                                    <th><input type="text" id="desconto_atividade_ceu_${i}" name="atividade_ceu_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
-                                </tr>
-                            `)
-                        } else {
-                            $('#tabela_de_opcionais tbody').append(`
-                                <tr id="op_${opcao['id']}" class="opcionais">
-                                    <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcao['text']}" disabled></th>
-                                    <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
-                                    <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value='${valor_selecao}' disabled>
-                                    <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value='${valor_selecao}'></th>
-                                    <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
-                                </tr>
-                            `)
-                        }
-
-                    }
+                }).then(async (response) => {
+                    await listar_op(response, nome_id, opcao, i)
                 }).done(async () => {
-                    $(`#valor_opcional_${i}, #desconto_opcional_${i}`).maskMoney({
+                    $('#tabela_de_opcionais input').maskMoney({
                         prefix: 'R$ ',
                         thousands: '.',
                         decimal: ',',
                         allowZero: true,
                         affixesStay: false
                     })
-
-                    await atualizar_valores_op()
+                    await enviar_form()
                 })
             } else {
+                await listar_op_extras(opcao, i)
                 await enviar_form()
-
-                let opcional_extra = op_extras.filter((op, index) => {
-                    console.log(op['id'], opcao['id'])
-                    if (op['id'] === opcao['id']) {
-                        return op
-                    }
-                })[0]
-
-                $('#tabela_de_opcionais tbody').append(`
-                    <tr id="op_${opcional_extra['id']}" class="opcionais">
-                        <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
-                        <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>
-                        <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
-                    </tr>
-                `)
-
             }
         } catch (error) {
             alert(error)
         } finally {
+            // await atualizar_valores_op()
             end_loading()
         }
-        end_loading()
     })
 
     $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", async function (e) {
         loading()
 
         try {
-            await enviar_form()
             const opcao = e.params.data;
             $(`#op_${opcao['id']}`).remove()
         } catch (error) {
             alert(error)
+            end_loading()
         } finally {
-            await atualizar_valores_op()
+            // await atualizar_valores_op()
+            await enviar_form()
             end_loading()
         }
     })
 })
+
+async function listar_op(dados_op, nome_id, opcao, i) {
+    const valor_selecao = formatar_dinheiro(dados_op['valor']).replace('.', ',')
+
+    if (nome_id == 'id_atividades') {
+        $('#tabela_de_opcionais tbody').append(`
+            <tr id="op_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${opcao['text']}' disabled></th>
+                <input type="hidden" id="id_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="${opcao['id']}">                    
+                <input type="hidden" id="valor_bd_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${valor_selecao}' disabled>
+                <th><input type="text" id="valor_atividade_peraltas_${i}" disabled name="atividade_peraltas_${i}" value='${valor_selecao}'></th>
+                <th><input type="text" id="desconto_atividade_peraltas_${i}" data-limite_desconto="${valor_selecao}" name="atividade_peraltas_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+            </tr>
+        `)
+    } else if (nome_id == 'id_atividades_ceu') {
+        $('#tabela_de_opcionais tbody').append(`
+            <tr id="op_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="atividade_ceu_${i}" name="atividade_ceu_${i}" value='${opcao['text']}' disabled></th>
+                <input type="hidden" id="id_atividade_ceu_${i}" name="atividade_ceu_${i}" value="${opcao['id']}">                    
+                <input type="hidden" id="valor_bd_atividade_ceu_${i}" name="atividade_ceu_${i}" value='${valor_selecao}' disabled>
+                <th><input type="text" id="valor_atividade_ceu_${i}" disabled name="atividade_ceu_${i}" value='${valor_selecao}'></th>
+                <th><input type="text" id="desconto_atividade_ceu_${i}" name="atividade_ceu_${i}" value="0,00" disabled></th> 
+            </tr>
+        `)
+    } else {
+        $('#tabela_de_opcionais tbody').append(`
+            <tr id="op_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcao['text']}" disabled></th>
+                <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
+                <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value='${valor_selecao}' disabled>
+                <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value='${valor_selecao}'></th>
+                <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" data-limite_desconto="${valor_selecao}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+            </tr>
+        `)
+    }
+}
+
+async function listar_op_extras(opcao, i) {
+    let opcional_extra = op_extras.filter((op, index) => {
+        if (op['id'] === opcao['id']) {
+            return op
+        }
+    })[0]
+
+    $('#tabela_de_opcionais tbody').append(`
+        <tr id="op_${opcional_extra['id']}" class="opcionais">
+            <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
+            <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>
+            <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
+        </tr>
+    `)
+}
 
 function formatar_dinheiro(valor) {
     return valor.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
@@ -308,7 +303,7 @@ function tabela_descrito(valores, dias, opcionais, totais) {
     }
 }
 
-async function enviar_form(form_opcionais = false, form_gerencia = false, salvar = false) {
+async function enviar_form(salvar = false) {
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
@@ -322,13 +317,8 @@ async function enviar_form(form_opcionais = false, form_gerencia = false, salvar
         });
     }
 
-
     dados_op = $('#forms_valores_op').serializeObject();
-
-
-    if (form_gerencia || salvar) {
-        gerencia = $('#form_gerencia').serializeObject();
-    }
+    gerencia = $('#form_gerencia').serializeObject();
 
     try {
         const response = await new Promise(function (resolve, reject) {
@@ -368,8 +358,6 @@ async function enviar_form(form_opcionais = false, form_gerencia = false, salvar
                         tabela_descrito(valores, response['data']['days'], response['data']['descricao_opcionais'], response['data']['total'])
                         resultado_ultima_consulta = response
                     }
-
-
                     resolve(response['status']);
                 },
                 error: function (xht, status, error) {
@@ -380,8 +368,9 @@ async function enviar_form(form_opcionais = false, form_gerencia = false, salvar
 
         return response;
     } catch (error) {
-        alert(error);
-        throw error; // Lança o erro novamente para que a chamada de enviar_form() a capture
+        alert(error)
+
+        throw error
     }
 }
 
@@ -439,17 +428,39 @@ function gerar_responsaveis(cliente) {
     })
 }
 
-function liberar_periodo(id_responsavel) {
-    if (id_responsavel !== '') {
-        $('#container_periodo, #subtotal').removeClass('none')
+function liberar_periodo(id_responsavel = null) {
+    if (!id_responsavel) {
+        $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
+
+        if ($('#id_promocional').prop('checked')) {
+            $('#div_nome_promocional').removeClass('none')
+
+            if ($.trim($('#id_nome_promocional').val()).length > 8) {
+                $('#container_periodo').removeClass('none')
+            } else {
+                $('#container_periodo').addClass('none')
+            }
+
+        } else {
+            $('#div_nome_promocional').addClass('none')
+        }
+
+        if ($('#id_responsavel').val() === '' && !$('#id_promocional').prop('checked')) {
+            $('#container_periodo, #subtotal').addClass('none')
+        }
     } else {
-        $('#container_periodo, #subtotal').addClass('none')
+        if (id_responsavel !== '') {
+            $('#container_periodo, #subtotal').removeClass('none')
+        } else {
+            $('#container_periodo, #subtotal').addClass('none')
+        }
     }
 }
 
 function separar_produtos(periodo) {
     if (!enviar) {
-        enviar = true;
+        enviar = true
+
         return
     }
 
@@ -471,6 +482,10 @@ function separar_produtos(periodo) {
         }
     }).done(() => {
         $('#id_produto').prop('disabled', false)
+        $('#subtotal').removeClass('none')
+    }).catch((error) => {
+        alert(error)
+        $('#subtotal').addClass('none')
     })
 }
 
@@ -499,9 +514,12 @@ async function verificar_preenchimento() {
         } catch (error) {
             $('#container_periodo .parcial').removeClass('visivel')
             $('.div-flutuante').removeClass('visivel').addClass('none')
+            $('#container_monitoria_transporte').addClass('none')
 
             alert(error)
         } finally {
+            const check_in = moment($('#data_viagem').val().split(' - ')[0], 'DD/MM/YYYY HH:mm')
+            $('#modal_descritivo #data_vencimento').val(check_in.format('YYYY-MM-DD'))
             end_loading()
         }
     } else {
@@ -551,10 +569,18 @@ async function enviar_op(opcionais) {
 
 function aplicar_desconto(desconto) {
     const posicao = $(desconto).prop('name').split('_')[1]
-    const opcional = $(`#valor_opcional_${posicao}`)
-    const valor_bd_opcional = parseFloat($(`#valor_bd_opcional_${posicao}`).val().replace(',', '.'))
+    const opcional = $(`#${$(desconto).prop('id').replace('desconto', 'valor')}`)
+    const id_bd = $(desconto).prop('id').replace('desconto', 'valor_bd')
+    const valor_bd_opcional = parseFloat($(`#${id_bd}`).val().replace(',', '.'))
     const valor_opcional = parseFloat($(opcional).val().replace(',', '.'))
-    const desconto_aplicado = parseFloat($(desconto).val().replace(',', '.'))
+    const limite_desconto = parseFloat($(desconto).data()['limite_desconto'])
+    let desconto_aplicado = parseFloat($(desconto).val().replace(',', '.'))
+
+    if (desconto_aplicado > limite_desconto) {
+        desconto_aplicado = limite_desconto
+        $(desconto).val(limite_desconto.toFixed(2).replace('.', ','))
+    }
+
     const novo_valor = valor_bd_opcional - desconto_aplicado
     opcional.val(`${novo_valor.toFixed(2).replace('.', ',')}`)
 }
@@ -601,16 +627,15 @@ function adicionar_novo_op() {
     })
 
     $('#adicionar_opcional').modal('hide')
-    console.log(op_extras)
 }
 
-async function atualizar_valores_op(carregar=false) {
+async function atualizar_valores_op(carregar = false) {
     if (carregar) {
         loading()
     }
 
     try {
-        await enviar_form($('#forms_valores_op'), null)
+        await enviar_form()
         $('#valores_outros_opcionais').modal('hide')
     } catch (error) {
         alert(error)
@@ -626,7 +651,7 @@ async function enviar_infos_gerencia() {
     loading()
 
     try {
-        await enviar_form(null, $('#form_gerencia'))
+        await enviar_form()
         $('#modal_gerencia').modal('hide')
     } catch (error) {
         alert(error)
@@ -640,7 +665,7 @@ async function salvar_orcamento() {
     loading()
 
     try {
-        await enviar_form(false, false, true)
+        await enviar_form(true)
         window.location.href = '/'
     } catch (error) {
         alert(error)

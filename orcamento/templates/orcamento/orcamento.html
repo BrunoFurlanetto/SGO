@@ -48,6 +48,17 @@
                         {{ orcamento.responsavel.label }}
                         {{ orcamento.responsavel }}
                     </div>
+
+                    {% if financeiro %}
+                        <div class="mt-2" style="display: flex; column-gap: 7px">
+                            {{ orcamento.promocional }}
+                            <label for="id_promocional">{{ orcamento.promocional.label }}</label>
+                        </div>
+                        <div id="div_nome_promocional" class="mt-2 none">
+                            <label>{{ orcamento.nome_promocional.label }}</label>
+                            {{ orcamento.nome_promocional }}
+                        </div>
+                    {% endif %}
                 </div>
                 <div id="container_periodo" class="none">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
@@ -122,10 +133,6 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="button" id="abrir_modal_gerencia" class="btn btn-secondary"
-                                name="abrir_modal_gerencia"
-                                onclick="$('#modal_gerencia').modal('show')">Gerência
-                        </button>
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" disabled
                                 onclick="salvar_orcamento()">
                             Salvar orçamento
@@ -247,34 +254,39 @@
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
-                                        <label for="desconto_geral">Desconto</label>
+                                        <label for="desconto_geral">Desconto geral</label>
                                         <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                 </div>
-                                <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
-                                    *Alterações nessa parte necessitarão de aprovação da diretoria antes do orçamento ser encaminhado ao cliente.
-                                </p>
+                                {% if not financeiro %}
+                                    <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
+                                        *Alterações nessa parte necessitarão de aprovação da diretoria antes do orçamento ser encaminhado ao cliente.
+                                    </p>
+                                {% endif %}
                             </div>
-                            {% if True %}
+                            {% if financeiro %}
                                 <hr>
-                                <div>
-                                    <h5 class="titulo-secao">Descontos</h5>
-                                    <div style="display: flex; column-gap: 50px; padding: 20px; border: dashed 1px #5c636a">
+                                <div id="div_financeiro">
+                                    <div>
                                         <div>
-                                            <label for="desconto_produto">Diaria</label>
+                                            <label for="desconto_produto">Desconto diaria</label>
                                             <input type="text" id="desconto_produto" name="desconto_produto" value="0,00" onchange="enviar_infos_gerencia()">
                                         </div>
                                         <div>
-                                            <label for="desconto_monitoria">Monitoria</label>
+                                            <label for="desconto_monitoria">Desconto monitoria</label>
                                             <input type="text" id="desconto_monitoria" name="desconto_monitoria"
                                                    value="0,00" onchange="enviar_infos_gerencia()">
                                         </div>
-                                        <div style="margin-right: 30px">
-                                            <label for="desconto_transporte">Transporte</label>
+                                        <div>
+                                            <label for="desconto_transporte">Desconto transporte</label>
                                             <input type="text" id="desconto_transporte" name="desconto_transporte"
                                                    value="0,00" onchange="enviar_infos_gerencia()">
                                         </div>
+                                    </div>
+                                    <div>
+                                        <label for="data_vencimento">Data de vencimento</label>
+                                        <input type="date" name="data_vencimento" id="data_vencimento">
                                     </div>
                                 </div>
                             {% endif %}

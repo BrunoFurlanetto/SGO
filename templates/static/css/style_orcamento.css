@@ -43,6 +43,12 @@ textarea {
     resize: none;
 }
 
+input[type='checkbox'] {
+    height: 20px;
+    width: 20px;
+    margin-top: 0;
+}
+
 .checkbox input {
     width: 20px;
     height: 20px;
@@ -180,7 +186,7 @@ textarea {
     box-shadow: 5px 5px 10px;
 }
 
-.floating-box:after{
+.floating-box:after {
     content: "";
     width: 0;
     height: 0;
@@ -229,7 +235,7 @@ textarea {
     display: flex;
 }
 
-#botao_lista_valores i{
+#botao_lista_valores i {
     margin-left: 5px;
     font-size: 25px;
 }
@@ -261,7 +267,7 @@ textarea {
     column-gap: 30px;
 }
 
-#taxas_e_racionais div:not(:last-child){
+#taxas_e_racionais div:not(:last-child) {
     width: 20%;
 }
 
@@ -286,6 +292,7 @@ textarea {
 #tabela_de_valores .atividade_ou_opcional {
     background: #6764646d;
 }
+
 .tag_datas {
     border-left: dashed #000000 2px;
     border-right: dashed #000000 2px;
@@ -314,4 +321,21 @@ textarea {
     border-top: dashed #000000 2px;
     border-bottom: solid #000000 2px;
     border-right: dashed #000000 2px;
+}
+
+#div_financeiro {
+    display: flex;
+    column-gap: 40px;
+    align-items: end;
+}
+
+#div_financeiro > div {
+    display: flex;
+    column-gap: 50px;
+    padding: 20px;
+    border: dashed 1px #5c636a;
+}
+
+#div_financeiro > div:nth-child(2) {
+    display: block;
 }

@@ -100,10 +100,23 @@ class Orcamento(models.Model):
         ('nao', 'Não')
     )
 
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
-    responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável')
+    cliente = models.ForeignKey(
+        ClienteColegio,
+        on_delete=models.CASCADE,
+        verbose_name='Cliente',
+        blank=True,
+        null=True
+    )
+    responsavel = models.ForeignKey(
+        Responsavel,
+        on_delete=models.CASCADE,
+        verbose_name='Responsável',
+        blank=True,
+        null=True
+    )
     check_in = models.DateTimeField(verbose_name='Check in')
     check_out = models.DateTimeField(verbose_name='Check out')
+    nome_promocional = models.CharField(max_length=255, verbose_name='Nome do promocional', blank=True, null=True)
     produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.CASCADE, verbose_name='Produto Peraltas')
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
@@ -152,6 +165,8 @@ class CadastroOrcamento(forms.ModelForm):
         exclude = ()
 
         widgets = {
+            'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'liberar_periodo()'}),
+            'nome_promocional': forms.TextInput(attrs={'onkeyup': 'liberar_periodo()'}),
             'produto': forms.Select(attrs={'disabled': True}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),

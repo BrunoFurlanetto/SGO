@@ -20,6 +20,8 @@ from .budget import Budget
 
 @login_required(login_url='login')
 def calc_budget(req):
+    financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
+
     if is_ajax(req):
         if req.method == 'GET':
             if req.GET.get('check_in') and req.GET.get('check_out'):
@@ -74,7 +76,7 @@ def calc_budget(req):
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
-            
+
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
                             data["hora_check_out"], data["lista_de_dias"])
@@ -91,7 +93,8 @@ def calc_budget(req):
             budget.daily_rate.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             budget.monitor.calc_value_monitor(data['tipo_monitoria'])
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
-            budget.monitor.set_discount(data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
+            budget.monitor.set_discount(
+                data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
             budget.transport.calc_value_transport(data.get("transporte"))
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
             budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
@@ -105,23 +108,22 @@ def calc_budget(req):
                 if "atividades" in data:
                     act_data = [[act, 0, 0, 0] for act in data["atividades"]]
 
-                if "atividades_ceu" in data:
-                    act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
+                # if "atividades_ceu" in data:
+                #     act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
             else:
                 for key, value in valores_op.items():
-                    if  'opcional' in key:
+                    if 'opcional' in key:
                         opt_data.append(value)
                     elif 'peraltas' in key:
                         act_data.append(value)
                     elif 'ceu' in key:
                         act_sky_data.append(value)
 
-
             budget.set_optional(opt_data)
             budget.optional.calc_value_optional(budget.array_description_optional)
             budget.set_activities(act_data)
             budget.activities.calc_value_optional(budget.array_description_activities)
-            budget.set_activities_sky(act_sky_data)
+            budget.set_activities_sky(data.get('atividades_ceu'))
             budget.activities_sky.calc_value_optional(budget.array_description_activities_sky)
             budget.set_others(data.get("outros"))
             budget.others.calc_value_optional(budget.array_description_others)
@@ -143,6 +145,7 @@ def calc_budget(req):
                 try:
                     valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
                         budget.business_fee) + budget.total.calc_commission(budget.commission)
+
                     data['valor'] = f'{valor_final:.2f}'
 
                     data['opcionais_extra'] = data.get('outros', [])
@@ -153,14 +156,19 @@ def calc_budget(req):
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
 
-                    if budget.total.general_discount != 0 or dados['gerencia'][
-                        'data_pagamento'] != datetime.datetime.today().date() + datetime.timedelta(days=15):
+                    if budget.total.general_discount > 0 or dados['gerencia'][
+                        'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
+                        '%Y-%m-%d'):
                         pre_orcamento.necessita_aprovacao_gerencia = True
 
                     pre_orcamento.objeto_orcamento = budget.return_object()
-
-
+                    pre_orcamento.promocional = financeiro
                     pre_orcamento.colaborador = req.user
+
+                    if pre_orcamento.promocional:
+                        pre_orcamento.necessita_aprovacao_gerencia = False
+                        pre_orcamento.data_vencimento = gerencia['data_vencimento']
+
                     orcamento_salvo = orcamento.save()
                 except Exception as e:
                     return JsonResponse({
@@ -169,13 +177,15 @@ def calc_budget(req):
                         "msg": e,
                     })
                 else:
-                    diretoria = User.objects.filter(groups__name__icontains='Diretoria')
-                    lista_emails = set()
+                    if orcamento_salvo.necessita_aprovacao_diretoria:
+                        diretoria = User.objects.filter(groups__name__icontains='Diretoria')
+                        lista_emails = set()
 
-                    for colaborador in diretoria:
-                        lista_emails.add(colaborador.email)
-                    lista_emails.add('bruno.furlanetto@hotmail.com')
-                    EmailSender(lista_emails).orcamento_aprovacao(orcamento_salvo.id)
+                        for colaborador in diretoria:
+                            lista_emails.add(colaborador.email)
+                        lista_emails.add('bruno.furlanetto@hotmail.com')
+                        EmailSender(lista_emails).orcamento_aprovacao(orcamento_salvo.id)
+
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -193,5 +203,6 @@ def calc_budget(req):
 
         return render(req, 'orcamento/orcamento.html', {
             'orcamento': cadastro_orcamento,
-            'tipo_orcamento': req.GET.get('tipo_de_orcamento')
+            'tipo_orcamento': req.GET.get('tipo_de_orcamento'),
+            'financeiro': financeiro
         })

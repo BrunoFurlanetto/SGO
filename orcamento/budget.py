@@ -132,28 +132,32 @@ class Budget:
     def set_activities_sky(self, arr):
         activities_array = []
 
-        for opt in arr:
-            db_optional = Atividades.objects.get(pk=opt[0])
-            discount = 0
+        try:
+            for opt in arr:
+                db_optional = Atividades.objects.get(pk=opt)
+                discount = 0
 
-            if opt[1]:
-                discount = opt[1]
+                # if opt[1]:
+                #     discount = opt[1]
 
-            description = OptionalDescription(
-                db_optional.valor,
-                1,
-                db_optional.id,
-                db_optional.atividade,
-                self.days
-            )
-            description.set_discount(discount)
-            activities_array.append(description.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee
-            ))
+                description = OptionalDescription(
+                    db_optional.valor,
+                    1,
+                    db_optional.id,
+                    db_optional.atividade,
+                    self.days
+                )
+                description.set_discount(discount)
+                activities_array.append(description.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ))
+        except TypeError as e:
+            ...
+        else:
+            self.array_description_activities_sky = activities_array
 
-        self.array_description_activities_sky = activities_array
-        return self.array_description_activities_sky
+            return self.array_description_activities_sky
 
     def return_object(self):
         description_options = self.array_description_optional
