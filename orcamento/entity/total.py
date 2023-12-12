@@ -21,6 +21,7 @@ class Total(BaseValue):
 
         self.set_values(values)
         self.general_discount = (daily_rate.discount + monitor.discount + optional.discount + others.discount +
+                                 activities.discount + activities_sky.discount +
                                  period.discount + transport.discount + self.discount)
 
     def calc_value_with_discount(self):
