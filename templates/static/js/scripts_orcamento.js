@@ -1,13 +1,14 @@
 let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
-let enviar = false
+let enviar, promocional = false
 const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
 
 $(document).ready(() => {
     $('#id_cliente').select2()
     let hoje = new Date()
     $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
+    promocional = $('#tipo_de_orcamento').val() == 'promocional'
 
     $('#data_viagem').daterangepicker({
         "timePicker": true,
@@ -95,6 +96,7 @@ $(document).ready(() => {
                     data: {'nome_id': nome_id, 'id': opcao['id']},
                 }).then(async (response) => {
                     await listar_op(response, nome_id, opcao, i)
+                    console.log('Foi')
                 }).done(async () => {
                     $('#tabela_de_opcionais input').maskMoney({
                         prefix: 'R$ ',
@@ -134,27 +136,27 @@ $(document).ready(() => {
     })
 })
 
-async function listar_op(dados_op, nome_id, opcao, i) {
+async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00') {
     const valor_selecao = formatar_dinheiro(dados_op['valor']).replace('.', ',')
 
     if (nome_id == 'id_atividades') {
         $('#tabela_de_opcionais tbody').append(`
-            <tr id="op_${opcao['id']}" class="opcionais">
+            <tr id="atividade_${opcao['id']}" class="opcionais">
                 <th><input type="text" id="atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${opcao['text']}' disabled></th>
                 <input type="hidden" id="id_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value="${opcao['id']}">                    
                 <input type="hidden" id="valor_bd_atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${valor_selecao}' disabled>
                 <th><input type="text" id="valor_atividade_peraltas_${i}" disabled name="atividade_peraltas_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_atividade_peraltas_${i}" data-limite_desconto="${valor_selecao}" name="atividade_peraltas_${i}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                <th><input type="text" id="desconto_atividade_peraltas_${i}" data-limite_desconto="${valor_selecao}" name="atividade_peraltas_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
             </tr>
         `)
     } else if (nome_id == 'id_atividades_ceu') {
         $('#tabela_de_opcionais tbody').append(`
-            <tr id="op_${opcao['id']}" class="opcionais">
+            <tr id="atividade_ceu_${opcao['id']}" class="opcionais">
                 <th><input type="text" id="atividade_ceu_${i}" name="atividade_ceu_${i}" value='${opcao['text']}' disabled></th>
                 <input type="hidden" id="id_atividade_ceu_${i}" name="atividade_ceu_${i}" value="${opcao['id']}">                    
                 <input type="hidden" id="valor_bd_atividade_ceu_${i}" name="atividade_ceu_${i}" value='${valor_selecao}' disabled>
                 <th><input type="text" id="valor_atividade_ceu_${i}" disabled name="atividade_ceu_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_atividade_ceu_${i}" name="atividade_ceu_${i}" value="0,00" disabled></th> 
+                <th><input type="text" id="desconto_atividade_ceu_${i}" name="atividade_ceu_${i}" value="${desconto}" disabled></th> 
             </tr>
         `)
     } else {
@@ -164,7 +166,7 @@ async function listar_op(dados_op, nome_id, opcao, i) {
                 <input type="hidden" id="id_opcional_${i}" name="opcional_${i}" value="${opcao['id']}">                    
                 <input type="hidden" id="valor_bd_opcional_${i}" name="opcional_${i}" value='${valor_selecao}' disabled>
                 <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" data-limite_desconto="${valor_selecao}" value="0,00" onchange="aplicar_desconto(this)"></th> 
+                <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" data-limite_desconto="${valor_selecao}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
             </tr>
         `)
     }
@@ -399,12 +401,14 @@ function ativar_mascara() {
     }, 10)
 }
 
-function gerar_responsaveis(cliente) {
+async function gerar_responsaveis(cliente) {
     const id_cliente = cliente.value
     const responsaveis = $('#id_responsavel').children()
+    $('#id_responsavel').val('')
+    await liberar_periodo()
 
     if (id_cliente === '') {
-        $('#id_responsavel').prop('disabled', true).val('')
+        $('#id_responsavel').prop('disabled', true)
         $('#periodo_viagem, #subtotal').addClass('none')
 
         return
@@ -428,8 +432,20 @@ function gerar_responsaveis(cliente) {
     })
 }
 
-function liberar_periodo(id_responsavel = null) {
+async function liberar_periodo(id_responsavel = null) {
     if (!id_responsavel) {
+        if (promocional && $('#id_responsavel').val() !== '') {
+            if ($('#orcamentos_promocionais').val() !== '') {
+                $('#tabela_de_opcionais tbody').empty()
+                await preencher_promocional($('#orcamentos_promocionais').val())
+                $('#container_periodo, #subtotal').removeClass('none')
+            } else {
+                $('#container_periodo, #subtotal').addClass('none')
+            }
+
+            return
+        }
+
         $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
 
         if ($('#id_promocional').prop('checked')) {
@@ -450,7 +466,15 @@ function liberar_periodo(id_responsavel = null) {
         }
     } else {
         if (id_responsavel !== '') {
-            $('#container_periodo, #subtotal').removeClass('none')
+            if (promocional) {
+                if ($('#orcamentos_promocionais').val() !== '') {
+                    $('#container_periodo, #subtotal').removeClass('none')
+                } else {
+                    $('#container_periodo, #subtotal').addClass('none')
+                }
+            } else {
+                $('#container_periodo, #subtotal').removeClass('none')
+            }
         } else {
             $('#container_periodo, #subtotal').addClass('none')
         }
@@ -585,7 +609,7 @@ function aplicar_desconto(desconto) {
     opcional.val(`${novo_valor.toFixed(2).replace('.', ',')}`)
 }
 
-function adicionar_novo_op() {
+async function adicionar_novo_op() {
     const nome_opcional = $('#nome_opcional').val()
     const valor_opcional = $('#valor_opcional').val()
     const descricao_opcional = $('#descricao_opcional').val()
@@ -599,9 +623,15 @@ function adicionar_novo_op() {
     }
 
     const n_op = op_extras.length + 1
+    let id_op_extra = `OPCEXT${n_op.toString().padStart(2, '0')}`
+    await novo_op_extra(n_op, nome_opcional, valor_opcional, descricao_opcional)
 
+    $('#adicionar_opcional').modal('hide')
+}
+
+async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional) {
     op_extras.push({
-        'id': `OPCEXT${n_op.toString().padStart(2, '0')}`,
+        'id': id_op_extra,
         'nome': nome_opcional,
         'valor': valor_opcional,
         'descricao': descricao_opcional,
@@ -609,7 +639,7 @@ function adicionar_novo_op() {
 
     let newOption = new Option(
         nome_opcional,
-        `OPCEXT${n_op.toString().padStart(2, '0')}`,
+        id_op_extra,
         true,
         true
     );
@@ -620,13 +650,11 @@ function adicionar_novo_op() {
         type: 'select2:select',
         params: {
             data: {
-                id: `OPCEXT${n_op.toString().padStart(2, '0')}`,
+                id: id_op_extra,
                 text: nome_opcional
             }
         }
     })
-
-    $('#adicionar_opcional').modal('hide')
 }
 
 async function atualizar_valores_op(carregar = false) {
@@ -674,3 +702,76 @@ async function salvar_orcamento() {
     }
 }
 
+async function preencher_promocional(id_promocional) {
+    $.ajax({
+        type: 'GET',
+        url: '',
+        data: {'id_promocional': id_promocional},
+        success: function (response) {
+            $('#data_viagem').data('daterangepicker').setStartDate(response['check_in'])
+            $('#data_viagem').data('daterangepicker').setEndDate(response['check_out'])
+            $('#id_produto').val(response['produto']).prop('readonly', true)
+
+            $('#id_tipo_monitoria').val(response['monitoria'])
+            $('#id_transporte input').map((index, transporte) => {
+                $(transporte).prop('checked', transporte.value === response['transporte'])
+            })
+
+            $('#id_atividades').val(response['atividades'])
+            $('#id_atividades_ceu').val(response['atividades_ceu'])
+            $('#id_opcionais').val(response['opcionais'])
+
+            response['obj']['descricao_opcionais'].map((op, i) => {
+                if (op['valor'] !== undefined) {
+                    let dados_op = {'valor': op['valor']}
+                    let opcional = {'id': op['id'], 'text': op['nome']}
+                    let desconto = formatar_dinheiro(op['desconto']).replace('.', ',')
+                    listar_op(dados_op, 'id_opcionais', opcional, i + 1, desconto)
+                } else {
+                    op['atividades'].map((ativ) => {
+                        let dados_op = {'valor': ativ['valor']}
+                        let opcional = {'id': ativ['id'], 'text': ativ['nome']}
+                        let desconto = formatar_dinheiro(ativ['desconto']).replace('.', ',')
+                        listar_op(dados_op, 'id_atividades', opcional, i + 1, desconto)
+                    })
+
+                    op['atividades_ceu'].map((ativ) => {
+                        let dados_op = {'valor': ativ['valor']}
+                        let opcional = {'id': ativ['id'], 'text': ativ['nome']}
+                        let desconto = formatar_dinheiro(ativ['desconto']).replace('.', ',')
+                        listar_op(dados_op, 'id_atividades_ceu', opcional, i + 1, desconto)
+                    })
+                }
+            })
+
+            if (response['opcionais_extra']) {
+                for (let opt of response['opcionais_extra']) {
+                    novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'])
+                }
+            }
+
+            for (let id_campo in response['gerencia']) {
+                if (id_campo.includes('desconto')) {
+                    $(`#form_gerencia #${id_campo}`).val(formatar_dinheiro(response['gerencia'][id_campo]))
+                } else if (id_campo.includes('comissao') || id_campo.includes('comercial')) {
+                    $(`#form_gerencia #${id_campo}`).val(response['gerencia'][id_campo] + '%')
+                } else {
+                    $(`#form_gerencia #${id_campo}`).val(response['gerencia'][id_campo])
+                }
+            }
+        }
+    }).done(() => {
+        verificar_preenchimento()
+        verificar_monitoria_transporte()
+        $('#id_atividades, #id_atividades_ceu, #id_opcionais').trigger('change')
+        $('#tabela_de_opcionais input').maskMoney({
+            prefix: 'R$ ',
+            thousands: '.',
+            decimal: ',',
+            allowZero: true,
+            affixesStay: false
+        })
+        $('.opcionais [id*="desconto"]').trigger('change')
+        enviar_form()
+    })
+}

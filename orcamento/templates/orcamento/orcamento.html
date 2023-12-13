@@ -49,6 +49,18 @@
                         {{ orcamento.responsavel }}
                     </div>
 
+                    {% if promocionais %}
+                        <div id="promocionais" class="mt-2">
+                            <label for="orcamentos_promocionais">Promocionais</label>
+                            <select name="orcamento_promocional" id="orcamentos_promocionais" onchange="liberar_periodo()">
+                                <option></option>
+                                {% for promocional in promocionais %}
+                                    <option value="{{ promocional.id }}">{{ promocional.nome_promocional }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
                     {% if financeiro %}
                         <div class="mt-2" style="display: flex; column-gap: 7px">
                             {{ orcamento.promocional }}
@@ -265,31 +277,29 @@
                                     </p>
                                 {% endif %}
                             </div>
-                            {% if financeiro %}
-                                <hr>
-                                <div id="div_financeiro">
+                            <hr {% if not financeiro %} class="none" {% endif %}>
+                            <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
+                                <div>
                                     <div>
-                                        <div>
-                                            <label for="desconto_produto">Desconto diaria</label>
-                                            <input type="text" id="desconto_produto" name="desconto_produto" value="0,00" onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="desconto_monitoria">Desconto monitoria</label>
-                                            <input type="text" id="desconto_monitoria" name="desconto_monitoria"
-                                                   value="0,00" onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="desconto_transporte">Desconto transporte</label>
-                                            <input type="text" id="desconto_transporte" name="desconto_transporte"
-                                                   value="0,00" onchange="enviar_infos_gerencia()">
-                                        </div>
+                                        <label for="desconto_produto">Desconto diaria</label>
+                                        <input type="text" id="desconto_produto" name="desconto_produto" value="0,00" onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
-                                        <label for="data_vencimento">Data de vencimento</label>
-                                        <input type="date" name="data_vencimento" id="data_vencimento">
+                                        <label for="desconto_monitoria">Desconto monitoria</label>
+                                        <input type="text" id="desconto_monitoria" name="desconto_monitoria"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_transporte">Desconto transporte</label>
+                                        <input type="text" id="desconto_transporte" name="desconto_transporte"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
                                     </div>
                                 </div>
-                            {% endif %}
+                                <div>
+                                    <label for="data_vencimento">Data de vencimento</label>
+                                    <input type="date" name="data_vencimento" id="data_vencimento">
+                                </div>
+                            </div>
                         </fieldset>
                     </form>
                     <hr>

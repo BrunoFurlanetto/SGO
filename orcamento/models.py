@@ -158,6 +158,12 @@ class Orcamento(models.Model):
     def __str__(self):
         return f'Orçamento de {self.cliente}'
 
+    def get_periodo(self):
+        check_in = self.check_in.strftime('%d/%m/%Y %H:%M')
+        check_out = self.check_out.strftime('%d/%m/%Y %H:%M')
+
+        return f'{check_in} - {check_out}'
+
 
 class CadastroOrcamento(forms.ModelForm):
     class Meta:

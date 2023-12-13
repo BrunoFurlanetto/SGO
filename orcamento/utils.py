@@ -146,8 +146,8 @@ def processar_formulario(dados):
         orcamento['n_dias'] = num_days
         orcamento['periodo_viagem'] = period_days
         orcamento['lista_de_dias'] = days_list
-        orcamento['check_in'] = datetime.strptime(checks[0], '%d/%m/%Y %H:%M').strftime('%Y-%m-%d %H:%M')
-        orcamento['check_out'] = datetime.strptime(checks[1], '%d/%m/%Y %H:%M').strftime('%Y-%m-%d %H:%M')
+        orcamento['check_in'] = datetime.strptime(checks[0], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
+        orcamento['check_out'] = datetime.strptime(checks[1], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
 
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 

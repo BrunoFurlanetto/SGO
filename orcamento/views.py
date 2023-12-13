@@ -24,6 +24,23 @@ def calc_budget(req):
 
     if is_ajax(req):
         if req.method == 'GET':
+            if req.GET.get('id_promocional'):
+                orcamento_promocional = Orcamento.objects.get(pk=req.GET.get('id_promocional'))
+
+                return JsonResponse({
+                    'obj': orcamento_promocional.objeto_orcamento,
+                    'gerencia': orcamento_promocional.objeto_gerencia,
+                    'check_in': orcamento_promocional.check_in.astimezone().strftime('%d/%m/%Y %H:%M'),
+                    'check_out': orcamento_promocional.check_out.astimezone().strftime('%d/%m/%Y %H:%M'),
+                    'produto': orcamento_promocional.produto.id,
+                    'monitoria': orcamento_promocional.tipo_monitoria.id,
+                    'transporte': orcamento_promocional.transporte,
+                    'opcionais': [op.id for op in orcamento_promocional.opcionais.all()],
+                    'opcionais_extra': orcamento_promocional.opcionais_extra,
+                    'atividades': [op.id for op in orcamento_promocional.atividades.all()],
+                    'atividades_ceu': [op.id for op in orcamento_promocional.atividades_ceu.all()],
+                })
+
             if req.GET.get('check_in') and req.GET.get('check_out'):
                 check_in = datetime.datetime.strptime(req.GET.get('check_in'), '%d/%m/%Y %H:%M')
                 check_out = datetime.datetime.strptime(req.GET.get('check_out'), '%d/%m/%Y %H:%M')
@@ -147,12 +164,12 @@ def calc_budget(req):
                         budget.business_fee) + budget.total.calc_commission(budget.commission)
 
                     data['valor'] = f'{valor_final:.2f}'
-
                     data['opcionais_extra'] = data.get('outros', [])
                     data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
                     data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
                     orcamento = CadastroOrcamento(data)
+                    print(orcamento.errors)
                     pre_orcamento = orcamento.save(commit=False)
                     pre_orcamento.objeto_gerencia = dados['gerencia']
 
@@ -160,6 +177,9 @@ def calc_budget(req):
                         'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
                         '%Y-%m-%d'):
                         pre_orcamento.necessita_aprovacao_gerencia = True
+
+                    if data.get('orcamento_promocional'):
+                        pre_orcamento.necessita_aprovacao_gerencia = False
 
                     pre_orcamento.objeto_orcamento = budget.return_object()
                     pre_orcamento.promocional = financeiro
@@ -177,7 +197,7 @@ def calc_budget(req):
                         "msg": e,
                     })
                 else:
-                    if orcamento_salvo.necessita_aprovacao_diretoria:
+                    if orcamento_salvo.necessita_aprovacao_gerencia:
                         diretoria = User.objects.filter(groups__name__icontains='Diretoria')
                         lista_emails = set()
 
@@ -185,7 +205,6 @@ def calc_budget(req):
                             lista_emails.add(colaborador.email)
                         lista_emails.add('bruno.furlanetto@hotmail.com')
                         EmailSender(lista_emails).orcamento_aprovacao(orcamento_salvo.id)
-
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -200,9 +219,14 @@ def calc_budget(req):
 
     if req.method != 'POST':
         cadastro_orcamento = CadastroOrcamento()
+        promocionais = None
+
+        if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
+            promocionais = Orcamento.objects.filter(promocional=True)
 
         return render(req, 'orcamento/orcamento.html', {
             'orcamento': cadastro_orcamento,
+            'promocionais': promocionais,
             'tipo_orcamento': req.GET.get('tipo_de_orcamento'),
             'financeiro': financeiro
         })
