@@ -339,3 +339,15 @@ input[type='checkbox'] {
 #div_financeiro > div:nth-child(2) {
     display: block;
 }
+
+#dados_do_pacote .secao {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 20px;
+}
+
+.btn_remover_periodo {
+    background: none;
+    font-size: 25px;
+    border: none;
+}

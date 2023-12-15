@@ -3,6 +3,7 @@ import datetime
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import PositiveIntegerField
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
@@ -94,6 +95,62 @@ class StatusOrcamento(models.Model):
         return self.status
 
 
+class DadosDePacotes(models.Model):
+    nome_do_pacote = models.CharField(max_length=255, verbose_name="Nome do Pacote")
+    limite_desconto_geral = models.DecimalField(verbose_name="Limite de desconto geral", decimal_places=2, max_digits=5)
+    minimo_de_diarias = models.PositiveIntegerField(verbose_name="Minimo de diarias")
+    maximo_de_diarias = models.PositiveIntegerField(verbose_name="Maximo de diarias")
+    minimo_de_pagantes = models.PositiveIntegerField(verbose_name="Minimo de pagantes")
+    produtos_elegiveis = models.ManyToManyField(ProdutosPeraltas, verbose_name="Produtos elegíveis")
+    cortesia = models.BooleanField(default=False, verbose_name="Cortesia")
+    limite_cortesia = models.PositiveIntegerField(verbose_name="Limite de cortesias", blank=True, null=True)
+    periodos_aplicaveis = models.JSONField(verbose_name="Periodos aplicaveis")
+    descricao = models.TextField(verbose_name="Descrição do pacote")
+
+    def __str__(self):
+        return f'Dados do pacote promocional {self.nome_do_pacote}'
+
+    @staticmethod
+    def tratar_dados(dados):
+        dados_tratados = {}
+
+        for campo, value in dados.items():
+            try:
+                dado_int = int(value)
+            except ValueError:
+                try:
+                    dado_float = float(value.replace(',', '.'))
+                except ValueError:
+                    dados_tratados[campo] = value
+                else:
+                    dados_tratados[campo] = dado_float
+            else:
+                dados_tratados[campo] = dado_int
+        lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
+
+        dados_tratados['produtos_elegiveis'] = lista
+        dados_tratados['periodos_aplicaveis'] = DadosDePacotes.juntar_periodos(dados)
+
+        return dados_tratados
+
+    @staticmethod
+    def juntar_periodos(dados_pacote):
+        periodo_n = 1
+        periodos = []
+
+        while True:
+            if dados_pacote.get(f'periodo_{periodo_n}', None):
+                periodos.append({
+                    f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}')
+                })
+            else:
+                break
+
+            periodo_n += 1
+
+        return periodos
+
+
 class Orcamento(models.Model):
     sim_e_nao = (
         ('sim', 'Sim'),
@@ -114,9 +171,15 @@ class Orcamento(models.Model):
         blank=True,
         null=True
     )
+    pacote_promocional = models.ForeignKey(
+        DadosDePacotes,
+        verbose_name='Pacote promocional',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True
+    )
     check_in = models.DateTimeField(verbose_name='Check in')
     check_out = models.DateTimeField(verbose_name='Check out')
-    nome_promocional = models.CharField(max_length=255, verbose_name='Nome do promocional', blank=True, null=True)
     produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.CASCADE, verbose_name='Produto Peraltas')
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
@@ -165,13 +228,28 @@ class Orcamento(models.Model):
         return f'{check_in} - {check_out}'
 
 
+class CadastroPacotePromocional(forms.ModelForm):
+    class Meta:
+        model = DadosDePacotes
+        exclude = ()
+
+        widgets = {
+            'cortesia': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'onchange': 'mostrar_limite_cortesia(this)'
+            }),
+            'limite_desconto_geral': forms.TextInput(),
+        }
+
+
 class CadastroOrcamento(forms.ModelForm):
     class Meta:
         model = Orcamento
         exclude = ()
 
         widgets = {
-            'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'liberar_periodo()'}),
+            'promocional': forms.CheckboxInput(
+                attrs={'class': 'form-check-input', 'onchange': 'mostrar_dados_pacote(this)'}),
             'nome_promocional': forms.TextInput(attrs={'onkeyup': 'liberar_periodo()'}),
             'produto': forms.Select(attrs={'disabled': True}),
             'transporte': forms.RadioSelect(),

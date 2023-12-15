@@ -13,8 +13,9 @@ from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor,
     AtividadePeraltas
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
-from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento
-from .utils import verify_data, processar_formulario, verificar_gerencia
+from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
+    DadosDePacotes
+from .utils import verify_data, processar_formulario, verificar_gerencia, JsonError
 from .budget import Budget
 
 
@@ -79,6 +80,23 @@ def calc_budget(req):
 
                 return JsonResponse({'valor': selecao.valor})
         else:
+            if req.POST.get('nome_do_pacote'):
+                dados = DadosDePacotes.tratar_dados(req.POST)
+
+                if req.POST.get('id_pacote') != '':
+                    pacote_promocional = DadosDePacotes.objects.get(pk=req.POST.get('id_pacote'))
+                    dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
+                else:
+                    dados_pacote_promocional = CadastroPacotePromocional(dados)
+
+                try:
+                    pacote = dados_pacote_promocional.save(commit=False)
+                    pacote.save()
+                except Exception as e:
+                    ...
+                else:
+                    return HttpResponse(pacote.id)
+
             dados = processar_formulario(req.POST)
 
             if 'orcamento' not in dados:
@@ -219,6 +237,7 @@ def calc_budget(req):
 
     if req.method != 'POST':
         cadastro_orcamento = CadastroOrcamento()
+        pacote_promocional = CadastroPacotePromocional()
         promocionais = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
@@ -227,6 +246,7 @@ def calc_budget(req):
         return render(req, 'orcamento/orcamento.html', {
             'orcamento': cadastro_orcamento,
             'promocionais': promocionais,
+            'pacote_promocional': pacote_promocional,
             'tipo_orcamento': req.GET.get('tipo_de_orcamento'),
             'financeiro': financeiro
         })
