@@ -177,37 +177,37 @@ def calc_budget(req):
             )
 
             if req.POST.get('salvar') == 'true':
+                valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
+                    budget.business_fee) + budget.total.calc_commission(budget.commission)
+                data['valor'] = f'{valor_final:.2f}'
+                data['opcionais_extra'] = data.get('outros', [])
+                data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
+                data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
+
+                orcamento = CadastroOrcamento(data)
+                print(orcamento.errors)
+                pre_orcamento = orcamento.save(commit=False)
+                pre_orcamento.objeto_gerencia = dados['gerencia']
+
+                if budget.total.general_discount > 0 or dados['gerencia'][
+                    'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
+                    '%Y-%m-%d'):
+                    pre_orcamento.necessita_aprovacao_gerencia = True
+
+                if data.get('orcamento_promocional'):
+                    pre_orcamento.necessita_aprovacao_gerencia = False
+
+                pre_orcamento.objeto_orcamento = budget.return_object()
+                pre_orcamento.promocional = financeiro
+                pre_orcamento.colaborador = req.user
+
+                if pre_orcamento.promocional:
+                    pre_orcamento.necessita_aprovacao_gerencia = False
+                    pre_orcamento.data_vencimento = gerencia['data_vencimento']
+
+                orcamento_salvo = orcamento.save()
                 try:
-                    valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
-                        budget.business_fee) + budget.total.calc_commission(budget.commission)
-
-                    data['valor'] = f'{valor_final:.2f}'
-                    data['opcionais_extra'] = data.get('outros', [])
-                    data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
-                    data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
-
-                    orcamento = CadastroOrcamento(data)
-                    print(orcamento.errors)
-                    pre_orcamento = orcamento.save(commit=False)
-                    pre_orcamento.objeto_gerencia = dados['gerencia']
-
-                    if budget.total.general_discount > 0 or dados['gerencia'][
-                        'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
-                        '%Y-%m-%d'):
-                        pre_orcamento.necessita_aprovacao_gerencia = True
-
-                    if data.get('orcamento_promocional'):
-                        pre_orcamento.necessita_aprovacao_gerencia = False
-
-                    pre_orcamento.objeto_orcamento = budget.return_object()
-                    pre_orcamento.promocional = financeiro
-                    pre_orcamento.colaborador = req.user
-
-                    if pre_orcamento.promocional:
-                        pre_orcamento.necessita_aprovacao_gerencia = False
-                        pre_orcamento.data_vencimento = gerencia['data_vencimento']
-
-                    orcamento_salvo = orcamento.save()
+                    pass
                 except Exception as e:
                     return JsonResponse({
                         "status": "error",

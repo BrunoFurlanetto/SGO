@@ -178,9 +178,21 @@ class Orcamento(models.Model):
         blank=True,
         null=True
     )
-    check_in = models.DateTimeField(verbose_name='Check in')
-    check_out = models.DateTimeField(verbose_name='Check out')
-    produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.CASCADE, verbose_name='Produto Peraltas')
+    orcamento_promocional = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.DO_NOTHING,
+        verbose_name='Orçamento promocional'
+    )
+    produto = models.ForeignKey(
+        ProdutosPeraltas,
+        on_delete=models.CASCADE,
+        verbose_name='Produto Peraltas',
+        blank=True,
+        null=True)
+    check_in = models.DateTimeField(verbose_name='Check in', blank=True, null=True)
+    check_out = models.DateTimeField(verbose_name='Check out', blank=True, null=True)
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
     opcionais = models.ManyToManyField(
@@ -250,7 +262,7 @@ class CadastroOrcamento(forms.ModelForm):
         widgets = {
             'promocional': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', 'onchange': 'mostrar_dados_pacote(this)'}),
-            'nome_promocional': forms.TextInput(attrs={'onkeyup': 'liberar_periodo()'}),
+            'orcamento_promocional': forms.Select(attrs={'disabled': True}),
             'produto': forms.Select(attrs={'disabled': True}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
@@ -265,8 +277,10 @@ class CadastroOrcamento(forms.ModelForm):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
+        pacotes_promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
+        orcamentos_promocionais = [('', '')]
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -283,5 +297,9 @@ class CadastroOrcamento(forms.ModelForm):
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
+        for pacote in pacotes_promocionais:
+            orcamentos_promocionais.append((pacote.id, pacote.pacote_promocional.nome_do_pacote))
+
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
+        self.fields['orcamento_promocional'].choices = orcamentos_promocionais

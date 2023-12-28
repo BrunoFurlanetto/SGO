@@ -6,62 +6,20 @@ const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividad
 
 $(document).ready(() => {
     $('#id_cliente').select2()
+    $('#id_produtos_elegiveis').select2({
+        dropdownParent: $("#dados_do_pacote .modal-content"),
+        width: '100%'
+    })
     let hoje = new Date()
     $('#data_pagamento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
 
-    $('#data_viagem').daterangepicker({
-        "timePicker": true,
-        "timePicker24Hour": true,
-        "timePickerIncrement": 30,
-        "locale": {
-            "format": "DD/MM/YYYY HH:mm",
-            "separator": " - ",
-            "applyLabel": "Salvar",
-            "cancelLabel": "Limpar",
-            "daysOfWeek": [
-                "Dom",
-                "Seg",
-                "Ter",
-                "Qua",
-                "Qui",
-                "Sex",
-                "Sab"
-            ],
-            "monthNames": [
-                "Janeiro",
-                "Fevereiro",
-                "Março",
-                "Abril",
-                "Maio",
-                "Junho",
-                "Julho",
-                "Agosto",
-                "Setembro",
-                "Outubro",
-                "Novembro",
-                "Dezembro"
-            ]
-        },
-        "showCustomRangeLabel": false,
-        "alwaysShowCalendars": true,
-        "drops": "up"
-    })
+    $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
+    $('#periodo_1').inicializarDateRange('DD/MM/YYYY', false)
 
-    $('#valor_opcional, #desconto_produto, #desconto_monitoria').maskMoney({
-        prefix: 'R$ ',
-        thousands: '.',
-        decimal: ',',
-        allowZero: true,
-        affixesStay: false
-    })
-    $('#desconto_transporte, #desconto_geral').maskMoney({
-        prefix: 'R$ ',
-        thousands: '.',
-        decimal: ',',
-        allowZero: true,
-        affixesStay: false
-    })
+    $('#valor_opcional, #desconto_produto, #desconto_monitoria').mascaraDinheiro()
+    $('#desconto_transporte, #desconto_geral').mascaraDinheiro()
+    $('#id_limite_desconto_geral').mascaraDinheiro()
     $('#comissao, #taxa_comercial').mask('00,00%', {reverse: true})
 
     jQuery('#orcamento').submit(function () {
@@ -135,6 +93,56 @@ $(document).ready(() => {
         }
     })
 })
+
+$.fn.mascaraDinheiro = function () {
+    return $(this).maskMoney({
+        prefix: 'R$ ',
+        thousands: '.',
+        decimal: ',',
+        allowZero: true,
+        affixesStay: false
+    })
+}
+
+$.fn.inicializarDateRange = function (format, time_picker, show_initial_date=true) {
+    return this.daterangepicker({
+        "timePicker": time_picker,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 30,
+        "locale": {
+            "format": format,
+            "separator": " - ",
+            "applyLabel": "Salvar",
+            "cancelLabel": "Limpar",
+            "daysOfWeek": [
+                "Dom",
+                "Seg",
+                "Ter",
+                "Qua",
+                "Qui",
+                "Sex",
+                "Sab"
+            ],
+            "monthNames": [
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro"
+            ]
+        },
+        "showCustomRangeLabel": false,
+        "alwaysShowCalendars": true,
+        "drops": "up"
+    })
+}
 
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00') {
     const valor_selecao = formatar_dinheiro(dados_op['valor']).replace('.', ',')
@@ -333,20 +341,20 @@ async function enviar_form(salvar = false) {
                 success: function (response) {
                     if (!salvar) {
                         const valores = response['data']['valores']
-                        const periodo = response['data']['periodo_viagem']['valor_com_desconto']
-                        const diaria = valores['diaria']['valor_com_desconto']
+                        const periodo = response['data']['periodo_viagem']['valor_final']
+                        const diaria = valores['diaria']['valor_final']
                         const periodo_diaria = (periodo + diaria)
                         const periodo_diaria_formatado = formatar_dinheiro(periodo_diaria)
 
-                        const valor_monitoria = valores['tipo_monitoria']['valor_com_desconto'];
-                        const transporte = valores['transporte']['valor_com_desconto'];
+                        const valor_monitoria = valores['tipo_monitoria']['valor_final'];
+                        const transporte = valores['transporte']['valor_final'];
                         const monitoria_transporte = (valor_monitoria + transporte);
                         const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
 
-                        const opcionais = valores['opcionais']['valor_com_desconto']
-                        const atividades = valores['atividades']['valor_com_desconto']
-                        const atividade_ceu = valores['atividades_ceu']['valor_com_desconto']
-                        const outros = valores['outros']['valor_com_desconto']
+                        const opcionais = valores['opcionais']['valor_final']
+                        const atividades = valores['atividades']['valor_final']
+                        const atividade_ceu = valores['atividades_ceu']['valor_final']
+                        const outros = valores['outros']['valor_final']
                         const total = response['data']['total']['valor_final']
                         const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros + atividades + atividade_ceu)
                         const total_formatado = formatar_dinheiro(total)
@@ -445,8 +453,6 @@ async function liberar_periodo(id_responsavel = null) {
 
             return
         }
-
-        $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
 
         if ($('#id_promocional').prop('checked')) {
             $('#div_nome_promocional').removeClass('none')
@@ -702,16 +708,72 @@ async function salvar_orcamento() {
     }
 }
 
+function mostrar_dados_pacote(check_promocional=null) {
+    if (check_promocional) {
+        if ($(check_promocional).prop('checked')) {
+            $('#dados_do_pacote').modal('show')
+            $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
+        } else {
+            $('#id_cliente').attr('disabled', $('#id_promocional').prop('checked'))
+        }
+    }
+}
+
+function mostrar_limite_cortesia(cortesia) {
+    if ($(cortesia).prop('checked')) {
+        $('#div_limite_cortesia').removeClass('none')
+    } else {
+        $('#div_limite_cortesia').addClass('none')
+        $('#id_limite_cortesia').val('')
+    }
+}
+
+function remover_periodo(btn) {
+    let div_periodo = $(btn).parent().remove()
+    let periodos_restantes = $('.div_periodos_aplicaveis').length
+    let periodos = $('.periodos_aplicaveis')
+
+    for (let i = 1; i <= periodos_restantes; i++) {
+        $(periodos[i - 1]).attr('name', `periodo_${i}`).attr('id', `periodo_${i}`)
+    }
+}
+
+function adicionar_periodo_novo() {
+    let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
+    let novo_obj_periodo = `
+        <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
+            <input type="text" id="periodo_${periodo_n}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
+            <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
+        </div>`
+    $('#lista_de_periodos').append(novo_obj_periodo)
+    $(`#periodo_${periodo_n}`).inicializarDateRange('DD/MM/YYYY', false)
+}
+
+function salvar_dados_do_pacote() {
+    const dados_pacote = $('#form_dados_pacote').serializeObject()
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: dados_pacote,
+        success: function (response) {
+            $('#id_pacote, #id_pacote_promocional').val(response)
+        }
+    }).done(async () => {
+        $('#dados_do_pacote').modal('hide')
+        $('#container_monitoria_transporte').removeClass('none')
+        $('#subtotal').removeClass('none')
+        await enviar_form()
+        $('.div-flutuante').addClass('visivel')
+    })
+}
+
 async function preencher_promocional(id_promocional) {
     $.ajax({
         type: 'GET',
         url: '',
         data: {'id_promocional': id_promocional},
         success: function (response) {
-            $('#data_viagem').data('daterangepicker').setStartDate(response['check_in'])
-            $('#data_viagem').data('daterangepicker').setEndDate(response['check_out'])
-            $('#id_produto').val(response['produto']).prop('readonly', true)
-
             $('#id_tipo_monitoria').val(response['monitoria'])
             $('#id_transporte input').map((index, transporte) => {
                 $(transporte).prop('checked', transporte.value === response['transporte'])

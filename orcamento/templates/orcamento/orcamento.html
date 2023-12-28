@@ -8,8 +8,10 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <div class="conteudo-orcamento">
-        <div id="subtotal" class="div-flutuante none" onmouseover="$('#modal_descritivo').modal('show')">
-            <div class="floating-box none" id="floatingBox">Passe o mouse</div>
+        <div id="subtotal" class="div-flutuante none" {% if financeiro %} style="cursor: pointer;" onclick="$('#modal_descritivo').modal('show')" {% endif %}>
+            {% if financeiro %}
+            	<div class="floating-box none" id="floatingBox">Clique aqui</div>
+            {% endif %}
             <strong>Valor final</strong><span></span>
         </div>
         <div class="head-orcamento">
@@ -21,24 +23,6 @@
             <fieldset>
                 {% csrf_token %}
                 <div class="conteudo-primeiro">
-                    <h5 class="titulo-secao">Tipo de orçamento</h5>
-                    <form action="{% url 'orcamento' %}" method="GET">
-                        <select name="tipo_de_orcamento" id="tipo_de_orcamento" style="width: 50%"
-                                onchange="this.form.submit()">
-                            <option {% if not tipo_orcamento or tipo_orcamento == '' %} selected {% endif %}></option>
-                            <option value="ceu" {% if tipo_orcamento == 'ceu' %} selected {% endif %}
-                                    title="Para orçamentos com apenas atividades avulsas do CEU">Só CEU
-                            </option>
-                            <option value="padrao" {% if tipo_orcamento == 'padrao' %} selected {% endif %}
-                                    title="Personalize um orçamento do zero">Padrão
-                            </option>
-                            <option value="promocional" {% if tipo_orcamento == 'promocional' %} selected {% endif %}
-                                    title="Pacotes promocionais">Promocional
-                            </option>
-                        </select>
-                    </form>
-                </div>
-                <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %}none{% endif %}">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
                         {{ orcamento.cliente.label }}
@@ -72,11 +56,23 @@
                 </div>
                 <div id="container_periodo" class="none">
                     <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
-                        <h5 class="titulo-secao">Período da viagem</h5>
-                        <label for="data_viagem">Data da viagem</label>
-                        <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
-                        <label for="produto">Produto</label>
-                        {{ orcamento.produto }}
+                        <div id="periodo">
+                            <h5 class="titulo-secao">Período da viagem</h5>
+                            <label for="data_viagem">Data da viagem</label>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
+                            <label for="produto">Produto</label>
+                            {{ orcamento.produto }}
+                        </div>
+                        <hr>
+                        <div id="promocionais">
+                            <div>
+                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
+                                {{ orcamento.orcamento_promocional }}
+                            </div>
+                            <button type="button" name="info_promocional" title="Pacotes promocionais que se encaixam no periodo e no produto escolhido" id="info_promocional">
+                                <i class='bx bx-info-circle'></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="parcial"></div>
                 </div>
@@ -127,11 +123,13 @@
                             </div>
                         </div>
                         <hr>
-                        <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
+                        {% if financeiro %}
+                            <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
                                                                                                 $('#btn_salvar_orcamento').prop('disabled', false)">
-                            <i class='bx bxs-food-menu'></i>
-                            Lista de valores
-                        </button>
+                                <i class='bx bxs-food-menu'></i>
+                                Lista de valores
+                            </button>
+                        {% endif %}
                     </div>
                     <div class="parcial"></div>
                 </div>
@@ -143,7 +141,7 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" disabled
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
                                 onclick="salvar_orcamento()">
                             Salvar orçamento
                         </button>
@@ -193,149 +191,149 @@
         </div>
     </div>
 
-    <!--  Modal valores dos outros opcionais  -->
-    <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
-                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
-                        <table id="tabela_de_opcionais" class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th style="width: 50%">Opcional</th>
-                                <th style="width: 25%">Valor</th>
-                                <th style="width: 25%">Desconto</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
-                        Salvar
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
-         aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
-                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
-                        <fieldset>
-                            {% csrf_token %}
-                            <div style="border: dashed 1px #5c636a">
-                                <div style="display: flex; column-gap: 50px; padding: 20px">
-                                    <div>
-                                        <label for="comissao">Comissão</label>
-                                        <input type="text" id="comissao" name="comissao" value="9"
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div>
-                                        <label for="taxa_comercial">Taxa Comercial</label>
-                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5"
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div>
-                                        <label for="minimo_onibus">Mínimo no ônibus</label>
-                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div style="width: 28%">
-                                        <label for="data_pagamento">Data de pagamento</label>
-                                        <input type="date" id="data_pagamento" name="data_pagamento" value=""
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div>
-                                        <label for="desconto_geral">Desconto geral</label>
-                                        <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                </div>
-                                {% if not financeiro %}
-                                    <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
-                                        *Alterações nessa parte necessitarão de aprovação da diretoria antes do
-                                        orçamento ser encaminhado ao cliente.
-                                    </p>
-                                {% endif %}
-                            </div>
-                            <hr {% if not financeiro %} class="none" {% endif %}>
-                            <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
-                                <div>
-                                    <div>
-                                        <label for="desconto_produto">Desconto diaria</label>
-                                        <input type="text" id="desconto_produto" name="desconto_produto" value="0,00"
-                                               onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div>
-                                        <label for="desconto_monitoria">Desconto monitoria</label>
-                                        <input type="text" id="desconto_monitoria" name="desconto_monitoria"
-                                               value="0,00" onchange="enviar_infos_gerencia()">
-                                    </div>
-                                    <div>
-                                        <label for="desconto_transporte">Desconto transporte</label>
-                                        <input type="text" id="desconto_transporte" name="desconto_transporte"
-                                               value="0,00" onchange="enviar_infos_gerencia()">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="data_vencimento">Data de vencimento</label>
-                                    <input type="date" name="data_vencimento" id="data_vencimento">
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
-                    <hr>
-                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST">
-                        <fieldset>
-                            {% csrf_token %}
-                            <h5 class="titulo-secao">Tabela de valores</h5>
-                            <table id="tabela_de_valores" class="table table-hover table-borderless">
+    {% if financeiro %}
+        <!--  Modal valores dos outros opcionais  -->
+        <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
+                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
+                            <table id="tabela_de_opcionais" class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th colspan="7"></th>
-                                    <th class="tag_datas">Datas</th>
-                                </tr>
-                                <tr class="cabecalho">
-                                    <th></th>
-                                    <th style="width: 50%">Seção</th>
+                                    <th style="width: 50%">Opcional</th>
                                     <th style="width: 25%">Valor</th>
-                                    <th style="width: 25%">Taxa comercial</th>
-                                    <th style="width: 25%">Comissão</th>
                                     <th style="width: 25%">Desconto</th>
-                                    <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
                                 </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
-                        </fieldset>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
+                            Salvar
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {% if financeiro %}
+        <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
+             aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
+                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                            <fieldset>
+                                {% csrf_token %}
+                                <div style="border: dashed 1px #5c636a">
+                                    <div style="display: flex; column-gap: 50px; padding: 20px">
+                                        <div>
+                                            <label for="comissao">Comissão</label>
+                                            <input type="text" id="comissao" name="comissao" value="9"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="taxa_comercial">Taxa Comercial</label>
+                                            <input type="text" id="taxa_comercial" name="taxa_comercial" value="5"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="minimo_onibus">Mínimo no ônibus</label>
+                                            <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div style="width: 28%">
+                                            <label for="data_pagamento">Data de pagamento</label>
+                                            <input type="date" id="data_pagamento" name="data_pagamento" value=""
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="desconto_geral">Desconto geral</label>
+                                            <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                    {% if not financeiro %}
+                                        <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
+                                            *Alterações nessa parte necessitarão de aprovação da diretoria antes do
+                                            orçamento ser encaminhado ao cliente.
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <hr {% if not financeiro %} class="none" {% endif %}>
+                                <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
+                                    <div>
+                                        <div>
+                                            <label for="desconto_produto">Desconto diaria</label>
+                                            <input type="text" id="desconto_produto" name="desconto_produto" value="0,00"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="desconto_monitoria">Desconto monitoria</label>
+                                            <input type="text" id="desconto_monitoria" name="desconto_monitoria"
+                                                   value="0,00" onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div>
+                                            <label for="desconto_transporte">Desconto transporte</label>
+                                            <input type="text" id="desconto_transporte" name="desconto_transporte"
+                                                   value="0,00" onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="data_vencimento">Data de vencimento</label>
+                                        <input type="date" name="data_vencimento" id="data_vencimento">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                        <hr>
+                        <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST">
+                            <fieldset>
+                                {% csrf_token %}
+                                <h5 class="titulo-secao">Tabela de valores</h5>
+                                <table id="tabela_de_valores" class="table table-hover table-borderless">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="7"></th>
+                                        <th class="tag_datas">Datas</th>
+                                    </tr>
+                                    <tr class="cabecalho">
+                                        <th></th>
+                                        <th style="width: 50%">Seção</th>
+                                        <th style="width: 25%">Valor</th>
+                                        <th style="width: 25%">Taxa comercial</th>
+                                        <th style="width: 25%">Comissão</th>
+                                        <th style="width: 25%">Desconto</th>
+                                        <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
