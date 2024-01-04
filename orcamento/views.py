@@ -33,13 +33,13 @@ def calc_budget(req):
                     'gerencia': orcamento_promocional.objeto_gerencia,
                     'check_in': orcamento_promocional.check_in.astimezone().strftime('%d/%m/%Y %H:%M'),
                     'check_out': orcamento_promocional.check_out.astimezone().strftime('%d/%m/%Y %H:%M'),
-                    'produto': orcamento_promocional.produto.id,
+                    'produto': orcamento_promocional.produto.id if orcamento_promocional.produto is not None else '',
                     'monitoria': orcamento_promocional.tipo_monitoria.id,
                     'transporte': orcamento_promocional.transporte,
-                    'opcionais': [op.id for op in orcamento_promocional.opcionais.all()],
+                    'opcionais': [op.id for op in orcamento_promocional.opcionais.all() if op is not None],
                     'opcionais_extra': orcamento_promocional.opcionais_extra,
-                    'atividades': [op.id for op in orcamento_promocional.atividades.all()],
-                    'atividades_ceu': [op.id for op in orcamento_promocional.atividades_ceu.all()],
+                    'atividades': [op.id for op in orcamento_promocional.atividades.all() if op is not None],
+                    'atividades_ceu': [op.id for op in orcamento_promocional.atividades_ceu.all() if op is not None],
                 })
 
             if req.GET.get('check_in') and req.GET.get('check_out'):
@@ -79,6 +79,14 @@ def calc_budget(req):
                     selecao = Atividades.objects.get(id=req.GET.get('id'))
 
                 return JsonResponse({'valor': selecao.valor})
+
+            if req.GET.get('id_pacote'):
+                orcamento_promocional = Orcamento.objects.get(pk=req.GET.get('id_pacote'))
+
+                return JsonResponse({
+                    'orcamento_promocional': orcamento_promocional.serializar_objetos(),
+                    'dados_promocionais': orcamento_promocional.pacote_promocional.serializar_objetos()
+                })
         else:
             if req.POST.get('nome_do_pacote'):
                 dados = DadosDePacotes.tratar_dados(req.POST)
@@ -90,11 +98,14 @@ def calc_budget(req):
                     dados_pacote_promocional = CadastroPacotePromocional(dados)
 
                 try:
+                    print(dados_pacote_promocional.errors)
                     pacote = dados_pacote_promocional.save(commit=False)
                     pacote.save()
                 except Exception as e:
                     ...
                 else:
+                    DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
+
                     return HttpResponse(pacote.id)
 
             dados = processar_formulario(req.POST)
@@ -111,6 +122,16 @@ def calc_budget(req):
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
+
+            try:
+                promocionais = Orcamento.pegar_pacotes_promocionais(
+                    data['n_dias'],
+                    int(data['produto']),
+                    data['check_in'],
+                    data['check_out']
+                )
+            except KeyError:
+                promocionais = []
 
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
@@ -185,7 +206,7 @@ def calc_budget(req):
                 data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
                 orcamento = CadastroOrcamento(data)
-                print(orcamento.errors)
+
                 pre_orcamento = orcamento.save(commit=False)
                 pre_orcamento.objeto_gerencia = dados['gerencia']
 
@@ -232,6 +253,7 @@ def calc_budget(req):
                 return JsonResponse({
                     "status": "success",
                     "data": budget.return_object(),
+                    "promocionais": promocionais,
                     "msg": "",
                 })
 

@@ -1,7 +1,9 @@
 import datetime
+import json
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.db import models
 from django.db.models import PositiveIntegerField
 
@@ -126,11 +128,11 @@ class DadosDePacotes(models.Model):
                     dados_tratados[campo] = dado_float
             else:
                 dados_tratados[campo] = dado_int
-        lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
 
+        lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
         dados_tratados['produtos_elegiveis'] = lista
         dados_tratados['periodos_aplicaveis'] = DadosDePacotes.juntar_periodos(dados)
-
+        print(dados_tratados)
         return dados_tratados
 
     @staticmethod
@@ -149,6 +151,12 @@ class DadosDePacotes(models.Model):
             periodo_n += 1
 
         return periodos
+
+    def serializar_objetos(self):
+        obj = self
+        dados = serializers.serialize('json', [obj, ])
+
+        return json.loads(dados)[0]
 
 
 class Orcamento(models.Model):
@@ -239,6 +247,50 @@ class Orcamento(models.Model):
 
         return f'{check_in} - {check_out}'
 
+    @staticmethod
+    def pegar_pacotes_promocionais(n_dias, id_produto, check_in, check_out):
+        def comparar_intervalo():
+            intervalos = [valor for p in pacote.pacote_promocional.periodos_aplicaveis for valor in p.values()]
+
+            for intervalo in intervalos:
+                cin, cout = intervalo.split(' - ')
+                i_check_in = datetime.datetime.strptime(cin, '%d/%m/%Y').date()
+                i_check_out = datetime.datetime.strptime(cout, '%d/%m/%Y').date()
+                check_in_formatado = datetime.datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
+                check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
+
+                if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
+                    return True
+
+            return False
+
+
+        pacotes = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+        pacotes_validos = []
+
+        for pacote in pacotes:
+            if comparar_intervalo():
+                if pacote.pacote_promocional.minimo_de_diarias <= n_dias <= pacote.pacote_promocional.maximo_de_diarias:
+                    if id_produto in [p.id for p in pacote.pacote_promocional.produtos_elegiveis.all()]:
+                        dados = serializers.serialize('json', [pacote.pacote_promocional, ])
+                        campos = json.loads(dados)[0]['fields']
+
+                        pacotes_validos.append({
+                            'id': pacote.id,
+                            'nome': pacote.pacote_promocional.nome_do_pacote,
+                        })
+
+        return pacotes_validos
+
+    def serializar_objetos(self):
+        obj = self
+        dados = serializers.serialize('json', [obj, ])
+
+        return json.loads(dados)[0]
+
+    def pegar_dados_pacote(self):
+        ...
+
 
 class CadastroPacotePromocional(forms.ModelForm):
     class Meta:
@@ -261,8 +313,8 @@ class CadastroOrcamento(forms.ModelForm):
 
         widgets = {
             'promocional': forms.CheckboxInput(
-                attrs={'class': 'form-check-input', 'onchange': 'mostrar_dados_pacote(this)'}),
-            'orcamento_promocional': forms.Select(attrs={'disabled': True}),
+                attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
+            'orcamento_promocional': forms.Select(attrs={'disabled': True, 'onchange': 'mostrar_dados_pacote(this)'}),
             'produto': forms.Select(attrs={'disabled': True}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),

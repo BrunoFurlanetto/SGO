@@ -55,8 +55,8 @@
                     {% endif %}
                 </div>
                 <div id="container_periodo" class="none">
-                    <div id="periodo_viagem" class="conteudo" onchange="verificar_preenchimento()">
-                        <div id="periodo">
+                    <div id="periodo_viagem" class="conteudo">
+                        <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
                             <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
@@ -225,200 +225,200 @@
                 </div>
             </div>
         </div>
-
-        <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
-             aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
-                            <fieldset>
-                                {% csrf_token %}
-                                <div style="border: dashed 1px #5c636a">
-                                    <div style="display: flex; column-gap: 50px; padding: 20px">
-                                        <div>
-                                            <label for="comissao">Comissão</label>
-                                            <input type="text" id="comissao" name="comissao" value="9"
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="taxa_comercial">Taxa Comercial</label>
-                                            <input type="text" id="taxa_comercial" name="taxa_comercial" value="5"
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="minimo_onibus">Mínimo no ônibus</label>
-                                            <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div style="width: 28%">
-                                            <label for="data_pagamento">Data de pagamento</label>
-                                            <input type="date" id="data_pagamento" name="data_pagamento" value=""
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="desconto_geral">Desconto geral</label>
-                                            <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                    </div>
-                                    {% if not financeiro %}
-                                        <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
-                                            *Alterações nessa parte necessitarão de aprovação da diretoria antes do
-                                            orçamento ser encaminhado ao cliente.
-                                        </p>
-                                    {% endif %}
-                                </div>
-                                <hr {% if not financeiro %} class="none" {% endif %}>
-                                <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
-                                    <div>
-                                        <div>
-                                            <label for="desconto_produto">Desconto diaria</label>
-                                            <input type="text" id="desconto_produto" name="desconto_produto" value="0,00"
-                                                   onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="desconto_monitoria">Desconto monitoria</label>
-                                            <input type="text" id="desconto_monitoria" name="desconto_monitoria"
-                                                   value="0,00" onchange="enviar_infos_gerencia()">
-                                        </div>
-                                        <div>
-                                            <label for="desconto_transporte">Desconto transporte</label>
-                                            <input type="text" id="desconto_transporte" name="desconto_transporte"
-                                                   value="0,00" onchange="enviar_infos_gerencia()">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label for="data_vencimento">Data de vencimento</label>
-                                        <input type="date" name="data_vencimento" id="data_vencimento">
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
-                        <hr>
-                        <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST">
-                            <fieldset>
-                                {% csrf_token %}
-                                <h5 class="titulo-secao">Tabela de valores</h5>
-                                <table id="tabela_de_valores" class="table table-hover table-borderless">
-                                    <thead>
-                                    <tr>
-                                        <th colspan="7"></th>
-                                        <th class="tag_datas">Datas</th>
-                                    </tr>
-                                    <tr class="cabecalho">
-                                        <th></th>
-                                        <th style="width: 50%">Seção</th>
-                                        <th style="width: 25%">Valor</th>
-                                        <th style="width: 25%">Taxa comercial</th>
-                                        <th style="width: 25%">Comissão</th>
-                                        <th style="width: 25%">Desconto</th>
-                                        <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Dados do pacote</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="form_dados_pacote" action="{% url 'orcamento' %}" method="POST">
-                            <fieldset>
-                                {% csrf_token %}
-                                <input type="hidden" name="id_pacote" id="id_pacote">
-                                <h5 class="titulo-secao">Nome e descrição do pacote</h5>
-                                <div class="secao">
-                                    <div style="width: 100%">
-                                        {{ pacote_promocional.nome_do_pacote.label_tag }}
-                                        {{ pacote_promocional.nome_do_pacote }}
-                                    </div>
-                                    <div class="mt-2" style="width: 100%">
-                                        {{ pacote_promocional.descricao.label_tag }}
-                                        {{ pacote_promocional.descricao }}
-                                    </div>
-                                </div>
-                                <hr>
-                                <h5 class="titulo_secao">Limites</h5>
-                                <div class="secao">
-                                    <div style="width: 47%">
-                                        {{ pacote_promocional.limite_desconto_geral.label_tag }}
-                                        {{ pacote_promocional.limite_desconto_geral }}
-                                    </div>
-                                    <div style="width: 47%">
-                                        {{ pacote_promocional.minimo_de_diarias.label_tag }}
-                                        {{ pacote_promocional.minimo_de_diarias }}
-                                    </div>
-                                    <div style="width: 47%" class="mt-2">
-                                        {{ pacote_promocional.maximo_de_diarias.label_tag }}
-                                        {{ pacote_promocional.maximo_de_diarias }}
-                                    </div>
-                                    <div style="width: 47%" class="mt-2">
-                                        {{ pacote_promocional.minimo_de_pagantes.label_tag }}
-                                        {{ pacote_promocional.minimo_de_pagantes }}
-                                    </div>
-                                    <div class="mt-3" style="display: flex; align-items: center">
-                                        <div style="display: flex; column-gap: 7px; margin-right: 20px">
-                                            {{ pacote_promocional.cortesia }}
-                                            <label for="{{ pacote_promocional.cortesia.id_for_label }}">
-                                                {{ pacote_promocional.cortesia.label }}?
-                                            </label>
-                                        </div>
-                                        <div id="div_limite_cortesia" style="display: flex; width: 48%; column-gap: 10px; align-items: center" class="none">
-                                            <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}"><nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr></label>
-                                            {{ pacote_promocional.limite_cortesia }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-                                <h5 class="titulo-secao">Produtos elegíveis</h5>
-                                <div class="secao">
-                                    <div style="width: 100%">
-                                        {{ pacote_promocional.produtos_elegiveis }}
-                                    </div>
-                                </div>
-                                <hr>
-                                <h5 class="titulo-secao">Períodos aplicáveis</h5>
-                                <div id="lista_de_periodos" class="mb-3">
-                                    <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-                                        <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
-                                        <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-outline-success" onclick="adicionar_periodo_novo()">Adicionar periodo</button>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
-                            Salvar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     {% endif %}
+
+    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <div style="border: dashed 1px #5c636a">
+                                <div style="display: flex; column-gap: 50px; padding: 20px">
+                                    <div>
+                                        <label for="comissao">Comissão</label>
+                                        <input type="text" id="comissao" name="comissao" value="9"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="taxa_comercial">Taxa Comercial</label>
+                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="minimo_onibus">Mínimo no ônibus</label>
+                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div style="width: 28%">
+                                        <label for="data_pagamento">Data de pagamento</label>
+                                        <input type="date" id="data_pagamento" name="data_pagamento" value=""
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_geral">Desconto geral</label>
+                                        <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                </div>
+                                {% if not financeiro %}
+                                    <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
+                                        *Alterações nessa parte necessitarão de aprovação da diretoria antes do
+                                        orçamento ser encaminhado ao cliente.
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <hr {% if not financeiro %} class="none" {% endif %}>
+                            <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
+                                <div>
+                                    <div>
+                                        <label for="desconto_produto">Desconto diaria</label>
+                                        <input type="text" id="desconto_produto" name="desconto_produto" value="0,00"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_monitoria">Desconto monitoria</label>
+                                        <input type="text" id="desconto_monitoria" name="desconto_monitoria"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_transporte">Desconto transporte</label>
+                                        <input type="text" id="desconto_transporte" name="desconto_transporte"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="data_vencimento">Data de vencimento</label>
+                                    <input type="date" name="data_vencimento" id="data_vencimento">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                    <hr>
+                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <h5 class="titulo-secao">Tabela de valores</h5>
+                            <table id="tabela_de_valores" class="table table-hover table-borderless">
+                                <thead>
+                                <tr>
+                                    <th colspan="7"></th>
+                                    <th class="tag_datas">Datas</th>
+                                </tr>
+                                <tr class="cabecalho">
+                                    <th></th>
+                                    <th style="width: 50%">Seção</th>
+                                    <th style="width: 25%">Valor</th>
+                                    <th style="width: 25%">Taxa comercial</th>
+                                    <th style="width: 25%">Comissão</th>
+                                    <th style="width: 25%">Desconto</th>
+                                    <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Dados do pacote</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_dados_pacote" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="id_pacote" id="id_pacote">
+                            <h5 class="titulo-secao">Nome e descrição do pacote</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.nome_do_pacote.label_tag }}
+                                    {{ pacote_promocional.nome_do_pacote }}
+                                </div>
+                                <div class="mt-2" style="width: 100%">
+                                    {{ pacote_promocional.descricao.label_tag }}
+                                    {{ pacote_promocional.descricao }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo_secao">Limites</h5>
+                            <div class="secao">
+                                <div style="width: 47%">
+                                    {{ pacote_promocional.limite_desconto_geral.label_tag }}
+                                    {{ pacote_promocional.limite_desconto_geral }}
+                                </div>
+                                <div style="width: 47%">
+                                    {{ pacote_promocional.minimo_de_diarias.label_tag }}
+                                    {{ pacote_promocional.minimo_de_diarias }}
+                                </div>
+                                <div style="width: 47%" class="mt-2">
+                                    {{ pacote_promocional.maximo_de_diarias.label_tag }}
+                                    {{ pacote_promocional.maximo_de_diarias }}
+                                </div>
+                                <div style="width: 47%" class="mt-2">
+                                    {{ pacote_promocional.minimo_de_pagantes.label_tag }}
+                                    {{ pacote_promocional.minimo_de_pagantes }}
+                                </div>
+                                <div class="mt-3" style="display: flex; align-items: center">
+                                    <div style="display: flex; column-gap: 7px; margin-right: 20px">
+                                        {{ pacote_promocional.cortesia }}
+                                        <label for="{{ pacote_promocional.cortesia.id_for_label }}">
+                                            {{ pacote_promocional.cortesia.label }}?
+                                        </label>
+                                    </div>
+                                    <div id="div_limite_cortesia" style="display: flex; width: 48%; column-gap: 10px; align-items: center" class="none">
+                                        <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}"><nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr></label>
+                                        {{ pacote_promocional.limite_cortesia }}
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Produtos elegíveis</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.produtos_elegiveis }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Períodos aplicáveis</h5>
+                            <div id="lista_de_periodos" class="mb-3">
+                                <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
+                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
+                                    <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-success" onclick="adicionar_periodo_novo()">Adicionar periodo</button>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>

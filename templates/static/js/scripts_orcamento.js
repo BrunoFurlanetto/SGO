@@ -340,6 +340,16 @@ async function enviar_form(salvar = false) {
                 data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
                 success: function (response) {
                     if (!salvar) {
+                        console.log(response)
+                        if (response['promocionais'].length > 0) {
+                            for (let promocional of response['promocionais']) {
+                                $('#id_orcamento_promocional').empty().append('<option></option>')
+                                $('#id_orcamento_promocional').append(
+                                    `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                                ).prop('disabled', false)
+                            }
+                        }
+
                         const valores = response['data']['valores']
                         const periodo = response['data']['periodo_viagem']['valor_final']
                         const diaria = valores['diaria']['valor_final']
@@ -708,7 +718,7 @@ async function salvar_orcamento() {
     }
 }
 
-function mostrar_dados_pacote(check_promocional=null) {
+function montar_pacote(check_promocional=null) {
     if (check_promocional) {
         if ($(check_promocional).prop('checked')) {
             $('#dados_do_pacote').modal('show')
@@ -738,11 +748,12 @@ function remover_periodo(btn) {
     }
 }
 
-function adicionar_periodo_novo() {
+function adicionar_periodo_novo(periodo='') {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
+    console.log('Foi')
     let novo_obj_periodo = `
         <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-            <input type="text" id="periodo_${periodo_n}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
+            <input type="text" id="periodo_${periodo_n}" value="${periodo}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
             <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
         </div>`
     $('#lista_de_periodos').append(novo_obj_periodo)
@@ -835,5 +846,38 @@ async function preencher_promocional(id_promocional) {
         })
         $('.opcionais [id*="desconto"]').trigger('change')
         enviar_form()
+    })
+}
+
+async function mostrar_dados_pacote(pacote) {
+    let id_pacote = pacote.value
+
+    $.ajax({
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'id_pacote': id_pacote},
+        success: function (response) {
+            const campos = response['dados_promocionais']['fields']
+            const periodos = response['dados_promocionais']['fields']['periodos_aplicaveis']
+            $('#lista_de_periodos').empty()
+
+            for (let campo in campos) {
+                if (typeof campos[campo] == 'boolean') {
+                    $(`#id_${campo}`).prop('checked', Boolean(campos[campo])).trigger('change')
+                } else {
+                    $(`#id_${campo}`).val(campos[campo])
+                }
+            }
+
+            for (let _p in periodos) {
+                adicionar_periodo_novo(Object.values(periodos[_p])[0])
+            }
+
+            preencher_promocional(id_pacote)
+            $('#id_produtos_elegiveis').trigger('change')
+        }
+    }).done(() => {
+        $('#dados_do_pacote').modal('show')
     })
 }
