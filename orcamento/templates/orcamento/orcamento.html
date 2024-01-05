@@ -142,7 +142,7 @@
                     </div>
                     <div class="botoes">
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                onclick="salvar_orcamento()">
+                                onclick="salvar_orcamento()" onfocus="console.log('Foi')" disabled>
                             Salvar orçamento
                         </button>
                     </div>
@@ -297,7 +297,7 @@
                                 </div>
                                 <div>
                                     <label for="data_vencimento">Data de vencimento</label>
-                                    <input type="date" name="data_vencimento" id="data_vencimento">
+                                    <input type="date" name="data_vencimento" id="data_vencimento" required onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
                                 </div>
                             </div>
                         </fieldset>

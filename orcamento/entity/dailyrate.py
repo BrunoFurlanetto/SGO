@@ -16,13 +16,17 @@ class DailyRate(BaseValue):
         check_in = float(HorariosPadroes.objects.get(pk=self.check_in_id).racional)
         check_out = float(HorariosPadroes.objects.get(pk=self.check_out_id).racional)
         values = []
-        value_period_check_in = float(self.periods[0].valor)
-        value_period_check_out = float((self.periods[len(self.periods) - 1]).valor)
-        values.append(check_in * value_period_check_in)
-        for i in range(1, (len(self.periods) - 1)):
-            value_period = float((self.periods[i]).valor)
+        if self.days == 1:
+            value_period = float((self.periods[0]).valor)
             values.append(value_period)
-        values.append(check_out * value_period_check_out)
+        else:
+            value_period_check_in = float(self.periods[0].valor)
+            value_period_check_out = float((self.periods[len(self.periods) - 1]).valor)
+            values.append(check_in * value_period_check_in)
+            for i in range(1, (len(self.periods) - 1)):
+                value_period = float((self.periods[i]).valor)
+                values.append(value_period)
+            values.append(check_out * value_period_check_out)
 
         self.set_values(values)
         return self.values
