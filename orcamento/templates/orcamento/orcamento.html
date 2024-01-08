@@ -59,7 +59,7 @@
                         <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
-                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="verificar_datas(this)"/>
                             <label for="produto">Produto</label>
                             {{ orcamento.produto }}
                         </div>

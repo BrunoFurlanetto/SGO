@@ -132,6 +132,10 @@ def calc_budget(req):
                 )
             except KeyError:
                 promocionais = []
+            except ValueError:
+                promocionais = []
+            except Exception as e:
+                return JsonError(e)
 
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],

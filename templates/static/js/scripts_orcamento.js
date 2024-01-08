@@ -104,11 +104,12 @@ $.fn.mascaraDinheiro = function () {
     })
 }
 
-$.fn.inicializarDateRange = function (format, time_picker, show_initial_date=true) {
+$.fn.inicializarDateRange = function (format, time_picker, show_initial_date = true, ranges='') {
     return this.daterangepicker({
         "timePicker": time_picker,
         "timePicker24Hour": true,
         "timePickerIncrement": 30,
+        "minDate": moment(),
         "locale": {
             "format": format,
             "separator": " - ",
@@ -138,10 +139,33 @@ $.fn.inicializarDateRange = function (format, time_picker, show_initial_date=tru
                 "Dezembro"
             ]
         },
+        ranges: {
+            'periodo_1':[moment('2024-02-08'), moment('2024-02-15')],
+            'periodo_2': [moment('2024-02-22'), moment('2024-02-29')]
+        },
         "showCustomRangeLabel": false,
         "alwaysShowCalendars": true,
         "drops": "up"
     })
+}
+
+function verificar_datas(datas) {
+    if ($('#id_promocional').prop('checked')) {
+        const check_in = moment(datas.value.split(' - ')[0].split(' ')[0], 'DD/MM/YYYY')
+        const check_out = moment(datas.value.split(' - ')[1].split(' ')[0], 'DD/MM/YYYY')
+
+        let periodo_valido = $('#lista_de_periodos input').map((index, periodo) => {
+            let _check_in = moment(periodo.value.split(' - ')[0], 'DD/MM/YYYY').startOf('day')
+            let _check_out = moment(periodo.value.split(' - ')[1], 'DD/MM/YYYY').startOf('day')
+
+            return (check_in.isSameOrAfter(_check_in) && check_in.isSameOrBefore(_check_out)) && (check_out.isSameOrAfter(_check_in) && check_out.isSameOrBefore(_check_out))
+        })
+        console.log(periodo_valido[0])
+
+        if (!periodo_valido[0]) {
+            alert('Período não aplicado ao pacote em montagem.')
+        }
+    }
 }
 
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00') {
@@ -497,45 +521,52 @@ async function liberar_periodo(id_responsavel = null) {
     }
 }
 
-function separar_produtos(periodo) {
-    if (!enviar) {
-        enviar = true
-
-        return
-    }
-
+async function separar_produtos(periodo) {
     let check_in = $(periodo).val().split(' - ')[0]
     let check_out = $(periodo).val().split(' - ')[1]
 
-    $.ajax({
-        type: 'GET',
-        url: '',
-        data: {'check_in': check_in, 'check_out': check_out},
-        success: function (response) {
-            for (let produto of $('#id_produto option')) {
-                if (response['ids'].includes(parseInt($(produto).val()))) {
-                    $(produto).prop('disabled', false)
-                } else {
-                    $(produto).prop('disabled', true)
+    await new Promise(function (resolve, reject) {
+        $.ajax({
+            type: 'GET',
+            url: '',
+            data: {'check_in': check_in, 'check_out': check_out},
+            success: function (response) {
+                for (let produto of $('#id_produto option')) {
+                    if (produto.value != '') {
+                        if (response['ids'].includes(parseInt($(produto).val()))) {
+                            $(produto).prop('disabled', false)
+                        } else {
+                            $(produto).prop('disabled', true)
+                        }
+                    }
                 }
+
+                if ($('#id_produto').val() == null) {
+                    $('#id_produto').val('')
+                }
+
+                resolve(response)
             }
-        }
-    }).done(() => {
-        $('#id_produto').prop('disabled', false)
-        $('#subtotal').removeClass('none')
-    }).catch((error) => {
-        alert(error)
-        $('#subtotal').addClass('none')
+        }).done(() => {
+            $('#id_produto').prop('disabled', false)
+            $('#subtotal').removeClass('none')
+        }).catch((xht, status, error) => {
+            alert(xht['responseJSON']['msg'])
+            $('#id_produto').val('')
+            $('#subtotal').addClass('none')
+
+            reject(xht['responseJSON']['msg'])
+        })
     })
 }
 
 async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
+    await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         loading()
-
         try {
             await enviar_form()
             $('#container_periodo .parcial').addClass('visivel')
@@ -563,8 +594,7 @@ async function verificar_preenchimento() {
             end_loading()
         }
     } else {
-        $('#container_periodo .parcial').removeClass('visivel')
-        $('.div-flutuante').removeClass('visivel').addClass('none')
+        $('#container_periodo .visivel, #subtotal span').text('R$ 0,00')
     }
 
 }
@@ -718,7 +748,7 @@ async function salvar_orcamento() {
     }
 }
 
-function montar_pacote(check_promocional=null) {
+function montar_pacote(check_promocional = null) {
     if (check_promocional) {
         if ($(check_promocional).prop('checked')) {
             $('#dados_do_pacote').modal('show')
@@ -748,7 +778,7 @@ function remover_periodo(btn) {
     }
 }
 
-function adicionar_periodo_novo(periodo='') {
+function adicionar_periodo_novo(periodo = '') {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
     console.log('Foi')
     let novo_obj_periodo = `
@@ -772,7 +802,7 @@ function salvar_dados_do_pacote() {
         }
     }).done(async () => {
         $('#dados_do_pacote').modal('hide')
-        $('#container_monitoria_transporte').removeClass('none')
+        $('#container_monitoria_transporte, #container_periodo').removeClass('none')
         $('#subtotal').removeClass('none')
         await enviar_form()
         $('.div-flutuante').addClass('visivel')
