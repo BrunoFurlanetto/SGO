@@ -260,6 +260,7 @@ class Orcamento(models.Model):
                 check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
 
                 if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
+
                     return True
 
             return False

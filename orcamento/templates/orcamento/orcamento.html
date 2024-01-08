@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <div class="conteudo-orcamento">
-        <div id="subtotal" class="div-flutuante none" {% if financeiro %} style="cursor: pointer;" onclick="$('#modal_descritivo').modal('show')" {% endif %}>
+        <div id="subtotal" class="div-flutuante none" {% if financeiro %} style="cursor: pointer;"
+             onclick="$('#modal_descritivo').modal('show')" {% endif %}>
             {% if financeiro %}
-            	<div class="floating-box none" id="floatingBox">Clique aqui</div>
+                <div class="floating-box none" id="floatingBox">Clique aqui</div>
             {% endif %}
             <strong>Valor final</strong><span></span>
         </div>
@@ -59,7 +60,8 @@
                         <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
-                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="verificar_datas(this)"/>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
+                                   onchange="verificar_datas(this)"/>
                             <label for="produto">Produto</label>
                             {{ orcamento.produto }}
                         </div>
@@ -69,69 +71,73 @@
                                 <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
                                 {{ orcamento.orcamento_promocional }}
                             </div>
-                            <button type="button" name="info_promocional" title="Pacotes promocionais que se encaixam no periodo e no produto escolhido" id="info_promocional">
+                            <button type="button" name="info_promocional"
+                                    title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
+                                    id="info_promocional" onclick="$('#dados_do_pacote').modal('show')">
                                 <i class='bx bx-info-circle'></i>
                             </button>
                         </div>
                     </div>
                     <div class="parcial"></div>
                 </div>
-                <div id="container_monitoria_transporte" style="margin-bottom: -55px" class="none">
-                    <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
-                         onchange="verificar_monitoria_transporte()">
-                        <div id="monitoria" class="conteudo" style="width: 62%">
-                            <h5 class="titulo-secao">Monitoria</h5>
+                <div id="campos_fixos">
+                    <div id="container_monitoria_transporte" style="margin-bottom: -55px" class="none">
+                        <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
+                             onchange="verificar_monitoria_transporte()">
+                            <div id="monitoria" class="conteudo" style="width: 62%">
+                                <h5 class="titulo-secao">Monitoria</h5>
+                                <div>
+                                    {{ orcamento.tipo_monitoria.label }}
+                                    {{ orcamento.tipo_monitoria }}
+                                </div>
+                            </div>
+                            <div class="conteudo" style="width: 35%">
+                                <h5 class="titulo-secao">Transporte</h5>
+                                <div id="transporte">
+                                    {{ orcamento.transporte }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parcial"></div>
+                    </div>
+                    <div id="container_opcionais" style="margin-bottom: -45px" class="none">
+                        <div id="opcionais" class="conteudo">
+                            <h5 class="titulo-secao">Atividades e Opcionais</h5>
                             <div>
-                                {{ orcamento.tipo_monitoria.label }}
-                                {{ orcamento.tipo_monitoria }}
+                                <label>Opcionais</label>
+                                {{ orcamento.atividades }}
                             </div>
-                        </div>
-                        <div class="conteudo" style="width: 35%">
-                            <h5 class="titulo-secao">Transporte</h5>
-                            <div id="transporte">
-                                {{ orcamento.transporte }}
+                            <div class="mt-3">
+                                {{ orcamento.atividades_ceu.label }}
+                                {{ orcamento.atividades_ceu }}
                             </div>
-                        </div>
-                    </div>
-                    <div class="parcial"></div>
-                </div>
-                <div id="container_opcionais" style="margin-bottom: -45px" class="none">
-                    <div id="opcionais" class="conteudo">
-                        <h5 class="titulo-secao">Atividades e Opcionais</h5>
-                        <div>
-                            <label>Opcionais</label>
-                            {{ orcamento.atividades }}
-                        </div>
-                        <div class="mt-3">
-                            {{ orcamento.atividades_ceu.label }}
-                            {{ orcamento.atividades_ceu }}
-                        </div>
-                        <div class="select_opcionais mt-3">
-                            <label>Atividades Peraltas</label>
-                            {{ orcamento.opcionais }}
-                        </div>
-                        <div class="row mt-3" style="align-items: flex-end">
-                            <div class="select_outros">
-                                <label for="op_extras">Outros itens</label>
-                                <select name="op_extra" id="op_extras" multiple></select>
+                            <div class="select_opcionais mt-3">
+                                <label>Atividades Peraltas</label>
+                                {{ orcamento.opcionais }}
                             </div>
-                            <div style="width: 5%">
-                                <button id="botao_add_opcionais" type="button"
-                                        onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
-                                    <i class='bx bx-plus'></i>
-                                </button>
+                            <div class="row mt-3" style="align-items: flex-end">
+                                <div class="select_outros">
+                                    <label for="op_extras">Outros itens</label>
+                                    <select name="op_extra" id="op_extras" multiple></select>
+                                </div>
+                                <div style="width: 5%">
+                                    <button id="botao_add_opcionais" type="button"
+                                            onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                        <i class='bx bx-plus'></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <hr>
-                        {% if financeiro %}
-                            <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
+                            <hr>
+                            {% if financeiro %}
+                                <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
                                                                                                 $('#btn_salvar_orcamento').prop('disabled', false)">
-                                <i class='bx bxs-food-menu'></i>
-                                Lista de valores
-                            </button>
-                        {% endif %}
+                                    <i class='bx bxs-food-menu'></i>
+                                    Lista de valores
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="parcial"></div>
                     </div>
-                    <div class="parcial"></div>
                 </div>
                 <div id="finalizacao" class="conteudo none">
                     <h5 class="titulo-secao">Observações</h5>
@@ -142,7 +148,7 @@
                     </div>
                     <div class="botoes">
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                onclick="salvar_orcamento()" onfocus="console.log('Foi')" disabled>
+                                onclick="salvar_orcamento()" {% if financeiro %} disabled {% endif %}>
                             Salvar orçamento
                         </button>
                     </div>
@@ -191,41 +197,39 @@
         </div>
     </div>
 
-    {% if financeiro %}
-        <!--  Modal valores dos outros opcionais  -->
-        <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
-                            <table id="tabela_de_opcionais" class="table table-hover table-striped">
-                                <thead>
-                                <tr>
-                                    <th style="width: 50%">Opcional</th>
-                                    <th style="width: 25%">Valor</th>
-                                    <th style="width: 25%">Desconto</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
-                            Salvar
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                    </div>
+    <!--  Modal valores dos outros opcionais  -->
+    <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
+                        <table id="tabela_de_opcionais" class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Opcional</th>
+                                <th style="width: 25%">Valor</th>
+                                <th style="width: 25%">Desconto</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
+                        Salvar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
 
     <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
          aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -297,7 +301,8 @@
                                 </div>
                                 <div>
                                     <label for="data_vencimento">Data de vencimento</label>
-                                    <input type="date" name="data_vencimento" id="data_vencimento" required onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
+                                    <input type="date" name="data_vencimento" id="data_vencimento" required
+                                           onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
                                 </div>
                             </div>
                         </fieldset>
@@ -386,8 +391,12 @@
                                             {{ pacote_promocional.cortesia.label }}?
                                         </label>
                                     </div>
-                                    <div id="div_limite_cortesia" style="display: flex; width: 48%; column-gap: 10px; align-items: center" class="none">
-                                        <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}"><nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr></label>
+                                    <div id="div_limite_cortesia"
+                                         style="display: flex; width: 48%; column-gap: 10px; align-items: center"
+                                         class="none">
+                                        <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}">
+                                            <nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr>
+                                        </label>
                                         {{ pacote_promocional.limite_cortesia }}
                                     </div>
                                 </div>
@@ -404,17 +413,24 @@
                             <div id="lista_de_periodos" class="mb-3">
                                 <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
                                     <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
-                                    <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
+                                    <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)">
+                                        <span>&times;</span></button>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-outline-success" onclick="adicionar_periodo_novo()">Adicionar periodo</button>
+                            {% if financeiro %}
+                                <button type="button" class="btn btn-outline-success" onclick="adicionar_periodo_novo()">
+                                    Adicionar periodo
+                                </button>
+                            {% endif %}
                         </fieldset>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
-                        Salvar
-                    </button>
+                    {% if financeiro %}
+                        <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
+                            Salvar
+                        </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
