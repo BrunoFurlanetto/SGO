@@ -8,6 +8,12 @@ class BaseValue:
         self.value_with_discount = self.calc_value_with_discount()
         return self.discount
 
+    def set_percent_discount(self, percent):
+        total = self.get_total_values()
+        discount = total * percent / 100
+        self.set_discount(discount)
+        return discount
+
     def get_total_values(self):
         total = 0
         for value in self.values:

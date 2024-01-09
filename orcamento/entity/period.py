@@ -9,3 +9,14 @@ class Period(BaseValue):
 
     def get_periods(self):
         return [period.id for period in self.periods]
+
+    def set_period_rate(self):
+        taxa = 0
+
+        for period in self.periods:
+            if period.taxa_periodo >= taxa:
+                taxa = period.taxa_periodo
+
+        self.values[0] = float(taxa)
+
+        return self.values

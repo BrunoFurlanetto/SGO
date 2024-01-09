@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 import re
 
 from django.http import JsonResponse
+
+from peraltas.models import ProdutosPeraltas
 from .mock import mock_optional
 from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo
 
@@ -149,7 +151,10 @@ def processar_formulario(dados):
         orcamento['check_in'] = datetime.strptime(checks[0], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
         orcamento['check_out'] = datetime.strptime(checks[1], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
 
-    return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
+        only_sky = ProdutosPeraltas.objects.filter(pk=orcamento['produto'], produto__icontains='ceu').exists()
+        orcamento['only_sky'] = only_sky
+
+    return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia }
 
 
 def verificar_gerencia(dados):

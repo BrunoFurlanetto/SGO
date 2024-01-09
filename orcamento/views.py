@@ -96,9 +96,8 @@ def calc_budget(req):
                     dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
                 else:
                     dados_pacote_promocional = CadastroPacotePromocional(dados)
-
+                print(req.POST)
                 try:
-                    print(dados_pacote_promocional.errors)
                     pacote = dados_pacote_promocional.save(commit=False)
                     pacote.save()
                 except Exception as e:
@@ -109,7 +108,7 @@ def calc_budget(req):
                     return HttpResponse(pacote.id)
 
             dados = processar_formulario(req.POST)
-
+            print(dados)
             if 'orcamento' not in dados:
                 return dados
 
@@ -159,6 +158,20 @@ def calc_budget(req):
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
             budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
             budget.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
+
+            # Veriricação se aplica tava MP
+            budget.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data['only_sky'] else ...
+
+            #discout with percent
+            budget.transport.set_percent_discount(
+                gerencia["desconto_transporte_percent"]) if "desconto_transporte_percent" in gerencia else ...
+            budget.monitor.set_percent_discount(
+                gerencia["desconto_monitoria_percent"]) if "desconto_monitoria_percent" in gerencia else ...
+            budget.daily_rate.set_percent_discount(
+                data["desconto_diarias_percent"]) if "desconto_diarias_percent" in data else ...
+            budget.daily_rate.set_percent_discount(
+                gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
+
 
             # OPICIONAIS
             if len(valores_op) == 0:

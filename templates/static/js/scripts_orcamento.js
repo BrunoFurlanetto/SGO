@@ -17,10 +17,10 @@ $(document).ready(() => {
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
     $('#periodo_1').inicializarDateRange('DD/MM/YYYY', false)
 
-    $('#valor_opcional, #desconto_produto, #desconto_monitoria').mascaraDinheiro()
-    $('#desconto_transporte, #desconto_geral').mascaraDinheiro()
-    $('#id_limite_desconto_geral').mascaraDinheiro()
-    $('#comissao, #taxa_comercial').mask('00,00%', {reverse: true})
+    $('#valor_opcional').mascaraDinheiro()
+    $('#desconto_geral').mascaraDinheiro()
+    $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
+    $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
 
     jQuery('#orcamento').submit(function () {
         const dados = jQuery(this).serialize()
@@ -31,9 +31,7 @@ $(document).ready(() => {
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             data: dados,
-            success: function (response) {
-                console.log(response)
-            }
+            success: function (response) {}
         });
 
         return false
@@ -54,7 +52,6 @@ $(document).ready(() => {
                     data: {'nome_id': nome_id, 'id': opcao['id']},
                 }).then(async (response) => {
                     await listar_op(response, nome_id, opcao, i)
-                    console.log('Foi')
                 }).done(async () => {
                     $('#tabela_de_opcionais input').maskMoney({
                         prefix: 'R$ ',
@@ -160,7 +157,6 @@ function verificar_datas(datas) {
 
             return (check_in.isSameOrAfter(_check_in) && check_in.isSameOrBefore(_check_out)) && (check_out.isSameOrAfter(_check_in) && check_out.isSameOrBefore(_check_out))
         })
-        console.log(periodo_valido[0])
 
         if (!periodo_valido[0]) {
             alert('Período não aplicado ao pacote em montagem.')
@@ -279,7 +275,7 @@ function linhas_descritivo_opcionais(opcionais, id_linha) {
     }
 }
 
-function tabela_descrito(valores, dias, opcionais, totais) {
+function tabela_descrito(valores, dias, taxa, opcionais, totais) {
     $('#tabela_de_valores .datas').remove()
     $('.tag_datas').prop('colspan', dias.length)
     let classe_datas = ''
@@ -297,12 +293,13 @@ function tabela_descrito(valores, dias, opcionais, totais) {
     criar_linhas_tabela_valores(secoes)
 
     for (let secao of secoes) {
+        console.log(secao)
         $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
-            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>
-            <td class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(valores[secao]['valor_final'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>                 
+            <td class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(secao == 'diaria' ? valores[secao]['valor_final'] + taxa : valores[secao]['valor_final'])}</nobr></td>
         `)
 
         for (let valor_dia of valores[secao]['valores']) {
@@ -354,7 +351,7 @@ async function enviar_form(salvar = false) {
             }
         });
     }
-    console.count('Envio: ')
+
     dados_op = $('#forms_valores_op').serializeObject();
     gerencia = $('#form_gerencia').serializeObject();
 
@@ -393,13 +390,12 @@ async function enviar_form(salvar = false) {
                         $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
                         $('#subtotal span').text('R$ ' + total_formatado); // Total
 
-                        tabela_descrito(valores, response['data']['days'], response['data']['descricao_opcionais'], response['data']['total'])
+                        tabela_descrito(valores, response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
                         resultado_ultima_consulta = response
                     }
                     resolve(response['promocionais']);
                 },
                 error: function (xht, status, error) {
-                    console.log(xht)
                     reject(xht['responseJSON']['msg']);
                 }
             });
@@ -421,7 +417,6 @@ async function enviar_form(salvar = false) {
             }
         }
 
-
         return response;
     } catch (error) {
         alert(error)
@@ -429,7 +424,6 @@ async function enviar_form(salvar = false) {
         throw error
     }
 }
-
 
 $.fn.serializeObject = function () {
     let obj = {}
@@ -682,9 +676,9 @@ async function adicionar_novo_op() {
 
     const n_op = op_extras.length + 1
     let id_op_extra = `OPCEXT${n_op.toString().padStart(2, '0')}`
-    await novo_op_extra(n_op, nome_opcional, valor_opcional, descricao_opcional)
-
+    await novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional)
     $('#adicionar_opcional').modal('hide')
+    $('#container_opcionais .parcial').addClass('visivel')
 }
 
 async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional) {
@@ -713,6 +707,9 @@ async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descric
             }
         }
     })
+
+    await enviar_form()
+
 }
 
 async function atualizar_valores_op(carregar = false) {
@@ -792,7 +789,7 @@ function remover_periodo(btn) {
 
 function adicionar_periodo_novo(periodo = '') {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
-    console.log('Foi')
+
     let novo_obj_periodo = `
         <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
             <input type="text" id="periodo_${periodo_n}" value="${periodo}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
@@ -915,7 +912,7 @@ async function resetar_forms() {
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
     $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
-    console.log(id_pacote)
+
     if (id_pacote == '') {
         await resetar_forms()
         await enviar_form()

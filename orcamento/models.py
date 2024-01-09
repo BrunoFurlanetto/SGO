@@ -35,6 +35,7 @@ class OrcamentoOpicional(models.Model):
 class OrcamentoPeriodo(models.Model):
     nome_periodo = models.CharField(max_length=255)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
     id = models.CharField(max_length=11, unique=True, primary_key=True)
 
@@ -121,7 +122,7 @@ class DadosDePacotes(models.Model):
                 dado_int = int(value)
             except ValueError:
                 try:
-                    dado_float = float(value.replace(',', '.'))
+                    dado_float = float(value.replace(',', '.').replace('%', ''))
                 except ValueError:
                     dados_tratados[campo] = value
                 else:
