@@ -944,6 +944,7 @@ async function mostrar_dados_pacote(pacote) {
                 adicionar_periodo_novo(Object.values(periodos[_p])[0])
             }
 
+            $('#tabela_de_opcionais tbody').empty()
             await preencher_promocional(id_pacote)
             $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
             $('#form_dados_pacote fieldset').prop('disabled', true)

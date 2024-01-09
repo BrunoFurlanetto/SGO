@@ -132,10 +132,12 @@ def dashboardCeu(request):
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     orcamentos_para_gerencia = Orcamento.objects.filter(necessita_aprovacao_gerencia=True)
-    orcamentos = Orcamento.objects.filter(colaborador=request.user, necessita_aprovacao_gerencia=False)
+    orcamentos = Orcamento.objects.filter(colaborador=request.user, necessita_aprovacao_gerencia=False).filter(promocional=False)
+    pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
+    financeiro = Group.objects.get(name='Financeiro')
 
     if is_ajax(request):
         if request.POST.get('novo_status'):
@@ -194,6 +196,7 @@ def dashboardPeraltas(request):
                                 'valor': opcional['valor_com_desconto'],
                                 'aceite': valor == 'on'
                             })
+
         orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
         orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
         orcamento.necessita_aprovacao_gerencia = False
@@ -213,7 +216,9 @@ def dashboardPeraltas(request):
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
         'diretoria': diretoria in grupos_usuario,
+        'financeiro': financeiro in grupos_usuario,
         'orcamentos_gerencia': orcamentos_para_gerencia,
         'orcamentos': orcamentos,
+        'pacotes': pacotes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

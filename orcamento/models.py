@@ -130,10 +130,14 @@ class DadosDePacotes(models.Model):
             else:
                 dados_tratados[campo] = dado_int
 
-        lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
+        if dados.getlist('produtos_elegiveis[]'):
+            lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
+        else:
+            lista = [int(dados.get('produtos_elegiveis'))]
+
         dados_tratados['produtos_elegiveis'] = lista
         dados_tratados['periodos_aplicaveis'] = DadosDePacotes.juntar_periodos(dados)
-        print(dados_tratados)
+        print(dados_tratados, ' ------ ++++++')
         return dados_tratados
 
     @staticmethod

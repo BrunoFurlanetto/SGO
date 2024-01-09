@@ -121,10 +121,34 @@
     {% else %}
         <div id="conteudo">
             <div id="abas" style="display: flex">
+                {% if financeiro %}<div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>{% endif %}
                 {% if diretoria %}<div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para aprovação </div>{% endif %}
-                <div class="folder {% if not diretoria %} ativo {% endif %}" onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos</div>
+                <div class="folder {% if not diretoria and not financeiro %} ativo {% endif %}" onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos</div>
                 <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
             </div>
+            {% if financeiro %}
+            	 <div class="section-content ativo" id="pacotes">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Pacote promocional</th>
+                            <th style="width: 25%">Data de vencimento</th>
+                            <th style="width: 25%">Valor base</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                         {% for pacote in pacotes %}
+                             <tr>
+                                 <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
+                                 <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
+                                 <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                             </tr>
+                         {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
             {% if diretoria %}
                 <div class="section-content ativo" id="orcamentos_aprovacao">
                     <table class="table table-hover table-striped">
@@ -147,7 +171,7 @@
                     </table>
                 </div>
             {% endif %}
-            <div id="orcamentos_aprovados" class="section-content {% if not diretoria %} ativo {% endif %}">
+            <div id="orcamentos_aprovados" class="section-content {% if not diretoria and not financeiro %} ativo {% endif %}">
                 <table class="table table-hover table-striped">
                     <thead>
                     <tr>
