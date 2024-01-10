@@ -89,23 +89,24 @@ def calc_budget(req):
                 })
         else:
             if req.POST.get('nome_do_pacote'):
-                dados = DadosDePacotes.tratar_dados(req.POST)
-
-                if req.POST.get('id_pacote') != '':
-                    pacote_promocional = DadosDePacotes.objects.get(pk=req.POST.get('id_pacote'))
-                    dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
-                else:
-                    dados_pacote_promocional = CadastroPacotePromocional(dados)
-
-                try:
-                    pacote = dados_pacote_promocional.save(commit=False)
-                    pacote.save()
-                except Exception as e:
-                    ...
-                else:
-                    DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
-
-                    return HttpResponse(pacote.id)
+                # dados = DadosDePacotes.tratar_dados(req.POST)
+                #
+                # if req.POST.get('id_pacote') != '':
+                #     pacote_promocional = DadosDePacotes.objects.get(pk=req.POST.get('id_pacote'))
+                #     dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
+                # else:
+                #     dados_pacote_promocional = CadastroPacotePromocional(dados)
+                #
+                # try:
+                #     pacote = dados_pacote_promocional.save(commit=False)
+                #     pacote.save()
+                # except Exception as e:
+                #     ...
+                # else:
+                #     DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
+                #
+                #     return HttpResponse(pacote.id)
+                return HttpResponse(1)
 
             dados = processar_formulario(req.POST)
 

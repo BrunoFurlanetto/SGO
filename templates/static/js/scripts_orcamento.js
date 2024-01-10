@@ -14,7 +14,7 @@ $(document).ready(() => {
     $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
 
-    $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
+    $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
     $('#periodo_1').inicializarDateRange('DD/MM/YYYY', false)
 
     $('#valor_opcional').mascaraDinheiro()
@@ -31,7 +31,8 @@ $(document).ready(() => {
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             data: dados,
-            success: function (response) {}
+            success: function (response) {
+            }
         });
 
         return false
@@ -101,7 +102,7 @@ $.fn.mascaraDinheiro = function () {
     })
 }
 
-$.fn.inicializarDateRange = function (format, time_picker, show_initial_date = true, ranges = '') {
+$.fn.inicializarDateRange = function (format, time_picker, isInvalidDate = null, show_initial_date = true, ranges = '') {
     return this.daterangepicker({
         "timePicker": time_picker,
         "timePicker24Hour": true,
@@ -136,31 +137,25 @@ $.fn.inicializarDateRange = function (format, time_picker, show_initial_date = t
                 "Dezembro"
             ]
         },
-        ranges: {
-            'periodo_1': [moment('2024-02-08'), moment('2024-02-15')],
-            'periodo_2': [moment('2024-02-22'), moment('2024-02-29')]
-        },
         "showCustomRangeLabel": false,
         "alwaysShowCalendars": true,
-        "drops": "up"
+        "drops": "up",
+        "isInvalidDate": isInvalidDate
     })
 }
 
-function verificar_datas(datas) {
-    if ($('#id_promocional').prop('checked')) {
-        const check_in = moment(datas.value.split(' - ')[0].split(' ')[0], 'DD/MM/YYYY')
-        const check_out = moment(datas.value.split(' - ')[1].split(' ')[0], 'DD/MM/YYYY')
+function verificar_datas(date) {
+    if ($('#id_promocional').prop('checked') || $('#id_orcamento_promocional').val() != '') {
+        let periodos = $('#lista_de_periodos input').map(function () {
+            let inicio = moment($(this).val().split(' - ')[0], 'DD/MM/YYYY')
+            let final = moment($(this).val().split(' - ')[1], 'DD/MM/YYYY')
 
-        let periodo_valido = $('#lista_de_periodos input').map((index, periodo) => {
-            let _check_in = moment(periodo.value.split(' - ')[0], 'DD/MM/YYYY').startOf('day')
-            let _check_out = moment(periodo.value.split(' - ')[1], 'DD/MM/YYYY').startOf('day')
+            return {'inicio': inicio, 'final': final.add(1, 'days')}
+        }).get();
 
-            return (check_in.isSameOrAfter(_check_in) && check_in.isSameOrBefore(_check_out)) && (check_out.isSameOrAfter(_check_in) && check_out.isSameOrBefore(_check_out))
-        })
-
-        if (!periodo_valido[0]) {
-            alert('Período não aplicado ao pacote em montagem.')
-        }
+        return !periodos.some(function(periodo) {
+            return date.isSameOrAfter(periodo.inicio) && date.isSameOrBefore(periodo.final);
+        });
     }
 }
 
@@ -907,6 +902,14 @@ async function resetar_forms() {
             reject(e)
         }
     })
+}
+
+function atualizar_periodo() {
+    const periodo = $('#data_viagem').data('daterangepicker');
+    let data_1 = moment($('#periodo_1').val().split(' - ')[0], 'DD/MM/YYYY')
+    let n_dias = $('#id_minimo_de_diarias').val() != '' ? parseInt($('#id_minimo_de_diarias').val()) - 1 : 0
+    periodo.setStartDate(data_1.format('DD/MM/YYYY 10:00'));
+    periodo.setEndDate(data_1.add(n_dias, 'days').format('DD/MM/YYYY 20:00'));
 }
 
 async function mostrar_dados_pacote(pacote) {

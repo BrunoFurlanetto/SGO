@@ -61,7 +61,7 @@
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
                             <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
-                                   onchange="verificar_datas(this)"/>
+                                   {% comment %}onchange="verificar_datas(this)"{% endcomment %}/>
                             <label for="produto">Produto</label>
                             {{ orcamento.produto }}
                         </div>
@@ -412,7 +412,7 @@
                             <h5 class="titulo-secao">Períodos aplicáveis</h5>
                             <div id="lista_de_periodos" class="mb-3">
                                 <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
+                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis" onchange="atualizar_periodo()">
                                     <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)">
                                         <span>&times;</span></button>
                                 </div>
