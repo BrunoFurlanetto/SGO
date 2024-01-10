@@ -90,6 +90,10 @@ $(document).ready(() => {
             end_loading()
         }
     })
+
+    if ($('#data_vencimento').val() != '') {
+        $('#btn_salvar_orcamento').prop('disabled', false)
+    }
 })
 
 $.fn.mascaraDinheiro = function () {
@@ -140,7 +144,7 @@ $.fn.inicializarDateRange = function (format, time_picker, isInvalidDate = null,
         "showCustomRangeLabel": false,
         "alwaysShowCalendars": true,
         "drops": "up",
-        "isInvalidDate": isInvalidDate
+        "isInvalidDate": isInvalidDate,
     })
 }
 
@@ -288,7 +292,6 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
     criar_linhas_tabela_valores(secoes)
 
     for (let secao of secoes) {
-        console.log(secao)
         $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
@@ -919,6 +922,7 @@ async function mostrar_dados_pacote(pacote) {
     if (id_pacote == '') {
         await resetar_forms()
         await enviar_form()
+        $('#info_promocional').prop('disabled', true)
 
         return
     } else {

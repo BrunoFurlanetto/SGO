@@ -60,8 +60,7 @@
                         <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
-                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
-                                   {% comment %}onchange="verificar_datas(this)"{% endcomment %}/>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"/>
                             <label for="produto">Produto</label>
                             {{ orcamento.produto }}
                         </div>
@@ -71,7 +70,7 @@
                                 <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
                                 {{ orcamento.orcamento_promocional }}
                             </div>
-                            <button type="button" name="info_promocional"
+                            <button type="button" name="info_promocional" disabled
                                     title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
                                     id="info_promocional" onclick="$('#dados_do_pacote').modal('show')">
                                 <i class='bx bx-info-circle'></i>
