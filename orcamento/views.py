@@ -96,7 +96,7 @@ def calc_budget(req):
                     dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
                 else:
                     dados_pacote_promocional = CadastroPacotePromocional(dados)
-                print(req.POST)
+
                 try:
                     pacote = dados_pacote_promocional.save(commit=False)
                     pacote.save()
@@ -108,7 +108,7 @@ def calc_budget(req):
                     return HttpResponse(pacote.id)
 
             dados = processar_formulario(req.POST)
-            print(dados)
+
             if 'orcamento' not in dados:
                 return dados
 
@@ -226,26 +226,27 @@ def calc_budget(req):
 
                 pre_orcamento = orcamento.save(commit=False)
                 pre_orcamento.objeto_gerencia = dados['gerencia']
+                pre_orcamento.objeto_orcamento = budget.return_object()
+                pre_orcamento.colaborador = req.user
 
+                # Veriicações para ver a necessidade de aprovação da gerência ou não
                 if budget.total.general_discount > 0 or dados['gerencia'][
                     'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
                     '%Y-%m-%d'):
                     pre_orcamento.necessita_aprovacao_gerencia = True
 
+                if budget.others.values != 0:
+                    pre_orcamento.necessita_aprovacao_gerencia = True
+
                 if data.get('orcamento_promocional'):
                     pre_orcamento.necessita_aprovacao_gerencia = False
-
-                pre_orcamento.objeto_orcamento = budget.return_object()
-                pre_orcamento.promocional = financeiro
-                pre_orcamento.colaborador = req.user
 
                 if pre_orcamento.promocional:
                     pre_orcamento.necessita_aprovacao_gerencia = False
                     pre_orcamento.data_vencimento = gerencia['data_vencimento']
 
-                orcamento_salvo = orcamento.save()
                 try:
-                    pass
+                    orcamento_salvo = orcamento.save()
                 except Exception as e:
                     return JsonResponse({
                         "status": "error",

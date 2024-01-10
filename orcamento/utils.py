@@ -151,7 +151,11 @@ def processar_formulario(dados):
         orcamento['check_in'] = datetime.strptime(checks[0], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
         orcamento['check_out'] = datetime.strptime(checks[1], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
 
-        only_sky = ProdutosPeraltas.objects.filter(pk=orcamento['produto'], produto__icontains='ceu').exists()
+        try:
+            only_sky = ProdutosPeraltas.objects.filter(pk=orcamento['produto'], produto__icontains='ceu').exists()
+        except ValueError:
+            only_sky = False
+
         orcamento['only_sky'] = only_sky
 
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia }
