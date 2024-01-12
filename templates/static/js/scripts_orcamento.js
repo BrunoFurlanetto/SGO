@@ -157,7 +157,7 @@ function verificar_datas(date) {
             return {'inicio': inicio, 'final': final.add(1, 'days')}
         }).get();
 
-        return !periodos.some(function(periodo) {
+        return !periodos.some(function (periodo) {
             return date.isSameOrAfter(periodo.inicio) && date.isSameOrBefore(periodo.final);
         });
     }
@@ -964,4 +964,47 @@ async function mostrar_dados_pacote(pacote) {
     }).done(() => {
         $('#dados_do_pacote').modal('show')
     })
+}
+
+document.getElementById("btnPrint").onclick = function () {
+    printTable()
+}
+
+function printTable() {
+    var logo = document.getElementById('logo_peraltas').cloneNode(true)
+    var style = document.getElementById('style_impressao').cloneNode(true)
+
+    // Clona o conteúdo do formulário com o ID "form_gerencia"
+    var formContentClone = document.getElementById("form_gerencia").cloneNode(true);
+
+    // Clona a tabela para garantir que somente ela seja impressa
+    var tableClone = document.getElementById("tabela_de_valores").cloneNode(true);
+
+    // Cria um novo documento temporário para a impressão
+    var printWindow = window.open('', '_blank');
+
+    // Adiciona o cabeçalho à página de impressão
+    var header = document.createElement('header');
+    header.style.padding = '10px';
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+
+    // Adiciona os elementos ao cabeçalho
+    header.appendChild(logo)
+    header.appendChild(style)
+    formContentClone.style.pointerEvents = 'none'
+
+    // Adiciona o conteúdo do formulário clonado acima da tabela
+    printWindow.document.body.appendChild(header);
+    printWindow.document.body.appendChild(formContentClone);
+    printWindow.document.body.appendChild(tableClone);
+
+    var checkReady = setInterval(function() {
+        if (printWindow.document.readyState === "complete") {
+            clearInterval(checkReady);
+            printWindow.print();
+            printWindow.document.close();
+            printWindow.close();
+        }
+    }, 50);
 }

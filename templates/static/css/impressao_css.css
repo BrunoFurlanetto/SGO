@@ -1,0 +1,174 @@
+#logo_peraltas {
+    width: 20px;
+}
+
+#logo_peraltas {
+    width: 100mm;
+    margin-bottom: 15mm
+}
+
+table {
+    border-collapse: collapse;
+}
+
+#tabela_de_valores tr > th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_de_valores tr {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_de_valores tr > td:nth-child(1) {
+    text-align: left;
+}
+
+#tabela_de_valores .valor_final_tabela {
+    border-right: dashed #000000 2px;
+}
+
+#tabela_de_valores .atividade_ou_opcional {
+    background: #6764646d;
+}
+
+#tabela_de_valores .ultima_data, #tabela_de_valores .ultimo_valor, #tabela_de_valores tr > td:last-child {
+    border-right: dashed #000000 2px;
+}
+
+#tabela_de_valores tr > td:first-child, #tabela_de_valores tr:not(:first-child) and:not(:nth-child(2)) > th:first-child {
+    border-left: solid #000000 2px;
+}
+
+#tabela_de_valores tbody > tr:not(#totais) {
+    border-top: dashed 1px #a9a9a9;
+}
+
+#tabela_de_valores thead tr:nth-child(2) {
+    border-left: solid 1px #ced4da;
+    border-top: solid 1px #ced4da;
+    border-bottom: solid 2px #000000;
+}
+
+#tabela_de_valores tbody #totais {
+    border-top: dashed #000000 2px;
+    border-bottom: solid #000000 2px;
+    border-right: dashed #000000 2px;
+}
+
+#tabela_de_valores td {
+    padding: 8px
+}
+
+#tabela_de_valores tbody #totais th {
+    padding: 8px
+}
+
+#div_financeiro {
+    display: flex;
+    column-gap: 40px;
+    align-items: end;
+}
+
+#div_financeiro > div {
+    display: flex;
+    column-gap: 50px;
+    padding: 20px;
+    border: dashed 1px #5c636a;
+}
+
+#div_financeiro > div:nth-child(2) {
+    display: block;
+}
+
+body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+@media print {
+    @page {
+        margin: 8mm
+    }
+
+    #logo_peraltas {
+        width: 100mm;
+        margin-bottom: 15mm
+    }
+
+    #tabela_de_valores tr > th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tabela_de_valores tr {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tabela_de_valores tr > td:nth-child(1) {
+        text-align: left;
+    }
+
+    #tabela_de_valores .valor_final_tabela {
+        border-right: dashed #000000 2px;
+    }
+
+    #tabela_de_valores .atividade_ou_opcional {
+        background: #6764646d;
+    }
+
+    #tabela_de_valores .ultima_data, #tabela_de_valores .ultimo_valor, #tabela_de_valores tr > td:last-child {
+        border-right: dashed #000000 2px;
+    }
+
+    #tabela_de_valores tr > td:first-child, #tabela_de_valores tr:not(:first-child) and:not(:nth-child(2)) > th:first-child {
+        border-left: solid #000000 2px;
+    }
+
+    #tabela_de_valores tbody > tr:not(#totais) {
+        border-top: dashed 1px #a9a9a9;
+    }
+
+    #tabela_de_valores thead tr:nth-child(2) {
+        border-left: solid 1px #ced4da;
+        border-top: solid 1px #ced4da;
+        border-bottom: solid 2px #000000;
+    }
+
+    #tabela_de_valores tbody #totais {
+        border-top: dashed #000000 2px;
+        border-bottom: solid #000000 2px;
+        border-right: dashed #000000 2px;
+    }
+
+    #tabela_de_valores td {
+        padding: 8px
+    }
+
+    #tabela_de_valores tbody #totais th {
+        padding: 8px;
+    }
+
+    #div_financeiro {
+        display: flex;
+        column-gap: 40px;
+        align-items: end;
+    }
+
+    #div_financeiro > div {
+        display: flex;
+        column-gap: 50px;
+        padding: 20px;
+        border: dashed 1px #5c636a;
+    }
+
+    #div_financeiro > div:nth-child(2) {
+        display: block;
+    }
+
+    fieldset {
+        border: solid #000000 1px;
+    }
+}

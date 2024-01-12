@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'css/impressao_css.css' %}" type="text/css" id="style_impressao" />
+    <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
 
     <div class="conteudo-orcamento">
         <div id="subtotal" class="div-flutuante none" {% if financeiro %} style="cursor: pointer;"
@@ -23,7 +25,7 @@
         <form id="orcamento" name="orcamento" action="{% url 'orcamento' %}">
             <fieldset>
                 {% csrf_token %}
-                <div class="conteudo-primeiro">
+                <div id="conteudo_primeiro" class="conteudo-primeiro">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
                         {{ orcamento.cliente.label }}
@@ -334,6 +336,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    <button type="button" class="btn btn-dark" id="btnPrint" oncancel="">Imprimir</button>
                 </div>
             </div>
         </div>

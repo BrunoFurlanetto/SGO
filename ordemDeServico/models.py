@@ -63,6 +63,7 @@ class OrdemDeServico(models.Model):
     monitor_responsavel = models.ManyToManyField(Monitor)
     dados_transporte = models.ManyToManyField(DadosTransporte, blank=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
+
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
