@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from django.db import models
 from django.db.models import PositiveIntegerField
+from django.utils import timezone
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
@@ -33,14 +34,42 @@ class OrcamentoOpicional(models.Model):
 
 
 class OrcamentoPeriodo(models.Model):
+    semestre_choice = (
+        (1, 'Primeiro'),
+        (2, 'Segundo'),
+    )
+
+    dias_choice = (
+        (1, 'Meio de semana'),
+        (2, 'Fim de semana'),
+        (3, 'Qualquer dia'),
+    )
+
     nome_periodo = models.CharField(max_length=255)
+    ano = models.PositiveIntegerField(default=timezone.now().year, verbose_name='Ano')
+    semestre = models.PositiveIntegerField(choices=semestre_choice, verbose_name='Semestre', default=semestre_choice[0][0])
+    dias_validos = models.IntegerField(choices=dias_choice, verbose_name='Dias validos', default=dias_choice[0][0])
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
-    id = models.CharField(max_length=11, unique=True, primary_key=True)
+    id = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
 
     def __str__(self):
         return self.nome_periodo
+
+    def save(self, *args, **kwargs):
+        semestre = 'PS' if self.semestre == 1 else 'SS'
+        ano = self.ano
+
+        if self.dias_validos == 1:
+            dias = 'MS'
+        elif self.dias_validos == 2:
+            dias = 'FS'
+        else:
+            dias = 'QD'
+
+        self.id = f'{dias}{semestre}{ano}'
+        super().save(*args, **kwargs)
 
 
 class OrcamentoAlimentacao(models.Model):
