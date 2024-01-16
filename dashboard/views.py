@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 from django.contrib import messages
@@ -12,7 +12,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from orcamento.models import Orcamento, StatusOrcamento
+from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
@@ -157,8 +157,11 @@ def dashboardPeraltas(request):
                 return JsonResponse({'status': 'success'})
 
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-
-        return JsonResponse(campos_necessarios_aprovacao(orcamento))
+        print(orcamento.necessita_aprovacao_gerencia)
+        if orcamento.necessita_aprovacao_gerencia:
+            return JsonResponse(campos_necessarios_aprovacao(orcamento))
+        else:
+            return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -177,25 +180,47 @@ def dashboardPeraltas(request):
 
     if request.POST.get('id_orcamento'):
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        opcionais = orcamento.objeto_orcamento['descricao_opcionais']
         aceite_opcionais = []
 
         for chave, valor in orcamento.objeto_gerencia.items():
-            if chave != 'observacoes_desconto':
-                orcamento.objeto_gerencia[chave] = {'valor': valor, 'aceite': request.POST.get(chave) == 'on'}
+            try:
+                campo_alterado = orcamento.objeto_gerencia[f'{chave}_alterado']
+            except KeyError:
+                ...
+            else:
+                if campo_alterado:
+                    if request.POST.get(chave) != 'on':
+                        if chave != 'data_pagamento':
+                            valor = float(ValoresPadrao.objects.get(id_taxa=chave).valor)
+                        else:
+                            data = datetime.strptime(orcamento.objeto_gerencia[chave], '%Y-%m-%d')
+                            _valor = data + timedelta(days=int(ValoresPadrao.objects.get(id_taxa=chave).valor))
+                            valor = _valor.strftime('%Y-%m-%d')
+
+                    orcamento.objeto_gerencia[chave] = {
+                        'valor_pedido': orcamento.objeto_gerencia[chave],
+                        'valor_final': valor,
+                        'aceite': request.POST.get(chave) == 'on'
+                    }
 
         for chave, valor in request.POST.items():
             if 'opcional_' in chave:
-                id_opcional = int(chave.split('_')[1])
+                id_opcional = chave.split('_')[1]
 
-                for opcional in opcionais:
-                    if not opcional.get('outros'):
-                        if id_opcional == opcional['id']:
-                            aceite_opcionais.append({
-                                'id': id_opcional,
-                                'valor': opcional['valor_com_desconto'],
-                                'aceite': valor == 'on'
-                            })
+                for op in orcamento.objeto_orcamento['descricao_opcionais']:
+                    try:
+                        extras = op['outros']
+                    except KeyError:
+                        ...
+                    else:
+                        print(extras)
+                        for opcional in extras:
+                            if id_opcional == opcional['id']:
+                                aceite_opcionais.append({
+                                    'id': id_opcional,
+                                    'valor': opcional['valor_com_desconto'],
+                                    'aceite': valor == 'on'
+                                })
 
         orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
         orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}

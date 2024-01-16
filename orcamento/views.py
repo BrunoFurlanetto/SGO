@@ -118,10 +118,12 @@ def calc_budget(req):
             opt_data = []
             act_data = []
             act_sky_data = []
+
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
 
+            # return
             try:
                 promocionais = Orcamento.pegar_pacotes_promocionais(
                     data['n_dias'],

@@ -1,56 +1,65 @@
 import hashlib
 from datetime import datetime, timedelta
 
+from orcamento.models import ValoresPadrao
+
 
 def campos_necessarios_aprovacao(orcamento):
-    gerencia_default = {
-        "desconto_produto": {'base': 0.0, 'verbose': 'Desconto no produto'},
-        "desconto_monitoria": {'base': 0.0,'verbose':  'Desconto na monitoria'},
-        "desconto_trasnporte": {'base': 0.0,'verbose':  'Desconto no transporte'},
-        "desconto_geral": {'base': 0.0,'verbose':  'Desconto geral'},
-        "comissao": {'base': 9.0,'verbose':  'Comissão de vendas'},
-        "taxa_comercial": {'base': 5.0,'verbose':  'Taxa comercial'},
-        "minimo_onibus": {'base': 30.0,'verbose':  'Mínimo no ônibus'},
-        "data_pagamento": {'base': (orcamento.data_preenchimento + timedelta(days=15)).strftime('%d/%m/%Y'),
-                           'verbose': 'Data de pagamento'}
-    }
+    def valor_padrao():
 
+        if campo != 'data_pagamento':
+            try:
+                return float(ValoresPadrao.objects.get(id_taxa=campo).valor)
+            except ValoresPadrao.DoesNotExist:
+                return 0.00
+        else:
+            return (orcamento.data_preenchimento + timedelta(days=int(ValoresPadrao.objects.get(id_taxa=campo).valor))).strftime('%d/%m/%Y')
+
+    def valor_tratativa():
+        if campo != 'data_pagamento':
+            print(gerencia[campo])
+            return gerencia[campo]
+        else:
+            return datetime.strptime(gerencia[campo], '%Y-%m-%d').strftime('%d/%m/%Y')
+
+    alteraveis_gerencia = ['comissao', 'taxa_comercial', 'minimo_onibus', 'data_pagamento', 'desconto_geral']
     campos_alterados = {'pedidos': [], 'opcionais': []}
     gerencia = orcamento.objeto_gerencia
+    valor_op = 0
 
-    for chave in gerencia_default:
-        if chave != 'data_pagamento' and (gerencia_default[chave]['base'] != gerencia[chave]):
+    for campo in alteraveis_gerencia:
+        if gerencia[f'{campo}_alterado']:
+            campo_split = campo.split('_')
+            verbose = f'{campo_split[0].capitalize()} {campo_split[1].capitalize()}' if len(campo_split) > 1 else campo_split[0].capitalize()
             campos_alterados['pedidos'].append({
-                'campo': chave,
-                'valor_tratativa': gerencia[chave],
-                'base': gerencia_default[chave]['base'],
-                'verbose': gerencia_default[chave]['verbose']
+                'campo': campo,
+                'valor_tratativa': valor_tratativa(),
+                'valor_padrao': valor_padrao(),
+                'verbose': verbose,
             })
-        elif chave == 'data_pagamento':
-            data_pagamento = datetime.strptime(gerencia[chave], '%Y-%m-%d').strftime('%d/%m/%Y')
 
-            if data_pagamento != gerencia_default[chave]['base']:
-                campos_alterados['pedidos'].append({
-                    'campo': chave,
-                    'valor_tratativa': data_pagamento,
-                    'base': gerencia_default[chave]['base'],
-                    'verbose': gerencia_default[chave]['verbose']
-                })
+    for op in orcamento.objeto_orcamento['descricao_opcionais']:
+        try:
+            campos_alterados['outros'] = op['outros']
+        except KeyError:
+            campos_alterados['outros'] = []
+        else:
+            for op_extra in op['outros']:
+                valor_op += op_extra['valor']
+    print(valor_op)
+    try:
+        if len(orcamento.opcionais_extra) > 0:
+            soma_opcionais = 0
 
-    campos_alterados['observacoes'] = gerencia['observacoes_desconto']
+            for opcional in orcamento.opcionais_extra:
+                campos_alterados['opcionais'].append(opcional)
+    except TypeError:
+        ...
+
+    campos_alterados['observacoes'] = gerencia['observacoes_gerencia']
     campos_alterados['valor_com_desconto'] = float(orcamento.valor)
-    campos_alterados['valor_base'] = orcamento.objeto_orcamento['total']['valor']
-    campos_alterados['opcionais'] = verifricar_descontos_opcionais(orcamento.objeto_orcamento['descricao_opcionais'])
+    campos_alterados['valores_padrao'] = ValoresPadrao.listar_valores()
+    campos_alterados['valor_base'] = orcamento.objeto_orcamento['total']['valor'] - valor_op
     campos_alterados['id_orcamento'] = orcamento.id
 
     return campos_alterados
-
-
-def verifricar_descontos_opcionais(opcionais):
-    opcionais_com_descontos = []
-
-    for opcional in opcionais:
-        if not 'outros' in opcional.keys() and opcional['desconto'] != 0.00:
-            opcionais_com_descontos.append(opcional)
-
-    return opcionais_com_descontos

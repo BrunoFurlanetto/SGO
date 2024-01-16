@@ -84,6 +84,9 @@ def processar_formulario(dados):
                 except ValueError:
                     gerencia[correspondencia_gerencia.group(1)] = valor
 
+            if 'alterado' in key:
+                gerencia[correspondencia_gerencia.group(1)] = bool(int(valor))
+
     # Tratamento de informações apartir do campo data_viagem
     if "data_viagem" in orcamento and orcamento['data_viagem'] != '':
         checks = orcamento['data_viagem'].split(' - ')

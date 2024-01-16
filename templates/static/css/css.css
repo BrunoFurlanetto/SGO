@@ -1346,17 +1346,31 @@
     text-align: center;
 }
 
-#permissao_orcamentos table thead tr > th:first-child {
-    width: 50%;
+#tabela_descontos_opcionais thead tr > th:nth-child(2) {
+    width: 30%;
 }
 
-#permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
+#tabela_pedidos tbody > tr, #tabela_descontos_opcionais tbody > tr {
+    vertical-align: middle;
+}
+
+#tabela_descontos_opcionais tbody tr > td:nth-child(4) {
+    text-align: justify;
+    hyphens: auto;
+}
+
+#tabela_pedidos tbody tr > td:not(:first-child),
+#tabela_descontos_opcionais tbody tr > td:not(:nth-child(2)):not(:nth-child(4)) {
+    text-align: center;
+}
+
+#orcamentos_aprovados table thead tr > *:not(:first-child),
 #orcamentos_aprovados table tbody tr > *:not(:first-child){
     text-align: center;
     vertical-align: middle;
 }
 
-#orcamentos_aprovados table tbody tr:first-child {
+#orcamentos_aprovados table tbody tr:first-child{
     vertical-align: middle;
 }
 

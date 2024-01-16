@@ -7,9 +7,35 @@ from django.core import serializers
 from django.db import models
 from django.db.models import PositiveIntegerField
 from django.utils import timezone
+from unidecode import unidecode
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
+
+
+class ValoresPadrao(models.Model):
+    nome_taxa = models.CharField(max_length=255, verbose_name='Nome da taxa')
+    valor = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=4)
+    descricao = models.TextField(verbose_name='Descrição da taxa')
+    id_taxa = models.CharField(max_length=255, editable=False)
+
+    def __str__(self):
+        return self.nome_taxa
+
+    def save(self, *args, **kwargs):
+        self.id_taxa = unidecode(self.nome_taxa).lower().replace(' ', '_')
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def listar_valores(cls):
+        valores = cls.objects.all()
+        lista_valores = {}
+
+        for valor in valores:
+            lista_valores[valor.id_taxa] = valor.valor
+
+        return lista_valores
+
 
 
 class OrcamentoMonitor(models.Model):

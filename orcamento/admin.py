@@ -1,5 +1,7 @@
 from django.contrib import admin
-from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria, OrcamentoPeriodo
+from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria, OrcamentoPeriodo, \
+    ValoresPadrao
+
 
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
@@ -28,3 +30,7 @@ class TransporteInline(admin.StackedInline):
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(admin.ModelAdmin):
     inlines = (TransporteInline, )
+
+@admin.register(ValoresPadrao)
+class ValoresPadraoAdmin(admin.ModelAdmin):
+    list_display = ('nome_taxa', 'valor')

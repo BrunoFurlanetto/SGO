@@ -12,6 +12,7 @@ $(document).ready(() => {
     })
     let hoje = new Date()
     $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
+    $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
 
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -95,6 +96,48 @@ $(document).ready(() => {
         $('#btn_salvar_orcamento').prop('disabled', false)
     }
 })
+
+function verificar_alteracoes(div) {
+    if ($('#id_orcamento_promocional').val() == '') {
+        $(`#${div.id} input`).map((index, input) => {
+            if (input.value != $(input).data('valor_default')) {
+                $(`#${input.id}_alterado`).val('1')
+            } else {
+                $(`#${input.id}_alterado`).val('0')
+            }
+        })
+
+        let obs = $(`#${div.id} input[id*="alterado"]`).map((index, input) => {
+            if (input.value == '1') {
+                return true
+            }
+        }).get()
+
+        if (obs.includes(true)) {
+            $('#div_observacoes_gerencia').removeClass('none')
+            $('#observacoes_gerencia').prop('required', true)
+            $('#btn_salvar_orcamento').prop('disabled', true)
+            $('.botoes').attr('title', 'Verificar observações para a gerência')
+        } else {
+            $('#div_observacoes_gerencia').addClass('none')
+            $('#observacoes_gerencia').val('').prop('required', false)
+            $('#btn_salvar_orcamento').prop('disabled', false)
+            $('.botoes').attr('title', '')
+        }
+    }
+}
+
+function verificar_observacao(obs) {
+    let valor = obs.value
+
+    if (valor.length > 10) {
+        $('#btn_salvar_orcamento').prop('disabled', false)
+        $('.botoes').attr('title', '')
+    } else {
+        $('#btn_salvar_orcamento').prop('disabled', true)
+        $('.botoes').attr('title', 'Verificar observações para a gerência')
+    }
+}
 
 $.fn.mascaraDinheiro = function () {
     return $(this).maskMoney({
