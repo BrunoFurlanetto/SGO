@@ -316,7 +316,7 @@
                         </fieldset>
                     </form>
                     <hr>
-                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST" class="none">
+                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST" {% if not financeiro %} class="none" {% endif %}>
                         <fieldset>
                             {% csrf_token %}
                             <h5 class="titulo-secao">Tabela de valores</h5>

@@ -6,7 +6,6 @@ from orcamento.models import ValoresPadrao
 
 def campos_necessarios_aprovacao(orcamento):
     def valor_padrao():
-
         if campo != 'data_pagamento':
             try:
                 return float(ValoresPadrao.objects.get(id_taxa=campo).valor)
