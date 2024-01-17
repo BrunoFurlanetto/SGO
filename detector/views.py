@@ -65,7 +65,7 @@ def detector_de_bombas(request, id_detector=None):
                     })
                 else:
                     return JsonResponse({
-                        'tipo': 'seccess',
+                        'tipo': 'success',
                         'msg': 'Observações salvas com sucesso'
                     })
 

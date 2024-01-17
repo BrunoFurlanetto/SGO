@@ -8,7 +8,10 @@ from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio, AtividadesEco, EscalaAcampamento, Monitor, AtividadePeraltas
 
-lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
+lista_cores = [
+    '#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099', '#8100c1',
+    '#2EFB1B', '#E8240E', '#5DFAFC', '#5654F0'
+]
 
 
 def percorrer_atividades(detector, grupo_n, grupo, atividade_n, cor_grupo):
