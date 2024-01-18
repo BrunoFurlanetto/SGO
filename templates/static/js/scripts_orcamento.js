@@ -430,6 +430,7 @@ async function enviar_form(salvar = false) {
                         $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
                         $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
                         $('#subtotal span').text('R$ ' + total_formatado); // Total
+                        $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
                         tabela_descrito(valores, response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
                         resultado_ultima_consulta = response
@@ -1042,7 +1043,7 @@ function printTable() {
     printWindow.document.body.appendChild(formContentClone);
     printWindow.document.body.appendChild(tableClone);
 
-    var checkReady = setInterval(function() {
+    var checkReady = setInterval(function () {
         if (printWindow.document.readyState === "complete") {
             clearInterval(checkReady);
             printWindow.print();
@@ -1050,4 +1051,33 @@ function printTable() {
             printWindow.close();
         }
     }, 50);
+}
+
+function verificar_gerencia() {
+    loading()
+    $('#server_error, #login_error').addClass('none').text('')
+
+    $.ajax({
+        url: 'verificar_gerencia/',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
+        success: async function (response) {
+            await enviar_form()
+            $('#verificacao_gerencia').modal('hide')
+            $('#alteracoes_aviso').addClass('none')
+        },
+        error: function (xht, status, error) {
+            console.log(xht, status, error)
+            if (xht.status == 500) {
+                $('#server_error').removeClass('none').text(xht['responseJSON']['msg'])
+            }
+            console.log(xht['responseJSON']['msg'])
+            if (xht.status == 401) {
+                $('#login_error').removeClass('none').text(xht['responseJSON']['msg'])
+            }
+        }
+    })
+    end_loading()
+    $('#verificacao_gerencia #senha').val('')
 }

@@ -2,6 +2,7 @@ import datetime
 import json
 from itertools import chain
 
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
@@ -280,6 +281,7 @@ def calc_budget(req):
     if req.method != 'POST':
         cadastro_orcamento = CadastroOrcamento()
         pacote_promocional = CadastroPacotePromocional()
+        usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
         promocionais = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
@@ -290,5 +292,24 @@ def calc_budget(req):
             'promocionais': promocionais,
             'pacote_promocional': pacote_promocional,
             'tipo_orcamento': req.GET.get('tipo_de_orcamento'),
-            'financeiro': financeiro
+            'financeiro': financeiro,
+            'usuarios_gerencia': usuarios_gerencia,
         })
+
+def veriricar_gerencia(request):
+    id_usuario = request.GET.get('id_usuario')
+    senha = request.GET.get('senha')
+
+    try:
+        user = User.objects.get(pk=id_usuario).username
+        login = auth.authenticate(username=user, password=senha)
+    except Exception as e:
+        return JsonResponse({'msg': f'Erro interno do sistema ({e}), tente novamente mais tarde!'}, status=500)
+    else:
+        user = User.objects.get(pk=id_usuario).username
+        login = auth.authenticate(username=user, password=senha)
+
+        if login is not None:
+            return JsonResponse({'msg': ''}, status=200)
+        else:
+            return JsonResponse({'msg': 'Senha incorreta'}, status=401)

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
     <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="{% static 'css/impressao_css.css' %}" type="text/css" id="style_impressao" />
+    <link rel="stylesheet" href="{% static 'css/impressao_css.css' %}" type="text/css" id="style_impressao"/>
     <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
 
     <div class="conteudo-orcamento">
@@ -245,41 +245,52 @@
                         <fieldset>
                             {% csrf_token %}
                             <div style="border: dashed 1px #5c636a">
-                                <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px" onchange="verificar_alteracoes(this)">
+                                <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
+                                     onchange="verificar_alteracoes(this)">
                                     <div>
                                         <label for="comissao">Comissão</label>
                                         <input type="text" id="comissao" name="comissao" value="9%"
-                                               onchange="enviar_infos_gerencia()" data-valor_default="9%">
+                                               data-valor_default="9%" onchange="$('#alteracoes_aviso').removeClass('none')">
                                         <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
                                     </div>
                                     <div>
                                         <label for="taxa_comercial">Taxa Comercial</label>
                                         <input type="text" id="taxa_comercial" name="taxa_comercial" value="5%"
-                                               onchange="enviar_infos_gerencia()" data-valor_default="5%">
-                                        <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado" value="0">
+                                               data-valor_default="5%" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
+                                               value="0">
                                     </div>
                                     <div>
                                         <label for="minimo_onibus">Mínimo no ônibus</label>
                                         <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
-                                               onchange="enviar_infos_gerencia()" data-valor_default="30">
-                                        <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado" value="0">
+                                               data-valor_default="30" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
+                                               value="0">
                                     </div>
                                     <div style="width: 28%">
                                         <label for="data_pagamento">Data de pagamento</label>
                                         <input type="date" id="data_pagamento" name="data_pagamento" value=""
-                                               onchange="enviar_infos_gerencia()" data-valor_default="">
-                                        <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado" value="0">
+                                               data-valor_default="" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado"
+                                               value="0">
                                     </div>
                                     <div>
                                         <label for="desconto_geral">Desconto geral</label>
                                         <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
-                                               onchange="enviar_infos_gerencia()" data-valor_default="0,00">
-                                        <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado" value="0">
+                                               data-valor_default="0,00" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado"
+                                               value="0">
+                                    </div>
+                                    <div>
+                                        <label for="valor_final">Valor final</label>
+                                        <input disabled type="text" id="valor_final">
                                     </div>
                                 </div>
-                                <div id="div_observacoes_gerencia" class="none" style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
+                                <div id="div_observacoes_gerencia" class="none"
+                                     style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
                                     <label for="observacoes_gerencia">Observações</label>
-                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30" rows="10" onkeyup="verificar_observacao(this)"></textarea>
+                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30" rows="10"
+                                              onkeyup="verificar_observacao(this)"></textarea>
                                 </div>
                                 {% if not financeiro %}
                                     <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
@@ -287,23 +298,29 @@
                                         orçamento ser encaminhado ao cliente.
                                     </p>
                                 {% endif %}
+                                <div>
+                                    <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não altorizadas pela gerência!</p>
+                                </div>
                             </div>
                             <hr {% if not financeiro %} class="none" {% endif %}>
                             <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
                                 <div>
                                     <div>
                                         <label for="desconto_produto_percent">Desconto diaria</label>
-                                        <input type="text" id="desconto_produto_percent" name="desconto_produto_percent" value="0,00"
+                                        <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
+                                               value="0,00"
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
                                         <label for="desconto_monitoria_percent">Desconto monitoria</label>
-                                        <input type="text" id="desconto_monitoria_percent" name="desconto_monitoria_percent"
+                                        <input type="text" id="desconto_monitoria_percent"
+                                               name="desconto_monitoria_percent"
                                                value="0,00" onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
                                         <label for="desconto_transporte_percent">Desconto transporte</label>
-                                        <input type="text" id="desconto_transporte_percent" name="desconto_transporte_percent"
+                                        <input type="text" id="desconto_transporte_percent"
+                                               name="desconto_transporte_percent"
                                                value="0,00" onchange="enviar_infos_gerencia()">
                                     </div>
                                 </div>
@@ -316,7 +333,8 @@
                         </fieldset>
                     </form>
                     <hr>
-                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST" {% if not financeiro %} class="none" {% endif %}>
+                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST" {% if not financeiro %}
+                          class="none" {% endif %}>
                         <fieldset>
                             {% csrf_token %}
                             <h5 class="titulo-secao">Tabela de valores</h5>
@@ -342,6 +360,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#verificacao_gerencia">Alterar taxas</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                     {% if tipo_orcamento %}
                         <button type="button" class="btn btn-dark" id="btnPrint" oncancel="">Imprimir</button>
@@ -423,13 +442,15 @@
                             <h5 class="titulo-secao">Períodos aplicáveis</h5>
                             <div id="lista_de_periodos" class="mb-3">
                                 <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis" onchange="atualizar_periodo()">
+                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis"
+                                           onchange="atualizar_periodo()">
                                     <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)">
                                         <span>&times;</span></button>
                                 </div>
                             </div>
                             {% if financeiro %}
-                                <button type="button" class="btn btn-outline-success" onclick="adicionar_periodo_novo()">
+                                <button type="button" class="btn btn-outline-success"
+                                        onclick="adicionar_periodo_novo()">
                                     Adicionar periodo
                                 </button>
                             {% endif %}
@@ -442,6 +463,39 @@
                             Salvar
                         </button>
                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="verificacao_gerencia" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Verificação da Gerência</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="server_error" class="none alert alert-danger"></p>
+                    <p id="login_error" class="none alert alert-warning"></p>
+                    <div class="mb-3">
+                        <label for="usuario">Usuário</label>
+                        <select name="usuario" id="usuario">
+                            <option></option>
+                            {% for usuario in usuarios_gerencia %}
+                                <option value="{{ usuario.id }}">{{ usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="senha">Senha</label>
+                        <input type="text" name="senha" id="senha" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="verificar_gerencia()">Logar</button>
                 </div>
             </div>
         </div>
