@@ -97,7 +97,13 @@ $(document).ready(() => {
     }
 })
 
-function verificar_alteracoes(div) {
+async function verificar_alteracoes(div) {
+    if ( $('#id_promocional').prop('checked') ) {
+        await enviar_form()
+
+        return
+    }
+
     let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
         let valor
 
@@ -1144,7 +1150,7 @@ function printTable() {
     }, 50);
 }
 
-function verificar_gerencia() {
+async function verificar_gerencia() {
     loading()
     $('#server_error, #login_error').addClass('none').text('')
     $('#id_gerente').val('')
@@ -1156,10 +1162,16 @@ function verificar_gerencia() {
         data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
         success: async function (response) {
             $('#id_gerente').val($('#usuario').val())
-            let limite_desconto = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
-            let valor_final = parseFloat($('#campos_alteraveis #valor_final').val().replace('R$ ', '').replace(',', '.'))
-            let valor_deconto = parseFloat($('#campos_alteraveis #desconto_geral').val().replace(',', '.'))
 
+            if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
+                $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
+                $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
+            }
+
+            let limite_desconto = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
+            let valor_final = parseFloat($('#campos_alteraveis #valor_final').data('valor_inicial').replace('.', '').replace('R$ ', '').replace(',', '.'))
+            let valor_deconto = parseFloat($('#campos_alteraveis #desconto_geral').val().replace(',', '.'))
+            console.log(limite_desconto, valor_final, valor_deconto, valor_final * limite_desconto)
             if (valor_deconto > valor_final * limite_desconto) {
                 $('#campos_alteraveis #desconto_geral').val((valor_final * limite_desconto).toFixed(2).replace('.', ','))
                 alert(`Desconto pedido acima do limite possível de ${$('#dados_do_pacote #id_limite_desconto_geral').val()}%. Valor máximo deve ser de  R$ ${(valor_final * limite_desconto).toFixed(2).replace('.', ',')}`)

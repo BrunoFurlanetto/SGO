@@ -361,7 +361,9 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#verificacao_gerencia">Alterar taxas</button>
+                    {% if not financeiro %}
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#verificacao_gerencia">Alterar taxas</button>
+                    {% endif %}
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                     {% if tipo_orcamento %}
                         <button type="button" class="btn btn-dark" id="btnPrint" oncancel="">Imprimir</button>
