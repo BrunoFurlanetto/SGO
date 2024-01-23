@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_tag %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -244,40 +245,41 @@
                     <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
                         <fieldset>
                             {% csrf_token %}
+                            <input type="hidden" name="id_gerente" id="id_gerente">
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
                                      onchange="verificar_alteracoes(this)">
                                     <div>
                                         <label for="comissao">Comissão</label>
-                                        <input type="text" id="comissao" name="comissao" value="9%"
-                                               data-valor_default="9%" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="text" id="comissao" name="comissao" value="9,00%"
+                                               data-valor_default="{{ 'comissao'| pegar_taxa }}" data-valor_inicial="{{ 'comissao'| pegar_taxa }}" data-valor_alterado="{{ 'comissao'| pegar_taxa }}">
                                         <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
                                     </div>
                                     <div>
                                         <label for="taxa_comercial">Taxa Comercial</label>
-                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5%"
-                                               data-valor_default="5%" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5,00%"
+                                               data-valor_default="{{ 'taxa_comercial'| pegar_taxa }}" data-valor_inicial="{{ 'taxa_comercial'| pegar_taxa }}" data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}">
                                         <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
                                                value="0">
                                     </div>
                                     <div>
                                         <label for="minimo_onibus">Mínimo no ônibus</label>
                                         <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
-                                               data-valor_default="30" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                               data-valor_default="{{ 'minimo_onibus'| pegar_taxa }}" data-valor_inicial="{{ 'minimo_onibus'| pegar_taxa }}" data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}">
                                         <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
                                                value="0">
                                     </div>
                                     <div style="width: 28%">
                                         <label for="data_pagamento">Data de pagamento</label>
                                         <input type="date" id="data_pagamento" name="data_pagamento" value=""
-                                               data-valor_default="" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                               data-valor_default="{{ 'data_pagamento'| pegar_taxa }}" data-valor_inicial="{{ 'data_pagamento'| pegar_taxa }}" data-valor_alterado="{{ 'data_pagamento'| pegar_taxa }}">
                                         <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado"
                                                value="0">
                                     </div>
                                     <div>
                                         <label for="desconto_geral">Desconto geral</label>
                                         <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
-                                               data-valor_default="0,00" onchange="$('#alteracoes_aviso').removeClass('none')">
+                                               data-valor_default="0,00" data-valor_inicial="0,00" data-valor_alterado="0,00">
                                         <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado"
                                                value="0">
                                     </div>
@@ -294,8 +296,7 @@
                                 </div>
                                 {% if not financeiro %}
                                     <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
-                                        *Alterações nessa parte necessitarão de aprovação da diretoria antes do
-                                        orçamento ser encaminhado ao cliente.
+                                        *Alterações nessa parte necessitarão de aprovação da gerência.
                                     </p>
                                 {% endif %}
                                 <div>

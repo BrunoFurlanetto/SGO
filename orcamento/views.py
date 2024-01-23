@@ -15,7 +15,7 @@ from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor,
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes
+    DadosDePacotes, ValoresPadrao
 from .utils import verify_data, processar_formulario, verificar_gerencia, JsonError
 from .budget import Budget
 
@@ -232,20 +232,7 @@ def calc_budget(req):
                 pre_orcamento.objeto_orcamento = budget.return_object()
                 pre_orcamento.colaborador = req.user
 
-                # Veriicações para ver a necessidade de aprovação da gerência ou não
-                if budget.total.general_discount > 0 or dados['gerencia'][
-                    'data_pagamento'] != (datetime.datetime.today().date() + datetime.timedelta(days=15)).strftime(
-                    '%Y-%m-%d'):
-                    pre_orcamento.necessita_aprovacao_gerencia = True
-
-                if budget.others.values != 0:
-                    pre_orcamento.necessita_aprovacao_gerencia = True
-
-                if data.get('orcamento_promocional'):
-                    pre_orcamento.necessita_aprovacao_gerencia = False
-
                 if pre_orcamento.promocional:
-                    pre_orcamento.necessita_aprovacao_gerencia = False
                     pre_orcamento.data_vencimento = gerencia['data_vencimento']
 
                 try:
@@ -257,14 +244,6 @@ def calc_budget(req):
                         "msg": e,
                     })
                 else:
-                    if orcamento_salvo.necessita_aprovacao_gerencia:
-                        diretoria = User.objects.filter(groups__name__icontains='Diretoria')
-                        lista_emails = set()
-
-                        for colaborador in diretoria:
-                            lista_emails.add(colaborador.email)
-                        lista_emails.add('bruno.furlanetto@hotmail.com')
-                        EmailSender(lista_emails).orcamento_aprovacao(orcamento_salvo.id)
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -282,6 +261,7 @@ def calc_budget(req):
         cadastro_orcamento = CadastroOrcamento()
         pacote_promocional = CadastroPacotePromocional()
         usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
+        taxas_padrao = ValoresPadrao.objects.all()
         promocionais = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
@@ -293,6 +273,7 @@ def calc_budget(req):
             'pacote_promocional': pacote_promocional,
             'tipo_orcamento': req.GET.get('tipo_de_orcamento'),
             'financeiro': financeiro,
+            'taxas_padrao': taxas_padrao,
             'usuarios_gerencia': usuarios_gerencia,
         })
 

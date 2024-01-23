@@ -98,34 +98,68 @@ $(document).ready(() => {
 })
 
 function verificar_alteracoes(div) {
-    if ($('#id_orcamento_promocional').val() == '') {
-        $(`#${div.id} input`).map((index, input) => {
-            if (input.value != $(input).data('valor_default')) {
-                $(`#${input.id}_alterado`).val('1')
+    let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
+        let valor
+
+        if ($(input).data('mask') != undefined) {
+            valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
+        } else {
+            valor = $(input).val()
+        }
+
+        if (valor != $(input).data('valor_alterado') && !$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final') {
+            return true
+        }
+    })
+
+    if (mostrar_mensagem) {
+        $('#alteracoes_aviso').removeClass('none')
+    } else {
+        $('#alteracoes_aviso').addClass('none')
+    }
+
+    if (mostrar_mensagem) {
+        $('#div_observacoes_gerencia').removeClass('none')
+        $('#observacoes_gerencia').prop('required', true)
+        $('#btn_salvar_orcamento').prop('disabled', true)
+        $('.botoes').attr('title', 'Verificar observações para a gerência')
+    } else {
+        $('#div_observacoes_gerencia').addClass('none')
+        $('#observacoes_gerencia').val('').prop('required', false)
+        $('#btn_salvar_orcamento').prop('disabled', false)
+        $('.botoes').attr('title', '')
+    }
+}
+
+$('#modal_descritivo').on('hidden.bs.modal', function (e) {
+    if (!$('#modal_descritivo #alteracoes_aviso').hasClass('none')) {
+        $('#campos_alteraveis input').map((index, input) => {
+            if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final')
+                $(input).val($(input).data('valor_alterado'))
+        })
+
+        let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
+            let valor
+
+            if ($(input).data('mask') != undefined) {
+                valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
             } else {
-                $(`#${input.id}_alterado`).val('0')
+                valor = $(input).val()
+            }
+
+            if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final' && $(input).data('valor_inicial') != $(input).data('valor_alterado')) {
+                return true
             }
         })
 
-        let obs = $(`#${div.id} input[id*="alterado"]`).map((index, input) => {
-            if (input.value == '1') {
-                return true
-            }
-        }).get()
-
-        if (obs.includes(true)) {
-            $('#div_observacoes_gerencia').removeClass('none')
-            $('#observacoes_gerencia').prop('required', true)
-            $('#btn_salvar_orcamento').prop('disabled', true)
-            $('.botoes').attr('title', 'Verificar observações para a gerência')
-        } else {
-            $('#div_observacoes_gerencia').addClass('none')
-            $('#observacoes_gerencia').val('').prop('required', false)
-            $('#btn_salvar_orcamento').prop('disabled', false)
-            $('.botoes').attr('title', '')
+        if (!obs) {
+            $('#modal_descritivo #observacoes_gerencia').val('')
+            $('#modal_descritivo #div_observacoes_gerencia').addClass('none')
         }
+
+        $('#modal_descritivo #alteracoes_aviso').addClass('none')
     }
-}
+});
 
 function verificar_observacao(obs) {
     let valor = obs.value
@@ -457,6 +491,39 @@ async function enviar_form(salvar = false) {
             } else {
                 $('#id_orcamento_promocional').prop('disabled', true)
             }
+        }
+
+        let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
+            let valor
+
+            if ($(input).data('mask') != undefined) {
+                valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
+            } else {
+                valor = $(input).val()
+            }
+
+            if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final' && $(input).val() != $(input).data('valor_inicial')) {
+                return true
+            }
+        })
+
+        if (!obs) {
+            $('#campos_alteraveis input').map((index, input) => {
+                if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final')
+                    $(input).val($(input).data('valor_inicial'))
+            })
+
+            $('#modal_descritivo #observacoes_gerencia').val('')
+            $('#modal_descritivo #div_observacoes_gerencia').addClass('none')
+        }
+
+        if ($('#id_orcamento_promocional').val() != '') {
+            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
+            $('#form_dados_pacote fieldset').prop('disabled', true)
+            $('#id_produtos_elegiveis').select2({
+                disabled: 'readonly',
+                width: '100%'
+            })
         }
 
         return response;
@@ -906,12 +973,36 @@ async function preencher_promocional(id_promocional) {
                 }
 
                 for (let id_campo in response['gerencia']) {
-                    if (id_campo.includes('desconto')) {
+                    if (id_campo == 'desconto_geral') {
                         $(`#form_gerencia #${id_campo}`).val(formatar_dinheiro(response['gerencia'][id_campo]))
-                    } else if (id_campo.includes('comissao') || id_campo.includes('comercial')) {
-                        $(`#form_gerencia #${id_campo}`).val(response['gerencia'][id_campo] + '%')
-                    } else {
+                        $(`#form_gerencia #${id_campo}`).data('valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).data('valor_alterado', formatar_dinheiro(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', formatar_dinheiro(response['gerencia'][id_campo]))
+                    }
+
+                    if (id_campo == 'comissao' || id_campo == 'taxa_comercial') {
+                        $(`#form_gerencia #${id_campo}`).val((response['gerencia'][id_campo].toFixed(2) + '%').replace('.', ','))
+                        $(`#form_gerencia #${id_campo}`).data('valor_inicial', (response['gerencia'][id_campo].toFixed(2) + '%').replace('.', ','))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', (response['gerencia'][id_campo].toFixed(2) + '%').replace('.', ','))
+                        $(`#form_gerencia #${id_campo}`).data('valor_alterado', (response['gerencia'][id_campo].toFixed(2) + '%').replace('.', ','))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', (response['gerencia'][id_campo].toFixed(2) + '%').replace('.', ','))
+                    }
+
+                    if (id_campo == 'minimo_onibus') {
+                        $(`#form_gerencia #${id_campo}`).val(parseInt(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).data('valor_inicial', parseInt(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', parseInt(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).data('valor_alterado', parseInt(response['gerencia'][id_campo]))
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', parseInt(response['gerencia'][id_campo]))
+                    }
+
+                    if (id_campo == 'data_pagamento') {
                         $(`#form_gerencia #${id_campo}`).val(response['gerencia'][id_campo])
+                        $(`#form_gerencia #${id_campo}`).data('valor_inicial', response['gerencia'][id_campo])
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', response['gerencia'][id_campo])
+                        $(`#form_gerencia #${id_campo}`).data('valor_alterado', response['gerencia'][id_campo])
+                        $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', response['gerencia'][id_campo])
                     }
                 }
                 resolve(response)
@@ -1056,6 +1147,7 @@ function printTable() {
 function verificar_gerencia() {
     loading()
     $('#server_error, #login_error').addClass('none').text('')
+    $('#id_gerente').val('')
 
     $.ajax({
         url: 'verificar_gerencia/',
@@ -1063,16 +1155,49 @@ function verificar_gerencia() {
         type: "GET",
         data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
         success: async function (response) {
+            $('#id_gerente').val($('#usuario').val())
+            let limite_desconto = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
+            let valor_final = parseFloat($('#campos_alteraveis #valor_final').val().replace('R$ ', '').replace(',', '.'))
+            let valor_deconto = parseFloat($('#campos_alteraveis #desconto_geral').val().replace(',', '.'))
+
+            if (valor_deconto > valor_final * limite_desconto) {
+                $('#campos_alteraveis #desconto_geral').val((valor_final * limite_desconto).toFixed(2).replace('.', ','))
+                alert(`Desconto pedido acima do limite possível de ${$('#dados_do_pacote #id_limite_desconto_geral').val()}%. Valor máximo deve ser de  R$ ${(valor_final * limite_desconto).toFixed(2).replace('.', ',')}`)
+            }
+
             await enviar_form()
+            $('#campos_alteraveis input').map((index, input) => {
+                $(input).data('valor_alterado', $(input).val())
+                $(input).attr('data-valor_alterado', $(input).val())
+            })
+
+            let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
+                let valor
+
+                if ($(input).data('mask') != undefined) {
+                    valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
+                } else {
+                    valor = $(input).val()
+                }
+
+                if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final' && $(input).data('valor_inicial') != $(input).data('valor_alterado')) {
+                    return true
+                }
+            })
+
+            if (!obs) {
+                $('#modal_descritivo #observacoes_gerencia').val('')
+                $('#modal_descritivo #div_observacoes_gerencia').addClass('none')
+            }
+
             $('#verificacao_gerencia').modal('hide')
             $('#alteracoes_aviso').addClass('none')
         },
         error: function (xht, status, error) {
-            console.log(xht, status, error)
             if (xht.status == 500) {
                 $('#server_error').removeClass('none').text(xht['responseJSON']['msg'])
             }
-            console.log(xht['responseJSON']['msg'])
+
             if (xht.status == 401) {
                 $('#login_error').removeClass('none').text(xht['responseJSON']['msg'])
             }
