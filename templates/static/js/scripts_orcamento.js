@@ -98,11 +98,15 @@ $(document).ready(() => {
 })
 
 async function verificar_alteracoes(div) {
-    if ( $('#id_promocional').prop('checked') ) {
+    if ($('#id_promocional').prop('checked')) {
         await enviar_form()
 
         return
     }
+
+    setInterval(() => {
+        $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
+    }, 10)
 
     let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
         let valor
@@ -127,7 +131,7 @@ async function verificar_alteracoes(div) {
     if (mostrar_mensagem) {
         $('#div_observacoes_gerencia').removeClass('none')
         $('#observacoes_gerencia').prop('required', true)
-        $('#btn_salvar_orcamento').prop('disabled', true)
+        // $('#btn_salvar_orcamento').prop('disabled', true)
         $('.botoes').attr('title', 'Verificar observações para a gerência')
     } else {
         $('#div_observacoes_gerencia').addClass('none')
@@ -166,18 +170,6 @@ $('#modal_descritivo').on('hidden.bs.modal', function (e) {
         $('#modal_descritivo #alteracoes_aviso').addClass('none')
     }
 });
-
-function verificar_observacao(obs) {
-    let valor = obs.value
-
-    if (valor.length > 10) {
-        $('#btn_salvar_orcamento').prop('disabled', false)
-        $('.botoes').attr('title', '')
-    } else {
-        $('#btn_salvar_orcamento').prop('disabled', true)
-        $('.botoes').attr('title', 'Verificar observações para a gerência')
-    }
-}
 
 $.fn.mascaraDinheiro = function () {
     return $(this).maskMoney({
