@@ -113,7 +113,7 @@ def salvar_locacoes_ceu(dados, ordem_de_servico):
         }
 
     ordem_de_servico.locacao_ceu = dados_locacao
-    ordem_de_servico.check_in_ceu = dados.get(f'entrada_1').replace('T', ' ')
-    ordem_de_servico.check_out_ceu = dados.get(f'saida_{n_locacoes}').replace('T', ' ')
+    ordem_de_servico.check_in_ceu = dados.get(f'entrada_1').replace('T', ' ') if dados.get(f'entrada_1') != '' else dados.get('check_in')
+    ordem_de_servico.check_out_ceu = dados.get(f'saida_{n_locacoes}').replace('T', ' ')  if dados.get(f'saida_{n_locacoes}') != '' else dados.get('check_out')
 
     return
