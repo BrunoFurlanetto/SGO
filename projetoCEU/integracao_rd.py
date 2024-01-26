@@ -1,10 +1,15 @@
 import requests
 from local_settings import TOKEN_RD
-from peraltas.models import FichaDeEvento
+from peraltas.models import FichaDeEvento, CodigosPadrao
 
 url_padrao = 'https://crm.rdstation.com/api/v1/deals/'
 
 def alterar_status(id_negocio, id_novo_status, corporativo=False):
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+
+    if id_negocio in codigos_padrao:
+        return
+
     url = url_padrao + id_negocio + f'?token={TOKEN_RD}'
     payload = {"deal_stage_id": id_novo_status}
     headers = {
@@ -16,6 +21,11 @@ def alterar_status(id_negocio, id_novo_status, corporativo=False):
 
 
 def alterar_campos_personalizados(id_negocio, ficha_de_evento):
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+
+    if id_negocio in codigos_padrao:
+        return
+
     url = url_padrao + id_negocio + f'?token={TOKEN_RD}'
     payload = {"deal": formatar_envio_valores('', ficha_de_evento)}
     headers = {
@@ -63,6 +73,11 @@ def formatar_envio_valores(id_negocio, ficha_de_evento):
     return {"deal_custom_fields": [{'value': valor, 'custom_field_id': id_campo} for id_campo, valor in campos.items()]}
 
 def verificar_id(id_negocio):
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+
+    if id_negocio in codigos_padrao:
+        return True
+
     url = f'https://crm.rdstation.com/api/v1/deals?token={TOKEN_RD}&closed_at=false&limit=200'
     headers = {"accept": "application/json"}
     response = requests.get(url, headers=headers)
