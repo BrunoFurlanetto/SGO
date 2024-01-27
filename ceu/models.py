@@ -50,6 +50,7 @@ class Atividades(models.Model):
     n_avaliacoes = models.IntegerField(default=0)
     limitacao = models.ManyToManyField(Limitacoes, blank=True)
     publico = models.BooleanField(default=False)
+    valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
     def __str__(self):
         return self.atividade

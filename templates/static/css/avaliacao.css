@@ -185,9 +185,9 @@ option[value=""][disabled][selected] {
 
 
 @media print {
-    * {
-        visibility: hidden;
-    }
+    /** {*/
+    /*    visibility: hidden;*/
+    /*}*/
 
     .home-section{
         position: absolute;

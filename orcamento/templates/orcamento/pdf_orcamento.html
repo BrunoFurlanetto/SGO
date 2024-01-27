@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Dinâmico</title>
+    <link rel="stylesheet" href="{% static 'css/stle_pdf_orcamento.css' %}">
+</head>
+<body>
+    <style>
+        @page {
+            margin: 3cm 2cm 2cm 3cm;
+        }
+        .div_logo {
+            display: flex;
+            justify-content: center;
+        }
+        .logo-peraltas {
+            width: 80mm;
+        }
+    </style>
+    <div class="div_logo">
+        <img class="logo-peraltas" src="{{ logo_url }}" alt="Logo da Empresa">
+        <h1>{{ company_name }}</h1>
+    </div>
+    <div>
+        <!-- Aqui você pode inserir os dados dinâmicos que vem do banco de dados -->
+        <h2 style="background: #0A58CA">{{ dynamic_data }}</h2>
+    </div>
+</body>
+</html>

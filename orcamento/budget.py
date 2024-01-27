@@ -1,129 +1,217 @@
-import math
-from .utils import get_optional_pk
+from ceu.models import Atividades
+from peraltas.models import AtividadePeraltas, AtividadesEco
+from .models import OrcamentoOpicional, \
+    OrcamentoPeriodo
+from .entity.period import Period
+from .entity.monitor import Monitor
+from .entity.dailyrate import DailyRate
+from .entity.transport import Transport
+from .entity.optional import Optional
+from .entity.optionaldescription import OptionalDescription
+from .entity.total import Total
 
 
 class Budget:
-    def __init__(self, period_id, days, comming_id, exit_id):
-        self.comming_id = comming_id
+    def __init__(self, periods, days, coming_id, exit_id, days_list):
+        self.coming_id = coming_id
         self.exit_id = exit_id
-        self.period_id = period_id
-        self.days = days
-        self.total = 0
-        self.pax = 30
-        self.optional = {}
+        self.days = int(days)
+        self.days_list = days_list
+        # todo: PEGAR INIT TAXAS DO BD
+        self.business_fee = 0.09
+        self.commission = 0.05
 
-    def get_period_id(self):
-        return self.period_id
+        self.period = Period(periods)
+        self.daily_rate = DailyRate(
+            check_in_id=self.coming_id,
+            check_out_id=self.exit_id,
+            periods=periods,
+            days=self.days
+        )
+        self.monitor = Monitor(
+            values=[],
+            coming_id=self.coming_id,
+            exit_id=self.exit_id,
+            days=self.days
+        )
+        self.transport = Transport(
+            days=self.days,
+            values=[],
+            periods=periods,
+        )
+        self.optional = Optional([], days)
+        self.array_description_optional = []
+        self.others = Optional([], days)
+        self.array_description_others = []
+        self.activities = Optional([], days)
+        self.array_description_activities = []
+        self.activities_sky = Optional([], days)
+        self.array_description_activities_sky = []
+        self.total = Total([])
+        self.daily_rate.calc_daily_rate()
 
-    def get_days(self):
-        return self.days
+    def set_business_fee(self, business_fee):
+        self.business_fee = business_fee
+        return business_fee
 
-    def get_pax(self):
-        return self.pax
+    def set_commission(self, commission):
+        self.commission = commission
+        return commission
 
-    def get_total(self):
-        return self.total
+    def set_others(self, arr):
+        other_array = []
 
-    def get_optional(self):
-        return self.optional
+        try:
+            for other in arr:
+                obj_other = OptionalDescription(other['valor'], False, other['id'],
+                                                other['nome'], self.days, other['descricao'])
+                other_array.append(obj_other.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee,
+                    description=True
+                ))
+        except TypeError:
+            ...
+        else:
+            self.array_description_others = other_array
 
-    def set_pax(self, int):
-        self.pax = int
-        return self.pax
+            return self.array_description_others
 
-    def monitor(self, id):
-        value_monitor = 0
-        # todo: BUSCAR VALORES NO DB POR PK
-        # todo: DESCOBRIR COMO É ESCALADO OS VALORES DOS MONITORES...7
-        # 1 Monitor para 10 pax.
-        # diaria do monitor 500,
-        # id desc value/diaria
-        # 1  meia 100
-        # 2  cpm  200
+    def set_optional(self, arr, save=True):
+        optional_array = []
 
-        if id == 1:  # meia monitoria
-            value_monitor = 5000
-        if id == 2:  # monitoria completa
-            value_monitor = 8000
-        value_monitor = math.ceil(value_monitor / self.pax)
-        self.total += value_monitor
-        return value_monitor
+        for opt in arr:
+            db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
+            discount = 0
 
-    def meal(self):
-        # todo: pegar valores das refeições
-        meal = 0
+            if opt[1]:
+                discount = opt[1]
 
-        #TODO: MANDAR PARA O BD
-        coffe = 0
-        lunch = 70
-        dinner = 70
-        snack = 30
+            description = OptionalDescription(
+                db_optional.valor,
+                db_optional.fixo,
+                db_optional.id,
+                db_optional.nome,
+                self.days
+            )
+            description.set_discount(discount)
+            optional_array.append(description.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ))
 
-        days_with_full_meals = self.days - 2
-        if days_with_full_meals < 0:
-            days_with_full_meals = 0
+        self.array_description_optional = optional_array
+        return self.array_description_optional
 
-        i = 0
-        while i < days_with_full_meals:
-            meal += coffe + lunch + dinner + snack
-            i += 1
+    def set_activities(self, arr):
+        activities_array = []
 
-        match self.comming_id:
-            case 1:
-                meal += coffe + lunch + dinner + snack
-            case 2:
-                meal += lunch + dinner + snack
-            case 3:
-                meal += dinner + snack
-            case 4:
-                meal += snack
-            case _:
-                meal
+        for opt in arr:
+            db_optional = AtividadesEco.objects.get(pk=opt[0])
+            discount = 0
 
-        match self.exit_id:
-            case 1:
-                meal += coffe
-            case 2:
-                meal += coffe + lunch
-            case 3:
-                meal += coffe + lunch + dinner
-            case _:
-                meal
+            if opt[1]:
+                discount = opt[1]
 
-        self.total += meal
-        return meal
+            description = OptionalDescription(
+                db_optional.valor,
+                1,
+                db_optional.id,
+                db_optional.nome_atividade_eco,
+                self.days
+            )
+            description.set_discount(discount)
+            activities_array.append(description.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ))
 
-    def transport(self):
-        one_day = 2000
-        two_days = 2500
-        three_days = 2800
-        plus_day_rate = 600
-        value_transport = 0
-        if self.days == 1:
-            value_transport = math.ceil(one_day / self.pax)
-        if self.days == 2:
-            value_transport = math.ceil(two_days / self.pax)
-        if self.days == 3:
-            value_transport = math.ceil(three_days / self.pax)
-        if self.days > 3:
-            plus_days = self.days - 3
-            value_transport = math.ceil(
-                (three_days + (plus_days * plus_day_rate)) / self.pax)
-        self.total += value_transport
-        return value_transport
+        self.array_description_activities = activities_array
+        return self.array_description_activities
 
-    def add_optional(self, arr):
-        for optional_id in arr:
-            # todo: find optional PK
-            optional = get_optional_pk(optional_id)
-            self.optional[optional['name']] = optional['price']
+    def set_activities_sky(self, arr):
+        activities_array = []
 
-    def add_others(self, arr):
-        for optional in arr:
-            self.optional[optional] = arr[optional]
+        try:
+            for opt in arr:
+                db_optional = Atividades.objects.get(pk=opt)
+                discount = 0
 
-    def som_optional(self):
-        value_optional = 0
-        for optional in self.optional:
-            value_optional += self.optional[optional]
-        return value_optional
+                # if opt[1]:
+                #     discount = opt[1]
+
+                description = OptionalDescription(
+                    db_optional.valor,
+                    1,
+                    db_optional.id,
+                    db_optional.atividade,
+                    self.days
+                )
+                description.set_discount(discount)
+                activities_array.append(description.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ))
+        except TypeError as e:
+            ...
+        else:
+            self.array_description_activities_sky = activities_array
+
+            return self.array_description_activities_sky
+
+    def return_object(self):
+        description_options = self.array_description_optional
+        description_options.append({
+            "outros": self.array_description_others,
+            "atividades": self.array_description_activities,
+            "atividades_ceu": self.array_description_activities_sky
+        })
+        return {
+            "periodo_viagem": self.period.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ),
+            "n_dias": self.days,
+            "minimo_pagantes": self.transport.min_payers,
+            "valores": {
+                "tipo_monitoria": self.monitor.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "diaria": self.daily_rate.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "transporte": self.transport.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "opcionais": self.optional.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "outros": self.others.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "atividades": self.activities.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "atividades_ceu": self.activities_sky.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                )
+
+            },
+            "descricao_opcionais": description_options,
+            "total": self.total.do_object(
+                percent_commission=self.commission,
+                percent_business_fee=self.business_fee
+            ),
+            "desconto_geral": self.total.general_discount,
+            "taxa_comercial": self.business_fee,
+            "comissao_de_vendas": self.commission,
+            "periodos": self.period.get_periods(),
+            "days": [day.strftime('%Y-%m-%d') for day in self.days_list],
+        }

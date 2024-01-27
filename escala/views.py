@@ -648,7 +648,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')
     else:
-        print(request.POST)
         try:
             escala_dia = {}
             segundo_incio = len(request.POST.getlist('id_coordenadores[]', [1]))
@@ -660,13 +659,12 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 escala_dia[posicao] = int(id_monitor)
             print(escala_dia)
             if request.POST.get('id_escala'):
-                print('AAAAAAAAA')
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
-                print('-' * 20, escala_hotelaria.monitores_hotelaria, '-' * 20)
                 escala_hotelaria.monitores_escalados.set(list(map(int, request.POST.getlist('id_monitores[]'))))
                 escala_hotelaria.coordenadores.set(list(map(int, request.POST.getlist('id_coordenadores[]'))))
                 escala_hotelaria.tecnicos_hotelaria.set(list(map(int, request.POST.getlist('id_tecnicos[]'))))
+
                 if request.POST.get('pre_escala') == 'false' and not escala_hotelaria.ultima_pre_escala:
                     escala_hotelaria.ultima_pre_escala = salvar_ultima_pre_escala(request.POST)
 

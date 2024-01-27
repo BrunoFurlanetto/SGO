@@ -1419,6 +1419,26 @@
 #tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
 #status table tr > th, #tabela_avisos tr > th, #tabela_avisos tr > td:not(:first-child),
 #tabela_sem_escala tr > th, #tabela_sem_escala tr > td:not(:first-child) {
+#tabela_descontos_opcionais thead tr > th:nth-child(2) {
+    width: 30%;
+}
+
+#tabela_pedidos tbody > tr, #tabela_descontos_opcionais tbody > tr {
+    vertical-align: middle;
+}
+
+#tabela_descontos_opcionais tbody tr > td:nth-child(4) {
+    text-align: justify;
+    hyphens: auto;
+}
+
+#tabela_pedidos tbody tr > td:not(:first-child),
+#tabela_descontos_opcionais tbody tr > td:not(:nth-child(2)):not(:nth-child(4)) {
+    text-align: center;
+}
+
+#orcamentos_aprovados table thead tr > *:not(:first-child),
+#orcamentos_aprovados table tbody tr > *:not(:first-child){
     text-align: center;
     vertical-align: middle;
 }
@@ -1478,4 +1498,62 @@
 
 #tabela_detalhe_mes tbody tr > td {
     vertical-align: middle;
+}
+
+#orcamentos_aprovados table tbody tr:first-child{
+    vertical-align: middle;
+}
+
+#valores {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+#valores div {
+    display: flex;
+}
+
+.button_ganho{
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    color: #2fff00;
+}
+
+.button_perdido {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    color: #b00000;
+}
+
+.button_perdido:disabled, .button_ganho:disabled {
+    opacity: 0.4;
+}
+
+.button_pdf {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+}
+
+#modal_orcamento_perdido input[type='text'] {
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+
+@font-face {
+  font-family: 'password';
+  font-style: normal;
+  src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+}
+
+#senha {
+  font-family: 'password';
 }

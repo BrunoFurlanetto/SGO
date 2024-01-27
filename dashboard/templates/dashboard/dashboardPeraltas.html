@@ -385,12 +385,95 @@
                     </div>
                 {% endif %}
             </div>
-        {% endif %}
+        {% endfor %}
     {% else %}
-        <div class="conteudo_dashboard_peraltas_escrito">
-            <h1>SGO</h1>
+        <div id="conteudo">
+            <div id="abas" style="display: flex">
+                {% if financeiro %}<div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>{% endif %}
+                {% if diretoria %}<div class="folder ativo" onclick="alterar_aba(this, 'orcamentos_aprovacao')">Orçamentos para aprovação </div>{% endif %}
+                <div class="folder {% if not diretoria and not financeiro %} ativo {% endif %}" onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos</div>
+                <div class="folder" onclick="alterar_aba(this, 'log')">Log</div>
+            </div>
+            {% if financeiro %}
+            	 <div class="section-content ativo" id="pacotes">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Pacote promocional</th>
+                            <th style="width: 25%">Data de vencimento</th>
+                            <th style="width: 25%">Valor base</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                         {% for pacote in pacotes %}
+                             <tr>
+                                 <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
+                                 <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
+                                 <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                             </tr>
+                         {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            {% if diretoria %}
+                <div class="section-content ativo" id="orcamentos_aprovacao">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Cliente</th>
+                            <th style="width: 25%">Colaborador</th>
+                            <th style="width: 25%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for orcamento_gerencia in orcamentos_gerencia %}
+                            <tr id="orcamento_{{ orcamento_gerencia.id }}" onclick="mostrar_modal_aprovacao($(this))">
+                                <td>{{ orcamento_gerencia.cliente }}</td>
+                                <td>{{ orcamento_gerencia.colaborador.get_full_name }}</td>
+                                <td>R$ {{ orcamento_gerencia.valor|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            <div id="orcamentos_aprovados" class="section-content {% if not diretoria and not financeiro %} ativo {% endif %}">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width: 40%">Cliente</th>
+                        <th style="width: 15%">Vencimento</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 20%">Valor</th>
+                        <th style="width: 5%">Ganho/Perdido</th>
+                        <th style="width: 5%"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for orcamento in orcamentos %}
+                        <tr id="orcamento_{{ orcamento.id }}">
+                            <td><a {% if orcamento.status_orcamento.status not in 'Perdido, Vencido, Ganho' %} href="" {% endif %}>{{ orcamento.cliente }}</a></td>
+                            <td>{{ orcamento.data_vencimento|date:'d/m/Y' }}</td>
+                            <td>{{ orcamento.status_orcamento }}</td>
+                            <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
+                            <td style="white-space: nowrap">
+                                <button type="button" id="ganho" class="button_ganho" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="alterar_status(this)"><i class='bx bx-check'></i></button>
+                                <button type="button" id="perdido" class="button_perdido" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i class='bx bx-x'></i></button>
+                            </td>
+                            <td><button type="button" class="button_pdf" {% if orcamento.status_orcamento.status in 'Perdido, Vencido' %} disabled {% endif %}><i class='bx bxs-file-pdf'></i></button></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="section-content" id="log">
+                Sem dados
+            </div>
         </div>
     {% endif %}
+
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
     <!--------------------------------------------------------------------------------------------------------------------->
@@ -466,7 +549,96 @@
             })
         </script>
     {% endif %}
+    <div class="modal fade" id="permissao_orcamentos" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Campos que precisam de permissão</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                                <fieldset>
+                                    <input type="hidden" id="id_orcamento" name="id_orcamento">
+                                    <table id="tabela_pedidos" class="table table-bordered table-hover table-striped"
+                                           style="caption-side: top">
+                                        <caption>Pedidos de alteração</caption>
+                                        <thead>
+                                        <tr>
+                                            <th>Campo</th>
+                                            <th>Valor padrão</th>
+                                            <th>Valor tratativa</th>
+                                            <th><input type="checkbox" class="select-all" name="select_all" id="select_all_pedidos"
+                                                       onclick="selecionar_todos(this)"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <p id="comentario_pedido"></p>
+                                    <hr>
+                                    <table id="tabela_descontos_opcionais"
+                                           class="table table-bordered table-hover table-striped" style="caption-side: top">
+                                        <caption>Opcionais com descontos</caption>
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Nome</th>
+                                            <th>Valor</th>
+                                            <th>Descrição</th>
+                                            <th><input type="checkbox" class="select-all" name="select_all" id="select_all_op"
+                                                       onclick="selecionar_todos(this)"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <hr>
+                                    <div id="valores">
+                                        <div><strong>Valor da tratativa: </strong>
+                                            <p id="valor_tratativa"></p></div>
+                                        <div><strong>Valor atual: </strong>
+                                            <p id="valor_atual"></p></div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" onclick="loading()">Aceitar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_orcamento_perdido" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Motivo da recusa</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="motivo_recusa">Qual o motivo da recusa por parte do cliente?</label>
+                    <input type="text" id="motivo_recusa" name="motivo_recusa" required>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" id="btn_recusa">
+                    <button type="button" class="btn btn-primary" onclick="alterar_status(btn)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/scripts_dashboard.js' %}"></script>
-    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
-    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 {% endblock %}
