@@ -8,7 +8,7 @@
     justify-content: center;
 }
 
-.loading {
+.loading, .loading_ceu {
     position: fixed;
     z-index: 9999;
     top: 0;
@@ -24,6 +24,15 @@
 .loading img {
     width: 50px;
     animation: spin 2s linear infinite;
+}
+
+.loading_ceu img {
+    width: 150px;
+    position: absolute;
+}
+
+.loading_ceu .escrito {
+    animation: spin 4s linear infinite;
 }
 
 .box-total {
@@ -226,6 +235,16 @@
     height: 400px;
 }
 
+.tabela-conteudo #dados td {
+    white-space: normal;
+    text-align: center;
+}
+
+.conteudo-colegio .select2-selection {
+    border: 1px solid #ccc;
+    pointer-events: none;
+}
+
 .conteudo_dashboard_peraltas_escrito {
     height: 85vh;
     display: flex;
@@ -353,7 +372,7 @@
 
 .conteudo-avaliacao img {
     padding: 10px;
-    width: 210px;
+    width: 345px;
 }
 
 .head {
@@ -389,12 +408,6 @@
 
 .margem-label {
     margin-right: 22px;
-}
-
-.logo-final {
-    margin-top: 25px;
-    margin-left: -110px;
-    width: 200px;
 }
 
 .logo-final img {
@@ -699,6 +712,11 @@
     border-radius: 15px;
 }
 
+.atividades_detector {
+    display: flex;
+    flex-direction: column;
+}
+
 .conteudo_nova_senha {
     width: 400px;
     padding: 10px;
@@ -710,14 +728,13 @@
     border-radius: 15px;
 }
 
-.conteudo-fichas-entregues {
+.conteudo-fichas-entregues, .conteudo-resumo_ceu {
     background-color: #fff;
     margin: auto auto 5%;
     width: 650px;
     padding: 10px;
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
-    display: flex;
     justify-content: center;
 }
 
@@ -917,7 +934,7 @@
         transform: translateX(15%);
     }
     to {
-        transform: translateX(-5%);
+        transform: translateX(-30%);
     }
 }
 
@@ -950,7 +967,8 @@
 }
 
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
-#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select {
+#modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select,
+.div_filtros select{
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -1204,7 +1222,8 @@
     flex-direction: column;
 }
 
-#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade {
+#ModalCadastroPreReserva #editar_horarios, #ModalCadastroPreReserva #id_exclusividade,
+#ModalCadastroPreReserva #id_agencia {
     width: 20px;
     height: 20px;
     border: 1px solid #ced4da;
@@ -1306,8 +1325,28 @@
     color: #0a58ca;
 }
 
+.fc-daygrid-day-top .bx-list-ul{
+    font-size: 20px;
+    margin-top: 5px;
+    cursor: pointer;
+    color: #0d6efd;
+}
+
+#descritivo_dia table tbody td:not(:first-child) {
+    text-align: center;
+}
+
+.card-log {
+    width: 800px;
+    margin: auto auto 15px;
+    box-shadow: 2px 2px 2px;
+}
+
+.card-body span {
+    color: #0a58ca;
+}
+
 #conteudo {
-    margin: auto;
     width: 900px;
     justify-content: center;
     align-items: center;
@@ -1315,6 +1354,7 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
     padding: 20px;
+    margin: auto auto 10%;
 }
 
 .folder {
@@ -1328,6 +1368,7 @@
 .folder.ativo {
     background: #f1f1f1;
     color: #6c757d;
+    box-shadow: 0px -2px 5px 1px rgba(0, 0, 0, 0.5);
 }
 
 .section-content {
@@ -1346,6 +1387,38 @@
     text-align: center;
 }
 
+#permissao_orcamentos table thead tr > th:first-child {
+    width: 50%;
+}
+
+#permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
+#orcamentos_aprovados table tbody tr > *:not(:first-child){
+    text-align: center;
+    vertical-align: middle;
+}
+
+#orcamentos_aprovados table tbody tr:first-child {
+    vertical-align: middle;
+}
+
+.div_filtro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    border: solid 1px #afafaf;
+}
+
+.div_filtro select {
+    width: 20% !important;
+}
+
+#tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
+#status table tr > th, #tabela_avisos tr > th, #tabela_avisos tr > td:not(:first-child),
+#tabela_sem_escala tr > th, #tabela_sem_escala tr > td:not(:first-child) {
 #tabela_descontos_opcionais thead tr > th:nth-child(2) {
     width: 30%;
 }
@@ -1367,6 +1440,63 @@
 #orcamentos_aprovados table thead tr > *:not(:first-child),
 #orcamentos_aprovados table tbody tr > *:not(:first-child){
     text-align: center;
+    vertical-align: middle;
+}
+
+#status table tr > td:first-child, #tabela_avisos tr > td:first-child, #tabela_adesao tr > td:first-child,
+#tabela_sem_escala tr > td:first-child {
+    vertical-align: middle;
+}
+
+#tabela_adesao .baixa {
+    background: #e90d0d5c;
+}
+
+#tabela_adesao .media {
+    background: #f3c31761;
+}
+
+#tabela_adesao .alta {
+    background: #43ff647a
+}
+
+.tabelas {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+#abas img {
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+#avisos > div:first-child{
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 1px #afafaf;
+}
+
+#tabela_detalhe_mes thead tr > th, #tabela_detalhe_mes tbody tr > td:not(:first-child) {
+    text-align: center;
+    vert-align: middle;
+}
+
+#tabela_detalhe_mes tbody tr > td {
     vertical-align: middle;
 }
 

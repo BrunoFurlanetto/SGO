@@ -1,11 +1,12 @@
 from django.contrib import admin
 
-from ordemDeServico.models import DadosTransporte
+from ordemDeServico.models import DadosTransporte, TipoVeiculo
 from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
                              Responsavel, InformacoesAdcionais, AtividadesEco, CodigosApp,
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
-                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao)
+                             Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
+                             TiposPagamentos)
 from peraltas.models import Vendedor
 
 
@@ -124,6 +125,11 @@ class OpcionaisFormaturaAdmin(admin.ModelAdmin):
     list_display = ('id', 'opcional_formatura')
 
 
+@admin.register(TipoVeiculo)
+class TipoVeiculoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tipo_veiculo')
+
+
 @admin.register(DadosTransporte)
 class DadosTransporteAdmin(admin.ModelAdmin):
     list_display = ('id', )
@@ -144,9 +150,24 @@ class CodigosAppAdmin(admin.ModelAdmin):
     list_display = ('cliente_pj',)
 
 
+@admin.register(TiposPagamentos)
+class TiposPagamentosAdmin(admin.ModelAdmin):
+    list_display = ('tipo_pagamento', 'offline')
+
+
 @admin.register(EventosCancelados)
 class EventosCanceladosAdmin(admin.ModelAdmin):
-    list_display = ('cliente', 'estagio_evento', 'atendente', 'motivo_cancelamento')
+    list_display = (
+        'cliente',
+        'estagio_evento',
+        'atendente',
+        'motivo_cancelamento',
+        'data_entrada',
+        'data_saida',
+        'data_evento',
+        'participantes',
+        'tipo_evento'
+    )
     list_filter = ('estagio_evento', 'atendente')
 
 
@@ -154,7 +175,8 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
 class EventosAdmin(admin.ModelAdmin):
     list_display = (
         'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
-        'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento'
+        'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento',
+        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento'
     )
     list_display_links = ('cliente', )
     list_per_page = 100

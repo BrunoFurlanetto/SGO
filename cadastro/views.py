@@ -2,83 +2,176 @@ import json
 from datetime import time, datetime
 from io import BytesIO
 from itertools import chain
+
+import django.db.utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
-from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte
+from local_settings import STATUS_RD
+from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte, \
+    TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
+    Monitor, EmpresaOnibus, TiposPagamentos
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
-from projetoCEU.utils import verificar_grupo, email_error
+from projetoCEU.integracao_rd import alterar_status, alterar_campos_personalizados
+from projetoCEU.utils import verificar_grupo, email_error, enviar_email_erro
 from .funcoes import is_ajax, requests_ajax, pegar_refeicoes, ver_empresa_atividades, numero_coordenadores, \
     separar_dados_transporte, salvar_dados_transporte, verificar_codigos
-from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa
+from cadastro.models import RelatorioPublico, RelatorioColegio, RelatorioEmpresa, RelatorioDeAtendimentoPublicoCeu, \
+    RelatorioDeAtendimentoColegioCeu, RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Professores, Atividades, Locaveis
 from .funcoesColegio import pegar_colegios_no_ceu, pegar_empresas_no_ceu, \
     salvar_atividades_colegio, salvar_equipe_colegio, salvar_locacoes_empresa, criar_usuario_colegio
 from .funcoesFichaEvento import salvar_atividades_ceu, check_in_and_check_out_atividade, salvar_locacoes_ceu, \
     slavar_atividades_ecoturismo
-from .funcoesPublico import salvar_atividades, salvar_equipe, requisicao_ajax
+from .funcoesPublico import salvar_atividades, salvar_equipe, requisicao_ajax, teste_participantes_por_atividade
 from django.core.paginator import Paginator
 
 
 @login_required(login_url='login')
-def publico(request):
-    relatorio_publico = RelatorioPublico()
+def publico(request, id_relatorio=None):
+    if id_relatorio:
+        relatorio = RelatorioDeAtendimentoPublicoCeu.objects.get(pk=id_relatorio)
+        relatorio_publico = RelatorioPublico(instance=relatorio)
+        coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+        editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
+    else:
+        relatorio = editar = None
+        relatorio_publico = RelatorioPublico()
+
     atividades = Atividades.objects.filter(publico=True)
     professores = Professores.objects.all()
-    range_j = range(1, 5)
 
     if is_ajax(request):
         return JsonResponse(requisicao_ajax(request.POST))
 
     if request.method != 'POST':
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
-                                                         'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
+        return render(request, 'cadastro/publico.html', {
+            'relatorio': relatorio,
+            'formulario': relatorio_publico,
+            'atividades': atividades,
+            'professores': professores,
+            'editar': editar
+        })
 
-    relatorio_publico = RelatorioPublico(request.POST)
-    relatorio = relatorio_publico.save(commit=False)
-    salvar_equipe(request.POST, relatorio)
-    salvar_atividades(request.POST, relatorio)
-
-    try:
-        relatorio.save()
-    except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
-        return render(request, 'cadastro/publico.html', {'formulario': relatorio_publico,
-                                                         'rangej': range_j, 'atividades': atividades,
-                                                         'professores': professores})
+    if request.POST.get('excluir'):
+        try:
+            relatorio.delete()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Relatório de atendimento ao público apagado com sucesso')
+            return redirect('dashboard')
     else:
-        messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
-        return redirect('dashboard')
+        if id_relatorio:
+            relatorio_publico = RelatorioPublico(request.POST, instance=relatorio)
+        else:
+            relatorio_publico = RelatorioPublico(request.POST)
+
+        relatorio = relatorio_publico.save(commit=False)
+        salvar_equipe(request.POST, relatorio)
+        salvar_atividades(request.POST, relatorio)
+
+        try:
+            relatorio.save()
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde')
+            return redirect('dashboard')
+        else:
+            messages.success(request, 'Relatório de atendimento ao público salva com sucesso')
+            return redirect('dashboard')
 
 
 @login_required(login_url='login')
-def colegio(request):
+def colegio(request, id_relatorio=None):
     relatorio_colegio = RelatorioColegio()
+    relatorio = None
+    editar = False
     professores = Professores.objects.all()
-    colegios_no_ceu = pegar_colegios_no_ceu()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordens = pegar_colegios_no_ceu()
 
     if request.method != 'POST':
-        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+        if not id_relatorio:
+            if request.GET.get('colegio'):
+                ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('colegio'))
+                relatorio_colegio = RelatorioColegio(
+                    initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem_de_servico)
+                )
+
+                return render(request, 'cadastro/colegio.html', {
+                    'formulario': relatorio_colegio,
+                    'ordens': ordens,
+                    'ordem': ordem_de_servico,
+                    'professores': professores,
+                    'monitores': monitores,
+                    'atividades': atividades,
+                    'locais': locais
+                })
+            else:
+                return render(request, 'cadastro/colegio.html', {
+                    'formulario': relatorio_colegio,
+                    'ordens': ordens,
+                    'professores': professores
+                })
+        else:
+            relatorio = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
+            relatorio_colegio = RelatorioColegio(instance=relatorio)
+            coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+            editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
+
+            return render(request, 'cadastro/colegio.html', {
+                'relatorio': relatorio,
+                'formulario': relatorio_colegio,
+                'professores': professores,
+                'monitores': monitores,
+                'atividades': atividades,
+                'editar': editar,
+                'locais': locais
+            })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    relatorio_colegio = RelatorioColegio(request.POST)
+    if id_relatorio:
+        relatorio_editado = RelatorioDeAtendimentoColegioCeu.objects.get(pk=id_relatorio)
+
+        if request.POST.get('excluir') and request.POST.get('excluir') == 'Sim':
+            try:
+                ordem = relatorio_editado.ordem
+                relatorio_editado.delete()
+            except Exception as e:
+                messages.error(request, f'Houve um erro inesperado ({e}). Por favor, tente novamente mais tarde!')
+                return redirect('dashboard')
+            else:
+                ordem.relatorio_ceu_entregue = False
+                ordem.save()
+                messages.success(request, 'Relatório de atendimento apagado com sucesso!')
+
+                return redirect('dashboard')
+
+        relatorio_colegio = RelatorioColegio(request.POST, instance=relatorio_editado)
+    else:
+        ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
+        relatorio_colegio = RelatorioColegio(
+            request.POST,
+            initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem)
+        )
 
     if relatorio_colegio.is_valid():
         relatorio = relatorio_colegio.save(commit=False)
-        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('ordem')))
+        relatorio.check_in = ordem.check_in_ceu
+        relatorio.check_out = ordem.check_out_ceu
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_atividades_colegio(request.POST, relatorio)
 
@@ -90,64 +183,127 @@ def colegio(request):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
-            relatorio_colegio = RelatorioColegio()
-            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'colegios': colegios_no_ceu,
-                                                             'professores': professores})
+            return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
 
-            email, senha = criar_usuario_colegio(novo_colegio)
+            if not id_relatorio:
+                email, senha = criar_usuario_colegio(novo_colegio, ordem.id)
+            else:
+                return redirect('dashboardCeu')
 
-            return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                             'colegios': colegios_no_ceu,
-                                                             'professores': professores,
-                                                             'mostrar': True,
-                                                             'email': email,
-                                                             'senha': senha})
-
+            return render(request, 'cadastro/colegio.html', {
+                'formulario': relatorio_colegio,
+                'professores': professores,
+                'mostrar': True,
+                'email': email,
+                'senha': senha
+            })
     else:
         messages.warning(request, relatorio_colegio.errors)
-        return render(request, 'cadastro/colegio.html', {'formulario': relatorio_colegio,
-                                                         'colegios': colegios_no_ceu,
-                                                         'professores': professores})
+        ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+
+        return render(request, 'cadastro/colegio.html', {
+            'relatorio': relatorio,
+            'formulario': relatorio_colegio,
+            'professores': professores,
+            'monitores': monitores,
+            'atividades': atividades,
+            'editar': editar,
+            'locais': locais
+        })
 
 
 @login_required(login_url='login')
-def empresa(request):
-    relatorio_empresa = RelatorioEmpresa()
+def empresa(request, id_relatorio=None):
     professores = Professores.objects.all()
-    empresas = pegar_empresas_no_ceu()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    editar = False
 
     if request.method != 'POST':
-        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                         'professores': professores,
-                                                         'empresas': empresas})
+        if not id_relatorio:
+            relatorio_empresa = RelatorioEmpresa()
+            empresas = pegar_empresas_no_ceu()
+
+            if request.GET.get('empresa'):
+                ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
+                relatorio_colegio = RelatorioColegio(
+                    initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
+                )
+
+                return render(request, 'cadastro/empresa.html', {
+                    'formulario': relatorio_colegio,
+                    'empresas': empresas,
+                    'ordem': ordem_de_servico,
+                    'professores': professores,
+                    'monitores': monitores,
+                    'atividades': atividades,
+                    'locais': locais
+                })
+
+            return render(request, 'cadastro/empresa.html', {
+                'formulario': relatorio_empresa,
+                'professores': professores,
+                'empresas': empresas
+            })
+        else:
+            relatorio = RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio)
+            relatorio_empresa = RelatorioEmpresa(instance=relatorio)
+            coordenador_relatorio = Professores.objects.get(pk=relatorio.equipe['coordenador'])
+            editar = datetime.now().day - relatorio.data_hora_salvo.day < 2 and coordenador_relatorio.usuario == request.user
+
+            return render(request, 'cadastro/empresa.html', {
+                'relatorio': relatorio,
+                'formulario': relatorio_empresa,
+                'professores': professores,
+                'monitores': monitores,
+                'atividades': atividades,
+                'editar': editar,
+                'locais': locais
+            })
 
     if is_ajax(request):
         return JsonResponse(requests_ajax(request.POST))
 
-    relatorio_empresa = RelatorioEmpresa(request.POST)
+    if id_relatorio:
+        relatorio = RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio)
+
+        if request.POST.get('excluir') and request.POST.get('excluir') == 'Sim':
+            try:
+                ordem = relatorio.ordem
+                relatorio.delete()
+            except Exception as e:
+                messages.error(request, f'Houve um erro inesperado ({e}), por favor tente novamente mais tarde!')
+
+                return redirect('dashboard')
+            else:
+                ordem.relatorio_ceu_entregue = False
+                ordem.save()
+                messages.success(request, f'Relatório deletado com sucesso!')
+
+                return redirect('dashboard')
+
+        relatorio_empresa = RelatorioEmpresa(request.POST, instance=relatorio)
+    else:
+        relatorio_empresa = RelatorioEmpresa(request.POST)
 
     if relatorio_empresa.is_valid():
-        ordem = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
+        ordem = OrdemDeServico.objects.get(pk=request.POST.get('ordem'))
         relatorio = relatorio_empresa.save(commit=False)
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_locacoes_empresa(request.POST, relatorio)
-
-        if request.POST.get('ativ_1'):
+        print(request.POST)
+        if request.POST.get('ativ_1', None):
             salvar_atividades_colegio(request.POST, relatorio)
 
         try:
             relatorio_empresa.save()
         except Exception as e:
-            email_error(request.user.get_full_name(), e, __name__)
-            messages.error(request, 'Houve um erro inesperado, por favor, tente mais tarde')
-            relatorio_empresa = RelatorioEmpresa()
-            return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                             'professores': professores,
-                                                             'empresas': empresas})
+            messages.error(request, f'Houve um erro inesperado ({e}), por favor, tente mais tarde')
+            return redirect('dashboard')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
@@ -155,31 +311,38 @@ def empresa(request):
             return redirect('dashboard')
     else:
         messages.warning(request, relatorio_empresa.errors)
-        return render(request, 'cadastro/empresa.html', {'formulario': relatorio_empresa,
-                                                         'professores': professores,
-                                                         'empresas': empresas})
+        return render(request, 'cadastro/empresa.html', {
+            'relatorio': RelatorioDeAtendimentoEmpresaCeu.objects.get(pk=id_relatorio) if id_relatorio else None,
+            'formulario': relatorio_empresa,
+            'professores': professores,
+            'monitores': monitores,
+            'atividades': atividades,
+            'editar': editar,
+            'locais': locais
+        })
 
 
 @login_required(login_url='login')
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
+    tipos_veiculos = TipoVeiculo.objects.all()
     form_transporte = CadastroDadosTransporte()
     forms_transporte = []
     transportes_salvos = []
     transporte = None
 
     if is_ajax(request):
-        if request.POST.get('id_viacao_excluida'):
-            print(request.POST)
-            if request.POST.get('id_os') == '':
-                return HttpResponse(True)
+        if request.method == 'GET':
+            viacoes = [{'id': viacao.id, 'tipo': viacao.viacao} for viacao in EmpresaOnibus.objects.all()]
+            veiculos = [{'id': veiculo.id, 'tipo': veiculo.tipo_veiculo} for veiculo in tipos_veiculos]
 
+            return JsonResponse({'viacoes': viacoes, 'veiculos': veiculos})
+
+        if request.POST.get('id_dado'):
             try:
-                ordem = OrdemDeServico.objects.get(pk=request.POST.get('id_os'))
-                for dados_transporte in ordem.dados_transporte.all():
-                    if dados_transporte.empresa_onibus.id == int(request.POST.get('id_viacao_excluida')):
-                        dados_transporte.delete()
+                transporte_excluido = DadosTransporte.objects.get(pk=request.POST.get('id_dado'))
+                transporte_excluido.delete()
             except Exception as e:
                 return HttpResponse(e)
             else:
@@ -232,6 +395,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             'atividades_eco': atividades_eco,
             'atividades_ceu': atividades_ceu,
             'espacos': espacos,
+            'tipos_veiculos': tipos_veiculos,
             'n_coordenadores': numero_coordenadores(ficha_de_evento)
         })
 
@@ -246,7 +410,10 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
                 data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                data_evento=ordem_servico.check_in.date(),
+                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                participantes=ordem_servico.n_participantes,
+                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo'
             )
             ordem_servico.ficha_de_evento.os = False
             ordem_servico.ficha_de_evento.save()
@@ -267,26 +434,14 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         form = CadastroOrdemDeServico(request.POST, request.FILES, instance=ordem_servico)
         permicao_coordenacao = ordem_servico.permicao_coordenadores
 
-        if len(ordem_servico.dados_transporte.all()) > 0:
-            for tranporte_n, transporte in enumerate(ordem_servico.dados_transporte.all()):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte, instance=transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
-
-        if len(ordem_servico.dados_transporte.all()) < len(request.POST.getlist('empresa_onibus')):
-            for tranporte_n in range(len(ordem_servico.dados_transporte.all()), len(request.POST.getlist('empresa_onibus'))):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
+        if request.POST.get('empresa_onibus'):
+            transportes_salvos = DadosTransporte.salvar_dados(request.POST)
     else:
         permicao_coordenacao = False
         form = CadastroOrdemDeServico(request.POST, request.FILES)
 
-        if len(request.POST.getlist('empresa_onibus')) > 0:
-            for tranporte_n in range(0, len(request.POST.getlist('empresa_onibus'))):
-                dados_transporte, numero_carros = separar_dados_transporte(request.POST, tranporte_n)
-                form_transporte = CadastroDadosTransporte(dados_transporte)
-                transportes_salvos.append(salvar_dados_transporte(form_transporte, numero_carros))
+        if request.POST.get('empresa_onibus'):
+            transportes_salvos = DadosTransporte.salvar_dados(request.POST)
 
     ordem_de_servico = form.save(commit=False)
     ordem_de_servico.permicao_coordenadores = permicao_coordenacao
@@ -319,7 +474,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, 'Houve um erro inesperado ao salvar a ordem de serviço, por favor tente mais tarde,'
-                                'ou entre em contato com o desenvolvedor.')
+                                f' ou entre em contato com o desenvolvedor. ({e})')
 
         return redirect('dashboardPeraltas')
     else:
@@ -332,6 +487,11 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
             messages.success(request, f'Ordem de serviço do colégio {ordem_de_servico.instituicao} salva com sucesso')
 
         if not id_ordem_de_servico:
+            if ficha.produto.colegio:
+                alterar_status(ficha.id_negocio, STATUS_RD['ODS-EC'])
+            else:
+                alterar_status(ficha.id_negocio, STATUS_RD['C_ODSS'])
+
             EmailSender([ficha.vendedora.usuario.email]).mensagem_cadastro_ordem(
                 ordem_de_servico.check_in, ordem_de_servico.check_out, ordem_de_servico.ficha_de_evento.cliente
             )
@@ -373,6 +533,11 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             if request.GET.getlist('codigos_eficha[]'):
                 return JsonResponse(verificar_codigos(request.GET.getlist('codigos_eficha[]')))
 
+            if request.GET.get('tipo_pagamento'):
+                tipo = TiposPagamentos.objects.get(pk=request.GET.get('tipo_pagamento'))
+
+                return JsonResponse({'avulso': tipo.offline})
+
             return HttpResponse(ClienteColegio.objects.get(pk=request.GET.get('id_cliente')).cnpj)
 
         if request.FILES != {}:
@@ -380,7 +545,6 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         else:
             if request.POST.get('id_cliente_sem_app') and request.POST.get('infos') == 'app':
                 cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente_sem_app'))
-                cliente.codigo_app_pf = request.POST.get('cliente_pf')
                 cliente.codigo_app_pj = request.POST.get('cliente_pj')
                 cliente.save()
 
@@ -444,7 +608,10 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
                 data_entrada=ficha_de_evento.data_preenchimento,
                 data_saida=datetime.now().date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                data_evento=ficha_de_evento.check_in.date(),
+                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                participantes=ficha_de_evento.qtd_convidada,
+                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'
             )
             ficha_de_evento.delete()
         except Exception as e:
@@ -471,6 +638,15 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         novo_evento.os = os
         novo_evento.escala = escala
 
+        try:
+            novo_evento.adesao = (novo_evento.qtd_confirmada / novo_evento.qtd_convidada) * 100
+        except TypeError:
+            novo_evento.qtd_confirmada = 0
+            novo_evento.adesao = 0.00
+        except ZeroDivisionError:
+            novo_evento.qtd_convidada = 0
+            novo_evento.adesao = 100.00
+
         if not id_ficha_de_evento:
             novo_evento.data_preenchimento = datetime.today().date()
 
@@ -478,7 +654,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             novo_evento.informacoes_locacoes = FichaDeEvento.juntar_dados_locacoes(request.POST)
 
         try:
-            form.save()
+            evento_salvo = form.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor tente mais tarde')
@@ -486,6 +662,17 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
             return redirect('ficha_de_evento')
         else:
             if not id_ficha_de_evento:
+                if evento_salvo.produto.colegio:
+                    if 'Visita' in evento_salvo.produto.produto:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['VT'])
+                    else:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['PI'])
+                else:
+                    if 'Visita' in evento_salvo.produto_corporativo.produto:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['C_VT'])
+                    else:
+                        alterar_status(evento_salvo.id_negocio, STATUS_RD['C_FDES'])
+
                 coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
                 operacional = User.objects.filter(groups__name='Operacional')
                 lista_emails = set()
@@ -502,6 +689,11 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                     novo_evento.cliente,
                     novo_evento.vendedora
                 )
+
+            try:
+                alterar_campos_personalizados(evento_salvo.id_negocio, evento_salvo)
+            except KeyError:
+                messages.warning(request, 'ID de negócio no RD incorreto')
 
             messages.success(
                 request,

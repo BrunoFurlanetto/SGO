@@ -134,6 +134,7 @@ class ProdutosPeraltas(models.Model):
     pernoite = models.BooleanField(default=True)
     colegio = models.BooleanField(default=True)
     brotas_eco = models.BooleanField(default=False)
+    meninos_e_meninas = models.BooleanField(default=False)
     n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
     hora_padrao_check_in = models.TimeField(blank=True, null=True)
     hora_padrao_check_out = models.TimeField(blank=True, null=True)
@@ -171,13 +172,23 @@ class CodigosPadrao(models.Model):
     nome = models.CharField(max_length=50)
 
 
+class TiposPagamentos(models.Model):
+    tipo_pagamento = models.CharField(max_length=255)
+    offline = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.tipo_pagamento
+
+
 @reversion.register
 class CodigosApp(models.Model):
     cliente_pj = models.IntegerField()
     cliente_pf = models.IntegerField()
-    evento = models.CharField(max_length=255)
+    evento_app = models.CharField(max_length=255, null=True, blank=True)
+    eficha = models.CharField(max_length=255)
     reserva = models.CharField(max_length=255)
-    pagamento = models.IntegerField(null=True, blank=True)
+    ficha_financeira = models.CharField(max_length=255, null=True, blank=True)
+    tipo_de_pagamento = models.ManyToManyField(TiposPagamentos, blank=True)
 
     def __str__(self):
         return f'Cliente PJ: {self.cliente_pj}, cliente PF: {self.cliente_pf}'
@@ -227,14 +238,18 @@ class Responsavel(models.Model):
     cargo = models.ManyToManyField(ListaDeCargos)
     fone = models.CharField(max_length=16)
     email_responsavel_evento = models.EmailField()
-    responsavel_cadastro = models.ForeignKey(User,
-                                             on_delete=models.DO_NOTHING,
-                                             blank=True, null=True,
-                                             related_name='responsavel_cadastro')
-    responsavel_atualizacao = models.ForeignKey(User,
-                                                on_delete=models.DO_NOTHING,
-                                                blank=True, null=True,
-                                                related_name='responsavel_atualizacao')
+    responsavel_cadastro = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        blank=True, null=True,
+        related_name='responsavel_cadastro'
+    )
+    responsavel_atualizacao = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        blank=True, null=True,
+        related_name='responsavel_atualizacao'
+    )
 
     def __str__(self):
         return self.nome
@@ -268,7 +283,10 @@ class EventosCancelados(models.Model):
     )
     data_entrada = models.DateField()
     data_saida = models.DateField()
+    data_evento = models.DateField()
     motivo_cancelamento = models.TextField()
+    tipo_evento = models.CharField(choices=(('colegio', 'Colégio'), ('corporativo', 'Corporativo')), max_length=12)
+    participantes = models.PositiveIntegerField()
 
     def __str__(self):
         return f'Cancelamento do evento de {self.cliente}.'
@@ -363,27 +381,35 @@ class FichaDeEvento(models.Model):
     )
 
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
-    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE, verbose_name='Responsável pelo evento')
+    responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE,
+                                           verbose_name='Responsável pelo evento')
     produto = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING, verbose_name='Produto')
     produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.CASCADE, blank=True, null=True,
                                             verbose_name='Produto corporativo')
     check_in = models.DateTimeField(verbose_name='Check in')
     check_out = models.DateTimeField(verbose_name='Check out')
-    obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True, verbose_name='Observação da edição do horário')
+    obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True,
+                                          verbose_name='Observação da edição do horário')
     professores_com_alunos = models.BooleanField(default=False, verbose_name='Professores dormirão com alunos?')
     qtd_professores = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores')
-    qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores homens')
-    qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores mulheres')
+    qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True,
+                                                   verbose_name='Quantidade de professores homens')
+    qtd_profs_mulheres = models.PositiveIntegerField(blank=True, null=True,
+                                                     verbose_name='Quantidade de professores mulheres')
     qtd_convidada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade reservada')
     qtd_confirmada = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade confirmada')
+    qtd_eficha = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade E-ficha')
+    qtd_offline = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade offline')
     qtd_meninos = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de menino')
     qtd_meninas = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de meninas')
     qtd_homens = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de homens')
     qtd_mulheres = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de mulheres')
-    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True, verbose_name='Perfíl dos participantes')
+    perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True,
+                                                  verbose_name='Perfíl dos participantes')
     refeicoes = models.JSONField(blank=True, null=True, verbose_name='Refeições')
     observacoes_refeicoes = models.TextField(blank=True, null=True, verbose_name='Observações das refeições')
-    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Informações adicionais')
+    informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True,
+                                              verbose_name='Informações adicionais')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
     atividades_ceu_a_definir = models.IntegerField(blank=True, null=True, verbose_name='Atividades CEU a definir')
@@ -391,13 +417,19 @@ class FichaDeEvento(models.Model):
     informacoes_locacoes = models.JSONField(blank=True, null=True, verbose_name='Informações de locações')
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades extra')
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True, verbose_name='Atividades Peraltas')
-    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE, verbose_name='Vendedora')  # TODO: Verificar caso de exclusão de colaborador
+    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE,
+                                  verbose_name='Vendedora')  # TODO: Verificar caso de exclusão de colaborador
     data_final_inscricao = models.DateField(blank=True, null=True, verbose_name='Data final da inscrição')
     data_divulgacao = models.DateField(blank=True, null=True, verbose_name='Data prevista para divulgação')
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True, verbose_name='Empresa')
-    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d', verbose_name='Material de apoio')
+    material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d',
+                                      verbose_name='Material de apoio')
     data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
-    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Códigos APP')
+    codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    verbose_name='Códigos APP')
+    adesao = models.FloatField(blank=True, null=True, verbose_name='Adesão')
+    agencia = models.BooleanField(default=False)
+    id_negocio = models.CharField(max_length=255, verbose_name='ID negócio', blank=True)
     exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
     pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
     agendado = models.BooleanField(default=False, verbose_name='Agendado')
@@ -635,6 +667,7 @@ class FichaDeEvento(models.Model):
                     campos_alterados.append(campo_alterado)
 
             return campos_alterados
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def tabelar_refeicoes(self):
@@ -740,9 +773,34 @@ class Eventos(models.Model):
 
     def codigo_pagamento(self):
         if not self.ficha_de_evento.pre_reserva:
-            return self.ficha_de_evento.codigos_app.evento
+            return self.ficha_de_evento.codigos_app.eficha
         else:
             return ''
+
+    def tipo_evento(self):
+        if self.ordem_de_servico:
+            return self.ordem_de_servico.tipo
+        else:
+            if self.ficha_de_evento.produto.colegio:
+                return 'Colégio'
+            else:
+                return 'Empresa'
+
+    def dias_evento(self):
+        if self.ordem_de_servico:
+            return (self.ordem_de_servico.check_out.date() - self.ordem_de_servico.check_in.date()).days
+        else:
+            return (self.ficha_de_evento.check_out.date() - self.ficha_de_evento.check_in.date()).days
+
+    def produto_peraltas(self):
+        return self.ficha_de_evento.produto.produto
+
+    def produto_corporativo(self):
+        if self.ficha_de_evento.produto_corporativo:
+            return self.ficha_de_evento.produto_corporativo.produto
+
+    def adesao_evento(self):
+        return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
 
 
 class DisponibilidadePeraltas(models.Model):
@@ -861,6 +919,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'data_divulgacao': forms.TextInput(attrs={'type': 'date'}),
             'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
                                                                  'class': 'form-check-input'}),
+            'id_negocio': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -923,8 +982,11 @@ class CadastroCodigoApp(forms.ModelForm):
         widgets = {
             'cliente_pj': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
             'cliente_pf': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
-            'evento': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
+            'eficha': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'reserva': forms.TextInput(attrs={'pattern': '\d*', 'minlength': '6', 'maxlength': '6'}),
+            'tipo_de_pagamento': forms.SelectMultiple(attrs={'style': 'width: 100%', 'onchange': ''}),
+            'ficha_financeira': forms.TextInput(attrs={'pattern': '\d*', 'min': '0'}),
+            'evento_app': forms.TextInput(attrs={'pattern': '\d*', 'min': '0'}),
         }
 
 
@@ -934,7 +996,7 @@ class CadastroPreReserva(forms.ModelForm):
         fields = [
             'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
-            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario'
+            'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario', 'agencia', 'id_negocio'
         ]
 
         widgets = {
@@ -942,6 +1004,7 @@ class CadastroPreReserva(forms.ModelForm):
             'produto': forms.Select(attrs={'onChange': 'dadosProduto()'}),
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this, true)'}),
             'qtd_convidada': forms.NumberInput(attrs={'onChange': 'atualizar_lotacao(this.value)'}),
+            'agencia': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'exclusividade': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
                 'onchange': 'verificar_evento_dia_exclusividade()'
@@ -958,6 +1021,7 @@ class CadastroPreReserva(forms.ModelForm):
                 'onkeyup': '$("#ModalCadastroPreReserva #id_check_out").val("")',
                 'onclick': 'this.showPicker()'
             }),
+            'id_negocio': forms.TextInput(attrs={'required': 'required', 'onchange': 'verificar_id_negocio(this)'})
         }
 
     def __init__(self, *args, **kwargs):

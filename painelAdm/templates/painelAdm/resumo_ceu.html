@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+{% load custom_filter_tag %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <div class="conteudo-resumo_ceu">
+        <div style="text-align: center">
+            <h4>Resumos das atividades</h4>
+        </div>
+        <hr>
+        <div class="listagem_mes">
+            <table id="resumo_por_mes" class="table table-bordered table-striped table-hover tabela-conteudo"
+                   style="caption-side: top">
+                <thead>
+                <tr class="table-active">
+                    <th style="width: 400px; text-align: center">Mês (ano)</th>
+                    <th style="width: 120px; text-align: center">Visitantes</th>
+                    <th style="width: 250px; text-align: center">Atividades</th>
+                    <th style="width: 210px; text-align: center">Horas de locacoes</th>
+                </tr>
+                </thead>
+                <tbody id="dados">
+                {% for dados in dados_atividades %}
+                    <tr data-mes_ano="{{ dados.mes }}_{{ dados.ano }}" onclick="tabelar_mes(this)">
+                        <td>{{ dados.mes }} ({{ dados.ano }})</td>
+                        <td>{{ dados.participantes }}</td>
+                        <td>{{ dados.n_atividades }}</td>
+                        <td>{{ dados.horas_locadas }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detalhe_mes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do mês</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="tabela_detalhe_mes" class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 25%">Professor</th>
+                            <th>Número de atividades</th>
+                            <th>Horas totais</th>
+                            <th>Valor atividades</th>
+                            <th>Valor horas</th>
+                            <th>Valor total</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <form id="form_gerar_pdf" action="{% url 'resumo_atividades' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" id="gerar_pdf" name="gerar_pdf" value="True">
+                        <input type="hidden" id="mes_ano" name="mes_ano">
+                        <button type="submit" class="btn btn-primary">Imprimir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'js/script_painel_adm.js' %}"></script>
+{% endblock %}

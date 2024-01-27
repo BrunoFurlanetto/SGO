@@ -1,9 +1,13 @@
 import json
+import locale
 from datetime import timedelta, datetime
 import operator
+from itertools import chain
+
 from django.db.models import Q
 
-from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu
+from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
+    RelatorioDeAtendimentoEmpresaCeu
 from ceu.models import Professores
 
 
@@ -193,3 +197,118 @@ def ordenar_dicionario(dicionario):
     # ----------------------------------------------------------------------------------------
 
     return dict((x, y) for x, y in tuplas_ordenada)
+
+def resumir_atividades():
+    locale.setlocale(locale.LC_TIME, 'pt_BR')
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.all()[:200]
+    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.all()[:200]
+    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.all()[:200]
+    relatorios = list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))
+    datas_relatorio = []
+    meses_relatorios = []
+    dados_atividades = []
+
+    for relatorio in relatorios:
+        if relatorio.data_hora_salvo.date() not in datas_relatorio:
+
+            try:
+                datas_relatorio.append(relatorio.check_in.date())
+            except AttributeError:
+                datas_relatorio.append(relatorio.data_hora_salvo.date())
+
+    datas_relatorio = sorted(datas_relatorio, reverse=True)
+
+    for data in datas_relatorio:
+        if {'mes': data.month, 'ano': data.year} not in meses_relatorios:
+            meses_relatorios.append({'mes': data.month, 'ano': data.year})
+
+    for data in meses_relatorios:
+        participantes_mes = n_atividades = 0
+        horas_locacoes = timedelta()
+        relatorios_colegio_mes = RelatorioDeAtendimentoColegioCeu.objects.filter(
+            check_in__month=data['mes'],
+            check_in__year=data['ano']
+        )
+        relatorios_empresa_mes = RelatorioDeAtendimentoEmpresaCeu.objects.filter(
+            check_in__month=data['mes'],
+            check_in__year=data['ano']
+        )
+        relatorios_publico_mes = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+            data_atendimento__month=data['mes'],
+            data_atendimento__year=data['ano']
+        )
+        relatorios_mes = list(chain(relatorios_publico_mes, relatorios_empresa_mes, relatorios_colegio_mes))
+
+        for relatorio_mes in relatorios_mes:
+            try:
+                participantes_mes += relatorio_mes.participantes_confirmados if relatorio_mes.participantes_confirmados else 0
+                n_atividades += len(relatorio_mes.atividades) if relatorio_mes.atividades else 0
+                horas_locacoes += relatorio_mes.horas_totais_locacoes if relatorio_mes.horas_totais_locacoes else timedelta()
+            except AttributeError:
+                ...
+
+        total_seconds = horas_locacoes.total_seconds()
+        horas, remainder = divmod(total_seconds, 3600)
+        minutos, segundos = divmod(remainder, 60)
+        dados_atividades.append({
+            'mes': datetime(1, data['mes'], 1).strftime('%B').capitalize(),
+            'ano': data['ano'],
+            'participantes': participantes_mes,
+            'n_atividades': n_atividades,
+            'horas_locadas': f'{int(horas):02}:{int(minutos):02}'
+        })
+
+    return dados_atividades
+
+def pegar_dados_relatorios_mes(mes, ano):
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__month=mes, data_atendimento__year=ano)
+    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+    relatorios = list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))
+    professores = Professores.objects.all()
+    dados_professores = []
+    _professores_atividades = []
+    professores_locacoes = []
+    professores_atividades = []
+
+    for relatorio in relatorios:
+        if relatorio.atividades:
+            for atividade in relatorio.atividades.values():
+                _professores_atividades.append(atividade['professores'])
+
+        if isinstance(relatorio, RelatorioDeAtendimentoColegioCeu) or isinstance(relatorio, RelatorioDeAtendimentoEmpresaCeu):
+            if relatorio.locacoes:
+                for locacao in relatorio.locacoes.values():
+                    professores_locacoes.append({'id': locacao['professor'][0], 'horas': locacao['soma_horas']})
+
+    professores_atividades = [elemento for sublista in _professores_atividades for elemento in sublista]
+
+    for professor in professores:
+        soma_horas = timedelta()
+
+        for dados_locacao in professores_locacoes:
+            if dados_locacao['id'] == professor.id:
+                tempo = datetime.strptime(dados_locacao['horas'], '%H:%M:%S')
+                soma_horas += timedelta(hours=tempo.hour, minutes=tempo.minute)
+
+        total_seconds = soma_horas.total_seconds()
+        horas, remainder = divmod(total_seconds, 3600)
+        minutos, segundos = divmod(remainder, 60)
+
+        dados_professores.append({
+            'id': professor.id,
+            'nome': professor.usuario.get_full_name(),
+            'atividades': professores_atividades.count(professor.id),
+            'horas': f'{int(horas):02}:{int(minutos):02}',
+            'valor_atividades': professores_atividades.count(professor.id) * 32, # TODO: Passar para o banco
+            'valor_horas': round(total_seconds * 0.00347222, 2) # TODO: Passar para o banco
+        })
+
+    return dados_professores
+
+def pegar_relatorios_mes(mes, ano):
+    relatorios_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__month=mes, data_atendimento__year=ano)
+    relatorios_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+    relatorios_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(check_in__month=mes, check_in__year=ano)
+
+    return list(chain(relatorios_publico, relatorios_colegio, relatorios_empresa))

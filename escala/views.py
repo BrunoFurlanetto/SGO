@@ -35,31 +35,36 @@ def escala(request):
         return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
 
     if request.method != 'POST':
-        return render(request, 'escala/escala.html', {'user_logado': user_logado,
-                                                      'escalas': escalas, 'edita': edita})
+        return render(request, 'escala/escala.html', {
+            'user_logado': user_logado,
+            'escalas': escalas,
+            'edita': edita
+        })
 
     # ------------------------ Savando a nova escalaa -------------------------
-    equipe = {}
+    equipe = list(int(id_professor) for id_professor in request.POST.getlist('escalados') if id_professor != '')
     data_escala = datetime.strptime(request.POST.get('data_escala'), '%Y-%m-%d')
 
-    for i in range(1, 6):
-        if i == 1:
-            equipe['coordenador'] = int(request.POST.get('coordenador'))
-        elif i > 1 and request.POST.get(f'professor_{i}') != '':
-            equipe[f'professor_{i}'] = request.POST.get(f'professor_{i}')
-
     try:
-        nova_escala = Escala.objects.create(
-            data_escala=data_escala,
-            equipe=equipe,
-            mes=data_escala.month,
-            ano=data_escala.year
-        )
-        nova_escala.save()
+        if Escala.objects.filter(data_escala=data_escala).exists():
+            escala_professores = Escala.objects.get(data_escala=data_escala)
+            escala_professores.equipe = equipe
+        else:
+            escala_professores = Escala.objects.create(
+                data_escala=data_escala,
+                equipe=equipe,
+                mes=data_escala.month,
+                ano=data_escala.year
+            )
+
+        escala_professores.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado: {e}')
+
         return redirect('escala')
     else:
+        messages.success(request, 'Escala salva com sucesso')
+
         return redirect('escala')
 
 
@@ -363,8 +368,14 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
 
     if request.GET.get('gerar_pdf'):
-        escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
-        gerar_pdf.dados_monitores(escala_acampamento)
+        print(setor == 'acampamento')
+        if setor == 'acampamento':
+            escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
+            gerar_pdf.dados_monitores(escala_acampamento)
+
+        if setor == 'hotelaria':
+            escala_hotelaria = EscalaHotelaria.objects.get(pk=request.GET.get('id_escala'))
+            gerar_pdf.dados_monitores_hotelaria(escala_hotelaria)
 
         return FileResponse(
             open('temp/dados_monitores_escalados.pdf', 'rb'),

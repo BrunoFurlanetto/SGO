@@ -1,60 +1,10 @@
 // Função principal de tod o o arquivo, responável por preenchar todos os dados
 // já existêntes na ficha de evento
-function completar_informacoes(selecao) {
-    let cliente = selecao.value // Nome da empresa/colégio selecionado
-    $('#id_ordem').val(cliente)
-    $.ajax({
-        type: 'POST',
-        url: '',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'cliente': cliente},
-        success: function (response) {
-
-            // Preenchimeento do nome da instituição e check in/check_out no CEU
-            $('#id_instituicao').val(response['cliente']['instituicao'])
-            $('#id_check_in').val(response['cliente']['check_in'])
-            $('#id_check_out').val(response['cliente']['check_out'])
-
-            // Checagem necessário para evitar possíveis erros de usuabilidade
-            check_locacao()
-            $('#div_check').removeClass('none')
-            montar_cabecalho(response['cliente']) // Chama a função responsável por preencher todos os dados do cabeçalho
-
-            // Se o cliente tiver atividades cadastrada na ficha de evento
-            // é chamado a função que faz a montagem da tabela de atividades
-            if(response['cliente']['atividades'] != null) {
-                montar_tabela_atividades(response['cliente'])
-            }
-
-            // O mesmo teste de existência, mas agora para as locações
-            if(response['cliente']['locacoes'] != null) {
-                // Parte necessária para mostrar ou não a tabela de locação e esconder o check
-                // que mostra a tabela no caso de não ter
-                $('#tabela').removeClass('none')
-                $('#div_check').addClass('none')
-                montar_tabela_locacoes(response['cliente']) // Chama a função para montar a tabela de locações
-            } else {
-                // No caso de não haver locações, faz o teste para saber se o check para mostrar a tabela está ativo
-                check_locacao()
-                $('#checkAtividade').removeClass('none')
-            }
-
-        }
-
-    })
-    setTimeout(() => {  verificar_n_professores(); }, 150);
-
-}
-
-// -------------------- Funções uteis utilizadas no resto do arquivo ------------------------
-// Função responsável por liberar a edição do relatório de colégio
-function edita(){
-    $('#formulario').prop('disabled', false)
-    $('#salvar').prop('disabled', false)
-}
 // Função para verificar se o check da locação/atividade está ativo
+$('document').ready(function () {
+    $('#id_coordenador_peraltas').select2({'style': "pointer-events: none"})
+})
 function check_locacao(){
-
     if($("#checkAtividade").is(":checked")){
         $('#tabela').removeClass('none')
     }else{
@@ -64,15 +14,6 @@ function check_locacao(){
 
 // Responsável por preencher todo o cabeçalho dos relatórios com as informações
 // do grupo, pega da ficha de evento
-function montar_cabecalho(dados){
-    $('#id_serie').val(dados['serie'])
-    $('#id_responsaveis').val(dados['responsaveis'])
-    $('#id_participantes_previa').val(dados['previa'])
-    $('#id_coordenador_peraltas').val(dados['coordenador_peraltas'])
-    $('#corpo_tabela_atividade').empty()
-    $('#corpo_tabela_locacao').empty()
-}
-
 // Responsável por verificar o número mínimo de professores por atividade
 function verificar_n_professores(){
     let linhas = document.querySelectorAll('.linhas').length
@@ -114,7 +55,7 @@ function criar_linhas_colunas(){
     let i = document.querySelectorAll('.linhas').length// Número de linhas já existentes na tabela
 
     $('#corpo_tabela_atividade').append(
-        `<tr class="linhas" id="linha_${i+1}">
+        `<tr class="linhas" id="linha_${i+1}" style="vertical-align: middle">
             <td class="colunas_1" id="coluna_1_linha_${i+1}" style="display: flex; flex-wrap: wrap"></td>
             <td class="colunas_2" id="coluna_2_linha_${i+1}"></td>
             <td class="colunas_3" id="coluna_3_linha_${i+1}"></td>
@@ -134,10 +75,10 @@ function popular_professores(i){
 
         // Faz a verificação pra poder deixar o campo requerido para 2 professores
         if(j < 1) {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="professores_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)" required></select>`)
             $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
         } else {
-            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="prf_${j + 1}_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)"></select>`)
+            $(`#coluna_1_linha_${i + 1}`).append(`<select class="professores" id="prof_${j + 1}_ativ_${i + 1}" name="professores_ativ_${i + 1}" style="width: 45%; margin: 2px;" onchange="validacao(this)"></select>`)
             $(`#prof_${j + 1}_ativ_${i + 1}`).append(`<option selected></option>`)
         }
     }
@@ -173,10 +114,10 @@ function montar_tabela_atividades(dados){
 
         // Coluna 3: Referênte a data e hora da atividade
         let data = dados['atividades'][`atividade_${i + 1}`]['data_e_hora'].replace(' ', 'T') // Replace necessário pelo formato que a data é salvo no BD inicialmente
-        $(`#coluna_3_linha_${i + 1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i + 1}" name="data_hora_ativ_${i + 1}" value="${data}" required/>`)
+        $(`#coluna_3_linha_${i + 1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i + 1}" name="ativ_${i + 1}" value="${data}" required/>`)
 
         // Coluna 4: Referênte a quantidade por atividade
-        $(`#coluna_4_linha_${i + 1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i + 1}" name="qtd_ativ_${i + 1}" value="${dados['atividades'][`atividade_${i + 1}`]['participantes']}" required/>`)
+        $(`#coluna_4_linha_${i + 1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i + 1}" name="ativ_${i + 1}" value="${dados['atividades'][`atividade_${i + 1}`]['participantes']}" required/>`)
 
         // Coluna 5: Botão para exclusão da linha da tabela
         $(`#coluna_5_linha_${i + 1}`).append(`<button class="buton-x-" id="btn_${i + 1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x'></i></span></button>`)
@@ -214,9 +155,7 @@ function colocar_atividades(atividade, id) {
                 }
 
             }
-
             $(`#${id}`).val(id_atividade)
-
         }
     })
 }
@@ -254,13 +193,13 @@ function remover_linha(selecao){
         // Renumeração dos atributos dos professores. É necessário toda uma lógica para
         // que a renumeração seja feita corretamente, devido há presença de 4 selects por linha
         for(let j = 0; j < 4; j++) {
-            $(professores[j+(k*4)]).attr('id', `prf_${(j+1)}_ativ_${k+1}`).attr('name', `prf_${j+2}_ativ_${k+1}`)
+            $(professores[j+(k*4)]).attr('id', `prf_${(j+1)}_ativ_${k+1}`).attr('name', `professores_ativ_${k+1}`)
         }
 
         // Renumeração dos atributos dos demais elementos
         $(atividades[k]).attr('id', `ativ_${k+1}`).attr('name', `ativ_${k+1}`)
-        $(datas[k]).attr('id', `data_hora_ativ${k+1}`).attr('name', `data_hora_ativ_${k+1}`)
-        $(qtds[k]).attr('id', `qtd_ativ${k+1}`).attr('name', `qtd_ativ_${k+1}`)
+        $(datas[k]).attr('id', `data_hora_ativ${k+1}`).attr('name', `ativ_${k+1}`)
+        $(qtds[k]).attr('id', `qtd_ativ${k+1}`).attr('name', `ativ_${k+1}`)
         $(buton[k]).attr('id', `btn_${k+1}`)
     }
 }
@@ -272,8 +211,8 @@ function add_linha_atividade() {
 
     // Crianção dos elementos da atividade, data/hora, quantidade e botão
     $(`#coluna_2_linha_${i+1}`).append(`<select class="atividades" id="ativ_${i+1}" name="ativ_${i+1}" onchange="verificar_n_professores()" required></select>`)
-    $(`#coluna_3_linha_${i+1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i+1}" name="data_hora_ativ_${i+1}" required/>`)
-    $(`#coluna_4_linha_${i+1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i+1}" name="qtd_ativ_${i+1}" required/>`)
+    $(`#coluna_3_linha_${i+1}`).append(`<input class="datas" type="datetime-local" id="data_hora_ativ${i+1}" name="ativ_${i+1}" required/>`)
+    $(`#coluna_4_linha_${i+1}`).append(`<input class="qtds" type="number" id="qtd_ativ${i+1}" name="ativ_${i+1}" required/>`)
     $(`#coluna_5_linha_${i+1}`).append(`<button class="buton-x-" id="btn_${i+1}" type="button" onClick="remover_linha(this)"><span><i class='bx bx-x' ></span></button>`)
 
     colocar_atividades(null, `ativ_${i+1}`) // Populão o select das atividades
@@ -287,7 +226,7 @@ function criar_linhas_colunas_locacao(){
     let i = document.querySelectorAll('.linhas_loc').length
 
     $('#corpo_tabela_locacao').append(
-        `<tr class="linhas_loc" id="linha_loc_${i+1}">
+        `<tr class="linhas_loc" id="linha_loc_${i+1}" style="vertical-align: middle">
             <td class="colunas_loc_1" id="coluna_1_linha_loc_${i+1}"></td>
             <td class="colunas_loc_2" id="coluna_2_linha_loc_${i+1}"></td>
             <td class="colunas_loc_3" id="coluna_3_linha_loc_${i+1}"></td>
@@ -304,7 +243,7 @@ function criar_linhas_colunas_locacao(){
 function popular_professores_locacao(i){
 
     // Nesse caso é apenas um professor por locação
-    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="prf_loc_${i + 1}" onchange="validacao(this)" required></select>`)
+    $(`#coluna_1_linha_loc_${i+1}`).append(`<select class="form-control escalados professores_loc" id="prof_loc_${i + 1}" name="professores_locacao_${i + 1}" onchange="validacao(this)" required></select>`)
     $(`#prof_loc_${i+1}`).append(`<option selected></option>`)
 
     $.ajax({
@@ -364,10 +303,10 @@ function add_linha_locacao(){
     let i = criar_linhas_colunas_locacao()
     popular_professores_locacao(i)
 
-    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"></select>`)
-    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}"/>`)
-    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}"/>`)
-    $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}"/>`)
+    $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" required></select>`)
+    $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="loc_${i + 1}" required/>`)
+    $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="loc_${i + 1}" required/>`)
+    $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="loc_${i + 1}" required/>`)
     $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x'></i></span></button>`)
 
     colocar_locacoes(null, `loc_${i+1}`)
@@ -380,14 +319,14 @@ function montar_tabela_locacoes(dados) {
         criar_linhas_colunas_locacao()
         popular_professores_locacao(i)
 
-        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}"required></select>`)
+        $(`#coluna_2_linha_loc_${i + 1}`).append(`<select class="form-control locacoes" id="loc_${i + 1}" name="loc_${i + 1}" required></select>`)
         colocar_locacoes(dados['locacoes'][`locacao_${i + 1}`]['espaco'], `loc_${i + 1}`)
 
         let check_in = dados['locacoes'][`locacao_${i + 1}`]['check_in'].replace(' ', 'T')
         let check_out = dados['locacoes'][`locacao_${i + 1}`]['check_out'].replace(' ', 'T')
-        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="check_in_${i + 1}" style="width: 200px" value="${check_in}" required/>`)
-        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="check_out_${i + 1}" style="width: 200px" value="${check_out}" required/>`)
-        $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="qtd_loc_${i + 1}" value="${dados['locacoes'][`locacao_${i + 1}`]['participantes']}" required/>`)
+        $(`#coluna_3_linha_loc_${i + 1}`).append(`<input class="check_in" type="datetime-local" id="check_in_${i + 1}" name="loc_${i + 1}" style="width: 200px" value="${check_in}" required/>`)
+        $(`#coluna_4_linha_loc_${i + 1}`).append(`<input class="check_out" type="datetime-local" id="check_out_${i + 1}" name="loc_${i + 1}" style="width: 200px" value="${check_out}" required/>`)
+        $(`#coluna_5_linha_loc_${i + 1}`).append(`<input class="qtds_loc" type="number" id="qtd_loc${i + 1}" name="loc_${i + 1}" value="${dados['locacoes'][`locacao_${i + 1}`]['participantes']}" required/>`)
         $(`#coluna_6_linha_loc_${i + 1}`).append(`<button class="buton-x-loc" id="btn-loc_${i + 1}" type="button" onClick="remover_linha_locacao(this)"><span><i class='bx bx-x' ></span></button>`)
     }
 }
@@ -425,11 +364,11 @@ function remover_linha_locacao(selecao){
             $(colunas_6[i]).attr('id', 'coluna_6_linha_loc_' + (k + 1))
         }
 
-        $(professores[k]).attr('id', `prf_loc_${k+1}`).attr('name', `prf_loc_${k+1}`)
+        $(professores[k]).attr('id', `prf_loc_${k+1}`).attr('name', `professores_loc_${k+1}`)
         $(locacoes[k]).attr('id', `loc_${k+1}`).attr('name', `loc_${k+1}`)
-        $(check_in[k]).attr('id', `check_in_${k+1}`).attr('name', `check_in_${k+1}`)
-        $(check_out[k]).attr('id', `check_out_${k+1}`).attr('name', `check_out_${k+1}`)
-        $(qtds[k]).attr('id', `qtds_loc_${k+1}`).attr('name', `qtd_loc_${k+1}`)
+        $(check_in[k]).attr('id', `check_in_${k+1}`).attr('name', `loc_${k+1}`)
+        $(check_out[k]).attr('id', `check_out_${k+1}`).attr('name', `loc_${k+1}`)
+        $(qtds[k]).attr('id', `qtds_loc_${k+1}`).attr('name', `loc_${k+1}`)
         $(buton[k]).attr('id', `btn-loc_${k+1}`)
     }
 }
