@@ -223,7 +223,7 @@
     padding: 12px;
     height: 38px;
 }
-#opcionais_geral .select2, #opcionais_formatura .select2, #monitoria_peraltas .select2{
+#opcionais_geral .select2, #opcionais_formatura .select2, #monitoria_peraltas .select2 {
     width: 95% !important;
 }
 #botao_add_opcionais_geral, #botao_add_opcionais_formatura{

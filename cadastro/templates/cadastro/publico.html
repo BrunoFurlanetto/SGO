@@ -5,103 +5,230 @@
 {% block conteudo %}
     <!-------------------------------- LINHA 1 ---------------------------->
     <div class="row conteudo-publico">
-        <div class="titulo-publico">
-            <center>
-                <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
-            </center>
+        <div class="titulo-publico" style="text-align: center">
+            <h2>RELATÓRIO DE ATENDIMENTO DO PÚBLICO</h2>
         </div>
         <hr>
-        <form action="{% url 'publico' %}" method="POST">
-            {% csrf_token %}
-            <div class="row">
-                <div style="width: 20%" class="mb-3">
-                    <label>Coordenador</label>
-                    <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
-                        <option selected></option>
-                        {% for professor in professores %}
-                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div style="width: 35%">
-                    <label class="participantes" style="margin-left: 80px">Participantes: </label>
-                    <div class="row">
-                        <div style="width: 40%">
-                            {{ formulario.participantes_previa }}
-                        </div>
-                        <div style="width: 60%">
-                            {{ formulario.participantes_confirmados }}
+        <form action="{% if not relatorio %} {% url 'publico' %} {% else %} {% url 'editar_publico' relatorio.id %} {% endif %}"
+              method="POST">
+            <fieldset id="relatorio_publico" {% if relatorio %} disabled {% endif %}>
+                {% csrf_token %}
+                <div class="row">
+                    <div style="width: 20%" class="mb-3">
+                        <label>Coordenador</label>
+                        <select class="form-select mr-sm-2" id="coordenador" name="coordenador" required>
+                            <option selected></option>
+                            {% for professor in professores %}
+                                <option value="{{ professor.id }}" {% if professor.id == relatorio.equipe_escalada.0 %}
+                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="width: 35%">
+                        <label class="participantes" style="margin-left: 80px">Participantes: </label>
+                        <div class="row">
+                            <div style="width: 40%">
+                                {{ formulario.participantes_previa }}
+                            </div>
+                            <div style="width: 60%">
+                                {{ formulario.participantes_confirmados }}
+                            </div>
                         </div>
                     </div>
+                    <div style="width: 26%">
+                        <label>Data do atendimento</label>
+                        {{ formulario.data_atendimento }}
+                    </div>
                 </div>
-                <div style="width: 26%">
-                    <label>Data do atendimento</label>
-                    {{ formulario.data_atendimento }}
-                </div>
-            </div>
 
-            <!-------------------------------- LINHA 2 ---------------------------->
-            <div class="row">
-                <div style="width: 20%">
-                    <label>Professor 2: </label>
-                    <select class="form-select mr-sm-2" id="professor_2" name="professor_2" required>
-                        <option selected></option>
-                        {% for professor in professores %}
-                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
+                <!-------------------------------- LINHA 2 ---------------------------->
+                <div class="row">
+                    <div style="width: 20%">
+                        <label>Professor 2: </label>
+                        <select class="form-select mr-sm-2" id="professor_2" name="professores" required>
+                            <option selected></option>
+                            {% for professor in professores %}
+                                <option value="{{ professor.id }}" {% if professor.id == relatorio.equipe_escalada.1 %}
+                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="width: 20%">
+                        <label>Professor 3: </label>
+                        <select class="form-select mr-sm-2" id="professor_3" name="professores">
+                            <option selected></option>
+                            {% for professor in professores %}
+                                <option value="{{ professor.id }}" {% if professor.id == relatorio.equipe_escalada.2 %}
+                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="width: 20%">
+                        <label>Professor 4: </label>
+                        <select class="form-select mr-sm-2" id="professor_4" name="professores">
+                            <option selected></option>
+                            {% for professor in professores %}
+                                <option value="{{ professor.id }}" {% if professor.id == relatorio.equipe_escalada.3 %}
+                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="width: 20%">
+                        <label>Professor 5: </label>
+                        <select class="form-select mr-sm-2" id="professor_5" name="professores">
+                            <option selected></option>
+                            {% for professor in professores %}
+                                <option value="{{ professor.id }}" {% if professor.id == relatorio.equipe_escalada.4 %}
+                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div style="width: 20%">
-                    <label>Professor 3: </label>
-                    <select class="form-select mr-sm-2" id="professor_3" name="professor_3">
-                        <option selected></option>
-                        {% for professor in professores %}
-                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
+                <hr>
+                <!-------------------------------- LINHA 3 ---------------------------->
+                <table class="table table-striped table-sm" style="caption-side: top">
+                    <caption>Atividades realizadas:</caption>
+                    <thead>
+                    <tr>
+                        <th style="width: 550px; text-align: center">
+                            Nome dos professores
+                        </th>
+                        <th style="width: 100px; text-align: center">
+                            Início
+                        </th>
+                        <th style="width: 250px; text-align: center">
+                            Atividade
+                        </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpo_tabela_atividade_publico">
+                    {% for atividade in relatorio.listar_atividades %}
+                        <tr class="linhas" id="linha_{{ forloop.counter }}">
+                            <td class="coluna_1" id="coluna_1_linha_{{ forloop.counter }}">
+                                <select id="prf1atv{{ forloop.counter }}" class="professores"
+                                        name="professores_ativ_{{ forloop.counter }}" style="width: 23%"
+                                        onchange="validacao(this)" required>
+                                    <option selected="">
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}"
+                                                    {% if professor.id == atividade.professores.0 %}
+                                                    selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                </select>
+                                <select id="prf1atv{{ forloop.counter }}" class="professores"
+                                        name="professores_ativ_{{ forloop.counter }}" style="width: 23%"
+                                        onchange="validacao(this)">
+                                    <option selected="">
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}"
+                                                    {% if professor.id == atividade.professores.1 %}
+                                                    selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                </select>
+                                <select id="prf1atv{{ forloop.counter }}" class="professores"
+                                        name="professores_ativ_{{ forloop.counter }}" style="width: 23%"
+                                        onchange="validacao(this)">
+                                    <option selected="">
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}"
+                                                    {% if professor.id == atividade.professores.2 %}
+                                                    selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                </select>
+                                <select id="prf1atv{{ forloop.counter }}" class="professores"
+                                        name="professores_ativ_{{ forloop.counter }}" style="width: 23%"
+                                        onchange="validacao(this)">
+                                    <option selected="">
+                                        {% for professor in professores %}
+                                            <option value="{{ professor.id }}"
+                                                    {% if professor.id == atividade.professores.3 %}
+                                                    selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                        {% endfor %}
+                                </select>
+                            </td>
+                            <td class="coluna_2" id="coluna_2_linha_{{ forloop.counter }}">
+                                <input class="horas" type="time" style="width: 100px"
+                                       id="horaAtividade_{{ forloop.counter }}" name="ativ_{{ forloop.counter }}"
+                                       onchange="validarTabelaPublico()" value="{{ atividade.inicio }}"></td>
+                            <td class="coluna_3" id="coluna_3_linha_{{ forloop.counter }}">
+                                <select class="atividades" style="width: 100%" name="ativ_{{ forloop.counter }}"
+                                        id="ativ{{ forloop.counter }}" onchange="validarTabelaPublico()">
+                                    <option selected="">
+                                        {% for atividade_bd in atividades %}
+                                            <option value="{{ atividade_bd.id }}"
+                                                    {% if atividade_bd.id == atividade.atividade %}
+                                                    selected {% endif %}>{{ atividade_bd.atividade }}</option>
+                                        {% endfor %}
+                                </select>
+                            </td>
+                            <td class="coluna_4" id="coluna_4_linha_{{ forloop.counter }}">
+                                <button type="button" id="btn_{{ forloop.counter }}" class="btn-close"
+                                        style="height: 2px; width: 1px" onclick="remover_linha(this)"></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+                <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
+                    <span><i class='bx bxs-plus-circle'></i></span>
+                    <span class="text-black-50" style="font-size: 15px">Adicionar atividade</span>
+                </button>
+                <!-------------------------------- RELATÓRIO FINAL ---------------------------->
+                <div>
+                    <label>Relatório do dia:</label>
+                    {{ formulario.relatorio }}
                 </div>
-                <div style="width: 20%">
-                    <label>Professor 4: </label>
-                    <select class="form-select mr-sm-2" id="professor_4" name="professor_4">
-                        <option selected></option>
-                        {% for professor in professores %}
-                            <option value="{{ professor.id }}">{{ professor.usuario.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <hr>
-            <!-------------------------------- LINHA 3 ---------------------------->
-            <table class="table table-striped table-sm" style="caption-side: top">
-                <caption>Atividades realizadas no CEU:</caption>
-                <thead>
-                <tr>
-                    <th style="width: 550px">
-                        <center>Nome dos professores</center>
-                    </th>
-                    <th style="width: 100px">
-                        <center>Início</center>
-                    </th>
-                    <th style="width: 250px">
-                        <center>Atividade</center>
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody id="corpo_tabela_atividade_publico"></tbody>
-            </table>
-            <button class="buton-plus-" type="button" onclick="add_linha_atividade()">
-                <span><i class='bx bxs-plus-circle'></i></span>
-                <span class="text-black-50" style="font-size: 15px">Adcionar atividade</span>
-            </button>
-            <!-------------------------------- RELATÓRIO FINAL ---------------------------->
-            <div>
-                <label>Relatório do dia:</label>
-                {{ formulario.relatorio }}
-                <button type="submit" class="btn btn-primary ml-5">Salvar</button>
+            </fieldset>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primary ml-5" {% if relatorio %} disabled {% endif %}>Salvar
+                </button>
+
+                {% if editar %}
+                    {% if relatorio %}
+                        <button type="button" class="btn btn-secondary ml-5"
+                                onclick="$('#relatorio_publico, .btn-danger, .btn-primary').prop('disabled', false)">
+                            Editar
+                        </button>
+                    {% endif %}
+
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal_excluir_relatorio" disabled>
+                        Delete
+                    </button>
+                {% endif %}
             </div>
         </form>
     </div>
+
+    {% if relatorio %}
+        <form action="{% url 'editar_publico' relatorio.id %}" method="post" id="excluir_relatorio">
+            <fieldset>
+                {% csrf_token %}
+                <input type="hidden" name="excluir" value="{{ relatorio.id }}">
+                <div class="modal fade" id="modal_excluir_relatorio" tabindex="-1" role="dialog"
+                     aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="TituloModalCentralizado">Tem certeza disso?</h5>
+                                <button type="button" class="close x-fechar-modal" data-dismiss="modal"
+                                        aria-label="Fechar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Você tem certeza que deseja excluir o relatório em questão?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Sim</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    {% endif %}
 
     <script src="{% static 'js/script_base.js' %}"></script>
     <script src="{% static 'js/validacao.js' %}"></script>

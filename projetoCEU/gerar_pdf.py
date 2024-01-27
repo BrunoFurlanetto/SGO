@@ -4,6 +4,8 @@ from datetime import datetime
 from fpdf import FPDF
 
 from ceu.models import Atividades, Locaveis
+from ordemDeServico.models import TipoVeiculo
+from painelAdm.funcoes import pegar_dados_relatorios_mes
 from orcamento.models import Orcamento
 from peraltas.models import AtividadesEco, Monitor
 
@@ -153,7 +155,7 @@ def ordem_de_servico(ordem_de_servico):
     pdf_ordem.cell(10, 8, str(ordem_de_servico.n_participantes), ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Código eficha: ') + 1, 8, 'Código eficha:')
-    pdf_ordem.multi_cell(100, 8, ficha_de_evento.codigos_app.evento, ln=1)
+    pdf_ordem.multi_cell(100, 8, ficha_de_evento.codigos_app.eficha, ln=1)
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Código APP reserva: ') + 2, 8, 'Código APP reserva:')
     pdf_ordem.cell(100, 8, ficha_de_evento.codigos_app.reserva, ln=1)
@@ -253,7 +255,7 @@ def ordem_de_servico(ordem_de_servico):
 
     pdf_ordem.ln(4)
     # ------------------------------------------- Dados de transporte --------------------------------------------------
-    if ficha_de_evento.informacoes_adcionais.transporte and ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente == 1:
+    if len(ordem_de_servico.dados_transporte.all()) > 0:
         pdf_ordem.titulo_secao('Dados do transporte', 5, 0)
         pdf_ordem.ln(2)
 
@@ -298,16 +300,13 @@ def ordem_de_servico(ordem_de_servico):
                 else:
                     pdf_ordem.cell(10, 8, 'Não', ln=1)
 
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Micro ônibus: ') + 2, 8, 'Micro ônibus:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['micro_onibus']))
+            for veiculo in transporte.dados_veiculos:
+                if veiculo['veiculo'] != '':
+                    tipo = TipoVeiculo.objects.get(pk=veiculo['veiculo']).tipo_veiculo
+                    pdf_ordem.texto_negrito(pdf_ordem.get_string_width(f'{tipo}: ') + 2, 8, f'{tipo}:')
+                    pdf_ordem.cell(20, 8, f'{veiculo["n"]}')
 
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 46 lugares: ') + 2, 8, 'Ônibus 46 lugares:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_46']))
-
-            pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Ônibus 50 lugares: ') + 2, 8, 'Ônibus 50 lugares:')
-            pdf_ordem.cell(20, 8, str(transporte.dados_veiculos['onibus_50']), ln=1)
-
-            pdf_ordem.ln(4)
+            pdf_ordem.ln(10)
 
             if loop < len(ordem_de_servico.dados_transporte.all()) - 1:
                 pdf_ordem.line(pdf_ordem.l_margin, pdf_ordem.y, pdf_ordem.w - pdf_ordem.r_margin, pdf_ordem.y)
@@ -498,14 +497,14 @@ def dados_monitores(escala):
     for secao, campo in enumerate(consulta):
         lista = []
 
-        for colcaborador in campo:
-            ddd = colcaborador.telefone[0:2]
-            primeira_parte = colcaborador.telefone[4:8]
-            segunda_parte = colcaborador.telefone[7:]
+        for colaborador in campo:
+            ddd = colaborador.telefone[0:2]
+            primeira_parte = colaborador.telefone[4:8]
+            segunda_parte = colaborador.telefone[7:]
 
             lista.append([
-                colcaborador.usuario.get_full_name(),
-                colcaborador.usuario.email,
+                colaborador.usuario.get_full_name(),
+                colaborador.usuario.email,
                 f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
             ])
 
@@ -523,6 +522,106 @@ def dados_monitores(escala):
 
     pdf_escala.output('temp/dados_monitores_escalados.pdf')
 
+
+def dados_monitores_hotelaria(escala):
+    def tabela(titulo_secao, linhas):
+        pdf_escala.titulo_secao(titulo_secao, 5, 0)
+        pdf_escala.ln(2)
+        pdf_escala.tables(
+            headings=['Nome Completo', 'E-mail', 'Telefone'],
+            rows=linhas,
+            alings=('L', 'L', 'C'),
+            col_widths=(80, 80, 36)
+        )
+
+        pdf_escala.ln(8)
+
+    pdf_escala = PDF()
+    pdf_escala.my_header('Dados dos monitores escalados')
+    pdf_escala.ln(2)
+    pdf_escala.texto_negrito(15, 8, 'Data:')
+    pdf_escala.cell(0, 8, escala.data.strftime('%d/%m/%Y'), ln=1)
+    pdf_escala.ln(3)
+    escalados = []
+
+    for monitor in escala.coordenadores.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Coordenadores', escalados)
+        escalados = []
+
+    for monitor in escala.tecnicos_hotelaria.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Tecnicos', escalados)
+        escalados = []
+
+    for monitor in escala.monitores_escalados.all():
+        ddd = monitor.telefone[0:2]
+        primeira_parte = monitor.telefone[4:8]
+        segunda_parte = monitor.telefone[7:]
+        escalados.append([
+            monitor.usuario.get_full_name(),
+            monitor.usuario.email,
+            f'({ddd}) 9 {primeira_parte} - {segunda_parte}',
+        ])
+
+    if len(escalados) > 0:
+        tabela('Monitores', escalados)
+
+    pdf_escala.output('temp/dados_monitores_escalados.pdf')
+
+
+def dados_atividades(mes, mes_escrito, ano):
+    def tabela_resumo(titulo_secao, linhas):
+        pdf_resumo.titulo_secao(titulo_secao, 5, 0)
+        pdf_resumo.ln(2)
+        pdf_resumo.tables(
+            headings=['Professor', 'N atividades', 'Horas', 'Valor atividades', 'Valor horas', 'Valor total'],
+            rows=linhas,
+            alings=('L', 'C', 'C', 'C', 'C', 'C'),
+            col_widths=(46, 30, 20, 35, 35, 30)
+        )
+
+        pdf_resumo.ln(8)
+
+    def formatar_dinheiro(valor):
+        return f'R$ {valor:.2f}'.replace('.', ',')
+
+    pdf_resumo = PDF()
+    pdf_resumo.my_header(f'Resumo das atividades de {mes_escrito} de {ano}')
+    pdf_resumo.ln(2)
+    dados_tabela = []
+
+    for dados in pegar_dados_relatorios_mes(mes, ano):
+        dados_tabela.append([
+            dados['nome'],
+            str(dados['atividades']),
+            dados['horas'],
+            formatar_dinheiro(dados['valor_atividades']),
+            formatar_dinheiro(dados['valor_horas']),
+            formatar_dinheiro(dados['valor_atividades'] + dados['valor_horas'])
+        ])
+    print(dados_tabela)
+    tabela_resumo('Resumo do mês', dados_tabela)
+
+    pdf_resumo.output('temp/resumo_atividades.pdf')
 
 def pdf_orcamento():
     doc = SimpleDocTemplate("exemplo.pdf", pagesize=letter)
@@ -592,5 +691,3 @@ def add_text_to_pdf(input_path, output_path, text):
 # output_pdf_path = "exemplo.pdf"  # Substitua pelo caminho desejado para o PDF final
 # texto_a_adicionar = "Este é o texto que será adicionado ao final do PDF."
 # add_text_to_pdf(input_pdf_path, output_pdf_path, texto_a_adicionar)
-
-

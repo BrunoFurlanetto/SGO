@@ -11,10 +11,17 @@ function carregar_scripts(editando) {
             dropdownParent: $("#modal-adicionais .modal-content"),
             disabled: 'readonly'
         })
+        $('#id_tipo_de_pagamento').select2({
+            dropdownParent: $("#modal_codigos_app .modal-content"),
+            disabled: 'readonly'
+        })
     } else {
         $("#id_atividades_ceu, #id_locacoes_ceu, #id_atividades_eco, #id_atividades_peraltas").select2()
         $('#id_opcionais_geral, #id_opcionais_formatura, #id_quais_atividades').select2({
             dropdownParent: $("#modal-adicionais .modal-content")
+        })
+        $('#id_tipo_de_pagamento').select2({
+            dropdownParent: $("#modal_codigos_app .modal-content")
         })
     }
 }
@@ -23,7 +30,7 @@ function verificar_codigos_eficha() {
     $('.container_loading').removeClass('none')
     $('#modal_codigos_app .modal-body .alert').remove()
 
-    const codigos_eficha = $('#id_evento').val().split(',').map((codigo) => {
+    const codigos_eficha = $('#id_eficha').val().split(',').map((codigo) => {
         return codigo.replaceAll(/^\s+|\s+$/g, '')
     })
 
@@ -36,6 +43,12 @@ function verificar_codigos_eficha() {
             if (response['salvar']) {
                 if (response['totais']) {
                     $('#id_qtd_confirmada').val(response['totais']['total_confirmado'])
+                    $('#id_qtd_eficha').val(response['totais']['total_eficha'])
+
+                    if (response['totais']['total_eficha'] != 0) {
+
+                        $('#div_eficha').removeClass('none')
+                    }
 
                     if ($('#div_produto_corporativo').hasClass('none')) {
                         $('#id_qtd_meninos').val(response['totais']['total_pagantes_masculino'])
@@ -418,6 +431,23 @@ function salvar_novo_op_formatura() {
 }
 
 $('document').ready(function () {
+    $("#id_tipo_de_pagamento").on("select2:select", function (e) {
+        const opcao = e.params.data;
+        $.ajax({
+            url: '',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "GET",
+            data: {'tipo_pagamento': opcao['id']},
+            success: function (response) {
+                console.log(response)
+                if (response['avulso']) {
+                    $('#div_avulso').toggleClass('none')
+                    $('#id_qtd_offline').val(0)
+                }
+            }
+        })
+    })
+
     $('#id_locacoes_ceu').on('select2:select', function (e) {
         $('.dados_locacoes_').removeClass('none')
         const infos_locacao = `
@@ -498,7 +528,6 @@ jQuery('document').ready(function () {
 });
 
 function pegarIdCodigosApp() {
-
     if ($('#id_codigos_app').val() !== '') {
         $('#codigos_app').append(`<input type="hidden" name="id_codigo_app" value="${$('#id_codigos_app').val()}"/>`)
     }
@@ -516,6 +545,7 @@ $('document').ready(function () {
             type: "POST",
             data: dados,
             success: function (response) {
+                console.log(response)
                 $('#id_codigos_app').val(response['id'])
                 $('#modal_codigos_app').modal('hide')
 
@@ -523,7 +553,7 @@ $('document').ready(function () {
                     $('#codigos_app_ok').prop('checked', true)
                 }
             }
-        });
+        }).catch((error) => console.error(error))
 
         return false;
     });
@@ -532,6 +562,7 @@ $('document').ready(function () {
 function editar_ficha() {
     $('#form_ficha, #form_adicionais, #salvar, #form_app, #excluir, #id_atividades_ceu').prop('disabled', false)
     $('#id_locacoes_ceu, #id_quais_atividades, #id_atividades_eco, #id_atividades_peraltas').prop('disabled', false)
+    $('#id_tipo_de_pagamento, #id_opcionais_geral, #id_opcionais_formatura').prop('disabled', false)
 
     $('#id_cliente_pj').prop('readonly', true)
 

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from itertools import chain
 
 from ceu.models import Professores
-from escala.models import Disponibilidade
+from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
     Enfermeira, EscalaAcampamento, EscalaHotelaria
@@ -33,13 +33,45 @@ def retornar_dados_grupo(ordens, id_grupo):
 
 def verificar_disponiveis(data):
     professores_disponiveis = []
+    n_participantes = 0
+
+    try:
+        escala = Escala.objects.get(data_escala=datetime.strptime(data, '%d/%m/%Y').date())
+    except Escala.DoesNotExist:
+        escalados = []
+    else:
+        escalados = escala.equipe
+
     disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data)
+    ordens = OrdemDeServico.objects.filter(
+        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+    )
+    fichas = FichaDeEvento.objects.filter(
+        pre_reserva=False, os=False,
+        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+    )
+    eventos = list(chain(ordens, fichas))
+
+    for evento in eventos:
+        if isinstance(evento, FichaDeEvento):
+            n_participantes += evento.qtd_convidada
+        else:
+            n_participantes += evento.n_participantes
+
+    dados_eventos = {
+        'n_eventos': len(eventos),
+        'n_participantes': n_participantes
+    }
 
     for disponivel in disponiveis:
-        professores_disponiveis.append({'id': disponivel.professor.id,
-                                        'nome': disponivel.professor.usuario.get_full_name()})
+        professores_disponiveis.append({
+            'id': disponivel.professor.id,
+            'nome': disponivel.professor.usuario.get_full_name()
+        })
 
-    return {'disponiveis': professores_disponiveis}
+    return {'disponiveis': professores_disponiveis, 'eventos': dados_eventos, 'escalados': escalados}
 
 
 def verificar_disponiveis_grupo(check_in, check_out):

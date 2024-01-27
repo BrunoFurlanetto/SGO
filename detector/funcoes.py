@@ -8,7 +8,76 @@ from escala.models import Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import ClienteColegio, AtividadesEco, EscalaAcampamento, Monitor, AtividadePeraltas
 
-lista_cores = ['#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099']
+lista_cores = [
+    '#007EC1', '#FCC607', '#FC1416', '#53C20A', '#C24313', '#C2131F', '#E6077A', '#FE4E08', '#20B099', '#8100c1',
+    '#2EFB1B', '#E8240E', '#5DFAFC', '#5654F0'
+]
+
+
+def percorrer_atividades(detector, grupo_n, grupo, atividade_n, cor_grupo):
+    while True:
+        if len(detector.dados_atividades[f'grupo_{grupo_n}']['atividades_ceu']) > 0:
+            try:
+                id_atividade = \
+                detector.dados_atividades[f'grupo_{grupo_n}']['atividades_ceu'][f'atividade_ceu_{atividade_n}'][
+                    'id_atividade']
+                dados_atividade = detector.dados_atividades[f'grupo_{grupo_n}']['atividades_ceu'][
+                    f'atividade_ceu_{atividade_n}']
+            except KeyError:
+                id_atividade = dados_atividade = None
+        else:
+            id_atividade = dados_atividade = None
+
+        if len(detector.dados_atividades[f'grupo_{grupo_n}']['locacoes']) > 0:
+            try:
+                id_local = detector.dados_atividades[f'grupo_{grupo_n}']['locacoes'][f'locacao_{atividade_n}']['id_espaco']
+                dados_locacao = detector.dados_atividades[f'grupo_{grupo_n}']['locacoes'][f'locacao_{atividade_n}']
+            except KeyError:
+                id_local = dados_locacao = None
+        else:
+            id_local = dados_locacao = None
+
+        if id_atividade is None and id_local is None:
+            break
+
+        if id_atividade:
+            atividade = Atividades.objects.get(id=id_atividade)
+            cliente = ClienteColegio.objects.get(id=grupo.id)
+            qtd = dados_atividade['participantes']
+            return {
+                'atividade': {
+                    'id': id_atividade,
+                    'nome': atividade.atividade,
+                    'qtd': qtd
+                },
+                'inicio_atividade': dados_atividade['inicio'],
+                'fim_atividade': dados_atividade['fim'],
+                'color': cor_grupo,
+                'grupo': {
+                    'id': grupo.id,
+                    'nome': cliente.nome_fantasia
+                },
+                'professores': dados_atividade['professores']
+            }
+
+        if id_local:
+            espaco = Locaveis.objects.get(id=id_local)
+            cliente = ClienteColegio.objects.get(id=grupo.id)
+            return {
+                'local': {
+                    'id': id_local,
+                    'nome': espaco.local.estrutura,
+                    'qtd': dados_locacao['participantes']
+                },
+                'check_in': dados_locacao['check_in'],
+                'check_out': dados_locacao['check_out'],
+                'color': cor_grupo,
+                'grupo': {
+                    'id': grupo.id,
+                    'nome': cliente.nome_fantasia
+                },
+                'professores': dados_locacao['professores']
+            }
 
 
 def pegar_dados_evento(dados_detector, editando, setor):
@@ -120,7 +189,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
                                 })
 
         dados_eventos = {
-            'atividades': atividades_ceu,
+            'atividades_ceu': atividades_ceu,
             'locacoes': locacoes,
             'atividades_extra': atividades_extra,
             'atividades_acampamento': atividades_acampamento
@@ -128,81 +197,30 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
         return dados_eventos
     else:
-        detector = DetectorDeBombas.objects.get(id=int(dados_detector.get('id_detector')))
-        dados_atividades = detector.dados_atividades
-        professores_atividades = {}
+        detector = DetectorDeBombas.objects.get(pk=dados_detector.get('id_detector'))
+        posicao_grupos = {}
 
-        for grupo_n, grupo in enumerate(detector.grupos.all(), start=1):
-            atividade_i = 1
-            local_i = 1
+        for posicao, grupo_atividade in enumerate(detector.dados_atividades.values(), start=1):
+            posicao_grupos[grupo_atividade['id_grupo']] = posicao
 
-            while True:
-                try:
-                    id_atividade = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['id_atividade']
-                except KeyError:
-                    id_atividade = None
+        for grupo in detector.grupos.all():
+            grupo_n = posicao_grupos[grupo.id]
 
-                try:
-                    id_local = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['id_espaco']
-                except KeyError:
-                    id_local = None
+            for atividade_i, atividade in enumerate(detector.dados_atividades[f'grupo_{grupo_n}']['atividades_ceu'].values(), start=1):
+                atividades_ceu.append(percorrer_atividades(
+                    detector, grupo_n, grupo, atividade_i,
+                    cores_escolhidas[grupo_n - 1]
+                ))
 
-                if id_atividade is None and id_local is None:
-                    break
-
-                if id_atividade:
-                    atividade = Atividades.objects.get(id=id_atividade)
-                    cliente = ClienteColegio.objects.get(id=grupo.id)
-                    qtd = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['participantes']
-                    atividades_ceu.append({
-                        'atividade': {
-                            'id': id_atividade,
-                            'nome': atividade.atividade,
-                            'qtd': qtd
-                        },
-                        'inicio_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['inicio'],
-                        'fim_atividade': dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['fim'],
-                        'color': cores_escolhidas[grupo_n - 1],
-                        'grupo': {
-                            'id': grupo.id,
-                            'nome': cliente.nome_fantasia
-                        }
-                    })
-
-                    professores_atividades[
-                        f'professores_atividade_{atividade_i}_grupo_{grupo_n}'
-                    ] = dados_atividades[f'grupo_{grupo_n}'][f'atividade_{atividade_i}']['professores']
-
-                    atividade_i += 1
-
-                if id_local:
-                    espaco = Locaveis.objects.get(id=id_local)
-                    cliente = ClienteColegio.objects.get(id=grupo.id)
-                    locacoes.append({
-                        'local': {
-                            'id': id_local,
-                            'nome': espaco.local.estrutura,
-                            'qtd': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['participantes']
-                        },
-                        'check_in': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_in'],
-                        'check_out': dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['check_out'],
-                        'color': cores_escolhidas[grupo_n - 1],
-                        'grupo': {
-                            'id': grupo.id,
-                            'nome': cliente.nome_fantasia
-                        }
-                    })
-
-                    professores_atividades[
-                        f'professores_locacao_{local_i}_grupo_{grupo_n}'
-                    ] = dados_atividades[f'grupo_{grupo_n}'][f'locacao_{local_i}']['professores']
-
-                    local_i += 1
+            for locacao_i, local in enumerate(detector.dados_atividades[f'grupo_{grupo_n}']['locacoes'].values(), start=1):
+                locacoes.append(percorrer_atividades(
+                    detector, grupo_n, grupo, locacao_i,
+                    cores_escolhidas[grupo_n - 1]
+                ))
 
         dados_eventos = {
             'atividades_ceu': atividades_ceu,
             'locacoes': locacoes,
-            'professores': professores_atividades
         }
 
         return dados_eventos
@@ -229,14 +247,14 @@ def juntar_dados_detector(dados, setor):
     for grupo in range(1, len(grupos) + 1):
         dados_atividades[f'grupo_{grupo}'] = {
             'id_grupo': grupos[grupo - 1],
-            'atividades': {},
+            'atividades_ceu': {},
             'atividades_extra': {},
             'atividades_acampamento': {},
             'locacoes': {}
         }
 
         pesquisas = [
-            f'grupo_{grupo}_atividades_',
+            f'grupo_{grupo}_atividades_ceu_',
             f'grupo_{grupo}_locacoes_',
             f'grupo_{grupo}_atividades_acampamento_',
             f'grupo_{grupo}_atividades_extra_'
@@ -252,8 +270,8 @@ def juntar_dados_detector(dados, setor):
                         if 'extra' not in key and 'acampamento' not in key:
                             atividade_i += 1
                             atividade = Atividades.objects.get(pk=dados.getlist(key)[0])
-                            secao = 'atividades'
-                            n_atividade = f'atividade_{atividade_i}'
+                            secao = 'atividades_ceu'
+                            n_atividade = f'atividade_ceu_{atividade_i}'
                         elif 'extra' in key:
                             atividade_extra_i += 1
                             atividade = AtividadesEco.objects.get(pk=dados.getlist(key)[0])
@@ -294,6 +312,7 @@ def juntar_dados_detector(dados, setor):
                             lista_escalados = list(map(int, dados.getlist(f'{key}[monitores]')))
                             escala = lista_escalados[0] if len(lista_escalados) == 1 else lista_escalados
                             professores_monitores = 'monitores'
+
                         locacao_i += 1
                         dados_atividades[f'grupo_{grupo}']['locacoes'][f'locacao_{locacao_i}'] = {
                             'id_espaco': int(dados.getlist(key)[0]),
@@ -322,9 +341,10 @@ def pegar_escalas(dados_eventos, setor):
             except Escala.DoesNotExist:
                 datas_sem_professor_monitor.append(data.strftime('%Y-%m-%d'))
             else:
-                for id_professor in escala.equipe.values():
-                    professor = Professores.objects.get(id=id_professor)
+                for id_professor in escala.equipe:
+                    professor = Professores.objects.get(pk=id_professor)
                     professores_monitores.append({'id': professor.id, 'nome': professor.usuario.get_full_name()})
+
             escalados.append({'data': data, 'escalados': professores_monitores})
 
             data += timedelta(days=1)
@@ -346,7 +366,7 @@ def pegar_escalas(dados_eventos, setor):
                 ...
             else:
                 data = escala_acampamento.check_in_cliente.date()
-                print(escala_acampamento.cliente)
+
                 professores_monitores = [{
                     'id': monitor.id,
                     'nome': monitor.usuario.get_full_name()}
@@ -369,6 +389,46 @@ def pegar_escalas(dados_eventos, setor):
     return escalados
 
 
+def formatar_atividades(atividades_ceu, locacoes):
+    atividades_formatadas = []
+
+    for atividade in atividades_ceu:
+        if isinstance(atividade['professores'], list):
+            professores = [
+                Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                atividade['professores']
+            ]
+        else:
+            professores = [Professores.objects.get(pk=atividade['professores']).usuario.get_full_name()]
+
+        atividades_formatadas.append({
+            'title': atividade['atividade']['nome'],
+            'start': atividade['inicio_atividade'],
+            'description': ", ".join(professores) if len(professores) > 1 else professores,
+            'end': atividade['fim_atividade'],
+            'color': atividade['color'],
+        })
+
+    for locacao in locacoes:
+        if isinstance(locacao['professores'], list):
+            professores = [
+                Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                locacao['professores']
+            ]
+        else:
+            professores = [Professores.objects.get(pk=locacao['professores']).usuario.get_full_name()]
+
+        atividades_formatadas.append({
+            'title': locacao['local']['nome'],
+            'start': locacao['check_in'],
+            'description': ", ".join(professores) if len(professores) > 1 else professores,
+            'end': locacao['check_out'],
+            'color': locacao['color']
+        })
+
+    return atividades_formatadas
+
+
 def tratar_dados_detector_selecionado(detector_selecionado):
     n_grupos = len(detector_selecionado.grupos.all())
     cores_legenda = sample(lista_cores, k=n_grupos)
@@ -376,65 +436,56 @@ def tratar_dados_detector_selecionado(detector_selecionado):
     data_2 = detector_selecionado.data_final
     intervalo = (data_2.day - data_1.day) + 1
     grupos = {}
-    atividades = []
+    posicao_grupos = {}
+    eventos = []
 
-    for i, grupo in enumerate(detector_selecionado.grupos.all(), start=1):
+    for posicao, grupo_atividade in enumerate(detector_selecionado.dados_atividades.values(), start=1):
+        posicao_grupos[grupo_atividade['id_grupo']] = posicao
+
+    for grupo in detector_selecionado.grupos.all():
+        i = posicao_grupos[grupo.id]
         grupos[grupo.nome_fantasia] = cores_legenda[i - 1]
-        j = 1
 
-        while True:
-            try:
-                id_atividade = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['id_atividade']
-            except KeyError:
-                id_atividade = None
+        for atividade in detector_selecionado.dados_atividades[f'grupo_{i}']['atividades_ceu'].values():
+            if isinstance(atividade['professores'], list):
+                professores = [
+                    Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                    atividade['professores']
+                ]
+            else:
+                professores = [Professores.objects.get(pk=atividade['professores']).usuario.get_full_name()]
 
-            try:
-                id_espaco = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['id_espaco']
-            except KeyError:
-                id_espaco = None
+            eventos.append({
+                'title': Atividades.objects.get(pk=atividade['id_atividade']).atividade,
+                'start': atividade['inicio'],
+                'description': ", ".join(professores) if len(professores) > 1 else professores,
+                'end': atividade['fim'],
+                'color': cores_legenda[i - 1],
+            })
 
-            if id_atividade is None and id_espaco is None:
-                break
+        for locacao in detector_selecionado.dados_atividades[f'grupo_{i}']['locacoes'].values():
+            if isinstance(locacao['professores'], list):
+                professores = [
+                    Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
+                    locacao['professores']
+                ]
+            else:
+                professores = [Professores.objects.get(pk=locacao['professores']).usuario.get_full_name()]
 
-            if id_atividade:
-                atividade_bd = Atividades.objects.get(id=id_atividade)
+            eventos.append({
+                'title': Locaveis.objects.get(pk=locacao['id_espaco']).local.estrutura,
+                'start': locacao['check_in'],
+                'description': ", ".join(professores) if len(professores) > 1 else professores,
+                'end': locacao['check_out'],
+                'color': cores_legenda[i - 1],
+            })
 
-                if detector_selecionado.setor == 'ceu':
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['professores']
-                    professores_monitores = retornar_nome_de_professores(escalados_atv)
-                else:
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['monitores']
-                    professores_monitores = retornar_nome_de_monitores(escalados_atv)
+    dados_detector = {
+        'grupos': grupos,
+        'events': eventos,
+        'datas': [data_1, intervalo]
+    }
 
-                atividades.append({
-                    'title': atividade_bd.atividade,
-                    'start': detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['inicio'],
-                    'description': ", ".join(professores_monitores),
-                    'end': detector_selecionado.dados_atividades[f'grupo_{i}'][f'atividade_{j}']['fim'],
-                    'color': cores_legenda[i - 1],
-                })
-
-            if id_espaco:
-                espaco = Locaveis.objects.get(id=id_espaco)
-
-                if detector_selecionado.setor == 'ceu':
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['professores']
-                    professores_monitores = retornar_nome_de_professores(escalados_atv)
-                else:
-                    escalados_atv = detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['monitores']
-                    professores_monitores = retornar_nome_de_monitores(escalados_atv)
-
-                atividades.append({
-                    'title': espaco.local.estrutura,
-                    'start': detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['check_in'],
-                    'description': ", ".join(professores_monitores),
-                    'end': detector_selecionado.dados_atividades[f'grupo_{i}'][f'locacao_{j}']['check_out'],
-                    'color': cores_legenda[i - 1]
-                })
-
-            j += 1
-
-    dados_detector = {'grupos': grupos, 'events': atividades, 'datas': [data_1, intervalo]}
     return dados_detector
 
 

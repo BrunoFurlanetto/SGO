@@ -7,6 +7,7 @@ from peraltas.models import ClienteColegio, Responsavel, CadastroInfoAdicionais,
     CadastroCodigoApp, InformacoesAdcionais, CodigosApp, FichaDeEvento, ProdutosPeraltas, CadastroResponsavel, \
     CadastroCliente, RelacaoClienteResponsavel, OpcionaisGerais, OpcionaisFormatura, \
     AtividadesEco, EscalaAcampamento, ProdutoCorporativo, Monitor, CodigosPadrao
+from projetoCEU.utils import enviar_email_erro
 
 
 def is_ajax(request):
@@ -348,7 +349,6 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 return {'salvo': True, 'id': novo_op_formatura.id}
 
     if requisicao.get('infos') == 'app':
-
         if requisicao.get('id_codigo_app'):
             codigo = CodigosApp.objects.get(id=int(requisicao.get('id_codigo_app')))
             form = CadastroCodigoApp(requisicao, instance=codigo)
@@ -357,6 +357,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
 
         if form.is_valid():
             novo_codigo = form.save()
+
             return {'id': novo_codigo.id}
 
     if requisicao.get('id_produto'):
@@ -374,7 +375,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
 
         return {
             'colegio': produto.colegio,
-            'pernoite': produto.pernoite,
+            'pernoite': produto.pernoite or produto.meninos_e_meninas,
             'vt': produto.produto == 'Visita Técnica',
             'outro': produto.produto == 'Outro',
             'so_ceu': produto.produto == 'Só CEU',
@@ -538,6 +539,7 @@ def verificar_codigos(codigos):
             'total_pagantes_feminino': total_pagantes_feminino,
             'total_professores_masculino': total_professores_masculino,
             'total_professores_feminino': total_professores_feminino,
-            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino
+            'total_confirmado': total_pagantes_masculino + total_pagantes_feminino,
+            'total_eficha': total_pagantes_masculino + total_pagantes_feminino,
         }
     }

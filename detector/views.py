@@ -15,7 +15,7 @@ from projetoCEU.utils import is_ajax, email_error
 
 @login_required(login_url='login')
 def detector_de_bombas(request, id_detector=None):
-    setor = 'CEU' if request.user.has_perm('escala.add_escala') else 'Peraltas'
+    setor = 'CEU' if request.user.has_perm('cadastro.add_relatoriodeatendimentopublicoceu') else 'Peraltas'
     atividades = Atividades.objects.all()
     espacos = Locaveis.objects.all()
 
@@ -59,17 +59,22 @@ def detector_de_bombas(request, id_detector=None):
                                                         f"{request.POST.get('observacoes')}"
                     detector_selecionado.save()
                 except Exception as e:
-                    return JsonResponse({'tipo': 'error',
-                                         'msg': f'Houve um erro inesperado: {e}. Tente novamente mais tarde'})
+                    return JsonResponse({
+                        'tipo': 'error',
+                        'msg': f'Houve um erro inesperado: {e}. Tente novamente mais tarde'
+                    })
                 else:
-                    return JsonResponse({'tipo': 'seccess',
-                                         'msg': 'Observações salvas com sucesso'})
+                    return JsonResponse({
+                        'tipo': 'success',
+                        'msg': 'Observações salvas com sucesso'
+                    })
 
             if request.POST.get('atividade_local'):
                 try:
                     atividade = Atividades.objects.get(atividade=request.POST.get('atividade_local'))
                 except Atividades.DoesNotExist:
                     espaco = Locaveis.objects.get(local__estrutura=request.POST.get('atividade_local'))
+
                     return JsonResponse({'id_local': espaco.id})
                 else:
                     return JsonResponse({'id_atividade': atividade.id})
@@ -84,7 +89,9 @@ def detector_de_bombas(request, id_detector=None):
 
     if request.method != 'POST':
         if not id_detector:
-            return render(request, 'detector/detector_de_bombas.html', {'detectores': detectores_salvos})
+            return render(request, 'detector/detector_de_bombas.html', {
+                'detectores': detectores_salvos
+            })
 
         detector_editando = DetectorDeBombas.objects.get(id=id_detector)
         data_inicio = detector_editando.data_inicio.strftime('%Y-%m-%d')
@@ -118,6 +125,7 @@ def detector_de_bombas(request, id_detector=None):
         return redirect('detector')
 
     grupos, dados_atividades = juntar_dados_detector(request.POST, setor)
+
     try:
         data_inicio = datetime.strptime(request.POST.get('inicio'), '%Y-%m-%d')
         data_final = datetime.strptime(request.POST.get('final'), '%Y-%m-%d')
@@ -137,7 +145,6 @@ def detector_de_bombas(request, id_detector=None):
             detector_editado.dados_atividades = dados_atividades
             detector_editado.save()
     except Exception as e:
-        print(e)
         return redirect('dashboard')
     else:
         messages.success(request, 'Detector de bombas, salvo com sucesso!!')

@@ -28,86 +28,76 @@ def requisicao_ajax(requisicao):
 
 def salvar_atividades(dados, relatorio):
     dados_atividade = {}
-    participantes = teste_participantes_por_atividade(dados)
-    print(dados)
+    i = 1
 
-    for i in range(1, 6):
+    while True:
+        participantes = teste_participantes_por_atividade(dados)
 
-        if dados.get(f'ativ{i}') is not None:
-            professores = pegar_professores(dados, i)
-            data_e_hora = f'{dados.get("data_atendimento")} {dados.get(f"horaAtividade_{i}")}'
+        if dados.getlist(f'ativ_{i}', None):
+            professores = [
+                int(id_professor) for id_professor in dados.getlist(f'professores_ativ_{i}') if id_professor != ''
+            ]
+            inicio = dados.getlist(f"ativ_{i}")[0]
 
-# ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
+            # ---------------------- Teste pra saber a atividade que está sendo adcionada -------------------------------
             if dados.get('participantes_confirmados', None):
-                if int(dados.get('participantes_confirmados')) > 67 and \
+                if int(dados.get('participantes_confirmados')) > 65 and \
                         float(dados.get('participantes_confirmados')) % 2 != 0:
-                    if i == 1 or i == 3:
+                    if i % 2 == 1:
+                        participantes = participantes
+                    else:
                         participantes = participantes + 1
-                    elif i == 2 or i == 4:
-                        participantes = participantes - 1
             else:
-                if int(dados.get('participantes_previa')) > 67 and \
+                if int(dados.get('participantes_previa')) > 65 and \
                         float(dados.get('participantes_previa')) % 2 != 0:
-                    if i == 1 or i == 3:
+                    if i % 2 == 1:
+                        participantes = participantes
+                    else:
                         participantes = participantes + 1
-                    elif i == 2 or i == 4:
-                        participantes = participantes - 1
 
             if i == 5:
                 if dados.get('participantes_confirmados', None):
                     participantes = int(dados.get('participantes_confirmados'))
                 else:
                     participantes = int(dados.get('participantes_previa'))
-# -----------------------------------------------------------------------------------------------------------
+            # -----------------------------------------------------------------------------------------------------------
 
-            dados_atividade[f'atividade_{i}'] = {'atividade': int(dados.get(f'ativ{i}')), 'professores': professores,
-                                                 'data_e_hora': data_e_hora, 'participantes': participantes}
+            dados_atividade[f'atividade_{i}'] = {
+                'atividade': int(dados.getlist(f'ativ_{i}')[1]),
+                'professores': professores,
+                'inicio': inicio,
+                'participantes': participantes
+            }
+        else:
+            break
 
+        i += 1
+    print(dados_atividade)
     relatorio.atividades = dados_atividade
-
-# -----------------------------------------------------------------------------------------------------------
-
-
-def pegar_professores(dados, j):
-    professores = []
-
-    for d in dados:
-        if f'atv{j}' in d and dados[d] != '':
-            professor = Professores.objects.get(id=int(dados[d]))
-            professores.append(professor.id)
-
-    return professores
-# -----------------------------------------------------------------------------------------------------------
 
 
 def teste_participantes_por_atividade(dados):
-
-    if dados.get('horaAtividade_1') == dados.get('horaAtividade_2'):
-
+    if dados.getlist('ativ_1')[0] == dados.getlist('ativ_2')[0]:
         if dados.get('participantes_confirmados', None):
             return math.floor(float(dados.get('participantes_confirmados')) / 2)
         else:
             return math.floor(float(dados.get('participantes_previa')) / 2)
-
     else:
-
         if dados.get('participantes_confirmados', None):
             return math.floor(float(dados.get('participantes_confirmados')))
         else:
             return math.floor(float(dados.get('participantes_previa')))
+
 
 # -----------------------------------------------------------------------------------------------------------
 
 
 # -------------------------- Funções pra pegar a equipe escalada no atendimento -----------------------------
 def salvar_equipe(dados, relatorio):
-    coordenador = Professores.objects.get(id=int(dados.get('coordenador')))
-    professores = {'coordenador': coordenador.id}
+    professores = {'coordenador': int(dados.get('coordenador'))}
 
-    for i in range(2, 5):
-        if dados.get(f'professor_{i}') != '':
-            professor = Professores.objects.get(id=int(dados.get(f'professor_{i}')))
-            professores[f'professor_{i}'] = professor.id
+    for professor_id, i in enumerate(dados.getlist('professores'), start=2):
+        professores[f'professor_{i}'] = int(professor_id)
 
     relatorio.equipe = professores
 # -----------------------------------------------------------------------------------------------------------

@@ -13,6 +13,9 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
 from orcamento.gerar_orcamento import OrcamentoPDF
+from ordemDeServico.models import OrdemDeServico
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
+from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
@@ -35,20 +38,6 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def dashboardCeu(request):
-    # ---------------------- Dados inicias apresentados na tabela ----------------------------------------
-    # Relatórios de atendimento ao público
-    dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        data_atendimento=datetime.now().date())
-    # Relatórios de atendimento com colégio
-    dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
-        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
-    # Relatórios de atendimento com empresa
-    dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
-        check_in__date__lte=datetime.now().date(), check_out__date__gte=datetime.now().date())
-
-    dados_iniciais = list(chain(dados_publico, dados_colegio, dados_empresa))
-    data_hoje = datetime.now().date()
-
     # ------------------ Relatórios para conta de atividades e horas do mês --------------------
     try:  # Try necessário devido ao usuário da Gla ser do CEU e não ser professor
         usuario_logado = Professores.objects.get(usuario=request.user)
@@ -58,8 +47,7 @@ def dashboardCeu(request):
         mostrar_aviso_disponibilidade = False
         depois_25 = False
     except Exception as e:
-        email_error(request.user.get_full_name(), e, __name__)
-        messages.error(request, 'Houve um erro inesperado, tente novamente mais tarde')
+        messages.error(request, f'Houve um erro inesperado ({e}), tente novamente mais tarde')
         return redirect('logout')
     else:
         # Relatórios de atendimento ao público
@@ -117,6 +105,25 @@ def dashboardCeu(request):
         return JsonResponse({'dados': dados, })
 
     if request.method != 'POST':
+        # --------------------------------- Dados apresentados na tabela -----------------------------------------------
+        data_relatorio = datetime.today().date()
+
+        if request.GET.get('data_relatorios'):
+            data_relatorio = datetime.strptime(request.GET.get('data_relatorios'), '%Y-%m-%d')
+
+        dados_publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by(
+            'atividades__atividade_1__inicio').filter(data_atendimento=data_relatorio)
+        # Relatórios de atendimento com colégio
+        dados_colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by(
+            'atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_relatorio, check_out__date__gte=data_relatorio
+        )
+        # Relatórios de atendimento com empresa
+        dados_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('locacoes__locacao_1__data_e_hora').filter(
+            check_in__date__lte=data_relatorio, check_out__date__gte=data_relatorio
+        )
+        dados_tabela = list(chain(dados_publico, dados_colegio, dados_empresa))
+        data_hoje = datetime.now().date()
         professores = Professores.objects.all()
 
         return render(request, 'dashboard/dashboardCeu.html', {
@@ -132,6 +139,37 @@ def dashboardCeu(request):
 @login_required(login_url='login')
 def dashboardPeraltas(request):
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
+    msg_monitor = sem_escalas = None
+    diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
+    operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
+    coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
+
+    if diretoria or operacional or coordenador_monitoria:
+        fichas_colaborador = FichaDeEvento.objects.filter(
+            os=False,
+            check_in__date__gte=datetime.today(),
+        )
+        sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
+    else:
+        fichas_colaborador = FichaDeEvento.objects.filter(
+            vendedora__usuario=request.user,
+            os=False,
+            check_in__date__gte=datetime.today(),
+        )
+
+    fichas = fichas_colaborador.filter(pre_reserva=False)
+    pre_reservas = fichas_colaborador.filter(pre_reserva=True, agendado=False)
+    confirmados = fichas_colaborador.filter(pre_reserva=True, agendado=True)
+    fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
+    ordens_colaborador = OrdemDeServico.objects.filter(
+        vendedor__usuario=request.user,
+        check_in__date__gte=datetime.today(),
+    )
+    avisos = fichas_colaborador.filter(
+        pre_reserva=True,
+        check_in__date__gte=datetime.today().date(),
+        check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
+    )
     orcamentos_para_gerencia = Orcamento.objects.filter(necessita_aprovacao_gerencia=True)
     orcamentos = Orcamento.objects.filter(colaborador=request.user, necessita_aprovacao_gerencia=False).filter(promocional=False)
     pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
@@ -248,7 +286,17 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
-        'diretoria': diretoria in grupos_usuario,
+        'diretoria': diretoria,
+        'fichas_adesao': fichas_adesao,
+        'fichas': fichas,
+        'ordens_colaborador': ordens_colaborador,
+        'pre_reservas': pre_reservas,
+        'confirmados': confirmados,
+        'sem_escalas': sem_escalas,
+        'avisos': avisos,
+        'operacional': operacional,
+        'coordenador_monitoria': coordenador_monitoria,
+        'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'financeiro': financeiro in grupos_usuario,
         'orcamentos_gerencia': orcamentos_para_gerencia,
         'orcamentos': orcamentos,

@@ -1,14 +1,19 @@
+import calendar
+import locale
+from datetime import datetime, timedelta
 from datetime import datetime
-from datetime import datetime
+from itertools import chain
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, redirect
 from ceu.models import Professores
-from cadastro.models import RelatorioDeAtendimentoPublicoCeu
+from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
+    RelatorioDeAtendimentoEmpresaCeu
 from painelAdm.funcoes import contar_atividades, contar_horas, contar_diaria, verificar_anos, is_ajax, pegar_mes, \
-    pegar_atividades, contar_atividades_professor
+    pegar_atividades, contar_atividades_professor, resumir_atividades, pegar_dados_relatorios_mes, pegar_relatorios_mes
+from projetoCEU import gerar_pdf
 from projetoCEU.utils import verificar_grupo
 
 
@@ -21,8 +26,10 @@ def painelGeral(request):
 
     if request.method != 'POST':
         professores = Professores.objects.all()
-        ordens_mes_anterior = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__month=datetime.now().month - 1)
-        ordens_meses_ano_atual = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__year=datetime.now().year)
+        ordens_mes_anterior = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+            data_atendimento__month=datetime.now().month - 1)
+        ordens_meses_ano_atual = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+            data_atendimento__year=datetime.now().year)
         mes_anterior = pegar_mes(ordens_mes_anterior)
         meses = pegar_mes(ordens_meses_ano_atual).split(', ')
 
@@ -51,18 +58,48 @@ def painelGeral(request):
         if request.POST.get('grafico') == '2':
             mes = request.POST.get('mes')
             ano = request.POST.get('ano')
-            ordens_mes_e_ano_selecionado = RelatorioDeAtendimentoPublicoCeu.objects.filter(data_atendimento__year=ano).filter(
+            ordens_mes_e_ano_selecionado = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+                data_atendimento__year=ano).filter(
                 data_atendimento__month=mes)
             atividades = pegar_atividades(ordens_mes_e_ano_selecionado)
             return JsonResponse({'dados': atividades})
 
         if request.POST.get('grafico') == '3':
             professor_selecionado = Professores.objects.get(pk=request.POST.get('id_professor'))
-            ordens_prof = RelatorioDeAtendimentoPublicoCeu.objects.filter(Q(coordenador=professor_selecionado) |
-                                                                   Q(professor_2=professor_selecionado) |
-                                                                   Q(professor_3=professor_selecionado) |
-                                                                   Q(professor_4=professor_selecionado)).order_by(
-                                                                                            '-data_atendimento')[:300]
+            ordens_prof = RelatorioDeAtendimentoPublicoCeu.objects.filter(
+                Q(coordenador=professor_selecionado) |
+                Q(professor_2=professor_selecionado) |
+                Q(professor_3=professor_selecionado) |
+                Q(professor_4=professor_selecionado)).order_by('-data_atendimento')[:300]
 
             atividades_realizadas = contar_atividades_professor(professor_selecionado, ordens_prof)
             return JsonResponse({'dados': atividades_realizadas})
+
+
+@login_required(login_url='login')
+def resumo_ceu(request):
+    mes = ano = 0
+
+    if request.POST.get('mes_ano'):
+        locale.setlocale(locale.LC_TIME, 'pt_BR')
+        mes, ano = request.POST.get('mes_ano').split('_')
+        mes = list(calendar.month_name).index(mes.lower())
+
+    if is_ajax(request):
+        return JsonResponse({'dados': pegar_dados_relatorios_mes(mes, int(ano))})
+
+    if request.method != 'POST':
+        return render(request, 'painelAdm/resumo_ceu.html', {
+            'dados_atividades': resumir_atividades()
+        })
+
+    if request.POST.get('gerar_pdf'):
+        mes_escrito = request.POST.get('mes_ano').split('_')[0]
+        gerar_pdf.dados_atividades(mes, mes_escrito, ano)
+
+        return FileResponse(
+            open('temp/resumo_atividades.pdf', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Resumo atividades de {mes_escrito} de {ano}.pdf'
+        )

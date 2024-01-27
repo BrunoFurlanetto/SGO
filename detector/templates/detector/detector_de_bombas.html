@@ -29,7 +29,7 @@
                             {% endif %}
 
                             {% for detector in detectores %}
-                                <tr>
+                                <tr style="text-align: center">
                                     <td>{{ detector.data_inicio|date:'d F Y' }}</td>
                                     <td>{{ detector.data_final|date:'d F Y' }}</td>
                                     <td>
@@ -106,9 +106,9 @@
                                         {% endfor %}
                                     </select>
                                     <script>
-                                        setTimeout(() => {
+                                        $(document).ready(() => {
                                             pegar_dados_eventos(true)
-                                        }, 200)
+                                        })
                                     </script>
                                 {% else %}
                                     <select name="clientes" id="clientes" multiple>

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
@@ -9,12 +10,14 @@ from django.shortcuts import render, redirect
 
 import cadastro.funcoes
 from cadastro.funcoes import is_ajax
-from calendarioEventos.funcoes import gerar_lotacao
+from calendarioEventos.funcoes import gerar_lotacao, gerar_descritivo_data
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
     EventosCancelados, Eventos, Vendedor
 from projetoCEU.envio_de_emails import EmailSender
+from projetoCEU.integracao_rd import alterar_status, verificar_id
 from projetoCEU.utils import verificar_grupo, email_error
+from local_settings import STATUS_RD
 
 
 @login_required(login_url='login')
@@ -30,6 +33,14 @@ def eventos(request):
 
     if is_ajax(request):
         if request.method == 'GET':
+            if request.GET.get('id_negocio'):
+                return HttpResponse(verificar_id(request.GET.get('id_negocio')))
+
+            if request.GET.get('data_descritivo'):
+                data_base = datetime.strptime(request.GET.get('data_descritivo'), '%Y-%m-%d').date()
+
+                return JsonResponse(gerar_descritivo_data(data_base))
+
             if request.GET.get('mes'):
                 return JsonResponse(gerar_lotacao(int(request.GET.get('mes')), int(request.GET.get('ano'))))
 
@@ -90,7 +101,10 @@ def eventos(request):
                     produto_corporativo_contratado=pre_reserva.produto_corporativo,
                     data_entrada=pre_reserva.data_preenchimento,
                     data_saida=datetime.now().date(),
-                    motivo_cancelamento=request.POST.get('motivo_cancelamento')
+                    data_evento=pre_reserva.check_in.date(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes=pre_reserva.qtd_convidada,
+                    tipo_evento='corporativo' if pre_reserva.produto_corporativo else 'colegio'
                 )
                 pre_reserva.delete()
             except Exception as e:
@@ -107,10 +121,12 @@ def eventos(request):
             'produto_corporativo': pre_reserva.produto_corporativo.id if pre_reserva.produto_corporativo else None,
             'obs_edicao': pre_reserva.obs_edicao_horario,
             'exclusividade': pre_reserva.exclusividade,
+            'agencia': pre_reserva.agencia,
             'qtd': pre_reserva.qtd_convidada,
             'vendedor': pre_reserva.vendedora.id,
             'editar': pre_reserva.vendedora.usuario.id == request.user.id,
             'confirmado': pre_reserva.agendado,
+            'id_negocio': pre_reserva.id_negocio,
             'observacoes': pre_reserva.observacoes
         })
 
@@ -171,9 +187,21 @@ def eventos(request):
     if 'exclusividade' in request.POST:
         nova_pre_reserva.exclusividade = True
 
+    if 'agencia' in request.POST:
+        nova_pre_reserva.agencia = True
+
     if cadastro_de_pre_reservas.is_valid():
-        pre_reserva_dcadastrada = cadastro_de_pre_reservas.save()
-        Eventos.objects.create(ficha_de_evento=pre_reserva_dcadastrada).save()
+        try:
+            pre_reserva_cadastrada = cadastro_de_pre_reservas.save()
+        except Exception as e:
+            ...
+        else:
+            if pre_reserva_cadastrada.produto.colegio:
+                alterar_status(pre_reserva_cadastrada.id_negocio, STATUS_RD['PA-S'])
+            else:
+                alterar_status(pre_reserva_cadastrada.id_negocio, STATUS_RD['C_OS'])
+
+            Eventos.objects.create(ficha_de_evento=pre_reserva_cadastrada).save()
 
         return redirect('calendario_eventos')
     else:
