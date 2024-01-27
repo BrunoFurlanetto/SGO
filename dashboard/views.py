@@ -1,5 +1,4 @@
 import json
-import locale
 from datetime import datetime, timedelta
 from itertools import chain
 
@@ -7,16 +6,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
@@ -174,9 +175,17 @@ def dashboardPeraltas(request):
     pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
+    diretoria = Group.objects.get(name='Diretoria')
     financeiro = Group.objects.get(name='Financeiro')
 
     if is_ajax(request):
+        if request.method == "GET":
+            print('Foi')
+            orcamento_pdf = OrcamentoPDF(request.GET.get('id_orcamento_pdf'))
+            orcamento_pdf.gerar_pdf()
+
+            return HttpResponse('Foi')
+
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
             orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
@@ -194,7 +203,7 @@ def dashboardPeraltas(request):
                 return JsonResponse({'status': 'success'})
 
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        print(orcamento.necessita_aprovacao_gerencia)
+
         if orcamento.necessita_aprovacao_gerencia:
             return JsonResponse(campos_necessarios_aprovacao(orcamento))
         else:
@@ -293,4 +302,4 @@ def dashboardPeraltas(request):
         'orcamentos': orcamentos,
         'pacotes': pacotes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
-    })  # TODO: Separar os returns para perfis diferentes
+    })

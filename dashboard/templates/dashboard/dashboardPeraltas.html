@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %}
+{% load custom_filter_tags %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
@@ -446,23 +446,20 @@
                         <th style="width: 40%">Cliente</th>
                         <th style="width: 15%">Vencimento</th>
                         <th style="width: 15%">Status</th>
-                        <th style="width: 20%">Valor</th>
-                        <th style="width: 5%">Ganho/Perdido</th>
+                        <th style="width: 5%">Perdido</th>
                         <th style="width: 5%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for orcamento in orcamentos %}
-                        <tr id="orcamento_{{ orcamento.id }}">
-                            <td><a {% if orcamento.status_orcamento.status not in 'Perdido, Vencido, Ganho' %} href="" {% endif %}>{{ orcamento.cliente }}</a></td>
+                        <tr id="orcamento_{{ orcamento.id }}" onclick="modal_de_tratativas({{ orcamento.id|safe}})">
+                            <td>{{ orcamento.cliente }}</td>
                             <td>{{ orcamento.data_vencimento|date:'d/m/Y' }}</td>
                             <td>{{ orcamento.status_orcamento }}</td>
-                            <td>R$ {{ orcamento.valor|substituir_ponto }}</td>
                             <td style="white-space: nowrap">
-                                <button type="button" id="ganho" class="button_ganho" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="alterar_status(this)"><i class='bx bx-check'></i></button>
                                 <button type="button" id="perdido" class="button_perdido" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i class='bx bx-x'></i></button>
                             </td>
-                            <td><button type="button" class="button_pdf" {% if orcamento.status_orcamento.status in 'Perdido, Vencido' %} disabled {% endif %}><i class='bx bxs-file-pdf'></i></button></td>
+                            <td><button type="button" class="button_pdf" {% if orcamento.status_orcamento.status in 'Perdido, Vencido' %} disabled {% endif %} onclick="gerar_pdf_orcamento({{ orcamento.id }})"><i class='bx bxs-file-pdf'></i></button></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -549,13 +546,14 @@
             })
         </script>
     {% endif %}
-    <div class="modal fade" id="permissao_orcamentos" tabindex="-1" role="dialog"
+
+    <div class="modal fade" id="tratativas" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Campos que precisam de permissão</h5>
+                    <h5 class="modal-title">Tratativas</h5>
                     <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -564,49 +562,40 @@
                     <fieldset>
                         {% csrf_token %}
                         <div class="modal-body">
-                            <form action="{% url 'dashboardPeraltas' %}" method="POST">
-                                <fieldset>
-                                    <input type="hidden" id="id_orcamento" name="id_orcamento">
-                                    <table id="tabela_pedidos" class="table table-bordered table-hover table-striped"
-                                           style="caption-side: top">
-                                        <caption>Pedidos de alteração</caption>
-                                        <thead>
-                                        <tr>
-                                            <th>Campo</th>
-                                            <th>Valor padrão</th>
-                                            <th>Valor tratativa</th>
-                                            <th><input type="checkbox" class="select-all" name="select_all" id="select_all_pedidos"
-                                                       onclick="selecionar_todos(this)"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                    <p id="comentario_pedido"></p>
-                                    <hr>
-                                    <table id="tabela_descontos_opcionais"
-                                           class="table table-bordered table-hover table-striped" style="caption-side: top">
-                                        <caption>Opcionais com descontos</caption>
-                                        <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Nome</th>
-                                            <th>Valor</th>
-                                            <th>Descrição</th>
-                                            <th><input type="checkbox" class="select-all" name="select_all" id="select_all_op"
-                                                       onclick="selecionar_todos(this)"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                    <hr>
-                                    <div id="valores">
-                                        <div><strong>Valor da tratativa: </strong>
-                                            <p id="valor_tratativa"></p></div>
-                                        <div><strong>Valor atual: </strong>
-                                            <p id="valor_atual"></p></div>
-                                    </div>
-                                </fieldset>
-                            </form>
+                            <table id="tabela_tratativas" class="table table-borderless table-hover">
+                                <thead style="text-align: center">
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Vencimento</th>
+                                    <th>Valor</th>
+                                    <th>Ganho/Perdido</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Em aberto</td>
+                                    <td>25/01/2024</td>
+                                    <td>R$ 1052,69</td>
+                                    <td style="white-space: nowrap">
+                                    <button type="button" id="ganho" class="button_ganho" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="alterar_status(this)"><i class='bx bx-check'></i></button>
+                                    <button type="button" id="perdido" class="button_perdido" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i class='bx bx-x'></i></button>
+                            </td>
+                                </tr>
+                                <tr>
+                                    <td>Em aberto</td>
+                                    <td>25/01/2024</td>
+                                    <td>R$ 1052,69</td>
+                                    <td style="white-space: nowrap">
+                                    <button type="button" id="ganho" class="button_ganho" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="alterar_status(this)"><i class='bx bx-check'></i></button>
+                                    <button type="button" id="perdido" class="button_perdido" {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %} disabled {% endif %} onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i class='bx bx-x'></i></button>
+                            </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <hr>
+                            <div style="display: flex; justify-content: flex-end">
+                                <button type="button" id="adicionar_tratativa" onclick="window.location.href = '{% url 'nova_tratativa' 70%}'"><span>Nova tratativa</span><i class='bx bx-plus'></i></button>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary" onclick="loading()">Aceitar</button>

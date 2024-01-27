@@ -4,12 +4,13 @@ let mostrar_instrucao = true
 let enviar, promocional = false
 const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
 
-$(document).ready(() => {
+async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
     $('#id_produtos_elegiveis').select2({
         dropdownParent: $("#dados_do_pacote .modal-content"),
         width: '100%'
     })
+
     let hoje = new Date()
     $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
@@ -17,6 +18,10 @@ $(document).ready(() => {
 
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
     $('#periodo_1').inicializarDateRange('DD/MM/YYYY', false)
+
+    if (check_in && check_out) {
+        $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+    }
 
     $('#valor_opcional').mascaraDinheiro()
     $('#desconto_geral').mascaraDinheiro()
@@ -95,14 +100,18 @@ $(document).ready(() => {
     if ($('#data_vencimento').val() != '') {
         $('#btn_salvar_orcamento').prop('disabled', false)
     }
-})
+}
 
 async function verificar_alteracoes(div) {
-    if ( $('#id_promocional').prop('checked') ) {
+    if ($('#id_promocional').prop('checked')) {
         await enviar_form()
 
         return
     }
+
+    setInterval(() => {
+        $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
+    }, 10)
 
     let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
         let valor
@@ -127,7 +136,7 @@ async function verificar_alteracoes(div) {
     if (mostrar_mensagem) {
         $('#div_observacoes_gerencia').removeClass('none')
         $('#observacoes_gerencia').prop('required', true)
-        $('#btn_salvar_orcamento').prop('disabled', true)
+        // $('#btn_salvar_orcamento').prop('disabled', true)
         $('.botoes').attr('title', 'Verificar observações para a gerência')
     } else {
         $('#div_observacoes_gerencia').addClass('none')
@@ -167,18 +176,6 @@ $('#modal_descritivo').on('hidden.bs.modal', function (e) {
     }
 });
 
-function verificar_observacao(obs) {
-    let valor = obs.value
-
-    if (valor.length > 10) {
-        $('#btn_salvar_orcamento').prop('disabled', false)
-        $('.botoes').attr('title', '')
-    } else {
-        $('#btn_salvar_orcamento').prop('disabled', true)
-        $('.botoes').attr('title', 'Verificar observações para a gerência')
-    }
-}
-
 $.fn.mascaraDinheiro = function () {
     return $(this).maskMoney({
         prefix: 'R$ ',
@@ -189,7 +186,10 @@ $.fn.mascaraDinheiro = function () {
     })
 }
 
-$.fn.inicializarDateRange = function (format, time_picker, isInvalidDate = null, show_initial_date = true, ranges = '') {
+$.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, show_initial_date, ranges) {
+    if (!isInvalidDate) isInvalidDate = null
+    if (!show_initial_date) show_initial_date = true
+    if (!ranges) ranges = ''
     return this.daterangepicker({
         "timePicker": time_picker,
         "timePicker24Hour": true,
@@ -662,10 +662,6 @@ async function separar_produtos(periodo) {
                     }
                 }
 
-                if ($('#id_produto').val() == null) {
-                    $('#id_produto').val('')
-                }
-
                 resolve(response)
             }
         }).done(() => {
@@ -679,9 +675,15 @@ async function separar_produtos(periodo) {
             reject(xht['responseJSON']['msg'])
         })
     })
+
+    setTimeout(() => {
+        if ($('#id_produto').val() == null) {
+            $('#id_produto').val('')
+        }
+    }, 1)
 }
 
-async function verificar_preenchimento() {
+async function verificar_preenchimento(editando = false) {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
     await separar_produtos($('#data_viagem'))

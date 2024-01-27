@@ -24,6 +24,7 @@
         <form id="orcamento" name="orcamento" action="{% url 'orcamento' %}">
             <fieldset>
                 {% csrf_token %}
+                {% if id_orcamento %} <input type="hidden" name="id_do_orcamento" id="id_do_orcamento" value="{{ id_orcamento }}"> {% endif %}
                 <div id="conteudo_primeiro" class="conteudo-primeiro">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
@@ -56,7 +57,7 @@
                         {{ orcamento.pacote_promocional.as_hidden }}
                     {% endif %}
                 </div>
-                <div id="container_periodo" class="none">
+                <div id="container_periodo" class="{% if not id_orcamento %} none {% endif %}">
                     <div id="periodo_viagem" class="conteudo">
                         <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
@@ -81,7 +82,8 @@
                     <div class="parcial"></div>
                 </div>
                 <div id="campos_fixos">
-                    <div id="container_monitoria_transporte" style="margin-bottom: -55px" class="none">
+                    <div id="container_monitoria_transporte" style="margin-bottom: -55px"
+                         class="{% if not id_orcamento %} none {% endif %}">
                         <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                              onchange="verificar_monitoria_transporte()">
                             <div id="monitoria" class="conteudo" style="width: 62%">
@@ -100,7 +102,8 @@
                         </div>
                         <div class="parcial"></div>
                     </div>
-                    <div id="container_opcionais" style="margin-bottom: -45px" class="none">
+                    <div id="container_opcionais" style="margin-bottom: -45px"
+                         class="{% if not id_orcamento %} none {% endif %}">
                         <div id="opcionais" class="conteudo">
                             <h5 class="titulo-secao">Atividades e Opcionais</h5>
                             <div>
@@ -139,7 +142,7 @@
                         <div class="parcial"></div>
                     </div>
                 </div>
-                <div id="finalizacao" class="conteudo none">
+                <div id="finalizacao" class="conteudo {% if not id_orcamento %} none {% endif %}">
                     <h5 class="titulo-secao">Observações</h5>
                     <div>
                         <label for="observacoes_orcamento">Observações gerais do orçamento</label>
@@ -252,34 +255,43 @@
                                     <div>
                                         <label for="comissao">Comissão</label>
                                         <input type="text" id="comissao" name="comissao" value="9,00%"
-                                               data-valor_default="{{ 'comissao'| pegar_taxa }}" data-valor_inicial="{{ 'comissao'| pegar_taxa }}" data-valor_alterado="{{ 'comissao'| pegar_taxa }}">
+                                               data-valor_default="{{ 'comissao'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'comissao'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'comissao'| pegar_taxa }}">
                                         <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
                                     </div>
                                     <div>
                                         <label for="taxa_comercial">Taxa Comercial</label>
                                         <input type="text" id="taxa_comercial" name="taxa_comercial" value="5,00%"
-                                               data-valor_default="{{ 'taxa_comercial'| pegar_taxa }}" data-valor_inicial="{{ 'taxa_comercial'| pegar_taxa }}" data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}">
+                                               data-valor_default="{{ 'taxa_comercial'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'taxa_comercial'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}">
                                         <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
                                                value="0">
                                     </div>
                                     <div>
                                         <label for="minimo_onibus">Mínimo no ônibus</label>
                                         <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
-                                               data-valor_default="{{ 'minimo_onibus'| pegar_taxa }}" data-valor_inicial="{{ 'minimo_onibus'| pegar_taxa }}" data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}">
+                                               data-valor_default="{{ 'minimo_onibus'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'minimo_onibus'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}">
                                         <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
                                                value="0">
                                     </div>
                                     <div style="width: 28%">
                                         <label for="data_pagamento">Data de pagamento</label>
                                         <input type="date" id="data_pagamento" name="data_pagamento" value=""
-                                               data-valor_default="{{ 'data_pagamento'| pegar_taxa }}" data-valor_inicial="{{ 'data_pagamento'| pegar_taxa }}" data-valor_alterado="{{ 'data_pagamento'| pegar_taxa }}">
+                                               data-valor_default="{{ 'data_pagamento'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'data_pagamento'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'data_pagamento'| pegar_taxa }}">
                                         <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado"
                                                value="0">
                                     </div>
                                     <div>
                                         <label for="desconto_geral">Desconto geral</label>
                                         <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
-                                               data-valor_default="0,00" data-valor_inicial="0,00" data-valor_alterado="0,00">
+                                               data-valor_default="0,00" data-valor_inicial="0,00"
+                                               data-valor_alterado="0,00">
                                         <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado"
                                                value="0">
                                     </div>
@@ -291,8 +303,8 @@
                                 <div id="div_observacoes_gerencia" class="none"
                                      style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
                                     <label for="observacoes_gerencia">Observações</label>
-                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30" rows="10"
-                                              onkeyup="verificar_observacao(this)"></textarea>
+                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"
+                                              rows="10"></textarea>
                                 </div>
                                 {% if not financeiro %}
                                     <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
@@ -300,7 +312,8 @@
                                     </p>
                                 {% endif %}
                                 <div>
-                                    <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não altorizadas pela gerência!</p>
+                                    <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não
+                                        altorizadas pela gerência!</p>
                                 </div>
                             </div>
                             <hr {% if not financeiro %} class="none" {% endif %}>
@@ -362,7 +375,9 @@
                 </div>
                 <div class="modal-footer">
                     {% if not financeiro %}
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#verificacao_gerencia">Alterar taxas</button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                data-target="#verificacao_gerencia">Alterar taxas
+                        </button>
                     {% endif %}
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
                     {% if tipo_orcamento %}
@@ -471,7 +486,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="verificacao_gerencia" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="verificacao_gerencia" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -503,6 +519,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(async () => {
+            {% if id_orcamento %}
+                $('#orcamento input, #orcamento select').prop('disabled', false)
+                await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
+                await verificar_preenchimento(true)
+                await verificar_monitoria_transporte()
+                $('#id_atividades').trigger('change')
+                $('#conteudo_primeiro select').prop('disabled', true)
+            {% else %}
+                await inicializacao();
+            {% endif %}
+        })
+    </script>
 
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>

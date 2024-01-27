@@ -1,90 +1,4 @@
-$(document).ready(() => {
-    moment.locale('pt-br')
-
-    $('#tabela_adesao').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 4, // Supondo que a primeira coluna contenha datas
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY'); // Formate a data como desejado
-                }
-                return data;
-            }
-        }],
-        order: [
-            [3, 'asc']
-        ]
-    })
-
-    $('#status #tabela_status_ficha').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 4,
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY')
-                }
-
-                return data;
-            }
-        }],
-        order: [4, 'asc']
-    })
-
-    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 3,
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY')
-                }
-                return data;
-            }
-        }],
-        order: [3, 'asc']
-    })
-})
-
-function alterar_aba(aba, sectionId) {
-    const conteudos_abas = $('.section-content').map((index, aba) => {
-        return aba.id
-    })
-    $('.folder:not([ativo])').removeClass('ativo')
-    $(aba).addClass('ativo')
-    console.log(aba, sectionId)
-    for (let conteudo of conteudos_abas) {
-        if (conteudo === sectionId) {
-            $(`#${conteudo}`).addClass('ativo')
-        } else {
-            $(`#${conteudo}`).removeClass('ativo')
-        }
-    }
-}
-
-let valor_atual, valores_op, valor_base, taxas_base, btn, desconto
+/*let valor_atual, valores_op, valor_base, taxas_base, btn, desconto
 let taxa_comercial_base = null
 let comisao_base = null
 let taxa_comercial = null
@@ -95,7 +9,7 @@ let novas_taxas = 0
 let comissao_aplicada = false
 let taxa_aplicada = false
 let outros = []
-let desconto_aplicado = 0
+let desconto_aplicado = 0*/
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = [
@@ -116,7 +30,7 @@ function alterar_aba(aba, sectionId) {
     }
 }
 
-function reiniciar_variaveis() {
+/*function reiniciar_variaveis() {
     valor_atual = null
     valores_op = null
     valor_base = null
@@ -320,7 +234,7 @@ function calcular_taxas() {
 
         return valor_comissao + valor_taxa
     }
-}
+}*/
 
 function alterar_status(btn) {
     const id_orcamento = $(btn).closest('tr').attr('id').split('_')[1]
@@ -349,4 +263,17 @@ function alterar_status(btn) {
         alert(error)
         end_loading()
     })
+}
+
+function gerar_pdf_orcamento(id_orcamento) {
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_orcamento_pdf': id_orcamento},
+    })
+}
+
+function modal_de_tratativas(id_orcamento) {
+    $('#tratativas').modal('show')
 }
