@@ -1,4 +1,4 @@
-let valor_atual, valores_op, valor_base, taxas_base, btn, desconto
+/*let valor_atual, valores_op, valor_base, taxas_base, btn, desconto
 let taxa_comercial_base = null
 let comisao_base = null
 let taxa_comercial = null
@@ -9,7 +9,7 @@ let novas_taxas = 0
 let comissao_aplicada = false
 let taxa_aplicada = false
 let outros = []
-let desconto_aplicado = 0
+let desconto_aplicado = 0*/
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = [
@@ -30,7 +30,7 @@ function alterar_aba(aba, sectionId) {
     }
 }
 
-function reiniciar_variaveis() {
+/*function reiniciar_variaveis() {
     valor_atual = null
     valores_op = null
     valor_base = null
@@ -234,7 +234,7 @@ function calcular_taxas() {
 
         return valor_comissao + valor_taxa
     }
-}
+}*/
 
 function alterar_status(btn) {
     const id_orcamento = $(btn).closest('tr').attr('id').split('_')[1]
@@ -263,4 +263,17 @@ function alterar_status(btn) {
         alert(error)
         end_loading()
     })
+}
+
+function gerar_pdf_orcamento(id_orcamento) {
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_orcamento_pdf': id_orcamento},
+    })
+}
+
+function modal_de_tratativas(id_orcamento) {
+    $('#tratativas').modal('show')
 }

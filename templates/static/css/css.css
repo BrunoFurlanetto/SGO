@@ -1427,3 +1427,22 @@
 #senha {
   font-family: 'password';
 }
+
+#adicionar_tratativa {
+    border: none;
+    background: transparent;
+    display: flex;
+}
+
+#adicionar_tratativa i {
+    font-size: 20px;
+}
+
+#tabela_tratativas tr {
+    vertical-align: middle;
+    text-align: center;
+}
+
+#tabela_tratativas tr:not(:last-child) {
+    border-bottom: dashed 1px #b5b2b2
+}

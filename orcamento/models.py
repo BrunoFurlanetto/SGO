@@ -353,6 +353,15 @@ class Orcamento(models.Model):
         ...
 
 
+class Tratativas(models.Model):
+    id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
+    orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos")
+
+    # def save(self, *args, **kwargs):
+    #     self.orcamentos.all()[0]
+    #     super().save(*args, **kwargs)
+
+
 class CadastroPacotePromocional(forms.ModelForm):
     class Meta:
         model = DadosDePacotes

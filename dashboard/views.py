@@ -6,12 +6,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from orcamento.gerar_orcamento import OrcamentoPDF
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
@@ -140,6 +141,13 @@ def dashboardPeraltas(request):
     financeiro = Group.objects.get(name='Financeiro')
 
     if is_ajax(request):
+        if request.method == "GET":
+            print('Foi')
+            orcamento_pdf = OrcamentoPDF(request.GET.get('id_orcamento_pdf'))
+            orcamento_pdf.gerar_pdf()
+
+            return HttpResponse('Foi')
+
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
             orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
@@ -157,7 +165,7 @@ def dashboardPeraltas(request):
                 return JsonResponse({'status': 'success'})
 
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        print(orcamento.necessita_aprovacao_gerencia)
+
         if orcamento.necessita_aprovacao_gerencia:
             return JsonResponse(campos_necessarios_aprovacao(orcamento))
         else:

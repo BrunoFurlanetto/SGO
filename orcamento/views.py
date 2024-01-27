@@ -21,7 +21,7 @@ from .budget import Budget
 
 
 @login_required(login_url='login')
-def calc_budget(req):
+def calc_budget(req, id_orcamento=None):
     financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
 
     if is_ajax(req):
@@ -258,14 +258,19 @@ def calc_budget(req):
                 })
 
     if req.method != 'POST':
-        cadastro_orcamento = CadastroOrcamento()
         pacote_promocional = CadastroPacotePromocional()
         usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
         taxas_padrao = ValoresPadrao.objects.all()
-        promocionais = None
+        promocionais = orcamento = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
             promocionais = Orcamento.objects.filter(promocional=True)
+
+        if id_orcamento:
+            orcamento = Orcamento.objects.get(pk=id_orcamento)
+            cadastro_orcamento = CadastroOrcamento(instance=orcamento)
+        else:
+            cadastro_orcamento = CadastroOrcamento()
 
         return render(req, 'orcamento/orcamento.html', {
             'orcamento': cadastro_orcamento,
@@ -275,6 +280,7 @@ def calc_budget(req):
             'financeiro': financeiro,
             'taxas_padrao': taxas_padrao,
             'usuarios_gerencia': usuarios_gerencia,
+            'id_orcamento': id_orcamento,
         })
 
 def veriricar_gerencia(request):
