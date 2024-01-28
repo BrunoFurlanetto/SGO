@@ -1425,22 +1425,8 @@
 #tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
 #status table tr > th, #tabela_avisos tr > th, #tabela_avisos tr > td:not(:first-child),
 #tabela_sem_escala tr > th, #tabela_sem_escala tr > td:not(:first-child) {
-#tabela_descontos_opcionais thead tr > th:nth-child(2) {
-    width: 30%;
-}
-
-#tabela_pedidos tbody > tr, #tabela_descontos_opcionais tbody > tr {
-    vertical-align: middle;
-}
-
-#tabela_descontos_opcionais tbody tr > td:nth-child(4) {
-    text-align: justify;
-    hyphens: auto;
-}
-
-#tabela_pedidos tbody tr > td:not(:first-child),
-#tabela_descontos_opcionais tbody tr > td:not(:nth-child(2)):not(:nth-child(4)) {
     text-align: center;
+    vertical-align: middle;
 }
 
 #orcamentos_aprovados table thead tr > *:not(:first-child),
