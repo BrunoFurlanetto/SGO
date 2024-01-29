@@ -11,7 +11,7 @@ from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas,
 grupos_monitores_1 = ['Auxiliar de monitoria 1', 'Auxiliar de monitoria 2',
                       'Auxiliar de monitoria 3', 'Auxiliar de monitoria 4']
 grupos_monitores_2 = ['Monitor 1', 'Monitor 2', 'Monitor 3']
-grupos_monitores_3 = ['Monitor 4', 'Monitor 3', 'Monitor 6']
+grupos_monitores_3 = ['Monitor 4', 'Monitor 5', 'Monitor 6']
 
 
 def is_ajax(request):
