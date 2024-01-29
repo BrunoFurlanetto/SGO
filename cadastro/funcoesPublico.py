@@ -96,8 +96,11 @@ def teste_participantes_por_atividade(dados):
 def salvar_equipe(dados, relatorio):
     professores = {'coordenador': int(dados.get('coordenador'))}
 
-    for professor_id, i in enumerate(dados.getlist('professores'), start=2):
-        professores[f'professor_{i}'] = int(professor_id)
+    for i, professor_id in enumerate(dados.getlist('professores'), start=2):
+        try:
+            professores[f'professor_{i}'] = int(professor_id)
+        except ValueError:
+            break
 
     relatorio.equipe = professores
 # -----------------------------------------------------------------------------------------------------------
