@@ -51,21 +51,21 @@ def dashboardCeu(request):
         # Relatórios de atendimento ao público
         usuario_publico = RelatorioDeAtendimentoPublicoCeu.objects.filter(
             data_atendimento__month=datetime.now().month).filter(
-            equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+            equipe__icontains=json.dumps(usuario_logado.id))
         # Relatórios de atendimento de colégio
         usuario_colegio = RelatorioDeAtendimentoColegioCeu.objects.filter(
             Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
-            equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+            equipe__icontains=json.dumps(usuario_logado.id))
         # Relatórios de atendimento de empresa
         usuario_empresa = RelatorioDeAtendimentoEmpresaCeu.objects.filter(
             Q(check_in__month=datetime.now().month) | Q(check_out__month=datetime.now().month)).filter(
-            equipe__icontains=json.dumps(usuario_logado.usuario.first_name))
+            equipe__icontains=json.dumps(usuario_logado.id))
 
         relatorios_usuario = list(chain(usuario_publico, usuario_colegio, usuario_empresa))
 
         # ------------------ Parte para chegar no resumo do mês -------------------
-        # n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
-        # n_horas = contar_horas(usuario_logado, relatorios_usuario)
+        n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
+        n_horas = contar_horas(usuario_logado, relatorios_usuario)
 
         # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
         mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
@@ -76,12 +76,12 @@ def dashboardCeu(request):
             depois_25 = True
 
     # ----------- Seleção da escala do dia -------------
-    # escalas = Escala.objects.filter(data=datetime.now())
-    # equipe_escalada = None
-    #
-    # if len(escalas) > 0:
-    #     for escala in escalas:
-    #         equipe_escalada = escala.equipe.split(', ')
+    escalas = Escala.objects.filter(data_escala=datetime.now())
+    equipe_escalada = None
+
+    if len(escalas) > 0:
+        for escala in escalas:
+            equipe_escalada = [Professores.objects.get(pk=professor).usuario.first_name for professor in escala.equipe]
 
     if request.method != 'POST':
         # --------------------------------- Dados apresentados na tabela -----------------------------------------------
@@ -107,9 +107,11 @@ def dashboardCeu(request):
 
         return render(request, 'dashboard/dashboardCeu.html', {
             'professores': professores, 'relatorios': dados_tabela,
-            'data': data_relatorio,  # 'equipe_escalada': equipe_escalada,
+            'data': data_relatorio,
+            'equipe_escalada': equipe_escalada,
             'professor': professor_logado,
-            # 'n_atividades': n_atividades, 'n_horas': n_horas,
+            'n_atividades': n_atividades,
+            'n_horas': n_horas,
             'mostrar_aviso': mostrar_aviso_disponibilidade,
             'depois_25': depois_25
         })
