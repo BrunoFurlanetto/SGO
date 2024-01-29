@@ -63,10 +63,12 @@
                     <li>
                 {% endif %}
 
-                <a href="{% url 'resumo_atividades' %}">
-                    <i class='bx bx-notepad'></i>
-                    <span class="link_name">Resumo professores</span>
-                </a>
+                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                    <a href="{% url 'resumo_atividades' %}">
+                        <i class='bx bx-notepad'></i>
+                        <span class="link_name">Resumo professores</span>
+                    </a>
+                {% endif %}
 
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>
@@ -248,14 +250,14 @@
                 {% endif %}{% endcomment %}
 
                 </li>{% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                        <li class="item-sidebar">
-                            {% else %}
-                        <li>
-                    {% endif %}
-                {% else %}
+                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                    <li class="item-sidebar">
+                        {% else %}
                     <li>
                 {% endif %}
+            {% else %}
+                <li>
+            {% endif %}
 
                 {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}

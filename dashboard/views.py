@@ -123,7 +123,18 @@ def dashboardPeraltas(request):
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
 
-    if diretoria or operacional or coordenador_monitoria:
+    try:
+        monitor = Monitor.objects.get(usuario=request.user)
+    except Monitor.DoesNotExist:
+        monitor = None
+    else:
+        msg_monitor = teste_aviso_monitoria(
+            request.user.last_login.astimezone(),
+            monitor,
+            dia_limite_peraltas
+        )
+
+    if diretoria or operacional or coordenador_monitoria or monitor:
         fichas_colaborador = FichaDeEvento.objects.filter(
             os=False,
             check_in__date__gte=datetime.today(),
@@ -150,18 +161,6 @@ def dashboardPeraltas(request):
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
 
-    try:
-        monitor = Monitor.objects.get(usuario=request.user)
-    except Monitor.DoesNotExist:
-        monitor = None
-    else:
-
-        msg_monitor = teste_aviso_monitoria(
-            request.user.last_login.astimezone(),
-            monitor,
-            dia_limite_peraltas
-        )
-
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
@@ -180,5 +179,6 @@ def dashboardPeraltas(request):
         'operacional': operacional,
         'coordenador_monitoria': coordenador_monitoria,
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
+        'monitor': monitor,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })  # TODO: Separar os returns para perfis diferentes
