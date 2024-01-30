@@ -341,6 +341,39 @@ function gerar_pdf_orcamento(id_orcamento) {
     })
 }
 
-function modal_de_tratativas(id_orcamento) {
+function modal_de_tratativas(id_tratativa) {
+    loading()
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_tratativa': id_tratativa},
+        success: function (response) {
+            const orcamentos = response['orcamentos']
+            const tabela_tratativas = $('#tabela_tratativas tbody').empty()
+            $('#adicionar_tratativa').click(() => {
+                window.location.href = `/orcamento/nova_tratativa/${id_tratativa}`
+            })
+
+            for (let orcamento of orcamentos) {
+                tabela_tratativas.append(
+                    `<tr>
+                        <td>${orcamento['status']}</td>
+                        <td>${orcamento['vencimento']}</td>
+                        <td>R$ ${orcamento['valor']}</td>
+                        <td style="white-space: nowrap">
+                            <button type="button" id="ganho" class="button_ganho" onclick="alterar_status(this)">
+                                <i class='bx bx-check'></i>
+                            </button>
+                            <button type="button" id="perdido" class="button_perdido" onclick="btn = this; $('#modal_orcamento_perdido').modal('show')">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </td>                                                                
+                    </tr>`
+                )
+            }
+        }
+    })
     $('#tratativas').modal('show')
+    end_loading()
 }

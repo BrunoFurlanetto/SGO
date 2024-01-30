@@ -420,6 +420,10 @@ async function enviar_form(salvar = false) {
         $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
     }
 
+    if (salvar) {
+        $('#id_cliente, #id_responsavel').prop('disabled', false)
+    }
+
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
@@ -1158,7 +1162,7 @@ async function verificar_gerencia() {
     $('#id_gerente').val('')
 
     $.ajax({
-        url: 'verificar_gerencia/',
+        url: '/orcamento/verificar_gerencia/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         type: "GET",
         data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},

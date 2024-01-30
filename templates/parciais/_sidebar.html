@@ -227,7 +227,7 @@
 
                 </li>
 
-                {% comment %}{% if 'dashboard' in request.path %}
+                {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
@@ -245,7 +245,7 @@
                     <ul class="sub-menu blank">
                         <li><a class="link_name" href="{% url 'orcamento' %}">Orçamento</a></li>
                     </ul>
-                {% endif %}{% endcomment %}
+                {% endif %}
 
                 </li>{% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}

@@ -24,7 +24,7 @@
         <form id="orcamento" name="orcamento" action="{% url 'orcamento' %}">
             <fieldset>
                 {% csrf_token %}
-                {% if id_orcamento %} <input type="hidden" name="id_do_orcamento" id="id_do_orcamento" value="{{ id_orcamento }}"> {% endif %}
+                {% if id_orcamento %} <input type="hidden" name="id_tratativa" id="id_tratativa" value="{{ tratativa.id_tratativa }}"> {% endif %}
                 <div id="conteudo_primeiro" class="conteudo-primeiro">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">

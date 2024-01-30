@@ -16,7 +16,7 @@ from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
-from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao
+from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
@@ -170,8 +170,7 @@ def dashboardPeraltas(request):
         check_in__date__gte=datetime.today().date(),
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
-    orcamentos_para_gerencia = Orcamento.objects.filter(necessita_aprovacao_gerencia=True)
-    orcamentos = Orcamento.objects.filter(colaborador=request.user, necessita_aprovacao_gerencia=False).filter(promocional=False)
+    tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
     pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
@@ -180,7 +179,11 @@ def dashboardPeraltas(request):
 
     if is_ajax(request):
         if request.method == "GET":
-            print('Foi')
+            if request.GET.get('id_tratativa'):
+                tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
+
+                return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
+
             orcamento_pdf = OrcamentoPDF(request.GET.get('id_orcamento_pdf'))
             orcamento_pdf.gerar_pdf()
 
@@ -298,8 +301,7 @@ def dashboardPeraltas(request):
         'coordenador_monitoria': coordenador_monitoria,
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'financeiro': financeiro in grupos_usuario,
-        'orcamentos_gerencia': orcamentos_para_gerencia,
-        'orcamentos': orcamentos,
+        'tratativas': tratativas,
         'pacotes': pacotes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

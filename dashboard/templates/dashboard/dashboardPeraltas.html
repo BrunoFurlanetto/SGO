@@ -424,22 +424,22 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for orcamento in orcamentos %}
-                        <tr id="orcamento_{{ orcamento.id }}" onclick="modal_de_tratativas({{ orcamento.id|safe }})">
-                            <td>{{ orcamento.cliente }}</td>
-                            <td>{{ orcamento.data_vencimento|date:'d/m/Y' }}</td>
-                            <td>{{ orcamento.status_orcamento }}</td>
+                    {% for tratativa in tratativas %}
+                        <tr id="{{ tratativa.id_tratativa }}" onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')">
+                            <td>{{ tratativa.cliente }}</td>
+                            <td>{{ tratativa.vencimento_tratativa }}</td>
+                            <td>{{ tratativa.status_tratativa }}</td>
                             <td style="white-space: nowrap">
                                 <button type="button" id="perdido" class="button_perdido"
-                                        {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %}
+                                        {% if tratativa.status_tratativa in 'Perdido, Vencido, Ganho' %}
                                         disabled {% endif %}
                                         onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i
                                         class='bx bx-x'></i></button>
                             </td>
                             <td>
                                 <button type="button" class="button_pdf"
-                                        {% if orcamento.status_orcamento.status in 'Perdido, Vencido' %}
-                                        disabled {% endif %} onclick="gerar_pdf_orcamento({{ orcamento.id }})"><i
+                                        {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
+                                        disabled {% endif %} onclick="gerar_pdf_orcamento({{ tratativa.id }})"><i
                                         class='bx bxs-file-pdf'></i></button>
                             </td>
                         </tr>
@@ -552,46 +552,13 @@
                                     <th>Ganho/Perdido</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>Em aberto</td>
-                                    <td>25/01/2024</td>
-                                    <td>R$ 1052,69</td>
-                                    <td style="white-space: nowrap">
-                                        <button type="button" id="ganho" class="button_ganho"
-                                                {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %}
-                                                disabled {% endif %} onclick="alterar_status(this)"><i
-                                                class='bx bx-check'></i></button>
-                                        <button type="button" id="perdido" class="button_perdido"
-                                                {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %}
-                                                disabled {% endif %}
-                                                onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i
-                                                class='bx bx-x'></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Em aberto</td>
-                                    <td>25/01/2024</td>
-                                    <td>R$ 1052,69</td>
-                                    <td style="white-space: nowrap">
-                                        <button type="button" id="ganho" class="button_ganho"
-                                                {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %}
-                                                disabled {% endif %} onclick="alterar_status(this)"><i
-                                                class='bx bx-check'></i></button>
-                                        <button type="button" id="perdido" class="button_perdido"
-                                                {% if orcamento.status_orcamento.status in 'Perdido, Vencido, Ganho' %}
-                                                disabled {% endif %}
-                                                onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i
-                                                class='bx bx-x'></i></button>
-                                    </td>
-                                </tr>
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                             <hr>
                             <div style="display: flex; justify-content: flex-end">
-                                <button type="button" id="adicionar_tratativa"
-                                        onclick="window.location.href = '{% url 'nova_tratativa' 68 %}'"><span>Nova tratativa</span><i
-                                        class='bx bx-plus'></i></button>
+                                <button type="button" id="adicionar_tratativa" ><span>Nova tratativa</span><i
+                                        class='bx bx-plus'></i>
+                                </button>
                             </div>
                         </div>
                         <div class="modal-footer">
