@@ -189,21 +189,38 @@ def dashboardPeraltas(request):
 
             return HttpResponse('Foi')
 
+        print(request.POST)
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
-            orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-            orcamento.status_orcamento = status
 
-            if request.POST.get('motivo_recusa') != '':
-                orcamento.motivo_recusa = request.POST.get('motivo_recusa')
-                orcamento.aprovado = False
+            if '_' in request.POST.get('id_orcamento'):
+                tratativa = Tratativas.objects.get(id_tratativa=request.POST.get('id_orcamento'))
+                tratativa.status = status
 
-            try:
-                orcamento.save()
-            except Exception as e:
-                return JsonResponse({'status': 'error', 'msg': e})
+                if request.POST.get('motivo_recusa') != '':
+                    tratativa.motivo_recusa = request.POST.get('motivo_recusa')
+
+                try:
+                    tratativa.save()
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'msg': e})
+                else:
+                    tratativa.perder_orcamentos()
+                    return JsonResponse({'status': 'success'})
             else:
-                return JsonResponse({'status': 'success'})
+                orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+                orcamento.status_orcamento = status
+
+                if request.POST.get('motivo_recusa') != '':
+                    orcamento.motivo_recusa = request.POST.get('motivo_recusa')
+                    orcamento.aprovado = False
+
+                try:
+                    orcamento.save()
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'msg': e})
+                else:
+                    return JsonResponse({'status': 'success'})
 
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
 

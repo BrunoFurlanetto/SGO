@@ -425,16 +425,17 @@
                     </thead>
                     <tbody>
                     {% for tratativa in tratativas %}
-                        <tr id="{{ tratativa.id_tratativa }}" onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')">
-                            <td>{{ tratativa.cliente }}</td>
-                            <td>{{ tratativa.vencimento_tratativa }}</td>
-                            <td>{{ tratativa.status_tratativa }}</td>
+                        <tr id="{{ tratativa.id_tratativa }}">
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %} onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %} onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %} onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
                             <td style="white-space: nowrap">
                                 <button type="button" id="perdido" class="button_perdido"
                                         {% if tratativa.status_tratativa in 'Perdido, Vencido, Ganho' %}
                                         disabled {% endif %}
-                                        onclick="btn = this; $('#modal_orcamento_perdido').modal('show')"><i
-                                        class='bx bx-x'></i></button>
+                                        onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val('{{ tratativa.id_tratativa }}'); $('#modal_orcamento_perdido').modal('show')"><i
+                                        class='bx bx-x'></i>
+                                </button>
                             </td>
                             <td>
                                 <button type="button" class="button_pdf"
@@ -586,7 +587,7 @@
                     <input type="text" id="motivo_recusa" name="motivo_recusa" required>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" id="btn_recusa">
+                    <input type="hidden" id="id_orcamento_perdido">
                     <button type="button" class="btn btn-primary" onclick="alterar_status(btn)">Salvar</button>
                 </div>
             </div>

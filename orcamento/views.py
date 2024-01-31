@@ -273,7 +273,7 @@ def calc_budget(req, id_tratativa=None):
         tratativa = None
         usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
         taxas_padrao = ValoresPadrao.objects.all()
-        promocionais = orcamento = None
+        promocionais = orcamento = id_orcamento = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
             promocionais = Orcamento.objects.filter(promocional=True)

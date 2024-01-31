@@ -361,6 +361,8 @@ class Tratativas(models.Model):
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
     id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
     orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos", related_name='orcamentos')
+    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa', default=1)
+    motivo_recusa = models.TextField(verbose_name="Motivo da recusa", blank=True)
     orcamento_aceito = models.ForeignKey(
         Orcamento,
         verbose_name="Orcamento aceito",
@@ -401,19 +403,26 @@ class Tratativas(models.Model):
 
     def status_tratativa(self):
         if self.orcamento_aceito:
-            return 'Aceito'
+            return 'Ganho'
         else:
+            if self.status.status == 'Perdido':
+                return self.status.status
+
             status_orcamentos = [orcamento.status_orcamento.status for orcamento in self.orcamentos.all()]
 
             if 'Em aberto' in status_orcamentos or 'Em análise' in status_orcamentos:
                 return 'Em aberto'
             else:
-                return 'Vencido e/ou perdido'
+                return 'Orcamentos vencidos e/ou perdido'
 
     def vencimento_tratativa(self):
         vencimentos = sorted([orcamento.data_vencimento for orcamento in self.orcamentos.all()])
 
         return vencimentos[0].strftime('%d/%m/%Y')
+
+    def perder_orcamentos(self):
+        satus_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        self.orcamentos.all().update(status_orcamento=satus_perdido)
 
 
 class CadastroPacotePromocional(forms.ModelForm):

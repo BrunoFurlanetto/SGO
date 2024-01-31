@@ -247,7 +247,7 @@ function verificar_datas(date) {
 }
 
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00') {
-    const valor_selecao = formatar_dinheiro(dados_op['valor']).replace('.', ',')
+    const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     if (nome_id == 'id_atividades') {
         $('#tabela_de_opcionais tbody').append(`
@@ -296,10 +296,6 @@ async function listar_op_extras(opcao, i) {
             <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
         </tr>
     `)
-}
-
-function formatar_dinheiro(valor) {
-    return valor.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
 }
 
 function criar_linhas_tabela_valores() {
@@ -380,7 +376,7 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>                 
-            <td class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(secao == 'diaria' ? valores[secao]['valor_final'] + taxa : valores[secao]['valor_final'])}</nobr></td>
+            <td class="valor_final_tabela"><nobr>${formatar_dinheiro(secao == 'diaria' ? valores[secao]['valor_final'] + taxa : valores[secao]['valor_final'])}</nobr></td>
         `)
 
         for (let valor_dia of valores[secao]['valores']) {
@@ -468,12 +464,12 @@ async function enviar_form(salvar = false) {
                         const total = response['data']['total']['valor_final']
                         const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros + atividades + atividade_ceu)
                         const total_formatado = formatar_dinheiro(total)
-
+                        console.log(total_formatado, total)
                         // Alteração dos valores das seções
                         $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
                         $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
                         $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
-                        $('#subtotal span').text('R$ ' + total_formatado); // Total
+                        $('#subtotal span').text('R$ ' + total_formatado) // Total
                         $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
                         tabela_descrito(valores, response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
@@ -959,20 +955,20 @@ async function preencher_promocional(id_promocional) {
                     if (op['valor'] !== undefined) {
                         let dados_op = {'valor': op['valor']}
                         let opcional = {'id': op['id'], 'text': op['nome']}
-                        let desconto = formatar_dinheiro(op['desconto']).replace('.', ',')
+                        let desconto = formatar_dinheiro(op['desconto'])
                         listar_op(dados_op, 'id_opcionais', opcional, i + 1, desconto)
                     } else {
                         op['atividades'].map((ativ) => {
                             let dados_op = {'valor': ativ['valor']}
                             let opcional = {'id': ativ['id'], 'text': ativ['nome']}
-                            let desconto = formatar_dinheiro(ativ['desconto']).replace('.', ',')
+                            let desconto = formatar_dinheiro(ativ['desconto'])
                             listar_op(dados_op, 'id_atividades', opcional, i + 1, desconto)
                         })
 
                         op['atividades_ceu'].map((ativ) => {
                             let dados_op = {'valor': ativ['valor']}
                             let opcional = {'id': ativ['id'], 'text': ativ['nome']}
-                            let desconto = formatar_dinheiro(ativ['desconto']).replace('.', ',')
+                            let desconto = formatar_dinheiro(ativ['desconto'])
                             listar_op(dados_op, 'id_atividades_ceu', opcional, i + 1, desconto)
                         })
                     }
@@ -1177,7 +1173,7 @@ async function verificar_gerencia() {
             let limite_desconto = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
             let valor_final = parseFloat($('#campos_alteraveis #valor_final').data('valor_inicial').replace('.', '').replace('R$ ', '').replace(',', '.'))
             let valor_deconto = parseFloat($('#campos_alteraveis #desconto_geral').val().replace(',', '.'))
-            console.log(limite_desconto, valor_final, valor_deconto, valor_final * limite_desconto)
+
             if (valor_deconto > valor_final * limite_desconto) {
                 $('#campos_alteraveis #desconto_geral').val((valor_final * limite_desconto).toFixed(2).replace('.', ','))
                 alert(`Desconto pedido acima do limite possível de ${$('#dados_do_pacote #id_limite_desconto_geral').val()}%. Valor máximo deve ser de  R$ ${(valor_final * limite_desconto).toFixed(2).replace('.', ',')}`)
