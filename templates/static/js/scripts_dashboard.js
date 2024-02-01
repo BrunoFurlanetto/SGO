@@ -303,12 +303,12 @@ function calcular_taxas() {
     }
 }*/
 
-function alterar_status(id_orcamento) {
+function alterar_status(btn, id_orcamento='') {
     const novo_status = $(btn).attr('id')
     let orcamento_id = id_orcamento
     let motivo_recusa = ''
     loading()
-
+    console.log(id_orcamento)
     if (novo_status === 'perdido') {
         motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
         orcamento_id = $('#modal_orcamento_perdido #id_orcamento_perdido').val()
@@ -363,7 +363,7 @@ function modal_de_tratativas(id_tratativa) {
                         <td>${orcamento['vencimento']}</td>
                         <td>R$ ${orcamento['valor']}</td>
                         <td style="white-space: nowrap">
-                            <button type="button" id="ganho" class="button_ganho" onclick="alterar_status(this)">
+                            <button type="button" id="ganho" class="button_ganho" onclick="alterar_status(this, ${orcamento['id_orcamento']})">
                                 <i class='bx bx-check'></i>
                             </button>
                             <button type="button" id="perdido" class="button_perdido" onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val(${orcamento['id_orcamento']}); $('#modal_orcamento_perdido').modal('show')">

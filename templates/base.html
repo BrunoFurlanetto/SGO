@@ -43,9 +43,8 @@
     }
 
     function formatar_dinheiro(valor) {
-        return new Intl.NumberFormat('BR').format(
-        valor,
-      )
+        const valorFormatado = parseFloat(valor).toFixed(2);
+        return new Intl.NumberFormat('BR').format(valorFormatado)
     }
 
     $(document).ready(() => {

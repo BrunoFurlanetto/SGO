@@ -400,7 +400,6 @@ class Tratativas(models.Model):
 
         return orcamentos
 
-
     def status_tratativa(self):
         if self.orcamento_aceito:
             return 'Ganho'
@@ -423,6 +422,22 @@ class Tratativas(models.Model):
     def perder_orcamentos(self):
         satus_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
         self.orcamentos.all().update(status_orcamento=satus_perdido)
+
+    def ganhar_orcamento(self, id_orcamento_ganho):
+        status_ganho = StatusOrcamento.objects.get(status__icontains='ganho')
+        status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+
+        for orcamento in self.orcamentos.all():
+            if orcamento.id == id_orcamento_ganho:
+                orcamento.status_orcamento = status_ganho
+                self.orcamento_aceito = orcamento
+            else:
+                orcamento.status_orcamento = status_perdido
+
+            orcamento.save()
+
+        self.status = status_ganho
+        self.save()
 
 
 class CadastroPacotePromocional(forms.ModelForm):

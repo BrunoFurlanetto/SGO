@@ -189,7 +189,6 @@ def dashboardPeraltas(request):
 
             return HttpResponse('Foi')
 
-        print(request.POST)
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
 
@@ -214,6 +213,9 @@ def dashboardPeraltas(request):
                 if request.POST.get('motivo_recusa') != '':
                     orcamento.motivo_recusa = request.POST.get('motivo_recusa')
                     orcamento.aprovado = False
+                else:
+                    tratativa = Tratativas.objects.get(orcamentos__in=[int(request.POST.get('id_orcamento'))])
+                    tratativa.ganhar_orcamento(int(request.POST.get('id_orcamento')))
 
                 try:
                     orcamento.save()
