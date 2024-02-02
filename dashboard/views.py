@@ -324,3 +324,6 @@ def dashboardPeraltas(request):
         'pacotes': pacotes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
+
+
+

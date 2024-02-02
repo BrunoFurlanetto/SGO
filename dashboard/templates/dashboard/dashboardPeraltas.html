@@ -435,12 +435,12 @@
                                         disabled {% endif %}
                                         onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val('{{ tratativa.id_tratativa }}'); $('#modal_orcamento_perdido').modal('show')"><i
                                         class='bx bx-x'></i>
-                                </button>
+                                </button>☺
                             </td>
                             <td>
                                 <button type="button" class="button_pdf"
                                         {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
-                                        disabled {% endif %} onclick="gerar_pdf_orcamento({{ tratativa.id }})"><i
+                                        disabled {% endif %} onclick="gerar_pdf_orcamento('{{ tratativa.id_tratativa }}')"><i
                                         class='bx bxs-file-pdf'></i></button>
                             </td>
                         </tr>

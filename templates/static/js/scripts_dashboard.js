@@ -308,7 +308,7 @@ function alterar_status(btn, id_orcamento='') {
     let orcamento_id = id_orcamento
     let motivo_recusa = ''
     loading()
-    console.log(id_orcamento)
+
     if (novo_status === 'perdido') {
         motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
         orcamento_id = $('#modal_orcamento_perdido #id_orcamento_perdido').val()
@@ -333,12 +333,12 @@ function alterar_status(btn, id_orcamento='') {
     })
 }
 
-function gerar_pdf_orcamento(id_orcamento) {
+function gerar_pdf_orcamento(id_tratativa) {
     $.ajax({
         type: 'GET',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento_pdf': id_orcamento},
+        data: {'id_orcamento_pdf': id_tratativa},
     })
 }
 
