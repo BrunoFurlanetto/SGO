@@ -15,7 +15,7 @@
     padding-left: 12px;
     height: 38px;
  }
-.conteudo-publico textarea{
+.conteudo-publico textarea, .conteudo-empresa textarea{
     background-color: #fff;
     width: 100%;
     border: 1px solid #ced4da;
