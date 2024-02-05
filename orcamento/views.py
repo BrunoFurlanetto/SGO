@@ -167,9 +167,10 @@ def calc_budget(req, id_tratativa=None):
             budget.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
 
             # Veriricação se aplica tava MP
-            budget.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data['only_sky'] and data.get('promocional', '') != 'on' else ...
+            budget.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
+                'only_sky'] and data.get('promocional', '') != 'on' else ...
 
-            #discout with percent
+            # discout with percent
             budget.transport.set_percent_discount(
                 gerencia["desconto_transporte_percent"]) if "desconto_transporte_percent" in gerencia else ...
             budget.monitor.set_percent_discount(
@@ -178,7 +179,6 @@ def calc_budget(req, id_tratativa=None):
                 data["desconto_diarias_percent"]) if "desconto_diarias_percent" in data else ...
             budget.daily_rate.set_percent_discount(
                 gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
-
 
             # OPICIONAIS
             if len(valores_op) == 0:
@@ -303,6 +303,8 @@ def calc_budget(req, id_tratativa=None):
             'tratativa': tratativa,
         })
 
+
+@login_required(login_url='login')
 def veriricar_gerencia(request):
     id_usuario = request.GET.get('id_usuario')
     senha = request.GET.get('senha')
@@ -320,3 +322,10 @@ def veriricar_gerencia(request):
             return JsonResponse({'msg': ''}, status=200)
         else:
             return JsonResponse({'msg': 'Senha incorreta'}, status=401)
+
+
+@login_required(login_url='login')
+def gerar_pdf(request, id_tratativa):
+    return render(request, 'orcamento/pdf_orcamento.html', {
+        'id_tratativa': id_tratativa
+    })

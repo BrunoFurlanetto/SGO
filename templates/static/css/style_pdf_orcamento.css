@@ -1,0 +1,41 @@
+#paginas_pdf_orcamento {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    transform: scale(0.7);
+    transform-origin: center top;
+    transition: transform 0.2s;
+    gap: 30px;
+    margin-bottom: 10%;
+}
+
+.pagina {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+}
+
+.pagina.fixo img {
+    width: 100%;
+    height: 100%;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .body:not(#paginas_pdf_orcamento) {
+        display: none;
+    }
+
+    #paginas_pdf_orcamento, #paginas_pdf_orcamento * {
+        visibility: visible;
+        margin-top: -160px !important;
+    }
+
+    @page {
+        size: landscape;
+    }
+}
