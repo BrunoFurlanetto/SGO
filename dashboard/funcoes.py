@@ -47,7 +47,7 @@ def contar_atividades(professor_logado, relatorios):
     for relatorio in relatorios:
         if relatorio.atividades is not None:
             for i in range(len(relatorio.atividades)):
-                if professor_logado.usuario.first_name in relatorio.atividades[f'atividade_{i + 1}']['professores']:
+                if professor_logado.id in relatorio.atividades[f'atividade_{i + 1}']['professores']:
                     n_atividades += 1
 
     return n_atividades
@@ -61,19 +61,13 @@ def contar_horas(professor_logado, relatorios):
     n_horas = timedelta(hours=0, minutes=0)
 
     for relatorio in relatorios:
-
-        if relatorio.tipo != 'Público' and relatorio.locacoes is not None:
-            for i in range(len(relatorio.locacoes)):
-                print(relatorio.locacoes['locacao_1'].keys())
-                if professor_logado.usuario.first_name in relatorio.locacoes[f'locacao_{i + 1}']['professor']:
-                    for j in range(int(len(relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas']) / 3)):
-                        n_horas += timedelta(
-                            hours=int(
-                                relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas'][
-                                    f'soma_horas_{j + 1}'].split(':')[0]),
-                            minutes=int(
-                                relatorio.locacoes[f'locacao_{i + 1}']['entradas_e_saidas'][
-                                    f'soma_horas_{j + 1}'].split(':')[1]))
+        if relatorio.tipo != 'publico' and relatorio.locacoes is not None:
+            for locacao in relatorio.locacoes.values():
+                if professor_logado.id in locacao['professor']:
+                    n_horas += timedelta(
+                        hours=int(locacao['soma_horas'].split(':')[0]),
+                        minutes=int(locacao['soma_horas'].split(':')[1])
+                    )
 
     return formatar_horas(n_horas)
 
