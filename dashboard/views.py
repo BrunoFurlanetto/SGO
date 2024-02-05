@@ -1,4 +1,6 @@
 import json
+import os as so
+import re
 from datetime import datetime, timedelta
 from itertools import chain
 
@@ -6,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
@@ -127,7 +129,8 @@ def dashboardCeu(request):
         professores = Professores.objects.all()
 
         return render(request, 'dashboard/dashboardCeu.html', {
-            'professores': professores, 'relatorios': dados_iniciais,
+            'professores': professores,
+            # 'relatorios': dados_iniciais,
             'data': data_hoje,  # 'equipe_escalada': equipe_escalada,
             'professor': professor_logado,
             # 'n_atividades': n_atividades, 'n_horas': n_horas,
@@ -138,6 +141,18 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
+    if request.GET.get('gerar_pdf'):
+        orcamento_pdf = OrcamentoPDF(request.GET.get('id_tratativa_pdf'))
+        orcamento_pdf.gerar_pdf()
+        nome_arquivo = re.sub(r"[^a-zA-Z0-9\s]", "", orcamento_pdf.nome_cliente)
+
+        return FileResponse(
+            open('temp/orcamento.pptx', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Orçamento {nome_arquivo}.pdf'
+        )
+
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = sem_escalas = None
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
@@ -183,11 +198,6 @@ def dashboardPeraltas(request):
                 tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
 
                 return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
-
-            orcamento_pdf = OrcamentoPDF(request.GET.get('id_orcamento_pdf'))
-            orcamento_pdf.gerar_pdf()
-
-            return HttpResponse('Foi')
 
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
@@ -308,7 +318,7 @@ def dashboardPeraltas(request):
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
-        'diretoria': diretoria,
+        'diretoria': diretoria in grupos_usuario,
         'fichas_adesao': fichas_adesao,
         'fichas': fichas,
         'ordens_colaborador': ordens_colaborador,

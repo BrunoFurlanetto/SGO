@@ -1,11 +1,15 @@
 import os
 import re
 from copy import deepcopy
+from io import BytesIO
 
+from PIL import Image, ImageDraw
 from pptx import Presentation
 from pptx.util import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_PARAGRAPH_ALIGNMENT
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 from orcamento.models import Tratativas, StatusOrcamento
 from peraltas.models import Vendedor
@@ -31,6 +35,10 @@ class OrcamentoPDF:
         self.__preencher_final()
         self.__salvar_pptx()
         self.__converter_pdf()
+
+    @property
+    def nome_cliente(self):
+        return self.cliente.nome_fantasia
 
     @property
     def xml_slides(self):
@@ -147,9 +155,18 @@ class OrcamentoPDF:
 
     @staticmethod
     def __converter_pdf():
-        from pptxtopdf import convert
-        convert('temp', 'temp')
-        os.remove('temp\\orcamento.pptx')
+        from spire.presentation import Presentation as Prs, FileFormat
+
+        # Create a Presentation object
+        presentation = Prs()
+        # Load a PowerPoint presentation in PPTX format
+        presentation.LoadFromFile("temp/orcamento.pptx")
+        # Or load a PowerPoint presentation in PPT format
+        # presentation.LoadFromFile("Sample.ppt")
+
+        # Convert the presentation to PDF format
+        presentation.SaveToFile("temp/orcamento.pdf", FileFormat.PDF)
+        presentation.Dispose()
 
     def __alterar_dados_cliente_responsavel(self):
         fonte = 'IBM Plex Sans'

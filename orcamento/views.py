@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from ceu.models import Atividades
@@ -22,6 +22,10 @@ from .budget import Budget
 
 @login_required(login_url='login')
 def calc_budget(req, id_tratativa=None):
+    print(req.user.has_perm('orcamento.add_orcamento'))
+    if not req.user.has_perm('orcamento.add_orcamento'):
+        return redirect('dashboardPeraltas')
+
     financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
 
     if is_ajax(req):
