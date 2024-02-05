@@ -164,7 +164,7 @@
                                                 modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
                                             {% endif %}
 
-                                            {% if perms.peraltas.add_fichadeevento %}
+                                            {% if perms.peraltas.delete_fichadeevento %}
                                                 {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                 {% else %}
@@ -462,7 +462,6 @@
             }
 
             $(document).ready(function () {
-
                 montar_calendario().then(() => {
                     {% if comercial %}
                         $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
