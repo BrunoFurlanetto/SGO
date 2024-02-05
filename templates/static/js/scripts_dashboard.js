@@ -14,72 +14,40 @@ let desconto_aplicado = 0*/
 $(document).ready(() => {
     moment.locale('pt-br')
 
-    $('#tabela_adesao').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 4, // Supondo que a primeira coluna contenha datas
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY'); // Formate a data como desejado
-                }
-                return data;
-            }
-        }],
-        order: [
-            [3, 'asc']
-        ]
-    })
-
-    $('#status #tabela_status_ficha').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 4,
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY')
-                }
-
-                return data;
-            }
-        }],
-        order: [4, 'asc']
-    })
-
-    $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').DataTable({
-        language: {
-            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
-            infoEmpty: 'Sem dados',
-            infoFiltered: '(filtrado de _MAX_ dados)',
-            lengthMenu: 'Mostrar _MENU_ por página',
-            zeroRecords: 'Nada encontrado',
-        },
-        columnDefs: [{
-            type: 'date',
-            targets: 3,
-            render: function (data, type, row) {
-                if (type === 'display' || type === 'filter') {
-                    return moment(data).format('D [de] MMMM [de] YYYY')
-                }
-                return data;
-            }
-        }],
-        order: [3, 'asc']
-    })
+    if ($('.monitoria').length == 0) {
+        $('#tabela_adesao').iniciarlizarDataTable(4, 3)
+        $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
+        $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').iniciarlizarDataTable(3, 3)
+    } else {
+        // Inicialização das tabelas do dashboard da monitoria
+        $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)
+        $('#tabela_status_ordem, #tabela_status_ficha').iniciarlizarDataTable([4, 5], 4)
+    }
 })
+
+$.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
+    return $(this).DataTable({
+        language: {
+            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
+            infoEmpty: 'Sem dados',
+            infoFiltered: '(filtrado de _MAX_ dados)',
+            lengthMenu: 'Mostrar _MENU_ por página',
+            zeroRecords: 'Nada encontrado',
+        },
+        columnDefs: [{
+            type: 'date',
+            targets: columnData,
+            render: function (data, type, row) {
+                if (type === 'display' || type === 'filter') {
+                    return moment(data).format('D [de] MMMM [de] YYYY')
+                }
+
+                return data;
+            },
+        }],
+        order: [columnOrder, 'asc']
+    })
+}
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = $('.section-content').map((index, aba) => {
