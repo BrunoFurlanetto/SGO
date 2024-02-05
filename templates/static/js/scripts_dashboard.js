@@ -271,21 +271,22 @@ function calcular_taxas() {
     }
 }*/
 
-function alterar_status(btn) {
-    const id_orcamento = $(btn).closest('tr').attr('id').split('_')[1]
+function alterar_status(btn, id_orcamento='') {
     const novo_status = $(btn).attr('id')
+    let orcamento_id = id_orcamento
     let motivo_recusa = ''
     loading()
 
     if (novo_status === 'perdido') {
         motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
+        orcamento_id = $('#modal_orcamento_perdido #id_orcamento_perdido').val()
     }
 
     $.ajax({
         type: 'POST',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento': id_orcamento, 'novo_status': novo_status, 'motivo_recusa': motivo_recusa},
+        data: {'id_orcamento': orcamento_id, 'novo_status': novo_status, 'motivo_recusa': motivo_recusa},
     }).done((response) => {
         if (response['status'] === 'error') {
             alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)
@@ -300,15 +301,52 @@ function alterar_status(btn) {
     })
 }
 
-function gerar_pdf_orcamento(id_orcamento) {
+function gerar_pdf_orcamento(id_tratativa) {
     $.ajax({
         type: 'GET',
         url: '',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento_pdf': id_orcamento},
+        data: {'id_orcamento_pdf': id_tratativa},
     })
 }
 
-function modal_de_tratativas(id_orcamento) {
+function modal_de_tratativas(id_tratativa) {
+    loading()
+    $.ajax({
+        type: 'GET',
+        url: '',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_tratativa': id_tratativa},
+        success: function (response) {
+            const orcamentos = response['orcamentos']
+            const tabela_tratativas = $('#tabela_tratativas tbody').empty()
+            $('#adicionar_tratativa').click(() => {
+                window.location.href = `/orcamento/nova_tratativa/${id_tratativa}`
+            })
+
+            for (let orcamento of orcamentos) {
+                tabela_tratativas.append(
+                    `<tr id="orcamento_${orcamento['id_orcamento']}">
+                        <td>${orcamento['status']}</td>
+                        <td>${orcamento['vencimento']}</td>
+                        <td>R$ ${orcamento['valor']}</td>
+                        <td style="white-space: nowrap">
+                            <button type="button" id="ganho" class="button_ganho" onclick="alterar_status(this, ${orcamento['id_orcamento']})">
+                                <i class='bx bx-check'></i>
+                            </button>
+                            <button type="button" id="perdido" class="button_perdido" onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val(${orcamento['id_orcamento']}); $('#modal_orcamento_perdido').modal('show')">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </td>                                                                
+                    </tr>`
+                )
+
+                if (['Vencido', 'Ganho', 'Perdido'].includes(orcamento['status'])) {
+                    $(`#orcamento_${orcamento['id_orcamento']} button`).prop('disabled', true)
+                }
+            }
+        }
+    })
     $('#tratativas').modal('show')
+    end_loading()
 }

@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from ceu.models import Atividades
@@ -15,13 +15,17 @@ from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor,
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes, ValoresPadrao
+    DadosDePacotes, ValoresPadrao, Tratativas
 from .utils import verify_data, processar_formulario, verificar_gerencia, JsonError
 from .budget import Budget
 
 
 @login_required(login_url='login')
-def calc_budget(req, id_orcamento=None):
+def calc_budget(req, id_tratativa=None):
+    print(req.user.has_perm('orcamento.add_orcamento'))
+    if not req.user.has_perm('orcamento.add_orcamento'):
+        return redirect('dashboardPeraltas')
+
     financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
 
     if is_ajax(req):
@@ -244,6 +248,17 @@ def calc_budget(req, id_orcamento=None):
                         "msg": e,
                     })
                 else:
+                    if req.POST.get('id_tratativa') and req.POST.get('id_tratativa') != '':
+                        ...
+                    else:
+                        if not data.get('id_tratativa') and data.get('id_tratativa') != '':
+                            tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=req.user)
+                            tratativa.orcamentos.set([orcamento_salvo])
+                            tratativa.save()
+                        else:
+                            tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
+                            tratativa.orcamentos.add(orcamento_salvo.id)
+                            tratativa.save()
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -259,16 +274,20 @@ def calc_budget(req, id_orcamento=None):
 
     if req.method != 'POST':
         pacote_promocional = CadastroPacotePromocional()
+        tratativa = None
         usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
         taxas_padrao = ValoresPadrao.objects.all()
-        promocionais = orcamento = None
+        promocionais = orcamento = id_orcamento = None
 
         if req.GET.get('tipo_de_orcamento') and req.GET.get('tipo_de_orcamento') == 'promocional':
             promocionais = Orcamento.objects.filter(promocional=True)
 
-        if id_orcamento:
+        if id_tratativa:
+            tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
+            id_orcamento = tratativa.orcamentos.last().id
             orcamento = Orcamento.objects.get(pk=id_orcamento)
             cadastro_orcamento = CadastroOrcamento(instance=orcamento)
+            tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
         else:
             cadastro_orcamento = CadastroOrcamento()
 
@@ -281,6 +300,7 @@ def calc_budget(req, id_orcamento=None):
             'taxas_padrao': taxas_padrao,
             'usuarios_gerencia': usuarios_gerencia,
             'id_orcamento': id_orcamento,
+            'tratativa': tratativa,
         })
 
 def veriricar_gerencia(request):

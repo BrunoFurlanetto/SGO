@@ -1,11 +1,14 @@
 import datetime
 import json
+import re
 
 from django import forms
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.db import models
 from django.db.models import PositiveIntegerField
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.utils import timezone
 from unidecode import unidecode
 
@@ -192,7 +195,7 @@ class DadosDePacotes(models.Model):
 
         dados_tratados['produtos_elegiveis'] = lista
         dados_tratados['periodos_aplicaveis'] = DadosDePacotes.juntar_periodos(dados)
-        print(dados_tratados, ' ------ ++++++')
+
         return dados_tratados
 
     @staticmethod
@@ -354,12 +357,87 @@ class Orcamento(models.Model):
 
 
 class Tratativas(models.Model):
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
     id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
-    orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos")
+    orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos", related_name='orcamentos')
+    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa', default=1)
+    motivo_recusa = models.TextField(verbose_name="Motivo da recusa", blank=True)
+    orcamento_aceito = models.ForeignKey(
+        Orcamento,
+        verbose_name="Orcamento aceito",
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
+        related_name='orcamento_aceito'
+    )
+    ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
 
-    # def save(self, *args, **kwargs):
-    #     self.orcamentos.all()[0]
-    #     super().save(*args, **kwargs)
+    @staticmethod
+    @receiver(pre_delete, sender=User)
+    def redifinir_colaborador(sender, instance, **kwargs):
+        diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
+        Tratativas.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
+
+    def save(self, *args, **kwargs):
+        if not self.id_tratativa:
+            cnpj = self.cliente.cnpj
+            data = datetime.datetime.now().date().strftime('%d%m%Y')
+            self.id_tratativa = f'{data}_{re.sub(r"[^a-zA-Z0-9]", "", cnpj)}'
+
+        super().save(*args, **kwargs)
+
+    def pegar_orcamentos(self):
+        orcamentos = []
+
+        for orcamento in self.orcamentos.all():
+            orcamentos.append({
+                'id_orcamento': orcamento.id,
+                'status': orcamento.status_orcamento.status,
+                'vencimento': orcamento.data_vencimento.strftime('%d/%m/%Y'),
+                'valor': str(orcamento.valor).replace('.', ','),
+            })
+
+        return orcamentos
+
+    def status_tratativa(self):
+        if self.orcamento_aceito:
+            return 'Ganho'
+        else:
+            if self.status.status == 'Perdido':
+                return self.status.status
+
+            status_orcamentos = [orcamento.status_orcamento.status for orcamento in self.orcamentos.all()]
+
+            if 'Em aberto' in status_orcamentos or 'Em análise' in status_orcamentos:
+                return 'Em aberto'
+            else:
+                return 'Orcamentos vencidos e/ou perdido'
+
+    def vencimento_tratativa(self):
+        vencimentos = sorted([orcamento.data_vencimento for orcamento in self.orcamentos.all()])
+
+        return vencimentos[0].strftime('%d/%m/%Y')
+
+    def perder_orcamentos(self):
+        satus_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        self.orcamentos.all().update(status_orcamento=satus_perdido)
+
+    def ganhar_orcamento(self, id_orcamento_ganho):
+        status_ganho = StatusOrcamento.objects.get(status__icontains='ganho')
+        status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+
+        for orcamento in self.orcamentos.all():
+            if orcamento.id == id_orcamento_ganho:
+                orcamento.status_orcamento = status_ganho
+                self.orcamento_aceito = orcamento
+            else:
+                orcamento.status_orcamento = status_perdido
+
+            orcamento.save()
+
+        self.status = status_ganho
+        self.save()
 
 
 class CadastroPacotePromocional(forms.ModelForm):
