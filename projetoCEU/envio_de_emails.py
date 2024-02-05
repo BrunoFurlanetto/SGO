@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.core.mail import send_mail
 
+from orcamento.models import Orcamento
 from ordemDeServico.models import OrdemDeServico
 
 try:
@@ -281,3 +282,42 @@ class EmailSender:
         __tabela_monitores_html += '</table>'
 
         return __tabela_monitores_html
+
+    def orcamento_aprovado(self, id_orcamento, aprovado_por):
+        self._subject = 'ORÇAMENTO APROVADO PELA DIRETORIA'
+        orcamento = Orcamento.objects.get(pk=id_orcamento)
+
+        __mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                        Orçamento de {orcamento.cliente} foi aprovado por {aprovado_por}, por favor enviar ao cliente o 
+                        quanto antes. Lembrando que a data de vencimento do orçamento em questão é 
+                        {orcamento.data_vencimento.strftime('%d/%m/%Y')}.
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
+        self.__enviar_email(__mensagem)
+
+    def orcamento_aprovacao(self, id_orcamento):
+        orcamento = Orcamento.objects.get(pk=id_orcamento)
+        self._subject = 'ORÇAMENTO PARA APROVAÇÃO'
+
+        __mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                       O colaborador {orcamento.colaborador.get_full_name()}, adicionou um orçamento 
+                       para {orcamento.cliente} que necessita de aprovação da diretoria. Vá até po seu dashboard
+                       para que aprove os pedidos.                           
+                    </p>
+                    <p>
+                       Lembrando que o orçamento em questão tem a data de vencimento em {orcamento.data_vencimento.strftime('%d/%m/%Y')} 
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
+        self.__enviar_email(__mensagem)

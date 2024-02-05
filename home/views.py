@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordResetForm
 
 
 def index(request):

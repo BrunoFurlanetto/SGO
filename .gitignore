@@ -14,8 +14,6 @@ temp/*
 *.pyc
 __pycache__/
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
 media/*
 !media/.gitkeep
 
@@ -386,5 +384,7 @@ fabric.properties
 [Ss]cripts
 pyvenv.cfg
 pip-selfcheck.json
+
+db.sqlite3
 
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,django

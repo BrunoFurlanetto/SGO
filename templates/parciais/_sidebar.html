@@ -239,13 +239,13 @@
                     <li>
                 {% endif %}
 
-                {% if perms.peraltas.add_fichadeevento %}
+                {% if perms.orcamento.add_orcamento %}
                     <a href="{% url 'orcamento' %}">
                         <i class='bx bxs-calculator'></i>
                         <span class="link_name">Orçamento</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="/admin/">Orçamento</a></li>
+                        <li><a class="link_name" href="{% url 'orcamento' %}">Orçamento</a></li>
                     </ul>
                 {% endif %}{% endcomment %}
 

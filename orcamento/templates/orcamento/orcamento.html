@@ -1,43 +1,544 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_tag %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
+    <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'css/impressao_css.css' %}" type="text/css" id="style_impressao"/>
+    <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
+
     <div class="conteudo-orcamento">
+        <div id="subtotal" class="div-flutuante none" style="cursor: pointer;"
+             onclick="$('#modal_descritivo').modal('show')">
+            <div class="floating-box none" id="floatingBox">Clique aqui</div>
+            <strong>Valor final</strong><span></span>
+        </div>
         <div class="head-orcamento">
             <h2>Orçamento</h2>
             <hr>
         </div>
-        <form>
+
+        <form id="orcamento" name="orcamento" action="{% url 'orcamento' %}">
             <fieldset>
                 {% csrf_token %}
-                <div class="conteudo-primeiro periodo-viagem">
-                    <h5 class="titulo-secao">Tipo de orçamento</h5>
-                    <form action="{% url 'orcamento' %}" method="GET">
-                        <select name="tipo_de_orcamento" id="tipo_de_orcamento" style="width: 50%" onchange="this.form.submit()">
-                            <option {% if not tipo_orcamento or tipo_orcamento == '' %} selected {% endif %}></option>
-                            <option value="ceu" {% if tipo_orcamento == 'ceu' %} selected {% endif %} title="Para orçamentos com apenas atividades avulsas do CEU">Só CEU</option>
-                            <option value="padrao" {% if tipo_orcamento == 'padrao' %} selected {% endif %} title="Personalize um orçamento do zero">Padrão</option>
-                            <option value="promocional" {% if tipo_orcamento == 'promocional' %} selected {% endif %} title="Pacotes promocionais">Promocional</option>
-                        </select>
-                    </form>
-                </div>
-                <div class="conteudo {% if not tipo_orcamento or tipo_orcamento == '' %} none {% endif %}">
-                    <h5 class="titulo-secao">Período da viagem</h5>
-                    <div>
+                {% if id_orcamento %} <input type="hidden" name="id_do_orcamento" id="id_do_orcamento" value="{{ id_orcamento }}"> {% endif %}
+                <div id="conteudo_primeiro" class="conteudo-primeiro">
+                    <h5 class="titulo-secao">Informações do cliente e responsável</h5>
+                    <div onclick="ativar_mascara()">
+                        {{ orcamento.cliente.label }}
+                        {{ orcamento.cliente }}
+                    </div>
+                    <div class="mt-2">
+                        {{ orcamento.responsavel.label }}
+                        {{ orcamento.responsavel }}
+                    </div>
 
+                    {% if promocionais %}
+                        <div id="promocionais" class="mt-2">
+                            <label for="orcamentos_promocionais">Promocionais</label>
+                            <select name="orcamento_promocional" id="orcamentos_promocionais"
+                                    onchange="liberar_periodo()">
+                                <option></option>
+                                {% for promocional in promocionais %}
+                                    <option value="{{ promocional.id }}">{{ promocional.nome_promocional }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    {% if financeiro %}
+                        <div class="mt-2" style="display: flex; column-gap: 7px">
+                            {{ orcamento.promocional }}
+                            <label for="id_promocional">{{ orcamento.promocional.label }}</label>
+                        </div>
+                        {{ orcamento.pacote_promocional.as_hidden }}
+                    {% endif %}
+                </div>
+                <div id="container_periodo" class="{% if not id_orcamento %} none {% endif %}">
+                    <div id="periodo_viagem" class="conteudo">
+                        <div id="periodo" onchange="verificar_preenchimento()">
+                            <h5 class="titulo-secao">Período da viagem</h5>
+                            <label for="data_viagem">Data da viagem</label>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"/>
+                            <label for="produto">Produto</label>
+                            {{ orcamento.produto }}
+                        </div>
+                        <hr>
+                        <div id="promocionais">
+                            <div>
+                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
+                                {{ orcamento.orcamento_promocional }}
+                            </div>
+                            <button type="button" name="info_promocional" disabled
+                                    title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
+                                    id="info_promocional" onclick="$('#dados_do_pacote').modal('show')">
+                                <i class='bx bx-info-circle'></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="parcial"></div>
+                </div>
+                <div id="campos_fixos">
+                    <div id="container_monitoria_transporte" style="margin-bottom: -55px"
+                         class="{% if not id_orcamento %} none {% endif %}">
+                        <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
+                             onchange="verificar_monitoria_transporte()">
+                            <div id="monitoria" class="conteudo" style="width: 62%">
+                                <h5 class="titulo-secao">Monitoria</h5>
+                                <div>
+                                    {{ orcamento.tipo_monitoria.label }}
+                                    {{ orcamento.tipo_monitoria }}
+                                </div>
+                            </div>
+                            <div class="conteudo" style="width: 35%">
+                                <h5 class="titulo-secao">Transporte</h5>
+                                <div id="transporte">
+                                    {{ orcamento.transporte }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parcial"></div>
+                    </div>
+                    <div id="container_opcionais" style="margin-bottom: -45px"
+                         class="{% if not id_orcamento %} none {% endif %}">
+                        <div id="opcionais" class="conteudo">
+                            <h5 class="titulo-secao">Atividades e Opcionais</h5>
+                            <div>
+                                <label>Opcionais</label>
+                                {{ orcamento.atividades }}
+                            </div>
+                            <div class="mt-3">
+                                {{ orcamento.atividades_ceu.label }}
+                                {{ orcamento.atividades_ceu }}
+                            </div>
+                            <div class="select_opcionais mt-3">
+                                <label>Atividades Peraltas</label>
+                                {{ orcamento.opcionais }}
+                            </div>
+                            <div class="row mt-3" style="align-items: flex-end">
+                                <div class="select_outros">
+                                    <label for="op_extras">Outros itens</label>
+                                    <select name="op_extra" id="op_extras" multiple></select>
+                                </div>
+                                <div style="width: 5%">
+                                    <button id="botao_add_opcionais" type="button"
+                                            onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                        <i class='bx bx-plus'></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <hr>
+                            {% if financeiro %}
+                                <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
+                                                                                                $('#btn_salvar_orcamento').prop('disabled', false)">
+                                    <i class='bx bxs-food-menu'></i>
+                                    Lista de valores
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="parcial"></div>
                     </div>
                 </div>
-                <div class="conteudo none"><br><br><br><br></div>
-                <div class="conteudo none"><br><br><br><br></div>
+                <div id="finalizacao" class="conteudo {% if not id_orcamento %} none {% endif %}">
+                    <h5 class="titulo-secao">Observações</h5>
+                    <div>
+                        <label for="observacoes_orcamento">Observações gerais do orçamento</label>
+                        <textarea name="observacoes_orcamento" id="observacoes_orcamento" cols="30"
+                                  rows="10"></textarea>
+                    </div>
+                    <div class="botoes">
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                onclick="salvar_orcamento()" {% if financeiro %} disabled {% endif %}>
+                            Salvar orçamento
+                        </button>
+                    </div>
+                </div>
             </fieldset>
         </form>
     </div>
+
+    <!--  Modal para adicionar um novo opcional  -->
+    <div class="modal fade" id="adicionar_opcional" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Adicionar novo opcional extra</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <p id="aviso" class="alert alert-warning none"></p>
+                    </div>
+                    <form action="{% url 'orcamento' %}" method="POST">
+                        <div class="row">
+                            <div style="width: 73%">
+                                <label for="nome_opcional">Nome do opcional</label>
+                                <input type="text" name="nome_opcional" id="nome_opcional" required>
+                            </div>
+                            <div style="width: 27%">
+                                <label for="valor_opcional">Valor</label>
+                                <input type="text" name="valor_opcional" id="valor_opcional" required>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="descricao_opcional">Descrição</label>
+                            <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"
+                                      required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="adicionar_novo_op()">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  Modal valores dos outros opcionais  -->
+    <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="forms_valores_op" action="{% url 'orcamento' %}" method="POST">
+                        <table id="tabela_de_opcionais" class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Opcional</th>
+                                <th style="width: 25%">Valor</th>
+                                <th style="width: 25%">Desconto</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
+                        Salvar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_gerencia" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="id_gerente" id="id_gerente">
+                            <div style="border: dashed 1px #5c636a">
+                                <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
+                                     onchange="verificar_alteracoes(this)">
+                                    <div>
+                                        <label for="comissao">Comissão</label>
+                                        <input type="text" id="comissao" name="comissao" value="9,00%"
+                                               data-valor_default="{{ 'comissao'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'comissao'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'comissao'| pegar_taxa }}">
+                                        <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
+                                    </div>
+                                    <div>
+                                        <label for="taxa_comercial">Taxa Comercial</label>
+                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5,00%"
+                                               data-valor_default="{{ 'taxa_comercial'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'taxa_comercial'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}">
+                                        <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
+                                               value="0">
+                                    </div>
+                                    <div>
+                                        <label for="minimo_onibus">Mínimo no ônibus</label>
+                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
+                                               data-valor_default="{{ 'minimo_onibus'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'minimo_onibus'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}">
+                                        <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
+                                               value="0">
+                                    </div>
+                                    <div style="width: 28%">
+                                        <label for="data_pagamento">Data de pagamento</label>
+                                        <input type="date" id="data_pagamento" name="data_pagamento" value=""
+                                               data-valor_default="{{ 'data_pagamento'| pegar_taxa }}"
+                                               data-valor_inicial="{{ 'data_pagamento'| pegar_taxa }}"
+                                               data-valor_alterado="{{ 'data_pagamento'| pegar_taxa }}">
+                                        <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado"
+                                               value="0">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_geral">Desconto geral</label>
+                                        <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
+                                               data-valor_default="0,00" data-valor_inicial="0,00"
+                                               data-valor_alterado="0,00">
+                                        <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado"
+                                               value="0">
+                                    </div>
+                                    <div>
+                                        <label for="valor_final">Valor final</label>
+                                        <input disabled type="text" id="valor_final">
+                                    </div>
+                                </div>
+                                <div id="div_observacoes_gerencia" class="none"
+                                     style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
+                                    <label for="observacoes_gerencia">Observações</label>
+                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"
+                                              rows="10"></textarea>
+                                </div>
+                                {% if not financeiro %}
+                                    <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
+                                        *Alterações nessa parte necessitarão de aprovação da gerência.
+                                    </p>
+                                {% endif %}
+                                <div>
+                                    <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não
+                                        altorizadas pela gerência!</p>
+                                </div>
+                            </div>
+                            <hr {% if not financeiro %} class="none" {% endif %}>
+                            <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
+                                <div>
+                                    <div>
+                                        <label for="desconto_produto_percent">Desconto diaria</label>
+                                        <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
+                                               value="0,00"
+                                               onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_monitoria_percent">Desconto monitoria</label>
+                                        <input type="text" id="desconto_monitoria_percent"
+                                               name="desconto_monitoria_percent"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                    </div>
+                                    <div>
+                                        <label for="desconto_transporte_percent">Desconto transporte</label>
+                                        <input type="text" id="desconto_transporte_percent"
+                                               name="desconto_transporte_percent"
+                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="data_vencimento">Data de vencimento</label>
+                                    <input type="date" name="data_vencimento" id="data_vencimento" required
+                                           onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                    <hr>
+                    <form id="form_descritivo" action="{% url 'orcamento' %}" method="POST" {% if not financeiro %}
+                          class="none" {% endif %}>
+                        <fieldset>
+                            {% csrf_token %}
+                            <h5 class="titulo-secao">Tabela de valores</h5>
+                            <table id="tabela_de_valores" class="table table-hover table-borderless">
+                                <thead>
+                                <tr>
+                                    <th colspan="7"></th>
+                                    <th class="tag_datas">Datas</th>
+                                </tr>
+                                <tr class="cabecalho">
+                                    <th></th>
+                                    <th style="width: 50%">Seção</th>
+                                    <th style="width: 25%">Valor</th>
+                                    <th style="width: 25%">Taxa comercial</th>
+                                    <th style="width: 25%">Comissão</th>
+                                    <th style="width: 25%">Desconto</th>
+                                    <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {% if not financeiro %}
+                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                data-target="#verificacao_gerencia">Alterar taxas
+                        </button>
+                    {% endif %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    {% if tipo_orcamento %}
+                        <button type="button" class="btn btn-dark" id="btnPrint" oncancel="">Imprimir</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Dados do pacote</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_dados_pacote" action="{% url 'orcamento' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="id_pacote" id="id_pacote">
+                            <h5 class="titulo-secao">Nome e descrição do pacote</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.nome_do_pacote.label_tag }}
+                                    {{ pacote_promocional.nome_do_pacote }}
+                                </div>
+                                <div class="mt-2" style="width: 100%">
+                                    {{ pacote_promocional.descricao.label_tag }}
+                                    {{ pacote_promocional.descricao }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo_secao">Limites</h5>
+                            <div class="secao">
+                                <div style="width: 47%">
+                                    {{ pacote_promocional.limite_desconto_geral.label_tag }}
+                                    {{ pacote_promocional.limite_desconto_geral }}
+                                </div>
+                                <div style="width: 47%">
+                                    {{ pacote_promocional.minimo_de_diarias.label_tag }}
+                                    {{ pacote_promocional.minimo_de_diarias }}
+                                </div>
+                                <div style="width: 47%" class="mt-2">
+                                    {{ pacote_promocional.maximo_de_diarias.label_tag }}
+                                    {{ pacote_promocional.maximo_de_diarias }}
+                                </div>
+                                <div style="width: 47%" class="mt-2">
+                                    {{ pacote_promocional.minimo_de_pagantes.label_tag }}
+                                    {{ pacote_promocional.minimo_de_pagantes }}
+                                </div>
+                                <div class="mt-3" style="display: flex; align-items: center">
+                                    <div style="display: flex; column-gap: 7px; margin-right: 20px">
+                                        {{ pacote_promocional.cortesia }}
+                                        <label for="{{ pacote_promocional.cortesia.id_for_label }}">
+                                            {{ pacote_promocional.cortesia.label }}?
+                                        </label>
+                                    </div>
+                                    <div id="div_limite_cortesia"
+                                         style="display: flex; width: 48%; column-gap: 10px; align-items: center"
+                                         class="none">
+                                        <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}">
+                                            <nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr>
+                                        </label>
+                                        {{ pacote_promocional.limite_cortesia }}
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Produtos elegíveis</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.produtos_elegiveis }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Períodos aplicáveis</h5>
+                            <div id="lista_de_periodos" class="mb-3">
+                                <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
+                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis"
+                                           onchange="atualizar_periodo()">
+                                    <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)">
+                                        <span>&times;</span></button>
+                                </div>
+                            </div>
+                            {% if financeiro %}
+                                <button type="button" class="btn btn-outline-success"
+                                        onclick="adicionar_periodo_novo()">
+                                    Adicionar periodo
+                                </button>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {% if financeiro %}
+                        <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
+                            Salvar
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="verificacao_gerencia" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Verificação da Gerência</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="server_error" class="none alert alert-danger"></p>
+                    <p id="login_error" class="none alert alert-warning"></p>
+                    <div class="mb-3">
+                        <label for="usuario">Usuário</label>
+                        <select name="usuario" id="usuario">
+                            <option></option>
+                            {% for usuario in usuarios_gerencia %}
+                                <option value="{{ usuario.id }}">{{ usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="senha">Senha</label>
+                        <input type="text" name="senha" id="senha" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="verificar_gerencia()">Logar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(async () => {
+            {% if id_orcamento %}
+                $('#orcamento input, #orcamento select').prop('disabled', false)
+                await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
+                await verificar_preenchimento(true)
+                await verificar_monitoria_transporte()
+                $('#id_atividades').trigger('change')
+                $('#conteudo_primeiro select').prop('disabled', true)
+            {% else %}
+                await inicializacao();
+            {% endif %}
+        })
+    </script>
 
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
-
+    <script src="{% static 'js/maskMoney.js' %}"></script>
+    <script src="{% static 'datepicker/daterangepicker.js' %}"></script>
 {% endblock %}
