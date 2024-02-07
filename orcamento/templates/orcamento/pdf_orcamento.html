@@ -5,6 +5,8 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_pdf_orcamento.css' %}">
+    <link id="estilao" rel="stylesheet" href="{% static 'css/style_pdf_orcamento_im.css' %}">
+
     <div id="conteudo_pdf_orcamento">
         <div id="paginas_pdf_orcamento">
             <div class="pagina fixo">
@@ -16,42 +18,146 @@
             <div class="pagina fixo">
                 <img src="{% static 'img/pg3_orcamento.png' %}" alt="">
             </div>
-            <div class="pagina fixo">
+            <div id="proposta_comercial" class="pagina fixo">
                 <img src="{% static 'img/pg4_orcamento.png' %}" alt="">
+                <div class="informacoes">
+                    <div id="cliente">
+                        <P>NOME DO COLÉGIO: {{ tratativa.cliente }}</P>
+                        <P>RESPONSÁVEL: {{ tratativa.responsavel_tratativa.nome }}</P>
+                        <P>TELEFONE: {{ tratativa.responsavel_tratativa.fone }}</P>
+                        <P>E-MAIL: {{ tratativa.responsavel_tratativa.email_responsavel_evento }}</P>
+                    </div>
+                    <div id="vendedora">
+                        <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                            WWW.PERALTAS.COM.BR</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador.email }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="pagina fixo">
-                <img src="{% static 'img/pg5_orcamento.png' %}" alt="">
-            </div>
+
+            {% for orcamento in tratativa.orcamentos_abertos %}
+                <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
+                    <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
+                    <div class="sobre_fundo"></div>
+                    <div class="barra_superior"></div>
+                    <div id="texto_inicial">
+                        <h1>BENEFÍCIOS:</h1>
+                        <ul>
+                            <li>
+                                As atividades vivenciais, com o auxílio do conteúdo visual, sensorial e auditivo,
+                                melhora o desempenho, interesse e entendimento do aluno durante as saídas pedagógicas
+                                ofertadas, quando alinhadas com os conteúdos aprendidos em sala de aula;
+                            </li>
+                            <li>
+                                Atividades de acordo com as indicações do MEC/BNCC;
+                            </li>
+                            <li>
+                                Ensino investigativo que proporciona uma reflexão e análise crítica em diferentes áreas,
+                                motivando alunos e professores que vivem essa experiência;
+                            </li>
+                            <li>
+                                Melhora na comunicação e relação pessoal/interpessoal do aluno.
+                            </li>
+                            <li>
+                                Alunos mais participativos e com ganho cultural.
+                            </li>
+                            <li>
+                                Descoberta, respeito e contato aprofundado com a natureza.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dados">
+                        <div class="dados_pacote pacote">
+                            <div class="secao"><h4>PACOTE</h4></div>
+                            <div class="descricao">
+                                <p>{{ orcamento.produto.produto }} + 0{{ orcamento.atividades_ceu.all|length }} AT.
+                                    C.E.U</p>
+                                <p>Investimento:</p>
+                                <p>De: R$ 351,00</p>
+                                <p>Por R$ {{ orcamento.valor|substituir_ponto }} por participante</p>
+                            </div>
+                        </div>
+                        <div class="dados_pacote horarios">
+                            <div class="secao"><h4>HORÁRIOS</h4></div>
+                            <div class="descricao">
+                                <p>
+                                    Chegada às <strong> {{ orcamento.check_in | date:'d/m/Y H:m' }} </strong> Saída
+                                    às <strong> {{ orcamento.check_out | date:'d/m/Y H:m' }} </strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="dados_pacote incluso">
+                            <div class="secao"><h4>INCLUSO</h4></div>
+                            <div class="descricao">
+                                <ul>
+                                    <li>Café, almoço e lanche antes da saída</li>
+                                    <li>01 monitor de lazer a cada 20 pagantes</li>
+                                    <li>0{{ orcamento.atividades_ceu.all|length }} atividade no CEU <strong>(exceto
+                                        oficina de foguetes)</strong></li>
+                                    <li>Programação de lazer.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="texto_final">
+                        <h3>Condições:</h3>
+                        Investimento por aluno pagante.
+                        <br>
+                        01 cortesia para professor a cada 15 alunos pagantes, o que exceder será cobrado 50% do valor
+                        do pacote.
+                        <br>
+                        Não inclui transporte ida e volta e não oferecemos acomodações para motoristas.
+                        Mínimo de 35 alunos participantes.
+                        <ul>
+                            <li>
+                                Valores válidos para fechamento até
+                                <strong>{{ orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens agendadas
+                                até JUNHO de 2024,
+                                entre segunda e terça feira. Exceto feriados.
+                            </li>
+                            <li>
+                                Condições de pagamento:
+                            </li>
+                            <li>
+                                À vista <strong>R$ {{ orcamento.valor|substituir_ponto }}</strong> ou, parcelado via
+                                link de pagamento online. Consulte quantidade de
+                                parcelas.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+
             <div class="pagina fixo">
                 <img src="{% static 'img/pg6_orcamento.png' %}" alt="">
             </div>
             <div class="pagina fixo">
                 <img src="{% static 'img/pg7_orcamento.png' %}" alt="">
+                <div id="vendedora_final">
+                    <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
+                    <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                         alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                    </p>
+                    <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                         alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                    </p>
+                    <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                        WWW.PERALTAS.COM.BR</p>
+                    <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                         alt=""></i> {{ tratativa.colaborador.email }}</p>
+                </div>
             </div>
         </div>
-
-        <script>
-            const pdfContainer = document.getElementById('paginas_pdf_orcamento');
-            let scale = 1.0;
-
-            document.addEventListener('wheel', (event) => {
-                if (event.ctrlKey) {
-                    event.preventDefault();
-                    const direction = event.deltaY > 0 ? -0.1 : 0.1;
-                    scale += direction / 2;
-                    scale = Math.max(0.2, Math.min(scale, 3.0));
-
-                    updateScale();
-                }
-            }, {passive: false});
-
-            function updateScale() {
-                if (scale <= 1.0) {
-                    document.querySelectorAll('#paginas_pdf_orcamento').forEach(page => {
-                        page.style.transform = `scale(${scale})`
-                    });
-                }
-            }
-        </script>
     </div>
+
+    <script src="{% static 'js/jsPDF.js' %}"></script>
+    <script src="{% static 'js/scripts_pdf_orcamento.js' %}"></script>
 {% endblock %}

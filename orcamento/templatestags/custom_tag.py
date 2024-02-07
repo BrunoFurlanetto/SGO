@@ -6,6 +6,7 @@ from orcamento.models import ValoresPadrao
 
 register = template.Library()
 
+
 @register.filter
 def pegar_taxa(id_taxa):
     taxa = ValoresPadrao.objects.get(id_taxa=id_taxa).valor
@@ -22,3 +23,13 @@ def pegar_taxa(id_taxa):
         taxa = (hoje + timedelta(days=int(taxa))).strftime('%Y-%m-%d')
 
     return taxa
+
+
+@register.filter
+def fone(fone):
+    return f'({fone[0:2]}) {fone[2:3]} {fone[3:7]} - {fone[7:]}'
+
+
+@register.filter
+def substituir_ponto(valor):
+    return str(valor).replace('.', ',')

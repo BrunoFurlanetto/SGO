@@ -373,9 +373,20 @@ class Tratativas(models.Model):
     )
     ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
 
+    @property
+    def responsavel_tratativa(self):
+        return self.orcamentos.all()[0].responsavel
+
+    @property
+    def colaborador_vendedora(self):
+        try:
+            return Vendedor.objects.get(usuario=self.colaborador)
+        except Vendedor.DoesNotExist:
+            return ''
+
     @staticmethod
     @receiver(pre_delete, sender=User)
-    def redifinir_colaborador(sender, instance, **kwargs):
+    def redefinir_colaborador(sender, instance, **kwargs):
         diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
         Tratativas.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
 
@@ -438,6 +449,10 @@ class Tratativas(models.Model):
 
         self.status = status_ganho
         self.save()
+
+    def orcamentos_abertos(self):
+        status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(status_orcamento=status_perdido)
 
 
 class CadastroPacotePromocional(forms.ModelForm):

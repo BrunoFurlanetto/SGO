@@ -149,11 +149,11 @@
                          onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
                     </div>
                 {% endif %}
-                {% if financeiro %}
+{#                {% if financeiro %}#}
                     <div class="folder"
                          onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
                     </div>
-                {% endif %}
+{#                {% endif %}#}
             </div>
             {% if comercial or diretoria %}
                 <div id="adesao" class="section-content ativo">
@@ -465,7 +465,7 @@
                 {% endif %}
                 </div>
             {% endif %}
-        {% if financeiro %}
+{#        {% if financeiro %}#}
             <div class="section-content ativo" id="pacotes">
                 <table class="table table-hover table-striped">
                     <thead>
@@ -534,7 +534,7 @@
                     </tbody>
                 </table>
             </div>
-        {% endif %}
+{#        {% endif %}#}
     {% elif monitor %}
         <div id="conteudo">
             <div id="abas" style="display: flex">

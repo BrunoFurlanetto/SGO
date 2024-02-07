@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
 #paginas_pdf_orcamento {
     display: flex;
     flex-direction: column;
@@ -16,9 +18,184 @@
     background: white;
 }
 
-.pagina.fixo img {
+.pagina img {
     width: 100%;
     height: 100%;
+}
+
+#proposta_comercial .informacoes {
+    color: #838083;
+    position: relative;
+    top: -105mm;
+    margin-left: 15mm;
+}
+
+#proposta_comercial .informacoes #cliente > p {
+    height: 5mm;
+    font-size: 22px;
+}
+
+#proposta_comercial .informacoes #vendedora {
+    margin-top: 18mm;
+}
+
+#proposta_comercial .informacoes #vendedora > p {
+    height: 5mm;
+    font-size: 18px;
+}
+
+.orcamento {
+    position: relative;
+}
+
+.sobre_fundo {
+    text-align: center;
+    background: #fff;
+    color: #000;
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.orcamento img {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.barra_superior {
+    width: 250px;
+    height: 5px;
+    position: absolute;
+    top: 50px;
+    background: #E96E17;
+    margin-left: 40px;
+    border-radius: 20px;
+}
+
+#texto_inicial {
+    position: absolute;
+    top: 18mm;
+    padding: 0 15mm 0 12mm;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #495C90;
+    font-size: 16px;
+    text-align: justify;
+}
+
+#texto_inicial h1 {
+    margin-bottom: 15px;
+}
+
+.dados {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    padding-left: 15mm;
+    gap: 7mm;
+    top: 105mm;
+    width: 94%;
+}
+
+.dados > div {
+    background: #fff;
+    display: flex;
+    box-shadow: 1px 1px 3px;
+    border-radius: 2mm;
+}
+
+.dados_pacote .secao {
+    width: 20%;
+    border-radius: 2mm 0 0 2mm;
+}
+
+.dados_pacote.pacote .secao {
+    background: #CCE235;
+    min-height: 30mm;
+}
+
+.dados_pacote.horarios .secao {
+    background: #E96E17;
+    min-height: 80px;
+}
+
+.dados_pacote.incluso .secao {
+    background: #EA1C24;
+    min-height: 40mm;
+}
+
+.dados_pacote .secao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.secao h4 {
+    color: #495C90;
+    font-weight: 900;
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+#proposta_comercial .informacoes #vendedora i > img {
+    width: 25px;
+    height: 25px;
+}
+
+.dados_pacote .descricao {
+    width: 80%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+}
+
+.dados_pacote.horarios .descricao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.dados_pacote.pacote .descricao {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+
+.dados_pacote.pacote .descricao > p {
+    height: 10px;
+}
+
+.texto_final {
+    position: absolute;
+    top: 213mm;
+    padding: 0 10mm 0 15mm;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #495C90;
+    font-size: 16px;
+    text-align: justify;
+}
+
+.texto_final p {
+    height: 10px;
+}
+
+#vendedora_final {
+    color: #838083;
+    position: relative;
+    top: -225mm;
+    padding-left: 20mm;
+}
+
+#vendedora_final i > img {
+    width: 25px;
+    height: 25px;
+}
+
+#vendedora_final p {
+    height: 5mm;
 }
 
 @media print {
@@ -35,7 +212,185 @@
         margin-top: -160px !important;
     }
 
-    @page {
-        size: landscape;
+    #paginas_pdf_orcamento {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-content: center;
+        transform: scale(1);
+        transform-origin: center top;
+        transition: transform 0.2s;
+        gap: 30px;
+        margin-bottom: 10%;
+    }
+
+    .pagina {
+        width: 210mm;
+        height: 297mm;
+        background: white;
+    }
+
+    .pagina img {
+        width: 100%;
+        height: 100%;
+    }
+
+    #proposta_comercial .informacoes {
+        color: #838083;
+        position: relative;
+        top: -105mm;
+        margin-left: 15mm;
+    }
+
+    #proposta_comercial .informacoes #cliente > p {
+        height: 5mm;
+        font-size: 22px;
+    }
+
+    #proposta_comercial .informacoes #vendedora {
+        margin-top: 18mm;
+    }
+
+    #proposta_comercial .informacoes #vendedora > p {
+        height: 5mm;
+        font-size: 18px;
+    }
+
+    .orcamento {
+        position: relative;
+    }
+
+    .sobre_fundo {
+        text-align: center;
+        background: #fff;
+        color: #000;
+        margin: 0 auto;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        opacity: 0.8;
+    }
+
+    .orcamento img {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .barra_superior {
+        width: 250px;
+        height: 5px;
+        position: absolute;
+        top: 50px;
+        background: #E96E17;
+        margin-left: 40px;
+        border-radius: 20px;
+    }
+
+    #texto_inicial {
+        position: absolute;
+        top: 18mm;
+        padding: 0 15mm 0 12mm;
+        font-family: 'IBM Plex Sans', sans-serif;
+        color: #495C90;
+        font-size: 16px;
+        text-align: justify;
+    }
+
+    #texto_inicial h1 {
+        margin-bottom: 15px;
+    }
+
+    .dados {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        padding-left: 15mm;
+        gap: 7mm;
+        top: 105mm;
+        width: 94%;
+    }
+
+    .dados > div {
+        background: #fff;
+        display: flex;
+        box-shadow: 1px 1px 3px;
+        border-radius: 2mm;
+    }
+
+    .dados_pacote .secao {
+        width: 20%;
+        border-radius: 2mm 0 0 2mm;
+    }
+
+    .dados_pacote.pacote .secao {
+        background: #CCE235;
+        min-height: 30mm;
+    }
+
+    .dados_pacote.horarios .secao {
+        background: #E96E17;
+        min-height: 80px;
+    }
+
+    .dados_pacote.incluso .secao {
+        background: #EA1C24;
+        min-height: 40mm;
+    }
+
+    .dados_pacote .secao {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .secao h4 {
+        color: #495C90;
+        font-weight: 900;
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+
+    #proposta_comercial .informacoes #vendedora i > img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .dados_pacote .descricao {
+        width: 80%;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-weight: 400;
+        font-size: 18px;
+    }
+
+    .dados_pacote.horarios .descricao {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+    }
+
+    .dados_pacote.pacote .descricao {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+    }
+
+    .dados_pacote.pacote .descricao > p {
+        height: 10px;
+    }
+
+    .texto_final {
+        position: absolute;
+        top: 213mm;
+        padding: 0 10mm 0 15mm;
+        font-family: 'IBM Plex Sans', sans-serif;
+        color: #495C90;
+        font-size: 16px;
+        text-align: justify;
+    }
+
+    .texto_final p {
+        height: 10px;
     }
 }

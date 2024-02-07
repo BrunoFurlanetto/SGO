@@ -326,6 +326,8 @@ def veriricar_gerencia(request):
 
 @login_required(login_url='login')
 def gerar_pdf(request, id_tratativa):
+    tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
+
     return render(request, 'orcamento/pdf_orcamento.html', {
-        'id_tratativa': id_tratativa
+        'tratativa': tratativa,
     })
