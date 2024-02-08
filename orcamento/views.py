@@ -22,9 +22,8 @@ from .budget import Budget
 
 @login_required(login_url='login')
 def calc_budget(req, id_tratativa=None):
-    print(req.user.has_perm('orcamento.add_orcamento'))
-    if not req.user.has_perm('orcamento.add_orcamento'):
-        return redirect('dashboardPeraltas')
+    # if not req.user.has_perm('orcamento.add_orcamento'):
+    #     return redirect('dashboardPeraltas')
 
     financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
 
@@ -221,6 +220,8 @@ def calc_budget(req, id_tratativa=None):
                 days=data["n_dias"],
             )
 
+
+
             if req.POST.get('salvar') == 'true':
                 valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
                     budget.business_fee) + budget.total.calc_commission(budget.commission)
@@ -235,6 +236,7 @@ def calc_budget(req, id_tratativa=None):
                 pre_orcamento.objeto_gerencia = dados['gerencia']
                 pre_orcamento.objeto_orcamento = budget.return_object()
                 pre_orcamento.colaborador = req.user
+                pre_orcamento.desconto = budget.total.discount
 
                 if pre_orcamento.promocional:
                     pre_orcamento.data_vencimento = gerencia['data_vencimento']
@@ -269,6 +271,7 @@ def calc_budget(req, id_tratativa=None):
                     "status": "success",
                     "data": budget.return_object(),
                     "promocionais": promocionais,
+                    # "limites_taxas": taxas,
                     "msg": "",
                 })
 

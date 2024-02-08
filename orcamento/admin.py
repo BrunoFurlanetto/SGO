@@ -33,4 +33,4 @@ class PeriodosAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresPadrao)
 class ValoresPadraoAdmin(admin.ModelAdmin):
-    list_display = ('nome_taxa', 'valor')
+    list_display = ('nome_taxa', 'valor', 'descricao')

@@ -102,6 +102,16 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
 }
 
+function verificar_produto() {
+    const produto = $('#id_produto option:selected').text().toLowerCase()
+
+    if (produto.includes('ceu')) {
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', true)
+    } else {
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', false)
+    }
+}
+
 async function verificar_alteracoes(div) {
     if ($('#id_promocional').prop('checked')) {
         await enviar_form()

@@ -1,4 +1,3 @@
-const {jsPDF} = window.jspdf;
 const pdfContainer = document.getElementById('paginas_pdf_orcamento');
 let scale = 1.0;
 

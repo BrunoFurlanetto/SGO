@@ -155,6 +155,8 @@
     font-family: 'IBM Plex Sans', sans-serif;
     font-weight: 400;
     font-size: 18px;
+    display: flex;
+    align-items: center;
 }
 
 .dados_pacote.horarios .descricao {
@@ -167,6 +169,7 @@
 .dados_pacote.pacote .descricao {
     align-items: center;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     width: 80%;
 }
@@ -177,7 +180,7 @@
 
 .texto_final {
     position: absolute;
-    top: 213mm;
+    top: 220mm;
     padding: 0 10mm 0 15mm;
     font-family: 'IBM Plex Sans', sans-serif;
     color: #495C90;
@@ -378,6 +381,8 @@ body {
         font-family: 'IBM Plex Sans', sans-serif;
         font-weight: 400;
         font-size: 13pt;
+        display: flex;
+        align-items: center;
     }
 
     .dados_pacote.horarios .descricao {

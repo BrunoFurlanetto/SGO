@@ -304,6 +304,12 @@ class Orcamento(models.Model):
     def __str__(self):
         return f'Orçamento de {self.cliente}'
 
+    @property
+    def oficina_de_foguetes(self):
+        foguetes = self.atividades_ceu.all().filter(atividade__icontains='foguete')
+        print(foguetes)
+        return len(foguetes) > 0
+
     def get_periodo(self):
         check_in = self.check_in.strftime('%d/%m/%Y %H:%M')
         check_out = self.check_out.strftime('%d/%m/%Y %H:%M')
@@ -352,8 +358,9 @@ class Orcamento(models.Model):
 
         return json.loads(dados)[0]
 
-    def pegar_dados_pacote(self):
-        ...
+    def valor_sem_desconto(self):
+        print(self.valor, self.desconto)
+        return self.valor + self.desconto
 
 
 class Tratativas(models.Model):
@@ -481,7 +488,7 @@ class CadastroOrcamento(forms.ModelForm):
             'promocional': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
             'orcamento_promocional': forms.Select(attrs={'disabled': True, 'onchange': 'mostrar_dados_pacote(this)'}),
-            'produto': forms.Select(attrs={'disabled': True}),
+            'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
