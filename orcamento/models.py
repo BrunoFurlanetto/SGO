@@ -451,6 +451,9 @@ class Tratativas(models.Model):
         self.save()
 
     def orcamentos_abertos(self):
+        if self.orcamento_aceito:
+            return [self.orcamento_aceito]
+
         status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
         return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(status_orcamento=status_perdido)
 

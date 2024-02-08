@@ -3,17 +3,15 @@ const pdfContainer = document.getElementById('paginas_pdf_orcamento');
 let scale = 1.0;
 
 
-function printar() {
-    let style = document.getElementById('estilao').cloneNode(true);
+function imprimir() {
+    let style = document.getElementById('estilo_impressao').cloneNode(true);
     let printWindow = window.open('', '_blank');
     printWindow.document.body.appendChild(style);
-
     let paginas = document.querySelectorAll('.pagina');
 
-    // Para cada elemento com a classe 'pagina', cria uma div e copia o conteúdo correspondente
     paginas.forEach(function (pagina, index) {
         let divPagina = document.createElement('div');
-        // divPagina.style.pageBreakBefore = 'always';
+        divPagina.style.pageBreakBefore = 'always';
         let conteudoPagina = pagina.cloneNode(true);
         divPagina.appendChild(conteudoPagina);
         printWindow.document.body.appendChild(divPagina);
@@ -23,17 +21,19 @@ function printar() {
         if (printWindow.document.readyState === "complete") {
             clearInterval(checkReady);
             printWindow.print();
-            // Fecha o novo documento após a impressão
-            // printWindow.document.close();
-            // printWindow.close();
+            printWindow.document.close();
+            printWindow.close();
         }
     }, 50);
 }
 
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'p' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault()
 
-function imprimir() {
-    window.print()
-}
+        imprimir()
+    }
+});
 
 document.addEventListener('wheel', (event) => {
     if (event.ctrlKey) {

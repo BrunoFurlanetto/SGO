@@ -4,8 +4,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/style_pdf_orcamento.css' %}">
-    <link id="estilao" rel="stylesheet" href="{% static 'css/style_pdf_orcamento_im.css' %}">
+    <link id="estilo_impressao" rel="stylesheet" href="{% static 'css/style_pdf_orcamento.css' %}">
 
     <div id="conteudo_pdf_orcamento">
         <div id="paginas_pdf_orcamento">
@@ -120,8 +119,12 @@
                             <li>
                                 Valores válidos para fechamento até
                                 <strong>{{ orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens agendadas
-                                até JUNHO de 2024,
-                                entre segunda e terça feira. Exceto feriados.
+                                {% if orcamento.check_in.month <= 6 %}
+                                    até <strong> JUNHO </strong>
+                                {% else %}
+                                    entre <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
+                                {% endif %}
+                                de 2024. <strong> Exceto feriados </strong>.
                             </li>
                             <li>
                                 Condições de pagamento:
