@@ -1,5 +1,6 @@
 import datetime
 import json
+from decimal import Decimal
 from itertools import chain
 
 from django.contrib import auth
@@ -29,6 +30,11 @@ def calc_budget(req, id_tratativa=None):
 
     if is_ajax(req):
         if req.method == 'GET':
+            if req.GET.get('id_orcamento_extras'):
+                orcamento = Orcamento.objects.get(pk=req.GET.get('id_orcamento_extras'))
+
+                return JsonResponse({'opcionais_extra': orcamento.opcionais_extra})
+
             if req.GET.get('id_promocional'):
                 orcamento_promocional = Orcamento.objects.get(pk=req.GET.get('id_promocional'))
 
@@ -220,11 +226,12 @@ def calc_budget(req, id_tratativa=None):
                 days=data["n_dias"],
             )
 
-
-
             if req.POST.get('salvar') == 'true':
                 valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
                     budget.business_fee) + budget.total.calc_commission(budget.commission)
+                desconto = budget.total.discount
+
+                data['desconto'] = f'{desconto:.2f}'
                 data['valor'] = f'{valor_final:.2f}'
                 data['opcionais_extra'] = data.get('outros', [])
                 data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
@@ -236,7 +243,6 @@ def calc_budget(req, id_tratativa=None):
                 pre_orcamento.objeto_gerencia = dados['gerencia']
                 pre_orcamento.objeto_orcamento = budget.return_object()
                 pre_orcamento.colaborador = req.user
-                pre_orcamento.desconto = budget.total.discount
 
                 if pre_orcamento.promocional:
                     pre_orcamento.data_vencimento = gerencia['data_vencimento']
@@ -244,23 +250,26 @@ def calc_budget(req, id_tratativa=None):
                 try:
                     orcamento_salvo = orcamento.save()
                 except Exception as e:
+                    print(e)
                     return JsonResponse({
                         "status": "error",
                         "data": budget.return_object(),
                         "msg": e,
                     })
                 else:
-                    if req.POST.get('id_tratativa') and req.POST.get('id_tratativa') != '':
-                        ...
-                    else:
-                        if not data.get('id_tratativa') and data.get('id_tratativa') != '':
-                            tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=req.user)
-                            tratativa.orcamentos.set([orcamento_salvo])
-                            tratativa.save()
+                    if not orcamento_salvo.promocional:
+                        if req.POST.get('id_tratativa') and req.POST.get('id_tratativa') != '':
+                            ...
                         else:
-                            tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
-                            tratativa.orcamentos.add(orcamento_salvo.id)
-                            tratativa.save()
+                            if not data.get('id_tratativa') and data.get('id_tratativa') != '':
+                                tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=req.user)
+                                tratativa.orcamentos.set([orcamento_salvo])
+                                tratativa.save()
+                            else:
+                                tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
+                                tratativa.orcamentos.add(orcamento_salvo.id)
+                                tratativa.save()
+
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -271,7 +280,7 @@ def calc_budget(req, id_tratativa=None):
                     "status": "success",
                     "data": budget.return_object(),
                     "promocionais": promocionais,
-                    # "limites_taxas": taxas,
+                    "limites_taxas": ValoresPadrao.listar_valores(),
                     "msg": "",
                 })
 
@@ -309,8 +318,8 @@ def calc_budget(req, id_tratativa=None):
 
 @login_required(login_url='login')
 def veriricar_gerencia(request):
-    id_usuario = request.GET.get('id_usuario')
-    senha = request.GET.get('senha')
+    id_usuario = request.POST.get('id_usuario')
+    senha = request.POST.get('senha')
 
     try:
         user = User.objects.get(pk=id_usuario).username

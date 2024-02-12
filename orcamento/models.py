@@ -275,7 +275,7 @@ class Orcamento(models.Model):
     opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
     atividades = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades Peraltas')
     atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
-    desconto = models.DecimalField(blank=True, null=True, max_digits=4, decimal_places=2, verbose_name='Desconto')
+    desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
@@ -462,6 +462,7 @@ class Tratativas(models.Model):
             return [self.orcamento_aceito]
 
         status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+
         return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(status_orcamento=status_perdido)
 
 
