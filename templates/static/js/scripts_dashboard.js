@@ -347,6 +347,6 @@ function modal_de_tratativas(id_tratativa) {
             }
         }
     })
-    $('#tratativas').modal('show')
+    $('#modal_tratativas').modal('show')
     end_loading()
 }
