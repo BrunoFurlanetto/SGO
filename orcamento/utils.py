@@ -121,6 +121,7 @@ def processar_formulario(dados):
         current_date = date_check_in
 
         while current_date <= date_check_out:
+            #TODO: Refazer o racional de busca de id do periodo! [validade, vigencia, dia da semana]
             days_list.append(current_date)
             is_first_semester = current_date.month <= 6
             is_mdw = current_date.weekday() <= 2

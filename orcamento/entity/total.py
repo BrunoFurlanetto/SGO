@@ -26,6 +26,9 @@ class Total(BaseValue):
 
     def calc_value_with_discount(self):
         return self.get_total_values() - self.general_discount
+    
+    def set_discount(self, value):
+        return super().set_discount(0)
 
     def do_object(self, percent_business_fee, percent_commission):
         return {
