@@ -6,12 +6,11 @@ from datetime import datetime, time
 class DailyRate(BaseValue):
     def __init__(self, check_in_id, check_out_id, periods, days):
         super().__init__([])
-        print(check_in_id)
         self.check_in_id = check_in_id
         self.check_out_id = check_out_id
         self.periods = periods
         self.days = int(days)
-
+    
     def calc_daily_rate(self):
         check_in = float(HorariosPadroes.objects.get(pk=self.check_in_id).racional)
         check_out = float(HorariosPadroes.objects.get(pk=self.check_out_id).racional)
@@ -30,3 +29,22 @@ class DailyRate(BaseValue):
 
         self.set_values(values)
         return self.values
+
+    def do_object(self, percent_business_fee, percent_commission):
+        information = super().do_object(percent_business_fee, percent_commission)
+        daily_accomodation = self.days - 1 if self.days > 1 else 1
+        value_daily_accomodation = self.get_total_values() / daily_accomodation
+        values_accomodation = [value_daily_accomodation for _ in range(0, self.days)]
+        total = 0
+        for value in values_accomodation:
+            total += float(value)
+
+        information["comparativo_de_diarias"] = {
+            "diarias_hospedagem": daily_accomodation,
+            "valores_hospedagem": values_accomodation,
+            "total_valores_hospedagem": total,
+            "diarias_acampamento": self.days,
+            "valores_acampamento": self.values,
+            "total_valores_acampamento": self.get_total_values(),
+        }
+        return information

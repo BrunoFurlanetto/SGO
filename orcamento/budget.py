@@ -186,6 +186,10 @@ class Budget:
                     percent_commission=self.commission,
                     percent_business_fee=self.business_fee
                 ),
+                "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
                 "opcionais": self.optional.do_object(
                     percent_commission=self.commission,
                     percent_business_fee=self.business_fee

@@ -219,6 +219,7 @@ def calc_budget(req, id_tratativa=None):
             budget.others.calc_value_optional(budget.array_description_others)
 
             # CAlCULAR TOTAL
+            is_go_and_back = data.get('is_go_and_back') == "vai_e_volta";
             budget.total.calc_total_value(
                 monitor=budget.monitor,
                 period=budget.period,
@@ -227,7 +228,7 @@ def calc_budget(req, id_tratativa=None):
                 activities=budget.activities,
                 activities_sky=budget.activities_sky,
                 daily_rate=budget.daily_rate,
-                transport=budget.transport,
+                transport=budget.transport.tranport_go_and_back if is_go_and_back else budget.transport,
                 days=data["n_dias"],
             )
 
