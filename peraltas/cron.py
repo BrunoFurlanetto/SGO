@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-from reversion.models import Version
-
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CodigosPadrao
 import requests
@@ -12,14 +10,14 @@ from projetoCEU.utils import enviar_email_erro
 
 
 def atualizar_pagantes_ficha():
-    url = 'https://pagamento.peraltas.com.br/json/turmas.json'
+    url = 'https://dashboard.peraltas.com.br/json/relatorio.json'
     codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
 
     response = requests.get(url)
 
     if response.status_code == 200:
         eventos = response.json()
-        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+        eventos_base = {evento['codigoGrupo']: evento for evento in eventos}
 
         fichas = FichaDeEvento.objects.filter(
             pre_reserva=False,
@@ -32,7 +30,7 @@ def atualizar_pagantes_ficha():
             for ficha in fichas:
                 alterar = False
                 codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.eficha.split(',')]
-
+                eventos_dict = eventos_base if not verificar_sistema_antigo_cron(codigos_eficha) else verificar_sistema_antigo_cron(codigos_eficha)
                 total_pagantes_masculino = 0
                 total_pagantes_feminino = 0
                 total_professores_masculino = 0
@@ -81,6 +79,26 @@ def atualizar_pagantes_ficha():
             'ERRO DE CONEXÃO COM SERVIDOR'
         )
 
+def verificar_sistema_antigo_cron(codigos):
+    """
+    Função necessária para o periodo de transição do sistema de pagamntos
+    """
+
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+    url_gerar_json = 'https://pagamento.peraltas.com.br/a/tools/gera_arquivo_json_turmas.aspx'
+    url_json = 'https://pagamento.peraltas.com.br/json/turmas.json'
+
+    response_gerar_json = requests.post(url_gerar_json)
+    response_json = requests.get(url_json)
+
+    if response_gerar_json.status_code == 200 and response_json.status_code == 200:
+        eventos = response_json.json()
+        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+
+        for codigo in codigos:
+            if codigo in eventos_dict and codigo != '':
+                return eventos_dict
+
 
 def envio_dados_embarque():
     dia_referencia = datetime.today().date() + timedelta(days=10)
@@ -99,9 +117,3 @@ def envio_dados_embarque():
             except Exception as e:
                 mensagem_erro = f'Erro durante a consulta da ordem de servico de {ordem.ficha_de_evento.cliente}: {e}'
                 enviar_email_erro(mensagem_erro, 'ERRO NA CONSULTA DA ORDEM')
-
-
-def deletar_versoes_antigas():
-    data_de_corte = datetime.now() - timedelta(days=15)
-    versoes_antigas = Version.objects.get_for_model(FichaDeEvento).filter(revision__date_created__lt=data_de_corte)
-    versoes_antigas.delete()
