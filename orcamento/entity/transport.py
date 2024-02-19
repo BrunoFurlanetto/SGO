@@ -1,20 +1,15 @@
-from .basevalue import BaseValue
 from ..models import ValoresTransporte
 from .transport_go_and_back import TransportGoAndBack
+from .interface.transport_protocol import TransportProtocol
 
-
-class Transport(BaseValue):
+class Transport(TransportProtocol):
     def __init__(self, values, periods, days):
-        super().__init__(values)
-        self.periods = periods
-        self.days = days
-        self.min_payers = 30
+        super().__init__(values,periods,days)
         self.tranport_go_and_back = TransportGoAndBack(values, periods, days)
 
     def set_min_payers(self, min_payers):
-        self.min_payers = min_payers
         self.tranport_go_and_back.set_min_payers(min_payers);
-        return self.min_payers
+        return super().set_min_payers(min_payers)
 
     def calc_value_transport(self, is_transport):
         self.tranport_go_and_back.calc_value_transport(is_transport)

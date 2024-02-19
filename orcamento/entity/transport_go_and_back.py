@@ -1,10 +1,7 @@
-from .transport import Transport
 from ..models import ValoresTransporte
+from .interface.transport_protocol import TransportProtocol
 
-class TransportGoAndBack(Transport):
-    def __init__(self, values, periods, days):
-        super().__init__(values, periods, days)
-
+class TransportGoAndBack(TransportProtocol):
     def calc_value_transport(self, is_transport):
         values = []
         if is_transport != 'sim':
