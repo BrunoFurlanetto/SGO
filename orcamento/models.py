@@ -5,15 +5,21 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 from django.core import serializers
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import PositiveIntegerField
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from unidecode import unidecode
+from django.contrib.postgres.fields import ArrayField
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
+
+
+def default_validade():
+    return timezone.now() + timezone.timedelta(days=180)
 
 
 class ValoresPadrao(models.Model):
@@ -40,7 +46,6 @@ class ValoresPadrao(models.Model):
         return lista_valores
 
 
-
 class OrcamentoMonitor(models.Model):
     nome_monitoria = models.CharField(max_length=100)
     descricao_monitoria = models.TextField(blank=True)
@@ -62,43 +67,50 @@ class OrcamentoOpicional(models.Model):
         return self.nome
 
 
+class DiasSemana(models.Model):
+    id_dia = models.IntegerField(primary_key=True)
+    nome_dia = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.nome_dia
+
+
 class OrcamentoPeriodo(models.Model):
-    semestre_choice = (
-        (1, 'Primeiro'),
-        (2, 'Segundo'),
-    )
-
-    dias_choice = (
-        (1, 'Meio de semana'),
-        (2, 'Fim de semana'),
-        (3, 'Qualquer dia'),
-    )
-
     nome_periodo = models.CharField(max_length=255)
-    ano = models.PositiveIntegerField(default=timezone.now().year, verbose_name='Ano')
-    semestre = models.PositiveIntegerField(choices=semestre_choice, verbose_name='Semestre', default=semestre_choice[0][0])
-    dias_validos = models.IntegerField(choices=dias_choice, verbose_name='Dias validos', default=dias_choice[0][0])
+    inicio_vigencia = models.DateField(verbose_name='Início da vigência', default=timezone.now)
+    final_vigencia = models.DateField(verbose_name='Final da vigência',
+                                      default=default_validade)
+    dias_semana_validos = models.ManyToManyField(DiasSemana, verbose_name='Dias da semana válido')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
-    id = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
+    id_periodo = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
+
 
     def __str__(self):
         return self.nome_periodo
 
-    def save(self, *args, **kwargs):
-        semestre = 'PS' if self.semestre == 1 else 'SS'
-        ano = self.ano
 
-        if self.dias_validos == 1:
-            dias = 'MS'
-        elif self.dias_validos == 2:
-            dias = 'FS'
-        else:
-            dias = 'QD'
+class SeuModeloAdminForm(forms.ModelForm):
+    class Meta:
+        model = OrcamentoPeriodo
+        fields = '__all__'
 
-        self.id = f'{dias}{semestre}{ano}'
-        super().save(*args, **kwargs)
+    def clean_dias_semana_validos(self):
+        dias_semana_validos = self.cleaned_data.get('dias_semana_validos')
+        inicio_vigencia = self.cleaned_data.get('inicio_vigencia')
+        dias_selecionados = [dia.id_dia for dia in dias_semana_validos]
+
+        periodos_conflitantes = OrcamentoPeriodo.objects.filter(
+            inicio_vigencia__lte=inicio_vigencia,
+            final_vigencia__gte=inicio_vigencia,
+            dias_semana_validos__in=dias_selecionados
+        )
+
+        if periodos_conflitantes.exists():
+            raise ValidationError('O grupo de períodos escolhidos já está cadastrado neste mesmo período de vigência.')
+        print('1')
+        return dias_semana_validos
 
 
 class OrcamentoAlimentacao(models.Model):
@@ -127,26 +139,29 @@ class HorariosPadroes(models.Model):
 
 
 class ValoresTransporte(models.Model):
-    periodo = models.ForeignKey(
-        OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name="Período")
     valor_1_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 1 dia')
     valor_2_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 2 dias')
     valor_3_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 3 dias')
+    valor_4_dia = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Valor de 4 dias')
+    valor_5_dia = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Valor de 5 dias')
     valor_acrescimo = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Acréscimo')
     leva_e_busca = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Leva e Busca', default=0.00)
-    vai_e_volta = models.DecimalField(
-        max_digits=7, decimal_places=2, verbose_name='Vai e Volta', default=0.00)
     percentual = models.DecimalField(
         max_digits=3, decimal_places=2, verbose_name='Percentual', default=0.10)
+    validade = models.DateField(verbose_name='Validade dos valores',
+                                default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
 
+
     def __str__(self):
-        return f'Valores transporte periodo {self.periodo.nome_periodo}'
+        return f'Valores de transporte transporte'
 
 
 class StatusOrcamento(models.Model):
@@ -307,7 +322,7 @@ class Orcamento(models.Model):
     @property
     def oficina_de_foguetes(self):
         foguetes = self.atividades_ceu.all().filter(atividade__icontains='foguete')
-        print(foguetes)
+
         return len(foguetes) > 0
 
     def get_periodo(self):
@@ -329,11 +344,9 @@ class Orcamento(models.Model):
                 check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
 
                 if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
-
                     return True
 
             return False
-
 
         pacotes = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
         pacotes_validos = []
@@ -368,7 +381,8 @@ class Tratativas(models.Model):
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
     id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
     orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos", related_name='orcamentos')
-    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa', default=1)
+    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa',
+                               default=1)
     motivo_recusa = models.TextField(verbose_name="Motivo da recusa", blank=True)
     orcamento_aceito = models.ForeignKey(
         Orcamento,
@@ -463,7 +477,8 @@ class Tratativas(models.Model):
 
         status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
 
-        return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(status_orcamento=status_perdido)
+        return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(
+            status_orcamento=status_perdido)
 
 
 class CadastroPacotePromocional(forms.ModelForm):
@@ -479,6 +494,14 @@ class CadastroPacotePromocional(forms.ModelForm):
             'limite_desconto_geral': forms.TextInput(),
         }
 
+
+# class CadastroPeriodo(forms.ModelForm):
+#     class Meta:
+#         model = OrcamentoPeriodo
+#         exclude = []
+#         widgets = {
+#             'dias_semana_validos': forms.MultipleChoiceField(attrs={'class': 'checkbox-list'})
+#         }
 
 class CadastroOrcamento(forms.ModelForm):
     class Meta:

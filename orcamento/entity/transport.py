@@ -1,15 +1,20 @@
+from .interface.transport_protocol import TransportProtocol
 from ..models import ValoresTransporte
 from .transport_go_and_back import TransportGoAndBack
-from .interface.transport_protocol import TransportProtocol
+
 
 class Transport(TransportProtocol):
     def __init__(self, values, periods, days):
-        super().__init__(values,periods,days)
+        super().__init__(values)
+        self.periods = periods
+        self.days = days
+        self.min_payers = 30
         self.tranport_go_and_back = TransportGoAndBack(values, periods, days)
 
     def set_min_payers(self, min_payers):
+        self.min_payers = min_payers
         self.tranport_go_and_back.set_min_payers(min_payers);
-        return super().set_min_payers(min_payers)
+        return self.min_payers
 
     def calc_value_transport(self, is_transport):
         self.tranport_go_and_back.calc_value_transport(is_transport)
@@ -50,7 +55,6 @@ class Transport(TransportProtocol):
             self.values = values
 
             return self.values
-        
 
     def set_discount(self, value):
         self.tranport_go_and_back.set_discount(value)
@@ -59,8 +63,7 @@ class Transport(TransportProtocol):
     def set_percent_discount(self, percent):
         self.tranport_go_and_back.set_percent_discount(percent)
         return super().set_percent_discount(percent)
-    
+
     def set_adjustiment(self, value):
         self.tranport_go_and_back.set_adjustiment(value)
         return super().set_adjustiment(value)
-    

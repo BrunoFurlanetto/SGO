@@ -1,7 +1,11 @@
 from ..models import ValoresTransporte
 from .interface.transport_protocol import TransportProtocol
 
+
 class TransportGoAndBack(TransportProtocol):
+    def __init__(self, values, periods, days):
+        super().__init__(values, periods, days)
+
     def calc_value_transport(self, is_transport):
         values = []
         if is_transport != 'sim':
@@ -20,10 +24,10 @@ class TransportGoAndBack(TransportProtocol):
             return self.values
         else:
             value = (
-                float(obj_transport.leva_e_busca) 
-                / (1 - float(obj_transport.percentual))
-                ) / self.min_payers
-            
+                            float(obj_transport.leva_e_busca)
+                            / (1 - float(obj_transport.percentual))
+                    ) / self.min_payers
+
             values.append(value)
             for i in range(1, self.days):
                 values.append(0)
