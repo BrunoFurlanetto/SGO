@@ -40,7 +40,7 @@ class OrcamentoMonitorAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(admin.ModelAdmin):
-    list_display = ('id_periodo', 'nome_periodo')
+    list_display = ('nome_periodo',)
     form = SeuModeloAdminForm
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
