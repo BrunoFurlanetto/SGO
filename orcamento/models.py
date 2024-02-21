@@ -5,7 +5,6 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 from django.core import serializers
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import PositiveIntegerField
 from django.db.models.signals import pre_delete, pre_save, post_save
@@ -16,10 +15,6 @@ from django.contrib.postgres.fields import ArrayField
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
-
-
-def default_validade():
-    return timezone.now() + timezone.timedelta(days=180)
 
 
 class ValoresPadrao(models.Model):
@@ -74,43 +69,18 @@ class DiasSemana(models.Model):
     def __str__(self):
         return self.nome_dia
 
-
 class OrcamentoPeriodo(models.Model):
     nome_periodo = models.CharField(max_length=255)
     inicio_vigencia = models.DateField(verbose_name='Início da vigência', default=timezone.now)
-    final_vigencia = models.DateField(verbose_name='Final da vigência',
-                                      default=default_validade)
-    dias_semana_validos = models.ManyToManyField(DiasSemana, verbose_name='Dias da semana válido')
+    final_vigencia = models.DateField(verbose_name='Final da vigência', default=timezone.now() + timezone.timedelta(days=180))
+    dias_semana_validos = models.ManyToManyField(DiasSemana)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
-    id_periodo = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
-
+    id = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
 
     def __str__(self):
         return self.nome_periodo
-
-
-class SeuModeloAdminForm(forms.ModelForm):
-    class Meta:
-        model = OrcamentoPeriodo
-        fields = '__all__'
-
-    def clean_dias_semana_validos(self):
-        dias_semana_validos = self.cleaned_data.get('dias_semana_validos')
-        inicio_vigencia = self.cleaned_data.get('inicio_vigencia')
-        dias_selecionados = [dia.id_dia for dia in dias_semana_validos]
-
-        periodos_conflitantes = OrcamentoPeriodo.objects.filter(
-            inicio_vigencia__lte=inicio_vigencia,
-            final_vigencia__gte=inicio_vigencia,
-            dias_semana_validos__in=dias_selecionados
-        )
-
-        if periodos_conflitantes.exists():
-            raise ValidationError('O grupo de períodos escolhidos já está cadastrado neste mesmo período de vigência.')
-        print('1')
-        return dias_semana_validos
 
 
 class OrcamentoAlimentacao(models.Model):
@@ -156,9 +126,8 @@ class ValoresTransporte(models.Model):
     percentual = models.DecimalField(
         max_digits=3, decimal_places=2, verbose_name='Percentual', default=0.10)
     validade = models.DateField(verbose_name='Validade dos valores',
-                                default=default_validade)
+                                default=timezone.now() + timezone.timedelta(days=180))
     descricao = models.TextField(verbose_name="Descrição", default="")
-
 
     def __str__(self):
         return f'Valores de transporte transporte'
@@ -493,7 +462,6 @@ class CadastroPacotePromocional(forms.ModelForm):
             }),
             'limite_desconto_geral': forms.TextInput(),
         }
-
 
 # class CadastroPeriodo(forms.ModelForm):
 #     class Meta:
