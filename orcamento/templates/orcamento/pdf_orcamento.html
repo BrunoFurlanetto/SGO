@@ -80,11 +80,11 @@
                                 <p>{{ orcamento.produto.produto }} {% if 'ceu' not in orcamento.produto.produto|lower %} + 0{{ orcamento.atividades_ceu.all|length }} AT.
                                     C.E.U {% endif %}</p>
                                 <p>Investimento:</p>
-                                {% if orcamento.valor_sem_desconto != orcamento.valor %}
+                                {% if orcamento.desconto_aplicado %}
                                 	<p>De: <s>R$ {{ orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
                                 {% endif %} 
 
-                                <p>{% if orcamento.valor_sem_desconto != orcamento.valor %}Por{% endif %} R$ {{ orcamento.valor|substituir_ponto }} por participante</p>
+                                <p>{% if orcamento.desconto_aplicado %}Por{% endif %} R$ {{ orcamento.valor|substituir_ponto }} por participante</p>
                             </div>
                         </div>
                         <div class="dados_pacote horarios">

@@ -301,6 +301,14 @@ class Orcamento(models.Model):
 
         return len(foguetes) > 0
 
+    @property
+    def desconto_aplicado(self):
+        if self.desconto and self.desconto < 0:
+            print(self.desconto)
+            return True
+
+        return False
+
     def get_periodo(self):
         check_in = self.check_in.strftime('%d/%m/%Y %H:%M')
         check_out = self.check_out.strftime('%d/%m/%Y %H:%M')
@@ -348,8 +356,7 @@ class Orcamento(models.Model):
         return json.loads(dados)[0]
 
     def valor_sem_desconto(self):
-        print(self.valor, self.desconto)
-        return self.valor + self.desconto
+        return self.valor - self.desconto
 
 
 class Tratativas(models.Model):
