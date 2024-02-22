@@ -24,7 +24,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
 
     $('#valor_opcional').mascaraDinheiro()
-    $('#desconto_geral').mascaraDinheiro()
+    $('#ajuste_diaria').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
 
@@ -65,7 +65,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
                         thousands: '.',
                         decimal: ',',
                         allowZero: true,
-                        affixesStay: false
+                        affixesStay: false,
                     })
                     await enviar_form()
                 })
@@ -194,7 +194,8 @@ $.fn.mascaraDinheiro = function () {
         thousands: '.',
         decimal: ',',
         allowZero: true,
-        affixesStay: false
+        affixesStay: false,
+        allowNegative: true,
     })
 }
 
@@ -464,10 +465,10 @@ async function teto_desconto() {
             teto_percent = parseFloat(resultado_ultima_consulta['limites_taxas']['teto_desconto']) / 100
         }
 
-        const desconto = parseFloat($('#desconto_geral').val().replace(',', '.'))
+        const desconto = parseFloat($('#ajuste_diaria').val().replace(',', '.'))
 
         if (desconto > teto_percent * valor_padrao()) {
-            $('#desconto_geral').val(formatar_dinheiro((teto_percent * valor_padrao()).toFixed(2)))
+            $('#ajuste_diaria').val(formatar_dinheiro((teto_percent * valor_padrao()).toFixed(2)))
         }
 
         resolve()
@@ -1069,7 +1070,7 @@ async function preencher_promocional(id_promocional) {
                 }
 
                 for (let id_campo in response['gerencia']) {
-                    if (id_campo == 'desconto_geral') {
+                    if (id_campo == 'ajuste_diaria') {
                         $(`#form_gerencia #${id_campo}`).val(formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).data('valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
@@ -1253,7 +1254,7 @@ async function verificar_gerencia() {
         success: async function (response) {
             $('#id_gerente').val($('#usuario').val())
 
-            if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
+            if ($('#campos_alteraveis #ajuste_diaria').data('valor_alterado') == '0,00') {
                 $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
                 $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
             }

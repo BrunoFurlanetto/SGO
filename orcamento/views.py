@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor, ProdutosPeraltas, AtividadesEco, \
@@ -128,7 +127,7 @@ def calc_budget(req, id_tratativa=None):
             opt_data = []
             act_data = []
             act_sky_data = []
-
+            
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -154,7 +153,7 @@ def calc_budget(req, id_tratativa=None):
             # TAXAS
             budget.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
             budget.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
-            
+
             # budget.transport.set_min_payers(data["minimo_pagantes"]) if "minimo_pagantes" in data else ...
             budget.transport.set_min_payers(gerencia["minimo_onibus"]) if "minimo_onibus" in gerencia else ...
             # budget.set_business_fee(data["taxa_comercial"]) if "taxa_comercial" in data else ...
@@ -162,7 +161,7 @@ def calc_budget(req, id_tratativa=None):
             # budget.period.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             # budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
             # budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
-            
+
             budget.daily_rate.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             budget.monitor.calc_value_monitor(data['tipo_monitoria'])
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
@@ -268,7 +267,8 @@ def calc_budget(req, id_tratativa=None):
                             ...
                         else:
                             if not data.get('id_tratativa') and data.get('id_tratativa') != '':
-                                tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=req.user)
+                                tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente,
+                                                                      colaborador=req.user)
                                 tratativa.orcamentos.set([orcamento_salvo])
                                 tratativa.save()
                             else:

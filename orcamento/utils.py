@@ -121,22 +121,22 @@ def processar_formulario(dados):
         current_date = date_check_in
 
         while current_date <= date_check_out:
-            #TODO: Refazer o racional de busca de id do periodo! [validade, vigencia, dia da semana]
-            days_list.append(current_date)
-            is_first_semester = current_date.month <= 6
-            is_mdw = current_date.weekday() <= 2
-            year = current_date.year
-            find_id = ""
-            find_id += "MS" if is_mdw else "FS"
-            find_id += "PS" if is_first_semester else "SS"
-            find_id += str(year)
-
-            # verificar se sempre o segundo semestre é QD... ************
-            find_id = find_id.replace("MSSS", "QDSS")
-            find_id = find_id.replace("FSSS", "QDSS")
+            # #TODO: Refazer o racional de busca de id do periodo! [validade, vigencia, dia da semana]
+            # days_list.append(current_date)
+            # is_first_semester = current_date.month <= 6
+            # is_mdw = current_date.weekday() <= 2
+            # year = current_date.year
+            # find_id = ""
+            # find_id += "MS" if is_mdw else "FS"
+            # find_id += "PS" if is_first_semester else "SS"
+            # find_id += str(year)
+            #
+            # # verificar se sempre o segundo semestre é QD... ************
+            # find_id = find_id.replace("MSSS", "QDSS")
+            # find_id = find_id.replace("FSSS", "QDSS")
 
             try:
-                period = OrcamentoPeriodo.objects.get(id=find_id)
+                period = OrcamentoPeriodo.objects.get(id_periodo='20240101202407314_5_6')
             except OrcamentoPeriodo.DoesNotExist:
                 return JsonError(f'Período não encontrado na base, por favor peça o cadastro do período {find_id} a diretoria')
             else:
