@@ -3,8 +3,8 @@ from .interface.transport_protocol import TransportProtocol
 
 
 class TransportGoAndBack(TransportProtocol):
-    def __init__(self, values, periods, days):
-        super().__init__(values, periods, days)
+    def __init__(self, values, checkin, days):
+        super().__init__(values, checkin, days)
 
     def calc_value_transport(self, is_transport):
         values = []
@@ -17,7 +17,8 @@ class TransportGoAndBack(TransportProtocol):
             return self.values
 
         try:
-            obj_transport = ValoresTransporte.objects.get(periodo__pk=self.periods[0].id)
+            obj_transport = ValoresTransporte.objects.filter(validade__gte=self.checkin)
+            obj_transport = obj_transport.first()
         except ValoresTransporte.DoesNotExist:
             self.values = []
 

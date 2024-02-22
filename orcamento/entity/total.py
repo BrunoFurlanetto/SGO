@@ -23,6 +23,14 @@ class Total(BaseValue):
         self.general_discount = (daily_rate.discount + monitor.discount + optional.discount + others.discount +
                                  activities.discount + activities_sky.discount +
                                  period.discount + transport.discount + self.discount)
+        
+        general_adjutiment = (
+            daily_rate.get_adjustiment() + monitor.get_adjustiment() + optional.get_adjustiment() + others.get_adjustiment() +
+                                 activities.get_adjustiment() + activities_sky.get_adjustiment() +
+                                 period.get_adjustiment() + transport.get_adjustiment() + self.get_adjustiment()
+        )
+
+        self.set_adjustiment(general_adjutiment)
 
     def calc_value_with_discount(self):
         return self.get_total_values() - self.general_discount
@@ -31,14 +39,8 @@ class Total(BaseValue):
         return super().set_discount(0)
 
     def do_object(self, percent_business_fee, percent_commission):
-        return {
-            "valor": self.get_total_values(),
-            "desconto": self.discount,
-            "desconto_geral": self.general_discount,
-            "valor_final": self.calc_value_with_discount() + self.calc_business_fee(
-                percent_business_fee) + self.calc_commission(percent_commission),
-            "valor_com_desconto": self.calc_value_with_discount(),
-            "taxa_comercial": self.calc_business_fee(percent_business_fee),
-            "comissao_de_vendas": self.calc_commission(percent_commission),
-            "descricao_valores": self.values
-        }
+        information = super().do_object(percent_business_fee, percent_commission)
+        information["desconto_geral"] = self.general_discount
+        information["descricao_valores"] = self.values
+        return information
+        

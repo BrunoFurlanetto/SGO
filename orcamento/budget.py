@@ -37,7 +37,7 @@ class Budget:
         self.transport = Transport(
             days=self.days,
             values=[],
-            periods=periods,
+            checkin=days_list[0],
         )
         self.optional = Optional([], days)
         self.array_description_optional = []

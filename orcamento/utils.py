@@ -121,8 +121,7 @@ def processar_formulario(dados):
         current_date = date_check_in
 
         while current_date <= date_check_out:
-            # #TODO: Refazer o racional de busca de id do periodo! [validade, vigencia, dia da semana]
-            # days_list.append(current_date)
+            days_list.append(current_date)
             # is_first_semester = current_date.month <= 6
             # is_mdw = current_date.weekday() <= 2
             # year = current_date.year
@@ -136,16 +135,26 @@ def processar_formulario(dados):
             # find_id = find_id.replace("FSSS", "QDSS")
 
             try:
-                period = OrcamentoPeriodo.objects.get(id_periodo='20240101202407314_5_6')
+                periodFilter = OrcamentoPeriodo.objects.filter(
+                    inicio_vigencia__lte=current_date, 
+                    final_vigencia__gte=current_date,
+                    #TODO:verificar dia da semana!
+                    )
+                
+                period = periodFilter.first();
+                print("PERIDO AQUI O _______________________")
+                print(period)
+                print(type(current_date))
             except OrcamentoPeriodo.DoesNotExist:
-                return JsonError(f'Período não encontrado na base, por favor peça o cadastro do período {find_id} a diretoria')
+                # return JsonError(f'Período não encontrado na base, por favor peça o cadastro do período {find_id} a diretoria')
+                return JsonError(f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
             else:
                 period_days.append(period)
                 current_date += timedelta(days=1)
 
         # Calc num days
+               
         num_days = len(period_days)
-
         # Get ID for hours, Num Days And IDs for Periods:
         orcamento['hora_check_in'] = (time_in[0]).id
         orcamento['hora_check_out'] = (time_out[0]).id
