@@ -43,7 +43,8 @@
     }
 
     function formatar_dinheiro(valor) {
-        return valor.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')
+        const valorFormatado = parseFloat(valor).toFixed(2);
+        return new Intl.NumberFormat('BR').format(valorFormatado)
     }
 
     $(document).ready(() => {

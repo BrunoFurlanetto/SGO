@@ -1,27 +1,31 @@
 import json
-import locale
+import os as so
+import re
 from datetime import datetime, timedelta
 from itertools import chain
 
-import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from reversion.models import Version
 
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
+from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
+from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
+from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
 from .funcoes import is_ajax, juntar_dados, contar_atividades, teste_aviso, contar_horas, teste_aviso_monitoria
 
 from ceu.models import Professores
+from .utils_peraltas import campos_necessarios_aprovacao
 
 
 @login_required(login_url='login')
@@ -83,6 +87,25 @@ def dashboardCeu(request):
         for escala in escalas:
             equipe_escalada = [Professores.objects.get(pk=professor).usuario.first_name for professor in escala.equipe]
 
+    # ------------ Ajax enviado para construir as linhas da tabela para a data selecionada ----------------
+    if is_ajax(request) and request.method == 'POST':
+        data_selecao = request.POST.get('data_selecionada')
+
+        # Relatórios de atendimento ao público
+        publico = RelatorioDeAtendimentoPublicoCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            data_atendimento=data_selecao)
+        # Relatórios de atendimento de colégio
+        colegio = RelatorioDeAtendimentoColegioCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
+        # Relatórios de atendimento de empresa
+        empresa = RelatorioDeAtendimentoEmpresaCeu.objects.order_by('atividades__atividade_1__data_e_hora').filter(
+            check_in__date__lte=data_selecao, check_out__date__gte=data_selecao)
+
+        relatorios = list(chain(publico, colegio, empresa))
+        dados = juntar_dados(relatorios)
+
+        return JsonResponse({'dados': dados, })
+
     if request.method != 'POST':
         # --------------------------------- Dados apresentados na tabela -----------------------------------------------
         data_relatorio = datetime.today().date()
@@ -119,6 +142,18 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
+    if request.GET.get('gerar_pdf'):
+        orcamento_pdf = OrcamentoPDF(request.GET.get('id_tratativa_pdf'))
+        orcamento_pdf.gerar_pdf()
+        nome_arquivo = re.sub(r"[^a-zA-Z0-9\s]", "", orcamento_pdf.nome_cliente)
+
+        return FileResponse(
+            open('temp/orcamento.pptx', 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'Orçamento {nome_arquivo}.pdf'
+        )
+
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = sem_escalas = None
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
@@ -162,15 +197,140 @@ def dashboardPeraltas(request):
         check_in__date__gte=datetime.today().date(),
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
+    tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
+    pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
+    msg_monitor = None
+    grupos_usuario = request.user.groups.all()
+    diretoria = Group.objects.get(name='Diretoria')
+    financeiro = Group.objects.get(name='Financeiro')
+
+    if is_ajax(request):
+        if request.method == "GET":
+            if request.GET.get('id_tratativa'):
+                tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
+
+                return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
+
+        if request.POST.get('novo_status'):
+            status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
+
+            if '_' in request.POST.get('id_orcamento'):
+                tratativa = Tratativas.objects.get(id_tratativa=request.POST.get('id_orcamento'))
+                tratativa.status = status
+
+                if request.POST.get('motivo_recusa') != '':
+                    tratativa.motivo_recusa = request.POST.get('motivo_recusa')
+
+                try:
+                    tratativa.save()
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'msg': e})
+                else:
+                    tratativa.perder_orcamentos()
+                    return JsonResponse({'status': 'success'})
+            else:
+                orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+                orcamento.status_orcamento = status
+
+                if request.POST.get('motivo_recusa') != '':
+                    orcamento.motivo_recusa = request.POST.get('motivo_recusa')
+                    orcamento.aprovado = False
+                else:
+                    tratativa = Tratativas.objects.get(orcamentos__in=[int(request.POST.get('id_orcamento'))])
+                    tratativa.ganhar_orcamento(int(request.POST.get('id_orcamento')))
+
+                try:
+                    orcamento.save()
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'msg': e})
+                else:
+                    return JsonResponse({'status': 'success'})
+
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+
+        if orcamento.necessita_aprovacao_gerencia:
+            return JsonResponse(campos_necessarios_aprovacao(orcamento))
+        else:
+            return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
+
+    try:
+        monitor = Monitor.objects.get(usuario=request.user)
+    except Monitor.DoesNotExist:
+        monitor = None
+    else:
+        msg_monitor = teste_aviso_monitoria(
+            request.user.last_login.astimezone(),
+            monitor,
+            dia_limite_peraltas
+        )
 
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
 
+    if request.POST.get('id_orcamento'):
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        aceite_opcionais = []
+
+        for chave, valor in orcamento.objeto_gerencia.items():
+            try:
+                campo_alterado = orcamento.objeto_gerencia[f'{chave}_alterado']
+            except KeyError:
+                ...
+            else:
+                if campo_alterado:
+                    if request.POST.get(chave) != 'on':
+                        if chave != 'data_pagamento':
+                            valor = float(ValoresPadrao.objects.get(id_taxa=chave).valor)
+                        else:
+                            data = datetime.strptime(orcamento.objeto_gerencia[chave], '%Y-%m-%d')
+                            _valor = data + timedelta(days=int(ValoresPadrao.objects.get(id_taxa=chave).valor))
+                            valor = _valor.strftime('%Y-%m-%d')
+
+                    orcamento.objeto_gerencia[chave] = {
+                        'valor_pedido': orcamento.objeto_gerencia[chave],
+                        'valor_final': valor,
+                        'aceite': request.POST.get(chave) == 'on'
+                    }
+
+        for chave, valor in request.POST.items():
+            if 'opcional_' in chave:
+                id_opcional = chave.split('_')[1]
+
+                for op in orcamento.objeto_orcamento['descricao_opcionais']:
+                    try:
+                        extras = op['outros']
+                    except KeyError:
+                        ...
+                    else:
+                        print(extras)
+                        for opcional in extras:
+                            if id_opcional == opcional['id']:
+                                aceite_opcionais.append({
+                                    'id': id_opcional,
+                                    'valor': opcional['valor_com_desconto'],
+                                    'aceite': valor == 'on'
+                                })
+
+        orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
+        orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
+        orcamento.necessita_aprovacao_gerencia = False
+
+        try:
+            orcamento.save()
+        except Exception as e:
+            messages.error(
+                request,
+                f'Um erro inesperado durante a aprovação ocorreu ({e}). Tente novamente mais tarde'
+            )
+        else:
+            EmailSender([orcamento.colaborador.email, 'bruno.furlanetto@hotmail.com']).orcamento_aprovado(orcamento.id, request.user.get_full_name())
+            messages.success(request, f'Orçamento de {orcamento.cliente} aprovado com sucesso')
+
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
-        'diretoria': diretoria,
+        'diretoria': diretoria in grupos_usuario,
         'fichas_adesao': fichas_adesao,
         'fichas': fichas,
         'ordens_colaborador': ordens_colaborador,
@@ -182,5 +342,11 @@ def dashboardPeraltas(request):
         'coordenador_monitoria': coordenador_monitoria,
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'monitor': monitor,
+        'financeiro': financeiro in grupos_usuario,
+        'tratativas': tratativas,
+        'pacotes': pacotes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
-    })  # TODO: Separar os returns para perfis diferentes
+    })
+
+
+

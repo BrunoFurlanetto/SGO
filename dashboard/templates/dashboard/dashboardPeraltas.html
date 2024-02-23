@@ -1,317 +1,391 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %}
+{% load custom_filter_tags %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     {% csrf_token %}
-    {% if comercial or operacional or coordenador_monitoria %}
-        {% if False %}
-            {% for versao in ultimas_versoes %}
-                <div class="card card-log">
-                    {% if versao.campos_alterados == '' %}
-                        <div class="card-header">Criação da <a
-                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
-                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
-                        <div class="card-body">
-                            <ul>
-                                <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>
-                            </ul>
-                        </div>
-                    {% elif versao.campos_alterados == 'excluido' %}
-                        <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }}
-                            em {{ versao.data_e_hora }}</div>
-                        <div class="card-body">
-                            <ul>
-                                <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                    {% else %}
-                        <div class="card-header">Alteração em <a
-                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>
-                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>
-                        <div class="card-body">
-                            <ul>
-                                {% if versao.campos_alterados|length > 4 %}
-                                    <li>
-                                        <p>Campos
-                                            {% for alteracao in versao.campos_alterados %}
-                                                {% if not forloop.last %}
-                                                    <span>{{ alteracao.campo.nome_campo }}</span>,
-                                                {% else %}
-                                                    e <span>{{ alteracao.campo.nome_campo }}</span>
-                                                {% endif %}
-                                            {% endfor %}
-                                            alterados
-                                        </p>
-                                    </li>
-                                {% else %}
-                                    {% for alteracao in versao.campos_alterados %}
-                                        <li>
-                                            {% if alteracao.campo.tipo_campo == 'JSONField' %}
-                                                {% if alteracao.campo.nome_campo == 'refeicoes' %}
-                                                    <p>Tabela de <span>refeicoes</span> alterado</p>
-                                                {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}
-                                                    <p><span>Informações da locação</span> alterado</p>
-                                                {% endif %}
-                                            {% elif alteracao.campo.tipo_campo == 'FileField' %}
-                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
-                                            {% elif alteracao.campo.tipo_campo == 'TextField' %}
-                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>
-                                            {% else %}
-                                                <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de
-                                                    <span>
-                                                    {% if alteracao.campo.valor_anterior is None or alteracao.campo.valor_anterior == '0' or alteração.campo.valor_anterior == '' %}
-                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
-                                                            0
-                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                            Sem data
-                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}
-                                                            "Vazio"
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}
-                                                            {% if alteracao.campo.valor_anterior %}
-                                                                Sim
-                                                            {% else %}
-                                                                Não
-                                                            {% endif %}
-                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}
-                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y' }}
-                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y H:i' }}
-                                                        {% else %}
-                                                            {{ alteracao.campo.valor_anterior }}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </span> para
-                                                    <span>
-                                                    {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}
-                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}
-                                                            0
-                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                            Sem data
-                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}
-                                                            "Vazio"
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}
-                                                            {% if alteracao.campo.novo_valor %}
-                                                                Sim
-                                                            {% else %}
-                                                                Não
-                                                            {% endif %}
-                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}
-                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y' }}
-                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}
-                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y H:i' }}
-                                                        {% else %}
-                                                            {{ alteracao.campo.novo_valor }}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </span></p>
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                {% endif %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <div id="conteudo">
-                <div id="abas" style="display: flex">
-                    {% if comercial or diretoria %}
-                        <div class="folder ativo"
-                             onclick="alterar_aba(this, 'adesao')">Adesão
-                        </div>
-                    {% endif %}
-                    {% if comercial or operacional or diretoria %}
-                        <div class="folder {% if operacional %} ativo {% endif %}"
-                             onclick="alterar_aba(this, 'status')">Status
-                        </div>
-                    {% endif %}
-                    {% if comercial or diretoria %}
-                        <div class="folder"
-                             onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
-                            <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
-                        </div>
-                    {% endif %}
-                    {% if diretoria or operacional or coordenador_monitoria %}
-                        <div class="folder {% if coordenador_monitoria and not diretoria %} ativo {% endif %}"
-                             onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
-                        </div>
-                    {% endif %}
-                </div>
+    {% if comercial or operacional or coordenador_monitoria or financeiro %}
+        {#        {% if False %}#}
+        {#            {% for versao in ultimas_versoes %}#}
+        {#                <div class="card card-log">#}
+        {#                    {% if versao.campos_alterados == '' %}#}
+        {#                        <div class="card-header">Criação da <a#}
+        {#                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>#}
+        {#                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>#}
+        {#                        <div class="card-body">#}
+        {#                            <ul>#}
+        {#                                <li>{{ versao.ficha.ficha }} adicionado ao sistema por {{ versao.colaborador }}</li>#}
+        {#                            </ul>#}
+        {#                        </div>#}
+        {#                    {% elif versao.campos_alterados == 'excluido' %}#}
+        {#                        <div class="card-header">Alteração em {{ versao.ficha.ficha }} por {{ versao.colaborador }}#}
+        {#                            em {{ versao.data_e_hora }}</div>#}
+        {#                        <div class="card-body">#}
+        {#                            <ul>#}
+        {#                                <li>{{ versao.ficha.ficha }} <span>excluída</span> por <span>{{ versao.motivo }}</span>#}
+        {#                                </li>#}
+        {#                            </ul>#}
+        {#                        </div>#}
+        {##}
+        {#                    {% else %}#}
+        {#                        <div class="card-header">Alteração em <a#}
+        {#                                href="{% url 'ver_ficha_de_evento' versao.ficha.id_ficha %}">{{ versao.ficha.ficha }}</a>#}
+        {#                            por {{ versao.colaborador }} em {{ versao.data_e_hora }}</div>#}
+        {#                        <div class="card-body">#}
+        {#                            <ul>#}
+        {#                                {% if versao.campos_alterados|length > 4 %}#}
+        {#                                    <li>#}
+        {#                                        <p>Campos#}
+        {#                                            {% for alteracao in versao.campos_alterados %}#}
+        {#                                                {% if not forloop.last %}#}
+        {#                                                    <span>{{ alteracao.campo.nome_campo }}</span>,#}
+        {#                                                {% else %}#}
+        {#                                                    e <span>{{ alteracao.campo.nome_campo }}</span>#}
+        {#                                                {% endif %}#}
+        {#                                            {% endfor %}#}
+        {#                                            alterados#}
+        {#                                        </p>#}
+        {#                                    </li>#}
+        {#                                {% else %}#}
+        {#                                    {% for alteracao in versao.campos_alterados %}#}
+        {#                                        <li>#}
+        {#                                            {% if alteracao.campo.tipo_campo == 'JSONField' %}#}
+        {#                                                {% if alteracao.campo.nome_campo == 'refeicoes' %}#}
+        {#                                                    <p>Tabela de <span>refeicoes</span> alterado</p>#}
+        {#                                                {% elif alteracao.campo.nome_campo == 'informacoes locacoes' %}#}
+        {#                                                    <p><span>Informações da locação</span> alterado</p>#}
+        {#                                                {% endif %}#}
+        {#                                            {% elif alteracao.campo.tipo_campo == 'FileField' %}#}
+        {#                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>#}
+        {#                                            {% elif alteracao.campo.tipo_campo == 'TextField' %}#}
+        {#                                                <p><span>{{ alteracao.campo.nome_campo }}</span> alterado.</p>#}
+        {#                                            {% else %}#}
+        {#                                                <p>Campo <span>{{ alteracao.campo.nome_campo }}</span> alterado de#}
+        {#                                                    <span>#}
+        {#                                                    {% if alteracao.campo.valor_anterior is None or alteracao.campo.valor_anterior == '0' or alteração.campo.valor_anterior == '' %}#}
+        {#                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}#}
+        {#                                                            0#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}#}
+        {#                                                            Sem data#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}#}
+        {#                                                            "Vazio"#}
+        {#                                                        {% endif %}#}
+        {#                                                    {% else %}#}
+        {#                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}#}
+        {#                                                            {% if alteracao.campo.valor_anterior %}#}
+        {#                                                                Sim#}
+        {#                                                            {% else %}#}
+        {#                                                                Não#}
+        {#                                                            {% endif %}#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}#}
+        {#                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y' }}#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}#}
+        {#                                                            {{ alteracao.campo.valor_anterior |date:'d/m/Y H:i' }}#}
+        {#                                                        {% else %}#}
+        {#                                                            {{ alteracao.campo.valor_anterior }}#}
+        {#                                                        {% endif %}#}
+        {#                                                    {% endif %}#}
+        {#                                                </span> para#}
+        {#                                                    <span>#}
+        {#                                                    {% if alteracao.campo.novo_valor is None or alteracao.campo.novo_valor == '0' or alteração.campo.novo_valor == '' %}#}
+        {#                                                        {% if alteracao.campo.tipo_campo == 'IntegerFIeld' %}#}
+        {#                                                            0#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateField' or alteracao.campo.tipo_campo == 'DateTimeField' %}#}
+        {#                                                            Sem data#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'CharField' %}#}
+        {#                                                            "Vazio"#}
+        {#                                                        {% endif %}#}
+        {#                                                    {% else %}#}
+        {#                                                        {% if alteracao.campo.tipo_campo == 'BooleanField' %}#}
+        {#                                                            {% if alteracao.campo.novo_valor %}#}
+        {#                                                                Sim#}
+        {#                                                            {% else %}#}
+        {#                                                                Não#}
+        {#                                                            {% endif %}#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateField' %}#}
+        {#                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y' }}#}
+        {#                                                        {% elif alteracao.campo.tipo_campo == 'DateTimeField' %}#}
+        {#                                                            {{ alteracao.campo.novo_valor |date:'d/m/Y H:i' }}#}
+        {#                                                        {% else %}#}
+        {#                                                            {{ alteracao.campo.novo_valor }}#}
+        {#                                                        {% endif %}#}
+        {#                                                    {% endif %}#}
+        {#                                                </span></p>#}
+        {#                                            {% endif %}#}
+        {#                                        </li>#}
+        {#                                    {% endfor %}#}
+        {#                                {% endif %}#}
+        {#                            </ul>#}
+        {#                        </div>#}
+        {#                    {% endif %}#}
+        {#                </div>#}
+        {#            {% endfor %}#}
+        {#        {% else %}#}
+        <div id="conteudo">
+            <div id="abas" style="display: flex">
+                {% if financeiro %}
+                    <div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>
+                {% endif %}
                 {% if comercial or diretoria %}
-                    <div id="adesao" class="section-content ativo">
-                        <div class="tabelas">
-                            <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
-                                <thead>
-                                <tr>
-                                    <th style="width: 500px">Cliente</th>
-                                    <th>Estimado</th>
-                                    <th>Reservado</th>
-                                    <th>Adesao</th>
-                                    <th style="width: 250px">Check in</th>
-                                    {% if diretoria %}
-                                        <th>Colaborador</th>
-                                    {% endif %}
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for ficha in fichas_adesao %}
-                                    <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
-                                        onclick="window.location = $(this).data('href')"
-                                        style="cursor: pointer"
-                                        class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
-                                        <td>{{ ficha.cliente }}</td>
-                                        <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
-                                            0 {% endif %}</td>
-                                        <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
-                                            0 {% endif %}</td>
-                                        <td>{{ ficha.adesao|floatformat:2 }}%</td>
-                                        <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
-                                        {% if diretoria %}
-                                            <td> {{ ficha.vendedora }} </td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="folder ativo"
+                         onclick="alterar_aba(this, 'adesao')">Adesão
                     </div>
                 {% endif %}
-                <div id="status" class="section-content {% if operacional %} ativo {% endif %}">
-                    <div class="tabelas">
-                        <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>
-                        <table id="tabela_status_pre_reserva" class="table table-hover table-striped"
-                               style="border-top: solid">
-                            <thead>
-                            <tr>
-                                <th style="width: 450px">Cliente</th>
-                                <th style="width: 150px">Produto</th>
-                                <th>Estimado</th>
-                                <th style="width: 250px">Check in</th>
-                                {% if diretoria or operacional %}
-                                    <th>Colaborador</th>
-                                {% endif %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for pre_reserva in pre_reservas %}
-                                <tr class="pre_reservas">
-                                    <td>{{ pre_reserva.cliente }}</td>
-                                    <td>{{ pre_reserva.produto }}</td>
-                                    <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
-                                    {% if diretoria or operacional %}
-                                        <td> {{ pre_reserva.vendedora }} </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                {% if comercial or operacional or diretoria %}
+                    <div class="folder {% if operacional %} ativo {% endif %}"
+                         onclick="alterar_aba(this, 'status')">Status
                     </div>
-                    <hr>
-                    <div class="tabelas">
-                        <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>
-                        <table id="tabela_status_agendado" class="table table-hover table-striped"
-                               style="border-top: solid">
-                            <thead>
-                            <tr>
-                                <th style="width: 450px">Cliente</th>
-                                <th style="width: 150px">Produto</th>
-                                <th>Estimado</th>
-                                <th style="width: 250px">Check in</th>
-                                {% if diretoria or  operacional %}
-                                    <th>Colaborador</th>
-                                {% endif %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for confirmado in confirmados %}
-                                <tr class="agendados">
-                                    <td>{{ confirmado.cliente }}</td>
-                                    <td>{{ confirmado.produto }}</td>
-                                    <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
-                                    {% if diretoria or operacional %}
-                                        <td> {{ confirmado.vendedora }} </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                {% endif %}
+                {% if comercial or diretoria %}
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
+                        <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
                     </div>
-                    <hr>
+                {% endif %}
+                {% if diretoria or operacional or coordenador_monitoria %}
+                    <div class="folder {% if coordenador_monitoria and not diretoria %} ativo {% endif %}"
+                         onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
+                    </div>
+                {% endif %}
+                {% if financeiro %}
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
+                    </div>
+                {% endif %}
+            </div>
+            {% if comercial or diretoria %}
+                <div id="adesao" class="section-content ativo">
                     <div class="tabelas">
-                        <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
-                        <table id="tabela_status_ficha" class="table table-hover table-striped"
-                               style="border-top: solid">
+                        <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
                             <thead>
                             <tr>
                                 <th style="width: 500px">Cliente</th>
-                                <th style="width: 145px">Produto</th>
                                 <th>Estimado</th>
                                 <th>Reservado</th>
+                                <th>Adesao</th>
                                 <th style="width: 250px">Check in</th>
-                                {% if diretoria or operacional %}
+                                {% if diretoria %}
                                     <th>Colaborador</th> {% endif %}
                             </tr>
                             </thead>
                             <tbody>
-                            {% for ficha in fichas %}
+                            {% for ficha in fichas_adesao %}
                                 <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
                                     onclick="window.location = $(this).data('href')"
-                                    style="cursor: pointer" class="fichas">
+                                    style="cursor: pointer"
+                                    class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
                                     <td>{{ ficha.cliente }}</td>
-                                    <td>{{ ficha.produto }}</td>
                                     <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
                                         0 {% endif %}</td>
                                     <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
                                         0 {% endif %}</td>
+                                    <td>{{ ficha.adesao|floatformat:2 }}%</td>
                                     <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
-                                    {% if diretoria or operacional %}
+                                    {% if diretoria %}
                                         <td> {{ ficha.vendedora }} </td> {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                </div>
+            {% endif %}
+            <div id="status" class="section-content {% if operacional %} ativo {% endif %}">
+                <div class="tabelas">
+                    <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>
+                    <table id="tabela_status_pre_reserva" class="table table-hover table-striped"
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 450px">Cliente</th>
+                            <th style="width: 150px">Produto</th>
+                            <th>Estimado</th>
+                            <th style="width: 250px">Check in</th>
+                            {% if diretoria or operacional %}
+                                <th>Colaborador</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for pre_reserva in pre_reservas %}
+                            <tr class="pre_reservas">
+                                <td>{{ pre_reserva.cliente }}</td>
+                                <td>{{ pre_reserva.produto }}</td>
+                                <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ pre_reserva.vendedora }} </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="tabelas">
+                    <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>
+                    <table id="tabela_status_agendado" class="table table-hover table-striped"
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 450px">Cliente</th>
+                            <th style="width: 150px">Produto</th>
+                            <th>Estimado</th>
+                            <th style="width: 250px">Check in</th>
+                            {% if diretoriaor or  operacional %}
+                                <th>Colaborador</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for confirmado in confirmados %}
+                            <tr class="agendados">
+                                <td>{{ confirmado.cliente }}</td>
+                                <td>{{ confirmado.produto }}</td>
+                                <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ confirmado.vendedora }} </td> {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="tabelas">
+                    <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
+                    <table id="tabela_status_ficha" class="table table-hover table-striped"
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 500px">Cliente</th>
+                            <th style="width: 145px">Produto</th>
+                            <th>Estimado</th>
+                            <th>Reservado</th>
+                            <th style="width: 250px">Check in</th>
+                            {% if diretoria or operacional %}
+                                <th>Colaborador</th> {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas %}
+                            <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
+                                onclick="window.location = $(this).data('href')"
+                                style="cursor: pointer" class="fichas">
+                                <td>{{ ficha.cliente }}</td>
+                                <td>{{ ficha.produto }}</td>
+                                <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ ficha.vendedora }} </td> {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="tabelas">
+                    <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>
+                    <table id="tabela_status_ordem" class="table table-hover table-striped"
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 450px">Cliente</th>
+                            <th style="width: 150px">Produto</th>
+                            <th>Participantes</th>
+                            <th style="width: 250px">Check in</th>
+                            {% if diretoria or operacional %}
+                                <th>Colaborador</th> {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ordem in ordens_colaborador %}
+                            <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}"
+                                onclick="window.location = $(this).data('href')"
+                                style="cursor: pointer" class="ordens">
+                                <td>{{ ordem.ficha_de_evento.cliente }}</td>
+                                <td>{{ ordem.ficha_de_evento.produto }}</td>
+                                <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ ordem.vendedor }} </td> {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if comercial or diretoria %}
+                <div id="avisos" class="section-content">
+                    <div>
+                        Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém com a
+                        ausência da ficha de evento.
+                    </div>
                     <hr>
                     <div class="tabelas">
-                        <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>
-                        <table id="tabela_status_ordem" class="table table-hover table-striped"
+                        <table id="tabela_avisos" class="table table-hover table-striped"
                                style="border-top: solid">
                             <thead>
                             <tr>
                                 <th style="width: 450px">Cliente</th>
                                 <th style="width: 150px">Produto</th>
-                                <th>Participantes</th>
+                                <th>Estimado</th>
                                 <th style="width: 250px">Check in</th>
-                                {% if diretoria or operacional %}
+                                {% if diretoria %}
                                     <th>Colaborador</th> {% endif %}
+                                <th>Confirmado</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for ordem in ordens_colaborador %}
-                                <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}"
-                                    onclick="window.location = $(this).data('href')"
-                                    style="cursor: pointer" class="ordens">
-                                    <td>{{ ordem.ficha_de_evento.cliente }}</td>
-                                    <td>{{ ordem.ficha_de_evento.produto }}</td>
-                                    <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
+                            {% for aviso in avisos %}
+                                <tr class="pre_reservas">
+                                    <td>{{ aviso.cliente }}</td>
+                                    <td>{{ aviso.produto }}</td>
+                                    <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %}
                                         0 {% endif %}</td>
-                                    <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
-                                    {% if diretoria or operacional %}
-                                        <td> {{ ordem.vendedor }} </td> {% endif %}
+                                    <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
+                                    <td>{{ aviso.agendado|yesno:'Sim,Não' }}</td>
+                                    {% if diretoria %}
+                                        <td> {{ aviso.vendedora }} </td> {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            {% if diretoria or operacional or coordenador_monitoria %}
+                <div id="sem_escala"
+                     class="section-content {% if coordenador_monitoria and not diretoria %} ativo {% endif %}">
+                    <div class="tabelas">
+                        <table id="tabela_sem_escala" class="table table-hover table-striped"
+                               style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th style="width: 450px">Cliente</th>
+                                <th style="width: 150px">Produto</th>
+                                <th>Estimado</th>
+                                <th style="width: 250px">Check in</th>
+                                <th>Colaborador</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sem_escala in sem_escalas %}
+                                <tr class="pre_reservas">
+                                    <td>{{ sem_escala.cliente }}</td>
+                                    <td>{{ sem_escala.produto }}</td>
+                                    <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
+                                    <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
+                                    <td> {{ sem_escala.vendedora }} </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -389,6 +463,76 @@
                         </div>
                     </div>
                 {% endif %}
+                </div>
+            {% endif %}
+        {% if financeiro %}
+            <div class="section-content ativo" id="pacotes">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width: 50%">Pacote promocional</th>
+                        <th style="width: 25%">Data de vencimento</th>
+                        <th style="width: 25%">Valor base</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for pacote in pacotes %}
+                        <tr>
+                            <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
+                            <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
+                            <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div id="orcamentos_aprovados" class="section-content">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width: 40%">Cliente</th>
+                        <th style="width: 15%">Vencimento</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 5%">Perdido</th>
+                        <th style="width: 5%"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tratativa in tratativas %}
+                        <tr id="{{ tratativa.id_tratativa }}">
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
+                            <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
+                            <td style="white-space: nowrap">
+                                <button type="button" id="perdido" class="button_perdido"
+                                        {% if tratativa.status_tratativa in 'Perdido, Vencido, Ganho' %}
+                                        disabled {% endif %}
+                                        onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val('{{ tratativa.id_tratativa }}'); $('#modal_orcamento_perdido').modal('show')">
+                                    <i
+                                            class='bx bx-x'></i>
+                                </button>
+                            </td>
+                            <td>
+                                <form action="{% url 'dashboardPeraltas' %}">
+                                    <fieldset id="fieldset_pdf">
+                                        <input type="hidden" name="gerar_pdf" value="True">
+                                        <input type="hidden" name="id_tratativa_pdf"
+                                               value="{{ tratativa.id_tratativa }}">
+                                        <button type="submit" class="button_pdf"
+                                                {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
+                                                disabled {% endif %} onclick="loading()"><i
+                                                class='bx bxs-file-pdf'></i></button>
+                                    </fieldset>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         {% endif %}
     {% elif monitor %}
@@ -549,6 +693,7 @@
             </div>
         </div>
     {% endif %}
+
     <!--------------------------------------------------------------------------------------------------------------------->
     <!------------------------- Fim da página e início do modal de aviso da disponibilidade ------------------------------->
     <!--------------------------------------------------------------------------------------------------------------------->
@@ -624,6 +769,72 @@
             })
         </script>
     {% endif %}
+
+    <div class="modal fade" id="tratativas" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tratativas</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'dashboardPeraltas' %}" method="POST">
+                    <fieldset>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <table id="tabela_tratativas" class="table table-borderless table-hover">
+                                <thead style="text-align: center">
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Vencimento</th>
+                                    <th>Valor</th>
+                                    <th>Ganho/Perdido</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <hr>
+                            <div style="display: flex; justify-content: flex-end">
+                                <button type="button" id="adicionar_tratativa"><span>Nova tratativa</span><i
+                                        class='bx bx-plus'></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" onclick="loading()">Aceitar</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_orcamento_perdido" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Motivo da recusa</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="motivo_recusa">Qual o motivo da recusa por parte do cliente?</label>
+                    <input type="text" id="motivo_recusa" name="motivo_recusa" required>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" id="id_orcamento_perdido">
+                    <button type="button" class="btn btn-primary" onclick="alterar_status(btn)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/scripts_dashboard.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

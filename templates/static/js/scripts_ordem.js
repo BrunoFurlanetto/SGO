@@ -97,7 +97,7 @@ function mostrar_conteudo(btn) {
     const head = btn.closest('[class=head]')
     $('.qtd_participantes, .qtd_participantes_loc, .qtd_participantes_eco').trigger('change')
     $(head).siblings('.content').toggleClass('none')
-    $(btn).toggleClass('open')
+    $(btn).toggleClass('aberto')
 }
 
 function verificar_atividades(selecao) {

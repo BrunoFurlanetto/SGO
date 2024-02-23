@@ -229,7 +229,7 @@
 
                 </li>
 
-                {% comment %}{% if 'dashboard' in request.path %}
+                {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
@@ -238,16 +238,17 @@
                 {% else %}
                     <li>
                 {% endif %}
-
-                {% if perms.peraltas.add_fichadeevento %}
-                    <a href="{% url 'orcamento' %}">
-                        <i class='bx bxs-calculator'></i>
-                        <span class="link_name">Orçamento</span>
-                    </a>
-                    <ul class="sub-menu blank">
-                        <li><a class="link_name" href="/admin/">Orçamento</a></li>
-                    </ul>
-                {% endif %}{% endcomment %}
+                {% if perms.orcamento.add_orcamento %}
+                    {% if perms.orcamento.add_orcamento %}
+                        <a href="{% url 'orcamento' %}">
+                            <i class='bx bxs-calculator'></i>
+                            <span class="link_name">Orçamento</span>
+                        </a>
+                        <ul class="sub-menu blank">
+                            <li><a class="link_name" href="{% url 'orcamento' %}">Orçamento</a></li>
+                        </ul>
+                    {% endif %}
+                {% endif %}
 
                 </li>{% if 'dashboard' in request.path %}
                 {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}

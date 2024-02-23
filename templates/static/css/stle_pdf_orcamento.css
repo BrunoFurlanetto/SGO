@@ -1,0 +1,10 @@
+body {
+    size: 210mm 297mm; /* Tamanho A4 (largura x altura) em milímetros */
+    margin: 10mm; /* Margens da página */
+    border: solid 1px #000;
+}
+
+h2 {
+    color: #bb2d3b;
+    background: #1a1e21;
+}
