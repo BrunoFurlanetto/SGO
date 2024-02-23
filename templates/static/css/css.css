@@ -1363,12 +1363,20 @@
     margin: auto auto 10%;
 }
 
+#abas {
+    display: flex;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 10px 0 0 0 ;
+}
+
 .folder {
     background-color: #6c757db0;
     color: #fff;
     padding: 10px;
     cursor: pointer;
     border-radius: 15px 15px 0 0;
+    white-space: nowrap;
 }
 
 .folder.ativo {
@@ -1387,6 +1395,15 @@
 
 .section-content.ativo {
     display: block;
+}
+
+#tratativas #aviso_ficha_financeira {
+    margin: 4px;
+    border: solid 1px #000;
+    padding: 10px;
+    background: #f1f1f1;
+    border-radius: 8px;
+    box-shadow: inset 0px 0px 3px 1px #888888;
 }
 
 #permissao_orcamentos table thead {

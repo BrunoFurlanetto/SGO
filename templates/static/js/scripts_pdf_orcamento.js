@@ -1,6 +1,38 @@
-const {jsPDF} = window.jspdf;
 const pdfContainer = document.getElementById('paginas_pdf_orcamento');
 let scale = 1.0;
+
+
+function imprimir() {
+    let style = document.getElementById('estilo_impressao').cloneNode(true);
+    let printWindow = window.open('', '_blank');
+    printWindow.document.body.appendChild(style);
+    let paginas = document.querySelectorAll('.pagina');
+
+    paginas.forEach(function (pagina, index) {
+        let divPagina = document.createElement('div');
+        divPagina.style.pageBreakBefore = 'always';
+        let conteudoPagina = pagina.cloneNode(true);
+        divPagina.appendChild(conteudoPagina);
+        printWindow.document.body.appendChild(divPagina);
+    });
+
+    let checkReady = setInterval(function () {
+        if (printWindow.document.readyState === "complete") {
+            clearInterval(checkReady);
+            printWindow.print();
+            printWindow.document.close();
+            printWindow.close();
+        }
+    }, 50);
+}
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'p' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault()
+
+        imprimir()
+    }
+});
 
 document.addEventListener('wheel', (event) => {
     if (event.ctrlKey) {
@@ -38,5 +70,4 @@ function createPDF() {
         'width': 170,
         'elementHandlers': specialElementHandlers
     });
-    ;
 }

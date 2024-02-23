@@ -1,5 +1,6 @@
 import datetime
 import json
+from decimal import Decimal
 from itertools import chain
 
 from django.contrib import auth
@@ -7,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, Vendedor, ProdutosPeraltas, AtividadesEco, \
@@ -22,14 +22,18 @@ from .budget import Budget
 
 @login_required(login_url='login')
 def calc_budget(req, id_tratativa=None):
-    print(req.user.has_perm('orcamento.add_orcamento'))
-    if not req.user.has_perm('orcamento.add_orcamento'):
-        return redirect('dashboardPeraltas')
+    # if not req.user.has_perm('orcamento.add_orcamento'):
+    #     return redirect('dashboardPeraltas')
 
     financeiro = User.objects.filter(pk=req.user.id, groups__name__icontains='financeiro').exists()
 
     if is_ajax(req):
         if req.method == 'GET':
+            if req.GET.get('id_orcamento_extras'):
+                orcamento = Orcamento.objects.get(pk=req.GET.get('id_orcamento_extras'))
+
+                return JsonResponse({'opcionais_extra': orcamento.opcionais_extra})
+
             if req.GET.get('id_promocional'):
                 orcamento_promocional = Orcamento.objects.get(pk=req.GET.get('id_promocional'))
 
@@ -123,7 +127,7 @@ def calc_budget(req, id_tratativa=None):
             opt_data = []
             act_data = []
             act_sky_data = []
-
+            
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -149,36 +153,41 @@ def calc_budget(req, id_tratativa=None):
             # TAXAS
             budget.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
             budget.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
-            budget.transport.set_min_payers(data["minimo_pagantes"]) if "minimo_pagantes" in data else ...
+
+            # budget.transport.set_min_payers(data["minimo_pagantes"]) if "minimo_pagantes" in data else ...
             budget.transport.set_min_payers(gerencia["minimo_onibus"]) if "minimo_onibus" in gerencia else ...
-            budget.set_business_fee(data["taxa_comercial"]) if "taxa_comercial" in data else ...
-            budget.set_commission(data["comissao_de_vendas"]) if "comissao_de_vendas" in data else ...
+            # budget.set_business_fee(data["taxa_comercial"]) if "taxa_comercial" in data else ...
+            # budget.set_commission(data["comissao_de_vendas"]) if "comissao_de_vendas" in data else ...
             # budget.period.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
-            budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
-            budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
+            # budget.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
+            # budget.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
+
             budget.daily_rate.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
             budget.monitor.calc_value_monitor(data['tipo_monitoria'])
             budget.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
-            budget.monitor.set_discount(
-                data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
+            # budget.monitor.set_discount(
+            #     data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
             budget.transport.calc_value_transport(data.get("transporte"))
             budget.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
-            budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
-            budget.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
+            # budget.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
+            # budget.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
 
             # Veriricação se aplica tava MP
-            budget.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data['only_sky'] and data.get('promocional', '') != 'on' else ...
+            budget.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
+                'only_sky'] and data.get('promocional', '') != 'on' else ...
 
-            #discout with percent
+            # discout with percent
             budget.transport.set_percent_discount(
                 gerencia["desconto_transporte_percent"]) if "desconto_transporte_percent" in gerencia else ...
             budget.monitor.set_percent_discount(
                 gerencia["desconto_monitoria_percent"]) if "desconto_monitoria_percent" in gerencia else ...
             budget.daily_rate.set_percent_discount(
                 data["desconto_diarias_percent"]) if "desconto_diarias_percent" in data else ...
-            budget.daily_rate.set_percent_discount(
-                gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
+            # budget.daily_rate.set_percent_discount(
+            #     gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
 
+            # adjustment values
+            budget.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
 
             # OPICIONAIS
             if len(valores_op) == 0:
@@ -209,6 +218,7 @@ def calc_budget(req, id_tratativa=None):
             budget.others.calc_value_optional(budget.array_description_others)
 
             # CAlCULAR TOTAL
+            is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"
             budget.total.calc_total_value(
                 monitor=budget.monitor,
                 period=budget.period,
@@ -217,13 +227,16 @@ def calc_budget(req, id_tratativa=None):
                 activities=budget.activities,
                 activities_sky=budget.activities_sky,
                 daily_rate=budget.daily_rate,
-                transport=budget.transport,
+                transport=budget.transport.tranport_go_and_back if is_go_and_back else budget.transport,
                 days=data["n_dias"],
             )
 
             if req.POST.get('salvar') == 'true':
-                valor_final = budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
-                    budget.business_fee) + budget.total.calc_commission(budget.commission)
+                valor_final = (budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
+                    budget.business_fee) + budget.total.calc_commission(budget.commission)) + budget.total.get_adjustiment()
+                desconto = budget.total.get_adjustiment()
+
+                data['desconto'] = f'{desconto:.2f}'
                 data['valor'] = f'{valor_final:.2f}'
                 data['opcionais_extra'] = data.get('outros', [])
                 data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
@@ -242,23 +255,27 @@ def calc_budget(req, id_tratativa=None):
                 try:
                     orcamento_salvo = orcamento.save()
                 except Exception as e:
+                    print(e)
                     return JsonResponse({
                         "status": "error",
                         "data": budget.return_object(),
                         "msg": e,
                     })
                 else:
-                    if req.POST.get('id_tratativa') and req.POST.get('id_tratativa') != '':
-                        ...
-                    else:
-                        if not data.get('id_tratativa') and data.get('id_tratativa') != '':
-                            tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=req.user)
-                            tratativa.orcamentos.set([orcamento_salvo])
-                            tratativa.save()
+                    if not orcamento_salvo.promocional:
+                        if req.POST.get('id_tratativa') and req.POST.get('id_tratativa') != '':
+                            ...
                         else:
-                            tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
-                            tratativa.orcamentos.add(orcamento_salvo.id)
-                            tratativa.save()
+                            if not data.get('id_tratativa') and data.get('id_tratativa') != '':
+                                tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente,
+                                                                      colaborador=req.user)
+                                tratativa.orcamentos.set([orcamento_salvo])
+                                tratativa.save()
+                            else:
+                                tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
+                                tratativa.orcamentos.add(orcamento_salvo.id)
+                                tratativa.save()
+
                     return JsonResponse({
                         "status": "success",
                         "msg": "",
@@ -269,6 +286,7 @@ def calc_budget(req, id_tratativa=None):
                     "status": "success",
                     "data": budget.return_object(),
                     "promocionais": promocionais,
+                    "limites_taxas": ValoresPadrao.listar_valores(),
                     "msg": "",
                 })
 
@@ -303,9 +321,11 @@ def calc_budget(req, id_tratativa=None):
             'tratativa': tratativa,
         })
 
+
+@login_required(login_url='login')
 def veriricar_gerencia(request):
-    id_usuario = request.GET.get('id_usuario')
-    senha = request.GET.get('senha')
+    id_usuario = request.POST.get('id_usuario')
+    senha = request.POST.get('senha')
 
     try:
         user = User.objects.get(pk=id_usuario).username
@@ -320,3 +340,12 @@ def veriricar_gerencia(request):
             return JsonResponse({'msg': ''}, status=200)
         else:
             return JsonResponse({'msg': 'Senha incorreta'}, status=401)
+
+
+@login_required(login_url='login')
+def gerar_pdf(request, id_tratativa):
+    tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
+
+    return render(request, 'orcamento/pdf_orcamento.html', {
+        'tratativa': tratativa,
+    })

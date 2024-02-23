@@ -2,6 +2,7 @@ class BaseValue:
     def __init__(self, values):
         self.values = values
         self.discount = 0
+        self.__adjustment = 0
 
     def set_discount(self, value):
         self.discount = float(value)
@@ -13,7 +14,14 @@ class BaseValue:
         discount = total * percent / 100
         self.set_discount(discount)
         return discount
+    
+    def set_adjustiment(self, value):
+        self.__adjustment = float(value)
+        return self.__adjustment
 
+    def get_adjustiment(self):
+        return self.__adjustment
+    
     def get_total_values(self):
         total = 0
         for value in self.values:
@@ -45,8 +53,12 @@ class BaseValue:
         return {
             "valor": self.get_total_values(),
             "desconto": self.discount,
-            "valor_final": self.calc_value_with_discount() + self.calc_business_fee(percent_business_fee) + self.calc_commission(percent_commission),
+            "valor_final": (self.calc_value_with_discount() 
+                            + self.calc_business_fee(percent_business_fee) 
+                            + self.calc_commission(percent_commission)) 
+                            + self.get_adjustiment(),
             "valor_com_desconto": self.calc_value_with_discount(),
+            "ajuste": self.get_adjustiment(),
             "taxa_comercial": self.calc_business_fee(percent_business_fee),
             "comissao_de_vendas": self.calc_commission(percent_commission),
             "valores": self.values

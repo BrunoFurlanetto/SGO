@@ -254,33 +254,38 @@
                                      onchange="verificar_alteracoes(this)">
                                     <div>
                                         <label for="comissao">Comissão</label>
-                                        <input type="text" id="comissao" name="comissao" value="9,00%"
+                                        <input type="text" id="comissao" name="comissao" value="{{ 'comissao'| pegar_taxa }}"
                                                data-valor_default="{{ 'comissao'| pegar_taxa }}"
                                                data-valor_inicial="{{ 'comissao'| pegar_taxa }}"
-                                               data-valor_alterado="{{ 'comissao'| pegar_taxa }}">
+                                               data-valor_alterado="{{ 'comissao'| pegar_taxa }}"
+                                                data-teto="{{ 'teto_comissao'| pegar_taxa }}" data-piso="{{ 'piso_comissao'|pegar_taxa }}">
                                         <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
                                     </div>
                                     <div>
                                         <label for="taxa_comercial">Taxa Comercial</label>
-                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="5,00%"
+                                        <input type="text" id="taxa_comercial" name="taxa_comercial" value="{{ 'taxa_comercial'| pegar_taxa }}"
                                                data-valor_default="{{ 'taxa_comercial'| pegar_taxa }}"
                                                data-valor_inicial="{{ 'taxa_comercial'| pegar_taxa }}"
-                                               data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}">
+                                               data-valor_alterado="{{ 'taxa_comercial'| pegar_taxa }}"
+                                               data-teto="{{ 'teto_taxa_comercial'| pegar_taxa }}"
+                                               data-piso="{{ 'piso_taxa_comercial'|pegar_taxa }}">
                                         <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
                                                value="0">
                                     </div>
                                     <div>
                                         <label for="minimo_onibus">Mínimo no ônibus</label>
-                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="30"
+                                        <input type="number" id="minimo_onibus" name="minimo_onibus" value="{{ 'minimo_onibus'| pegar_taxa }}"
                                                data-valor_default="{{ 'minimo_onibus'| pegar_taxa }}"
                                                data-valor_inicial="{{ 'minimo_onibus'| pegar_taxa }}"
-                                               data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}">
+                                               data-valor_alterado="{{ 'minimo_onibus'| pegar_taxa }}"
+                                               data-teto="{{ 'teto_onibus'| pegar_taxa }}"
+                                               data-piso="{{ 'piso_onibus'|pegar_taxa }}">
                                         <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
                                                value="0">
                                     </div>
                                     <div style="width: 28%">
                                         <label for="data_pagamento">Data de pagamento</label>
-                                        <input type="date" id="data_pagamento" name="data_pagamento" value=""
+                                        <input type="date" id="data_pagamento" name="data_pagamento" value="{{ 'data_pagamento'| pegar_taxa }}"
                                                data-valor_default="{{ 'data_pagamento'| pegar_taxa }}"
                                                data-valor_inicial="{{ 'data_pagamento'| pegar_taxa }}"
                                                data-valor_alterado="{{ 'data_pagamento'| pegar_taxa }}">
@@ -288,11 +293,11 @@
                                                value="0">
                                     </div>
                                     <div>
-                                        <label for="desconto_geral">Desconto geral</label>
-                                        <input type="text" id="desconto_geral" name="desconto_geral" value="0,00"
+                                        <label for="ajuste_diaria">Ajuste</label>
+                                        <input type="text" id="ajuste_diaria" name="ajuste_diaria" value="0,00"
                                                data-valor_default="0,00" data-valor_inicial="0,00"
                                                data-valor_alterado="0,00">
-                                        <input type="hidden" name="desconto_geral_alterado" id="desconto_geral_alterado"
+                                        <input type="hidden" name="ajuste_diaria_alterado" id="ajuste_diaria_alterado"
                                                value="0">
                                     </div>
                                     <div>
@@ -375,7 +380,7 @@
                 </div>
                 <div class="modal-footer">
                     {% if not financeiro %}
-                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                        <button type="button" id="btn_alterar_taxas" class="btn btn-secondary" data-toggle="modal"
                                 data-target="#verificacao_gerencia">Alterar taxas
                         </button>
                     {% endif %}
@@ -527,6 +532,7 @@
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
                 await verificar_preenchimento(true)
                 await verificar_monitoria_transporte()
+                await preencher_op_extras({{ id_orcamento|safe }})
                 $('#id_atividades').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
             {% else %}

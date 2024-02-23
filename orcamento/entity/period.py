@@ -14,7 +14,7 @@ class Period(BaseValue):
         return 0
 
     def get_periods(self):
-        return [period.id for period in self.periods]
+        return [period.id_periodo for period in self.periods]
 
     def set_period_rate(self):
         taxa = 0

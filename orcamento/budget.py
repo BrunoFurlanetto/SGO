@@ -37,7 +37,7 @@ class Budget:
         self.transport = Transport(
             days=self.days,
             values=[],
-            periods=periods,
+            checkin=days_list[0],
         )
         self.optional = Optional([], days)
         self.array_description_optional = []
@@ -183,6 +183,10 @@ class Budget:
                     percent_business_fee=self.business_fee
                 ),
                 "transporte": self.transport.do_object(
+                    percent_commission=self.commission,
+                    percent_business_fee=self.business_fee
+                ),
+                "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(
                     percent_commission=self.commission,
                     percent_business_fee=self.business_fee
                 ),

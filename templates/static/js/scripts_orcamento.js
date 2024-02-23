@@ -24,7 +24,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
 
     $('#valor_opcional').mascaraDinheiro()
-    $('#desconto_geral').mascaraDinheiro()
+    $('#ajuste_diaria').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
 
@@ -65,7 +65,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
                         thousands: '.',
                         decimal: ',',
                         allowZero: true,
-                        affixesStay: false
+                        affixesStay: false,
                     })
                     await enviar_form()
                 })
@@ -102,12 +102,24 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
 }
 
+function verificar_produto() {
+    const produto = $('#id_produto option:selected').text().toLowerCase()
+
+    if (produto.includes('ceu')) {
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', true)
+    } else {
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', false)
+    }
+}
+
 async function verificar_alteracoes(div) {
     if ($('#id_promocional').prop('checked')) {
         await enviar_form()
 
         return
     }
+
+    await verificar_pisos_e_tetos()
 
     setInterval(() => {
         $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
@@ -182,7 +194,8 @@ $.fn.mascaraDinheiro = function () {
         thousands: '.',
         decimal: ',',
         allowZero: true,
-        affixesStay: false
+        affixesStay: false,
+        allowNegative: true,
     })
 }
 
@@ -411,6 +424,67 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
     }
 }
 
+async function verificar_pisos_e_tetos() {
+    return await new Promise(async (resolve, reject) => {
+        $('#campos_alteraveis input').map((index, campo) => {
+            let valor, piso, teto
+
+            if ($(campo).val().includes('%')) {
+                valor = $(campo).val().replace(/[^\w\s]/gi, '')
+                piso = $(campo).data('piso').replace(/[^\w\s]/gi, '')
+                teto = $(campo).data('teto').replace(/[^\w\s]/gi, '')
+            } else if (!$(campo).val().includes('$')) {
+                valor = $(campo).val()
+                piso = $(campo).data('piso')
+                teto = $(campo).data('teto')
+            }
+
+            if (parseFloat(valor) < parseFloat(piso)) {
+
+                $(campo).val($(campo).data('piso'))
+            }
+
+            if (parseFloat(valor) > parseFloat(teto)) {
+                $(campo).val($(campo).data('teto'))
+            }
+        })
+
+        await teto_desconto()
+
+        resolve()
+    })
+}
+
+async function teto_desconto() {
+    return await new Promise((resolve, reject) => {
+        let teto_percent
+
+        if ($('#id_orcamento_promocional').val() != '') {
+            teto_percent = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
+        } else {
+            teto_percent = parseFloat(resultado_ultima_consulta['limites_taxas']['teto_desconto']) / 100
+        }
+
+        const desconto = parseFloat($('#ajuste_diaria').val().replace(',', '.'))
+
+        if (desconto > teto_percent * valor_padrao()) {
+            $('#ajuste_diaria').val(formatar_dinheiro((teto_percent * valor_padrao()).toFixed(2)))
+        }
+
+        resolve()
+    })
+}
+
+function valor_padrao() {
+    let taxa_comercial_default = $('#modal_descritivo #taxa_comercial').data('valor_default').replace('%', '')
+    let comissao_default = $('#modal_descritivo #comissao').data('valor_default').replace('%', '')
+    let valor_sem_desconto = resultado_ultima_consulta['data']['total']['valor']
+    let taxa_comercial = (valor_sem_desconto / (1 - (parseFloat(taxa_comercial_default) / 100))) - valor_sem_desconto
+    let comissao = (valor_sem_desconto / (1 - (parseFloat(comissao_default) / 100))) - valor_sem_desconto
+
+    return valor_sem_desconto + taxa_comercial + comissao
+}
+
 async function enviar_form(salvar = false) {
     if ($('#id_orcamento_promocional').val() != '') {
         $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
@@ -464,7 +538,7 @@ async function enviar_form(salvar = false) {
                         const total = response['data']['total']['valor_final']
                         const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros + atividades + atividade_ceu)
                         const total_formatado = formatar_dinheiro(total)
-                        console.log(total_formatado, total)
+
                         // Alteração dos valores das seções
                         $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
                         $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
@@ -935,6 +1009,21 @@ function salvar_dados_do_pacote() {
     })
 }
 
+async function preencher_op_extras(id_orcamento) {
+    $.ajax({
+        type: 'GET',
+        url: '',
+        data: {'id_orcamento_extras': id_orcamento},
+        success: function (response) {
+            if (response['opcionais_extra']) {
+                for (let opt of response['opcionais_extra']) {
+                    novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'])
+                }
+            }
+        }
+    })
+}
+
 async function preencher_promocional(id_promocional) {
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -981,7 +1070,7 @@ async function preencher_promocional(id_promocional) {
                 }
 
                 for (let id_campo in response['gerencia']) {
-                    if (id_campo == 'desconto_geral') {
+                    if (id_campo == 'ajuste_diaria') {
                         $(`#form_gerencia #${id_campo}`).val(formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).data('valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
@@ -1160,23 +1249,14 @@ async function verificar_gerencia() {
     $.ajax({
         url: '/orcamento/verificar_gerencia/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        type: "GET",
+        type: "POST",
         data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
         success: async function (response) {
             $('#id_gerente').val($('#usuario').val())
 
-            if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
+            if ($('#campos_alteraveis #ajuste_diaria').data('valor_alterado') == '0,00') {
                 $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
                 $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
-            }
-
-            let limite_desconto = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
-            let valor_final = parseFloat($('#campos_alteraveis #valor_final').data('valor_inicial').replace('.', '').replace('R$ ', '').replace(',', '.'))
-            let valor_deconto = parseFloat($('#campos_alteraveis #desconto_geral').val().replace(',', '.'))
-
-            if (valor_deconto > valor_final * limite_desconto) {
-                $('#campos_alteraveis #desconto_geral').val((valor_final * limite_desconto).toFixed(2).replace('.', ','))
-                alert(`Desconto pedido acima do limite possível de ${$('#dados_do_pacote #id_limite_desconto_geral').val()}%. Valor máximo deve ser de  R$ ${(valor_final * limite_desconto).toFixed(2).replace('.', ',')}`)
             }
 
             await enviar_form()
