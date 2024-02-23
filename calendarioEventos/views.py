@@ -103,7 +103,7 @@ def eventos(request):
                     data_saida=datetime.now().date(),
                     data_evento=pre_reserva.check_in.date(),
                     motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                    participantes=pre_reserva.qtd_convidada,
+                    participantes=pre_reserva.qtd_convidada if pre_reserva.qtd_convidada else 0,
                     tipo_evento='corporativo' if pre_reserva.produto_corporativo else 'colegio'
                 )
                 pre_reserva.delete()

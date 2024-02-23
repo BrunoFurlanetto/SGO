@@ -493,8 +493,8 @@ def salvar_dados_transporte(form_transporte, numero_carros):
 
 def verificar_codigos(codigos):
     codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
-    url_gerar_json = 'https://pagamento.peraltas.com.br/a/tools/gera_arquivo_json_turmas.aspx'
-    url_json = 'https://pagamento.peraltas.com.br/json/turmas.json'
+    url_gerar_json = 'https://dashboard.peraltas.com.br/Dados/Gera_Arquivo'
+    url_json = 'https://dashboard.peraltas.com.br/json/relatorio.json'
 
     for codigo in codigos:
         if codigo in codigos_padrao:
@@ -502,7 +502,7 @@ def verificar_codigos(codigos):
                 'salvar': True
             }
 
-    response_gerar_json = requests.get(url_gerar_json)
+    response_gerar_json = requests.post(url_gerar_json)
     response_json = requests.get(url_json)
 
     if response_gerar_json.status_code == 200 and response_json.status_code == 200:
@@ -512,9 +512,11 @@ def verificar_codigos(codigos):
         total_professores_feminino = 0
 
         eventos = response_json.json()
-        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+        eventos_base = {evento['codigoGrupo']: evento for evento in eventos}
 
         for codigo in codigos:
+            eventos_dict = eventos_base if not verificar_sistema_antigo(codigos) else verificar_sistema_antigo(codigos)
+
             if codigo not in eventos_dict and codigo != '':
                 return {
                     'salvar': False,
@@ -543,3 +545,23 @@ def verificar_codigos(codigos):
             'total_eficha': total_pagantes_masculino + total_pagantes_feminino,
         }
     }
+
+def verificar_sistema_antigo(codigos):
+    """
+    Função necessária para o periodo de transição do sistema de pagamntos
+    """
+
+    codigos_padrao = [codigo.codigo for codigo in CodigosPadrao.objects.all()]
+    url_gerar_json = 'https://pagamento.peraltas.com.br/a/tools/gera_arquivo_json_turmas.aspx'
+    url_json = 'https://pagamento.peraltas.com.br/json/turmas.json'
+
+    response_gerar_json = requests.post(url_gerar_json)
+    response_json = requests.get(url_json)
+
+    if response_gerar_json.status_code == 200 and response_json.status_code == 200:
+        eventos = response_json.json()
+        eventos_dict = {evento['codigoGrupo']: evento for evento in eventos}
+
+        for codigo in codigos:
+            if codigo in eventos_dict and codigo != '':
+                return eventos_dict
