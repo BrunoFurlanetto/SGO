@@ -106,11 +106,19 @@
                                         $('#aviso_lotacao').addClass('none')
                                         $('#alerta_exclusividade').remove()
                                         $('#ModalCadastroPreReserva .modal-body .alert').remove()
+
                                         const modal_footer = $('#editar_pre_reserva').empty().removeClass('none')
                                         $('#ModalCadastroPreReserva #id_cliente').val(response['cliente']).trigger('change').select2({
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
+
+                                        if (response['obs_edicao'] !== null) {
+                                            $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true)
+                                            $('#ModalCadastroPreReserva #obs_edicao').removeClass('none')
+                                        } else {
+                                            $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
+                                        }
 
                                         dadosProduto(true)
 
@@ -124,13 +132,6 @@
                                             $('#ModalCadastroPreReserva #id_agencia').prop('checked', true)
                                         } else {
                                             $('#ModalCadastroPreReserva #id_agencia').prop('checked', false)
-                                        }
-
-                                        if (response['obs_edicao'] !== null) {
-                                            $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true)
-                                            $('#ModalCadastroPreReserva #obs_edicao').removeClass('none')
-                                        } else {
-                                            $('#ModalCadastroPreReserva #obs_edicao').addClass('none')
                                         }
 
                                         if (response['confirmado']) {
@@ -164,7 +165,7 @@
                                                 modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
                                             {% endif %}
 
-                                            {% if perms.peraltas.add_fichadeevento %}
+                                            {% if perms.peraltas.delete_fichadeevento %}
                                                 {% if perms.peraltas.delete_fichadeevento %}
                                                     modal_footer.append(`<button type="button" class="btn btn-outline-secondary" onclick="$('#ModalCadastroPreReserva').modal('hide'); $('#ModalExclusaoPreReserva').modal('show')">Excluir</button>`)
                                                 {% else %}
@@ -462,7 +463,6 @@
             }
 
             $(document).ready(function () {
-
                 montar_calendario().then(() => {
                     {% if comercial %}
                         $('.fc-daygrid-day-top:not(:has(.bx.bx-list-ul))').append("<i class='bx bx-list-ul' onclick='gerar_descritivo_dia(this)'></i>")
@@ -650,23 +650,25 @@
                             $('#produto_corporativo').addClass('none')
                         }
 
-                        if (response['hora_check_in_padrao'] === null && dados_produto_corporativo.length === 0) {
-                            $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true).prop('disabled', true)
+                        if (!$('#ModalCadastroPreReserva #editar_horarios').prop('checked')) {
+                            if (response['hora_check_in_padrao'] === null && dados_produto_corporativo.length === 0) {
+                                $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true).prop('disabled', true)
 
-                            if (response['n_dias'] !== null) {
-                                const check_out = moment(check_in).add(response['n_dias'], 'days')
-                                $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`yyyy-MM-DD 18:00`)))
-                            }
-                        } else {
-                            $('#ModalCadastroPreReserva #editar_horarios').prop('checked', false).prop('disabled', false)
-
-                            if (response['n_dias'] !== null) {
-                                const check_out = moment(check_in).add(response['n_dias'], 'days')
-                                $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`YYYY-MM-DD ${response['hora_check_in_padrao']}`)))
-                                $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`YYYY-MM-DD ${response['hora_check_out_padrao']}`)))
+                                if (response['n_dias'] !== null) {
+                                    const check_out = moment(check_in).add(response['n_dias'], 'days')
+                                    $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`yyyy-MM-DD 18:00`)))
+                                }
                             } else {
-                                if (!editando) {
-                                    $('#ModalCadastroPreReserva #id_check_out').val('')
+                                $('#ModalCadastroPreReserva #editar_horarios').prop('checked', false).prop('disabled', false)
+
+                                if (response['n_dias'] !== null) {
+                                    const check_out = moment(check_in).add(response['n_dias'], 'days')
+                                    $('#ModalCadastroPreReserva #id_check_in').val((moment(check_in).format(`YYYY-MM-DD ${response['hora_check_in_padrao']}`)))
+                                    $('#ModalCadastroPreReserva #id_check_out').val((moment(check_out).format(`YYYY-MM-DD ${response['hora_check_out_padrao']}`)))
+                                } else {
+                                    if (!editando) {
+                                        $('#ModalCadastroPreReserva #id_check_out').val('')
+                                    }
                                 }
                             }
                         }
@@ -723,12 +725,16 @@
             }
 
             async function corporativo(selecao) {
-                const id_produto = selecao.value
-                let check_in = $('#id_check_in')
-                let check_out = $('#id_check_out')
-                hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
-                hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
-                pegar_horario_padrao(check_in, check_out)
+                try {
+                    const id_produto = selecao.value
+                    let check_in = $('#id_check_in')
+                    let check_out = $('#id_check_out')
+                    hora_padrao_check_in = dados_produto_corporativo[id_produto]['check_in_padrao']
+                    hora_padrao_check_out = dados_produto_corporativo[id_produto]['check_out_padrao']
+                    pegar_horario_padrao(check_in, check_out)
+                } catch (e) {
+                }
+
             }
 
             function verificar_evento_dia_exclusividade() {
@@ -905,7 +911,9 @@
                                         onclick="window.location.href='{% url 'ficha_de_evento' %}'">
                                     Ficha de evento
                                 </button>
-                                <button id="salvar_pre_agendamento" type="submit" disabled class="btn btn-primary">Salvar pré agendamento</button>
+                                <button id="salvar_pre_agendamento" type="submit" disabled class="btn btn-primary">
+                                    Salvar pré agendamento
+                                </button>
                             </div>
                             <div id="editar_pre_reserva" class="none"></div>
                         </div>
