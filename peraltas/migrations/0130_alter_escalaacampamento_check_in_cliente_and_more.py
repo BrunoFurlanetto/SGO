@@ -21,11 +21,11 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(),
         ),
         # Operações pra correção de conflitos entre branchs do github no
-        migrations.AddField(
-            model_name='fichadeevento',
-            name='data_preenchimento',
-            field=models.DateField(blank=True, null=True, default=datetime.date.today),
-        ),
+        #migrations.AddField(
+        #    model_name='fichadeevento',
+        #    name='data_preenchimento',
+        #    field=models.DateField(blank=True, null=True, default=datetime.date.today),
+        #),
         migrations.RenameField(
             model_name='fichadeevento',
             old_name='data_preenchimento',

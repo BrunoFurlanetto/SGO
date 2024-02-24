@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='orcamentoperiodo',
-            name='dias_semana_validos',
-            field=models.JSONField(),
-        ),
+        #migrations.AlterField(
+        #    model_name='orcamentoperiodo',
+        #    name='dias_semana_validos',
+        #    field=models.JSONField(),
+        #),
         migrations.AlterField(
             model_name='orcamentoperiodo',
             name='final_vigencia',

@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='orcamentoperiodo',
             name='dias_semana_validos',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), default=1, size=None, verbose_name='Dias validos'),
+            field=models.TextField(),
             preserve_default=False,
         ),
         migrations.AlterField(
