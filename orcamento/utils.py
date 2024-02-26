@@ -122,31 +122,14 @@ def processar_formulario(dados):
 
         while current_date <= date_check_out:
             days_list.append(current_date)
-            # is_first_semester = current_date.month <= 6
-            # is_mdw = current_date.weekday() <= 2
-            # year = current_date.year
-            # find_id = ""
-            # find_id += "MS" if is_mdw else "FS"
-            # find_id += "PS" if is_first_semester else "SS"
-            # find_id += str(year)
-            #
-            # # verificar se sempre o segundo semestre é QD... ************
-            # find_id = find_id.replace("MSSS", "QDSS")
-            # find_id = find_id.replace("FSSS", "QDSS")
 
             try:
-                periodFilter = OrcamentoPeriodo.objects.filter(
+                period = OrcamentoPeriodo.objects.get(
                     inicio_vigencia__lte=current_date, 
                     final_vigencia__gte=current_date,
-                    #TODO:verificar dia da semana!
-                    )
-                
-                period = periodFilter.first();
-                print("PERIDO AQUI O _______________________")
-                print(period)
-                print(type(current_date))
+                    dias_semana_validos__in=[current_date.weekday()]
+                )
             except OrcamentoPeriodo.DoesNotExist:
-                # return JsonError(f'Período não encontrado na base, por favor peça o cadastro do período {find_id} a diretoria')
                 return JsonError(f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
             else:
                 period_days.append(period)

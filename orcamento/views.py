@@ -127,7 +127,7 @@ def calc_budget(req, id_tratativa=None):
             opt_data = []
             act_data = []
             act_sky_data = []
-            
+
             # Verificar parametros obrigatórios
             if verify_data(data):
                 return verify_data(data)
@@ -150,6 +150,7 @@ def calc_budget(req, id_tratativa=None):
             # GERANDO ORÇAMENTO
             budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
                             data["hora_check_out"], data["lista_de_dias"])
+
             # TAXAS
             budget.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
             budget.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
@@ -217,6 +218,9 @@ def calc_budget(req, id_tratativa=None):
             budget.set_others(data.get("outros"))
             budget.others.calc_value_optional(budget.array_description_others)
 
+            if data.get('transporte') and data.get('transporte') == 'sim' and len(budget.transport.tranport_go_and_back.values) == 0:
+                return JsonError('Transporte não cadastrado para o check in do grupo')
+
             # CAlCULAR TOTAL
             is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"
             budget.total.calc_total_value(
@@ -233,7 +237,8 @@ def calc_budget(req, id_tratativa=None):
 
             if req.POST.get('salvar') == 'true':
                 valor_final = (budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
-                    budget.business_fee) + budget.total.calc_commission(budget.commission)) + budget.total.get_adjustiment()
+                    budget.business_fee) + budget.total.calc_commission(
+                    budget.commission)) + budget.total.get_adjustiment()
                 desconto = budget.total.get_adjustiment()
 
                 data['desconto'] = f'{desconto:.2f}'

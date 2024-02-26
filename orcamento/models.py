@@ -132,8 +132,8 @@ class ValoresTransporte(models.Model):
         max_digits=7, decimal_places=2, verbose_name='Leva e Busca', default=0.00)
     percentual = models.DecimalField(
         max_digits=3, decimal_places=2, verbose_name='Percentual', default=0.10)
-    validade = models.DateField(verbose_name='Validade dos valores',
-                                default=default_validade)
+    inicio_validade = models.DateField(verbose_name='Inicio vigência dos valores', default=timezone.now)
+    final_validade = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
 
     def __str__(self):

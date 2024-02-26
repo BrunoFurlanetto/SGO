@@ -17,17 +17,16 @@ class TransportGoAndBack(TransportProtocol):
             return self.values
 
         try:
-            obj_transport = ValoresTransporte.objects.filter(validade__gte=self.checkin)
-            obj_transport = obj_transport.first()
+            obj_transport = ValoresTransporte.objects.get(
+                inicio_validade__lte=self.checkin,
+                final_validade__gte=self.checkin,
+            )
         except ValoresTransporte.DoesNotExist:
-            self.values = []
-
-            return self.values
+            values = []
         else:
-            value = (
-                            float(obj_transport.leva_e_busca)
-                            / (1 - float(obj_transport.percentual))
-                    ) / self.min_payers
+            value = (float(obj_transport.leva_e_busca)
+                     / (1 - float(obj_transport.percentual))
+                     ) / self.min_payers
 
             values.append(value)
             for i in range(1, self.days):

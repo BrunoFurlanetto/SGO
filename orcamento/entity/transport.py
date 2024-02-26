@@ -1,6 +1,7 @@
 from .interface.transport_protocol import TransportProtocol
 from ..models import ValoresTransporte
 from .transport_go_and_back import TransportGoAndBack
+from ..utils import JsonError
 
 
 class Transport(TransportProtocol):
@@ -25,17 +26,14 @@ class Transport(TransportProtocol):
             self.values = values
 
             return self.values
-        
-        
+
         try:
-            #TODO: GET ta dando erro aqui, pois retorna mais de um valor de onibus
-            obj_transport = ValoresTransporte.objects.filter(validade__gte=self.checkin)
-            obj_transport = obj_transport.first()
+            obj_transport = ValoresTransporte.objects.get(
+                inicio_validade__lte=self.checkin,
+                final_validade__gte=self.checkin,
+            )
         except ValoresTransporte.DoesNotExist:
-
-            self.values = []
-
-            return self.values
+            values = []
         else:
             if self.days == 1:
                 value = (float(obj_transport.valor_1_dia) /
@@ -45,10 +43,10 @@ class Transport(TransportProtocol):
                          (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 3:
                 value = (float(obj_transport.valor_3_dia) /
-                        (1 - float(obj_transport.percentual))) / self.min_payers
+                         (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 4:
                 value = (float(obj_transport.valor_4_dia) /
-                        (1 - float(obj_transport.percentual))) / self.min_payers
+                         (1 - float(obj_transport.percentual))) / self.min_payers
             else:
                 value = ((float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))
                           ) + ((self.days - 3) *
@@ -59,10 +57,10 @@ class Transport(TransportProtocol):
 
             for i in range(1, self.days):
                 values.append(0)
-        finally:
-            self.values = values
-
-            return self.values
+        # finally:
+        #     self.values = values
+        #
+        #     return self.values
 
     def set_discount(self, value):
         self.tranport_go_and_back.set_discount(value)

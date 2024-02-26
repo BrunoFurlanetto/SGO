@@ -24,8 +24,10 @@ class BaseValue:
     
     def get_total_values(self):
         total = 0
+
         for value in self.values:
             total += float(value)
+
         return total
 
     def set_values(self, values):
