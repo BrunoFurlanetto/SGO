@@ -84,7 +84,7 @@ class OrcamentoPeriodo(models.Model):
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
-    id_periodo = models.CharField(max_length=11, unique=True, primary_key=True, editable=False)
+    id_periodo = models.CharField(max_length=255, unique=True, primary_key=True, editable=False)
 
     def __str__(self):
         return self.nome_periodo

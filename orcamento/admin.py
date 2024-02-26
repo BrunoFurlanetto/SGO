@@ -54,8 +54,8 @@ class PeriodosAdmin(admin.ModelAdmin):
         dias_selecionados = [dia.id_dia for dia in valores_selecionados]
         parte_1 = form.cleaned_data['inicio_vigencia'].strftime('%Y%m%d')
         parte_2 = form.cleaned_data['final_vigencia'].strftime('%Y%m%d')
-        parte_3 = '_'.join(list(map(str, dias_selecionados)))
-        obj.id_periodo = f'{parte_1}{parte_2}{parte_3}'
+        parte_3 = ''.join(list(map(str, dias_selecionados)))
+        obj.id_periodo = f'{parte_1}{parte_2}DSV{parte_3}'
 
         super().save_model(request, obj, form, change)
 
