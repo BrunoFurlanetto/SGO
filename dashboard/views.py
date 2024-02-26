@@ -202,7 +202,11 @@ def dashboardPeraltas(request):
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
-    financeiro = Group.objects.get(name='Financeiro')
+
+    try:
+        financeiro = Group.objects.get(name='Financeiro')
+    except Group.DoesNotExist:
+        financeiro = None
 
     if is_ajax(request):
         if request.method == "GET":
