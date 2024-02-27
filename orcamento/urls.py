@@ -1,6 +1,5 @@
 from django.urls import path
 
-import projetoCEU
 from . import views
 
 urlpatterns = [
