@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import pre_delete
@@ -98,3 +99,34 @@ class FichaFinanceira(models.Model):
 
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'
+
+
+# ------------------------------------------------ Forms ---------------------------------------------------------------
+class CadastroDadosEvento(forms.ModelForm):
+    class Meta:
+        model = DadosEvento
+        fields = '__all__'
+
+
+class CadastroDadosPagamento(forms.ModelForm):
+    class Meta:
+        model = DadosPagamento
+        fields = '__all__'
+
+
+class CadastroPlanosPagamento(forms.ModelForm):
+    class Meta:
+        model = PlanosPagamento
+        fields = '__all__'
+
+
+class CadastroNotaFiscal(forms.ModelForm):
+    class Meta:
+        model = NotaFiscal
+        fields = '__all__'
+
+
+class CadastroFichaFinanceira(forms.ModelForm):
+    class Meta:
+        model = FichaFinanceira
+        fields = '__all__'
