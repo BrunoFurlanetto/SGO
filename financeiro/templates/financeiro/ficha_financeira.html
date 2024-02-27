@@ -3,5 +3,22 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-
+    <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}">
+    <div id="conteudo_ficha_financeira">
+        <div class="titulo">
+            <h5>Orçamento {{ orcamento.id }}: {{ orcamento.cliente }}</h5>
+        </div>
+        <hr>
+        <div class="cabecalho">
+            <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
+            <p><strong>Nome Fantasia: </strong>{{ orcamento.cliente.nome_fantasia }}</p>
+            <p><strong>Telefone: </strong>{{ orcamento.responsavel.fone }}</p>
+            <p><strong>Endereço: </strong>{{ orcamento.cliente.endereco }}</p>
+            <div>
+                <label for="{{ ficha_financeira.enviado_ac.id_for_label }}">{{ ficha_financeira.enviado_ac.label }}:</label>
+                {{ ficha_financeira.enviado_ac }}
+            </div>
+        </div>
+        <hr>
+    </div>
 {% endblock %}

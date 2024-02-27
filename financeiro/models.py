@@ -81,6 +81,7 @@ class NotaFiscal(models.Model):
 class FichaFinanceira(models.Model):
     orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE, verbose_name='Orçamento')
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    enviado_ac = models.CharField(max_length=255, verbose_name='Enviado a/c', blank=True, null=True)
     dados_evento = models.ForeignKey(DadosEvento, on_delete=models.CASCADE, verbose_name='Dados do evento')
     dados_pagamento = models.ForeignKey(DadosPagamento, on_delete=models.CASCADE, verbose_name='Dados do pagamento')
     planos_pagamento = models.ForeignKey(PlanosPagamento, on_delete=models.CASCADE, verbose_name='Planos de pagamento')

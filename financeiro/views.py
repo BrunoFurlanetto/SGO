@@ -1,5 +1,23 @@
 from django.shortcuts import render
 
+from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, CadastroDadosPagamento, \
+    CadastroPlanosPagamento, CadastroNotaFiscal
+from orcamento.models import Orcamento
 
-def ficha_financeira(request):
-    return render(request, 'financeiro/ficha_financeira.html')
+
+def ficha_financeira(request, id_orcamento):
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+    cadastro_ficha_financeira = CadastroFichaFinanceira()
+    cadastro_dados_evento = CadastroDadosEvento()
+    cadastro_dados_pagamento = CadastroDadosPagamento()
+    cadastro_planos_pagamento = CadastroPlanosPagamento()
+    cadastro_nota_fiscal = CadastroNotaFiscal()
+
+    return render(request, 'financeiro/ficha_financeira.html', {
+        'orcamento': orcamento,
+        'ficha_financeira': cadastro_ficha_financeira,
+        'dados_evento': cadastro_dados_evento,
+        'dados_pagamento': cadastro_dados_pagamento,
+        'planos_pagamento': cadastro_planos_pagamento,
+        'nota_fiscal': cadastro_nota_fiscal,
+    })

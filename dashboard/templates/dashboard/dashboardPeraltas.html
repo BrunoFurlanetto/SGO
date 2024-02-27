@@ -584,18 +584,16 @@
                         <th style="width: 15%">Vencimento</th>
                         <th style="width: 15%">Status</th>
                         <th style="width: 5%"></th>
+                        <th style="width: 5%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for tratativa in tratativas %}
                         {% if tratativa.status_tratativa in 'Ganho' %}
                             <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
-                                <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
+                                <td>{{ tratativa.cliente }}</td>
+                                <td style="text-align: center">{{ tratativa.vencimento_tratativa }}</td>
+                                <td style="text-align: center">{{ tratativa.status_tratativa }}</td>
                                 <td style="text-align: center">
                                     <form action="{% url 'dashboardPeraltas' %}">
                                         <fieldset id="fieldset_pdf">
@@ -610,6 +608,9 @@
                                                         class='bx bxs-file-pdf'></i></button>
                                         </fieldset>
                                     </form>
+                                </td>
+                                <td style="text-align: center">
+                                    <button type="button" id="btn_ficha_financeira" title="Preencher ficha financeira" onclick="window.location.href = '{% url 'ficha_financeira' tratativa.orcamento_aceito.id %}'"><i class='bx bx-calculator'></i></button>
                                 </td>
                             </tr>
                         {% endif %}                        

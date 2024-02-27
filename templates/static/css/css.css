@@ -1585,3 +1585,11 @@
 #tabela_tratativas tr:not(:last-child) {
     border-bottom: dashed 1px #b5b2b2
 }
+
+#btn_ficha_financeira {
+    background: transparent;
+    border: none;
+    height: 32px;
+    width: 25px;
+    font-size: 25px;
+}

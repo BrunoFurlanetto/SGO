@@ -1,0 +1,48 @@
+#conteudo_ficha_financeira {
+    background-color: #fff;
+    margin: 5% auto 10% auto;
+    width: 750px;
+    padding: 10px;
+    box-shadow: 5px 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+#conteudo_ficha_financeira input {
+    padding: 2px 8px 2px 8px;
+    border: solid 1px #b5b4b4;
+    background: #fff;
+    border-radius: 7px;
+}
+
+#conteudo_ficha_financeira .titulo {
+    display: flex;
+    justify-content: flex-end;
+    height: 40px;
+    align-items: end;
+    padding: 0 5px 0px 5px;
+}
+
+.titulo h5 {
+    margin: 0 0 -15px 0;
+}
+
+#conteudo_ficha_financeira .cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 30px;
+    justify-content: center;
+}
+
+.cabecalho div {
+    display: flex;
+    height: fit-content;
+    align-items: center;
+    width: 65%;
+    gap: 5px;
+}
+
+.cabecalho input {
+    flex-grow: 1;
+}
