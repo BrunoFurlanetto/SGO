@@ -5,7 +5,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from orcamento.models import Orcamento
-from peraltas.models import ClienteColegio, Responsavel, Vendedor
+from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos
 
 
 class DadosEvento(models.Model):
@@ -14,7 +14,7 @@ class DadosEvento(models.Model):
         (1, 'Sim'),
     )
 
-    responsavel_operecional = models.ForeignKey(
+    responsavel_operacional = models.ForeignKey(
         Responsavel,
         on_delete=models.DO_NOTHING,
         verbose_name='Responsável operacional',
@@ -24,12 +24,12 @@ class DadosEvento(models.Model):
     responsavel_financeiro = models.CharField(max_length=255, verbose_name='Responsável financeiro')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
     comissao = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Comissão')
-    check_in = models.DateTimeField(verbose_name='Check in')
-    check_out = models.DateTimeField(verbose_name='Check out')
     coordenacao = models.IntegerField(choices=sim_e_nao, verbose_name='Coordenação')  # TODO: Verificar o que é esse campo
     monitoria = models.IntegerField(choices=sim_e_nao, verbose_name='Monitoria')
     onibus = models.IntegerField(choices=sim_e_nao, verbose_name='Ônibus')
     seguro = models.IntegerField(choices=sim_e_nao, verbose_name='Seguro')
+    check_in = models.DateTimeField(verbose_name='Check in')
+    check_out = models.DateTimeField(verbose_name='Check out')
     qtd_reservada = models.PositiveIntegerField(verbose_name='Qtd reserva')
     alunos_confirmados = models.PositiveIntegerField(verbose_name='Alunos confirmados', default=0)
     responsaveis_confirmados = models.PositiveIntegerField(verbose_name='Responsáveis confirmados', default=0)
@@ -37,12 +37,6 @@ class DadosEvento(models.Model):
     cortesia_responsaveis = models.PositiveIntegerField(verbose_name='Cortesia de responsáveis', default=0)
     responsaveis_outros_locais = models.PositiveIntegerField(verbose_name='Responsáveis em outros locais', default=0)
     alunos_outros_locais = models.PositiveIntegerField(verbose_name='Alunos em outros locais', default=0)  # TODO: Verifiacar o que é esse campo
-
-    @staticmethod
-    @receiver(pre_delete, sender=User)
-    def redefinir_colaborador(sender, instance, **kwargs):
-        diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
-        DadosEvento.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
 
 
 class DadosPagamento(models.Model):
@@ -63,8 +57,8 @@ class DadosPagamento(models.Model):
 
 class PlanosPagamento(models.Model):
     valor_a_vista = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor à vista')
-    forma_pagamento = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Forma de pagamento')
-    parcelas = models.PositiveIntegerField(verbose_name='Parcelas', default=1)
+    forma_pagamento = models.ForeignKey(TiposPagamentos, on_delete=models.CASCADE, verbose_name='Forma de pagamento')
+    parcelas = models.IntegerField(verbose_name='Parcelas', default=1)
     inicio_vencimento = models.DateField(verbose_name='Início vencimento')
     final_vencimento = models.DateField(verbose_name='Final vencimento')
 
@@ -84,7 +78,13 @@ class FichaFinanceira(models.Model):
     enviado_ac = models.CharField(max_length=255, verbose_name='Enviado a/c', blank=True, null=True)
     dados_evento = models.ForeignKey(DadosEvento, on_delete=models.CASCADE, verbose_name='Dados do evento')
     dados_pagamento = models.ForeignKey(DadosPagamento, on_delete=models.CASCADE, verbose_name='Dados do pagamento')
-    planos_pagamento = models.ForeignKey(PlanosPagamento, on_delete=models.CASCADE, verbose_name='Planos de pagamento')
+    planos_pagamento = models.ForeignKey(
+        PlanosPagamento,
+        on_delete=models.DO_NOTHING,
+        verbose_name='Planos de pagamento',
+        blank=True,
+        null=True
+    )
     nf = models.BooleanField(default=False, verbose_name='NF')
     dados_nota_fiscal = models.ForeignKey(
         NotaFiscal,
@@ -94,7 +94,8 @@ class FichaFinanceira(models.Model):
         null=True
     )
     valor_final = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor final')
-    observacoes = models.TextField(verbose_name='Observações', blank=True)
+    observacoes_orcamento = models.TextField(verbose_name='Observações orcamento', blank=True)
+    observacoes_ficha_financeira = models.TextField(verbose_name='Observações ficha financeira', blank=True)
     descritivo_ficha_financeira = models.JSONField(editable=False)
     autorizado_diretoria = models.BooleanField(default=False, verbose_name='Autorizado pela diretoria')
 
@@ -108,6 +109,31 @@ class CadastroDadosEvento(forms.ModelForm):
         model = DadosEvento
         fields = '__all__'
 
+        widgets = {
+            'responsavel_operacional': forms.Select(attrs={'class': 'inalteravel'}),
+            'monitoria': forms.Select(attrs={'class': 'inalteravel'}),
+            'onibus': forms.Select(attrs={'class': 'inalteravel'}),
+            'comissao': forms.TextInput(),
+            'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'readonly': True}),
+            'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'readonly': True}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CadastroDadosEvento, self).__init__(*args, **kwargs)
+        vendedoras = Vendedor.objects.all()
+        responsaveis = Responsavel.objects.all()
+        select_colaborador = [('', '')]
+        select_responsavel = [('', '')]
+
+        for vendedora in vendedoras:
+            select_colaborador.append((vendedora.usuario, vendedora.usuario.get_full_name()))
+
+        for responsavel in responsaveis:
+            select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
+
+        self.fields['colaborador'].choices = select_colaborador
+        self.fields['responsavel_operacional'].choices = select_responsavel
+
 
 class CadastroDadosPagamento(forms.ModelForm):
     class Meta:
@@ -120,6 +146,14 @@ class CadastroPlanosPagamento(forms.ModelForm):
         model = PlanosPagamento
         fields = '__all__'
 
+        widgets = {
+            'valor_a_vista': forms.TextInput(),
+            'forma_pagamento': forms.Select(attrs={'onchange': 'verificar_metodo_pagamento()'}),
+            'inicio_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
+            'final_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
+            'parcelas': forms.NumberInput(attrs={'min': '1', 'onchange': 'verificar_vencimentos(this)'}),
+        }
+
 
 class CadastroNotaFiscal(forms.ModelForm):
     class Meta:
@@ -131,3 +165,9 @@ class CadastroFichaFinanceira(forms.ModelForm):
     class Meta:
         model = FichaFinanceira
         fields = '__all__'
+
+        widgets = {
+            'nf': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': '$(".nota_fiscal").toggleClass("none")'}),
+            'observacoes_ficha_financeira': forms.Textarea(attrs={'rows': '6'}),
+            'observacoes_orcamento': forms.Textarea(attrs={'rows': '6'}),
+        }

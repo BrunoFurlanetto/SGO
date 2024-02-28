@@ -9,11 +9,25 @@
     flex-direction: column;
 }
 
-#conteudo_ficha_financeira input {
+#conteudo_ficha_financeira input:not(input[type=checkbox]) {
     padding: 2px 8px 2px 8px;
     border: solid 1px #b5b4b4;
     background: #fff;
     border-radius: 7px;
+}
+
+#conteudo_ficha_financeira select {
+    padding: 2px 8px 2px 8px;
+    border: solid 1px #b5b4b4;
+    background: #fff;
+    border-radius: 7px;
+}
+
+#conteudo_ficha_financeira textarea {
+    resize: none;
+    border: solid 1px #b5b4b4;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 #conteudo_ficha_financeira .titulo {
@@ -45,4 +59,73 @@
 
 .cabecalho input {
     flex-grow: 1;
+}
+
+#conteudo_ficha_financeira .dados_evento, #conteudo_ficha_financeira .planos_pagamento,
+#conteudo_ficha_financeira .nota_fiscal, #conteudo_ficha_financeira .observacoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: self-end;
+}
+
+.dados_evento > div, .planos_pagamento > div, #conteudo_ficha_financeira .nota_fiscal > div,
+#conteudo_ficha_financeira .observacoes > div {
+    display: flex;
+    flex-direction: column;
+}
+
+#div_id_responsavel_operacional{
+    width: 70%;
+}
+
+#div_id_colaborador {
+    width: 48%;
+}
+
+#div_id_responsavel_financeiro {
+     width: 27%;
+}
+
+#div_id_comissao {
+    width: 12%;
+}
+
+#div_id_qtd_reservada, #div_id_alunos_confirmados, #div_id_responsaveis_confirmados, #div_id_cortesia_alunos,
+#div_id_cortesia_responsaveis {
+    width: 18%;
+}
+
+#div_id_responsaveis_outros_locais, #div_id_alunos_outros_locais {
+    width: 20%;
+}
+
+.inalteravel {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+#div_id_valor_a_vista, #div_id_forma_pagamento, #div_id_inicio_vencimento, #div_id_final_vencimento {
+    width: 30%;
+}
+
+#div_id_parcelas {
+    width: 10%;
+}
+
+#div_id_razao_social, .observacoes > div {
+    width: 99%;
+}
+
+#div_id_endereco {
+    width: 67%;
+}
+
+#div_id_cnpj {
+    width: 30%;
+}
+
+#conteudo_ficha_financeira .botoes {
+    display: flex;
+    justify-content: end;
 }

@@ -9,16 +9,83 @@
             <h5>Orçamento {{ orcamento.id }}: {{ orcamento.cliente }}</h5>
         </div>
         <hr>
-        <div class="cabecalho">
-            <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
-            <p><strong>Nome Fantasia: </strong>{{ orcamento.cliente.nome_fantasia }}</p>
-            <p><strong>Telefone: </strong>{{ orcamento.responsavel.fone }}</p>
-            <p><strong>Endereço: </strong>{{ orcamento.cliente.endereco }}</p>
-            <div>
-                <label for="{{ ficha_financeira.enviado_ac.id_for_label }}">{{ ficha_financeira.enviado_ac.label }}:</label>
-                {{ ficha_financeira.enviado_ac }}
+        <form action="" method="POST">
+            <div class="cabecalho">
+                <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
+                <p><strong>Nome Fantasia: </strong>{{ orcamento.cliente.nome_fantasia }}</p>
+                <p><strong>Telefone: </strong>{{ orcamento.responsavel.fone }}</p>
+                <p><strong>Endereço: </strong>{{ orcamento.cliente.endereco }}</p>
+                <div>
+                    <label for="{{ ficha_financeira.enviado_ac.id_for_label }}">{{ ficha_financeira.enviado_ac.label }}:</label>
+                    {{ ficha_financeira.enviado_ac }}
+                </div>
             </div>
-        </div>
-        <hr>
+            <hr>
+            <h5 class="titulo-secao">Dados do evento</h5>
+            <div class="dados_evento">
+                {% for campo in dados_evento %}
+                    <div id="div_{{ campo.id_for_label }}">
+                        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                        {{ campo }}
+                    </div>
+                {% endfor %}
+            </div>
+            <hr>
+            <h5 class="titulo-secao">Dados do pagamento</h5>
+            <div class="dados_pagamento">
+                <table class="table table-active table-borderless">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <h5 class="titulo-secao">Planos pagamento</h5>
+            <div class="planos_pagamento">
+                <p style="width: 100%" class="none alert alert-warning">O final do vencimento não está de acordo com o número de parcelas e o início dos vencimentos</p>
+                {% for campo in planos_pagamento %}
+                    <div id="div_{{ campo.id_for_label }}">
+                        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                        {{ campo }}
+                    </div>
+                {% endfor %}
+            </div>
+            <hr>
+            <h5 class="titulo-secao">Nota fiscal</h5>
+            {{ ficha_financeira.nf }}
+            <label for="{{ ficha_financeira.nf.id_for_label }}">{{ ficha_financeira.nf.label }}</label>
+            <div class="none nota_fiscal">
+                {% for campo in nota_fiscal %}
+                    <div id="div_{{ campo.id_for_label }}">
+                        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                        {{ campo }}
+                    </div>
+                {% endfor %}
+            </div>
+            <hr>
+            <h5 class="titulo-secao">Observações</h5>
+            <div class="observacoes" style="margin-bottom: 10px">
+                <div>
+                    <label for="{{ ficha_financeira.observacoes_ficha_financeira.id_for_label }}">{{ ficha_financeira.observacoes_ficha_financeira.label }}</label>
+                    {{ ficha_financeira.observacoes_ficha_financeira }}
+                </div>
+                <div>
+                    <label for="{{ ficha_financeira.observacoes_orcamento.id_for_label }}">{{ ficha_financeira.observacoes_orcamento.label }}</label>
+                    {{ ficha_financeira.observacoes_orcamento }}
+                </div>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
     </div>
+
+    <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
+    <script src="{% static 'js/maskMoney.js' %}"></script>
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'js/scripts_ficha_financeira.js' %}"></script>
 {% endblock %}

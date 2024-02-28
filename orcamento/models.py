@@ -358,6 +358,24 @@ class Orcamento(models.Model):
     def valor_sem_desconto(self):
         return self.valor - self.desconto
 
+    def dados_iniciais(self):
+        return {
+            'responsavel_operacional': str(self.responsavel.id),
+            'colaborador': str(self.colaborador),
+            'monitoria': 0 if 'sem monitoria' in self.tipo_monitoria.nome_monitoria else 1,
+            'onibus': 0 if self.transporte == 'não' else 1,
+            'check_in': self.check_in,
+            'check_out': self.check_out,
+            'comissao': '0,00%',
+            'valor_a_vista': str(self.valor).replace('.', ','),
+            'inicio_vencimento': datetime.datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
+            'final_vencimento': datetime.datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
+            'razao_social': self.cliente.razao_social,
+            'endereco': self.cliente.endereco,
+            'cnpj': self.cliente.cnpj,
+            'observacoes_orcamento': self.observacoes,
+        }
+
 
 class Tratativas(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
