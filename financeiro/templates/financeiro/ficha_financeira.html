@@ -33,12 +33,114 @@
             <hr>
             <h5 class="titulo-secao">Dados do pagamento</h5>
             <div class="dados_pagamento">
-                <table class="table table-active table-borderless">
+                <table class="table table-borderless table-striped">
                     <thead>
-
+                        <tr>
+                            <th>Seção</th>
+                            <th>Valor neto</th>
+                            <th>Taxas</th>
+                            <th>CoV</th>
+                            <th>Desconto</th>
+                            <th>Valor final</th>
+                        </tr>
                     </thead>
                     <tbody>
-
+                        <tr>
+                            <td>Diária</td>
+                            <td>{{ orcamento.valores_diaria.valor_neto }}</td>
+                            <td>{{ orcamento.valores_diaria.taxas }}</td>
+                            <td>{{ orcamento.valores_diaria.cov }}</td>
+                            <td>{{ orcamento.valores_diaria.desconto }}</td>
+                            <td>{{ orcamento.valores_diaria.valor_final }}</td>
+                        </tr>
+                        <tr>
+                            <td>Monitoria</td>
+                            <td>{{ orcamento.valores_monitoria.valor_neto }}</td>
+                            <td>{{ orcamento.valores_monitoria.taxas }}</td>
+                            <td>{{ orcamento.valores_monitoria.cov }}</td>
+                            <td>{{ orcamento.valores_monitoria.desconto }}</td>
+                            <td>{{ orcamento.valores_monitoria.valor_final }}</td>
+                        </tr>
+                        <tr>
+                            <td>Transporte</td>
+                            <td>{{ orcamento.valores_transporte.valor_neto }}</td>
+                            <td>{{ orcamento.valores_transporte.taxas }}</td>
+                            <td>{{ orcamento.valores_transporte.cov }}</td>
+                            <td>{{ orcamento.valores_transporte.desconto }}</td>
+                            <td>{{ orcamento.valores_transporte.valor_final }}</td>
+                        </tr>
+                        <tr>
+                            <td>Atividades CEU</td>
+                            <td>{{ orcamento.valores_ceu.valor_neto }}</td>
+                            <td>{{ orcamento.valores_ceu.taxas }}</td>
+                            <td>{{ orcamento.valores_ceu.cov }}</td>
+                            <td>{{ orcamento.valores_ceu.desconto }}</td>
+                            <td>{{ orcamento.valores_ceu.valor_final }}</td>
+                        </tr>
+                        {% for atividade in orcamento.valores_ceu.descritivo_atividades %}
+                            <tr>
+                                <td>{{ atividade.atividade }}</td>
+                                <td>{{atividade.valor_neto}}</td>
+                                <td>{{atividade.taxas}}</td>
+                                <td>{{atividade.cov}}</td>
+                                <td>{{atividade.desconto}}</td>
+                                <td>{{atividade.valor_final}}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Atividades peraltas</td>
+                            <td>{{ orcamento.valores_peraltas.valor_neto }}</td>
+                            <td>{{ orcamento.valores_peraltas.taxas }}</td>
+                            <td>{{ orcamento.valores_peraltas.cov }}</td>
+                            <td>{{ orcamento.valores_peraltas.desconto }}</td>
+                            <td>{{ orcamento.valores_peraltas.valor_final }}</td>
+                        </tr>
+                        {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}
+                            <tr>
+                                <td>{{ atividade.atividade }}</td>
+                                <td>{{atividade.valor_neto}}</td>
+                                <td>{{atividade.taxas}}</td>
+                                <td>{{atividade.cov}}</td>
+                                <td>{{atividade.desconto}}</td>
+                                <td>{{atividade.valor_final}}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Opcionais</td>
+                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>
+                            <td>{{ orcamento.valores_opcionais.taxas }}</td>
+                            <td>{{ orcamento.valores_opcionais.cov }}</td>
+                            <td>{{ orcamento.valores_opcionais.desconto }}</td>
+                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>
+                        </tr>
+                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}
+                            <tr>
+                                <td>{{ atividade.atividade }}</td>
+                                <td>{{atividade.valor_neto}}</td>
+                                <td>{{atividade.taxas}}</td>
+                                <td>{{atividade.cov}}</td>
+                                <td>{{atividade.desconto}}</td>
+                                <td>{{atividade.valor_final}}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Outros</td>
+                            <td>{{ orcamento.valores_outros.valor_neto }}</td>
+                            <td>{{ orcamento.valores_outros.taxas }}</td>
+                            <td>{{ orcamento.valores_outros.cov }}</td>
+                            <td>{{ orcamento.valores_outros.desconto }}</td>
+                            <td>{{ orcamento.valores_outros.valor_final }}</td>
+                        </tr>
+                        {% for atividade in orcamento.valores_outros.descritivo_atividades %}
+                            <tr>
+                                <td>{{ atividade.atividade }}</td>
+                                <td>{{atividade.valor_neto}}</td>
+                                <td>{{atividade.taxas}}</td>
+                                <td>{{atividade.cov}}</td>
+                                <td>{{atividade.desconto}}</td>
+                                <td>{{atividade.valor_final}}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
