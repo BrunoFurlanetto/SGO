@@ -2,7 +2,7 @@ let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar, promocional = false
-const secoes = ['diaria', 'tipo_monitoria', 'transporte_leva_e_busca', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
+const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
@@ -315,7 +315,7 @@ function criar_linhas_tabela_valores() {
     const tabela_valores = $('#tabela_de_valores tbody').empty()
     tabela_valores.append(`<tr id="diaria"><td colspan="2">Diarias</td></tr>`)
     tabela_valores.append(`<tr id="tipo_monitoria"><td colspan="2">Monitoria</td></tr>`)
-    tabela_valores.append(`<tr id="transporte_leva_e_busca"><td colspan="2">Transporte</td></tr>`)
+    tabela_valores.append(`<tr id="transporte"><td colspan="2">Transporte</td></tr>`)
     tabela_valores.append(`<tr id='opcionais'><td colspan="2">Atividades Peraltas<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_descritivo').toggleClass('none')"></i></td></tr>`)
     tabela_valores.append(`<tr id='atividades'><td colspan='2'>Opcionais<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_descritivo').toggleClass('none')"></i></td></tr><tr id='atividades_descritivo'></tr>`)
     tabela_valores.append(`<tr id='atividades_ceu'><td colspan='2'>Atividades CEU<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_ceu_descritivo').toggleClass('none')"></i></td></tr><tr id='ceu_descritivo'></tr>`)
@@ -527,7 +527,7 @@ async function enviar_form(salvar = false) {
                         const periodo_diaria_formatado = formatar_dinheiro(periodo_diaria)
 
                         const valor_monitoria = valores['tipo_monitoria']['valor_final'];
-                        const transporte = valores['transporte_leva_e_busca']['valor_final'];
+                        const transporte = valores['transporte']['valor_final'];
                         const monitoria_transporte = (valor_monitoria + transporte);
                         const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
 

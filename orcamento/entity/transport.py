@@ -32,6 +32,9 @@ class Transport(TransportProtocol):
                 inicio_validade__lte=self.checkin,
                 final_validade__gte=self.checkin,
             )
+
+            print("TRANSPORT KRL")
+            print(obj_transport.valor_3_dia)
         except ValoresTransporte.DoesNotExist:
             values = []
         else:
@@ -57,10 +60,10 @@ class Transport(TransportProtocol):
 
             for i in range(1, self.days):
                 values.append(0)
-        # finally:
-        #     self.values = values
-        #
-        #     return self.values
+
+            self.values = values
+            print("Transport", self.values)
+            return self.values
 
     def set_discount(self, value):
         self.tranport_go_and_back.set_discount(value)

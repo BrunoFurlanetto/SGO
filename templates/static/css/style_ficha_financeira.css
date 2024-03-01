@@ -129,3 +129,41 @@
     display: flex;
     justify-content: end;
 }
+
+#tabela_descritivo_valores tbody > tr:not(:first-child) {
+    border-top: dashed 1px #7b7b7b;
+}
+
+#tabela_descritivo_valores thead {
+    border-bottom: solid 1px #000000;
+}
+
+#tabela_descritivo_valores thead {
+    text-align: center;
+}
+
+#tabela_descritivo_valores .secao_tabela {
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+#tabela_descritivo_valores tr > td:not(:first-child) {
+    text-align: center;
+}
+
+#tabela_descritivo_valores .descritivo_opcionais {
+    color: #7b7b7b !important;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#tabela_descritivo_valores .secao_tabela.secao_opcionais {
+    cursor: pointer;
+}
+
+#conteudo_ficha_financeira #linha_de_totais {
+    border-top: solid 1px #000;
+    vertical-align: middle;
+    text-align: center;
+    font-weight: 700;
+}

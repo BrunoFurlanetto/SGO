@@ -89,7 +89,6 @@ class Budget:
 
             description = OptionalDescription(
                 db_optional.valor,
-                db_optional.fixo,
                 db_optional.id,
                 db_optional.nome,
                 self.days
@@ -115,7 +114,6 @@ class Budget:
 
             description = OptionalDescription(
                 db_optional.valor,
-                1,
                 db_optional.id,
                 db_optional.nome_atividade_eco,
                 self.days
@@ -142,7 +140,6 @@ class Budget:
 
                 description = OptionalDescription(
                     db_optional.valor,
-                    1,
                     db_optional.id,
                     db_optional.atividade,
                     self.days
@@ -211,7 +208,7 @@ class Budget:
             "descricao_opcionais": description_options,
             "total": self.total.do_object(
                 percent_commission=self.commission,
-                percent_business_fee=self.business_fee
+                percent_business_fee=self.business_fee,
             ),
             "desconto_geral": self.total.general_discount,
             "taxa_comercial": self.business_fee,

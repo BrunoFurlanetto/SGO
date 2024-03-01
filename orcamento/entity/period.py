@@ -7,12 +7,6 @@ class Period(BaseValue):
         values = [float(0) for period in periods]
         super().__init__(values=values)
 
-    def calc_business_fee(self, percent):
-        return 0
-
-    def calc_commission(self, percent):
-        return 0
-
     def get_periods(self):
         return [period.id_periodo for period in self.periods]
 
