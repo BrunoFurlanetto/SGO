@@ -61,7 +61,6 @@ class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(default='Opcional combinado com o cliente')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    fixo = models.BooleanField(default=False, verbose_name='Opcional fixo')
 
     def __str__(self):
         return self.nome

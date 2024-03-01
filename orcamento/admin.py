@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria, OrcamentoPeriodo, \
-    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm
+    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional
 
 
 @admin.register(HorariosPadroes)
@@ -63,3 +63,7 @@ class PeriodosAdmin(admin.ModelAdmin):
 @admin.register(ValoresPadrao)
 class ValoresPadraoAdmin(admin.ModelAdmin):
     list_display = ('nome_taxa', 'valor', 'descricao')
+
+@admin.register(OrcamentoOpicional)
+class OrcamentoOpicionalAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'descricao', 'valor')
