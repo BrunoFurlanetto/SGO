@@ -59,7 +59,7 @@ class OrcamentoMonitor(models.Model):
 
 class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
-    descricao = models.TextField(default='Opcional combinado com o cliente')
+    descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
     def __str__(self):
