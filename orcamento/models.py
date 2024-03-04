@@ -40,7 +40,6 @@ class ValoresPadrao(models.Model):
         return lista_valores
 
 
-
 class OrcamentoMonitor(models.Model):
     nome_monitoria = models.CharField(max_length=100)
     descricao_monitoria = models.TextField(blank=True)

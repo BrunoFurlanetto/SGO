@@ -610,7 +610,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 data_saida=datetime.now().date(),
                 data_evento=ficha_de_evento.check_in.date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                participantes=ficha_de_evento.qtd_convidada if ficha_de_evento.qtd_convidade else 0,
+                participantes=ficha_de_evento.qtd_convidada if ficha_de_evento.qtd_convidada else 0,
                 tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'
             )
             ficha_de_evento.delete()

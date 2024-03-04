@@ -246,12 +246,12 @@ def dashboardPeraltas(request):
                 else:
                     return JsonResponse({'status': 'success'})
 
-        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-
-        if orcamento.necessita_aprovacao_gerencia:
-            return JsonResponse(campos_necessarios_aprovacao(orcamento))
-        else:
-            return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
+        # orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        #
+        # if orcamento.necessita_aprovacao_gerencia:
+        #     return JsonResponse(campos_necessarios_aprovacao(orcamento))
+        # else:
+        #     return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)

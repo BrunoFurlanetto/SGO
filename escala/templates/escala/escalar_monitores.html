@@ -63,10 +63,10 @@
 
                             {% if enfermaria == 2 %}
                                 <li class="enfermeira_2">Enfermeira das 8h às 22h, necessário 2 enfermeiras</li>
-                            {% endif %}
-
-                            {% if enfermaria == 3 %}
+                            {% elif enfermaria == 3 %}
                                 <li class="enfermeira_3">Enfermeira das 08h às 8h, necessário 3 enfermeiras</li>
+                            {% else %}
+                                <li class="">Não será necessário escalar enfermeria para este evento</li>
                             {% endif %}
 
                             <li>O grupo informou um total de {{ qtd }} participantes e até o momento temos um total
@@ -99,7 +99,8 @@
                                     {% if disponivel.setor == 'enfermeira' %}
                                         <div id="{{ disponivel.id }}"
                                              class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %} tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}"
-                                             draggable="true">{{ disponivel.nome }}</div>
+                                             draggable="true">{{ disponivel.nome }}
+                                        </div>
                                     {% endif %}
                                 {% endfor %}
                             </div>

@@ -448,8 +448,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                     for monitor in teste_disponiveis:
                         tipo_escalacao = []
 
-                        if monitor['id'] in escalados:
-                            if monitor['setor'] != 'enfermeira':
+                        if monitor['setor'] != 'enfermeira':
+                            if monitor['id'] in escalados:
                                 if Monitor.objects.get(pk=monitor['id']) in escala_editada.monitores_acampamento.all():
                                     tipo_escalacao.append(setor)
 
@@ -462,13 +462,15 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                                 if Monitor.objects.get(pk=monitor['id']) in escala_editada.tecnicos.all():
                                     tipo_escalacao.append('tecnico')
                             else:
-                                if Enfermeira.objects.get(pk=monitor['id']) in escala_editada.enfermeiras.all():
-                                    tipo_escalacao.append('enfermeira')
-
-                            monitor['tipo_escalacao'] = tipo_escalacao
-                            escalado.append(monitor)
+                                disponiveis.append(monitor)
                         else:
-                            disponiveis.append(monitor)
+                            if Enfermeira.objects.get(pk=monitor['id']) in escala_editada.enfermeiras.all():
+                                tipo_escalacao.append('enfermeira')
+                            else:
+                                disponiveis.append(monitor)
+
+                        monitor['tipo_escalacao'] = tipo_escalacao
+                        escalado.append(monitor)
 
                 check_in = escala_editada.check_in_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
                 check_out = escala_editada.check_out_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
@@ -620,6 +622,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
         except Exception as e:
+            print(e, 'ue')
             messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde!')
             return redirect('escalaPeraltas')
         else:
@@ -644,7 +647,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 EmailSender(juntar_emails_monitores(escala_salva)).mensagem_cadastro_escala(ficha_de_evento)
                 EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_salva)
-
+            print('FOi')
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')
     else:
@@ -657,7 +660,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
             for posicao, id_monitor in enumerate(request.POST.getlist('id_monitores[]'), start=segundo_incio + 1):
                 escala_dia[posicao] = int(id_monitor)
-            print(escala_dia)
+
             if request.POST.get('id_escala'):
                 escala_hotelaria = EscalaHotelaria.objects.get(id=request.POST.get('id_escala'))
                 escala_hotelaria.monitores_hotelaria = escala_dia
@@ -682,9 +685,11 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.pre_escala = request.POST.get('pre_escala', 'true') == 'true'
                 nova_escala.save()
         except Exception as e:
+            print(e)
             messages.error(request, f'Houve um erro inesperado, ({e}) por favor tente mais tarde!')
-            return redirect('escalaPeraltas')
+            return redirect('dashboard')
         else:
+            print('Ué')
             messages.success(
                 request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!'
             )
