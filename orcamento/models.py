@@ -376,20 +376,33 @@ class Orcamento(models.Model):
         }
 
     # -------------------------- Métodos pra tabelar os valores da tabela da ficha financeira --------------------------
+    def datas_evento(self):
+        data = self.check_in
+        datas = []
+
+        while data <= self.check_out:
+            datas.append(data.strftime('%d/%m'))
+            data += datetime.timedelta(days=1)
+
+        return datas
+
     def valores_diaria(self):
         periodo = self.objeto_orcamento['periodo_viagem']
         diaria = self.objeto_orcamento['valores']['diaria']
+        dia_dia = [str(a + b).replace('.', ',') for a, b in zip(periodo['valores'], diaria['valores'])]
 
         return {
-            'valor_neto': f"{diaria['valor']:.2f}".replace('.', ','),
-            'taxas': f"{(diaria['taxa_comercial'] + periodo['valor_final']):.2f}".replace('.', ','),
-            'cov': f"{diaria['comissao_de_vendas']:.2f}".replace('.', ','),
-            'desconto': f"{diaria['desconto']:.2f}".replace('.', ','),
+            'valor_neto': f"{(diaria['valor'] + periodo['valor']):.2f}".replace('.', ','),
+            'taxas': f"{(diaria['taxa_comercial'] + periodo['taxa_comercial']):.2f}".replace('.', ','),
+            'cov': f"{(diaria['comissao_de_vendas'] + periodo['comissao_de_vendas']):.2f}".replace('.', ','),
+            'desconto': f"{(diaria['desconto'] + periodo['desconto']):.2f}".replace('.', ','),
             'valor_final': f"{(diaria['valor_final'] + periodo['valor_final']):.2f}".replace('.', ','),
+            'dia_dia': dia_dia,
         }
 
     def valores_monitoria(self):
         monitoria = self.objeto_orcamento['valores']['tipo_monitoria']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), monitoria['valores']))
 
         return {
             'valor_neto': f"{monitoria['valor']:.2f}".replace('.', ','),
@@ -397,10 +410,12 @@ class Orcamento(models.Model):
             'cov': f"{monitoria['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{monitoria['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{monitoria['valor_final']:.2f}".replace('.', ','),
+            'dia_dia': dia_dia
         }
 
     def valores_transporte(self):
         transporte = self.objeto_orcamento['valores']['transporte']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), transporte['valores']))
 
         return {
             'valor_neto': f"{transporte['valor']:.2f}".replace('.', ','),
@@ -408,16 +423,20 @@ class Orcamento(models.Model):
             'cov': f"{transporte['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{transporte['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{transporte['valor_final']:.2f}".replace('.', ','),
+            'dia_dia': dia_dia,
         }
 
     def valores_ceu(self):
         valores_atividades = self.objeto_orcamento['valores']['atividades_ceu']
         descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
         atividades_ceu = []
 
         for atividades in descritivo_atividades:
             if atividades.get('atividades_ceu'):
                 for atividade_ceu in atividades.get('atividades_ceu'):
+                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_ceu['valores']))
+
                     atividades_ceu.append({
                         'atividade': atividade_ceu['nome'],
                         'valor_neto': f"{atividade_ceu['valor']:.2f}".replace('.', ','),
@@ -425,6 +444,7 @@ class Orcamento(models.Model):
                         'cov': f"{atividade_ceu['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_ceu['desconto']:.2f}".replace('.', ','),
                         'valor_final': f"{atividade_ceu['valor_final']:.2f}".replace('.', ','),
+                        'dia_dia': dia_dia_ativ
                     })
 
         return {
@@ -434,16 +454,19 @@ class Orcamento(models.Model):
             'desconto': f"{valores_atividades['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{valores_atividades['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': atividades_ceu,
+            'dia_dia': dia_dia,
         }
 
     def valores_peraltas(self):
         valores_atividades = self.objeto_orcamento['valores']['atividades']
         descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
         atividades_peraltas = []
 
         for atividades in descritivo_atividades:
             if atividades.get('atividades'):
                 for atividade_peraltas in atividades.get('atividades'):
+                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_peraltas['valores']))
 
                     atividades_peraltas.append({
                         'atividade': atividade_peraltas['nome'],
@@ -452,6 +475,7 @@ class Orcamento(models.Model):
                         'cov': f"{atividade_peraltas['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_peraltas['desconto']:.2f}".replace('.', ','),
                         'valor_final': f"{atividade_peraltas['valor_final']:.2f}".replace('.', ','),
+                        'dia_dia': dia_dia_ativ,
                     })
 
         return {
@@ -461,15 +485,19 @@ class Orcamento(models.Model):
             'desconto': f"{valores_atividades['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{valores_atividades['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': atividades_peraltas,
+            'dia_dia': dia_dia,
         }
 
     def valores_opcionais(self):
         valores_opcionais = self.objeto_orcamento['valores']['opcionais']
         descritivo_opcionais = self.objeto_orcamento['descricao_opcionais']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_opcionais['valores']))
         opcionais = []
 
         for opcional in descritivo_opcionais:
             if opcional.get('valor'):
+                dia_dia_op = list(map(lambda a: str(round(a, 2)).replace('.', ','), opcional['valores']))
+
                 opcionais.append({
                     'atividade': opcional['nome'],
                     'valor_neto': f"{opcional['valor']:.2f}".replace('.', ','),
@@ -477,6 +505,7 @@ class Orcamento(models.Model):
                     'cov': f"{opcional['comissao_de_vendas']:.2f}".replace('.', ','),
                     'desconto': f"{opcional['desconto']:.2f}".replace('.', ','),
                     'valor_final': f"{opcional['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_op,
                 })
 
         return {
@@ -486,16 +515,20 @@ class Orcamento(models.Model):
             'desconto': f"{valores_opcionais['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{valores_opcionais['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': opcionais,
+            'dia_dia': dia_dia,
         }
 
     def valores_outros(self):
         valores_outros = self.objeto_orcamento['valores']['outros']
         descritivo_outros = self.objeto_orcamento['descricao_opcionais']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_outros['valores']))
         outros = []
 
         for outro in descritivo_outros:
             if outro.get('outros'):
                 for atividade_extra in outro.get('outros'):
+                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_extra['valores']))
+
                     outros.append({
                         'atividade': atividade_extra['nome'],
                         'valor_neto': f"{atividade_extra['valor']:.2f}".replace('.', ','),
@@ -503,6 +536,7 @@ class Orcamento(models.Model):
                         'cov': f"{atividade_extra['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_extra['desconto']:.2f}".replace('.', ','),
                         'valor_final': f"{atividade_extra['valor_final']:.2f}".replace('.', ','),
+                        'dia_dia': dia_dia_ativ,
                     })
 
         return {
@@ -512,10 +546,12 @@ class Orcamento(models.Model):
             'desconto': f"{valores_outros['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{valores_outros['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': outros,
+            'dia_dia': dia_dia,
         }
 
     def valores_totais(self):
         totais = self.objeto_orcamento['total']
+        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), totais['valores']))
 
         return {
             'valor_neto': f"{totais['valor']:.2f}".replace('.', ','),
@@ -523,6 +559,7 @@ class Orcamento(models.Model):
             'cov': f"{totais['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{totais['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{totais['valor_final']:.2f}".replace('.', ','),
+            'dia_dia': dia_dia,
         }
 
 

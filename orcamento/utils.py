@@ -154,7 +154,7 @@ def processar_formulario(dados):
 
         orcamento['only_sky'] = only_sky
 
-    return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia }
+    return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 
 
 def verificar_gerencia(dados):

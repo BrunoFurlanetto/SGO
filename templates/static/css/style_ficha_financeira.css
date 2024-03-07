@@ -75,7 +75,7 @@
     flex-direction: column;
 }
 
-#div_id_responsavel_operacional{
+#div_id_responsavel_operacional {
     width: 70%;
 }
 
@@ -84,7 +84,7 @@
 }
 
 #div_id_responsavel_financeiro {
-     width: 27%;
+    width: 27%;
 }
 
 #div_id_comissao {
@@ -161,9 +161,46 @@
     cursor: pointer;
 }
 
-#conteudo_ficha_financeira #linha_de_totais {
+#conteudo_ficha_financeira #linha_de_totais,  #modal_descritivo_dia #linha_de_totais{
     border-top: solid 1px #000;
     vertical-align: middle;
     text-align: center;
     font-weight: 700;
+}
+
+#conteudo_ficha_financeira #btn_descritivo_dia {
+    border: none;
+    background: transparent;
+    display: flex;
+    column-gap: 3px;
+}
+
+#btn_descritivo_dia i {
+    font-size: 25px;
+}
+
+#modal_descritivo_dia table .tag_datas {
+    border-left: dashed 2px #000000;
+    border-right: dashed 2px #000000;
+    border-top: dashed 2px #000000;
+    border-bottom: solid 1px #000000;
+}
+
+#modal_descritivo_dia table .cabecalho {
+    border-top: solid 1px #000000;
+    border-left: solid 1px #000000;
+}
+
+#modal_descritivo_dia table tbody {
+    border-left: solid 1px #000000;
+    border-bottom: solid 1px #000000;
+}
+
+#modal_descritivo_dia table .datas {
+    border-left: dashed 2px #000000;
+    border-right: dashed 2px #000000;
+}
+
+#modal_descritivo_dia table #linha_de_totais > .datas {
+    border-bottom: dashed 2px #000000;
 }
