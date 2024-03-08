@@ -1,8 +1,8 @@
+from decimal import Decimal
+
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 
 from orcamento.models import Orcamento
 from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos
@@ -21,10 +21,12 @@ class DadosEvento(models.Model):
         blank=True,
         null=True
     )
-    responsavel_financeiro = models.CharField(max_length=255, verbose_name='Responsável financeiro')
+    responsavel_financeiro = models.CharField(max_length=250, verbose_name='Responsável financeiro', blank=True,
+                                              null=True)
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
     comissao = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Comissão')
-    coordenacao = models.IntegerField(choices=sim_e_nao, verbose_name='Coordenação')  # TODO: Verificar o que é esse campo
+    coordenacao = models.IntegerField(choices=sim_e_nao,
+                                      verbose_name='Coordenação')  # TODO: Verificar o que é esse campo
     monitoria = models.IntegerField(choices=sim_e_nao, verbose_name='Monitoria')
     onibus = models.IntegerField(choices=sim_e_nao, verbose_name='Ônibus')
     seguro = models.IntegerField(choices=sim_e_nao, verbose_name='Seguro')
@@ -36,28 +38,53 @@ class DadosEvento(models.Model):
     cortesia_alunos = models.PositiveIntegerField(verbose_name='Cortesia de alunos', default=0)
     cortesia_responsaveis = models.PositiveIntegerField(verbose_name='Cortesia de responsáveis', default=0)
     responsaveis_outros_locais = models.PositiveIntegerField(verbose_name='Responsáveis em outros locais', default=0)
-    alunos_outros_locais = models.PositiveIntegerField(verbose_name='Alunos em outros locais', default=0)  # TODO: Verifiacar o que é esse campo
+    alunos_outros_locais = models.PositiveIntegerField(verbose_name='Alunos em outros locais',
+                                                       default=0)  # TODO: Verifiacar o que é esse campo
 
 
 class DadosPagamento(models.Model):
     # produto = models.DecimalField(decimal_places=2, max_digits=8, verbose_name='Produto') TODO: Veficiar esse campo
-    periodo = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Período')
+    valor_periodo = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Período')
     descritivo_periodo = models.JSONField(editable=False)
-    monitoria = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Monitoria')
+    valor_transporte = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Transporte')
+    descritivo_transporte = models.JSONField(editable=False)
+    valor_monitoria = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Monitoria')
     descritivo_monitoria = models.JSONField(editable=False)
-    atividades_ceu = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades CEU')
+    valor_atividades_ceu = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades CEU')
     descritivo_atividades_ceu = models.JSONField(editable=False)
-    atividades_peraltas = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades Peraltas')
+    valor_atividades_peraltas = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades Peraltas')
     descritivo_atividades_peraltas = models.JSONField(editable=False)
-    opcionais = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais')
+    valor_opcionais = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais')
     descritivo_opcionais = models.JSONField(editable=False)
-    op_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais extra')
+    valor_op_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais extra')
     descritivo_extra = models.JSONField(editable=False)
+
+    @classmethod
+    def auto_preenchimento(cls, orcamento):
+        dados_pagamento = cls.objects.create(
+            valor_periodo=Decimal(orcamento.valores_diaria()['valor_final'].replace(',', '.')),
+            descritivo_periodo=orcamento.valores_diaria(),
+            valor_transporte=Decimal(orcamento.valores_transporte()['valor_final'].replace(',', '.')),
+            descritivo_transporte=orcamento.valores_transporte(),
+            valor_monitoria=Decimal(orcamento.valores_monitoria()['valor_final'].replace(',', '.')),
+            descritivo_monitoria=orcamento.valores_monitoria(),
+            valor_atividades_ceu=Decimal(orcamento.valores_ceu()['valor_final'].replace(',', '.')),
+            descritivo_atividades_ceu=orcamento.valores_ceu(),
+            valor_atividades_peraltas=Decimal(orcamento.valores_peraltas()['valor_final'].replace(',', '.')),
+            descritivo_atividades_peraltas=orcamento.valores_peraltas(),
+            valor_opcionais=Decimal(orcamento.valores_opcionais()['valor_final'].replace(',', '.')),
+            descritivo_opcionais=orcamento.valores_opcionais(),
+            valor_op_extra=Decimal(orcamento.valores_outros()['valor_final'].replace(',', '.')),
+            descritivo_extra=orcamento.valores_outros(),
+        )
+
+        return dados_pagamento
 
 
 class PlanosPagamento(models.Model):
     valor_a_vista = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor à vista')
-    forma_pagamento = models.ForeignKey(TiposPagamentos, on_delete=models.CASCADE, verbose_name='Forma de pagamento')
+    forma_pagamento = models.ForeignKey(TiposPagamentos, on_delete=models.CASCADE,
+                                        verbose_name='Forma de pagamento')
     parcelas = models.IntegerField(verbose_name='Parcelas', default=1)
     inicio_vencimento = models.DateField(verbose_name='Início vencimento')
     final_vencimento = models.DateField(verbose_name='Final vencimento')
@@ -73,8 +100,8 @@ class NotaFiscal(models.Model):
 
 
 class FichaFinanceira(models.Model):
-    orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE, verbose_name='Orçamento')
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE, verbose_name='Orçamento', null=False)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente', null=False)
     enviado_ac = models.CharField(max_length=255, verbose_name='Enviado a/c', blank=True, null=True)
     dados_evento = models.ForeignKey(DadosEvento, on_delete=models.CASCADE, verbose_name='Dados do evento')
     dados_pagamento = models.ForeignKey(DadosPagamento, on_delete=models.CASCADE, verbose_name='Dados do pagamento')
@@ -126,19 +153,13 @@ class CadastroDadosEvento(forms.ModelForm):
         select_responsavel = [('', '')]
 
         for vendedora in vendedoras:
-            select_colaborador.append((vendedora.usuario, vendedora.usuario.get_full_name()))
+            select_colaborador.append((vendedora.usuario.id, vendedora.usuario.get_full_name()))
 
         for responsavel in responsaveis:
             select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
 
         self.fields['colaborador'].choices = select_colaborador
         self.fields['responsavel_operacional'].choices = select_responsavel
-
-
-class CadastroDadosPagamento(forms.ModelForm):
-    class Meta:
-        model = DadosPagamento
-        fields = '__all__'
 
 
 class CadastroPlanosPagamento(forms.ModelForm):
@@ -167,7 +188,8 @@ class CadastroFichaFinanceira(forms.ModelForm):
         fields = '__all__'
 
         widgets = {
-            'nf': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': '$(".nota_fiscal").toggleClass("none")'}),
+            'nf': forms.CheckboxInput(
+                attrs={'class': 'form-check-input', 'onchange': '$(".nota_fiscal").toggleClass("none")'}),
             'observacoes_ficha_financeira': forms.Textarea(attrs={'rows': '6'}),
             'observacoes_orcamento': forms.Textarea(attrs={'rows': '6'}),
         }

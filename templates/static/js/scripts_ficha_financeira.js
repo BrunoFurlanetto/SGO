@@ -2,6 +2,17 @@ $(document).ready(() => {
     $('#id_comissao').mask('00,00%', {reverse: true})
     $('#id_cnpj').mask("99.999.999/9999-99")
     $('#id_valor_a_vista').DinheiroMascara()
+
+    $('#form_ficha_financeira').submit(function() {
+        let comissaoValue = $('#id_comissao').val()
+        let valor_a_vista = $('#id_valor_a_vista').val()
+
+        comissaoValue = comissaoValue.replace('%', '')
+        valor_a_vista = valor_a_vista.replace('.', '').replace(',', '.')
+
+        $('#id_comissao').val(parseInt(comissaoValue))
+        $('#id_valor_a_vista').val(parseFloat(valor_a_vista))
+    });
 })
 
 $.fn.DinheiroMascara = function () {

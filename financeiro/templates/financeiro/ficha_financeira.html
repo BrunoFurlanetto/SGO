@@ -9,7 +9,8 @@
             <h5>Orçamento {{ orcamento.id }}: {{ orcamento.cliente }}</h5>
         </div>
         <hr>
-        <form action="" method="POST">
+        <form id="form_ficha_financeira" action="{% url 'salvar_ficha_financeira' orcamento.id %}" method="POST">
+            {% csrf_token %}
             <div class="cabecalho">
                 <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
                 <p><strong>Nome Fantasia: </strong>{{ orcamento.cliente.nome_fantasia }}</p>

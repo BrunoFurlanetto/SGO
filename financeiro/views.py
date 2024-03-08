@@ -1,15 +1,15 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import render, redirect
 
-from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, CadastroDadosPagamento, \
-    CadastroPlanosPagamento, CadastroNotaFiscal
-from orcamento.models import Orcamento
+from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
+    CadastroPlanosPagamento, CadastroNotaFiscal, DadosPagamento, FichaFinanceira
+from orcamento.models import Orcamento, Tratativas
 
 
 def ficha_financeira(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
     cadastro_ficha_financeira = CadastroFichaFinanceira(initial=orcamento.dados_iniciais())
     cadastro_dados_evento = CadastroDadosEvento(initial=orcamento.dados_iniciais())
-    cadastro_dados_pagamento = CadastroDadosPagamento(initial=orcamento.dados_iniciais())
     cadastro_planos_pagamento = CadastroPlanosPagamento(initial=orcamento.dados_iniciais())
     cadastro_nota_fiscal = CadastroNotaFiscal(initial=orcamento.dados_iniciais())
 
@@ -17,7 +17,74 @@ def ficha_financeira(request, id_orcamento):
         'orcamento': orcamento,
         'ficha_financeira': cadastro_ficha_financeira,
         'dados_evento': cadastro_dados_evento,
-        'dados_pagamento': cadastro_dados_pagamento,
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
     })
+
+
+def salvar_ficha_financeiro(request, id_orcamento):
+    erros = []
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+    cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST)
+    cadastro_dados_evento = CadastroDadosEvento(request.POST)
+    cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST)
+    cadastro_nota_fiscal = CadastroNotaFiscal(request.POST)
+
+    if request.POST.get('nf'):
+        if request.POST.get('nf') == 'on':
+            if not cadastro_nota_fiscal.is_valid():
+                erros.append(cadastro_nota_fiscal.errors)
+    else:
+        cadastro_nota_fiscal = None
+
+    if not cadastro_planos_pagamento.is_valid():
+        erros.append(cadastro_planos_pagamento.errors)
+
+    if not cadastro_dados_evento.is_valid():
+        erros.append(cadastro_dados_evento.errors)
+
+    if len(erros) > 0:
+        messages.warning(request, erros)
+
+        return render(request, 'financeiro/ficha_financeira.html', {
+            'orcamento': orcamento,
+            'ficha_financeira': cadastro_ficha_financeira,
+            'dados_evento': cadastro_dados_evento,
+            'planos_pagamento': cadastro_planos_pagamento,
+            'nota_fiscal': cadastro_nota_fiscal,
+        })
+    else:
+        try:
+            dados_nota = cadastro_nota_fiscal.save() if cadastro_nota_fiscal else None
+            planos_pagamento = cadastro_planos_pagamento.save()
+            dados_evento = cadastro_dados_evento.save()
+            dados_pagamento = DadosPagamento.auto_preenchimento(orcamento)
+            FichaFinanceira.objects.create(
+                orcamento=orcamento,
+                cliente=orcamento.cliente,
+                enviado_ac=request.POST.get('enviado_ac'),
+                dados_evento=dados_evento,
+                dados_pagamento=dados_pagamento,
+                planos_pagamento=planos_pagamento,
+                nf=request.POST.get('nf', False) == 'on',
+                dados_nota_fiscal=dados_nota,
+                valor_final=planos_pagamento.valor_a_vista,
+                observacoes_orcamento=request.POST.get('observacoes_orcamento'),
+                observacoes_ficha_financeira=request.POST.get('observacoes_ficha_financeira'),
+                descritivo_ficha_financeira=orcamento.objeto_orcamento
+            )
+        except Exception as e:
+            messages.error(request, f'Houve um erro inesperado durante o cadastro da ficha financeira ({e})')
+            return render(request, 'financeiro/ficha_financeira.html', {
+                'orcamento': orcamento,
+                'ficha_financeira': cadastro_ficha_financeira,
+                'dados_evento': cadastro_dados_evento,
+                'planos_pagamento': cadastro_planos_pagamento,
+                'nota_fiscal': cadastro_nota_fiscal,
+            })
+        else:
+            tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
+            tratativa.ficha_financeira = True
+            tratativa.save()
+            messages.success(request, f'Ficha financeira de {orcamento.cliente} salva com sucesso. Aguardando aprovação da diretoria.')
+            return redirect('dashboardPeraltas')

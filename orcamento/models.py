@@ -360,7 +360,7 @@ class Orcamento(models.Model):
     def dados_iniciais(self):
         return {
             'responsavel_operacional': str(self.responsavel.id),
-            'colaborador': str(self.colaborador),
+            'colaborador': self.colaborador.id,
             'monitoria': 0 if 'sem monitoria' in self.tipo_monitoria.nome_monitoria else 1,
             'onibus': 0 if self.transporte == 'não' else 1,
             'check_in': self.check_in,
@@ -700,7 +700,7 @@ class SeuModeloAdminForm(forms.ModelForm):
 
         if periodos_conflitantes.exists():
             raise ValidationError('O grupo de períodos escolhidos já está cadastrado neste mesmo período de vigência.')
-        print('1')
+
         return dias_semana_validos
 
 
