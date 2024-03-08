@@ -324,7 +324,8 @@ class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
         (1, '1/2 monitoria (fora de quarto - 1/20)'),
         (2, '1/2 monitoria (dentro de quarto - 1/20'),
-        (3, 'Monitoria completa (em quarto - 1/12)')
+        (3, 'Monitoria completa (em quarto - 1/12)'),
+        (4, 'Monitoria completa (fora do quarto - 1/12')
     )
 
     tipos_enfermaria = (
