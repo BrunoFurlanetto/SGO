@@ -13,6 +13,10 @@ $(document).ready(() => {
         $('#id_comissao').val(parseInt(comissaoValue))
         $('#id_valor_a_vista').val(parseFloat(valor_a_vista))
     });
+
+    setInterval(() => {
+        $('#modal_negado .modal-footer button').prop('disabled', $('#modal_negado #motivo_recusa').val().length < 10)
+    }, 10)
 })
 
 $.fn.DinheiroMascara = function () {

@@ -6,7 +6,7 @@
 {% block conteudo %}
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     {% csrf_token %}
-    {% if comercial or operacional or coordenador_monitoria or financeiro %}
+    {% if comercial or operacional or coordenador_monitoria or financeiro or diretoria %}
         {#        {% if False %}#}
         {#            {% for versao in ultimas_versoes %}#}
         {#                <div class="card card-log">#}
@@ -154,6 +154,11 @@
                      onclick="alterar_aba(this, 'tratativas')">Tratativas
                 </div>
                 {#                {% endif %}#}
+                {% if diretoria %}
+                	<div class="folder"
+                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> Fichas Financeiras
+                    </div>
+                {% endif %}
             </div>
             {% if comercial or diretoria %}
                 <div id="adesao" class="section-content ativo">
@@ -463,160 +468,182 @@
                         </div>
                     </div>
                 {% endif %}
-                </div>
             {% endif %}
         {#        {% if financeiro %}#}
-        <div class="section-content {% if financeiro %} ativo {% endif %}" id="pacotes">
-            <div class="tabelas">
-                <table class="table table-hover table-striped">
-                    <thead>
-                    <tr>
-                        <th style="width: 50%">Pacote promocional</th>
-                        <th style="width: 25%">Data de vencimento</th>
-                        <th style="width: 25%">Valor base</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for pacote in pacotes %}
+            <div class="section-content {% if financeiro %} ativo {% endif %}" id="pacotes">
+                <div class="tabelas">
+                    <table class="table table-hover table-striped">
+                        <thead>
                         <tr>
-                            <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
-                            <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
-                            <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                            <th style="width: 50%">Pacote promocional</th>
+                            <th style="width: 25%">Data de vencimento</th>
+                            <th style="width: 25%">Valor base</th>
                         </tr>
-                    {% endfor %}
+                        </thead>
+                        <tbody>
+                        {% for pacote in pacotes %}
+                            <tr>
+                                <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
+                                <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
+                                <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
 
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div id="tratativas" class="section-content">
-            <div class="tabelas">
-                <h5>Tratativas Abertas</h5>
-                <hr>
-                <table class="table table-hover table-striped">
-                    <thead>
-                    <tr style="text-align: center">
-                        <th style="width: 40%">Cliente</th>
-                        <th style="width: 15%">Vencimento</th>
-                        <th style="width: 15%">Status</th>
-                        <th style="width: 5%">Perdido</th>
-                        <th style="width: 5%"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for tratativa in tratativas %}
-                        {% if tratativa.status_tratativa == 'Em aberto' %}
-                            <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
-                                <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
-                                <td style="text-align: center" style="white-space: nowrap">
-                                    <button type="button" id="perdido" class="button_perdido"
-                                            {% if tratativa.status_tratativa in 'Perdido, Vencido, Ganho' %}
-                                            disabled {% endif %}
-                                            onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val('{{ tratativa.id_tratativa }}'); $('#modal_orcamento_perdido').modal('show')">
-                                        <i
-                                                class='bx bx-x'></i>
-                                    </button>
-                                </td>
-                                <td style="text-align: center">
-                                    <form action="{% url 'dashboardPeraltas' %}">
-                                        <fieldset id="fieldset_pdf">
-                                            <input type="hidden" name="gerar_pdf" value="True">
-                                            <input type="hidden" name="id_tratativa_pdf"
-                                                   value="{{ tratativa.id_tratativa }}">
-                                            <button type="button" class="button_pdf"
-                                                    {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
-                                                    disabled {% endif %}
-                                                    onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id_tratativa %}'">
-                                                <i
-                                                        class='bx bxs-file-pdf'></i></button>
-                                        </fieldset>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="tabelas">
-                <h5>Tratativas Perdidos/Vencidos</h5>
-                <hr>
-                <table class="table table-hover table-striped">
-                    <thead>
-                    <tr style="text-align: center">
-                        <th style="width: 40%">Cliente</th>
-                        <th style="width: 15%">Vencimento</th>
-                        <th style="width: 15%">Status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for tratativa in tratativas %}
-                        {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
-                            <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
-                                <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
-                                <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
-                                    onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="tabelas">
-                <h5>Tratativas ganhas</h5>
-                <div id="aviso_ficha_financeira">
-                    Os orçamentos abaixo foram dados como ganho, porém a ficha financeira ainda não foi passada para
-                    o financeiro, por favor fazer isso o quanto antes
+                        </tbody>
+                    </table>
                 </div>
-                <hr>
-                <table class="table table-hover table-striped">
-                    <thead>
-                    <tr style="text-align: center">
-                        <th style="width: 40%">Cliente</th>
-                        <th style="width: 15%">Vencimento</th>
-                        <th style="width: 15%">Status</th>
-                        <th style="width: 5%"></th>
-                        <th style="width: 5%"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for tratativa in tratativas %}
-                        {% if tratativa.status_tratativa in 'Ganho' %}
-                            <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
-                                <td>{{ tratativa.cliente }}</td>
-                                <td style="text-align: center">{{ tratativa.vencimento_tratativa }}</td>
-                                <td style="text-align: center">{{ tratativa.status_tratativa }}</td>
-                                <td style="text-align: center">
-                                    <form action="{% url 'dashboardPeraltas' %}">
-                                        <fieldset id="fieldset_pdf">
-                                            <input type="hidden" name="gerar_pdf" value="True">
-                                            <input type="hidden" name="id_tratativa_pdf"
-                                                   value="{{ tratativa.id_tratativa }}">
-                                            <button type="button" class="button_pdf"
-                                                    {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
-                                                    disabled {% endif %}
-                                                    onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id_tratativa %}'">
-                                                <i
-                                                        class='bx bxs-file-pdf'></i></button>
-                                        </fieldset>
-                                    </form>
-                                </td>
-                                <td style="text-align: center">
-                                    <button type="button" id="btn_ficha_financeira" title="Preencher ficha financeira" onclick="window.location.href = '{% url 'ficha_financeira' tratativa.orcamento_aceito.id %}'"><i class='bx bx-calculator'></i></button>
-                                </td>
-                            </tr>
-                        {% endif %}                        
-                    {% endfor %}
-                    </tbody>
-                </table>
+            </div>
+            <div id="tratativas" class="section-content">
+                <div class="tabelas">
+                    <h5>Tratativas Abertas</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Vencimento</th>
+                            <th style="width: 15%">Status</th>
+                            <th style="width: 5%">Perdido</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for tratativa in tratativas %}
+                            {% if tratativa.status_tratativa == 'Em aberto' %}
+                                <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
+                                    <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
+                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
+                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
+                                    <td style="text-align: center; white-space: nowrap">
+                                        <button type="button" id="perdido" class="button_perdido"
+                                                {% if tratativa.status_tratativa in 'Perdido, Vencido, Ganho' %}
+                                                disabled {% endif %}
+                                                onclick="btn = this; $('#modal_orcamento_perdido #id_orcamento_perdido').val('{{ tratativa.id_tratativa }}'); $('#modal_orcamento_perdido').modal('show')">
+                                            <i class='bx bx-x'></i>
+                                        </button>
+                                    </td>
+                                    <td style="text-align: center">
+                                        <form action="{% url 'dashboardPeraltas' %}">
+                                            <fieldset id="fieldset_pdf">
+                                                <input type="hidden" name="gerar_pdf" value="True">
+                                                <input type="hidden" name="id_tratativa_pdf"
+                                                       value="{{ tratativa.id_tratativa }}">
+                                                <button type="button" class="button_pdf"
+                                                        {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
+                                                        disabled {% endif %}
+                                                        onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id_tratativa %}'">
+                                                    <i class='bx bxs-file-pdf'></i></button>
+                                            </fieldset>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Tratativas Perdidos/Vencidos</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Vencimento</th>
+                            <th style="width: 15%">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for tratativa in tratativas %}
+                            {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
+                                <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
+                                    <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
+                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
+                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                        onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Tratativas ganhas</h5>
+                    <div id="aviso_ficha_financeira">
+                        Os orçamentos abaixo foram dados como ganho, porém a ficha financeira ainda não foi passada para
+                        o financeiro, por favor fazer isso o quanto antes
+                    </div>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Vencimento</th>
+                            <th style="width: 15%">Status</th>
+                            <th style="width: 5%"></th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for tratativa in tratativas %}
+                            {% if tratativa.status_tratativa in 'Ganho' %}
+                                <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
+                                    <td>{{ tratativa.cliente }}</td>
+                                    <td style="text-align: center">{{ tratativa.vencimento_tratativa }}</td>
+                                    <td style="text-align: center">{{ tratativa.status_tratativa }}</td>
+                                    <td style="text-align: center">
+                                        <form action="{% url 'dashboardPeraltas' %}">
+                                            <fieldset id="fieldset_pdf">
+                                                <input type="hidden" name="gerar_pdf" value="True">
+                                                <input type="hidden" name="id_tratativa_pdf"
+                                                       value="{{ tratativa.id_tratativa }}">
+                                                <button type="button" class="button_pdf"
+                                                        {% if tratativa.status_tratativa in 'Perdido, Vencido' %}
+                                                        disabled {% endif %}
+                                                        onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id_tratativa %}'">
+                                                    <i
+                                                            class='bx bxs-file-pdf'></i></button>
+                                            </fieldset>
+                                        </form>
+                                    </td>
+                                    <td style="text-align: center">
+                                        <button type="button" id="btn_ficha_financeira" title="Preencher ficha financeira" onclick="window.location.href = '{% url 'ficha_financeira' tratativa.orcamento_aceito.id %}'"><i class='bx bx-calculator'></i></button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="fichas_financeiras_aprovar" class="section-content">
+                <div class="tabelas">
+                    <h5>Fichas Financeiras esperando aprovação</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Colaborador</th>
+                            <th style="width: 15%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for ficha in fichas_financeira %}
+                                <tr style="cursor: pointer" onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         {#        {% endif %}#}

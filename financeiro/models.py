@@ -120,6 +120,9 @@ class FichaFinanceira(models.Model):
         blank=True,
         null=True
     )
+    motivo_recusa = models.TextField(verbose_name='Motivo da recusa', blank=True, null=True)
+    negado = models.BooleanField(default=False, verbose_name='Negado')
+    comentario_diretoria = models.TextField(verbose_name='Comentário para o financeiro', blank=True, null=True)
     valor_final = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor final')
     observacoes_orcamento = models.TextField(verbose_name='Observações orcamento', blank=True)
     observacoes_ficha_financeira = models.TextField(verbose_name='Observações ficha financeira', blank=True)
@@ -175,6 +178,12 @@ class CadastroPlanosPagamento(forms.ModelForm):
             'parcelas': forms.NumberInput(attrs={'min': '1', 'onchange': 'verificar_vencimentos(this)'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(CadastroPlanosPagamento, self).__init__(*args, **kwargs)
+        valor_a_vista = self.initial.get('valor_a_vista', '')
+        valor = str(valor_a_vista).replace('.', ',')
+        self.initial['valor_a_vista'] = valor
+
 
 class CadastroNotaFiscal(forms.ModelForm):
     class Meta:
@@ -191,5 +200,5 @@ class CadastroFichaFinanceira(forms.ModelForm):
             'nf': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', 'onchange': '$(".nota_fiscal").toggleClass("none")'}),
             'observacoes_ficha_financeira': forms.Textarea(attrs={'rows': '6'}),
-            'observacoes_orcamento': forms.Textarea(attrs={'rows': '6'}),
+            'observacoes_orcamento': forms.Textarea(attrs={'rows': '6', 'readonly': True}),
         }

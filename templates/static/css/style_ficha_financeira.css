@@ -23,11 +23,12 @@
     border-radius: 7px;
 }
 
-#conteudo_ficha_financeira textarea {
+#conteudo_ficha_financeira textarea, .modal textarea {
     resize: none;
     border: solid 1px #b5b4b4;
     border-radius: 10px;
     padding: 10px;
+    width: 100%;
 }
 
 #conteudo_ficha_financeira .titulo {

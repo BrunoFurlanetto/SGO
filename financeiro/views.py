@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
 from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
@@ -6,6 +8,7 @@ from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
 from orcamento.models import Orcamento, Tratativas
 
 
+@login_required(login_url='login')
 def ficha_financeira(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
     cadastro_ficha_financeira = CadastroFichaFinanceira(initial=orcamento.dados_iniciais())
@@ -22,6 +25,7 @@ def ficha_financeira(request, id_orcamento):
     })
 
 
+@login_required(login_url='login')
 def salvar_ficha_financeiro(request, id_orcamento):
     erros = []
     orcamento = Orcamento.objects.get(pk=id_orcamento)
@@ -87,4 +91,61 @@ def salvar_ficha_financeiro(request, id_orcamento):
             tratativa.ficha_financeira = True
             tratativa.save()
             messages.success(request, f'Ficha financeira de {orcamento.cliente} salva com sucesso. Aguardando aprovação da diretoria.')
+
             return redirect('dashboardPeraltas')
+
+
+@login_required(login_url='login')
+def revisar_ficha_financeira(request, id_ficha_financeira):
+    if not User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists():
+        return redirect('dashboard')
+
+    ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+    orcamento = Orcamento.objects.get(pk=ficha.orcamento.id)
+    cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha)
+    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
+    cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
+    cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
+
+    return render(request, 'financeiro/ficha_financeira.html', {
+        'ficha': ficha,
+        'orcamento': orcamento,
+        'ficha_financeira': cadastro_ficha_financeira,
+        'dados_evento': cadastro_dados_evento,
+        'planos_pagamento': cadastro_planos_pagamento,
+        'nota_fiscal': cadastro_nota_fiscal,
+        'revisando': True,
+    })
+
+
+@login_required(login_url='login')
+def aprovar_ficha_financeira(request, id_ficha_financeira):
+    ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+
+    try:
+        ficha.autorizado_diretoria = True
+        ficha.comentario_diretoria = request.POST.get('comentario_diretoria')
+        ficha.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
+    else:
+        messages.success(request, f'Ficha financeira de {ficha.cliente} aprovado com sucesso.')
+
+        return redirect('dashboard')
+
+
+@login_required(login_url='login')
+def negar_ficha_financeira(request, id_ficha_financeira):
+    ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+
+    try:
+        ficha.negado = True
+        ficha.motivo_recusa = request.POST.get('motivo_recusa')
+        ficha.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
+    else:
+        messages.success(request, f'Ficha financeira de {ficha.cliente} voltou para o colaborador responsável.')
+
+        return redirect('dashboard')
+

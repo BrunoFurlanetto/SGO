@@ -14,6 +14,7 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
+from financeiro.models import FichaFinanceira
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
@@ -199,6 +200,7 @@ def dashboardPeraltas(request):
     )
     tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
     pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
+    fichas_financeira = FichaFinanceira.objects.filter(autorizado_diretoria=False, negado=False)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
@@ -272,64 +274,64 @@ def dashboardPeraltas(request):
         monitor.aceite_do_termo = True
         monitor.save()
 
-    if request.POST.get('id_orcamento'):
-        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        aceite_opcionais = []
-
-        for chave, valor in orcamento.objeto_gerencia.items():
-            try:
-                campo_alterado = orcamento.objeto_gerencia[f'{chave}_alterado']
-            except KeyError:
-                ...
-            else:
-                if campo_alterado:
-                    if request.POST.get(chave) != 'on':
-                        if chave != 'data_pagamento':
-                            valor = float(ValoresPadrao.objects.get(id_taxa=chave).valor)
-                        else:
-                            data = datetime.strptime(orcamento.objeto_gerencia[chave], '%Y-%m-%d')
-                            _valor = data + timedelta(days=int(ValoresPadrao.objects.get(id_taxa=chave).valor))
-                            valor = _valor.strftime('%Y-%m-%d')
-
-                    orcamento.objeto_gerencia[chave] = {
-                        'valor_pedido': orcamento.objeto_gerencia[chave],
-                        'valor_final': valor,
-                        'aceite': request.POST.get(chave) == 'on'
-                    }
-
-        for chave, valor in request.POST.items():
-            if 'opcional_' in chave:
-                id_opcional = chave.split('_')[1]
-
-                for op in orcamento.objeto_orcamento['descricao_opcionais']:
-                    try:
-                        extras = op['outros']
-                    except KeyError:
-                        ...
-                    else:
-                        print(extras)
-                        for opcional in extras:
-                            if id_opcional == opcional['id']:
-                                aceite_opcionais.append({
-                                    'id': id_opcional,
-                                    'valor': opcional['valor_com_desconto'],
-                                    'aceite': valor == 'on'
-                                })
-
-        orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
-        orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
-        orcamento.necessita_aprovacao_gerencia = False
-
-        try:
-            orcamento.save()
-        except Exception as e:
-            messages.error(
-                request,
-                f'Um erro inesperado durante a aprovação ocorreu ({e}). Tente novamente mais tarde'
-            )
-        else:
-            EmailSender([orcamento.colaborador.email, 'bruno.furlanetto@hotmail.com']).orcamento_aprovado(orcamento.id, request.user.get_full_name())
-            messages.success(request, f'Orçamento de {orcamento.cliente} aprovado com sucesso')
+    # if request.POST.get('id_orcamento'):
+    #     orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+    #     aceite_opcionais = []
+    #
+    #     for chave, valor in orcamento.objeto_gerencia.items():
+    #         try:
+    #             campo_alterado = orcamento.objeto_gerencia[f'{chave}_alterado']
+    #         except KeyError:
+    #             ...
+    #         else:
+    #             if campo_alterado:
+    #                 if request.POST.get(chave) != 'on':
+    #                     if chave != 'data_pagamento':
+    #                         valor = float(ValoresPadrao.objects.get(id_taxa=chave).valor)
+    #                     else:
+    #                         data = datetime.strptime(orcamento.objeto_gerencia[chave], '%Y-%m-%d')
+    #                         _valor = data + timedelta(days=int(ValoresPadrao.objects.get(id_taxa=chave).valor))
+    #                         valor = _valor.strftime('%Y-%m-%d')
+    #
+    #                 orcamento.objeto_gerencia[chave] = {
+    #                     'valor_pedido': orcamento.objeto_gerencia[chave],
+    #                     'valor_final': valor,
+    #                     'aceite': request.POST.get(chave) == 'on'
+    #                 }
+    #
+    #     for chave, valor in request.POST.items():
+    #         if 'opcional_' in chave:
+    #             id_opcional = chave.split('_')[1]
+    #
+    #             for op in orcamento.objeto_orcamento['descricao_opcionais']:
+    #                 try:
+    #                     extras = op['outros']
+    #                 except KeyError:
+    #                     ...
+    #                 else:
+    #                     print(extras)
+    #                     for opcional in extras:
+    #                         if id_opcional == opcional['id']:
+    #                             aceite_opcionais.append({
+    #                                 'id': id_opcional,
+    #                                 'valor': opcional['valor_com_desconto'],
+    #                                 'aceite': valor == 'on'
+    #                             })
+    #
+    #     orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
+    #     orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
+    #     orcamento.necessita_aprovacao_gerencia = False
+    #
+    #     try:
+    #         orcamento.save()
+    #     except Exception as e:
+    #         messages.error(
+    #             request,
+    #             f'Um erro inesperado durante a aprovação ocorreu ({e}). Tente novamente mais tarde'
+    #         )
+    #     else:
+    #         EmailSender([orcamento.colaborador.email, 'bruno.furlanetto@hotmail.com']).orcamento_aprovado(orcamento.id, request.user.get_full_name())
+    #         messages.success(request, f'Orçamento de {orcamento.cliente} aprovado com sucesso')
 
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
@@ -349,6 +351,7 @@ def dashboardPeraltas(request):
         'financeiro': financeiro in grupos_usuario,
         'tratativas': tratativas,
         'pacotes': pacotes,
+        'fichas_financeira': fichas_financeira,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 
