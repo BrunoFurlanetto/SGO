@@ -128,6 +128,7 @@ class FichaFinanceira(models.Model):
     observacoes_ficha_financeira = models.TextField(verbose_name='Observações ficha financeira', blank=True)
     descritivo_ficha_financeira = models.JSONField(editable=False)
     autorizado_diretoria = models.BooleanField(default=False, verbose_name='Autorizado pela diretoria')
+    faturado = models.BooleanField(default=False, verbose_name='Faturado')
 
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'

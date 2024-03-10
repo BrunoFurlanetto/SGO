@@ -160,6 +160,7 @@ def dashboardPeraltas(request):
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
+    fichas_financeira_aprovadas = None
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -205,6 +206,7 @@ def dashboardPeraltas(request):
         fichas_financeira_aprovacao = FichaFinanceira.objects.filter(autorizado_diretoria=False, negado=False)
     else:
         fichas_financeira_aprovacao = None
+
     fichas_financeira_negadas = FichaFinanceira.objects.filter(dados_evento__colaborador=request.user.id, negado=True)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
@@ -214,6 +216,9 @@ def dashboardPeraltas(request):
         financeiro = Group.objects.get(name='Financeiro')
     except Group.DoesNotExist:
         financeiro = None
+
+    if financeiro in grupos_usuario:
+        fichas_financeira_aprovadas = FichaFinanceira.objects.filter(autorizado_diretoria=True, faturado=False)
 
     if is_ajax(request):
         if request.method == "GET":
@@ -358,6 +363,7 @@ def dashboardPeraltas(request):
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
         'fichas_financeira_negadas': fichas_financeira_negadas,
+        'fichas_financeira_aprovadas': fichas_financeira_aprovadas,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

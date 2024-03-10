@@ -155,13 +155,18 @@
                 </div>
                 {#                {% endif %}#}
                 {% if diretoria %}
-                	<div class="folder"
+                    <div class="folder"
                          onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> Fichas Financeiras para aprovação
                     </div>
                 {% endif %}
                 {% if comercial %}
-                	<div class="folder"
+                    <div class="folder"
                          onclick="alterar_aba(this, 'fichas_financeiras')"> Fichas Financeiras
+                    </div>
+                {% endif %}
+                {% if financeiro %}
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'fichas_financeiras_aprovadas')"> Fichas Financeiras
                     </div>
                 {% endif %}
             </div>
@@ -474,7 +479,7 @@
                     </div>
                 {% endif %}
             {% endif %}
-        {#        {% if financeiro %}#}
+            {#        {% if financeiro %}#}
             <div class="section-content {% if financeiro %} ativo {% endif %}" id="pacotes">
                 <div class="tabelas">
                     <table class="table table-hover table-striped">
@@ -518,9 +523,11 @@
                                 <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
                                     <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
-                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                    <td style="text-align: center"
+                                            {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
-                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                    <td style="text-align: center"
+                                            {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
                                     <td style="text-align: center; white-space: nowrap">
                                         <button type="button" id="perdido" class="button_perdido"
@@ -567,9 +574,11 @@
                                 <tr id="{{ tratativa.id_tratativa }}" style="vertical-align: middle">
                                     <td {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.cliente }}</td>
-                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                    <td style="text-align: center"
+                                            {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.vencimento_tratativa }}</td>
-                                    <td style="text-align: center" {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
+                                    <td style="text-align: center"
+                                            {% if tratativa.status_tratativa not in 'Perdido, Vencido, Ganho' %}
                                         onclick="modal_de_tratativas('{{ tratativa.id_tratativa }}')" {% endif %}>{{ tratativa.status_tratativa }}</td>
                                 </tr>
                             {% endif %}
@@ -617,7 +626,10 @@
                                         </form>
                                     </td>
                                     <td style="text-align: center">
-                                        <button type="button" id="btn_ficha_financeira" title="Preencher ficha financeira" onclick="window.location.href = '{% url 'ficha_financeira' tratativa.orcamento_aceito.id %}'"><i class='bx bx-calculator'></i></button>
+                                        <button type="button" id="btn_ficha_financeira"
+                                                title="Preencher ficha financeira"
+                                                onclick="window.location.href = '{% url 'ficha_financeira' tratativa.orcamento_aceito.id %}'">
+                                            <i class='bx bx-calculator'></i></button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -628,7 +640,7 @@
             </div>
             <div id="fichas_financeiras_aprovar" class="section-content">
                 <div class="tabelas">
-                    <h5>Fichas Financeiras esperando aprovação</h5>
+                    <h5>Fichas Financeira esperando aprovação</h5>
                     <hr>
                     <table class="table table-hover table-striped">
                         <thead>
@@ -639,20 +651,21 @@
                         </tr>
                         </thead>
                         <tbody>
-                            {% for ficha in fichas_financeira_aprovacao %}
-                                <tr style="cursor: pointer" onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
-                                    <td>{{ ficha.cliente }}</td>
-                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
-                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for ficha in fichas_financeira_aprovacao %}
+                            <tr style="cursor: pointer"
+                                onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                <td>{{ ficha.cliente }}</td>
+                                <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
             <div id="fichas_financeiras" class="section-content">
                 <div class="tabelas">
-                    <h5>Fichas Financeiras negadas pela diretoria</h5>
+                    <h5>Fichas Financeira negadas pela diretoria</h5>
                     <hr>
                     <table class="table table-hover table-striped">
                         <thead>
@@ -662,12 +675,38 @@
                         </tr>
                         </thead>
                         <tbody>
-                            {% for ficha in fichas_financeira_negadas %}
-                                <tr style="cursor: pointer" onclick="window.location.href = '{% url 'editar_ficha_financeira' ficha.id %}'">
-                                    <td style="vertical-align: middle">{{ ficha.cliente }}</td>
-                                    <td style="vertical-align: middle">{{ ficha.motivo_recusa }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for ficha in fichas_financeira_negadas %}
+                            <tr style="cursor: pointer"
+                                onclick="window.location.href = '{% url 'editar_ficha_financeira' ficha.id %}'">
+                                <td style="vertical-align: middle">{{ ficha.cliente }}</td>
+                                <td style="vertical-align: middle">{{ ficha.motivo_recusa }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="fichas_financeiras_aprovadas" class="section-content">
+                <div class="tabelas">
+                    <h5>Fichas Financeira aprovadas pela diretoria</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Colaborador</th>
+                            <th style="width: 15%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_financeira_aprovadas %}
+                            <tr style="cursor: pointer"
+                                onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                <td>{{ ficha.cliente }}</td>
+                                <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

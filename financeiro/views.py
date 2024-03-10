@@ -115,7 +115,7 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
 
 @login_required(login_url='login')
 def revisar_ficha_financeira(request, id_ficha_financeira):
-    if not User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists():
+    if not User.objects.filter(pk=request.user.id, groups__name__in=['Diretoria', 'Financeiro']).exists():
         return redirect('dashboard')
 
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
@@ -185,3 +185,17 @@ def editar_ficha_financeira(request, id_ficha_financeira):
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
     })
+
+
+@login_required(login_url='login')
+def faturar_ficha_financeira(request, id_ficha_financeira):
+    try:
+        ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+        ficha.faturado = True
+        ficha.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}), por favor tente novamente mais tarde!')
+        return redirect('revisar_ficha_financeira', id_ficha_financeira)
+    else:
+        messages.success(request, 'Ficha financeira faturada com sucesso!')
+        return redirect('dashboard')
