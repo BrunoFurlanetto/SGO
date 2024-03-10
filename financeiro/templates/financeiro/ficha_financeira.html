@@ -5,11 +5,16 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}">
     <div id="conteudo_ficha_financeira">
+        {% if ficha and ficha.negado %}
+            <div id="mostrar_motivo_recusa" draggable="true" ondblclick="iniciarArraste()">
+                <button data-toggle="modal" data-target="#modal_motivo_recusa"><i id="icone_arrastavel" class='bx bxs-comment'></i></button>
+            </div>
+        {% endif %}
         <div class="titulo">
             <h5>Orçamento {{ orcamento.id }}: {{ orcamento.cliente }}</h5>
         </div>
         <hr>
-        <form id="form_ficha_financeira" action="{% url 'salvar_ficha_financeira' orcamento.id %}" method="POST">
+        <form id="form_ficha_financeira" {% if not ficha and not ficha.negado %} action="{% url 'salvar_ficha_financeira' orcamento.id %}" {% else %} action="{% url 'salvar_edicao_ficha_financeira' orcamento.id ficha.id %}" {% endif %} method="POST">
             <fieldset {% if revisando %} disabled="readonly" {% endif %}>
                 {% csrf_token %}
                 <div class="cabecalho">
@@ -159,7 +164,7 @@
                     </table>
                     <div style="display: flex; justify-content: flex-end">
                         <a type="button" id="btn_descritivo_dia" data-toggle="modal"
-                                data-target="#modal_descritivo_dia">
+                           data-target="#modal_descritivo_dia">
                             Ver descritivo por dia
                             <i class='bx bx-list-plus'></i>
                         </a>
@@ -168,7 +173,8 @@
                 <hr>
                 <h5 class="titulo-secao">Planos pagamento</h5>
                 <div class="planos_pagamento">
-                    <p style="width: 100%" class="none alert alert-warning">O final do vencimento não está de acordo com o
+                    <p style="width: 100%" class="none alert alert-warning">O final do vencimento não está de acordo com
+                        o
                         número de parcelas e o início dos vencimentos</p>
                     {% for campo in planos_pagamento %}
                         <div id="div_{{ campo.id_for_label }}">
@@ -210,8 +216,11 @@
         </form>
         {% if revisando %}
             <div class="botoes" style="gap: 5px">
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal_negado">Negar</button>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_aprovado">Aprovar</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal_negado">Negar
+                </button>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_aprovado">
+                    Aprovar
+                </button>
             </div>
         {% endif %}
     </div>
@@ -325,8 +334,8 @@
                                 <td>{{ atividade.desconto }}</td>
                                 <td>{{ atividade.valor_final }}</td>
                                 {% for valor in atividade.dia_dia %}
-                                        <td class="datas">{{ valor }}</td>
-                                    {% endfor %}
+                                    <td class="datas">{{ valor }}</td>
+                                {% endfor %}
                             </tr>
                         {% endfor %}
                         <tr class="secao_tabela secao_opcionais"
@@ -399,6 +408,28 @@
         </div>
     </div>
 
+    <div class="modal fade bd-example-modal-lg" id="modal_motivo_recusa" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Motivo da recusa</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <p>
+                            {{ ficha.motivo_recusa }}
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+
     {% if revisando %}
         <div class="modal fade bd-example-modal-lg" id="modal_negado" tabindex="-1" role="dialog"
              aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -419,7 +450,8 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary" id="negar_fichar_financeira">Enviar</button>
+                                <button type="submit" class="btn btn-primary" id="negar_fichar_financeira">Enviar
+                                </button>
                             </div>
                         </fieldset>
                     </form>
@@ -442,7 +474,8 @@
                             {% csrf_token %}
                             <div class="modal-body">
                                 <div>
-                                    <textarea name="comentario_diretoria" id="comentario_diretoria" rows="10"></textarea>
+                                    <textarea name="comentario_diretoria" id="comentario_diretoria"
+                                              rows="10"></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">

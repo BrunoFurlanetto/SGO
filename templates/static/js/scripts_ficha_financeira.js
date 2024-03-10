@@ -3,7 +3,7 @@ $(document).ready(() => {
     $('#id_cnpj').mask("99.999.999/9999-99")
     $('#id_valor_a_vista').DinheiroMascara()
 
-    $('#form_ficha_financeira').submit(function() {
+    $('#form_ficha_financeira').submit(function () {
         let comissaoValue = $('#id_comissao').val()
         let valor_a_vista = $('#id_valor_a_vista').val()
 
@@ -14,8 +14,12 @@ $(document).ready(() => {
         $('#id_valor_a_vista').val(parseFloat(valor_a_vista))
     });
 
+
     setInterval(() => {
-        $('#modal_negado .modal-footer button').prop('disabled', $('#modal_negado #motivo_recusa').val().length < 10)
+        try {
+            $('#modal_negado .modal-footer button').prop('disabled', $('#modal_negado #motivo_recusa').val().length < 10)
+        } catch (e) {
+        }
     }, 10)
 })
 
@@ -55,5 +59,45 @@ function verificar_metodo_pagamento() {
     } else {
         $('#id_parcelas, #id_final_vencimento').attr('readonly', false)
 
+    }
+}
+
+function iniciarArraste() {
+    let divArrastavel = document.getElementById('mostrar_motivo_recusa');
+    let offsetX = event.clientX - divArrastavel.getBoundingClientRect().left;
+    let offsetY = event.clientY - divArrastavel.getBoundingClientRect().top;
+
+    function moverDiv(event) {
+        let x = event.clientX - offsetX;
+        let y = event.clientY - offsetY;
+
+        divArrastavel.style.left = x + 'px';
+        divArrastavel.style.top = y + 'px';
+
+        let isDireitaDoMeio = x > window.innerWidth / 2;
+        atualizarBorderRadius(isDireitaDoMeio);
+    }
+
+    function pararArraste() {
+        document.removeEventListener('mousemove', moverDiv);
+        document.removeEventListener('mouseup', pararArraste);
+        divArrastavel.style.cursor = 'grab';
+    }
+
+    document.addEventListener('mousemove', moverDiv);
+    document.addEventListener('mouseup', pararArraste);
+    divArrastavel.style.cursor = 'grabbing';
+}
+
+function atualizarBorderRadius(isDireitaDoMeio) {
+    let divArrastavel = document.getElementById('mostrar_motivo_recusa');
+    let icone = document.getElementById('icone_arrastavel')
+
+    if (isDireitaDoMeio) {
+        icone.style.transform = 'scaleX(1)'
+        divArrastavel.style.borderRadius = '40% 40% 40% 10%';
+    } else {
+        icone.style.transform = 'scaleX(-1)'
+        divArrastavel.style.borderRadius = '40% 40% 10% 40%';
     }
 }

@@ -26,13 +26,21 @@ def ficha_financeira(request, id_orcamento):
 
 
 @login_required(login_url='login')
-def salvar_ficha_financeiro(request, id_orcamento):
-    erros = []
+def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
+    ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira) if id_ficha_financeira else None
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST)
-    cadastro_dados_evento = CadastroDadosEvento(request.POST)
-    cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST)
-    cadastro_nota_fiscal = CadastroNotaFiscal(request.POST)
+    erros = []
+
+    if id_ficha_financeira:
+        cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST, instance=ficha)
+        cadastro_dados_evento = CadastroDadosEvento(request.POST, instance=ficha.dados_evento)
+        cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST, instance=ficha.planos_pagamento)
+        cadastro_nota_fiscal = CadastroNotaFiscal(request.POST, instance=ficha.dados_nota_fiscal)
+    else:
+        cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST)
+        cadastro_dados_evento = CadastroDadosEvento(request.POST)
+        cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST)
+        cadastro_nota_fiscal = CadastroNotaFiscal(request.POST)
 
     if request.POST.get('nf'):
         if request.POST.get('nf') == 'on':
@@ -63,20 +71,30 @@ def salvar_ficha_financeiro(request, id_orcamento):
             planos_pagamento = cadastro_planos_pagamento.save()
             dados_evento = cadastro_dados_evento.save()
             dados_pagamento = DadosPagamento.auto_preenchimento(orcamento)
-            FichaFinanceira.objects.create(
-                orcamento=orcamento,
-                cliente=orcamento.cliente,
-                enviado_ac=request.POST.get('enviado_ac'),
-                dados_evento=dados_evento,
-                dados_pagamento=dados_pagamento,
-                planos_pagamento=planos_pagamento,
-                nf=request.POST.get('nf', False) == 'on',
-                dados_nota_fiscal=dados_nota,
-                valor_final=planos_pagamento.valor_a_vista,
-                observacoes_orcamento=request.POST.get('observacoes_orcamento'),
-                observacoes_ficha_financeira=request.POST.get('observacoes_ficha_financeira'),
-                descritivo_ficha_financeira=orcamento.objeto_orcamento
-            )
+
+            if not id_ficha_financeira:
+                FichaFinanceira.objects.create(
+                    orcamento=orcamento,
+                    cliente=orcamento.cliente,
+                    enviado_ac=request.POST.get('enviado_ac'),
+                    dados_evento=dados_evento,
+                    dados_pagamento=dados_pagamento,
+                    planos_pagamento=planos_pagamento,
+                    nf=request.POST.get('nf', False) == 'on',
+                    dados_nota_fiscal=dados_nota,
+                    valor_final=planos_pagamento.valor_a_vista,
+                    observacoes_orcamento=request.POST.get('observacoes_orcamento'),
+                    observacoes_ficha_financeira=request.POST.get('observacoes_ficha_financeira'),
+                    descritivo_ficha_financeira=orcamento.objeto_orcamento
+                )
+            else:
+                ficha.enviado_ac = request.POST.get('enviado_ac')
+                ficha.nf = request.POST.get('nf', False) == 'on'
+                ficha.valor_final = planos_pagamento.valor_a_vista
+                ficha.observacoes_ficha_financeira = request.POST.get('observacoes_ficha_financeira')
+                ficha.negado = False
+                ficha.motivo_recusa = ''
+                ficha.save()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado durante o cadastro da ficha financeira ({e})')
             return render(request, 'financeiro/ficha_financeira.html', {
@@ -149,3 +167,21 @@ def negar_ficha_financeira(request, id_ficha_financeira):
 
         return redirect('dashboard')
 
+
+@login_required(login_url='login')
+def editar_ficha_financeira(request, id_ficha_financeira):
+    ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+    orcamento = Orcamento.objects.get(pk=ficha.orcamento.id)
+    cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha)
+    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
+    cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
+    cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
+
+    return render(request, 'financeiro/ficha_financeira.html', {
+        'ficha': ficha,
+        'orcamento': orcamento,
+        'ficha_financeira': cadastro_ficha_financeira,
+        'dados_evento': cadastro_dados_evento,
+        'planos_pagamento': cadastro_planos_pagamento,
+        'nota_fiscal': cadastro_nota_fiscal,
+    })

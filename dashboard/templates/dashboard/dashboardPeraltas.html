@@ -156,7 +156,12 @@
                 {#                {% endif %}#}
                 {% if diretoria %}
                 	<div class="folder"
-                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> Fichas Financeiras
+                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> Fichas Financeiras para aprovação
+                    </div>
+                {% endif %}
+                {% if comercial %}
+                	<div class="folder"
+                         onclick="alterar_aba(this, 'fichas_financeiras')"> Fichas Financeiras
                     </div>
                 {% endif %}
             </div>
@@ -634,11 +639,33 @@
                         </tr>
                         </thead>
                         <tbody>
-                            {% for ficha in fichas_financeira %}
+                            {% for ficha in fichas_financeira_aprovacao %}
                                 <tr style="cursor: pointer" onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
                                     <td>{{ ficha.cliente }}</td>
                                     <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
                                     <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="fichas_financeiras" class="section-content">
+                <div class="tabelas">
+                    <h5>Fichas Financeiras negadas pela diretoria</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th>Motivo recusa</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for ficha in fichas_financeira_negadas %}
+                                <tr style="cursor: pointer" onclick="window.location.href = '{% url 'editar_ficha_financeira' ficha.id %}'">
+                                    <td style="vertical-align: middle">{{ ficha.cliente }}</td>
+                                    <td style="vertical-align: middle">{{ ficha.motivo_recusa }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

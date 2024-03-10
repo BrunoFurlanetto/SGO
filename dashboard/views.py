@@ -200,7 +200,12 @@ def dashboardPeraltas(request):
     )
     tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
     pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
-    fichas_financeira = FichaFinanceira.objects.filter(autorizado_diretoria=False, negado=False)
+
+    if diretoria:
+        fichas_financeira_aprovacao = FichaFinanceira.objects.filter(autorizado_diretoria=False, negado=False)
+    else:
+        fichas_financeira_aprovacao = None
+    fichas_financeira_negadas = FichaFinanceira.objects.filter(dados_evento__colaborador=request.user.id, negado=True)
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
@@ -252,12 +257,12 @@ def dashboardPeraltas(request):
                 else:
                     return JsonResponse({'status': 'success'})
 
-        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-
-        if orcamento.necessita_aprovacao_gerencia:
-            return JsonResponse(campos_necessarios_aprovacao(orcamento))
-        else:
-            return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
+        # orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        #
+        # if orcamento.necessita_aprovacao_gerencia:
+        #     return JsonResponse(campos_necessarios_aprovacao(orcamento))
+        # else:
+        #     return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -351,7 +356,8 @@ def dashboardPeraltas(request):
         'financeiro': financeiro in grupos_usuario,
         'tratativas': tratativas,
         'pacotes': pacotes,
-        'fichas_financeira': fichas_financeira,
+        'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
+        'fichas_financeira_negadas': fichas_financeira_negadas,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

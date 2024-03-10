@@ -205,3 +205,24 @@
 #modal_descritivo_dia table #linha_de_totais > .datas {
     border-bottom: dashed 2px #000000;
 }
+
+#mostrar_motivo_recusa {
+    position: fixed;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 40% 40% 10% 40%;
+    box-shadow: 5px 5px 10px;
+    left: 25%;
+}
+#mostrar_motivo_recusa button {
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#mostrar_motivo_recusa button i {
+    font-size: 25px;
+    transform: scaleX(-1);
+}
