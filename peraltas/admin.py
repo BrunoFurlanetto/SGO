@@ -166,7 +166,8 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
         'data_saida',
         'data_evento',
         'participantes',
-        'tipo_evento'
+        'tipo_evento',
+        'colaborador_excluiu'
     )
     list_filter = ('estagio_evento', 'atendente')
 

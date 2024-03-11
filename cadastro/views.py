@@ -413,7 +413,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                 data_evento=ordem_servico.check_in.date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                 participantes=ordem_servico.n_participantes if ordem_servico.n_participantes else 0,
-                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo'
+                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo',
+                colaborador_excluiu=request.user,
             )
             ordem_servico.ficha_de_evento.os = False
             ordem_servico.ficha_de_evento.save()
@@ -611,7 +612,8 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 data_evento=ficha_de_evento.check_in.date(),
                 motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                 participantes=ficha_de_evento.qtd_convidada if ficha_de_evento.qtd_convidada else 0,
-                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'
+                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio',
+                colaborador_excluiu=request.user,
             )
             ficha_de_evento.delete()
         except Exception as e:

@@ -287,6 +287,7 @@ class EventosCancelados(models.Model):
     motivo_cancelamento = models.TextField()
     tipo_evento = models.CharField(choices=(('colegio', 'Colégio'), ('corporativo', 'Corporativo')), max_length=12)
     participantes = models.PositiveIntegerField()
+    colaborador_excluiu = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Colaborador que cancelou')
 
     def __str__(self):
         return f'Cancelamento do evento de {self.cliente}.'
