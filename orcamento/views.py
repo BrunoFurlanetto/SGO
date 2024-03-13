@@ -208,7 +208,7 @@ def calc_budget(req, id_tratativa=None):
                         act_data.append(value)
                     elif 'ceu' in key:
                         act_sky_data.append(value)
-
+            print(data.get('outros'))
             budget.set_optional(opt_data)
             budget.optional.calc_value_optional(budget.array_description_optional)
             budget.set_activities(act_data)

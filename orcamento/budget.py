@@ -63,7 +63,7 @@ class Budget:
 
         try:
             for other in arr:
-                obj_other = OptionalDescription(other['valor'], False, other['id'],
+                obj_other = OptionalDescription(other['valor'], other['id'],
                                                 other['nome'], self.days, other['descricao'])
                 other_array.append(obj_other.do_object(
                     percent_commission=self.commission,
@@ -73,6 +73,7 @@ class Budget:
         except TypeError:
             ...
         else:
+            print(other_array)
             self.array_description_others = other_array
 
             return self.array_description_others
