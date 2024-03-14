@@ -83,15 +83,16 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
 
     $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", async function (e) {
         loading()
+        const opcao = e.params.data;
 
         try {
-            const opcao = e.params.data;
             $(`#op_${opcao['id']}`).remove()
         } catch (error) {
             alert(error)
             end_loading()
         } finally {
             // await atualizar_valores_op()
+            await listar_op(null, $(this).attr('id'), opcao, null, '0,00', true)
             await enviar_form()
             end_loading()
         }
@@ -259,7 +260,20 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00') {
+async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido=false) {
+    if (removido) {
+        if (nome_id == 'id_atividades') {
+            console.log('Veio', nome_id, opcao['id'])
+            $(`#tabela_de_opcionais tbody #atividade_${opcao['id']}`).remove()
+        } else if (nome_id == 'id_atividades_ceu') {
+            $(`#tabela_de_opcionais tbody #atividade_ceu_${opcao['id']}`).remove()
+        } else {
+            $(`#tabela_de_opcionais tbody #op_${opcao['id']}`).remove()
+        }
+
+        return
+    }
+
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     if (nome_id == 'id_atividades') {
