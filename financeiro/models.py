@@ -23,23 +23,42 @@ class DadosEvento(models.Model):
     )
     responsavel_financeiro = models.CharField(max_length=250, verbose_name='Responsável financeiro', blank=True,
                                               null=True)
-    colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
-    comissao = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Comissão')
-    coordenacao = models.IntegerField(choices=sim_e_nao,
-                                      verbose_name='Coordenação')  # TODO: Verificar o que é esse campo
+    telefone_financeiro = models.CharField(max_length=250, verbose_name='Telefone financeiro')
+    email_financeiro = models.CharField(max_length=250, verbose_name='E-mail financeiro', blank=True, null=True)
+    pgto_neto = models.IntegerField(choices=sim_e_nao, verbose_name='Pgto neto')
+    coordenacao = models.IntegerField(choices=sim_e_nao, default=1, verbose_name='Coordenação')
     monitoria = models.IntegerField(choices=sim_e_nao, verbose_name='Monitoria')
     onibus = models.IntegerField(choices=sim_e_nao, verbose_name='Ônibus')
     seguro = models.IntegerField(choices=sim_e_nao, verbose_name='Seguro')
+    colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
+    comissao = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Comissão', default=0.00, blank=True, null=True)
     check_in = models.DateTimeField(verbose_name='Check in')
     check_out = models.DateTimeField(verbose_name='Check out')
-    qtd_reservada = models.PositiveIntegerField(verbose_name='Qtd reserva')
+    qtd_reservada = models.PositiveIntegerField(verbose_name='Qtd reservada')
     alunos_confirmados = models.PositiveIntegerField(verbose_name='Alunos confirmados', default=0)
-    responsaveis_confirmados = models.PositiveIntegerField(verbose_name='Responsáveis confirmados', default=0)
+    professores_confirmados = models.PositiveIntegerField(verbose_name='Professores confirmados', default=0)
     cortesia_alunos = models.PositiveIntegerField(verbose_name='Cortesia de alunos', default=0)
-    cortesia_responsaveis = models.PositiveIntegerField(verbose_name='Cortesia de responsáveis', default=0)
-    responsaveis_outros_locais = models.PositiveIntegerField(verbose_name='Responsáveis em outros locais', default=0)
-    alunos_outros_locais = models.PositiveIntegerField(verbose_name='Alunos em outros locais',
-                                                       default=0)  # TODO: Verifiacar o que é esse campo
+    cortesia_responsaveis = models.PositiveIntegerField(verbose_name='Cortesia de professores', default=0)
+    cortesias_externas = models.JSONField(blank=True, null=True, verbose_name='Cortesias externas', editable=False)
+
+    @classmethod
+    def preencher_cortesias_externas(cls, dados):
+        cortesias_externas = []
+        cortesia = 1
+
+        while True:
+            if dados.get(f'cortesias_externas_atividade_{cortesia}', None):
+                cortesias_externas.append({
+                    'id_atividade': int(dados.get(f'id_atividade_{cortesia}')),
+                    'alunos': int(dados.getlist(f'cortesias_externas_atividade_{cortesia}')[0]),
+                    'professores': int(dados.getlist(f'cortesias_externas_atividade_{cortesia}')[1]),
+                })
+            else:
+                break
+
+            cortesia += 1
+
+        return cortesias_externas
 
 
 class DadosPagamento(models.Model):
@@ -85,15 +104,40 @@ class PlanosPagamento(models.Model):
     valor_a_vista = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor à vista')
     forma_pagamento = models.ForeignKey(TiposPagamentos, on_delete=models.CASCADE,
                                         verbose_name='Forma de pagamento')
+    codigo_eficha = models.CharField(max_length=255, verbose_name='Codigo E-Ficha', blank=True, null=True)
     parcelas = models.IntegerField(verbose_name='Parcelas', default=1)
     inicio_vencimento = models.DateField(verbose_name='Início vencimento')
     final_vencimento = models.DateField(verbose_name='Final vencimento')
+    comissoes_externas = models.JSONField(verbose_name='Comissões externas', blank=True, null=True, editable=False)
+
+    def verficar_eficha(self):
+        return 'ficha' in self.forma_pagamento.tipo_pagamento
+
+    @classmethod
+    def preencher_dados_comissionados(cls, dados):
+        comissionados = []
+        comissionado = 1
+
+        while True:
+            if dados.get(f'comissionado_{comissionado}', None):
+                comissionados.append({
+                    'nome': dados.getlist(f'comissionado_{comissionado}')[0],
+                    'telefone': dados.getlist(f'comissionado_{comissionado}')[1],
+                    'email': dados.getlist(f'comissionado_{comissionado}')[2],
+                    'comissao': float(dados.getlist(f'comissionado_{comissionado}')[3].replace('%', '').replace(',', '.')),
+                })
+            else:
+                break
+
+            comissionado += 1
+
+        return comissionados
 
 
 class NotaFiscal(models.Model):
-    razao_social = models.CharField(max_length=255, verbose_name='Razao social')
-    endereco = models.CharField(max_length=255, verbose_name='Endereço')
-    cnpj = models.CharField(max_length=255, verbose_name='CNPJ')
+    razao_social = models.CharField(max_length=255, verbose_name='Razao social', blank=True, null=True)
+    endereco = models.CharField(max_length=255, verbose_name='Endereço', blank=True, null=True)
+    cnpj = models.CharField(max_length=255, verbose_name='CNPJ', blank=True, null=True)
 
     def __str__(self):
         return f'Dados nota fiscal de {self.razao_social}'
@@ -142,9 +186,11 @@ class CadastroDadosEvento(forms.ModelForm):
 
         widgets = {
             'responsavel_operacional': forms.Select(attrs={'class': 'inalteravel'}),
+            'telefone_financeiro': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
             'monitoria': forms.Select(attrs={'class': 'inalteravel'}),
             'onibus': forms.Select(attrs={'class': 'inalteravel'}),
-            'comissao': forms.TextInput(),
+            'colaborador': forms.Select(attrs={'class': 'inalteravel'}),
+            'comissao': forms.TextInput(attrs={'class': 'porcentagem', 'onchange': 'setar_comissao()'}),
             'check_in': forms.TextInput(attrs={'type': 'datetime-local', 'readonly': True}),
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'readonly': True}),
         }
@@ -172,8 +218,9 @@ class CadastroPlanosPagamento(forms.ModelForm):
         fields = '__all__'
 
         widgets = {
-            'valor_a_vista': forms.TextInput(),
+            'valor_a_vista': forms.TextInput(attrs={'class': 'inalteravel'}),
             'forma_pagamento': forms.Select(attrs={'onchange': 'verificar_metodo_pagamento()'}),
+            'codigo_eficha': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'inicio_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
             'final_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
             'parcelas': forms.NumberInput(attrs={'min': '1', 'onchange': 'verificar_vencimentos(this)'}),
@@ -199,7 +246,11 @@ class CadastroFichaFinanceira(forms.ModelForm):
 
         widgets = {
             'nf': forms.CheckboxInput(
-                attrs={'class': 'form-check-input', 'onchange': '$(".nota_fiscal").toggleClass("none")'}),
+                attrs={
+                    'class': 'form-check-input',
+                    'onchange': '$(".nota_fiscal").toggleClass("none")',
+                    'onclick': 'tornar_campos_obrigatorios()'
+                }),
             'observacoes_ficha_financeira': forms.Textarea(attrs={'rows': '6'}),
             'observacoes_orcamento': forms.Textarea(attrs={'rows': '6', 'readonly': True}),
         }

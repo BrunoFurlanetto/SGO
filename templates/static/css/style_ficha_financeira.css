@@ -14,6 +14,7 @@
     border: solid 1px #b5b4b4;
     background: #fff;
     border-radius: 7px;
+    width: 100%;
 }
 
 #conteudo_ficha_financeira select {
@@ -225,4 +226,51 @@
 #mostrar_motivo_recusa button i {
     font-size: 25px;
     transform: scaleX(-1);
+}
+
+#conteudo_ficha_financeira #cortesias_externas {
+    display: contents;
+}
+
+#cortesias_externas table {
+    vertical-align: middle;
+    margin-top: -25px;
+}
+
+#cortesias_externas table thead tr > th:not(:first-child) {
+    text-align: center;
+}
+
+#cortesias_externas table tbody tr > td:not(:first-child) {
+    text-align: center;
+}
+
+#cortesias_externas table tbody {
+    vertical-align: middle;
+}
+
+#btn_adcionar_comissionado {
+    background: transparent;
+    border: none;
+    display: flex;
+}
+
+#btn_adcionar_comissionado i {
+    font-size: 25px;
+}
+
+.comissionado {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.div_btn_excluir_comissionado {
+    width: 100%;
+    margin-top: -25px;
+    height: 37px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }

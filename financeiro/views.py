@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
 from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
-    CadastroPlanosPagamento, CadastroNotaFiscal, DadosPagamento, FichaFinanceira
+    CadastroPlanosPagamento, CadastroNotaFiscal, DadosPagamento, FichaFinanceira, DadosEvento, PlanosPagamento
 from orcamento.models import Orcamento, Tratativas
 
 
@@ -67,9 +67,13 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
         })
     else:
         try:
+            dados_evento = cadastro_dados_evento.save(commit=False)
+            dados_evento.cortesias_externas = DadosEvento.preencher_cortesias_externas(request.POST)
+            dados_evento.save()
             dados_nota = cadastro_nota_fiscal.save() if cadastro_nota_fiscal else None
-            planos_pagamento = cadastro_planos_pagamento.save()
-            dados_evento = cadastro_dados_evento.save()
+            planos_pagamento = cadastro_planos_pagamento.save(commit=False)
+            planos_pagamento.comissoes_externas = PlanosPagamento.preencher_dados_comissionados(request.POST)
+            planos_pagamento.save()
             dados_pagamento = DadosPagamento.auto_preenchimento(orcamento)
 
             if not id_ficha_financeira:
@@ -133,12 +137,22 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
         'revisando': True,
+        'faturando': User.objects.filter(pk=request.user.id, groups__name__in=['Diretoria', 'Financeiro']).exists(),
+        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha()
     })
 
 
 @login_required(login_url='login')
 def aprovar_ficha_financeira(request, id_ficha_financeira):
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
+
+    try:
+        ficha.dados_evento.comissao = request.POST.get('comissao_colaborador')
+        ficha.dados_evento.save()
+    except Exception as e:
+        messages.error(request, f'Erro inesperado ao setar a comissão do colaborador ({e}). Tente novamente mais tarde!')
+
+        return redirect('dashboard')
 
     try:
         ficha.autorizado_diretoria = True
@@ -149,7 +163,7 @@ def aprovar_ficha_financeira(request, id_ficha_financeira):
     else:
         messages.success(request, f'Ficha financeira de {ficha.cliente} aprovado com sucesso.')
 
-        return redirect('dashboard')
+    return redirect('dashboard')
 
 
 @login_required(login_url='login')
@@ -184,6 +198,7 @@ def editar_ficha_financeira(request, id_ficha_financeira):
         'dados_evento': cadastro_dados_evento,
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
+        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha()
     })
 
 

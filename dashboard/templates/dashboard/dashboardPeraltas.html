@@ -156,7 +156,8 @@
                 {#                {% endif %}#}
                 {% if diretoria %}
                     <div class="folder"
-                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> Fichas Financeiras para aprovação
+                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> {% if fichas_financeira_aprovacao|length > 0 %}
+                        <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Fichas Financeiras para aprovação
                     </div>
                 {% endif %}
                 {% if comercial %}

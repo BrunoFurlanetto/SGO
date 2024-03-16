@@ -84,10 +84,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries':  {
-                            'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
-                            'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
-                            'custom_tag': 'orcamento.templatestags.custom_tag'
-                        }
+                'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
+                'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
+                'custom_tag': 'orcamento.templatestags.custom_tag',
+                'tags_financeiro': 'financeiro.templatetags.tags_financeiro',
+            }
         },
     },
 ]

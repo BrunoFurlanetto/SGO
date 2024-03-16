@@ -107,6 +107,11 @@
     margin: -15px 0 15px 0
 }
 
+.subtitulo-secao {
+    margin: -30px 0 15px 0;
+    font-size: 1.15rem;
+}
+
 .login {
     justify-content: center;
     align-items: center;
