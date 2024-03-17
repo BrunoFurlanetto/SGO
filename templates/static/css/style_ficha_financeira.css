@@ -132,38 +132,35 @@
     justify-content: end;
 }
 
-#tabela_descritivo_valores tbody > tr:not(:first-child) {
+#tabela_descritivo_valores tbody > tr:not(:first-child), #modal_descritivo_dia table tbody > tr:not(:first-child) {
     border-top: dashed 1px #7b7b7b;
 }
 
-#tabela_descritivo_valores thead {
+#tabela_descritivo_valores thead, #modal_descritivo_dia table thead {
     border-bottom: solid 1px #000000;
-}
-
-#tabela_descritivo_valores thead {
     text-align: center;
 }
 
-#tabela_descritivo_valores .secao_tabela {
+#tabela_descritivo_valores .secao_tabela, #modal_descritivo_dia thead .secao_tabela {
     font-weight: 500;
     vertical-align: middle;
 }
 
-#tabela_descritivo_valores tr > td:not(:first-child) {
+#tabela_descritivo_valores tr > td:not(:first-child), #modal_descritivo_dia table tr > td:not(:first-child) {
     text-align: center;
 }
 
-#tabela_descritivo_valores .descritivo_opcionais {
+#tabela_descritivo_valores .descritivo_opcionais, #modal_descritivo_dia table .descritivo_opcionais {
     color: #7b7b7b !important;
     vertical-align: middle;
     text-align: center;
 }
 
-#tabela_descritivo_valores .secao_tabela.secao_opcionais {
+#tabela_descritivo_valores .secao_tabela.secao_opcionais, #modal_descritivo_dia table .secao_tabela.secao_opcionais {
     cursor: pointer;
 }
 
-#conteudo_ficha_financeira #linha_de_totais,  #modal_descritivo_dia #linha_de_totais{
+#conteudo_ficha_financeira #linha_de_totais, #modal_descritivo_dia #linha_de_totais {
     border-top: solid 1px #000;
     vertical-align: middle;
     text-align: center;
@@ -181,6 +178,14 @@
     font-size: 25px;
 }
 
+#modal_descritivo_dia table {
+    vertical-align: middle;
+}
+
+#modal_descritivo_dia table thead, #modal_descritivo_dia table tbody > tr {
+    text-align: center;
+}
+
 #modal_descritivo_dia table .tag_datas {
     border-left: dashed 2px #000000;
     border-right: dashed 2px #000000;
@@ -188,7 +193,7 @@
     border-bottom: solid 1px #000000;
 }
 
-#modal_descritivo_dia table .cabecalho {
+#modal_descritivo_dia table .tabela_cabecalho {
     border-top: solid 1px #000000;
     border-left: solid 1px #000000;
 }
@@ -215,6 +220,7 @@
     box-shadow: 5px 5px 10px;
     left: 25%;
 }
+
 #mostrar_motivo_recusa button {
     background: transparent;
     border: none;
@@ -273,4 +279,363 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+}
+
+#taxas_aplicadas {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    margin-left: 60%;
+    margin-bottom: 10px;
+}
+
+#taxas_aplicadas div {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 20px;
+    margin-bottom: 5px;
+}
+
+body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+@media print {
+    @page {
+        margin: 5mm;
+    }
+
+    #conteudo_ficha_financeira {
+        box-shadow: 0 0 0 0;
+        margin: 0;
+        page-break-after: always;
+    }
+
+    fieldset {
+        border: none;
+    }
+
+    .subtitulo-secao {
+        margin-top: -20px;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    table tr td {
+        padding: 8px;
+    }
+
+    .dados_pagamento table, #cortesias_externas table {
+        width: 100%;
+    }
+
+    .dados_pagamento .secao_tabela {
+        border-bottom: dashed 1px #000000 !important;
+    }
+
+    input, textarea, select, select[disabled] {
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .planos_pagamento p {
+        display: none;
+    }
+
+    .planos_pagamento h5 {
+        margin-top: -20px;
+    }
+
+    button, a#btn_descritivo_dia {
+        display: none;
+    }
+
+    #conteudo_ficha_financeira input:not(input[type=checkbox]) {
+        padding: 2px 8px 2px 8px;
+        border: solid 1px #b5b4b4;
+        background: #fff;
+        border-radius: 7px;
+        width: 100%;
+    }
+
+    #conteudo_ficha_financeira select {
+        padding: 2px 8px 2px 8px;
+        border: solid 1px #b5b4b4;
+        background: #fff;
+        border-radius: 7px;
+    }
+
+    #conteudo_ficha_financeira textarea, .modal textarea {
+        resize: none;
+        border: solid 1px #b5b4b4;
+        border-radius: 10px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    #conteudo_ficha_financeira .titulo {
+        display: flex;
+        justify-content: flex-end;
+        height: 40px;
+        align-items: end;
+        padding: 0 5px 0px 5px;
+    }
+
+    .titulo h5 {
+        margin: 0 0 -15px 0;
+    }
+
+    #conteudo_ficha_financeira .cabecalho {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 30px;
+        justify-content: center;
+    }
+
+    .cabecalho div {
+        display: flex;
+        height: fit-content;
+        align-items: center;
+        width: 65%;
+        gap: 5px;
+    }
+
+    .cabecalho input {
+        flex-grow: 1;
+    }
+
+    #conteudo_ficha_financeira .dados_evento, #conteudo_ficha_financeira .planos_pagamento,
+    #conteudo_ficha_financeira .nota_fiscal, #conteudo_ficha_financeira .observacoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: self-end;
+    }
+
+    .dados_evento > div, .planos_pagamento > div, #conteudo_ficha_financeira .nota_fiscal > div,
+    #conteudo_ficha_financeira .observacoes > div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #div_id_responsavel_operacional {
+        width: 70%;
+    }
+
+    #div_id_colaborador {
+        width: 48%;
+    }
+
+    #div_id_responsavel_financeiro {
+        width: 27%;
+    }
+
+    #div_id_comissao {
+        width: 12%;
+    }
+
+    #div_id_qtd_reservada, #div_id_alunos_confirmados, #div_id_responsaveis_confirmados, #div_id_cortesia_alunos,
+    #div_id_cortesia_responsaveis {
+        width: 18%;
+    }
+
+    #div_id_responsaveis_outros_locais, #div_id_alunos_outros_locais {
+        width: 20%;
+    }
+
+    .inalteravel {
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    #div_id_valor_a_vista, #div_id_forma_pagamento, #div_id_inicio_vencimento, #div_id_final_vencimento {
+        width: 30%;
+    }
+
+    #div_id_parcelas {
+        width: 10%;
+    }
+
+    #div_id_razao_social, .observacoes > div {
+        width: 99%;
+    }
+
+    #div_id_endereco {
+        width: 67%;
+    }
+
+    #div_id_cnpj {
+        width: 30%;
+    }
+
+    #conteudo_ficha_financeira .botoes {
+        display: flex;
+        justify-content: end;
+    }
+
+    #tabela_descritivo_valores tbody > tr:not(:first-child), #modal_descritivo_dia table tbody > tr:not(:first-child) {
+        border-top: dashed 1px #7b7b7b;
+    }
+
+    #tabela_descritivo_valores thead, #modal_descritivo_dia table thead {
+        border-bottom: solid 1px #000000;
+        text-align: center;
+    }
+
+    td {
+        padding: 3px;
+    }
+
+    #tabela_descritivo_valores .secao_tabela, #modal_descritivo_dia thead .secao_tabela {
+        font-weight: 500;
+        vertical-align: middle;
+    }
+
+    #tabela_descritivo_valores tr > td:not(:first-child), #modal_descritivo_dia table tr > td:not(:first-child) {
+        text-align: center;
+    }
+
+    #tabela_descritivo_valores .descritivo_opcionais, #modal_descritivo_dia table .descritivo_opcionais {
+        color: #7b7b7b !important;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    #tabela_descritivo_valores .secao_tabela.secao_opcionais, #modal_descritivo_dia table .secao_tabela.secao_opcionais {
+        cursor: pointer;
+    }
+
+    #conteudo_ficha_financeira #linha_de_totais, #modal_descritivo_dia #linha_de_totais {
+        border-top: solid 1px #000;
+        vertical-align: middle;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    #conteudo_ficha_financeira #btn_descritivo_dia {
+        display: none;
+    }
+
+    #btn_descritivo_dia i {
+        font-size: 25px;
+    }
+
+    #modal_descritivo_dia table {
+        vertical-align: middle;
+    }
+
+    #modal_descritivo_dia table thead, #modal_descritivo_dia table tbody > tr {
+        text-align: center;
+    }
+
+    #modal_descritivo_dia table .tag_datas {
+        border-left: dashed 2px #000000;
+        border-right: dashed 2px #000000;
+        border-top: dashed 2px #000000;
+        border-bottom: solid 1px #000000;
+    }
+
+    #modal_descritivo_dia table .tabela_cabecalho {
+        border-top: solid 1px #000000;
+        border-left: solid 1px #000000;
+    }
+
+    #modal_descritivo_dia table tbody {
+        border-left: solid 1px #000000;
+        border-bottom: solid 1px #000000;
+    }
+
+    #modal_descritivo_dia table .datas {
+        border-left: dashed 2px #000000;
+        border-right: dashed 2px #000000;
+    }
+
+    #modal_descritivo_dia table #linha_de_totais > .datas {
+        border-bottom: dashed 2px #000000;
+    }
+
+    #mostrar_motivo_recusa {
+        position: fixed;
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 40% 40% 10% 40%;
+        box-shadow: 5px 5px 10px;
+        left: 25%;
+    }
+
+    #mostrar_motivo_recusa button {
+        background: transparent;
+        border: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #mostrar_motivo_recusa button i {
+        font-size: 25px;
+        transform: scaleX(-1);
+    }
+
+    #conteudo_ficha_financeira #cortesias_externas {
+        display: contents;
+    }
+
+    #cortesias_externas table {
+        vertical-align: middle;
+        margin-top: -25px;
+    }
+
+    #cortesias_externas table thead tr > th:not(:first-child) {
+        text-align: center;
+    }
+
+    #cortesias_externas table tbody tr > td:not(:first-child) {
+        text-align: center;
+    }
+
+    #cortesias_externas table tbody {
+        vertical-align: middle;
+    }
+
+    #btn_adcionar_comissionado {
+        display: none;
+    }
+
+    #btn_adcionar_comissionado i {
+        font-size: 25px;
+    }
+
+    .comissionado {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .div_btn_excluir_comissionado {
+        width: 100%;
+        margin-top: -25px;
+        height: 37px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    #taxas_aplicadas {
+        display: flex;
+        flex-direction: column;
+        width: 40%;
+        margin-left: 60%;
+        margin-bottom: 10px;
+    }
+
+    #taxas_aplicadas div {
+        display: flex;
+        justify-content: space-between;
+        margin-right: 20px;
+        margin-bottom: 5px;
+    }
 }

@@ -303,10 +303,18 @@ class Orcamento(models.Model):
     @property
     def desconto_aplicado(self):
         if self.desconto and self.desconto < 0:
-            print(self.desconto)
+
             return True
 
         return False
+
+    @property
+    def get_valor_comissao(self):
+        return self.objeto_gerencia['comissao']
+
+    @property
+    def get_valor_taxa(self):
+        return self.objeto_gerencia['taxa_comercial']
 
     def get_periodo(self):
         check_in = self.check_in.strftime('%d/%m/%Y %H:%M')

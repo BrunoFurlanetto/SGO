@@ -4,7 +4,7 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
-    <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}" id="style">
     <div id="conteudo_ficha_financeira">
         {% if ficha and ficha.negado or ficha and ficha.comentario_diretoria %}
             <div id="mostrar_motivo_recusa" draggable="true" ondblclick="iniciarArraste()">
@@ -280,6 +280,16 @@
                             </tr>
                             </tbody>
                         </table>
+                        <div id="taxas_aplicadas">
+                            <div>
+                                <strong>Taxa comercial:</strong>
+                                {{ orcamento.get_valor_taxa|string_porcentagem }}
+                            </div>
+                            <div>
+                                <strong>Comissão:</strong>
+                                {{ orcamento.get_valor_comissao|string_porcentagem }}
+                            </div>
+                        </div>
                         <div style="display: flex; justify-content: flex-end">
                             <a type="button" id="btn_descritivo_dia" data-toggle="modal"
                                data-target="#modal_descritivo_dia">
@@ -394,7 +404,8 @@
             </div>
         {% elif revisando and ficha.autorizado_diretoria %}
             <div class="botoes" style="gap: 5px">
-                <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#modal_negado">Imprimir
+                <button type="button" class="btn btn-dark" onclick="imprimir_ficha()">
+                    Imprimir
                 </button>
                 <button type="button" class="btn btn-success"
                         onclick="window.location.href = '{% url 'faturar_ficha_financeira' ficha.id %}'">Faturar
@@ -413,14 +424,14 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <table id="tabela_descritivo_valores" class="table table-hover table-borderless">
+                <div id="modal_body_descritivo" class="modal-body">
+                    <table id="tabela_descritivo_valores_modal" class="table table-hover table-borderless">
                         <thead>
                         <tr>
                             <th colspan="6"></th>
                             <th colspan="{{ orcamento.datas_evento|length }}" class="tag_datas">Datas</th>
                         </tr>
-                        <tr class="cabecalho">
+                        <tr class="tabela_cabecalho">
                             <th style="width: 50%">Seção</th>
                             <th>Valor</th>
                             <th>Taxa comercial</th>
@@ -693,13 +704,13 @@
         </div>
     {% endif %}
 
-    {% if revisando %}
-        fechar_campos()
-    {% endif %}
-
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/maskMoney.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/scripts_ficha_financeira.js' %}"></script>
+
+    {% if revisando %}
+        <script>fechar_campos()</script>
+    {% endif %}
 {% endblock %}

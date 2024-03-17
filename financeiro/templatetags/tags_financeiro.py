@@ -17,3 +17,8 @@ def carregar_cortesias_externas(id_ficha_financeira, id_atividade, alunos_profes
     for atividade in ficha.dados_evento.cortesias_externas:
         if atividade['id_atividade'] == id_atividade:
             return atividade[alunos_professores]
+
+
+@register.filter
+def string_porcentagem(valor):
+    return f'{valor}%'.replace('.', ',')

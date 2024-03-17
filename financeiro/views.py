@@ -137,7 +137,7 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
         'revisando': True,
-        'faturando': User.objects.filter(pk=request.user.id, groups__name__in=['Diretoria', 'Financeiro']).exists(),
+        'faturando': User.objects.filter(pk=request.user.id, groups__name__in=['Financeiro']).exists(),
         'pagamento_eficha': ficha.planos_pagamento.verficar_eficha()
     })
 

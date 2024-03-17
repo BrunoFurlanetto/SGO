@@ -32,6 +32,7 @@ $(document).ready(() => {
 })
 
 function fechar_campos() {
+    console.log('Foi')
     $('#form_ficha_financeira fieldset input, #form_ficha_financeira fieldset select, #form_ficha_financeira fieldset textarea').each((index, campo) => {
         if (campo.nodeName == 'INPUT' || campo.nodeName == 'TEXTAREA') {
             $(campo).prop('readonly', campo.id != 'id_comissao')
@@ -183,4 +184,27 @@ function adcionar_comissionado() {
 
 function excluir_comissionado(btn) {
     $(btn).parent().parent().remove()
+}
+
+function imprimir_ficha() {
+    var style = document.getElementById('style').cloneNode(true)
+    var ficha = document.getElementById('conteudo_ficha_financeira').cloneNode(true)
+    var tabela_descritivo = document.getElementById('modal_descritivo_dia').cloneNode(true)
+    var printWindow = window.open('', '_blank');
+
+    ficha.style.pointerEvents = 'none'
+
+    // Adiciona o conteúdo do formulário clonado acima da tabela
+    printWindow.document.body.appendChild(style);
+    printWindow.document.body.appendChild(ficha);
+    printWindow.document.body.appendChild(tabela_descritivo)
+
+    var checkReady = setInterval(function () {
+        if (printWindow.document.readyState === "complete") {
+            clearInterval(checkReady);
+            printWindow.print();
+            printWindow.document.close();
+            printWindow.close();
+        }
+    }, 50);
 }
