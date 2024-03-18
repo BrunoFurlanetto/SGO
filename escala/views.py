@@ -581,7 +581,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
         editando_escala = nova_escala = None
-
+        EmailSender(['bruno.furlanetto@hotmail.com']).erro_mensagem(request.POST)
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
@@ -622,7 +622,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
         except Exception as e:
-            email_error(request.user, e, __name__)
             messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde!')
             return redirect('escalaPeraltas')
         else:

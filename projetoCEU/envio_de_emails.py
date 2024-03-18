@@ -321,3 +321,8 @@ class EmailSender:
             </html>
         '''
         self.__enviar_email(__mensagem)
+
+    def erro_mensagem(self, msg):
+        self._subject = 'ERROOOOOOOO'
+        __mensagem = f'Erro aqui, não sei bem aonde, mas olha isso {msg}'
+        self.__enviar_email(__mensagem)
