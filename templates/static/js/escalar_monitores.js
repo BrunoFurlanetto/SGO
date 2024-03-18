@@ -238,10 +238,13 @@ function verificar_biologo(monitor) {
 function verificar_tecnica() {
     let tecnicos_escalados = $('#tecnicos_escalados').children()
     let areas = []
+    let areas_monitor = []
 
     for (let monitor of tecnicos_escalados) {
         if (monitor.classList.contains('tecnica')) {
-            let areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
+            try{
+                areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
+            } catch (e) {}
 
             areas_monitor.forEach(area => {
                 if (!areas.includes(area)) {
