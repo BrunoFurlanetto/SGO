@@ -622,7 +622,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.pre_escala = request.POST.get('pre_escala') == 'true'
                 nova_escala.save()
         except Exception as e:
-            print(e, 'ue')
+            email_error(request.user, e, __name__)
             messages.error(request, f'Houve um erro inesperado ({e}), por favor tente mais tarde!')
             return redirect('escalaPeraltas')
         else:
@@ -647,7 +647,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
                 EmailSender(juntar_emails_monitores(escala_salva)).mensagem_cadastro_escala(ficha_de_evento)
                 EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_salva)
-            print('FOi')
+
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
             return redirect('dashboard')
     else:
@@ -685,11 +685,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
                 nova_escala.pre_escala = request.POST.get('pre_escala', 'true') == 'true'
                 nova_escala.save()
         except Exception as e:
-            print(e)
             messages.error(request, f'Houve um erro inesperado, ({e}) por favor tente mais tarde!')
             return redirect('dashboard')
         else:
-            print('Ué')
             messages.success(
                 request, f'Escala para {datetime.strftime(data_selecionada, "%d/%m/%Y")} salva com sucesso!'
             )
