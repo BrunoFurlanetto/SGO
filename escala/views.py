@@ -635,7 +635,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
             if escala_salva.pre_escala:
                 EmailSender(
-                    juntar_emails_monitores(escala_salva)
+                   juntar_emails_monitores(escala_salva)
                 ).mensagem_pre_escala_monitoria(ficha_de_evento)
             else:
                 operacional = User.objects.filter(groups__name='Operacional')
