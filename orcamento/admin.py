@@ -50,12 +50,13 @@ class PeriodosAdmin(admin.ModelAdmin):
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
-        valores_selecionados = form.cleaned_data['dias_semana_validos']
-        dias_selecionados = [dia.id_dia for dia in valores_selecionados]
-        parte_1 = form.cleaned_data['inicio_vigencia'].strftime('%Y%m%d')
-        parte_2 = form.cleaned_data['final_vigencia'].strftime('%Y%m%d')
-        parte_3 = ''.join(list(map(str, dias_selecionados)))
-        obj.id_periodo = f'{parte_1}{parte_2}DSV{parte_3}'
+        if not change:
+            valores_selecionados = form.cleaned_data['dias_semana_validos']
+            dias_selecionados = [dia.id_dia for dia in valores_selecionados]
+            parte_1 = form.cleaned_data['inicio_vigencia'].strftime('%Y%m%d')
+            parte_2 = form.cleaned_data['final_vigencia'].strftime('%Y%m%d')
+            parte_3 = ''.join(list(map(str, dias_selecionados)))
+            obj.id_periodo = f'{parte_1}{parte_2}DSV{parte_3}'
 
         super().save_model(request, obj, form, change)
 
@@ -64,6 +65,7 @@ class PeriodosAdmin(admin.ModelAdmin):
 class ValoresPadraoAdmin(admin.ModelAdmin):
     list_display = ('nome_taxa', 'valor', 'descricao')
 
+''
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao', 'valor')

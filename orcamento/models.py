@@ -704,7 +704,7 @@ class SeuModeloAdminForm(forms.ModelForm):
             inicio_vigencia__lte=inicio_vigencia,
             final_vigencia__gte=inicio_vigencia,
             dias_semana_validos__in=dias_selecionados
-        )
+        ).exclude(pk=self.instance.pk)
 
         if periodos_conflitantes.exists():
             raise ValidationError('O grupo de períodos escolhidos já está cadastrado neste mesmo período de vigência.')
