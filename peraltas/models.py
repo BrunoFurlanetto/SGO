@@ -434,7 +434,7 @@ class FichaDeEvento(models.Model):
     id_negocio = models.CharField(max_length=255, verbose_name='ID negócio', blank=True)
     exclusividade = models.BooleanField(default=False, verbose_name='Exclusividade')
     pre_reserva = models.BooleanField(default=False, verbose_name='Pré reserva')
-    agendado = models.BooleanField(default=False, verbose_name='Agendado')
+    agendado = models.BooleanField(default=False, verbose_name='Evento confirmado')
     os = models.BooleanField(default=False, verbose_name='Ordem de serviço')
     escala = models.BooleanField(default=False, verbose_name='Escala')
     ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
@@ -748,10 +748,12 @@ class Eventos(models.Model):
         return self.ficha_de_evento.cliente
 
     def check_in(self):
-        return self.ordem_de_servico.check_in if self.ordem_de_servico else self.ficha_de_evento.check_in
+        data = self.ordem_de_servico.check_in if self.ordem_de_servico else self.ficha_de_evento.check_in
+        return data.strftime('%d/%m/%Y %H:%M')
 
     def check_out(self):
-        return self.ordem_de_servico.check_out if self.ordem_de_servico else self.ficha_de_evento.check_out
+        data = self.ordem_de_servico.check_out if self.ordem_de_servico else self.ficha_de_evento.check_out
+        return data.strftime('%d/%m/%Y %H:%M')
 
     def qtd_confirmada(self):
         return self.ordem_de_servico.n_participantes if self.ordem_de_servico else self.ficha_de_evento.qtd_confirmada
@@ -760,7 +762,8 @@ class Eventos(models.Model):
         return self.ficha_de_evento.qtd_convidada
 
     def data_preenchimento(self):
-        return self.ordem_de_servico.data_preenchimento if self.ordem_de_servico else self.ficha_de_evento.data_preenchimento
+        data = self.ordem_de_servico.data_preenchimento if self.ordem_de_servico else self.ficha_de_evento.data_preenchimento
+        return data.strftime('%d/%m/%Y')
 
     def estagio_evento(self):
         if self.ordem_de_servico:
