@@ -39,6 +39,7 @@ if not em_manutencao:
         path('detector-de-bombas/', include('detector.urls')),
         path('orcamento/', include('orcamento.urls')),
         path('ficha_financeira/', include('financeiro.urls')),
+        path('pre_orcamento/', include('pre_orcamento.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:

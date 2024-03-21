@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'detector.apps.DetectorConfig',
     'orcamento.apps.OrcamentoConfig',
     'financeiro.apps.FinanceiroConfig',
+    'pre_orcamento.apps.PreOrcamentoConfig',
 ]
 
 MIDDLEWARE = [
