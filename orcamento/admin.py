@@ -13,7 +13,9 @@ from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, Orca
 
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
-    list_display = ('refeicao', 'horario')
+    list_display = ('refeicao', 'hora')
+    ordering = ('horario',)
+
 
 
 @admin.register(Orcamento)
@@ -30,7 +32,7 @@ class OrcamentoDiariaAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresTransporte)
 class ValoresTransporteAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('__str__', 'inicio_vigencia', 'final_vigencia', 'descricao')
 
 
 @admin.register(OrcamentoMonitor)
@@ -40,7 +42,7 @@ class OrcamentoMonitorAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(admin.ModelAdmin):
-    list_display = ('nome_periodo',)
+    list_display = ('nome_periodo', 'valor', 'descricao')
     form = SeuModeloAdminForm
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
@@ -64,8 +66,9 @@ class PeriodosAdmin(admin.ModelAdmin):
 @admin.register(ValoresPadrao)
 class ValoresPadraoAdmin(admin.ModelAdmin):
     list_display = ('nome_taxa', 'valor', 'descricao')
+    ordering = ('nome_taxa',)
 
-''
+
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao', 'valor')

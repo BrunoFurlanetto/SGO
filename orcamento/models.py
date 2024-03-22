@@ -50,6 +50,8 @@ class OrcamentoMonitor(models.Model):
     nome_monitoria = models.CharField(max_length=100)
     descricao_monitoria = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    inicio_vigencia = models.DateField()
+    final_vigencia = models.DateField(default=default_validade)
     racional_monitoria = models.PositiveIntegerField(
         default=8, verbose_name="Racional Monitoria")
 
@@ -113,6 +115,10 @@ class HorariosPadroes(models.Model):
     def __str__(self):
         return f'Horário {self.refeicao}'
 
+    @property
+    def hora(self):
+        return self.horario.strftime('%H:%M')
+
 
 class ValoresTransporte(models.Model):
     valor_1_dia = models.DecimalField(
@@ -126,7 +132,11 @@ class ValoresTransporte(models.Model):
     valor_5_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 5 dias')
     valor_acrescimo = models.DecimalField(
-        max_digits=7, decimal_places=2, verbose_name='Acréscimo')
+        max_digits=7, decimal_places=2, verbose_name='Acréscimo dia extra'
+    )
+    acrescimo_barra = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Acréscimo Barra Bonita'
+    )
     leva_e_busca = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Leva e Busca', default=0.00)
     percentual = models.DecimalField(
@@ -136,7 +146,15 @@ class ValoresTransporte(models.Model):
     descricao = models.TextField(verbose_name="Descrição", default="")
 
     def __str__(self):
-        return f'Valores de transporte transporte'
+        return f'Valores do transporte de {self.inicio_validade.strftime("%d/%m/%Y")} até {self.final_validade.strftime("%d/%m/%Y")}'
+
+    @property
+    def inicio_vigencia(self):
+        return self.inicio_validade.strftime('%d/%m/%Y')
+
+    @property
+    def final_vigencia(self):
+        return self.final_validade.strftime('%d/%m/%Y')
 
 
 class StatusOrcamento(models.Model):
