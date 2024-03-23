@@ -24,7 +24,7 @@ def default_validade():
 
 class ValoresPadrao(models.Model):
     nome_taxa = models.CharField(max_length=255, verbose_name='Nome da taxa')
-    valor = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=4)
+    valor = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=5)
     descricao = models.TextField(verbose_name='Descrição da taxa')
     id_taxa = models.CharField(max_length=255, editable=False)
 
@@ -32,7 +32,9 @@ class ValoresPadrao(models.Model):
         return self.nome_taxa
 
     def save(self, *args, **kwargs):
-        self.id_taxa = unidecode(self.nome_taxa).lower().replace(' ', '_')
+        if self.pk:
+            self.id_taxa = unidecode(self.nome_taxa).lower().replace(' ', '_')
+
         super().save(*args, **kwargs)
 
     @classmethod
