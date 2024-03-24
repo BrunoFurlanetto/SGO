@@ -23,6 +23,19 @@ class NivelMonitoria(models.Model):
         return self.nivel
 
 
+class PerfilsParticipantes(models.Model):
+    fase = models.CharField(max_length=255)
+    ano = models.CharField(max_length=255, blank=True)
+    idade = models.CharField(max_length=255)
+
+    def __str__(self):
+
+        if self.ano != '':
+            return f'{self.ano}({self.idade})'
+        else:
+            return f'{self.fase}({self.idade})'
+
+
 class Monitor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11)
@@ -74,6 +87,20 @@ class GrupoAtividade(models.Model):
         return self.grupo
 
 
+class ProdutosPeraltas(models.Model):
+    produto = models.CharField(max_length=255)
+    pernoite = models.BooleanField(default=True)
+    colegio = models.BooleanField(default=True)
+    brotas_eco = models.BooleanField(default=False)
+    meninos_e_meninas = models.BooleanField(default=False)
+    n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
+    hora_padrao_check_in = models.TimeField(blank=True, null=True)
+    hora_padrao_check_out = models.TimeField(blank=True, null=True)
+
+    def __str__(self):
+        return self.produto
+
+
 class AtividadePeraltas(models.Model):
     nome_atividade = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
@@ -110,6 +137,13 @@ class Vendedor(models.Model):
         return self.usuario.get_full_name()
 
 
+class TipoAividadePeraltas(models.Model):
+    tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Aividade')
+
+    def __str__(self):
+        return self.tipo_atividade
+
+
 class AtividadesEco(models.Model):
     nome_atividade_eco = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
@@ -124,23 +158,12 @@ class AtividadesEco(models.Model):
     biologo = models.BooleanField(default=False)
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    tipo_atividade = models.ForeignKey(TipoAividadePeraltas, on_delete=models.DO_NOTHING, blank=True, null=True)
+    serie = models.ManyToManyField(PerfilsParticipantes, blank=True)
+    tipo_pacote = models.ManyToManyField(ProdutosPeraltas, blank=True)
 
     def __str__(self):
         return self.nome_atividade_eco
-
-
-class ProdutosPeraltas(models.Model):
-    produto = models.CharField(max_length=255)
-    pernoite = models.BooleanField(default=True)
-    colegio = models.BooleanField(default=True)
-    brotas_eco = models.BooleanField(default=False)
-    meninos_e_meninas = models.BooleanField(default=False)
-    n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
-    hora_padrao_check_in = models.TimeField(blank=True, null=True)
-    hora_padrao_check_out = models.TimeField(blank=True, null=True)
-
-    def __str__(self):
-        return self.produto
 
 
 class ProdutoCorporativo(models.Model):
@@ -152,19 +175,6 @@ class ProdutoCorporativo(models.Model):
 
     def __str__(self):
         return self.produto
-
-
-class PerfilsParticipantes(models.Model):
-    fase = models.CharField(max_length=255)
-    ano = models.CharField(max_length=255, blank=True)
-    idade = models.CharField(max_length=255)
-
-    def __str__(self):
-
-        if self.ano != '':
-            return f'{self.ano}({self.idade})'
-        else:
-            return f'{self.fase}({self.idade})'
 
 
 class CodigosPadrao(models.Model):

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django import forms
 
 
 class Professores(models.Model):
@@ -15,6 +14,13 @@ class Professores(models.Model):
 
     def nome_completo(self):
         return self.usuario.get_full_name()
+
+
+class TipoAtividadesCeu(models.Model):
+    tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Atividade')
+
+    def str_tipo_atividade(self):
+        return self.tipo_atividade
 
 
 class Estruturas(models.Model):
@@ -51,6 +57,9 @@ class Atividades(models.Model):
     limitacao = models.ManyToManyField(Limitacoes, blank=True)
     publico = models.BooleanField(default=False)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    tipo_atividade = models.ForeignKey(TipoAtividadesCeu, on_delete=models.DO_NOTHING, blank=True, null=True)
+    serie = models.ManyToManyField('peraltas.PerfilsParticipantes', blank=True)
+    tipo_pacote = models.ManyToManyField('peraltas.ProdutosPeraltas', blank=True)
 
     def __str__(self):
         return self.atividade
