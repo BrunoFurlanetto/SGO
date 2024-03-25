@@ -252,6 +252,7 @@
 
 .conteudo_dashboard_peraltas_escrito {
     height: 85vh;
+    font-size: 20rem;
     display: flex;
     align-items: center;
     justify-content: center;

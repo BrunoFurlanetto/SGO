@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filter_tags %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
+
+    <div id="conteudo_pre_orcamento">
+        <div id="abas">
+            <div class="aba ativo" style="display: flex" onclick="alterar_aba(this, 'pre_orcamento')">Orçamentos</div>
+            <div class="aba" style="display: flex" onclick="alterar_aba(this, 'clientes')">Clientes</div>
+        </div>
+        <div id="janelas">
+            <div id="pre_orcamento" class="section-content ativo">
+                <div>
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="clientes" class="section-content">
+                <div>
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/scrips_pre_orcamento.js' %}"></script>
+{% endblock %}

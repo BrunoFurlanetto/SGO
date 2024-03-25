@@ -250,8 +250,29 @@
                     {% endif %}
                 {% endif %}
 
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+                {% if perms.pre_orcamento.add_preorcamento %}
+                    {% if perms.pre_orcamento.add_preorcamento %}
+                        <a href="{% url 'dashboard_pre_orcamento' %}">
+                            <i class='bx bxs-book-add'></i>
+                            <span class="link_name">Pré orçamento</span>
+                        </a>
+                        <ul class="sub-menu blank">
+                            <li><a class="link_name" href="{% url 'dashboard_pre_orcamento' %}">Pré orçamento</a></li>
+                        </ul>
+                    {% endif %}
+                {% endif %}
+
                 </li>{% if 'dashboard' in request.path %}
-                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                {% if perms.pre_orcamento.add_preorcamento %}
                     <li class="item-sidebar">
                         {% else %}
                     <li>

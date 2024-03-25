@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def dashboard(request):
+    usuario = request.user
+
+    return render(request, 'pre_orcamento/dashoboard.html')

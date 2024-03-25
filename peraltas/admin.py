@@ -8,6 +8,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
                              TiposPagamentos)
 from peraltas.models import Vendedor
+from pre_orcamento.models import ColaboradorExterno
 
 
 @admin.register(TipoAtividade)
@@ -180,3 +181,15 @@ class EventosAdmin(admin.ModelAdmin):
     )
     list_display_links = ('cliente', )
     list_per_page = 100
+
+
+@admin.register(ColaboradorExterno)
+class ColaboradorExternoAdmin(admin.ModelAdmin):
+    list_display = ('usuario',)
+
+
+class ColaboradorExternoInline(admin.StackedInline):
+    model = ColaboradorExterno
+    can_delete = False
+    verbose_name = 'Colaborador(a) externo'
+    extra = 0
