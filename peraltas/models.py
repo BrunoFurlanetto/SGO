@@ -254,11 +254,13 @@ class Responsavel(models.Model):
     def __str__(self):
         return self.nome
 
+    @property
     def responsavel_por(self):
         relacao = RelacaoClienteResponsavel.objects.get(responsavel=self)
 
         return relacao.cliente
 
+    @property
     def listar_cargos(self):
         return ', '.join([c.cargo for c in self.cargo.all()])
 
@@ -831,6 +833,9 @@ class DisponibilidadePeraltas(models.Model):
     ano = models.CharField(max_length=20)
     n_dias = models.IntegerField()
 
+    def monitor_enfermeira(self):
+        return self.monitor if self.monitor else self.enfermeira
+
 
 class DiaLimitePeraltas(models.Model):
     dia_limite_peraltas = models.PositiveIntegerField()
@@ -876,6 +881,13 @@ class EscalaHotelaria(models.Model):
             monitores.append({'nome': monitor.usuario.get_full_name(), 'user': monitor.usuario})
 
         return monitores
+
+    @property
+    def coordenadores_escala(self):
+        return [monitor.usuario.get_full_name() for monitor in self.coordenadores.all()]
+
+    def data_escala(self):
+        return self.data.strftime('%d/%m/%Y')
 
 
 # ------------------------------------------------ Formulários ---------------------------------------------------------

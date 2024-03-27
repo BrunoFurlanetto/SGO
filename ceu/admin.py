@@ -22,22 +22,29 @@ admin.site.register(User, UserAdmin)
 
 @admin.register(Professores)
 class ProfessoresAdmin(admin.ModelAdmin):
-    list_display = ('nome_completo', 'telefone')
+    list_display = ('nome_completo', 'telefone_formatado', 'diarista')
+    search_fields = ('usuario__first_name', 'usuario__last_name',)
+
+    def telefone_formatado(self, obj):
+        return f'({obj.telefone[0:2]}) {obj.telefone[2:7]} - {obj.telefone[7:]}'
+
+    telefone_formatado.short_description = 'Telefone'
 
 
 @admin.register(Atividades)
 class AtividadesAdmin(admin.ModelAdmin):
     filter_horizontal = ('limitacao',)
+    search_fields = ('atividade',)
 
 
 @admin.register(Locaveis)
 class LocaveisAdmin(admin.ModelAdmin):
-    list_display = ('id', 'local')
+    list_display = ('local', )
 
 
-@admin.register(ReembolsosProfessores)
-class ReembolsosProfessoresAdmin(admin.ModelAdmin):
-    list_display = ('usuario_professor', 'valor_reembolso')
+# @admin.register(ReembolsosProfessores)
+# class ReembolsosProfessoresAdmin(admin.ModelAdmin):
+#     list_display = ('usuario_professor', 'valor_reembolso')
 
 
 admin.site.register(Limitacoes)
