@@ -207,7 +207,8 @@ class CodigosPadraoAdmin(admin.ModelAdmin):
 
 @admin.register(CodigosApp)
 class CodigosAppAdmin(admin.ModelAdmin):
-    list_display = ('cliente_pj',)
+    list_display = ('cliente_pj', 'cliente_pf', 'evento_app', 'eficha', 'reserva', 'ficha_financeira')
+    search_fields = ('cliente_pj',)
 
 
 @admin.register(TiposPagamentos)
