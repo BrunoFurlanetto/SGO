@@ -103,7 +103,7 @@ class EmpresaOnibusAdmin(admin.ModelAdmin):
 @admin.register(FichaDeEvento)
 class FichaDeEventoAdmin(admin.ModelAdmin):
     list_display = ('cliente', 'vendedora', 'check_in_formatado', 'check_out_formatado', 'qtd_convidada', 'data_preenchimento_formatado')
-    list_filter = ('pre_reserva', 'data_preenchimento')
+    list_filter = ('pre_reserva', 'data_preenchimento', 'check_in')
     search_fields = ('cliente', 'vendedora')
     ordering = ('-check_in',)
 
