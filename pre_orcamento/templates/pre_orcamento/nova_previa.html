@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filter_tags %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <div id="conteudo_nova_previa">
+        <div>
+            <h2>
+                Nova prévia
+            </h2>
+        </div>
+        <hr>
+        <h5 class="titulo-secao">Dados do cliente</h5>
+        <p id="aviso_cnpj" class="none alert alert-danger">CNPJ Inválido</p>
+        <div id="dados_cliente">
+            {% for campo in pre_cadastro %}
+                <div id="div_{{ campo.id_for_label }}">
+                    {{ campo.label }}
+                    {{ campo }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
+    <script src="{% static 'js/script_nova_previa.js' %}" ></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'js/scrips_pre_orcamento.js' %}"></script>
+{% endblock %}

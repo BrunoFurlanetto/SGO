@@ -1,4 +1,4 @@
-#conteudo_pre_orcamento {
+#conteudo_pre_orcamento, #conteudo_nova_previa {
     margin: auto;
     width: 1100px;
     justify-content: center;
@@ -7,6 +7,10 @@
     box-shadow: 5px 5px 10px;
     border-radius: 15px;
     padding: 10px;
+}
+
+#conteudo_nova_previa {
+    width: 800px;
 }
 
 #conteudo_pre_orcamento .aba {
@@ -49,4 +53,23 @@
 #pre_orcamento table thead, #pre_orcamento table tbody tr > td:not(:first-child),
 #clientes table thead, #clientes table tbody tr > td:not(:first-child){
     text-align: center;
+}
+
+#conteudo_nova_previa #dados_cliente {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+#conteudo_nova_previa #dados_cliente div {
+    display: flex;
+    flex-direction: column;
+}
+
+#conteudo_nova_previa input:not(input[type=checkbox]) {
+    padding: 2px 8px 2px 8px;
+    border: solid 1px #b5b4b4;
+    background: #fff;
+    border-radius: 7px;
+    width: 100%;
 }

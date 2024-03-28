@@ -1,3 +1,4 @@
+from django import forms
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import models
@@ -16,8 +17,8 @@ def default_validade():
 
 
 class PreCadastro(models.Model):
+    nome_colegio = models.CharField(max_length=255, verbose_name='Nome do grupo')
     cnpj = models.CharField(max_length=18, unique=True, verbose_name='CNPJ')
-    nome_colegio = models.CharField(max_length=255, verbose_name='Nome do colégio')
     nome_responsavel = models.CharField(max_length=255, verbose_name='Nome do responsável')
     telefone_responsavel = models.CharField(max_length=255, verbose_name='Telefone do responsável')
 
@@ -87,3 +88,16 @@ class PreOrcamento(models.Model):
         on_delete=models.DO_NOTHING,
         blank=True, null=True
     )
+
+
+# --------------------------------------------------- FROMS ------------------------------------------------------------
+class PreCadastroFormulario(forms.ModelForm):
+    class Meta:
+        model = PreCadastro
+        fields = '__all__'
+
+
+class CadastroPreOrcamento(forms.ModelForm):
+    class Meta:
+        model = PreOrcamento
+        fields = '__all__'
