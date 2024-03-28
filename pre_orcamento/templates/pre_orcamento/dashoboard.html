@@ -5,6 +5,7 @@
 
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <div id="conteudo_pre_orcamento">
         <div id="abas">
@@ -14,40 +15,35 @@
         <div id="janelas">
             <div id="pre_orcamento" class="section-content ativo">
                 <div>
-                    <table class="table table-borderless">
+                    <table class="table table-hover table-bordered table-striped">
                         <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                            </tr>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th style="width: 45px"></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-2" style="display: flex; justify-content: end">
+                    <button class="btn btn-primary" onclick="window.location.href = '{% url 'nova_previa' %}'">Novo orçamento</button>
                 </div>
             </div>
             <div id="clientes" class="section-content">
                 <div>
-                    <table class="table table-borderless">
+                    <table class="table table-hover table-bordered table-striped">
                         <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                            </tr>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Responsável</th>
+                            <th>Contato</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -55,5 +51,7 @@
         </div>
     </div>
 
+    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="{% static 'js/scrips_pre_orcamento.js' %}"></script>
 {% endblock %}

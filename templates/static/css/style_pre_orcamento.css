@@ -21,6 +21,32 @@
 }
 
 #conteudo_pre_orcamento .aba.ativo {
-    background: #ffefef;
+    background: #f1f1f1;
     color: #000000;
+}
+
+.btn_adicionar_nova_previa {
+    background: transparent;
+    border: none;
+    font-size: 25px;
+}
+
+.div_btns_status {
+    display: flex;
+    column-gap: 10px;
+}
+
+.btn_alterar_status_previa {
+    background: transparent;
+    border: none;
+    font-size: 25px;
+}
+
+#pre_orcamento table tr, #clientes table tr{
+    vertical-align: middle;
+}
+
+#pre_orcamento table thead, #pre_orcamento table tbody tr > td:not(:first-child),
+#clientes table thead, #clientes table tbody tr > td:not(:first-child){
+    text-align: center;
 }

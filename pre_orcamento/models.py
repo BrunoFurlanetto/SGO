@@ -79,6 +79,7 @@ class PreOrcamento(models.Model):
         related_name='atividades_peraltas_aceitas',
         blank=True,
     )
+    data_preenchimento = models.DateField(default=timezone.now, verbose_name='Data de preenchimento', editable=False)
     validade = models.DateField(default=default_validade)
     status = models.ForeignKey(
         StatusOrcamento,
