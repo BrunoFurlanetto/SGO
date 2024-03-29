@@ -1,5 +1,5 @@
 #conteudo_pre_orcamento, #conteudo_nova_previa {
-    margin: auto;
+    margin: auto auto 200px;
     width: 1100px;
     justify-content: center;
     align-items: center;
@@ -72,4 +72,77 @@
     background: #fff;
     border-radius: 7px;
     width: 100%;
+}
+
+#conteudo_nova_previa select {
+    padding: 2px 8px 2px 8px;
+    border: solid 1px #b5b4b4;
+    background: #fff;
+    border-radius: 7px;
+    width: 100%;
+}
+
+#div_id_nome_colegio {
+    width: 69%;
+}
+
+#div_id_nome_responsavel {
+    width: 60%;
+}
+
+#valores_base {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.inativo {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#previa {
+    border: solid 1px #5c5c5c;
+    background: #f1f1f1;
+    box-shadow: inset 0 0 8px
+}
+
+#venda_certa {
+    border-right: solid 1px #000000;
+    box-sizing: border-box;
+}
+
+#venda_certa #titulo, #atividades .abas_secao {
+    padding: 5px;
+    width: 100%;
+    border-bottom: solid 1px #000000;
+    box-sizing: border-box;
+    background: #ffffff;
+    box-shadow: 0 3px 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#venda_certa #sugestoes div {
+    height: 40px;
+    margin: 0 20px 10px 20px;
+    border: solid 1px;
+    border-radius: 15px;
+    box-shadow: 1px 3px 4px 1px;
+    background: #ffffff;
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#atividades .abas_secao {
+    padding: 0;
+    display: flex;
+}
+
+#atividades .abas_secao div{
+    margin-left: 10px;
+    box-shadow: 1px 1px 1px 1px;
 }

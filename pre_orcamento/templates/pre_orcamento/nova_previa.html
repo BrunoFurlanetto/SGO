@@ -16,19 +16,128 @@
         <hr>
         <h5 class="titulo-secao">Dados do cliente</h5>
         <p id="aviso_cnpj" class="none alert alert-danger">CNPJ Inválido</p>
-        <div id="dados_cliente">
-            {% for campo in pre_cadastro %}
-                <div id="div_{{ campo.id_for_label }}">
-                    {{ campo.label }}
-                    {{ campo }}
+        <p id="aviso_preencher_campos" class="alert alert-warning">
+            É necessário preencher todos os campos dos dados do cliente para liberar a montagem da prévia
+        </p>
+        <form action="">
+            <fieldset>
+                {% csrf_token %}
+
+                <div id="dados_cliente" onchange="verificar_preenchimento()">
+                    {% for campo in pre_cadastro %}
+                        <div id="div_{{ campo.id_for_label }}">
+                            {{ campo.label }}
+                            {{ campo }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
+                <hr>
+                <h5 class="titulo-secao dados_previa inativo">Dados base</h5>
+                <div id="dados_base_previa" class="dados_previa inativo">
+                    <div id="valores_base">
+                        <div style="width: 100%">
+                            <label for="serie_grupo">Serie(s) do grupo</label>
+                            <select name="serie_grupo" id="serie_grupo" multiple>
+                                {% for serie in series %}
+                                    <option value="{{ serie.id }}">{{ serie }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="width: 80%; display: flex; gap: 10px">
+                            <div style="width: 10%">
+                                <label for="n_dias">Dias</label>
+                                <input type="number" name="n_dias" id="n_dias" min="1" onchange="validar_pacotes()">
+                            </div>
+                            <div style="width: 88%;">
+                                <label for="produto_peraltas">Tipo de pacote</label>
+                                <select name="produto_peraltas" id="produto_peraltas" multiple>
+                                    {% for produto in produtos_peraltas %}
+                                        <option value="{{ produto.id }}">{{ produto.produto }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div style="width: 18%">
+                            <label for="motivo_viagem">Intenção</label>
+                            <select name="motivo_viagem" id="motivo_viagem">
+                                <option></option>
+                                <option value="lazer">Lazer</option>
+                                <option value="estudo">Estudo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h5 class="titulo-secao">Atividades sugeridas</h5>
+                <div id="previa" class="previa" style="display: flex">
+                    <div id="venda_certa" style="width: 50%">
+                        <div id="titulo">Atividades sugeridas</div>
+                        <div id="sugestoes">
+                            <div>
+                                Atividade 1
+                            </div>
+                            <div>
+                                Atividade 2
+                            </div>
+                            <div>
+                                Atividade 3
+                            </div>
+                            <div>
+                                Atividade 4
+                            </div>
+                            <div>
+                                Atividade 5
+                            </div>
+                        </div>
+                    </div>
+                    <div id="atividades" style="width: 50%">
+                        <div class="abas_secao">
+                            <div class="aba_ativa">CEU</div>
+                            <div>Peraltas</div>
+                        </div>
+                        <div class="conteudo_atividades">
+
+                            <div id="ceu">
+                                <div>
+                                    Atividade CEU
+                                </div>
+                                <div>
+                                    Atividade CEU
+                                </div>
+                                <div>
+                                    Atividade CEU
+                                </div>
+                                <div>
+                                    Atividade CEU
+                                </div>
+                                <div>
+                                    Atividade CEU
+                                </div>
+                            </div>
+                            <div id="peraltas" class="none">
+                                <div>
+                                    Atividade Peraltas
+                                </div>
+                                <div>
+                                    Atividade Peraltas
+                                </div>
+                                <div>
+                                    Atividade Peraltas
+                                </div>
+                                <div>
+                                    Atividade Peraltas
+                                </div>
+                                <div>
+                                    Atividade Peraltas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
     </div>
 
-    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
-    <script src="{% static 'js/script_nova_previa.js' %}" ></script>
-    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="{% static 'js/scrips_pre_orcamento.js' %}"></script>
+    <script src="{% static 'js/script_nova_previa.js' %}"></script>
 {% endblock %}

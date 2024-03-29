@@ -96,6 +96,11 @@ class PreCadastroFormulario(forms.ModelForm):
         model = PreCadastro
         fields = '__all__'
 
+        widgets = {
+            'cnpj': forms.TextInput(attrs={'onchange': 'validarCNPJ(this)'}),
+            'telefone_responsavel': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
+        }
+
 
 class CadastroPreOrcamento(forms.ModelForm):
     class Meta:
