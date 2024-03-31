@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from peraltas.models import PerfilsParticipantes, ProdutosPeraltas
 from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento
+from projetoCEU.utils import is_ajax
 
 
 @login_required(login_url='login')
@@ -27,15 +28,20 @@ def nova_previa(request):
 
 
 def validar_pacotes(request):
-    n_dias = int(request.POST.get('dias')) - 1
-    produtos_base = ProdutosPeraltas.objects.filter(n_dias=n_dias).exclude(brotas_eco=True)
-    produtos_dia = [produto.id for produto in produtos_base]
-    produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='all party').id)
+    if is_ajax(request):
+        n_dias = int(request.POST.get('dias')) - 1
+        produtos_base = ProdutosPeraltas.objects.filter(n_dias=n_dias).exclude(brotas_eco=True)
+        produtos_dia = [produto.id for produto in produtos_base]
+        produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='all party').id)
 
-    if n_dias == 0:
-        produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='ceu').id)
-        produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica').id)
-    elif n_dias >= 2:
-        produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='ac 3 dias ou mais').id)
+        if n_dias == 0:
+            produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='ceu').id)
+            produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica').id)
+        elif n_dias >= 2:
+            produtos_dia.append(ProdutosPeraltas.objects.get(produto__icontains='ac 3 dias ou mais').id)
 
-    return JsonResponse({'id_pacotes_validos': produtos_dia})
+        return JsonResponse({'id_pacotes_validos': produtos_dia})
+
+def sugerir_atividades(request):
+    if is_ajax(request):
+        return JsonResponse({})

@@ -33,7 +33,7 @@
                 </div>
                 <hr>
                 <h5 class="titulo-secao dados_previa inativo">Dados base</h5>
-                <div id="dados_base_previa" class="dados_previa inativo">
+                <div id="dados_base_previa" class="dados_previa inativo" onchange="verificar_preenchimento_dados_base()">
                     <div id="valores_base">
                         <div style="width: 100%">
                             <label for="serie_grupo">Serie(s) do grupo</label>
@@ -68,66 +68,71 @@
                     </div>
                 </div>
                 <hr>
-                <h5 class="titulo-secao">Atividades sugeridas</h5>
-                <div id="previa" class="previa" style="display: flex">
+                <h5 class="previa inativo titulo-secao">Atividades sugeridas</h5>
+                <div id="previa" class="previa inativo" style="display: flex">
                     <div id="venda_certa" style="width: 50%">
                         <div id="titulo">Atividades sugeridas</div>
                         <div id="sugestoes">
-                            <div>
+                            <div class="card_atividade">
                                 Atividade 1
                             </div>
-                            <div>
+                            <div class="card_atividade">
                                 Atividade 2
                             </div>
-                            <div>
+                            <div class="card_atividade">
                                 Atividade 3
                             </div>
-                            <div>
+                            <div class="card_atividade">
                                 Atividade 4
                             </div>
-                            <div>
+                            <div class="card_atividade">
                                 Atividade 5
                             </div>
                         </div>
                     </div>
                     <div id="atividades" style="width: 50%">
                         <div class="abas_secao">
-                            <div class="aba_ativa">CEU</div>
-                            <div>Peraltas</div>
+                            <div class="aba_ativa" onclick="trocar_aba_secao(this, 'ceu')">CEU</div>
+                            <div onclick="trocar_aba_secao(this, 'peraltas')">Peraltas</div>
                         </div>
                         <div class="conteudo_atividades">
-
-                            <div id="ceu">
-                                <div>
+                            <div id="ceu" class="secao_atividades">
+                                <div class="card_atividade">
                                     Atividade CEU
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade CEU
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade CEU
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade CEU
                                 </div>
-                                <div>
+                                <div class="card_atividade">
+                                    Atividade CEU
+                                </div>
+                                <div class="card_atividade">
+                                    Atividade CEU
+                                </div>
+                                <div class="card_atividade">
                                     Atividade CEU
                                 </div>
                             </div>
-                            <div id="peraltas" class="none">
-                                <div>
+                            <div id="peraltas" class="secao_atividades none">
+                                <div class="card_atividade">
                                     Atividade Peraltas
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade Peraltas
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade Peraltas
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade Peraltas
                                 </div>
-                                <div>
+                                <div class="card_atividade">
                                     Atividade Peraltas
                                 </div>
                             </div>

@@ -113,6 +113,22 @@
     box-sizing: border-box;
 }
 
+#venda_certa #sugestoes {
+    display: flex;
+    min-height: 300px;
+    flex-direction: column;
+    justify-content: center;
+    height: 95%;
+    align-items: center;
+    padding: 0 15px 0 15px;
+}
+
+#atividades .conteudo_atividades {
+    max-height: 350px;
+    overflow: auto;
+    padding: 20px;
+}
+
 #venda_certa #titulo, #atividades .abas_secao {
     padding: 5px;
     width: 100%;
@@ -120,13 +136,13 @@
     box-sizing: border-box;
     background: #ffffff;
     box-shadow: 0 3px 5px;
-    margin-bottom: 10px;
     text-align: center;
 }
 
-#venda_certa #sugestoes div {
+.card_atividade {
     height: 40px;
-    margin: 0 20px 10px 20px;
+    width: 100%;
+    margin-bottom: 15px;
     border: solid 1px;
     border-radius: 15px;
     box-shadow: 1px 3px 4px 1px;
@@ -135,14 +151,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 }
 
 #atividades .abas_secao {
     padding: 0;
     display: flex;
+    height: 35px;
 }
 
-#atividades .abas_secao div{
-    margin-left: 10px;
-    box-shadow: 1px 1px 1px 1px;
+#atividades .abas_secao .aba_ativa{
+    box-shadow: inset -2px 0 2px 0 #000000;
+    background: #a4a4a4;
+    color: #FFFFFF;
+}
+
+#atividades .abas_secao div {
+    background: #FFFFFF;
+    color: #000000;
+    z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 15px;
+    cursor: pointer;
 }

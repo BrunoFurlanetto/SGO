@@ -9,6 +9,10 @@ function verificar_preenchimento() {
     let nome_responsavel = $('#id_nome_responsavel').val()
     let telefone = $('#id_telefone_responsavel').val()
 
+    if (telefone.length < 15) {
+        telefone = ''
+    }
+
     if (![nome_cliente, cnpj, nome_responsavel, telefone].includes('')) {
         $('.dados_previa').removeClass('inativo')
         $('#aviso_preencher_campos').addClass('none')
@@ -17,6 +21,42 @@ function verificar_preenchimento() {
         $('.dados_previa').addClass('inativo')
         $('.dados_previa input, .previa select').val('')
         $('#serie_grupo, #produto_peraltas').trigger('change')
+    }
+}
+
+function verificar_preenchimento_dados_base() {
+    let serie_grupo = $('#serie_grupo').val()
+    let dias = $('#n_dias').val()
+    let tipo_pacote = $('#produto_peraltas').val()
+    let intencao = $('#motivo_viagem').val()
+
+    if (serie_grupo.length == 0) {
+        serie_grupo = ''
+    }
+
+    if (tipo_pacote.length == 0) {
+        tipo_pacote = ''
+    }
+
+    if (![serie_grupo, dias, tipo_pacote, intencao].includes('')) {
+        loading()
+        $('#sugestoes, .conteudo_atividades #ceu, .conteudo_atividades #peraltas').empty()
+
+        $.ajax({
+            url: '/pre_orcamento/sugerir_atividades/',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {'serie_grupo': serie_grupo, 'tipo_pacote': tipo_pacote, 'intencao': intencao},
+            success: function (response) {
+                console.log(response)
+            }
+        }).done(()=>{
+            end_loading()
+            $('.previa').removeClass('inativo')
+        })
+    } else {
+        $('.previa').addClass('inativo')
+        $('#sugestoes, .conteudo_atividades #ceu, .conteudo_atividades #peraltas').empty()
     }
 }
 
@@ -90,6 +130,7 @@ function mascara_telefone(input) {
 
 function validar_pacotes() {
     $('#produto_peraltas').val(null).trigger('change')
+
     $.ajax({
         url: '/pre_orcamento/validar_pacotes/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
@@ -105,6 +146,19 @@ function validar_pacotes() {
                     }
                 }
             }
+        }
+    })
+}
+
+function trocar_aba_secao(aba, secao_atividade) {
+    $('.abas_secao div').removeClass('aba_ativa')
+    $(aba).addClass('aba_ativa')
+
+    $('.secao_atividades').map((index, secao) => {
+        if (secao.id == secao_atividade) {
+            $(secao).removeClass('none')
+        } else {
+            $(secao).addClass('none')
         }
     })
 }
