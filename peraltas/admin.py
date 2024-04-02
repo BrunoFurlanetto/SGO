@@ -157,7 +157,7 @@ class ClienteAdmin(admin.ModelAdmin):
 
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'responsavel_por', 'responsavel_cadastro', 'responsavel_atualizacao')
+    list_display = ('nome', 'responsavel_por_cliente', 'responsavel_cadastro', 'responsavel_atualizacao')
     search_fields = ('nome',)
 
     def get_search_results(self, request, queryset, search_term):

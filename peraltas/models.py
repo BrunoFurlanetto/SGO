@@ -255,7 +255,7 @@ class Responsavel(models.Model):
         return self.nome
 
     @property
-    def responsavel_por(self):
+    def responsavel_por_cliente(self):
         relacao = RelacaoClienteResponsavel.objects.get(responsavel=self)
 
         return relacao.cliente
