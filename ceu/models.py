@@ -22,6 +22,9 @@ class TipoAtividadesCeu(models.Model):
     def str_tipo_atividade(self):
         return self.tipo_atividade
 
+    def __str__(self):
+        return self.tipo_atividade
+
 
 class Estruturas(models.Model):
     estrutura = models.CharField(max_length=100)
@@ -57,12 +60,22 @@ class Atividades(models.Model):
     limitacao = models.ManyToManyField(Limitacoes, blank=True)
     publico = models.BooleanField(default=False)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    tipo_atividade = models.ForeignKey(TipoAtividadesCeu, on_delete=models.DO_NOTHING, blank=True, null=True)
+    tema_atividade = models.ForeignKey(TipoAtividadesCeu, on_delete=models.DO_NOTHING, blank=True, null=True)
     serie = models.ManyToManyField('peraltas.PerfilsParticipantes', blank=True)
     tipo_pacote = models.ManyToManyField('peraltas.ProdutosPeraltas', blank=True)
 
     def __str__(self):
         return self.atividade
+
+    def informacoes_atividade(self):
+        return {
+            'id': self.id,
+            'nome': self.atividade,
+            'tema': self.tema_atividade.tipo_atividade,
+            'intencao': 'estudo',
+            'series': ', '.join([serie.ano for serie in self.serie.all()]),
+            'pacotes': ', '.join([pacote.produto for pacote in self.tipo_pacote.all()]),
+        }
 
 
 class Valores(models.Model):

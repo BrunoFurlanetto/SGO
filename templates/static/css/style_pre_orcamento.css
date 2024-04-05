@@ -143,16 +143,17 @@
     height: 40px;
     width: 100%;
     margin-bottom: 15px;
-    border: solid 1px;
+    border: solid 1px #000000;
     border-radius: 15px;
-    box-shadow: 1px 3px 4px 1px;
-    background: #ffffff;
+    box-shadow: 1px 3px 4px 1px #000000;
+    color: #ffffff;
     vertical-align: middle;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
 }
+
 
 #atividades .abas_secao {
     padding: 0;

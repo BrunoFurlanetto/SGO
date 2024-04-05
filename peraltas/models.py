@@ -29,7 +29,6 @@ class PerfilsParticipantes(models.Model):
     idade = models.CharField(max_length=255)
 
     def __str__(self):
-
         if self.ano != '':
             return f'{self.ano}({self.idade})'
         else:
@@ -137,7 +136,7 @@ class Vendedor(models.Model):
         return self.usuario.get_full_name()
 
 
-class TipoAividadePeraltas(models.Model):
+class TipoAtividadePeraltas(models.Model):
     tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Aividade')
 
     def __str__(self):
@@ -145,6 +144,11 @@ class TipoAividadePeraltas(models.Model):
 
 
 class AtividadesEco(models.Model):
+    intecao = (
+        ('lazer', 'Lazer'),
+        ('estudo', 'Estudo')
+    )
+
     nome_atividade_eco = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
     idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
@@ -158,12 +162,23 @@ class AtividadesEco(models.Model):
     biologo = models.BooleanField(default=False)
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    tipo_atividade = models.ForeignKey(TipoAividadePeraltas, on_delete=models.DO_NOTHING, blank=True, null=True)
+    tipo_atividade = models.ForeignKey(TipoAtividadePeraltas, on_delete=models.DO_NOTHING, blank=True, null=True)
+    intencao_atividade = models.CharField(max_length=6, verbose_name='Intenção da atividade', choices=intecao, default='estudo')
     serie = models.ManyToManyField(PerfilsParticipantes, blank=True)
     tipo_pacote = models.ManyToManyField(ProdutosPeraltas, blank=True)
 
     def __str__(self):
         return self.nome_atividade_eco
+
+    def informacoes_atividade(self):
+        return {
+            'id': self.id,
+            'nome': self.nome_atividade_eco,
+            'tema': self.tipo_atividade.tipo_atividade,
+            'intencao': self.intencao_atividade,
+            'series': ', '.join([serie.ano for serie in self.serie.all()]),
+            'pacotes': ', '.join([pacote.produto for pacote in self.tipo_pacote.all()]),
+        }
 
 
 class ProdutoCorporativo(models.Model):

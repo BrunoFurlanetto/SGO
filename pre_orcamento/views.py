@@ -1,9 +1,13 @@
+from itertools import chain
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from peraltas.models import PerfilsParticipantes, ProdutosPeraltas
+from ceu.models import Atividades, TipoAtividadesCeu
+from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, TipoAtividadePeraltas
 from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento
+from pre_orcamento.utils import ranqueamento_atividades
 from projetoCEU.utils import is_ajax
 
 
@@ -18,12 +22,16 @@ def nova_previa(request):
     previa = CadastroPreOrcamento()
     series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
     produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
+    temas_ceu = TipoAtividadesCeu.objects.all()
+    temas_peraltas = TipoAtividadePeraltas.objects.all()
 
     return render(request, 'pre_orcamento/nova_previa.html', {
         'pre_cadastro': pre_cadastro,
         'previa': previa,
         'series': series,
         'produtos_peraltas': produtos_peraltas,
+        'temas_ceu': temas_ceu,
+        'temas_peraltas': temas_peraltas
     })
 
 
@@ -42,6 +50,36 @@ def validar_pacotes(request):
 
         return JsonResponse({'id_pacotes_validos': produtos_dia})
 
+
 def sugerir_atividades(request):
     if is_ajax(request):
-        return JsonResponse({})
+        ids_serie = list(map(int, request.POST.getlist('serie_grupo[]')))
+        ids_pacotes = list(map(int, request.POST.getlist('tipo_pacote[]')))
+        ids_temas_ceu = list(map(int, [tema.replace('c_', '') for tema in request.POST.getlist('temas_interesse[]') if 'c_' in tema]))
+        ids_temas_peraltas = list(map(int, [tema.replace('p_', '') for tema in request.POST.getlist('temas_interesse[]') if 'p_' in tema]))
+        match_atividades_ceu = None
+
+        match_atividades_eco = AtividadesEco.objects.filter(
+            serie__in=ids_serie,
+            # tipo_pacote__in=ids_pacotes  TODO: Retirar do comentário assim que conseguir essa relação,
+            intencao_atividade=request.POST.get('intencao'),
+            tipo_atividade__in=ids_temas_peraltas,
+        ).distinct()
+        print(match_atividades_eco)
+        if request.POST.get('intencao') == 'estudo':
+            match_atividades_ceu = Atividades.objects.filter(
+                serie__in=ids_serie,
+                tipo_pacote__in=ids_pacotes,
+                tema_atividade__in=ids_temas_ceu,
+            ).distinct()
+
+        atividades_ranqueadas = ranqueamento_atividades(
+            match_atividades_ceu,
+            match_atividades_eco,
+            ids_serie,
+            ids_temas_ceu,
+            ids_temas_peraltas,
+            ids_pacotes
+        )
+        print(atividades_ranqueadas)
+        return JsonResponse(atividades_ranqueadas)

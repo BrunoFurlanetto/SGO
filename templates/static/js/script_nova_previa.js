@@ -1,6 +1,6 @@
 $(document).ready(() => {
     $('#conteudo_nova_previa #id_cnpj').mask("99.999.999/9999-99")
-    $('#serie_grupo, #produto_peraltas').select2()
+    $('#serie_grupo, #produto_peraltas, #temas_interesse').select2()
 })
 
 function verificar_preenchimento() {
@@ -29,6 +29,7 @@ function verificar_preenchimento_dados_base() {
     let dias = $('#n_dias').val()
     let tipo_pacote = $('#produto_peraltas').val()
     let intencao = $('#motivo_viagem').val()
+    let temas = $('#temas_interesse').val()
 
     if (serie_grupo.length == 0) {
         serie_grupo = ''
@@ -38,7 +39,11 @@ function verificar_preenchimento_dados_base() {
         tipo_pacote = ''
     }
 
-    if (![serie_grupo, dias, tipo_pacote, intencao].includes('')) {
+    if (temas.length == 0) {
+        temas = ''
+    }
+
+    if (![serie_grupo, dias, tipo_pacote, intencao, temas].includes('')) {
         loading()
         $('#sugestoes, .conteudo_atividades #ceu, .conteudo_atividades #peraltas').empty()
 
@@ -46,11 +51,43 @@ function verificar_preenchimento_dados_base() {
             url: '/pre_orcamento/sugerir_atividades/',
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
-            data: {'serie_grupo': serie_grupo, 'tipo_pacote': tipo_pacote, 'intencao': intencao},
+            data: {'serie_grupo': serie_grupo, 'tipo_pacote': tipo_pacote, 'intencao': intencao, 'temas_interesse': temas},
             success: function (response) {
-                console.log(response)
+                let n_sugestoes_ceu, n_sugestoes_peraltas
+                let atividades_ceu = response['ceu']
+                let atividades_peraltas = response['peraltas']
+
+                // Atribuindo o número de sugestões pra cada setor
+                if (atividades_ceu.length >= 3 && atividades_peraltas.length >= 3) {
+                    n_sugestoes_ceu = 3
+                    n_sugestoes_peraltas = 3
+                } else {
+                    if (atividades_ceu.length < 3) {
+                        n_sugestoes_ceu = atividades_ceu.length
+                        n_sugestoes_peraltas = 5 - n_sugestoes_ceu > atividades_peraltas.length ? atividades_peraltas.length : 5 - n_sugestoes_ceu
+                    } else if (atividades_peraltas.length < 3) {
+                        n_sugestoes_peraltas = atividades_peraltas.length
+                        n_sugestoes_ceu = 5 - n_sugestoes_peraltas > atividades_ceu.length ? atividades_ceu.length : 5 - n_sugestoes_peraltas
+                    }
+                }
+                // ---------------------------------------------------------------------------------
+                // Adição das atividades de sugestão de cada setor
+                for (let i = 0; i < n_sugestoes_ceu; i++) {
+                    $('#previa #sugestoes').append(`
+                        <div style="background: ${atividades_ceu[i]['cor']}" class="card_atividade" data-id_atividade_ceu="${atividades_ceu[i]['id']}">${atividades_ceu[i]['nome']}</div>
+                    `)
+                }
+
+                for (let i = 0; i < n_sugestoes_peraltas; i++) {
+                    $('#previa #sugestoes').append(`
+                        <div style="background: ${atividades_peraltas[i]['cor']}" class="card_atividade" data-id_atividade_peraltas="${atividades_peraltas[i]['id']}">${atividades_peraltas[i]['nome']}</div>
+                    `)
+                }
+                //<div class="card_atividade">
+                //    Atividade 1
+                //</div>
             }
-        }).done(()=>{
+        }).done(() => {
             end_loading()
             $('.previa').removeClass('inativo')
         })
