@@ -25,9 +25,9 @@ class OrcamentoAdmin(admin.ModelAdmin):
     list_display_links = ('cliente',)
 
 
-@admin.register(OrcamentoDiaria)
-class OrcamentoDiariaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'periodo')
+# @admin.register(OrcamentoDiaria)
+# class OrcamentoDiariaAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'periodo')
 
 
 @admin.register(ValoresTransporte)
