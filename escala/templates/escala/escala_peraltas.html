@@ -20,7 +20,7 @@
         {% endif %}
 
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
-        <div id="dialog" title="Detalhes do Evento">
+        <div id="dialog" title="Detalhes">
             <p><strong>Cliente: </strong> <span id="nome_cliente"></span></p>
             <p><strong>Check in:</strong> <span id="checkin"></span></p>
             <p><strong>Check out:</strong> <span id="checkout"></span></p>
@@ -33,7 +33,8 @@
                 $('#dialog').dialog({
                     autoOpen: false,
                     modal: false,
-                    width: 400
+                    width: 200,
+                    position: { my: "right top", at: "right top", of: window }
                 });
 
                 const calendarUI = document.getElementById('calendar');

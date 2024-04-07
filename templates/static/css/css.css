@@ -3,6 +3,7 @@
     width: max-width;
     height: max-height;
 }
+
 .container_loading {
     display: flex;
     justify-content: center;
@@ -442,7 +443,7 @@
     align-items: end;
 }
 
-.conteudo-disponibilidade-peraltas{
+.conteudo-disponibilidade-peraltas {
     width: 1000px;
     margin: auto auto 10%;
     border-radius: 20px;
@@ -871,14 +872,17 @@
     font-weight: bolder;
     background: #BF9106;
 }
+
 .monitor_2 {
     font-weight: bolder;
     background: #999542;
 }
+
 .monitor_3 {
     font-weight: bolder;
     background: #FF8C00;
 }
+
 .monitor_4 {
     font-weight: bolder;
     background: #FFC107;
@@ -974,7 +978,7 @@
 
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
 #modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select,
-.div_filtros select{
+.div_filtros select {
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -1321,6 +1325,7 @@
     border-radius: 8px;
     background-color: #008000;
 }
+
 .card-log {
     width: 800px;
     margin: auto auto 15px;
@@ -1331,7 +1336,7 @@
     color: #0a58ca;
 }
 
-.fc-daygrid-day-top .bx-list-ul{
+.fc-daygrid-day-top .bx-list-ul {
     font-size: 20px;
     margin-top: 5px;
     cursor: pointer;
@@ -1398,7 +1403,7 @@
 }
 
 #permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
-#orcamentos_aprovados table tbody tr > *:not(:first-child){
+#orcamentos_aprovados table tbody tr > *:not(:first-child) {
     text-align: center;
     vertical-align: middle;
 }
@@ -1430,7 +1435,7 @@
 }
 
 #orcamentos_aprovados table thead tr > *:not(:first-child),
-#orcamentos_aprovados table tbody tr > *:not(:first-child){
+#orcamentos_aprovados table tbody tr > *:not(:first-child) {
     text-align: center;
     vertical-align: middle;
 }
@@ -1476,7 +1481,7 @@
     }
 }
 
-#avisos > div:first-child{
+#avisos > div:first-child {
     background: #fff;
     padding: 10px;
     border-radius: 5px;
@@ -1492,7 +1497,7 @@
     vertical-align: middle;
 }
 
-#orcamentos_aprovados table tbody tr:first-child{
+#orcamentos_aprovados table tbody tr:first-child {
     vertical-align: middle;
 }
 
@@ -1506,7 +1511,7 @@
     display: flex;
 }
 
-.button_ganho{
+.button_ganho {
     border: none;
     background: transparent;
     font-size: 30px;
@@ -1541,13 +1546,13 @@
 }
 
 @font-face {
-  font-family: 'password';
-  font-style: normal;
-  src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+    font-family: 'password';
+    font-style: normal;
+    src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
 }
 
 #senha {
-  font-family: 'password';
+    font-family: 'password';
 }
 
 #adicionar_tratativa {
