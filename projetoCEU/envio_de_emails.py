@@ -322,7 +322,18 @@ class EmailSender:
         '''
         self.__enviar_email(__mensagem)
 
-    def erro_mensagem(self, msg):
-        self._subject = 'ERROOOOOOOO'
-        __mensagem = f'Erro aqui, não sei bem aonde, mas olha isso {msg}'
+    def evento_cancelado_monitores(self, cliente, check_in):
+        self._subject = 'EVENTO CANCELADO'
+
+        __mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                       O evento de {cliente} que aconteceria no dia {check_in.strftime('%d/%m/%Y')},
+                       no qual montou a escala, foi cancelado.                            
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
         self.__enviar_email(__mensagem)

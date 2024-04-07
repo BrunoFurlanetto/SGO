@@ -581,7 +581,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
     # ----------------------------------------- Salvando as escalas ----------------------------------------------------
     if setor == 'acampamento':
         editando_escala = nova_escala = None
-        EmailSender(['bruno.furlanetto@hotmail.com']).erro_mensagem(request.POST)
+
         try:
             cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')

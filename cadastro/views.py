@@ -615,11 +615,24 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio',
                 colaborador_excluiu=request.user,
             )
+
+            cliente = ficha_de_evento.cliente
+            check_in = ficha_de_evento.check_in
+            escala = ficha_de_evento.escala
             ficha_de_evento.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
             return redirect('dashboard')
         else:
+            if escala:
+                coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
+                lista_emails = set()
+
+                for coordenador in coordenadores_acampamento:
+                    lista_emails.add(coordenador.email)
+
+                EmailSender(lista_emails).evento_cancelado_monitores(cliente, check_in)
+
             messages.success(request, 'Ficha de evento escluída com sucesso!')
             return redirect('dashboard')
 

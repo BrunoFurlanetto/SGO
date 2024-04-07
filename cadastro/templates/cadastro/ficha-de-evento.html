@@ -764,7 +764,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST">
+                    <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST" onsubmit="loading()">
                         {% csrf_token %}
                         <div class="modal-body app">
                             <label for="motivo_cancelamento">Motivo cancelamento</label>
