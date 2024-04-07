@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib import admin
+from django.contrib.auth.models import Permission
 
 from ordemDeServico.models import DadosTransporte, TipoVeiculo
 from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, ClienteColegio,
@@ -102,7 +103,8 @@ class EmpresaOnibusAdmin(admin.ModelAdmin):
 
 @admin.register(FichaDeEvento)
 class FichaDeEventoAdmin(admin.ModelAdmin):
-    list_display = ('cliente', 'vendedora', 'check_in_formatado', 'check_out_formatado', 'qtd_convidada', 'data_preenchimento_formatado')
+    list_display = ('cliente', 'vendedora', 'check_in_formatado', 'check_out_formatado', 'qtd_convidada',
+                    'data_preenchimento_formatado')
     list_filter = ('pre_reserva', 'data_preenchimento', 'check_in')
     search_fields = ('cliente', 'vendedora')
     ordering = ('-check_in',)
@@ -150,7 +152,8 @@ class PerfilParticipantesAdmin(admin.ModelAdmin):
 
 @admin.register(ClienteColegio)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome_fantasia', 'razao_social', 'cnpj', 'responsavel_cadastro', 'responsavel_alteracao', 'codigo_app_pj')
+    list_display = (
+    'id', 'nome_fantasia', 'razao_social', 'cnpj', 'responsavel_cadastro', 'responsavel_alteracao', 'codigo_app_pj')
     list_display_links = ('nome_fantasia',)
     search_fields = ('nome_fantasia', 'razao_social', 'cnpj', 'codigo_app_pj')
 

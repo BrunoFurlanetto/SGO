@@ -330,9 +330,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer {% if diretoria %} diretoria {% endif %}">
+                <div class="modal-footer {% if perms.peraltas.confirmar_escala %} diretoria {% endif %}">
                     {% if coordenador_acampamento %}
-                        {% if diretoria %}
+                        {% if perms.peraltas.confirmar_escala %}
                             <form id="form_escala_final" class="none" action="{% url 'escalaPeraltas' %}"
                                   method="POST" onsubmit="loading()">
                                 <fieldset>

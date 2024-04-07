@@ -862,6 +862,9 @@ class EscalaAcampamento(models.Model):
         else:
             return 'Corporativo'
 
+    class Meta:
+        permissions = (('confirmar_escala', 'Confirmar Escala'),)
+
 
 class EscalaHotelaria(models.Model):
     coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='coordendadores')
