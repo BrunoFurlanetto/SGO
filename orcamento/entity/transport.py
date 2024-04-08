@@ -11,7 +11,8 @@ class Transport(TransportProtocol):
 
     def set_min_payers(self, min_payers):
         self.min_payers = min_payers
-        self.tranport_go_and_back.set_min_payers(min_payers);
+        self.tranport_go_and_back.set_min_payers(min_payers)
+
         return self.min_payers
 
     def calc_value_transport(self, is_transport):
@@ -32,24 +33,17 @@ class Transport(TransportProtocol):
                 inicio_validade__lte=self.checkin,
                 final_validade__gte=self.checkin,
             )
-
-            print("TRANSPORT KRL")
-            print(obj_transport.valor_3_dia)
         except ValoresTransporte.DoesNotExist:
             values = []
         else:
             if self.days == 1:
-                value = (float(obj_transport.valor_1_dia) /
-                         (1 - float(obj_transport.percentual))) / self.min_payers
+                value = (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 2:
-                value = (float(obj_transport.valor_2_dia) /
-                         (1 - float(obj_transport.percentual))) / self.min_payers
+                value = (float(obj_transport.valor_2_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 3:
-                value = (float(obj_transport.valor_3_dia) /
-                         (1 - float(obj_transport.percentual))) / self.min_payers
+                value = (float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 4:
-                value = (float(obj_transport.valor_4_dia) /
-                         (1 - float(obj_transport.percentual))) / self.min_payers
+                value = (float(obj_transport.valor_4_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             else:
                 value = ((float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))
                           ) + ((self.days - 3) *

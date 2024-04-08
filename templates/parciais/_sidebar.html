@@ -240,12 +240,12 @@
                 {% endif %}
                 {% if perms.orcamento.add_orcamento %}
                     {% if perms.orcamento.add_orcamento %}
-                        <a href="{% url 'orcamento' %}">
+                        <a href="{% url 'novo_orcamento' %}">
                             <i class='bx bxs-calculator'></i>
                             <span class="link_name">Orçamento</span>
                         </a>
                         <ul class="sub-menu blank">
-                            <li><a class="link_name" href="{% url 'orcamento' %}">Orçamento</a></li>
+                            <li><a class="link_name" href="{% url 'novo_orcamento' %}">Orçamento</a></li>
                         </ul>
                     {% endif %}
                 {% endif %}

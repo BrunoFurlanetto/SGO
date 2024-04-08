@@ -8,14 +8,14 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria, OrcamentoPeriodo, \
-    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional
+    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin
 
 
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
     list_display = ('refeicao', 'hora')
     ordering = ('horario',)
-
+    form = CadastroHorariosPadroesAdmin
 
 
 @admin.register(Orcamento)
@@ -32,12 +32,21 @@ class OrcamentoAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresTransporte)
 class ValoresTransporteAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'inicio_vigencia', 'final_vigencia', 'descricao')
+    list_display = ('titulo_transporte', 'inicio_vigencia', 'final_vigencia', 'descricao')
 
 
 @admin.register(OrcamentoMonitor)
 class OrcamentoMonitorAdmin(admin.ModelAdmin):
-    list_display = ('nome_monitoria', 'valor', 'descricao_monitoria')
+    list_display = ('nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia_formatado', 'final_vigencia_formatado')
+
+    def inicio_vigencia_formatado(self, obj):
+        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def final_vigencia_formatado(self, obj):
+        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    final_vigencia_formatado.short_description = 'Final vigência'
 
 
 @admin.register(OrcamentoPeriodo)
@@ -65,7 +74,7 @@ class PeriodosAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresPadrao)
 class ValoresPadraoAdmin(admin.ModelAdmin):
-    list_display = ('nome_taxa', 'valor', 'descricao')
+    list_display = ('nome_taxa', 'valor_padrao', 'descricao')
     ordering = ('nome_taxa',)
 
 

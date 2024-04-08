@@ -102,9 +102,9 @@ def processar_formulario(dados):
         date_check_out = datetime.strptime(check_out_complete[0], '%d/%m/%Y').date()
 
         # filter check_in and check_out
-        time_in_all = HorariosPadroes.objects.filter(entrada=1)
+        time_in_all = HorariosPadroes.objects.filter(entrada_saida=1)
         time_in = time_in_all.filter(horario__gte=hour_check_in).order_by('horario')
-        time_out_all = HorariosPadroes.objects.filter(entrada=0)
+        time_out_all = HorariosPadroes.objects.filter(entrada_saida=0)
         time_out = time_out_all.filter(horario__lte=hour_check_out).order_by('-horario')
 
         if len(time_in) == 0:

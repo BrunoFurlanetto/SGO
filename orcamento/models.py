@@ -24,7 +24,9 @@ def default_validade():
 
 class ValoresPadrao(models.Model):
     nome_taxa = models.CharField(max_length=255, verbose_name='Nome da taxa')
-    valor = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=5)
+    valor_padrao = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=5)
+    valor_minimo = models.DecimalField(verbose_name='Valor minimo', decimal_places=2, max_digits=5, blank=True, null=True)
+    valor_maximo = models.DecimalField(verbose_name='Valor maximo', decimal_places=2, max_digits=5, blank=True, null=True)
     descricao = models.TextField(verbose_name='Descrição da taxa')
     id_taxa = models.CharField(max_length=255, editable=False)
 
@@ -43,7 +45,7 @@ class ValoresPadrao(models.Model):
         lista_valores = {}
 
         for valor in valores:
-            lista_valores[valor.id_taxa] = valor.valor
+            lista_valores[valor.id_taxa] = valor.valor_padrao
 
         return lista_valores
 
@@ -110,7 +112,7 @@ class OrcamentoDiaria(models.Model):
 class HorariosPadroes(models.Model):
     refeicao = models.CharField(max_length=50, verbose_name='Refeição')
     horario = models.TimeField(verbose_name='Horário')
-    entrada = models.BooleanField(default=True)
+    entrada_saida = models.BooleanField()
     racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
     racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
 
@@ -123,6 +125,7 @@ class HorariosPadroes(models.Model):
 
 
 class ValoresTransporte(models.Model):
+    titulo_transporte = models.CharField(max_length=255)
     valor_1_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 1 dia')
     valor_2_dia = models.DecimalField(
@@ -781,3 +784,17 @@ class CadastroOrcamento(forms.ModelForm):
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['orcamento_promocional'].choices = orcamentos_promocionais
+
+        def clean(self):
+            cleaned_data = super(self).clean()
+            print(cleaned_data)
+            eee
+
+
+class CadastroHorariosPadroesAdmin(forms.ModelForm):
+    class Meta:
+        model = HorariosPadroes
+        fields = '__all__'
+        widgets = {
+            'entrada_saida': forms.RadioSelect(choices=((True, 'Entrada'), (False, 'Saída'))),
+        }

@@ -321,7 +321,7 @@ function modal_de_tratativas(id_tratativa) {
             const orcamentos = response['orcamentos']
             const tabela_tratativas = $('#tabela_tratativas tbody').empty()
             $('#adicionar_tratativa').click(() => {
-                window.location.href = `/orcamento/nova_tratativa/${id_tratativa}`
+                window.location.href = `/orcamento/tratativa/${id_tratativa}/`
             })
 
             for (let orcamento of orcamentos) {

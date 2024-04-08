@@ -55,7 +55,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
             if (nome_id !== 'op_extras') {
                 $.ajax({
                     type: 'GET',
-                    url: '',
+                    url: '/orcamento/pesquisar_op/',
                     data: {'nome_id': nome_id, 'id': opcao['id']},
                 }).then(async (response) => {
                     await listar_op(response, nome_id, opcao, i)
@@ -511,7 +511,6 @@ async function enviar_form(salvar = false) {
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
-    const url = form.attr('action');
 
     if (op_extras.length > 0) {
         outros = op_extras.filter((op, index) => {
@@ -527,7 +526,7 @@ async function enviar_form(salvar = false) {
     try {
         const response = await new Promise(function (resolve, reject) {
             $.ajax({
-                url: url,
+                url: '/orcamento/calculos/',
                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                 type: "POST",
                 dataType: 'JSON',
@@ -667,7 +666,7 @@ async function gerar_responsaveis(cliente) {
 
     $.ajax({
         type: 'GET',
-        url: '',
+        url: '/orcamento/verificar_responsaveis/',
         data: {'id_cliente': id_cliente},
         success: function (response) {
             for (let opcao of responsaveis) {
@@ -737,7 +736,7 @@ async function separar_produtos(periodo) {
     await new Promise(function (resolve, reject) {
         $.ajax({
             type: 'GET',
-            url: '',
+            url: '/orcamento/validar_produtos/',
             data: {'check_in': check_in, 'check_out': check_out},
             success: function (response) {
                 for (let produto of $('#id_produto option')) {
@@ -1009,7 +1008,7 @@ function salvar_dados_do_pacote() {
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/orcamento/salvar_pacote/',
         data: dados_pacote,
         success: function (response) {
             $('#id_pacote, #id_pacote_promocional').val(response)
@@ -1026,7 +1025,7 @@ function salvar_dados_do_pacote() {
 async function preencher_op_extras(id_orcamento) {
     $.ajax({
         type: 'GET',
-        url: '',
+        url: '/orcamento/preencher_op_extras/',
         data: {'id_orcamento_extras': id_orcamento},
         success: function (response) {
             if (response['opcionais_extra']) {
@@ -1042,7 +1041,7 @@ async function preencher_promocional(id_promocional) {
     await new Promise(function (resolve, reject) {
         $.ajax({
             type: 'GET',
-            url: '',
+            url: '/orcamento/preencher_orcaento_promocional/',
             data: {'id_promocional': id_promocional},
             success: function (response) {
                 $('#id_tipo_monitoria').val(response['monitoria'])
@@ -1176,7 +1175,7 @@ async function mostrar_dados_pacote(pacote) {
     }
 
     $.ajax({
-        url: '',
+        url: '/orcamento/pegar_dados_pacoe/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         type: "GET",
         data: {'id_pacote': id_pacote},

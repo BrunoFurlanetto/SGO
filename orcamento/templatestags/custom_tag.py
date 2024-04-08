@@ -9,20 +9,32 @@ register = template.Library()
 
 @register.filter
 def pegar_taxa(id_taxa):
-    taxa = ValoresPadrao.objects.get(id_taxa=id_taxa).valor
+    taxa = ValoresPadrao.objects.get(id_taxa=id_taxa)
+    padrao = minimo = maximo = ''
 
-    if 'comissao' in id_taxa or 'taxa_comercial' in id_taxa:
-        taxa = str(taxa).replace('.', ',')
-        taxa = f'{taxa}%'
+    if 'comissao' in id_taxa or 'taxa_comercial' in id_taxa or 'onibus' in id_taxa:
+        if 'comissao' in id_taxa or 'taxa_comercial' in id_taxa:
+            padrao = f'{taxa.valor_padrao}%'.replace('.', ',')
+            minimo = f'{taxa.valor_minimo}%'.replace('.', ',')
+            maximo = f'{taxa.valor_maximo}%'.replace('.', ',')
 
-    if 'onibus' in id_taxa:
-        taxa = int(taxa)
+        if 'onibus' in id_taxa:
+            padrao = int(taxa.valor_padrao)
+            minimo = int(taxa.valor_minimo)
+            maximo = int(taxa.valor_maximo)
 
-    if id_taxa == 'data_pagamento':
-        hoje = datetime.today().date()
-        taxa = (hoje + timedelta(days=int(taxa))).strftime('%Y-%m-%d')
+        return f'''
+            value={padrao} data-valor_default={padrao} data-valor_inicial={padrao}
+            data-valor_alterado={padrao} data-teto={maximo} data-piso={minimo}
+        '''
 
-    return taxa
+    hoje = datetime.today().date()
+    padrao = (hoje + timedelta(days=int(taxa.valor_padrao))).strftime('%Y-%m-%d')
+
+    return f'''
+        value={padrao} data-valor_default={padrao} data-valor_inicial={padrao}
+        data-valor_alterado={padrao}
+    '''
 
 
 @register.filter
