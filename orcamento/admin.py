@@ -7,8 +7,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoDiaria, OrcamentoPeriodo, \
-    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin
+from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
+    ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
+    OrcamentosPromocionais
 
 
 @admin.register(HorariosPadroes)
@@ -20,14 +21,44 @@ class HorariosPadroesAdmin(admin.ModelAdmin):
 
 @admin.register(Orcamento)
 class OrcamentoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'responsavel', 'check_in', 'aprovado', 'necessita_aprovacao_gerencia')
-    list_editable = ('necessita_aprovacao_gerencia',)
+    list_display = ('id', 'cliente', 'responsavel', 'check_in_formatado', 'check_out_formatado', 'data_vencimento_formatado')
     list_display_links = ('cliente',)
+    list_filter = ('promocional',)
+
+    def check_in_formatado(self, obj):
+        return obj.check_in.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+
+    def check_out_formatado(self, obj):
+        return obj.check_out.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+
+    def data_vencimento_formatado(self, obj):
+        try:
+            return obj.data_vencimento.strftime("%d/%m/%Y")  # Formato de data desejado
+        except AttributeError:
+            return ''
+
+    check_in_formatado.short_description = 'Check in'
+    check_out_formatado.short_description = 'Check out'
+    data_vencimento_formatado.short_description = 'Data de vencimento'
 
 
-# @admin.register(OrcamentoDiaria)
-# class OrcamentoDiariaAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'periodo')
+@admin.register(OrcamentosPromocionais)
+class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'valor_base', 'validade')
+
+
+@admin.register(TaxaPeriodo)
+class OrcamentoDiariaAdmin(admin.ModelAdmin):
+    list_display = ('inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao', 'valor')
+
+    def inicio_vigencia_formatado(self, obj):
+        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def final_vigencia_formatado(self, obj):
+        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    final_vigencia_formatado.short_description = 'Final vigência'
 
 
 @admin.register(ValoresTransporte)

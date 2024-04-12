@@ -1,5 +1,5 @@
 from .basevalue import BaseValue
-from ..models import HorariosPadroes, OrcamentoDiaria, OrcamentoPeriodo
+from ..models import HorariosPadroes, OrcamentoPeriodo
 from datetime import datetime, time
 
 

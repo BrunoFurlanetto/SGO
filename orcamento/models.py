@@ -25,10 +25,14 @@ def default_validade():
 class ValoresPadrao(models.Model):
     nome_taxa = models.CharField(max_length=255, verbose_name='Nome da taxa')
     valor_padrao = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=5)
-    valor_minimo = models.DecimalField(verbose_name='Valor minimo', decimal_places=2, max_digits=5, blank=True, null=True)
-    valor_maximo = models.DecimalField(verbose_name='Valor maximo', decimal_places=2, max_digits=5, blank=True, null=True)
+    valor_minimo = models.DecimalField(verbose_name='Valor minimo', decimal_places=2, max_digits=5, blank=True, null=True, help_text='Caso não haja, deixe em branco!')
+    valor_maximo = models.DecimalField(verbose_name='Valor maximo', decimal_places=2, max_digits=5, blank=True, null=True, help_text='Caso não haja, deixe em branco!')
     descricao = models.TextField(verbose_name='Descrição da taxa')
     id_taxa = models.CharField(max_length=255, editable=False)
+
+    class Meta:
+        verbose_name = 'Configuração geral'
+        verbose_name_plural = '01 - Configurações gerias'
 
     def __str__(self):
         return self.nome_taxa
@@ -59,6 +63,10 @@ class OrcamentoMonitor(models.Model):
     racional_monitoria = models.PositiveIntegerField(
         default=8, verbose_name="Racional Monitoria")
 
+    class Meta:
+        verbose_name = 'Valor monitoria'
+        verbose_name_plural = '05 - Valores de monitoria'
+
     def __str__(self):
         return self.nome_monitoria
 
@@ -67,6 +75,10 @@ class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+
+    class Meta:
+        verbose_name = 'Valor opcionais'
+        verbose_name_plural = '07 - Valores de opcionais'
 
     def __str__(self):
         return self.nome
@@ -87,34 +99,38 @@ class OrcamentoPeriodo(models.Model):
                                       default=default_validade)
     dias_semana_validos = models.ManyToManyField(DiasSemana)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    taxa_periodo = models.DecimalField(decimal_places=2, max_digits=5)
     descricao = models.TextField(blank=True)
     id_periodo = models.CharField(max_length=255, unique=True, primary_key=True, editable=False)
+
+    class Meta:
+        verbose_name = 'Valor do periodo'
+        verbose_name_plural = '03 - Valores de diárias'
 
     def __str__(self):
         return self.nome_periodo
 
 
-class OrcamentoAlimentacao(models.Model):
-    tipo_alimentacao = models.CharField(max_length=100)
-    descricao = models.TextField(blank=True)
-    valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-
-
-class OrcamentoDiaria(models.Model):
-    periodo = models.ForeignKey(
-        OrcamentoPeriodo, on_delete=models.CASCADE, verbose_name='Periodo'
-    )
+class TaxaPeriodo(models.Model):
+    inicio_vigencia = models.DateField(default=timezone.now)
+    final_vigencia = models.DateField(default=default_validade)
     descricao = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=7, default=0.00)
+
+    class Meta:
+        verbose_name = 'Valor da taxa do periodo'
+        verbose_name_plural = '04 - Valores da taxa dos periodos'
 
 
 class HorariosPadroes(models.Model):
     refeicao = models.CharField(max_length=50, verbose_name='Refeição')
     horario = models.TimeField(verbose_name='Horário')
     entrada_saida = models.BooleanField()
-    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
-    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00)
+    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de hotelaria')
+    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de monitoria')
+
+    class Meta:
+        verbose_name = 'Horário de entrada e saída'
+        verbose_name_plural = '02 - Horários de entrada e saída'
 
     def __str__(self):
         return f'Horário {self.refeicao}'
@@ -149,6 +165,10 @@ class ValoresTransporte(models.Model):
     inicio_validade = models.DateField(verbose_name='Inicio vigência dos valores', default=timezone.now)
     final_validade = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
+
+    class Meta:
+        verbose_name = 'Valor do transporte'
+        verbose_name_plural = '06 - Valores de transporte'
 
     def __str__(self):
         return f'Valores do transporte de {self.inicio_validade.strftime("%d/%m/%Y")} até {self.final_validade.strftime("%d/%m/%Y")}'
@@ -296,8 +316,6 @@ class Orcamento(models.Model):
     objeto_gerencia = models.JSONField(blank=True, null=True)
     objeto_orcamento = models.JSONField(blank=True, null=True)
     promocional = models.BooleanField(default=False)
-    aprovado = models.BooleanField(default=False)
-    necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')
     status_orcamento = models.ForeignKey(
         StatusOrcamento,
         on_delete=models.DO_NOTHING,
@@ -314,8 +332,15 @@ class Orcamento(models.Model):
         verbose_name='Data da ultima edição'
     )
 
+    class Meta:
+        verbose_name = 'Orçamento'
+        verbose_name_plural = '09 - Orçamentos criados'
+
     def __str__(self):
-        return f'Orçamento de {self.cliente}'
+        if not self.promocional:
+            return f'Orçamento de {self.cliente}'
+        else:
+            return self.pacote_promocional.nome_do_pacote
 
     @property
     def oficina_de_foguetes(self):
@@ -613,6 +638,23 @@ class Orcamento(models.Model):
             'valor_final': f"{totais['valor_final']:.2f}".replace('.', ','),
             'dia_dia': dia_dia,
         }
+
+
+class OrcamentosPromocionais(models.Model):
+    orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Orçamento promocional'
+        verbose_name_plural = '08 - Pacotes prontos criados'
+
+    def __str__(self):
+        return self.orcamento.pacote_promocional.nome_do_pacote
+
+    def valor_base(self):
+        return self.orcamento.valor
+
+    def validade(self):
+        return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
 
 
 class Tratativas(models.Model):

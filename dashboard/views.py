@@ -250,7 +250,6 @@ def dashboardPeraltas(request):
 
                 if request.POST.get('motivo_recusa') != '':
                     orcamento.motivo_recusa = request.POST.get('motivo_recusa')
-                    orcamento.aprovado = False
                 else:
                     tratativa = Tratativas.objects.get(orcamentos__in=[int(request.POST.get('id_orcamento'))])
                     tratativa.ganhar_orcamento(int(request.POST.get('id_orcamento')))
@@ -261,13 +260,6 @@ def dashboardPeraltas(request):
                     return JsonResponse({'status': 'error', 'msg': e})
                 else:
                     return JsonResponse({'status': 'success'})
-
-        # orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        #
-        # if orcamento.necessita_aprovacao_gerencia:
-        #     return JsonResponse(campos_necessarios_aprovacao(orcamento))
-        # else:
-        #     return JsonResponse({'msg': f'Orçamento já aprovado por {orcamento.objeto_gerencia["aprovado_por"]["nome"]}'})
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -330,7 +322,6 @@ def dashboardPeraltas(request):
     #
     #     orcamento.objeto_gerencia['opcionais'] = aceite_opcionais
     #     orcamento.objeto_gerencia['aprovado_por'] = {'id': request.user.id, 'nome': request.user.get_full_name()}
-    #     orcamento.necessita_aprovacao_gerencia = False
     #
     #     try:
     #         orcamento.save()

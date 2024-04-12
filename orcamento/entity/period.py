@@ -1,4 +1,5 @@
 from .basevalue import BaseValue
+from ..models import TaxaPeriodo
 
 
 class Period(BaseValue):
@@ -13,9 +14,9 @@ class Period(BaseValue):
     def set_period_rate(self):
         taxa = 0
 
-        for period in self.periods:
-            if period.taxa_periodo >= taxa:
-                taxa = period.taxa_periodo
+        for period in self.periods:  # TODO: Revisar aqui pra ver como vai ser feito essa separação da taxa Maria Pia
+            if TaxaPeriodo.objects.get(id=1).valor >= taxa:
+                taxa = TaxaPeriodo.objects.get(id=1).valor
 
         self.values[0] = float(taxa)
 

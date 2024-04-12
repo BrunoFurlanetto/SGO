@@ -11,7 +11,7 @@ from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes, ValoresPadrao, Tratativas
+    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais
 from .utils import verify_data, processar_formulario, JsonError
 from .budget import Budget
 
@@ -118,6 +118,8 @@ def salvar_orcamento(request, id_tratativa=None):
                     tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
+            else:
+                OrcamentosPromocionais.objects.create(orcamento=orcamento_salvo)
 
             return JsonResponse({
                 "status": "success",
