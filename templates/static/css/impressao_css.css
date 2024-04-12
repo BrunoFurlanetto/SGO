@@ -92,9 +92,39 @@ body {
         margin: 8mm
     }
 
+    #form_gerencia #alteracoes_aviso {
+        display: none;
+    }
+
+    #campos_alteraveis {
+        display: flex;
+        gap: 30px;
+        padding: 20px;
+        flex-wrap: wrap;
+    }
+
+    #campos_alteraveis div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #div_observacoes_gerencia {
+        width: 90%;
+        margin-left: 5%;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        resize: none;
+    }
+
     #logo_peraltas {
         width: 100mm;
         margin-bottom: 15mm
+    }
+
+    #tabela_de_valores {
+        border-collapse: collapse;
     }
 
     #tabela_de_valores tr > th {

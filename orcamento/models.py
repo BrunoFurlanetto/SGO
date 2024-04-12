@@ -379,6 +379,20 @@ class Orcamento(models.Model):
 
         return pacotes_validos
 
+
+    # def tabelas_opcionais(self):
+    #     opcionais = []
+    #
+    #     for op in self.atividades.all():
+    #         opcionais.append({
+    #             'nome': op.nome_atividade_eco,
+    #             'id': op.id,
+    #             'valor': op.valor,
+    #             ''
+    #         })
+    #
+    #     return
+
     def serializar_objetos(self):
         obj = self
         dados = serializers.serialize('json', [obj, ])
@@ -469,8 +483,10 @@ class Orcamento(models.Model):
                     dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_ceu['valores']))
 
                     atividades_ceu.append({
+                        'id': atividade_ceu['id'],
                         'atividade': atividade_ceu['nome'],
                         'valor_neto': f"{atividade_ceu['valor']:.2f}".replace('.', ','),
+                        'valor_desconto': f"{atividade_ceu['valor_com_desconto']:.2f}".replace('.', ','),
                         'taxas': f"{atividade_ceu['taxa_comercial']:.2f}".replace('.', ','),
                         'cov': f"{atividade_ceu['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_ceu['desconto']:.2f}".replace('.', ','),
@@ -500,8 +516,10 @@ class Orcamento(models.Model):
                     dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_peraltas['valores']))
 
                     atividades_peraltas.append({
+                        'id': atividade_peraltas['id'],
                         'atividade': atividade_peraltas['nome'],
                         'valor_neto': f"{atividade_peraltas['valor']:.2f}".replace('.', ','),
+                        'valor_desconto': f"{atividade_peraltas['valor_com_desconto']:.2f}".replace('.', ','),
                         'taxas': f"{atividade_peraltas['taxa_comercial']:.2f}".replace('.', ','),
                         'cov': f"{atividade_peraltas['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_peraltas['desconto']:.2f}".replace('.', ','),
@@ -530,8 +548,10 @@ class Orcamento(models.Model):
                 dia_dia_op = list(map(lambda a: str(round(a, 2)).replace('.', ','), opcional['valores']))
 
                 opcionais.append({
+                    'id': opcional['id'],
                     'atividade': opcional['nome'],
                     'valor_neto': f"{opcional['valor']:.2f}".replace('.', ','),
+                    'valor_desconto': f"{opcional['valor_com_desconto']:.2f}".replace('.', ','),
                     'taxas': f"{opcional['taxa_comercial']:.2f}".replace('.', ','),
                     'cov': f"{opcional['comissao_de_vendas']:.2f}".replace('.', ','),
                     'desconto': f"{opcional['desconto']:.2f}".replace('.', ','),
@@ -561,6 +581,7 @@ class Orcamento(models.Model):
                     dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_extra['valores']))
 
                     outros.append({
+                        'id': atividade_extra['id'],
                         'atividade': atividade_extra['nome'],
                         'valor_neto': f"{atividade_extra['valor']:.2f}".replace('.', ','),
                         'taxas': f"{atividade_extra['taxa_comercial']:.2f}".replace('.', ','),

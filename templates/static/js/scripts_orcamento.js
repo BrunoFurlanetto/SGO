@@ -263,7 +263,6 @@ function verificar_datas(date) {
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido=false) {
     if (removido) {
         if (nome_id == 'id_atividades') {
-            console.log('Veio', nome_id, opcao['id'])
             $(`#tabela_de_opcionais tbody #atividade_${opcao['id']}`).remove()
         } else if (nome_id == 'id_atividades_ceu') {
             $(`#tabela_de_opcionais tbody #atividade_ceu_${opcao['id']}`).remove()
@@ -500,14 +499,24 @@ function valor_padrao() {
 }
 
 async function enviar_form(salvar = false) {
+    let url = '/orcamento/calculos/'
+
     if ($('#id_orcamento_promocional').val() != '') {
         $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
     }
 
     if (salvar) {
         $('#id_cliente, #id_responsavel').prop('disabled', false)
-    }
+        url = '/orcamento/salvar/'
 
+        if ($('#id_tratativa').val() != undefined) {
+            url = url + $('#id_tratativa').val()
+        }
+    }
+    console.log(salvar, url)
+    setTimeout(() => {
+        console.log('Foi')
+    }, 2000)
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
@@ -526,7 +535,7 @@ async function enviar_form(salvar = false) {
     try {
         const response = await new Promise(function (resolve, reject) {
             $.ajax({
-                url: '/orcamento/calculos/',
+                url: url,
                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                 type: "POST",
                 dataType: 'JSON',
@@ -553,9 +562,9 @@ async function enviar_form(salvar = false) {
                         const total_formatado = formatar_dinheiro(total)
 
                         // Alteração dos valores das seções
-                        $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado); // Periodo da viagem
-                        $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado); // Monitoria + transporte
-                        $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado); // Opcionais
+                        $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado) // Periodo da viagem
+                        $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado) // Monitoria + transporte
+                        $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado) // Opcionais
                         $('#subtotal span').text('R$ ' + total_formatado) // Total
                         $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 

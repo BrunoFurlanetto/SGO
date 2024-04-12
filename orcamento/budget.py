@@ -1,7 +1,7 @@
 from ceu.models import Atividades
 from peraltas.models import AtividadePeraltas, AtividadesEco
 from .models import OrcamentoOpicional, \
-    OrcamentoPeriodo
+    OrcamentoPeriodo, ValoresPadrao
 from .entity.period import Period
 from .entity.monitor import Monitor
 from .entity.dailyrate import DailyRate
@@ -9,6 +9,7 @@ from .entity.transport import Transport
 from .entity.optional import Optional
 from .entity.optionaldescription import OptionalDescription
 from .entity.total import Total
+from .utils import JsonError
 
 
 class Budget:
@@ -18,8 +19,8 @@ class Budget:
         self.days = int(days)
         self.days_list = days_list
         # todo: PEGAR INIT TAXAS DO BD
-        self.business_fee = 0.09
-        self.commission = 0.05
+        self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
+        self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
 
         self.period = Period(periods)
         self.daily_rate = DailyRate(
@@ -49,6 +50,94 @@ class Budget:
         self.array_description_activities_sky = []
         self.total = Total([])
         self.daily_rate.calc_daily_rate()
+
+    def calculate(self, data, gerencia, valores_op):
+        self.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
+        self.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
+        opt_data = []
+        act_data = []
+        act_sky_data = []
+
+        # self.transport.set_min_payers(data["minimo_pagantes"]) if "minimo_pagantes" in data else ...
+        self.transport.set_min_payers(gerencia["minimo_onibus"]) if "minimo_onibus" in gerencia else ...
+        # self.set_business_fee(data["taxa_comercial"]) if "taxa_comercial" in data else ...
+        # self.set_commission(data["comissao_de_vendas"]) if "comissao_de_vendas" in data else ...
+        # self.period.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
+        # self.period.set_discount(data["desconto_periodo_viagem"]) if "desconto_periodo_viagem" in data else ...
+        # self.daily_rate.set_discount(data["desconto_diarias"]) if "desconto_diarias" in data else ...
+
+        self.daily_rate.set_discount(gerencia["desconto_produto"]) if "desconto_produto" in gerencia else ...
+        self.monitor.calc_value_monitor(data['tipo_monitoria'])
+        self.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
+        # self.monitor.set_discount(
+        #     data["desconto_tipo_monitoria"]) if "desconto_tipo_monitoria" in gerencia else ...
+        self.transport.calc_value_transport(data.get("transporte"))
+        self.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
+        # self.transport.set_discount(data["desconto_transporte"]) if "desconto_transporte" in data else ...
+        # self.total.set_discount(gerencia["desconto_geral"]) if "desconto_geral" in gerencia else ...
+
+        # Veriricação se aplica tava MP
+        self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
+            'only_sky'] and data.get('promocional', '') != 'on' else ...
+
+        # discout with percent
+        self.transport.set_percent_discount(
+            gerencia["desconto_transporte_percent"]) if "desconto_transporte_percent" in gerencia else ...
+        self.monitor.set_percent_discount(
+            gerencia["desconto_monitoria_percent"]) if "desconto_monitoria_percent" in gerencia else ...
+        self.daily_rate.set_percent_discount(
+            gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
+        # self.daily_rate.set_percent_discount(
+        #     data["desconto_diarias_percent"]) if "desconto_diarias_percent" in data else ...
+
+        # adjustment values
+        self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
+
+        # OPICIONAIS
+        if len(valores_op) == 0:
+            if "opcionais" in data:
+                opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
+
+            if "atividades" in data:
+                act_data = [[act, 0, 0, 0] for act in data["atividades"]]
+
+            # if "atividades_ceu" in data:
+            #     act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
+        else:
+            for key, value in valores_op.items():
+                if 'opcional' in key:
+                    opt_data.append(value)
+                elif 'peraltas' in key:
+                    act_data.append(value)
+                elif 'ceu' in key:
+                    act_sky_data.append(value)
+
+        self.set_optional(opt_data)
+        self.optional.calc_value_optional(self.array_description_optional)
+        self.set_activities(act_data)
+        self.activities.calc_value_optional(self.array_description_activities)
+        self.set_activities_sky(data.get('atividades_ceu'))
+        self.activities_sky.calc_value_optional(self.array_description_activities_sky)
+        self.set_others(data.get("outros"))
+        self.others.calc_value_optional(self.array_description_others)
+
+        if data.get('transporte') and data.get('transporte') == 'sim' and len(
+                self.transport.tranport_go_and_back.values) == 0:
+            return JsonError('Transporte não cadastrado para o check in do grupo')
+
+        # CAlCULAR TOTAL
+        is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"
+        self.total.calc_total_value(
+            monitor=self.monitor,
+            period=self.period,
+            optional=self.optional,
+            others=self.others,
+            activities=self.activities,
+            activities_sky=self.activities_sky,
+            daily_rate=self.daily_rate,
+            transport=self.transport.tranport_go_and_back if is_go_and_back else self.transport,
+            days=data["n_dias"],
+        )
 
     def set_business_fee(self, business_fee):
         self.business_fee = business_fee
