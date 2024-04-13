@@ -203,7 +203,6 @@ def calc_budget(req):
         })
 
 
-@login_required(login_url='login')
 def veriricar_gerencia(request):
     id_usuario = request.POST.get('id_usuario')
     senha = request.POST.get('senha')
