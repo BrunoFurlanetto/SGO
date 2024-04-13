@@ -295,8 +295,8 @@ function alterar_status(btn, id_orcamento='') {
                 window.location.reload()
             }, 500)
         }
-    }).catch((error) => {
-        alert(error)
+    }).catch((xht, status, error) => {
+        alert(xht['responseJSON']['msg'])
         end_loading()
     })
 }
