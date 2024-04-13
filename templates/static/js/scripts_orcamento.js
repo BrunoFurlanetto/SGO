@@ -957,10 +957,11 @@ async function enviar_infos_gerencia() {
     }
 }
 
-async function salvar_orcamento() {
+async function salvar_orcamento(salvar_previa=false) {
     loading()
 
     try {
+        $('#salvar_previa').val(String(salvar_previa))
         await enviar_form(true)
         window.location.href = '/'
     } catch (error) {

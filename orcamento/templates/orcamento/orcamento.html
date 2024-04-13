@@ -26,6 +26,10 @@
                 {% csrf_token %}
                 {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
                                             value="{{ tratativa.id_tratativa }}"> {% endif %}
+                <input type="hidden" name="salvar_previa" id="salvar_previa">
+                {% if previa %}
+                    <input type="hidden" name="id_previa_orcamento" id="id_previa_orcamento" value="{{ id_orcamento }}">
+                {% endif %}
                 <div id="conteudo_primeiro" class="conteudo-primeiro">
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
@@ -151,6 +155,10 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark"
+                                onclick="salvar_orcamento(true)" {% if financeiro %} disabled {% endif %}>
+                            Salvar prévia
+                        </button>
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
                                 onclick="salvar_orcamento()" {% if financeiro %} disabled {% endif %}>
                             Salvar orçamento

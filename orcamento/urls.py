@@ -8,6 +8,7 @@ urlpatterns = [
     path('calculos/', views.calc_budget, name='calculos_orcamento'),
     path('salvar/', views.salvar_orcamento, name='salvar_orcamento'),
     path('salvar/<str:id_tratativa>', views.salvar_orcamento, name='salvar_orcamento_clone'),
+    path('editar_previa/<int:id_orcamento>', views.editar_previa, name='editar_previa'),
     path('preencher_op_extras/', views.preencher_op_extras, name='preencher_op_extras'),
     path('preencher_orcaento_promocional/', views.preencher_orcamento_promocional, name='preencher_orcaento_promocional'),
     path('validar_produtos/', views.validar_produtos, name='validar_produtos'),

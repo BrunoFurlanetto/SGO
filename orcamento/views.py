@@ -36,7 +36,7 @@ def novo_orcamento(request):
 
 
 @login_required(login_url='login')
-def clonar_orcamento(request, id_tratativa):
+def clonar_orcamento(request, id_tratativa, ):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
     taxas_padrao = ValoresPadrao.objects.all()
@@ -56,6 +56,27 @@ def clonar_orcamento(request, id_tratativa):
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,
         'id_orcamento': id_orcamento,
+    })
+
+
+@login_required(login_url='login')
+def editar_previa(request, id_orcamento):
+    financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
+    taxas_padrao = ValoresPadrao.objects.all()
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+    usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
+    cadastro_orcamento = CadastroOrcamento(instance=orcamento)
+    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+
+    return render(request, 'orcamento/orcamento.html', {
+        'orcamento': cadastro_orcamento,
+        'orcamento_origem': orcamento,
+        'promocionais': promocionais,
+        'financeiro': financeiro,
+        'taxas_padrao': taxas_padrao,
+        'usuarios_gerencia': usuarios_gerencia,
+        'id_orcamento': id_orcamento,
+        'previa': True,
     })
 
 
@@ -90,12 +111,17 @@ def salvar_orcamento(request, id_tratativa=None):
         data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
         data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
-        orcamento = CadastroOrcamento(data)
+        if data.get('id_previa_orcamento'):
+            previa_orcamento = Orcamento.objects.get(pk=data['id_previa_orcamento'])
+            orcamento = CadastroOrcamento(data, instance=previa_orcamento)
+        else:
+            orcamento = CadastroOrcamento(data)
 
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()
         pre_orcamento.colaborador = request.user
+        pre_orcamento.previa = data.get('salvar_previa') == 'true'
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
@@ -110,11 +136,11 @@ def salvar_orcamento(request, id_tratativa=None):
             })
         else:
             if not orcamento_salvo.promocional:
-                if not id_tratativa:
+                if not id_tratativa and not orcamento_salvo.previa:
                     tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=request.user)
                     tratativa.orcamentos.set([orcamento_salvo])
                     tratativa.save()
-                else:
+                elif id_tratativa:
                     tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
