@@ -6,7 +6,7 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
+    <div class="overlay none"></div>
     <div id="conteudo_nova_previa">
         <div>
             <h2>
@@ -22,7 +22,6 @@
         <form action="">
             <fieldset>
                 {% csrf_token %}
-
                 <div id="dados_cliente" onchange="verificar_preenchimento()">
                     {% for campo in pre_cadastro %}
                         <div id="div_{{ campo.id_for_label }}">

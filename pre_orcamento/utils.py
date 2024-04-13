@@ -47,8 +47,8 @@ def ranqueamento_atividades(atividades_ceu, atividades_peraltas, id_series, id_t
             infos_atividades_peralas.append(infos_atividade)
 
     atividades_ranqueadas = {
-        'ceu': sorted(infos_atividades_ceu, key=lambda k: k['pontuacao'], reverse=True)[0:5],
-        'peraltas': sorted(infos_atividades_peralas, key=lambda k: k['pontuacao'], reverse=True)[0:5],
+        'ceu': sorted(infos_atividades_ceu, key=lambda k: k['pontuacao'], reverse=True),
+        'peraltas': sorted(infos_atividades_peralas, key=lambda k: k['pontuacao'], reverse=True),
     }
 
     return atividades_ranqueadas

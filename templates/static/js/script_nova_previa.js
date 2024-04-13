@@ -1,3 +1,5 @@
+let primeira_atividade = {}
+
 $(document).ready(() => {
     $('#conteudo_nova_previa #id_cnpj').mask("99.999.999/9999-99")
     $('#serie_grupo, #produto_peraltas, #temas_interesse').select2()
@@ -51,7 +53,12 @@ function verificar_preenchimento_dados_base() {
             url: '/pre_orcamento/sugerir_atividades/',
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
-            data: {'serie_grupo': serie_grupo, 'tipo_pacote': tipo_pacote, 'intencao': intencao, 'temas_interesse': temas},
+            data: {
+                'serie_grupo': serie_grupo,
+                'tipo_pacote': tipo_pacote,
+                'intencao': intencao,
+                'temas_interesse': temas
+            },
             success: function (response) {
                 let n_sugestoes_ceu, n_sugestoes_peraltas
                 let atividades_ceu = response['ceu']
@@ -70,22 +77,33 @@ function verificar_preenchimento_dados_base() {
                         n_sugestoes_ceu = 5 - n_sugestoes_peraltas > atividades_ceu.length ? atividades_ceu.length : 5 - n_sugestoes_peraltas
                     }
                 }
-                // ---------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------
                 // Adição das atividades de sugestão de cada setor
-                for (let i = 0; i < n_sugestoes_ceu; i++) {
-                    $('#previa #sugestoes').append(`
-                        <div style="background: ${atividades_ceu[i]['cor']}" class="card_atividade" data-id_atividade_ceu="${atividades_ceu[i]['id']}">${atividades_ceu[i]['nome']}</div>
-                    `)
+                // Atividades CEU: Pega as mais bem colocadas e sugere, as outras joga na aba de atividades
+                for (let i = 0; i < atividades_ceu.length; i++) {
+                    if (i < n_sugestoes_ceu) {
+                        $('#previa #sugestoes').append(`
+                            <div style="background: ${atividades_ceu[i]['cor']}" onclick="trocar_atividade('ceu', this)" class="card_atividade atividade_ceu" data-id_atividade_ceu="${atividades_ceu[i]['id']}">${atividades_ceu[i]['nome']}</div>
+                        `)
+                    } else {
+                        $('#atividades #ceu').append(`
+                            <div style="background: ${atividades_ceu[i]['cor']}" onclick="trocar_atividade('ceu', this)" class="card_atividade atividade_ceu" data-id_atividade_ceu="${atividades_ceu[i]['id']}">${atividades_ceu[i]['nome']}</div>
+                        `)
+                    }
                 }
 
-                for (let i = 0; i < n_sugestoes_peraltas; i++) {
-                    $('#previa #sugestoes').append(`
-                        <div style="background: ${atividades_peraltas[i]['cor']}" class="card_atividade" data-id_atividade_peraltas="${atividades_peraltas[i]['id']}">${atividades_peraltas[i]['nome']}</div>
-                    `)
+                // Atividades Peraltas: Sugere as mais be colocadas e depois coloca as demais na aba de atividade
+                for (let i = 0; i < atividades_peraltas.length; i++) {
+                    if (i < n_sugestoes_peraltas) {
+                        $('#previa #sugestoes').append(`
+                            <div style="background: ${atividades_peraltas[i]['cor']}" onclick="trocar_atividade('peraltas', this)" class="card_atividade atividade_peraltas" data-id_atividade_peraltas="${atividades_peraltas[i]['id']}">${atividades_peraltas[i]['nome']}</div>
+                        `)
+                    } else {
+                        $('#atividades #peraltas').append(`
+                            <div style="background: ${atividades_peraltas[i]['cor']}" onclick="trocar_atividade('peraltas', this)" class="card_atividade atividade_peraltas" data-id_atividade_peraltas="${atividades_peraltas[i]['id']}">${atividades_peraltas[i]['nome']}</div>
+                        `)
+                    }
                 }
-                //<div class="card_atividade">
-                //    Atividade 1
-                //</div>
             }
         }).done(() => {
             end_loading()
@@ -198,4 +216,24 @@ function trocar_aba_secao(aba, secao_atividade) {
             $(secao).addClass('none')
         }
     })
+}
+
+function trocar_atividade(setor, atividade) {
+    if (Object.keys(primeira_atividade).length == 0) {
+        primeira_atividade.origem = atividade.parentNode
+        primeira_atividade.atividade = atividade
+        $('.overlay').removeClass('none')
+        $(`.atividade_${setor}`).animate({
+            'z-index': '1000'
+        }, 100)
+    } else {
+        console.log(primeira_atividade)
+        $(primeira_atividade.atividade).insertBefore(atividade)
+        $(primeira_atividade.origem).append(atividade)
+        primeira_atividade = {}
+         $('.overlay').addClass('none')
+        $(`.atividade_${setor}`).animate({
+            'z-index': '1'
+        }, 100)
+    }
 }

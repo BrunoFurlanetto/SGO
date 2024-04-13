@@ -64,14 +64,14 @@ def sugerir_atividades(request):
             # tipo_pacote__in=ids_pacotes  TODO: Retirar do comentário assim que conseguir essa relação,
             intencao_atividade=request.POST.get('intencao'),
             tipo_atividade__in=ids_temas_peraltas,
-        ).distinct()
-        print(match_atividades_eco)
+        ).exclude(nome_atividade_eco__icontains='inglês').distinct()
+
         if request.POST.get('intencao') == 'estudo':
             match_atividades_ceu = Atividades.objects.filter(
                 serie__in=ids_serie,
                 tipo_pacote__in=ids_pacotes,
                 tema_atividade__in=ids_temas_ceu,
-            ).distinct()
+            ).exclude(atividade__icontains='inglês').distinct()
 
         atividades_ranqueadas = ranqueamento_atividades(
             match_atividades_ceu,
@@ -81,5 +81,5 @@ def sugerir_atividades(request):
             ids_temas_peraltas,
             ids_pacotes
         )
-        print(atividades_ranqueadas)
+
         return JsonResponse(atividades_ranqueadas)
