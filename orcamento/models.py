@@ -38,7 +38,7 @@ class ValoresPadrao(models.Model):
         return self.nome_taxa
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if not self.pk:
             self.id_taxa = unidecode(self.nome_taxa).lower().replace(' ', '_')
 
         super().save(*args, **kwargs)

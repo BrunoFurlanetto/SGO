@@ -9,7 +9,7 @@ register = template.Library()
 
 @register.filter
 def pegar_taxa(id_taxa):
-    taxa = ValoresPadrao.objects.get(id_taxa=id_taxa)
+    taxa = ValoresPadrao.objects.get(id_taxa__icontains=id_taxa)
     padrao = minimo = maximo = ''
 
     if 'comissao' in id_taxa or 'taxa_comercial' in id_taxa or 'onibus' in id_taxa:
