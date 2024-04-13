@@ -1,11 +1,12 @@
 import datetime
 from itertools import chain
 
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
@@ -137,9 +138,12 @@ def salvar_orcamento(request, id_tratativa=None):
         else:
             if not orcamento_salvo.promocional:
                 if not id_tratativa and not orcamento_salvo.previa:
-                    tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=request.user)
-                    tratativa.orcamentos.set([orcamento_salvo])
-                    tratativa.save()
+                    try:
+                        tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=request.user)
+                        tratativa.orcamentos.set([orcamento_salvo])
+                        tratativa.save()
+                    except IntegrityError:
+                        messages.warning(request, f'Tratativa com {pre_orcamento.cliente} já em andamento')
                 elif id_tratativa:
                     tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
                     tratativa.orcamentos.add(orcamento_salvo.id)

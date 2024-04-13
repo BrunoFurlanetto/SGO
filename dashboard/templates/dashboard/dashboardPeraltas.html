@@ -150,14 +150,17 @@
                     </div>
                 {% endif %}
                 {#                {% if financeiro %}#}
+                <div class="folder" onclick="alterar_aba(this, 'previas_orcamento')">Prévias de orçamento</div>
                 <div class="folder"
                      onclick="alterar_aba(this, 'tratativas')">Tratativas
                 </div>
                 {#                {% endif %}#}
                 {% if diretoria %}
                     <div class="folder"
-                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')"> {% if fichas_financeira_aprovacao|length > 0 %}
-                        <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Fichas Financeiras para aprovação
+                         onclick="alterar_aba(this, 'fichas_financeiras_aprovar')">
+                        {% if fichas_financeira_aprovacao|length > 0 %}
+                            <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Fichas
+                        Financeiras para aprovação
                     </div>
                 {% endif %}
                 {% if comercial %}
@@ -500,6 +503,28 @@
                             </tr>
                         {% endfor %}
 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="previas_orcamento" class="section-content">
+                <div class="tabelas">
+                    <h5>Tratativas Abertas</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 80%">Cliente</th>
+                            <th style="width: 20%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for previa in previas_orcamento %}
+                            <tr onclick="window.location.href='{% url 'editar_previa' previa.id %}'" style="cursor: pointer">
+                                <td>{{ previa.cliente }}</td>
+                                <td>R$ {{ previa.valor|substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

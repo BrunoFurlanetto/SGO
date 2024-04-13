@@ -1591,6 +1591,10 @@
     border-bottom: dashed 1px #b5b2b2
 }
 
+#previas_orcamento table tbody tr > td:not(:first-child) {
+    text-align: center;
+}
+
 #btn_ficha_financeira {
     background: transparent;
     border: none;
