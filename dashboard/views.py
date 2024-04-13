@@ -228,7 +228,7 @@ def dashboardPeraltas(request):
                 return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
 
         if request.POST.get('novo_status'):
-            status = StatusOrcamento.objects.get(status__contains=request.POST.get('novo_status'))
+            status = StatusOrcamento.objects.get(status__icontains=request.POST.get('novo_status'))
 
             if '_' in request.POST.get('id_orcamento'):
                 tratativa = Tratativas.objects.get(id_tratativa=request.POST.get('id_orcamento'))
