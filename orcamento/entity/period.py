@@ -1,23 +1,26 @@
 from .basevalue import BaseValue
 from ..models import TaxaPeriodo
-
+from ..utils import JsonError
 
 class Period(BaseValue):
-    def __init__(self, periods):
-        self.periods = periods
-        values = [float(0) for period in periods]
+    def __init__(self, days):
+        self.date_to_check = days[0]
+        values = [float(0) for day in days]
         super().__init__(values=values)
-
-    def get_periods(self):
-        return [period.id_periodo for period in self.periods]
 
     def set_period_rate(self):
         taxa = 0
-
-        for period in self.periods:  # TODO: Revisar aqui pra ver como vai ser feito essa separação da taxa Maria Pia
-            if TaxaPeriodo.objects.get(id=1).valor >= taxa:
-                taxa = TaxaPeriodo.objects.get(id=1).valor
+        try:
+            taxa_periodo = TaxaPeriodo.objects.get(
+                inicio_vigencia__lte=self.date_to_check, 
+                final_vigencia__gte=self.date_to_check,
+            )
+        except TaxaPeriodo.DoesNotExist:
+            return JsonError(f'Não foi encontrado a "TAXA PERIODO" para essa data, por favor peça o cadastro a diretoria')
+        else:
+            taxa = taxa_periodo.valor
 
         self.values[0] = float(taxa)
 
         return self.values
+ 

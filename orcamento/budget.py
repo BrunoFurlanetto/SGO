@@ -1,7 +1,6 @@
 from ceu.models import Atividades
 from peraltas.models import AtividadePeraltas, AtividadesEco
-from .models import OrcamentoOpicional, \
-    OrcamentoPeriodo, ValoresPadrao
+from .models import OrcamentoOpicional, ValoresPadrao
 from .entity.period import Period
 from .entity.monitor import Monitor
 from .entity.dailyrate import DailyRate
@@ -22,7 +21,7 @@ class Budget:
         self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
         self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
 
-        self.period = Period(periods)
+        self.period = Period(days_list)
         self.daily_rate = DailyRate(
             check_in_id=self.coming_id,
             check_out_id=self.exit_id,
@@ -303,6 +302,5 @@ class Budget:
             "desconto_geral": self.total.general_discount,
             "taxa_comercial": self.business_fee,
             "comissao_de_vendas": self.commission,
-            "periodos": self.period.get_periods(),
             "days": [day.strftime('%Y-%m-%d') for day in self.days_list],
         }
