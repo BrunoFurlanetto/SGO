@@ -771,12 +771,12 @@ async function separar_produtos(periodo) {
         })
     })
 
-    setTimeout(() => {
-        if ($('#id_produto').val() == null) {
-            console.log('Aqui')
-            $('#id_produto').val('')
-        }
-    }, 1)
+    // setTimeout(() => {
+    //     if ($('#id_produto').val() == null) {
+    //         console.log('Aqui')
+    //         $('#id_produto').val('')
+    //     }
+    // }, 1)
 }
 
 async function verificar_preenchimento() {

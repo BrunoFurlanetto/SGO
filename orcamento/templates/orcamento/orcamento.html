@@ -598,10 +598,10 @@
             {% if id_orcamento %}
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
-                await verificar_preenchimento()
+                {#await verificar_preenchimento()#}
                 await verificar_monitoria_transporte()
                 await preencher_op_extras({{ id_orcamento|safe }})
-                $('#data_viagem, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
+                $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
             {% else %}
                 await inicializacao();
