@@ -739,6 +739,8 @@ async function liberar_periodo(id_responsavel = null) {
 async function separar_produtos(periodo) {
     let check_in = $(periodo).val().split(' - ')[0]
     let check_out = $(periodo).val().split(' - ')[1]
+    let data_check_in = moment(check_in, 'DD/MM/YYYY HH:mm')
+    let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
 
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -771,12 +773,15 @@ async function separar_produtos(periodo) {
         })
     })
 
-    // setTimeout(() => {
-    //     if ($('#id_produto').val() == null) {
-    //         console.log('Aqui')
-    //         $('#id_produto').val('')
-    //     }
-    // }, 1)
+    try {
+        if (data_check_out.diff(data_check_in, 'days') != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
+            setTimeout(() => {
+                if ($('#id_produto').val() == null) {
+                    $('#id_produto').val('')
+                }
+            }, 1)
+        }
+    } catch (e) {}
 }
 
 async function verificar_preenchimento() {
