@@ -83,7 +83,7 @@ def editar_previa(request, id_orcamento):
 
 def salvar_orcamento(request, id_tratativa=None):
     if is_ajax(request):
-        dados = processar_formulario(request.POST)
+        dados = processar_formulario(request.POST, request.user)
 
         if 'orcamento' not in dados:
             return dados
