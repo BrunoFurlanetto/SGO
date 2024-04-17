@@ -771,7 +771,7 @@ async function separar_produtos(periodo, editando) {
         })
     })
 
-    if (!editando) {
+    if (editando) {
         setTimeout(() => {
             if ($('#id_produto').val() == null) {
                 console.log('Aqui')
