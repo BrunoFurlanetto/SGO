@@ -782,7 +782,6 @@ async function separar_produtos(periodo) {
 async function verificar_preenchimento(editando = false) {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
-    await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         loading()
@@ -815,7 +814,7 @@ async function verificar_preenchimento(editando = false) {
     } else {
         $('#container_periodo .visivel, #subtotal span').text('R$ 0,00')
     }
-
+    await separar_produtos($('#data_viagem'))
 }
 
 async function verificar_monitoria_transporte() {
