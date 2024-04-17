@@ -514,9 +514,7 @@ async function enviar_form(salvar = false) {
         }
     }
     console.log(salvar, url)
-    setTimeout(() => {
-        console.log('Foi')
-    }, 2000)
+
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
@@ -776,6 +774,7 @@ async function separar_produtos(periodo, editando) {
     if (!editando) {
         setTimeout(() => {
             if ($('#id_produto').val() == null) {
+                console.log('Aqui')
                 $('#id_produto').val('')
             }
         }, 1)
