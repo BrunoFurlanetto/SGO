@@ -765,6 +765,7 @@ async function separar_produtos(periodo, editando) {
             $('#subtotal').removeClass('none')
         }).catch((xht, status, error) => {
             alert(xht['responseJSON']['msg'])
+            console.log('Ué', xht['responseJSON']['msg'])
             $('#id_produto').val('')
             $('#subtotal').addClass('none')
 
