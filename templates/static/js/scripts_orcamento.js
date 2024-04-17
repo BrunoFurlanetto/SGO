@@ -736,7 +736,7 @@ async function liberar_periodo(id_responsavel = null) {
     }
 }
 
-async function separar_produtos(periodo, editando) {
+async function separar_produtos(periodo) {
     let check_in = $(periodo).val().split(' - ')[0]
     let check_out = $(periodo).val().split(' - ')[1]
 
@@ -771,20 +771,18 @@ async function separar_produtos(periodo, editando) {
         })
     })
 
-    if (editando) {
-        setTimeout(() => {
-            if ($('#id_produto').val() == null) {
-                console.log('Aqui')
-                $('#id_produto').val('')
-            }
-        }, 1)
-    }
+    setTimeout(() => {
+        if ($('#id_produto').val() == null) {
+            console.log('Aqui')
+            $('#id_produto').val('')
+        }
+    }, 1)
 }
 
-async function verificar_preenchimento(editando = false) {
+async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
-    await separar_produtos($('#data_viagem'), editando)
+    // await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         loading()
