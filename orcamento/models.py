@@ -100,7 +100,9 @@ class OrcamentoPeriodo(models.Model):
     dias_semana_validos = models.ManyToManyField(DiasSemana)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     descricao = models.TextField(blank=True)
+    liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
     id_periodo = models.CharField(max_length=255, unique=True, primary_key=True, editable=False)
+
 
     class Meta:
         verbose_name = 'Valor do periodo'

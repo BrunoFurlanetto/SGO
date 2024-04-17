@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import re
 
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 
 from peraltas.models import ProdutosPeraltas
@@ -33,7 +34,7 @@ def verify_data(data):
         return JsonError("É necessario informar a hora de saida!")
 
 
-def processar_formulario(dados):
+def processar_formulario(dados, user):
     valores_opcionais = {}
     gerencia = {}
     outros = []
@@ -124,11 +125,19 @@ def processar_formulario(dados):
             days_list.append(current_date)
 
             try:
-                period = OrcamentoPeriodo.objects.get(
-                    inicio_vigencia__lte=current_date, 
-                    final_vigencia__gte=current_date,
-                    dias_semana_validos__in=[current_date.weekday()]
-                )
+                if not User.objects.filter(pk=user.id, groups__name__icontains='financeiro').exists():
+                    period = OrcamentoPeriodo.objects.get(
+                        inicio_vigencia__lte=current_date,
+                        final_vigencia__gte=current_date,
+                        dias_semana_validos__in=[current_date.weekday()],
+                        liberado=True
+                    )
+                else:
+                    period = OrcamentoPeriodo.objects.get(
+                        inicio_vigencia__lte=current_date,
+                        final_vigencia__gte=current_date,
+                        dias_semana_validos__in=[current_date.weekday()]
+                    )
             except OrcamentoPeriodo.DoesNotExist:
                 return JsonError(f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
             else:

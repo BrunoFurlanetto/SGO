@@ -2,6 +2,7 @@ from .basevalue import BaseValue
 from ..models import TaxaPeriodo
 from ..utils import JsonError
 
+
 class Period(BaseValue):
     def __init__(self, days):
         self.date_to_check = days[0]
@@ -16,11 +17,10 @@ class Period(BaseValue):
                 final_vigencia__gte=self.date_to_check,
             )
         except TaxaPeriodo.DoesNotExist:
-            return JsonError(f'Não foi encontrado a "TAXA PERIODO" para essa data, por favor peça o cadastro a diretoria')
+            self.values = None
         else:
             taxa = taxa_periodo.valor
-
-        self.values[0] = float(taxa)
+            self.values[0] = float(taxa)
 
         return self.values
  

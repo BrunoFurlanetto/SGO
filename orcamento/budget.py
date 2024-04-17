@@ -79,6 +79,9 @@ class Budget:
         self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
             'only_sky'] and data.get('promocional', '') != 'on' else ...
 
+        if not self.period.values:
+            return
+
         # discout with percent
         self.transport.set_percent_discount(
             gerencia["desconto_transporte_percent"]) if "desconto_transporte_percent" in gerencia else ...
@@ -122,7 +125,7 @@ class Budget:
 
         if data.get('transporte') and data.get('transporte') == 'sim' and len(
                 self.transport.tranport_go_and_back.values) == 0:
-            return JsonError('Transporte não cadastrado para o check in do grupo')
+            return
 
         # CAlCULAR TOTAL
         is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"

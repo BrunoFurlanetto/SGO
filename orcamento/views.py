@@ -159,7 +159,7 @@ def salvar_orcamento(request, id_tratativa=None):
 
 def calc_budget(req):
     if is_ajax(req):
-        dados = processar_formulario(req.POST)
+        dados = processar_formulario(req.POST, req.user)
 
         if 'orcamento' not in dados:
             return dados
@@ -191,7 +191,13 @@ def calc_budget(req):
         budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
                         data["hora_check_out"], data["lista_de_dias"])
         budget.calculate(data, gerencia, valores_op)
-        # TAXAS
+
+        if not budget.period.values:
+            return JsonError('Existem taxas não cadastradas para o periodo em questão')
+
+        if data.get('transporte') and data.get('transporte') == 'sim' and len(
+                budget.transport.tranport_go_and_back.values) == 0:
+            return JsonError('Transporte não cadastrado para o check in do grupo')
 
         # RESPONSE BUDGET CLASS
         return JsonResponse({
