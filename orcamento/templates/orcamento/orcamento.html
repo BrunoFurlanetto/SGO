@@ -598,7 +598,7 @@
             {% if id_orcamento %}
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
-                await verificar_preenchimento(true)
+                {#await verificar_preenchimento(true)#}
                 await verificar_monitoria_transporte()
                 await preencher_op_extras({{ id_orcamento|safe }})
                 $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
