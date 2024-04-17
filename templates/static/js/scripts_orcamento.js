@@ -738,7 +738,7 @@ async function liberar_periodo(id_responsavel = null) {
     }
 }
 
-async function separar_produtos(periodo) {
+async function separar_produtos(periodo, editando) {
     let check_in = $(periodo).val().split(' - ')[0]
     let check_out = $(periodo).val().split(' - ')[1]
 
@@ -772,16 +772,19 @@ async function separar_produtos(periodo) {
         })
     })
 
-    setTimeout(() => {
-        if ($('#id_produto').val() == null) {
-            $('#id_produto').val('')
-        }
-    }, 1)
+    if (!editando) {
+        setTimeout(() => {
+            if ($('#id_produto').val() == null) {
+                $('#id_produto').val('')
+            }
+        }, 1)
+    }
 }
 
 async function verificar_preenchimento(editando = false) {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
+    await separar_produtos($('#data_viagem'), editando)
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         loading()
@@ -814,7 +817,7 @@ async function verificar_preenchimento(editando = false) {
     } else {
         $('#container_periodo .visivel, #subtotal span').text('R$ 0,00')
     }
-    await separar_produtos($('#data_viagem'))
+
 }
 
 async function verificar_monitoria_transporte() {
