@@ -51,4 +51,4 @@ def ranqueamento_atividades(atividades_ceu, atividades_peraltas, id_series, id_t
         'peraltas': sorted(infos_atividades_peralas, key=lambda k: k['pontuacao'], reverse=True),
     }
 
-    return atividades_ranqueadas
+    return {'atividades_ranqueadas': atividades_ranqueadas, 'cores': cores_temas}

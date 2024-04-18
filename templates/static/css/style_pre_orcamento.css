@@ -1,3 +1,19 @@
+:root {
+    --cor-planetario: #003366;
+    --cor-observacao: #336699;
+    --cor-astronomia: #3366cc;
+    --cor-geologia: #ffa664;
+    --cor-fisica: #6699cc;
+    --cor-astronautica: #336666;
+    --cor-agua: #336633;
+    --cor-fazendinha: #666633;
+    --cor-meio-ambiente: #666666;
+    --cor-eclusa: #999999;
+    --cor-fazenda-de-cafe: #663300;
+    --cor-formatura: #660000;
+}
+
+
 #conteudo_pre_orcamento, #conteudo_nova_previa {
     margin: auto auto 200px;
     width: 1100px;
@@ -46,12 +62,12 @@
     font-size: 25px;
 }
 
-#pre_orcamento table tr, #clientes table tr{
+#pre_orcamento table tr, #clientes table tr {
     vertical-align: middle;
 }
 
 #pre_orcamento table thead, #pre_orcamento table tbody tr > td:not(:first-child),
-#clientes table thead, #clientes table tbody tr > td:not(:first-child){
+#clientes table thead, #clientes table tbody tr > td:not(:first-child) {
     text-align: center;
 }
 
@@ -161,7 +177,7 @@
     height: 35px;
 }
 
-#atividades .abas_secao .aba_ativa{
+#atividades .abas_secao .aba_ativa {
     box-shadow: inset -2px 0 2px 0 #000000;
     background: #a4a4a4;
     color: #FFFFFF;
@@ -184,6 +200,186 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Cor escura com 50% de transparência */
-    z-index: 999; /* Garante que o overlay fique sobre todos os elementos da página */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Planetário */
+#select2-temas_interesse-container > li[title="Planetário"] {
+    background: var(--cor-planetario);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Planetário"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Planetário"] > button:hover {
+    color: #000000;
+    background: var(--cor-planetario);
+}
+
+/* Observação */
+#select2-temas_interesse-container > li[title="Observação"] {
+    background: var(--cor-observacao);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Observação"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Observação"] > button:hover {
+    color: #000000;
+    background: var(--cor-observacao);
+}
+
+/* Astronomia */
+#select2-temas_interesse-container > li[title="Astronomia"] {
+    background: var(--cor-astronomia);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Astronomia"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Astronomia"] > button:hover {
+    color: #000000;
+    background: var(--cor-astronomia);
+}
+
+/* Geologia */
+#select2-temas_interesse-container > li[title="Geologia"] {
+    background: var(--cor-geologia);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Geologia"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Geologia"] > button:hover {
+    color: #000000;
+    background: var(--cor-geologia);
+}
+
+/* Física */
+#select2-temas_interesse-container > li[title="Física"] {
+    background: var(--cor-fisica);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Física"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Física"] > button:hover {
+    color: #000000;
+    background: var(--cor-fisica);
+}
+
+/* Astronáutica */
+#select2-temas_interesse-container > li[title="Astronáutica"] {
+    background: var(--cor-astronautica);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Astronáutica"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Astronáutica"] > button:hover {
+    color: #000000;
+    background: var(--cor-astronautica);
+}
+
+/* Água */
+#select2-temas_interesse-container > li[title="Água"] {
+    background: var(--cor-agua);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Água"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Água"] > button:hover {
+    color: #000000;
+    background: var(--cor-agua);
+}
+
+/* Fazendinha */
+#select2-temas_interesse-container > li[title="Fazendinha"] {
+    background: var(--cor-fazendinha);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Fazendinha"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Fazendinha"] > button:hover {
+    color: #000000;
+    background: var(--cor-fazendinha);
+}
+
+/* Meio ambiente */
+#select2-temas_interesse-container > li[title="Meio ambiente"] {
+    background: var(--cor-meio-ambiente);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Meio ambiente"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Meio ambiente"] > button:hover {
+    color: #000000;
+    background: var(--cor-meio-ambiente);
+}
+
+/* Eclusa */
+#select2-temas_interesse-container > li[title="Eclusa"] {
+    background: var(--cor-eclusa);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Eclusa"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Eclusa"] > button:hover {
+    color: #000000;
+    background: var(--cor-eclusa);
+}
+
+/* Fazenda de café */
+#select2-temas_interesse-container > li[title="Fazenda de café"] {
+    background: var(--cor-fazenda-de-cafe);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Fazenda de café"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Fazenda de café"] > button:hover {
+    color: #000000;
+    background: var(--cor-fazenda-de-cafe);
+}
+
+/* Formatura */
+#select2-temas_interesse-container > li[title="Formatura"] {
+    background: var(--cor-formatura);
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Formatura"] > button {
+    color: #FFFFFF;
+}
+
+#select2-temas_interesse-container li[title="Formatura"] > button:hover {
+    color: #000000;
+    background: var(--cor-formatura);
 }

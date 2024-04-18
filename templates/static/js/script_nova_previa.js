@@ -61,9 +61,9 @@ function verificar_preenchimento_dados_base() {
             },
             success: function (response) {
                 let n_sugestoes_ceu, n_sugestoes_peraltas
-                let atividades_ceu = response['ceu']
-                let atividades_peraltas = response['peraltas']
-
+                let atividades_ceu = response['atividades_ranqueadas']['ceu']
+                let atividades_peraltas = response['atividades_ranqueadas']['peraltas']
+                console.log(response)
                 // Atribuindo o número de sugestões pra cada setor
                 if (atividades_ceu.length >= 3 && atividades_peraltas.length >= 3) {
                     n_sugestoes_ceu = 3
@@ -235,5 +235,13 @@ function trocar_atividade(setor, atividade) {
         $(`.atividade_${setor}`).animate({
             'z-index': '1'
         }, 100)
+    }
+}
+
+function colorir_legenda(cores) {
+    const temas = $('#select2-temas_interesse-container li')
+
+    for (let tema of temas) {
+        console.log()
     }
 }
