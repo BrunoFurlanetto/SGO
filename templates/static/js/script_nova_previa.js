@@ -237,11 +237,3 @@ function trocar_atividade(setor, atividade) {
         }, 100)
     }
 }
-
-function colorir_legenda(cores) {
-    const temas = $('#select2-temas_interesse-container li')
-
-    for (let tema of temas) {
-        console.log()
-    }
-}
