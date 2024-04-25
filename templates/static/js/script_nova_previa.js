@@ -108,9 +108,11 @@ function verificar_preenchimento_dados_base() {
         }).done(() => {
             end_loading()
             $('.previa').removeClass('inativo')
+            $('.botoes button').attr('disabled', false)
         })
     } else {
         $('.previa').addClass('inativo')
+        $('.botoes button').attr('disabled', true)
         $('#sugestoes, .conteudo_atividades #ceu, .conteudo_atividades #peraltas').empty()
     }
 }
