@@ -157,6 +157,17 @@ def salvar_orcamento(request, id_tratativa=None):
             })
 
 
+def apagar_orcamento(request, id_orcamento):
+    try:
+        Orcamento.objects.get(pk=id_orcamento).delete()
+    except Exception as e:
+        messages.error(request, f'Orçamento não apagado ({e}). Tente novamente mais tarde.')
+        return redirect('dashboard')
+    else:
+        messages.success(request, f'Orcamento apagado com sucesso!')
+        return redirect('dashboard')
+
+
 def calc_budget(req):
     if is_ajax(req):
         dados = processar_formulario(req.POST, req.user)
