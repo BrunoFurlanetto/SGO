@@ -17,7 +17,6 @@ class Budget:
         self.exit_id = exit_id
         self.days = int(days)
         self.days_list = days_list
-        # todo: PEGAR INIT TAXAS DO BD
         self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
         self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
 

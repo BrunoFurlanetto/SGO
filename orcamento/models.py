@@ -125,7 +125,8 @@ class TaxaPeriodo(models.Model):
 
 class HorariosPadroes(models.Model):
     refeicao = models.CharField(max_length=50, verbose_name='Refeição')
-    horario = models.TimeField(verbose_name='Horário')
+    horario = models.TimeField(verbose_name='Início horário')
+    final_horario = models.TimeField(verbose_name='Final horário')
     entrada_saida = models.BooleanField()
     racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de hotelaria')
     racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de monitoria')

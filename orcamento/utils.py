@@ -103,18 +103,23 @@ def processar_formulario(dados, user):
         date_check_out = datetime.strptime(check_out_complete[0], '%d/%m/%Y').date()
 
         # filter check_in and check_out
-        time_in_all = HorariosPadroes.objects.filter(entrada_saida=1)
-        time_in = time_in_all.filter(horario__gte=hour_check_in).order_by('horario')
-        time_out_all = HorariosPadroes.objects.filter(entrada_saida=0)
-        time_out = time_out_all.filter(horario__lte=hour_check_out).order_by('-horario')
+        try:
+            time_in = HorariosPadroes.objects.get(
+                horario__lte=hour_check_in,
+                final_horario__gte=hour_check_in,
+                entrada_saida=True,
+            )
+        except HorariosPadroes.DoesNotExist:
+            return JsonError(f'Horário de check in informado não permitido!')
 
-        if len(time_in) == 0:
-            time_error = time_in_all.order_by('-horario')[0]
-            return JsonError(f'O ultimo horário de check-in valido é {time_error.horario}')
-
-        if len(time_out) == 0:
-            time_error = time_out_all.order_by('horario')[0]
-            return JsonError(f'O ultimo horário de check-out valido é {time_error.horario}')
+        try:
+            time_out = HorariosPadroes.objects.get(
+                horario__lte=hour_check_out,
+                final_horario__gte=hour_check_out,
+                entrada_saida=False,
+            )
+        except HorariosPadroes.DoesNotExist:
+            return JsonError(f'Horário de check out informado não permitido!')
 
         # Do period list
         period_days = []
@@ -148,8 +153,8 @@ def processar_formulario(dados, user):
                
         num_days = len(period_days)
         # Get ID for hours, Num Days And IDs for Periods:
-        orcamento['hora_check_in'] = (time_in[0]).id
-        orcamento['hora_check_out'] = (time_out[0]).id
+        orcamento['hora_check_in'] = time_in.id
+        orcamento['hora_check_out'] = time_out.id
         orcamento['n_dias'] = num_days
         orcamento['periodo_viagem'] = period_days
         orcamento['lista_de_dias'] = days_list

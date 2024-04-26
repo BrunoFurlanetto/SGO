@@ -44,9 +44,11 @@ class Transport(TransportProtocol):
                 value = (float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 4:
                 value = (float(obj_transport.valor_4_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
+            elif self.days == 5:
+                value = (float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             else:
                 value = ((float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))
-                          ) + ((self.days - 3) *
+                          ) + ((self.days - 5) *
                                (float(obj_transport.valor_acrescimo) / (
                                        1 - float(obj_transport.percentual))))) / self.min_payers
 
