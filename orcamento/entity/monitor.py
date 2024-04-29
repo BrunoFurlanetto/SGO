@@ -6,8 +6,8 @@ import math
 
 
 class Monitor(BaseValue):
-    def __init__(self, values, days, coming_id, exit_id):
-        super().__init__(values)
+    def __init__(self, values, days, coming_id, exit_id, percent_business_fee, percent_commission):
+        super().__init__(values, percent_business_fee, percent_commission)
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = days

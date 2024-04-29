@@ -2,8 +2,8 @@ from .basevalue import BaseValue
 
 
 class Optional(BaseValue):
-    def __init__(self, values, days):
-        super().__init__(values)
+    def __init__(self, values, days, percent_business_fee, percent_commission):
+        super().__init__(values, percent_business_fee, percent_commission)
         self.days = days
 
     def calc_value_optional(self, optional_description):

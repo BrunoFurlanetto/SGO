@@ -20,33 +20,43 @@ class Budget:
         self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
         self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
 
-        self.period = Period(days_list)
+        self.period = Period(
+            days=days_list,
+            percent_business_fee=self.business_fee,
+            percent_commission=self.commission,
+        )
         self.daily_rate = DailyRate(
             check_in_id=self.coming_id,
             check_out_id=self.exit_id,
             periods=periods,
-            days=self.days
+            days=self.days,
+            percent_business_fee=self.business_fee,
+            percent_commission=self.commission,
         )
         self.monitor = Monitor(
             values=[],
             coming_id=self.coming_id,
             exit_id=self.exit_id,
-            days=self.days
+            days=self.days,
+            percent_business_fee=self.business_fee,
+            percent_commission=self.commission,
         )
         self.transport = Transport(
             days=self.days,
             values=[],
             checkin=days_list[0],
+            percent_business_fee=self.business_fee,
+            percent_commission=self.commission,
         )
-        self.optional = Optional([], days)
+        self.optional = Optional([], days, self.business_fee, self.commission)
         self.array_description_optional = []
-        self.others = Optional([], days)
+        self.others = Optional([], days, self.business_fee, self.commission)
         self.array_description_others = []
-        self.activities = Optional([], days)
+        self.activities = Optional([], days, self.business_fee, self.commission)
         self.array_description_activities = []
-        self.activities_sky = Optional([], days)
+        self.activities_sky = Optional([], days, self.business_fee, self.commission)
         self.array_description_activities_sky = []
-        self.total = Total([])
+        self.total = Total([], self.business_fee, self.commission)
         self.daily_rate.calc_daily_rate()
 
     def calculate(self, data, gerencia, valores_op):
@@ -156,8 +166,6 @@ class Budget:
                 obj_other = OptionalDescription(other['valor'], other['id'],
                                                 other['nome'], self.days, other['descricao'])
                 other_array.append(obj_other.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee,
                     description=True
                 ))
         except TypeError:
@@ -185,10 +193,7 @@ class Budget:
                 self.days
             )
             description.set_discount(discount)
-            optional_array.append(description.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee
-            ))
+            optional_array.append(description.do_object())
 
         self.array_description_optional = optional_array
         return self.array_description_optional
@@ -210,10 +215,7 @@ class Budget:
                 self.days
             )
             description.set_discount(discount)
-            activities_array.append(description.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee
-            ))
+            activities_array.append(description.do_object())
 
         self.array_description_activities = activities_array
         return self.array_description_activities
@@ -236,10 +238,7 @@ class Budget:
                     self.days
                 )
                 description.set_discount(discount)
-                activities_array.append(description.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ))
+                activities_array.append(description.do_object())
         except TypeError as e:
             ...
         else:
@@ -255,51 +254,22 @@ class Budget:
             "atividades_ceu": self.array_description_activities_sky
         })
         return {
-            "periodo_viagem": self.period.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee
-            ),
+            "periodo_viagem": self.period.do_object(),
             "n_dias": self.days,
             "minimo_pagantes": self.transport.min_payers,
             "valores": {
-                "tipo_monitoria": self.monitor.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "diaria": self.daily_rate.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "transporte": self.transport.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "opcionais": self.optional.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "outros": self.others.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "atividades": self.activities.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                ),
-                "atividades_ceu": self.activities_sky.do_object(
-                    percent_commission=self.commission,
-                    percent_business_fee=self.business_fee
-                )
+                "tipo_monitoria": self.monitor.do_object(),
+                "diaria": self.daily_rate.do_object(),
+                "transporte": self.transport.do_object(),
+                "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(),
+                "opcionais": self.optional.do_object(),
+                "outros": self.others.do_object(),
+                "atividades": self.activities.do_object(),
+                "atividades_ceu": self.activities_sky.do_object()
 
             },
             "descricao_opcionais": description_options,
             "total": self.total.do_object(
-                percent_commission=self.commission,
-                percent_business_fee=self.business_fee,
             ),
             "desconto_geral": self.total.general_discount,
             "taxa_comercial": self.business_fee,

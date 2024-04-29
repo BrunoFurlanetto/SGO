@@ -5,9 +5,9 @@ from ..utils import JsonError
 
 
 class Transport(TransportProtocol):
-    def __init__(self, values, checkin, days):
-        super().__init__(values, checkin, days)
-        self.tranport_go_and_back = TransportGoAndBack(values, checkin, days)
+    def __init__(self, values, checkin, days, percent_business_fee, percent_commission):
+        super().__init__(values, checkin, days, percent_business_fee, percent_commission)
+        self.tranport_go_and_back = TransportGoAndBack(values, checkin, days, percent_business_fee, percent_commission)
 
     def set_min_payers(self, min_payers):
         self.min_payers = min_payers

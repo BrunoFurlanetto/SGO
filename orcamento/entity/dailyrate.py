@@ -4,8 +4,8 @@ from datetime import datetime, time
 
 
 class DailyRate(BaseValue):
-    def __init__(self, check_in_id, check_out_id, periods, days):
-        super().__init__([])
+    def __init__(self, check_in_id, check_out_id, periods, days, percent_business_fee, percent_commission):
+        super().__init__([], percent_business_fee, percent_commission)
         self.check_in_id = check_in_id
         self.check_out_id = check_out_id
         self.periods = periods
@@ -34,8 +34,8 @@ class DailyRate(BaseValue):
 
         return self.values
 
-    def do_object(self, percent_business_fee, percent_commission):
-        information = super().do_object(percent_business_fee, percent_commission)
+    def do_object(self):
+        information = super().do_object()
         daily_accomodation = self.days - 1 if self.days > 1 else 1
         value_daily_accomodation = self.get_total_values() / daily_accomodation
         values_accomodation = [value_daily_accomodation for _ in range(0, self.days)]

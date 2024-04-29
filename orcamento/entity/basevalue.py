@@ -2,7 +2,9 @@ from math import ceil
 
 
 class BaseValue:
-    def __init__(self, values):
+    def __init__(self, values, percent_business_fee, percent_commission):
+        self.percent_business_fee = percent_business_fee / 100
+        self.percent_commission = percent_commission / 100
         self.values = values
         self.discount = 0
         self.__adjustment = 0
@@ -41,31 +43,33 @@ class BaseValue:
     def calc_value_with_discount(self):
         return self.get_total_values() - self.discount
 
-    def calc_business_fee(self, percent):
-        return self.calc_value_with_discount() * percent
+    def calc_business_fee(self):
+        return self.get_final_value() * self.percent_business_fee
 
-    def calc_commission(self, percent):
-        return self.calc_value_with_discount() * percent
-
+    def calc_commission(self):
+        return self.get_final_value() * self.percent_commission
+    
     def get_list_values(self, days):
         if len(self.values) == days:
             return self.values
 
         mock_values = [0 for x in range(days)]
         return mock_values
+    
+    def get_final_value(self):
+        return self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission));
 
-    def do_object(self, percent_business_fee, percent_commission):
+    def do_object(self):
         return {
             "valor": self.get_total_values(),
             "desconto": self.discount,
-            "valor_final": ceil(self.calc_value_with_discount() / (1 - (percent_business_fee + percent_commission))),
+            "valor_final": self.get_final_value(),
                                 # + self.calc_business_fee(percent_business_fee)
                                 # + self.calc_commission(percent_commission)
                                 # + self.get_adjustiment()),
             "valor_com_desconto": self.calc_value_with_discount(),
-            "arredondamento": ceil(self.calc_value_with_discount() / (1 - (percent_business_fee + percent_commission))) - self.calc_value_with_discount() / (1 - (percent_business_fee + percent_commission)),
             "ajuste": self.get_adjustiment(),
-            "taxa_comercial": self.calc_business_fee(percent_business_fee),
-            "comissao_de_vendas": self.calc_commission(percent_commission),
+            "taxa_comercial": self.calc_business_fee(),
+            "comissao_de_vendas": self.calc_commission(),
             "valores": self.values
         }

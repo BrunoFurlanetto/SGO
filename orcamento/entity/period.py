@@ -4,10 +4,10 @@ from ..utils import JsonError
 
 
 class Period(BaseValue):
-    def __init__(self, days):
+    def __init__(self, days, percent_business_fee, percent_commission):
         self.date_to_check = days[0]
         values = [float(0) for day in days]
-        super().__init__(values=values)
+        super().__init__(values,percent_business_fee, percent_commission)
 
     def set_period_rate(self):
         taxa = 0

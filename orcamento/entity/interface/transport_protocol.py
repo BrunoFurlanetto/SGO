@@ -3,8 +3,8 @@ from ..basevalue import BaseValue
 
 
 class TransportProtocol(ABC, BaseValue):
-    def __init__(self, values, checkin, days):
-        super().__init__(values)
+    def __init__(self, values, checkin, days, percent_business_fee, percent_commission):
+        super().__init__(values, percent_business_fee, percent_commission)
         self.checkin = checkin
         self.days = days
         self.min_payers = 30

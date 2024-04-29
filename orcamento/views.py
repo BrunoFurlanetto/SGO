@@ -101,9 +101,8 @@ def salvar_orcamento(request, id_tratativa=None):
         )
         budget.calculate(data, gerencia, valores_op)
 
-        valor_final = (budget.total.calc_value_with_discount() + budget.total.calc_business_fee(
-            budget.business_fee) + budget.total.calc_commission(
-            budget.commission)) + budget.total.get_adjustiment()
+        valor_final = (budget.total.calc_value_with_discount() + budget.total.calc_business_fee() 
+                       + budget.total.calc_commission()) + budget.total.get_adjustiment()
         desconto = budget.total.get_adjustiment()
 
         data['desconto'] = f'{desconto:.2f}'

@@ -3,8 +3,8 @@ from .interface.transport_protocol import TransportProtocol
 
 
 class TransportGoAndBack(TransportProtocol):
-    def __init__(self, values, checkin, days):
-        super().__init__(values, checkin, days)
+    def __init__(self, values, checkin, days, percent_business_fee, percent_commission):
+        super().__init__(values, checkin, days, percent_business_fee, percent_commission)
 
     def calc_value_transport(self, is_transport):
         values = []
