@@ -61,7 +61,7 @@ def sugerir_atividades(request):
 
         match_atividades_eco = AtividadesEco.objects.filter(
             serie__in=ids_serie,
-            # tipo_pacote__in=ids_pacotes  TODO: Retirar do comentário assim que conseguir essa relação,
+            tipo_pacote__in=ids_pacotes,
             intencao_atividade=request.POST.get('intencao'),
             tipo_atividade__in=ids_temas_peraltas,
         ).exclude(nome_atividade_eco__icontains='inglês').distinct()
