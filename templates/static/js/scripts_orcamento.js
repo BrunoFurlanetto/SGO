@@ -2,7 +2,7 @@ let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar, promocional = false
-const secoes = ['diaria', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
+const secoes = ['diaria', 'periodo_viagem', 'tipo_monitoria', 'transporte', 'opcionais', 'atividades', 'atividades_ceu', 'outros']
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
@@ -324,15 +324,17 @@ async function listar_op_extras(opcao, i) {
     `)
 }
 
-function criar_linhas_tabela_valores() {
+function criar_linhas_tabela_valores(arredondamento) {
     const tabela_valores = $('#tabela_de_valores tbody').empty()
     tabela_valores.append(`<tr id="diaria"><td colspan="2">Diarias</td></tr>`)
+    tabela_valores.append(`<tr id="periodo_viagem"><td colspan="2">Taxa fixa</td></tr>`)
     tabela_valores.append(`<tr id="tipo_monitoria"><td colspan="2">Monitoria</td></tr>`)
     tabela_valores.append(`<tr id="transporte"><td colspan="2">Transporte</td></tr>`)
     tabela_valores.append(`<tr id='opcionais'><td colspan="2">Atividades Peraltas<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_descritivo').toggleClass('none')"></i></td></tr>`)
     tabela_valores.append(`<tr id='atividades'><td colspan='2'>Opcionais<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_descritivo').toggleClass('none')"></i></td></tr><tr id='atividades_descritivo'></tr>`)
     tabela_valores.append(`<tr id='atividades_ceu'><td colspan='2'>Atividades CEU<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .atividades_ceu_descritivo').toggleClass('none')"></i></td></tr><tr id='ceu_descritivo'></tr>`)
     tabela_valores.append(`<tr id='outros'><td colspan='2'>Outros<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .outros_descritivo').toggleClass('none')"></i></td></tr><tr id='outros_descritivo'></tr>`)
+    tabela_valores.append(`<tr id="arredondamento"><td colspan="2">Arredondamento</td></tr>`)
 }
 
 function separar_atividades(opcionais) {
@@ -385,16 +387,27 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
     let classe_datas = ''
 
     for (let data of dias) {
-        let dia = moment(data)
+        let dia
+        if (data == dias[0]) {
+            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[0].split(' ')[1])
+        } else if (data == dias[dias.length - 1]) {
+            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[1].split(' ')[1])
+        } else {
+            dia = moment(data)
+        }
 
         if (data == dias[dias.length - 1]) {
             classe_datas = 'ultima_data'
         }
 
-        $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM')}</th>`)
+        if (data != dias[0] && data != dias[dias.length - 1]) {
+            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM')}</th>`)
+        } else {
+            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM HH:mm')}</th>`)
+        }
     }
 
-    criar_linhas_tabela_valores(secoes)
+    criar_linhas_tabela_valores()
 
     for (let secao of secoes) {
         $(`#tabela_de_valores #${secao}`).append(`
@@ -402,7 +415,7 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>                 
-            <td class="valor_final_tabela"><nobr>${formatar_dinheiro(secao == 'diaria' ? valores[secao]['valor_final'] + taxa : valores[secao]['valor_final'])}</nobr></td>
+            <td class="valor_final_tabela"><nobr>${formatar_dinheiro(valores[secao]['valor_final'])}</nobr></td>
         `)
 
         for (let valor_dia of valores[secao]['valores']) {
@@ -434,6 +447,18 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais) {
 
     for (let valor of totais['descricao_valores']) {
         $('#tabela_de_valores #totais').append(`<th><nobr>R$ ${formatar_dinheiro(valor)}</nobr></th>`)
+    }
+
+    $(`#tabela_de_valores #arredondamento`).append(`
+        <td><nobr>R$ 0</nobr></td>
+        <td><nobr>R$ 0</nobr></td>
+        <td><nobr>R$ 0</nobr></td>
+        <td><nobr>R$ 0</nobr></td>                 
+        <td class="valor_final_tabela"><nobr>${formatar_dinheiro(valores['total']['arredondamento'])}</nobr></td>
+    `)
+
+    for (let i = 0; i < dias.length; i++) {
+        $(`#tabela_de_valores #arredondamento`).append('<td><nobr>R$ 0</nobr></td>')
     }
 }
 
@@ -540,7 +565,7 @@ async function enviar_form(salvar = false) {
                 data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
                 success: function (response) {
                     if (!salvar) {
-                        const valores = response['data']['valores']
+                        let valores = response['data']['valores']
                         const periodo = response['data']['periodo_viagem']['valor_final']
                         const diaria = valores['diaria']['valor_final']
                         const periodo_diaria = (periodo + diaria)
@@ -566,7 +591,7 @@ async function enviar_form(salvar = false) {
                         $('#subtotal span').text('R$ ' + total_formatado) // Total
                         $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
-                        tabela_descrito(valores, response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
+                        tabela_descrito(Object.assign({}, valores, response['data']), response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
                         resultado_ultima_consulta = response
                     }
                     resolve(response['promocionais']);
