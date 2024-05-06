@@ -130,6 +130,7 @@ class HorariosPadroes(models.Model):
     entrada_saida = models.BooleanField()
     racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de hotelaria')
     racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de monitoria')
+    descricao_alimentacao = models.TextField(verbose_name='Descrição das alimentações')
 
     class Meta:
         verbose_name = 'Horário de entrada e saída'
