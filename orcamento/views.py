@@ -12,7 +12,7 @@ from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais
+    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes
 from .utils import verify_data, processar_formulario, JsonError
 from .budget import Budget
 
@@ -215,6 +215,10 @@ def calc_budget(req):
             "data": budget.return_object(),
             "promocionais": promocionais,
             "limites_taxas": ValoresPadrao.listar_valores(),
+            "racionais": {
+                'check_in': data['racional_check_in'],
+                'check_out': data['racional_check_out'],
+            },
             "msg": "",
         })
 

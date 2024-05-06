@@ -381,29 +381,28 @@ function linhas_descritivo_opcionais(opcionais, id_linha) {
     }
 }
 
-function tabela_descrito(valores, dias, taxa, opcionais, totais) {
+function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     $('#tabela_de_valores .datas').remove()
     $('.tag_datas').prop('colspan', dias.length)
     let classe_datas = ''
 
     for (let data of dias) {
         let dia
-        if (data == dias[0]) {
-            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[0].split(' ')[1])
-        } else if (data == dias[dias.length - 1]) {
-            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[1].split(' ')[1])
-        } else {
-            dia = moment(data)
-        }
 
         if (data == dias[dias.length - 1]) {
             classe_datas = 'ultima_data'
+
         }
 
-        if (data != dias[0] && data != dias[dias.length - 1]) {
-            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM')}</th>`)
+        if (data == dias[0]) {
+            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[0].split(' ')[1])
+            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM HH:mm')} (${racionais['check_in']})</th>`)
+        } else if (data == dias[dias.length - 1]) {
+            dia = moment(data + ' ' + $('#data_viagem').val().split(' - ')[1].split(' ')[1])
+            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM HH:mm')} (${racionais['check_out']})</th>`)
         } else {
-            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM HH:mm')}</th>`)
+            dia = moment(data)
+            $('#tabela_de_valores .cabecalho').append(`<th class="datas ${classe_datas}">${dia.format('DD/MM')}</th>`)
         }
     }
 
@@ -538,7 +537,6 @@ async function enviar_form(salvar = false) {
             url = url + $('#id_tratativa').val()
         }
     }
-    console.log(salvar, url)
 
     let dados_op, gerencia, outros;
     const form = $('#orcamento');
@@ -591,7 +589,16 @@ async function enviar_form(salvar = false) {
                         $('#subtotal span').text('R$ ' + total_formatado) // Total
                         $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
-                        tabela_descrito(Object.assign({}, valores, response['data']), response['data']['days'], periodo, response['data']['descricao_opcionais'], response['data']['total'])
+                        tabela_descrito(Object.assign(
+                            {},
+                            valores,
+                            response['data']),
+                            response['data']['days'],
+                            periodo,
+                            response['data']['descricao_opcionais'],
+                            response['data']['total'],
+                            response['racionais']
+                        )
                         resultado_ultima_consulta = response
                     }
                     resolve(response['promocionais']);

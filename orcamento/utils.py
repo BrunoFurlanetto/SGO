@@ -152,6 +152,9 @@ def processar_formulario(dados, user):
         # Calc num days
                
         num_days = len(period_days)
+        # Racionais entrada e saída refeição TODO: Retirar depois dos testes do Sérgio
+        orcamento['racional_check_in'] = time_in.racional
+        orcamento['racional_check_out'] = time_out.racional
         # Get ID for hours, Num Days And IDs for Periods:
         orcamento['hora_check_in'] = time_in.id
         orcamento['hora_check_out'] = time_out.id
