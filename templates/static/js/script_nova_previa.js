@@ -63,7 +63,7 @@ function verificar_preenchimento_dados_base() {
                 let n_sugestoes_ceu, n_sugestoes_peraltas
                 let atividades_ceu = response['atividades_ranqueadas']['ceu']
                 let atividades_peraltas = response['atividades_ranqueadas']['peraltas']
-                console.log(response)
+
                 // Atribuindo o número de sugestões pra cada setor
                 if (atividades_ceu.length >= 3 && atividades_peraltas.length >= 3) {
                     n_sugestoes_ceu = 3
@@ -106,6 +106,7 @@ function verificar_preenchimento_dados_base() {
                 }
             }
         }).done(() => {
+            verificar_sugestoes()
             end_loading()
             $('.previa').removeClass('inativo')
             $('.botoes button').attr('disabled', false)
@@ -114,6 +115,27 @@ function verificar_preenchimento_dados_base() {
         $('.previa').addClass('inativo')
         $('.botoes button').attr('disabled', true)
         $('#sugestoes, .conteudo_atividades #ceu, .conteudo_atividades #peraltas').empty()
+    }
+}
+
+function verificar_sugestoes() {
+    let sugestoes_ceu = $('#sugestoes .card_atividade.atividade_ceu')
+    let sugestoes_peraltas = $('#sugestoes .card_atividade.atividade_peraltas')
+
+    if (sugestoes_peraltas.length > 0) {
+        let id_sugestoes_peraltas = sugestoes_peraltas.map((index, atividade) => {
+            return $(atividade).data('id_atividade_peraltas')
+        }).get()
+        console.log(id_sugestoes_peraltas)
+        $('#venda_certa #sugestoes_peraltas').val(id_sugestoes_peraltas)
+    }
+
+    if (sugestoes_ceu.length > 0) {
+        let id_sugestoes_ceu = sugestoes_ceu.map((index, atividade) => {
+            return $(atividade).data('id_atividade_ceu')
+        }).get()
+        console.log(id_sugestoes_ceu)
+        $('#venda_certa #sugestoes_ceu').val(id_sugestoes_ceu)
     }
 }
 
@@ -238,4 +260,5 @@ function trocar_atividade(setor, atividade) {
             'z-index': '1'
         }, 100)
     }
+    verificar_sugestoes()
 }

@@ -86,7 +86,7 @@ class PreOrcamento(models.Model):
         StatusOrcamento,
         verbose_name='Status',
         on_delete=models.DO_NOTHING,
-        blank=True, null=True
+        blank=True, null=True,
     )
 
 
@@ -106,3 +106,7 @@ class CadastroPreOrcamento(forms.ModelForm):
     class Meta:
         model = PreOrcamento
         fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        print(cleaned_data)

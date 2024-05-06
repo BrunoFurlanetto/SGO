@@ -1,12 +1,14 @@
 from itertools import chain
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from ceu.models import Atividades, TipoAtividadesCeu
+from orcamento.models import StatusOrcamento
 from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, TipoAtividadePeraltas
-from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento
+from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento, PreCadastro
 from pre_orcamento.utils import ranqueamento_atividades
 from projetoCEU.utils import is_ajax
 
@@ -83,3 +85,33 @@ def sugerir_atividades(request):
         )
 
         return JsonResponse(atividades_ranqueadas)
+
+
+def salvar_previa(request):
+    cliente, _ = PreCadastro.objects.get_or_create(cnpj=request.POST.get('cnpj'), defaults={
+        'nome_colegio': request.POST.get('nome_colegio'),
+        'cnpj': request.POST.get('cnpj'),
+        'nome_responsavel': request.POST.get('nome_responsavel'),
+        'telefone_responsavel': request.POST.get('telefone_responsavel'),
+    })
+    print(cliente.id)
+    previa = CadastroPreOrcamento(initial={
+        'cliente': cliente.id,
+        'colaborador': request.user.id,
+        'tipo_viagem': request.POST.get('motivo_viagem'),
+        'status': StatusOrcamento.objects.get(status__icontains='em aberto').id,
+    }, data=request.POST)
+
+    print(previa.initial)
+    print(previa.errors)
+    aaaaa
+    try:
+        previa.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro durante o salvamento da prévia ({e}). Por favor tente novamente mais tarde.')
+
+        return redirect('dashboard_pre_orcamento')
+    else:
+        messages.success(request, 'Prévia salva com sucesso!')
+
+        return redirect('dashboard_pre_orcamento')

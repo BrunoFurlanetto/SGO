@@ -19,7 +19,7 @@
         <p id="aviso_preencher_campos" class="alert alert-warning">
             É necessário preencher todos os campos dos dados do cliente para liberar a montagem da prévia
         </p>
-        <form action="">
+        <form action="{% url 'salvar_previa' %}" method="POST">
             <fieldset>
                 {% csrf_token %}
                 <div id="dados_cliente" onchange="verificar_preenchimento()">
@@ -50,7 +50,7 @@
                             </div>
                             <div style="width: 88%;">
                                 <label for="produto_peraltas">Tipo de pacote</label>
-                                <select name="produto_peraltas" id="produto_peraltas" multiple>
+                                <select name="tipo_pacote" id="produto_peraltas" multiple>
                                     {% for produto in produtos_peraltas %}
                                         <option value="{{ produto.id }}">{{ produto.produto }}</option>
                                     {% endfor %}
@@ -84,6 +84,8 @@
                     <div id="venda_certa" style="width: 50%">
                         <div id="titulo">Atividades sugeridas</div>
                         <div id="sugestoes"></div>
+                        <input type="hidden" name="atividades_peraltas_sugeridas" id="sugestoes_peraltas">
+                        <input type="hidden" name="atividades_ceu_sugeridas" id="sugestoes_ceu">
                     </div>
                     <div id="atividades" style="width: 50%">
                         <div class="abas_secao">
@@ -97,7 +99,7 @@
                     </div>
                 </div>
                 <div class="botoes">
-                    <button class="btn btn-primary" disabled>Salvar prévia</button>
+                    <button type="submit" class="btn btn-primary" disabled>Salvar prévia</button>
                 </div>
             </fieldset>
         </form>
