@@ -25,6 +25,14 @@
                         </tr>
                         </thead>
                         <tbody>
+                            {% for previa in previas_aberta %}
+                                <tr>
+                                    <td>{{ previa.cliente }}</td>
+                                    <td>{{ previa.validade|date:'d/m/Y' }}</td>
+                                    <td>{{ previa.status }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -44,6 +52,14 @@
                         </tr>
                         </thead>
                         <tbody>
+                            {% for cliente in clientes_colaborador %}
+                                <tr>
+                                    <td>{{ cliente }}</td>
+                                    <td>{{ cliente.nome_responsavel }}</td>
+                                    <td>{{ cliente.telefone_responsavel }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

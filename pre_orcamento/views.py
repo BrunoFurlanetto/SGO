@@ -8,14 +8,21 @@ from django.shortcuts import render, redirect
 from ceu.models import Atividades, TipoAtividadesCeu
 from orcamento.models import StatusOrcamento
 from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, TipoAtividadePeraltas
-from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento, PreCadastro
+from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento, PreCadastro, PreOrcamento
 from pre_orcamento.utils import ranqueamento_atividades
 from projetoCEU.utils import is_ajax
 
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'pre_orcamento/dashoboard.html')
+    previas_colaborador = PreOrcamento.objects.filter(colaborador=request.user.id).order_by('-validade')
+    previas_aberta = previas_colaborador.filter(status__status__icontains='aberto')
+    clientes_colaborador = [previa.cliente for previa in previas_aberta]
+
+    return render(request, 'pre_orcamento/dashoboard.html', {
+        'clientes_colaborador': set(clientes_colaborador),
+        'previas_aberta': previas_aberta,
+    })
 
 
 @login_required(login_url='login')
@@ -94,17 +101,10 @@ def salvar_previa(request):
         'nome_responsavel': request.POST.get('nome_responsavel'),
         'telefone_responsavel': request.POST.get('telefone_responsavel'),
     })
-    print(cliente.id)
-    previa = CadastroPreOrcamento(initial={
-        'cliente': cliente.id,
-        'colaborador': request.user.id,
-        'tipo_viagem': request.POST.get('motivo_viagem'),
-        'status': StatusOrcamento.objects.get(status__icontains='em aberto').id,
-    }, data=request.POST)
 
-    print(previa.initial)
-    print(previa.errors)
-    aaaaa
+    dados_cadastro = PreOrcamento.tratar_cadastro(request.POST, cliente, request.user)
+    previa = CadastroPreOrcamento(dados_cadastro)
+
     try:
         previa.save()
     except Exception as e:

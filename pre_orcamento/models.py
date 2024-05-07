@@ -43,17 +43,15 @@ class PreOrcamento(models.Model):
 
     cliente = models.ForeignKey(PreCadastro, on_delete=models.CASCADE, verbose_name='Cliente')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
-    serie_grupo = models.ForeignKey(
+    serie_grupo = models.ManyToManyField(
         PerfilsParticipantes,
-        on_delete=models.DO_NOTHING,
         verbose_name='Série do grupo',
-        null=True, blank=True
+        blank=True
     )
-    tipo_pacote = models.ForeignKey(
+    tipo_pacote = models.ManyToManyField(
         ProdutosPeraltas,
-        on_delete=models.DO_NOTHING,
         verbose_name='Tipo de pacote',
-        null=True, blank=True
+        blank=True
     )
     tipo_viagem = models.CharField(max_length=6, verbose_name='Tipo de viagem', default='', choices=tipo_viagem_choices)
     atividades_ceu_sugeridas = models.ManyToManyField(
@@ -88,6 +86,21 @@ class PreOrcamento(models.Model):
         on_delete=models.DO_NOTHING,
         blank=True, null=True,
     )
+
+    @staticmethod
+    def tratar_cadastro(dados, cliente, colaborador):
+
+        return {
+            'cliente': cliente.id,
+            'colaborador': colaborador.id,
+            'serie_grupo': list(map(int, dados.getlist('serie_grupo'))),
+            'tipo_pacote': list(map(int, dados.getlist('tipo_pacote'))),
+            'tipo_viagem': dados.get('motivo_viagem'),
+            'atividades_ceu_sugeridas': list(map(int, dados.get('atividades_ceu_sugeridas').split(','))),
+            'atividades_peraltas_sugeridas': list(map(int, dados.get('atividades_peraltas_sugeridas').split(','))),
+            'status': StatusOrcamento.objects.get(status__icontains='aberto'),
+            'validade': default_validade(),
+        }
 
 
 # --------------------------------------------------- FORMS ------------------------------------------------------------
