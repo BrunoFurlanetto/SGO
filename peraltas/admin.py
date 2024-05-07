@@ -106,7 +106,7 @@ class FichaDeEventoAdmin(admin.ModelAdmin):
     list_display = ('cliente', 'vendedora', 'check_in_formatado', 'check_out_formatado', 'qtd_convidada',
                     'data_preenchimento_formatado')
     list_filter = ('pre_reserva', 'data_preenchimento', 'check_in')
-    search_fields = ('cliente', 'vendedora')
+    search_fields = ('cliente__nome_fantasia', 'vendedora__usuario__first_name', 'vendedora__usuario__last_name')
     ordering = ('-check_in',)
 
     def check_in_formatado(self, obj):
