@@ -29,7 +29,7 @@ class AtividadePeraltasAdmin(admin.ModelAdmin):
 @admin.register(AtividadesEco)
 class AtividadeEcoAdmin(admin.ModelAdmin):
     list_display = ('nome_atividade_eco',)
-    filter_horizontal = ('serie', 'tipo_pacote')
+    filter_horizontal = ('serie', 'tipo_pacote', 'disciplinas_secundarias', 'intencao_atividade')
 
 
 class MonitorInline(admin.StackedInline):

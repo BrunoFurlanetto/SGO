@@ -68,11 +68,8 @@
                         <div style="width: 100%">
                             <label for="temas_interesse">Temas de interesse</label>
                             <select name="temas_interesse" id="temas_interesse" multiple>
-                                {% for tema in temas_ceu %}
-                                    <option value="c_{{ tema.id }}">{{ tema }}</option>
-                                {% endfor %}
-                                {% for tema in temas_peraltas %}
-                                    <option value="p_{{ tema.id }}">{{ tema }}</option>
+                                {% for disciplina in disciplinas %}
+                                    <option value="{{ disciplina.id }}">{{ disciplina }}</option>
                                 {% endfor %}
                             </select>
                         </div>

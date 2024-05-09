@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.db.models import ManyToManyField
 from django.utils import timezone
@@ -136,19 +137,21 @@ class Vendedor(models.Model):
         return self.usuario.get_full_name()
 
 
-class TipoAtividadePeraltas(models.Model):
-    tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Aividade')
+class Disciplinas(models.Model):
+    disciplina = models.CharField(max_length=255, verbose_name='Disciplina')
 
     def __str__(self):
-        return self.tipo_atividade
+        return self.disciplina
+
+
+class IntencaoAtividade(models.Model):
+    intencao = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.intencao
 
 
 class AtividadesEco(models.Model):
-    intecao = (
-        ('lazer', 'Lazer'),
-        ('estudo', 'Estudo')
-    )
-
     nome_atividade_eco = models.CharField(max_length=255, verbose_name='Nome da atividade')
     local = models.CharField(max_length=255)
     idade_min = models.PositiveIntegerField(verbose_name='Idade mínima')
@@ -162,8 +165,21 @@ class AtividadesEco(models.Model):
     biologo = models.BooleanField(default=False)
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    tipo_atividade = models.ForeignKey(TipoAtividadePeraltas, on_delete=models.DO_NOTHING, blank=True, null=True)
-    intencao_atividade = models.CharField(max_length=6, verbose_name='Intenção da atividade', choices=intecao, default='estudo')
+    disciplina_primaria = models.ForeignKey(
+        Disciplinas,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        verbose_name='Disciplina primaria',
+        related_name='disciplina_primaria_peraltas',
+    )
+    disciplinas_secundarias = models.ManyToManyField(
+        Disciplinas,
+        blank=True,
+        related_name='disciplinas_secundarias_peraltas',
+        verbose_name='Disciplinas secundárias'
+    )
+    intencao_atividade = models.ManyToManyField(IntencaoAtividade, blank=True)
     serie = models.ManyToManyField(PerfilsParticipantes, blank=True)
     tipo_pacote = models.ManyToManyField(ProdutosPeraltas, blank=True)
 

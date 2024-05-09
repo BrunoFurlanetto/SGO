@@ -27,7 +27,7 @@ class ProfessoresAdmin(admin.ModelAdmin):
 
 @admin.register(Atividades)
 class AtividadesAdmin(admin.ModelAdmin):
-    filter_horizontal = ('limitacao', 'serie', 'tipo_pacote')
+    filter_horizontal = ('limitacao', 'serie', 'tipo_pacote', 'intencao_atividade', 'disciplinas_secundarias')
 
 
 @admin.register(Locaveis)

@@ -5,9 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from ceu.models import Atividades, TipoAtividadesCeu
-from orcamento.models import StatusOrcamento
-from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, TipoAtividadePeraltas
+from ceu.models import Atividades
+from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, Disciplinas
 from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento, PreCadastro, PreOrcamento
 from pre_orcamento.utils import ranqueamento_atividades
 from projetoCEU.utils import is_ajax
@@ -31,16 +30,14 @@ def nova_previa(request):
     previa = CadastroPreOrcamento()
     series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
     produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
-    temas_ceu = TipoAtividadesCeu.objects.all()
-    temas_peraltas = TipoAtividadePeraltas.objects.all()
+    disciplinas = Disciplinas.objects.all()
 
     return render(request, 'pre_orcamento/nova_previa.html', {
         'pre_cadastro': pre_cadastro,
         'previa': previa,
         'series': series,
         'produtos_peraltas': produtos_peraltas,
-        'temas_ceu': temas_ceu,
-        'temas_peraltas': temas_peraltas
+        'disciplinas': disciplinas
     })
 
 

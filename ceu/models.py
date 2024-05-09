@@ -16,14 +16,14 @@ class Professores(models.Model):
         return self.usuario.get_full_name()
 
 
-class TipoAtividadesCeu(models.Model):
-    tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Atividade')
-
-    def str_tipo_atividade(self):
-        return self.tipo_atividade
-
-    def __str__(self):
-        return self.tipo_atividade
+# class TipoAtividadesCeu(models.Model):
+#     tipo_atividade = models.CharField(max_length=255, verbose_name='Tipo de Atividade')
+#
+#     def str_tipo_atividade(self):
+#         return self.tipo_atividade
+#
+#     def __str__(self):
+#         return self.tipo_atividade
 
 
 class Estruturas(models.Model):
@@ -60,7 +60,21 @@ class Atividades(models.Model):
     limitacao = models.ManyToManyField(Limitacoes, blank=True)
     publico = models.BooleanField(default=False)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    tema_atividade = models.ForeignKey(TipoAtividadesCeu, on_delete=models.DO_NOTHING, blank=True, null=True)
+    intencao_atividade = models.ManyToManyField('peraltas.IntencaoAtividade', blank=True)
+    disciplina_primaria = models.ForeignKey(
+        'peraltas.Disciplinas',
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
+        related_name='disciplina_primaria_ceu',
+        verbose_name='Disciplina Primaria',
+    )
+    disciplinas_secundarias = models.ManyToManyField(
+        'peraltas.Disciplinas',
+        blank=True,
+        verbose_name='Disciplnas secundárias',
+        related_name='disciplinas_secundarias_ceu',
+    )
     serie = models.ManyToManyField('peraltas.PerfilsParticipantes', blank=True)
     tipo_pacote = models.ManyToManyField('peraltas.ProdutosPeraltas', blank=True)
 
