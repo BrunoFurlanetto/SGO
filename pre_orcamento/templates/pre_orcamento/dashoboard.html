@@ -26,11 +26,15 @@
                         </thead>
                         <tbody>
                             {% for previa in previas_aberta %}
-                                <tr onclick="window.location.href = '{% url "ver_previa" previa.id %}'">
-                                    <td>{{ previa.cliente }}</td>
-                                    <td>{{ previa.validade|date:'d/m/Y' }}</td>
-                                    <td>{{ previa.status }}</td>
-                                    <td></td>
+                                <tr>
+                                    <td style="cursor: pointer" onclick="window.location.href = '{% url "ver_previa" previa.id %}'">{{ previa.cliente }}</td>
+                                    <td style="cursor: pointer" onclick="window.location.href = '{% url "ver_previa" previa.id %}'">{{ previa.validade|date:'d/m/Y' }}</td>
+                                    <td style="cursor: pointer" onclick="window.location.href = '{% url "ver_previa" previa.id %}'">{{ previa.status }}</td>
+                                    <td>
+                                        <button style="background: transparent; border: none; font-size: 25px;">
+                                            <i class='bx bxs-file-pdf'></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

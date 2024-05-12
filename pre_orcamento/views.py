@@ -97,7 +97,6 @@ def validar_pacotes(request):
 
 def sugerir_atividades(request):
     if is_ajax(request):
-        print(request.POST)
         ids_serie = list(map(int, request.POST.getlist('serie_grupo[]')))
         ids_pacotes = list(map(int, request.POST.getlist('tipo_pacote[]')))
         ids_temas_interesse = list(map(int, request.POST.getlist('temas_interesse[]')))
@@ -124,7 +123,7 @@ def sugerir_atividades(request):
             ids_temas_interesse,
             ids_pacotes
         )
-        print(atividades_ranqueadas)
+
         return JsonResponse(atividades_ranqueadas)
 
 
