@@ -7,20 +7,6 @@
     <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-{#    <style>#}
-{#        {% for disciplina in disciplinas %}#}
-{#            #select2-temas_interesse-container > li[title="{{ disciplina.disciplina|safe }}"] {#}
-{#                background: {{ disciplina.cor|safe }};#}
-{#                color: #FFFFFF;#}
-{#            }#}
-{##}
-{#            #select2-temas_interesse-container li[title="{{ disciplina.disciplina|safe }}"] > button:hover {#}
-{#                color: #000000;#}
-{#                background: {{ disciplina.cor|safe }};#}
-{#            }#}
-{#        {% endfor %}#}
-{#    </style>#}
-
     <div class="overlay none"></div>
     <div id="conteudo_nova_previa">
         <div>
@@ -30,12 +16,14 @@
         </div>
         <hr>
         <h5 class="titulo-secao">Dados do cliente</h5>
-        <p id="aviso_cnpj" class="none alert alert-danger">CNPJ Inválido</p>
-        <p id="aviso_preencher_campos" class="alert alert-warning">
-            É necessário preencher todos os campos dos dados do cliente para liberar a montagem da prévia
-        </p>
+        {% if not previa %}
+            <p id="aviso_cnpj" class="none alert alert-danger">CNPJ Inválido</p>
+            <p id="aviso_preencher_campos" class="alert alert-warning">
+                É necessário preencher todos os campos dos dados do cliente para liberar a montagem da prévia
+            </p>
+        {% endif %}
         <form action="{% url 'salvar_previa' %}" method="POST">
-            <fieldset>
+            <fieldset {% if previa %} disabled {% endif %}>
                 {% csrf_token %}
                 <div id="dados_cliente" onchange="verificar_preenchimento()">
                     {% for campo in pre_cadastro %}
@@ -47,14 +35,14 @@
                 </div>
                 <hr>
                 <h5 class="titulo-secao dados_previa inativo">Dados base</h5>
-                <div id="dados_base_previa" class="dados_previa inativo"
+                <div id="dados_base_previa" class="dados_previa {% if not previa %} inativo {% endif %}"
                      onchange="verificar_preenchimento_dados_base()">
                     <div id="valores_base">
                         <div style="width: 100%">
                             <label for="serie_grupo">Serie(s) do grupo</label>
                             <select name="serie_grupo" id="serie_grupo" multiple>
                                 {% for serie in series %}
-                                    <option value="{{ serie.id }}">{{ serie }}</option>
+                                    <option {% if serie in previa.serie_grupo.all %} selected {% endif %} value="{{ serie.id }}">{{ serie }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -67,7 +55,7 @@
                                 <label for="produto_peraltas">Tipo de pacote</label>
                                 <select name="tipo_pacote" id="produto_peraltas" multiple>
                                     {% for produto in produtos_peraltas %}
-                                        <option value="{{ produto.id }}">{{ produto.produto }}</option>
+                                        <option {% if produto in previa.tipo_pacote.all %} selected {% endif %} value="{{ produto.id }}">{{ produto.produto }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -77,7 +65,7 @@
                             <select name="motivo_viagem" id="motivo_viagem">
                                 <option></option>
                                 {% for intencao in intencoes %}
-                                    <option value="{{ intencao.id }}">{{ intencao.intencao }}</option>
+                                    <option {% if intencao == previa.tipo_viagem %} selected {% endif %} value="{{ intencao.id }}">{{ intencao.intencao }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -85,7 +73,7 @@
                             <label for="temas_interesse">Temas de interesse</label>
                             <select name="temas_interesse" id="temas_interesse" multiple>
                                 {% for disciplina in disciplinas %}
-                                    <option value="{{ disciplina.id }}"
+                                    <option {% if disciplina in previa.disciplinas.all %} selected {% endif %} value="{{ disciplina.id }}"
                                             style="background: '{{ disciplina.cor }}'">{{ disciplina }}</option>
                                 {% endfor %}
                             </select>
@@ -94,10 +82,17 @@
                 </div>
                 <hr>
                 <h5 class="previa inativo titulo-secao">Atividades sugeridas</h5>
-                <div id="previa" class="previa inativo" style="display: flex">
+                <div id="previa" class="previa {% if not previa %} inativo {% endif %}" style="display: flex">
                     <div id="venda_certa" style="width: 50%">
                         <div id="titulo">Atividades sugeridas</div>
-                        <div id="sugestoes"></div>
+                        <div id="sugestoes">
+                            {% for atividade in previa.atividades_ceu_sugeridas.all %}
+                            	<div style="background: {{ atividade.disciplina_primaria.cor }}" class="card_atividade atividade_ceu">{{ atividade }}</div>
+                            {% endfor %}
+                            {% for atividade in previa.atividades_peraltas_sugeridas.all %}
+                            	<div style="background: {{ atividade.disciplina_primaria.cor }}" class="card_atividade atividade_peraltas">{{ atividade }}</div>
+                            {% endfor %}
+                        </div>
                         <input type="hidden" name="atividades_peraltas_sugeridas" id="sugestoes_peraltas">
                         <input type="hidden" name="atividades_ceu_sugeridas" id="sugestoes_ceu">
                     </div>
@@ -123,13 +118,25 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="botoes">
-                    <button type="submit" class="btn btn-primary" disabled>Salvar prévia</button>
-                </div>
+                {% if not previa %}
+                    <div class="botoes">
+                        <button type="submit" class="btn btn-primary" disabled>Salvar prévia</button>
+                    </div>
+                {% endif %}
             </fieldset>
         </form>
     </div>
 
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/script_nova_previa.js' %}"></script>
+
+    <script>
+        $(document).ready(() => {
+            {% if not previa %}
+                $('#serie_grupo, #produto_peraltas, #temas_interesse').select2()
+            {% else %}
+                $('#serie_grupo, #produto_peraltas, #temas_interesse').select2({disabled: 'readonly'})
+            {% endif %}
+        })
+    </script>
 {% endblock %}

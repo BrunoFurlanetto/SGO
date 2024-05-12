@@ -2,7 +2,6 @@ let primeira_atividade = {}
 
 $(document).ready(() => {
     $('#conteudo_nova_previa #id_cnpj').mask("99.999.999/9999-99")
-    $('#serie_grupo, #produto_peraltas, #temas_interesse').select2()
 })
 
 function verificar_preenchimento() {

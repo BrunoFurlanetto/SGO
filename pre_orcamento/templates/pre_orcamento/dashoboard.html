@@ -26,7 +26,7 @@
                         </thead>
                         <tbody>
                             {% for previa in previas_aberta %}
-                                <tr>
+                                <tr onclick="window.location.href = '{% url "ver_previa" previa.id %}'">
                                     <td>{{ previa.cliente }}</td>
                                     <td>{{ previa.validade|date:'d/m/Y' }}</td>
                                     <td>{{ previa.status }}</td>

@@ -5,7 +5,7 @@ from django.db import models
 
 from ceu.models import Atividades
 from orcamento.models import StatusOrcamento
-from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco
+from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, IntencaoAtividade, Disciplinas
 
 
 def status_default():
@@ -35,12 +35,13 @@ class ColaboradorExterno(models.Model):
 
 
 class PreOrcamento(models.Model):
-    tipo_viagem_choices = (
-        ('', ''),
-        ('lazer', 'Lazer'),
-        ('estudo', 'Estudo'),
+    tipo_viagem = models.ForeignKey(
+        IntencaoAtividade,
+        on_delete=models.DO_NOTHING,
+        verbose_name='Tipo de viagem',
+        blank=True,
+        null=True
     )
-
     cliente = models.ForeignKey(PreCadastro, on_delete=models.CASCADE, verbose_name='Cliente')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
     serie_grupo = models.ManyToManyField(
@@ -53,7 +54,7 @@ class PreOrcamento(models.Model):
         verbose_name='Tipo de pacote',
         blank=True
     )
-    tipo_viagem = models.CharField(max_length=6, verbose_name='Tipo de viagem', default='', choices=tipo_viagem_choices)
+    disciplinas = models.ManyToManyField(Disciplinas, verbose_name='Disciplinas', blank=True)
     atividades_ceu_sugeridas = models.ManyToManyField(
         Atividades,
         verbose_name='Atividades CEU sugeridas',

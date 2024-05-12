@@ -27,7 +27,6 @@ def dashboard(request):
 @login_required(login_url='login')
 def nova_previa(request):
     pre_cadastro = PreCadastroFormulario()
-    previa = CadastroPreOrcamento()
     series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
     produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
     disciplinas = Disciplinas.objects.all()
@@ -35,11 +34,29 @@ def nova_previa(request):
 
     return render(request, 'pre_orcamento/nova_previa.html', {
         'pre_cadastro': pre_cadastro,
-        'previa': previa,
         'series': series,
         'produtos_peraltas': produtos_peraltas,
         'disciplinas': disciplinas,
         'intencoes': intencoes,
+    })
+
+
+@login_required(login_url='login')
+def ver_previa(request, id_previa):
+    previa = PreOrcamento.objects.get(pk=id_previa)
+    dados_cliente = PreCadastroFormulario(instance=previa.cliente)
+    series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
+    produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
+    disciplinas = Disciplinas.objects.all()
+    intencoes = IntencaoAtividade.objects.all()
+
+    return render(request, 'pre_orcamento/nova_previa.html', {
+        'previa': previa,
+        'pre_cadastro': dados_cliente,
+        'series': series,
+        'disciplinas': disciplinas,
+        'intencoes': intencoes,
+        'produtos_peraltas': produtos_peraltas,
     })
 
 
