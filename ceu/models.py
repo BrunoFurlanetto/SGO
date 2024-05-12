@@ -69,10 +69,10 @@ class Atividades(models.Model):
         related_name='disciplina_primaria_ceu',
         verbose_name='Disciplina Primaria',
     )
-    disciplinas_secundarias = models.ManyToManyField(
+    disciplinas = models.ManyToManyField(
         'peraltas.Disciplinas',
         blank=True,
-        verbose_name='Disciplnas secundárias',
+        verbose_name='Disciplnas trabalhadas',
         related_name='disciplinas_secundarias_ceu',
     )
     serie = models.ManyToManyField('peraltas.PerfilsParticipantes', blank=True)
@@ -85,7 +85,8 @@ class Atividades(models.Model):
         return {
             'id': self.id,
             'nome': self.atividade,
-            'tema': self.tema_atividade.tipo_atividade,
+            'disciplina_primaria': self.disciplina_primaria.disciplina,
+            'cor': self.disciplina_primaria.cor,
             'intencao': 'estudo',
             'series': ', '.join([serie.ano for serie in self.serie.all()]),
             'pacotes': ', '.join([pacote.produto for pacote in self.tipo_pacote.all()]),

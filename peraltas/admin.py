@@ -6,9 +6,14 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
-                             TiposPagamentos)
+                             TiposPagamentos, Disciplinas)
 from peraltas.models import Vendedor
 from pre_orcamento.models import ColaboradorExterno
+
+
+@admin.register(Disciplinas)
+class DisciplinasAdmin(admin.ModelAdmin):
+    list_display = ('disciplina', 'cor')
 
 
 @admin.register(TipoAtividade)
@@ -29,7 +34,7 @@ class AtividadePeraltasAdmin(admin.ModelAdmin):
 @admin.register(AtividadesEco)
 class AtividadeEcoAdmin(admin.ModelAdmin):
     list_display = ('nome_atividade_eco',)
-    filter_horizontal = ('serie', 'tipo_pacote', 'disciplinas_secundarias', 'intencao_atividade')
+    filter_horizontal = ('serie', 'tipo_pacote', 'disciplinas', 'intencao_atividade')
 
 
 class MonitorInline(admin.StackedInline):

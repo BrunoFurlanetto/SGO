@@ -6,6 +6,21 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_pre_orcamento.css' %}">
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+{#    <style>#}
+{#        {% for disciplina in disciplinas %}#}
+{#            #select2-temas_interesse-container > li[title="{{ disciplina.disciplina|safe }}"] {#}
+{#                background: {{ disciplina.cor|safe }};#}
+{#                color: #FFFFFF;#}
+{#            }#}
+{##}
+{#            #select2-temas_interesse-container li[title="{{ disciplina.disciplina|safe }}"] > button:hover {#}
+{#                color: #000000;#}
+{#                background: {{ disciplina.cor|safe }};#}
+{#            }#}
+{#        {% endfor %}#}
+{#    </style>#}
+
     <div class="overlay none"></div>
     <div id="conteudo_nova_previa">
         <div>
@@ -61,15 +76,17 @@
                             <label for="motivo_viagem">Intenção</label>
                             <select name="motivo_viagem" id="motivo_viagem">
                                 <option></option>
-                                <option value="lazer">Lazer</option>
-                                <option value="estudo">Estudo</option>
+                                {% for intencao in intencoes %}
+                                    <option value="{{ intencao.id }}">{{ intencao.intencao }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div style="width: 100%">
                             <label for="temas_interesse">Temas de interesse</label>
                             <select name="temas_interesse" id="temas_interesse" multiple>
                                 {% for disciplina in disciplinas %}
-                                    <option value="{{ disciplina.id }}">{{ disciplina }}</option>
+                                    <option value="{{ disciplina.id }}"
+                                            style="background: '{{ disciplina.cor }}'">{{ disciplina }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -94,6 +111,17 @@
                             <div id="peraltas" class="secao_atividades none"></div>
                         </div>
                     </div>
+                </div>
+                <p class="alert alert-info mt-2">
+                    As cores apresentadas acima estão relacionadas com o tema principal da atividade.
+                </p>
+                <div id="legendas">
+                    {% for disciplina in disciplinas %}
+                    	<div class="disciplina">
+                            {{ disciplina.disciplina }}
+                            <div style="background: {{ disciplina.cor }}"></div>
+                        </div>
+                    {% endfor %}
                 </div>
                 <div class="botoes">
                     <button type="submit" class="btn btn-primary" disabled>Salvar prévia</button>

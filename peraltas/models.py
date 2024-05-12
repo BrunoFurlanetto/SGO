@@ -3,6 +3,7 @@ from collections import defaultdict
 from heapq import nlargest
 
 import reversion
+from colorfield.fields import ColorField
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
@@ -139,9 +140,20 @@ class Vendedor(models.Model):
 
 class Disciplinas(models.Model):
     disciplina = models.CharField(max_length=255, verbose_name='Disciplina')
+    cor = ColorField()
 
     def __str__(self):
         return self.disciplina
+
+    @classmethod
+    def listar_cores(cls):
+        disciplinas = cls.objects.all()
+        cores_dict = {}
+
+        for disciplina in disciplinas:
+            cores_dict[disciplina.disciplina] = disciplina.cor
+
+        return cores_dict
 
 
 class IntencaoAtividade(models.Model):
@@ -173,11 +185,11 @@ class AtividadesEco(models.Model):
         verbose_name='Disciplina primaria',
         related_name='disciplina_primaria_peraltas',
     )
-    disciplinas_secundarias = models.ManyToManyField(
+    disciplinas = models.ManyToManyField(
         Disciplinas,
         blank=True,
         related_name='disciplinas_secundarias_peraltas',
-        verbose_name='Disciplinas secundárias'
+        verbose_name='Disciplinas trabalhadas'
     )
     intencao_atividade = models.ManyToManyField(IntencaoAtividade, blank=True)
     serie = models.ManyToManyField(PerfilsParticipantes, blank=True)
@@ -190,8 +202,8 @@ class AtividadesEco(models.Model):
         return {
             'id': self.id,
             'nome': self.nome_atividade_eco,
-            'tema': self.tipo_atividade.tipo_atividade,
-            'intencao': self.intencao_atividade,
+            'disciplina_primaria': self.disciplina_primaria.disciplina,
+            'cor': self.disciplina_primaria.cor,
             'series': ', '.join([serie.ano for serie in self.serie.all()]),
             'pacotes': ', '.join([pacote.produto for pacote in self.tipo_pacote.all()]),
         }

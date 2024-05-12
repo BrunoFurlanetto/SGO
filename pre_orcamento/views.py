@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from ceu.models import Atividades
-from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, Disciplinas
+from peraltas.models import PerfilsParticipantes, ProdutosPeraltas, AtividadesEco, Disciplinas, IntencaoAtividade
 from pre_orcamento.models import PreCadastroFormulario, CadastroPreOrcamento, PreCadastro, PreOrcamento
 from pre_orcamento.utils import ranqueamento_atividades
 from projetoCEU.utils import is_ajax
@@ -31,13 +31,15 @@ def nova_previa(request):
     series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
     produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
     disciplinas = Disciplinas.objects.all()
+    intencoes = IntencaoAtividade.objects.all()
 
     return render(request, 'pre_orcamento/nova_previa.html', {
         'pre_cadastro': pre_cadastro,
         'previa': previa,
         'series': series,
         'produtos_peraltas': produtos_peraltas,
-        'disciplinas': disciplinas
+        'disciplinas': disciplinas,
+        'intencoes': intencoes,
     })
 
 
@@ -59,35 +61,34 @@ def validar_pacotes(request):
 
 def sugerir_atividades(request):
     if is_ajax(request):
+        print(request.POST)
         ids_serie = list(map(int, request.POST.getlist('serie_grupo[]')))
         ids_pacotes = list(map(int, request.POST.getlist('tipo_pacote[]')))
-        ids_temas_ceu = list(map(int, [tema.replace('c_', '') for tema in request.POST.getlist('temas_interesse[]') if 'c_' in tema]))
-        ids_temas_peraltas = list(map(int, [tema.replace('p_', '') for tema in request.POST.getlist('temas_interesse[]') if 'p_' in tema]))
+        ids_temas_interesse = list(map(int, request.POST.getlist('temas_interesse[]')))
         match_atividades_ceu = None
 
         match_atividades_eco = AtividadesEco.objects.filter(
             serie__in=ids_serie,
             tipo_pacote__in=ids_pacotes,
-            intencao_atividade=request.POST.get('intencao'),
-            tipo_atividade__in=ids_temas_peraltas,
+            intencao_atividade=int(request.POST.get('intencao')),
+            disciplinas__in=ids_temas_interesse,
         ).exclude(nome_atividade_eco__icontains='inglês').distinct()
 
-        if request.POST.get('intencao') == 'estudo':
-            match_atividades_ceu = Atividades.objects.filter(
-                serie__in=ids_serie,
-                tipo_pacote__in=ids_pacotes,
-                tema_atividade__in=ids_temas_ceu,
+        match_atividades_ceu = Atividades.objects.filter(
+            serie__in=ids_serie,
+            tipo_pacote__in=ids_pacotes,
+            intencao_atividade=int(request.POST.get('intencao')),
+            disciplinas__in=ids_temas_interesse,
             ).exclude(atividade__icontains='inglês').distinct()
 
         atividades_ranqueadas = ranqueamento_atividades(
             match_atividades_ceu,
             match_atividades_eco,
             ids_serie,
-            ids_temas_ceu,
-            ids_temas_peraltas,
+            ids_temas_interesse,
             ids_pacotes
         )
-
+        print(atividades_ranqueadas)
         return JsonResponse(atividades_ranqueadas)
 
 
