@@ -57,7 +57,9 @@
                                     <td>{{ cliente }}</td>
                                     <td>{{ cliente.nome_responsavel }}</td>
                                     <td>{{ cliente.telefone_responsavel }}</td>
-                                    <td></td>
+                                    <td>
+                                        <button onclick="window.location.href = '{% url "nova_previa_cliente" cliente.id %}'" style="background: transparent; border: none; font-size: 25px;"><i class='bx bx-add-to-queue'></i></button>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

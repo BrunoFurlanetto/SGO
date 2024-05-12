@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard_pre_orcamento'),
     path('novo/', views.nova_previa, name='nova_previa'),
+    path('novo/<int:id_cliente>', views.nova_previa_cliente, name='nova_previa_cliente'),
     path('previa/<int:id_previa>/', views.ver_previa, name='ver_previa'),
     path('validar_pacotes/', views.validar_pacotes, name='validar_pacotes'),
     path('sugerir_atividades/', views.sugerir_atividades, name='sugerir_atividades'),

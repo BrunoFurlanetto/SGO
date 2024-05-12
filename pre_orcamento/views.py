@@ -42,6 +42,25 @@ def nova_previa(request):
 
 
 @login_required(login_url='login')
+def nova_previa_cliente(request, id_cliente):
+    cliente = PreCadastro.objects.get(id=id_cliente)
+    dados_cliente = PreCadastroFormulario(instance=cliente)
+    series = PerfilsParticipantes.objects.all().order_by('fase', 'ano')
+    produtos_peraltas = ProdutosPeraltas.objects.all().exclude(brotas_eco=True)
+    disciplinas = Disciplinas.objects.all()
+    intencoes = IntencaoAtividade.objects.all()
+
+    return render(request, 'pre_orcamento/nova_previa.html', {
+        'pre_cadastro': dados_cliente,
+        'series': series,
+        'produtos_peraltas': produtos_peraltas,
+        'disciplinas': disciplinas,
+        'intencoes': intencoes,
+        'cliente': cliente,
+    })
+
+
+@login_required(login_url='login')
 def ver_previa(request, id_previa):
     previa = PreOrcamento.objects.get(pk=id_previa)
     dados_cliente = PreCadastroFormulario(instance=previa.cliente)

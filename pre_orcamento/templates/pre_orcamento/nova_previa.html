@@ -25,7 +25,7 @@
         <form action="{% url 'salvar_previa' %}" method="POST">
             <fieldset {% if previa %} disabled {% endif %}>
                 {% csrf_token %}
-                <div id="dados_cliente" onchange="verificar_preenchimento()">
+                <div id="dados_cliente" onchange="verificar_preenchimento()" {% if cliente %} class="inativo" {% endif %}>
                     {% for campo in pre_cadastro %}
                         <div id="div_{{ campo.id_for_label }}">
                             {{ campo.label }}
@@ -35,7 +35,7 @@
                 </div>
                 <hr>
                 <h5 class="titulo-secao dados_previa inativo">Dados base</h5>
-                <div id="dados_base_previa" class="dados_previa {% if not previa %} inativo {% endif %}"
+                <div id="dados_base_previa" class="dados_previa {% if not previa and not cliente %} inativo {% endif %}"
                      onchange="verificar_preenchimento_dados_base()">
                     <div id="valores_base">
                         <div style="width: 100%">
