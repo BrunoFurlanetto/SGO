@@ -124,12 +124,13 @@ class TaxaPeriodo(models.Model):
 
 
 class HorariosPadroes(models.Model):
-    refeicao = models.CharField(max_length=50, verbose_name='Refeição')
-    horario = models.TimeField(verbose_name='Início horário')
-    final_horario = models.TimeField(verbose_name='Final horário')
+    refeicao = models.CharField(max_length=50, verbose_name='Título')
+    horario = models.TimeField(verbose_name='Horário início')
+    final_horario = models.TimeField(verbose_name='Horário final')
     entrada_saida = models.BooleanField()
     racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de hotelaria')
     racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de monitoria')
+    descritivo = models.TextField(verbose_name='Descritivo', blank=True)
     descricao_alimentacao = models.TextField(verbose_name='Descrição das alimentações')
 
     class Meta:
@@ -142,6 +143,17 @@ class HorariosPadroes(models.Model):
     @property
     def hora(self):
         return self.horario.strftime('%H:%M')
+
+    @property
+    def horario_final(self):
+        return self.final_horario.strftime('%H:%M')
+
+    @property
+    def tipo(self):
+        if self.entrada_saida:
+            return 'Entrada'
+        else:
+            return 'Saída'
 
 
 class ValoresTransporte(models.Model):

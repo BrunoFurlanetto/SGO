@@ -14,8 +14,8 @@ from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, Orca
 
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
-    list_display = ('refeicao', 'hora')
-    ordering = ('horario',)
+    list_display = ('refeicao', 'tipo', 'hora', 'horario_final', 'descritivo')
+    ordering = ('-entrada_saida', 'horario')
     form = CadastroHorariosPadroesAdmin
 
 
