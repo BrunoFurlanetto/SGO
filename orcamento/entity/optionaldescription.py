@@ -19,4 +19,5 @@ class OptionalDescription(BaseValue):
 
         if description:
             information["description"] = self.description
+
         return information

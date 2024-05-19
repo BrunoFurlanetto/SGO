@@ -24,8 +24,9 @@
         <form id="orcamento" name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
             <fieldset>
                 {% csrf_token %}
+                {{ orcamento.apelido.as_hidden }}
                 {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
-                                            value="{{ tratativa.id_tratativa }}"> {% endif %}
+                                            value="{{ tratativa.id_tratativa }}">{% endif %}
                 <input type="hidden" name="salvar_previa" id="salvar_previa">
                 {% if previa %}
                     <input type="hidden" name="id_previa_orcamento" id="id_previa_orcamento" value="{{ id_orcamento }}">
@@ -155,8 +156,7 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark"
-                                onclick="salvar_orcamento(true)">
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal" data-target="#modal_apelido_orcamento">
                             Salvar prévia
                         </button>
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
@@ -593,14 +593,37 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modal_apelido_orcamento" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Apelido do orçamento</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="motivo_recusa">Forneça um apelido para o orçamento</label>
+                    <input type="text" id="motivo_recusa" name="motivo_recusa" onkeyup="atribuir_apelaido(this)" required>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" id="id_orcamento_perdido">
+                    <button type="button" class="btn btn-primary" onclick="salvar_orcamento(true)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(async () => {
             {% if id_orcamento %}
-                $('#orcamento input, #orcamento select').prop('disabled', false)
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
+                $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
                 await preencher_op_extras({{ id_orcamento|safe }})
-                $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
+                $('#data_viagem, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
             {% else %}
                 await inicializacao();

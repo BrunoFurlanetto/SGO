@@ -101,6 +101,14 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     if ($('#data_vencimento').val() != '') {
         $('#btn_salvar_orcamento').prop('disabled', false)
     }
+
+    $('#data_viagem').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + picker.endDate.format('DD/MM/YYYY HH:mm')).trigger('change');
+    });
+
+    $('#data_viagem').on('cancel.daterangepicker', function (ev, picker) {
+        $(this).val('');
+    });
 }
 
 function verificar_produto() {
@@ -238,6 +246,7 @@ $.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, show_i
                 "Dezembro"
             ]
         },
+        "autoUpdateInput": false,
         "showCustomRangeLabel": false,
         "alwaysShowCalendars": true,
         "drops": "up",
@@ -260,7 +269,7 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido=false) {
+async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido = false) {
     if (removido) {
         if (nome_id == 'id_atividades') {
             $(`#tabela_de_opcionais tbody #atividade_${opcao['id']}`).remove()
@@ -533,8 +542,8 @@ async function enviar_form(salvar = false) {
         $('#id_cliente, #id_responsavel').prop('disabled', false)
         url = '/orcamento/salvar/'
 
-        if ($('#id_tratativa').val() != undefined) {
-            url = url + $('#id_tratativa').val()
+        if ($('#id_tratativa').val() != undefined && $('#id_apelido').val() != '') {
+            url = url + $('#id_tratativa').val() + '/'
         }
     }
 
@@ -590,9 +599,9 @@ async function enviar_form(salvar = false) {
                         $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
                         tabela_descrito(Object.assign(
-                            {},
-                            valores,
-                            response['data']),
+                                {},
+                                valores,
+                                response['data']),
                             response['data']['days'],
                             periodo,
                             response['data']['descricao_opcionais'],
@@ -813,7 +822,8 @@ async function separar_produtos(periodo) {
                 }
             }, 1)
         }
-    } catch (e) {}
+    } catch (e) {
+    }
 }
 
 async function verificar_preenchimento() {
@@ -994,7 +1004,7 @@ async function enviar_infos_gerencia() {
     }
 }
 
-async function salvar_orcamento(salvar_previa=false) {
+async function salvar_orcamento(salvar_previa = false) {
     loading()
 
     try {
@@ -1359,4 +1369,8 @@ async function verificar_gerencia() {
     })
     end_loading()
     $('#verificacao_gerencia #senha').val('')
+}
+
+function atribuir_apelaido(input_apelido) {
+    $('#id_apelido').val(input_apelido.value)
 }

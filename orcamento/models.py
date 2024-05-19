@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from random import randint
 
 from django import forms
 from django.contrib.auth.models import User
@@ -277,6 +278,7 @@ class Orcamento(models.Model):
         ('nao', 'Não')
     )
 
+    apelido = models.CharField(max_length=255, verbose_name="Apelido", blank=True, null=True)
     cliente = models.ForeignKey(
         ClienteColegio,
         on_delete=models.CASCADE,
@@ -380,6 +382,18 @@ class Orcamento(models.Model):
     @property
     def get_valor_taxa(self):
         return self.objeto_gerencia['taxa_comercial']
+
+    def delete(self, *args, **kwargs):
+        id_orcamento = self.pk
+        super(Orcamento, self).delete(*args, **kwargs)
+
+        try:
+            tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
+        except Tratativas.DoesNotExist:
+            ...
+        else:
+            if len(tratativa.orcamentos.all()) > 0:
+                tratativa.delete()
 
     def get_periodo(self):
         check_in = self.check_in.strftime('%d/%m/%Y %H:%M')
@@ -713,7 +727,8 @@ class Tratativas(models.Model):
         if not self.id_tratativa:
             cnpj = self.cliente.cnpj
             data = datetime.datetime.now().date().strftime('%d%m%Y')
-            self.id_tratativa = f'{data}_{re.sub(r"[^a-zA-Z0-9]", "", cnpj)}'
+            fim = randint(11111111, 99999999)
+            self.id_tratativa = f'{data}_{re.sub(r"[^a-zA-Z0-9]", "", cnpj)}_{fim}'
 
         super().save(*args, **kwargs)
 
