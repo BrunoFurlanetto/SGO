@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import PositiveIntegerField
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
@@ -328,7 +328,7 @@ class Orcamento(models.Model):
     atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
     desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
-    colaborador = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+    colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')
     objeto_gerencia = models.JSONField(blank=True, null=True)
@@ -720,8 +720,13 @@ class Tratativas(models.Model):
     @staticmethod
     @receiver(pre_delete, sender=User)
     def redefinir_colaborador(sender, instance, **kwargs):
-        diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
-        Tratativas.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
+        with transaction.atomic():
+            try:
+                diretoria = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria')[0]
+                Tratativas.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
+                Orcamento.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
+            except Exception as e:
+                raise e
 
     def save(self, *args, **kwargs):
         if not self.id_tratativa:

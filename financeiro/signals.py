@@ -8,7 +8,7 @@ from peraltas.models import TiposPagamentos, Vendedor
 
 @receiver(pre_delete, sender=User)
 def redefinir_colaborador(sender, instance, **kwargs):
-    diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
+    diretoria = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria')[0]
     eventos_alteradors = DadosEvento.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
     FichaFinanceira.objects.filter(dados_evento__id__in=[evento.id for evento in eventos_alteradors]).update()
 
