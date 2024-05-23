@@ -323,7 +323,7 @@ class Orcamento(models.Model):
         verbose_name='Opcionais',
         related_name='opcionais'
     )
-    opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
+    opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra', editable=False)
     atividades = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades Peraltas')
     atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
     desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
@@ -331,8 +331,8 @@ class Orcamento(models.Model):
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
     motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')
-    objeto_gerencia = models.JSONField(blank=True, null=True)
-    objeto_orcamento = models.JSONField(blank=True, null=True)
+    objeto_gerencia = models.JSONField(blank=True, null=True, editable=False)
+    objeto_orcamento = models.JSONField(blank=True, null=True, editable=False)
     promocional = models.BooleanField(default=False)
     status_orcamento = models.ForeignKey(
         StatusOrcamento,
