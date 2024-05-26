@@ -174,3 +174,36 @@ CRONJOBS = [
     ('0 11 * * *', 'peraltas.cron.envio_dados_embarque'),
     ('0 4 */14 * *', 'peraltas.cron.deletar_versoes_antigas')
 ]
+
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname} {message}',
+                'style': '{',
+            },
+        },
+        'handlers': {
+            'file': {
+                'level': 'ERROR',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': os.path.join(BASE_DIR, 'debug.log'),
+                'maxBytes': 1024 * 1024 * 5,  # 5 MB
+                'backupCount': 3,
+                'formatter': 'verbose',
+            }
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        },
+    }
