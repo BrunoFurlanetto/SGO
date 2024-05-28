@@ -809,6 +809,16 @@ class Eventos(models.Model):
     def adesao_evento(self):
         return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
 
+    def veio_ano_anterior(self):
+        eventos_passados = FichaDeEvento.objects.filter(cliente=self.ficha_de_evento.cliente, os=True).order_by('check_in')
+
+        for evento in eventos_passados:
+
+            if evento.check_in.year == self.ficha_de_evento.check_in.year - 1:
+                return 'Sim'
+
+        return 'Não'
+
 
 class DisponibilidadePeraltas(models.Model):
     meses = (

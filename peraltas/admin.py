@@ -243,7 +243,7 @@ class EventosAdmin(admin.ModelAdmin):
     list_display = (
         'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
         'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento',
-        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento'
+        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento', 'veio_ano_anterior'
     )
     list_display_links = ('cliente',)
     list_filter = ('ficha_de_evento__pre_reserva', 'ficha_de_evento__agendado', 'ficha_de_evento__check_in')
