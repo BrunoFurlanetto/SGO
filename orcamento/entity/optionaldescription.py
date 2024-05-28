@@ -12,8 +12,8 @@ class OptionalDescription(BaseValue):
         self.name = optional_name
         self.description = description
 
-    def do_object(self, percent_business_fee, percent_commission, description=False):
-        information = super().do_object(percent_business_fee, percent_commission)
+    def do_object(self, description=False):
+        information = super().do_object()
         information["id"] = self.id
         information["nome"] = self.name
 

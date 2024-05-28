@@ -163,8 +163,14 @@ class Budget:
 
         try:
             for other in arr:
-                obj_other = OptionalDescription(other['valor'], other['id'],
-                                                other['nome'], self.days, other['descricao'])
+                obj_other = OptionalDescription(
+                    other['valor'],
+                    self.business_fee,
+                    self.commission, 
+                    other['id'],
+                    other['nome'], 
+                    self.days, 
+                    other['descricao'])
                 other_array.append(obj_other.do_object(
                     description=True
                 ))
@@ -188,6 +194,8 @@ class Budget:
 
             description = OptionalDescription(
                 db_optional.valor,
+                self.business_fee,
+                self.commission, 
                 db_optional.id,
                 db_optional.nome,
                 self.days
@@ -210,6 +218,8 @@ class Budget:
 
             description = OptionalDescription(
                 db_optional.valor,
+                self.business_fee,
+                self.commission, 
                 db_optional.id,
                 db_optional.nome_atividade_eco,
                 self.days
@@ -233,6 +243,8 @@ class Budget:
 
                 description = OptionalDescription(
                     db_optional.valor,
+                    self.business_fee,
+                    self.commission, 
                     db_optional.id,
                     db_optional.atividade,
                     self.days
