@@ -70,7 +70,7 @@ class BaseValue:
                                 # + self.calc_business_fee(percent_business_fee)
                                 # + self.calc_commission(percent_commission)
                                 # + self.get_adjustiment()),
-             "valor_com_desconto": self.calc_value_with_discount(),
+            "valor_com_desconto": self.calc_value_with_discount(),
             "ajuste": self.get_adjustiment(),
             "taxa_comercial": self.calc_business_fee(),
             "comissao_de_vendas": self.calc_commission(),

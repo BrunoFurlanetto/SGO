@@ -37,9 +37,17 @@ class Total(BaseValue):
     
     def set_discount(self, value):
         return super().set_discount(0)
+    
+    def calc_business_fee(self):
+        return ceil(self.get_final_value()) * self.percent_business_fee
+
+    def calc_commission(self):
+        return ceil(self.get_final_value()) * self.percent_commission
 
     def do_object(self):
         information = super().do_object()
+        information["taxa_comercial"] = round(self.calc_business_fee(), 2),
+        information["comissao_de_vendas"] = round(self.calc_commission(), 2),
         information["desconto_geral"] = self.general_discount
         information["descricao_valores"] = self.values
         information["valor_final"] = ceil(self.get_final_value()) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
