@@ -20,7 +20,7 @@ class Period(BaseValue):
             self.values = None
         else:
             taxa = taxa_periodo.valor
-            self.values[0] = round(float(taxa), 2)
+            self.values[0] = float(taxa)
 
         return self.values
  

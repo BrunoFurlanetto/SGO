@@ -37,25 +37,20 @@ class Transport(TransportProtocol):
             values = []
         else:
             if self.days == 1:
-                value = round(
-                    (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers, 2)
+                value = (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 2:
-                value = round(
-                    (float(obj_transport.valor_2_dia) / (1 - float(obj_transport.percentual))) / self.min_payers, 2)
+                value = (float(obj_transport.valor_2_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 3:
-                value = round(
-                    (float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))) / self.min_payers, 2)
+                value = (float(obj_transport.valor_3_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 4:
-                value = round(
-                    (float(obj_transport.valor_4_dia) / (1 - float(obj_transport.percentual))) / self.min_payers, 2)
+                value = (float(obj_transport.valor_4_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 5:
-                value = round(
-                    (float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))) / self.min_payers, 2)
+                value = (float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             else:
-                value = round(((float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))
-                                ) + ((self.days - 5) *
-                                     (float(obj_transport.valor_acrescimo) / (
-                                             1 - float(obj_transport.percentual))))) / self.min_payers, 2)
+                value = ((float(obj_transport.valor_5_dia) / (1 - float(obj_transport.percentual))
+                          ) + ((self.days - 5) *
+                               (float(obj_transport.valor_acrescimo) / (
+                                       1 - float(obj_transport.percentual))))) / self.min_payers
 
             values.append(value)
 

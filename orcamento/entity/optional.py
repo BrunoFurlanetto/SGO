@@ -11,8 +11,8 @@ class Optional(BaseValue):
         discount = 0
 
         for opt in optional_description:
-            total += round(opt["valor"], 2)
-            discount += round(opt["desconto"], 2)
+            total += opt["valor"]
+            discount += opt["desconto"]
 
         value = [total]
         for i in range(1, self.days):
