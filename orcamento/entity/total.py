@@ -37,16 +37,13 @@ class Total(BaseValue):
     
     def set_discount(self, value):
         return super().set_discount(0)
-    
-    def get_final_value(self):
-        return ceil(self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission))) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
 
     def do_object(self):
         information = super().do_object()
         information["desconto_geral"] = self.general_discount
         information["descricao_valores"] = self.values
-        information["valor_final"] = self.get_final_value()
-        information["arredondamento"] = self.get_final_value() - (
+        information["valor_final"] = ceil(self.get_final_value()) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
+        information["arredondamento"] = ceil(self.get_final_value()) - (
             self.calc_value_with_discount() + self.calc_business_fee() + self.calc_commission()
         ) #=PF-(PTF+PD+PM+PB+POp-PDesc+PCom+PNeg)
         return information
