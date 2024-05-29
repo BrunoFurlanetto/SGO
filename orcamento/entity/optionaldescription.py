@@ -3,7 +3,7 @@ from .basevalue import BaseValue
 
 class OptionalDescription(BaseValue):
     def __init__(self, value, percent_business_fee, percent_commission, optional_id, optional_name, days, description=""):
-        values = [float(value)]
+        values = [round(float(value), 2)]
         for i in range(1, days):
             values.append(0)
 

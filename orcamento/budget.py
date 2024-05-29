@@ -152,11 +152,12 @@ class Budget:
 
     def set_business_fee(self, business_fee):
         self.business_fee = business_fee
-        return business_fee
+
+        return round(business_fee, 2)
 
     def set_commission(self, commission):
         self.commission = commission
-        return commission
+        return round(commission, 2)
 
     def set_others(self, arr):
         other_array = []

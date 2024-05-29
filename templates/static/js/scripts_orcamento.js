@@ -541,8 +541,8 @@ async function enviar_form(salvar = false) {
     if (salvar) {
         $('#id_cliente, #id_responsavel').prop('disabled', false)
         url = '/orcamento/salvar/'
-
-        if ($('#id_tratativa').val() != undefined && $('#id_apelido').val() != '') {
+        console.log($('#id_tratativa').val())
+        if ($('#id_tratativa').val() != undefined && $('#id_tratativa').val() != '') {
             url = url + $('#id_tratativa').val() + '/'
         }
     }
@@ -1373,4 +1373,9 @@ async function verificar_gerencia() {
 
 function atribuir_apelaido(input_apelido) {
     $('#id_apelido').val(input_apelido.value)
+    if (input_apelido.value.length > 5) {
+        $('#btn_salvar_apelido').prop('disabled', false)
+    } else {
+        $('#btn_salvar_apelido').prop('disabled', true)
+    }
 }
