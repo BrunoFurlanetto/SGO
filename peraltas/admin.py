@@ -238,33 +238,33 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
     search_fields = ('cliente', 'atendente')
 
 
-@admin.register(Eventos)
-class EventosAdmin(admin.ModelAdmin):
-    list_display = (
-        'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
-        'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento',
-        'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento', 'veio_ano_anterior'
-    )
-    list_display_links = ('cliente',)
-    list_filter = ('ficha_de_evento__pre_reserva', 'ficha_de_evento__agendado', 'ficha_de_evento__check_in')
-    list_per_page = 100
-
-    def get_search_results(self, request, queryset, search_term):
-        search_term = self.format_search_date(search_term)
-        return super().get_search_results(request, queryset, search_term)
-
-    def format_search_date(self, search_term):
-        # Tente converter o termo de pesquisa do formato d/m/Y para Y-m-d
-        try:
-            return datetime.strptime(search_term, "%d/%m/%Y").strftime("%Y-%m-%d")
-        except ValueError:
-            # Se a conversão falhar, retorne o termo de pesquisa original
-            return search_term
-
-    search_fields = (
-        'ficha_de_evento__cliente__nome_fantasia',
-        'ficha_de_evento__vendedora__usuario__first_name',
-        'ficha_de_evento__check_in',
-        'ficha_de_evento__codigos_app__eficha',
-        'ficha_de_evento__produto__produto',
-    )
+# @admin.register(Eventos)
+# class EventosAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'vendedor', 'cliente', 'check_in', 'check_out', 'qtd_previa',
+#         'qtd_confirmada', 'data_preenchimento', 'estagio_evento', 'codigo_pagamento',
+#         'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_evento', 'veio_ano_anterior'
+#     )
+#     list_display_links = ('cliente',)
+#     list_filter = ('ficha_de_evento__pre_reserva', 'ficha_de_evento__agendado', 'ficha_de_evento__check_in')
+#     list_per_page = 100
+#
+#     def get_search_results(self, request, queryset, search_term):
+#         search_term = self.format_search_date(search_term)
+#         return super().get_search_results(request, queryset, search_term)
+#
+#     def format_search_date(self, search_term):
+#         # Tente converter o termo de pesquisa do formato d/m/Y para Y-m-d
+#         try:
+#             return datetime.strptime(search_term, "%d/%m/%Y").strftime("%Y-%m-%d")
+#         except ValueError:
+#             # Se a conversão falhar, retorne o termo de pesquisa original
+#             return search_term
+#
+#     search_fields = (
+#         'ficha_de_evento__cliente__nome_fantasia',
+#         'ficha_de_evento__vendedora__usuario__first_name',
+#         'ficha_de_evento__check_in',
+#         'ficha_de_evento__codigos_app__eficha',
+#         'ficha_de_evento__produto__produto',
+#     )

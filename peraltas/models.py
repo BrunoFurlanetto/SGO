@@ -289,7 +289,8 @@ class EventosCancelados(models.Model):
     motivo_cancelamento = models.TextField()
     tipo_evento = models.CharField(choices=(('colegio', 'Colégio'), ('corporativo', 'Corporativo')), max_length=12)
     participantes = models.PositiveIntegerField()
-    colaborador_excluiu = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Colaborador que cancelou')
+    colaborador_excluiu = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name='Colaborador que cancelou')
 
     def __str__(self):
         return f'Cancelamento do evento de {self.cliente}.'
@@ -736,9 +737,40 @@ class FichaDeEvento(models.Model):
 
 
 class Eventos(models.Model):
-    ordem_de_servico = models.ForeignKey('ordemDeServico.OrdemDeServico', on_delete=models.CASCADE, null=True,
-                                         blank=True)
+    estagios_evento = (
+        ('pre_reserva', 'Pré reserva'),
+        ('confirmado', 'Evento confirmado'),
+        ('ficha_evento', 'Ficha de evento'),
+        ('ordem_servico', 'Ordem de serviço'),
+    )
+
+    sim_e_nao = (
+        (True, 'Sim'),
+        (False, 'Não')
+    )
+
+    ordem_de_servico = models.ForeignKey(
+        'ordemDeServico.OrdemDeServico',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True, blank=True)
+    colaborador = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
+    check_in = models.DateTimeField()
+    check_out = models.DateTimeField()
+    qtd_previa = models.IntegerField()
+    qtd_confirmado = models.IntegerField()
+    data_preenchimento = models.DateField()
+    estagio_evento = models.CharField(choices=estagios_evento, max_length=15)
+    codigo_pagamento = models.CharField(max_length=25, blank=True)
+    tipo_evento = models.CharField(max_length=25)
+    dias_evento = models.IntegerField()
+    produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
+    produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.DO_NOTHING, blank=True, null=True)
+    adesao = models.DecimalField(decimal_places=2, max_digits=5, default=0.0)
+    veio_ano_anterior = models.BooleanField(choices=sim_e_nao)
 
     class Meta:
         verbose_name_plural = 'Eventos'
@@ -810,7 +842,8 @@ class Eventos(models.Model):
         return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
 
     def veio_ano_anterior(self):
-        eventos_passados = FichaDeEvento.objects.filter(cliente=self.ficha_de_evento.cliente, os=True).order_by('check_in')
+        eventos_passados = FichaDeEvento.objects.filter(cliente=self.ficha_de_evento.cliente, os=True).order_by(
+            'check_in')
 
         for evento in eventos_passados:
 
