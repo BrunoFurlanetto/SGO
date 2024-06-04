@@ -38,20 +38,18 @@ class Total(BaseValue):
     def set_discount(self, value):
         return super().set_discount(0)
     
-    def calc_business_fee(self):
-        return ceil(self.get_final_value()) * self.percent_business_fee
+    def get_final_value(self):
+        return ceil(round(self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission)), 5)) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
 
-    def calc_commission(self):
-        return ceil(self.get_final_value()) * self.percent_commission
 
     def do_object(self):
         information = super().do_object()
-        information["taxa_comercial"] = round(self.calc_business_fee(), 2),
-        information["comissao_de_vendas"] = round(self.calc_commission(), 2),
+        information["taxa_comercial"] = self.calc_business_fee(),
+        information["comissao_de_vendas"] = self.calc_commission(),
         information["desconto_geral"] = self.general_discount
         information["descricao_valores"] = self.values
-        information["valor_final"] = ceil(self.get_final_value()) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
-        information["arredondamento"] = ceil(self.get_final_value()) - (
+        information["valor_final"] = (self.get_final_value()) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
+        information["arredondamento"] = (self.get_final_value()) - (
             self.calc_value_with_discount() + self.calc_business_fee() + self.calc_commission()
         ) #=PF-(PTF+PD+PM+PB+POp-PDesc+PCom+PNeg)
         return information
