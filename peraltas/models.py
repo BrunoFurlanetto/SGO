@@ -1,4 +1,3 @@
-import datetime
 from collections import defaultdict
 from heapq import nlargest
 
@@ -11,6 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import ManyToManyField
 from django.utils import timezone
+from import_export import resources
+from import_export.fields import Field
 from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
@@ -758,8 +759,10 @@ class Eventos(models.Model):
     ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True, blank=True)
     colaborador = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
-    check_in = models.DateTimeField()
-    check_out = models.DateTimeField()
+    data_check_in = models.DateField()
+    hora_check_in = models.TimeField()
+    data_check_out = models.DateField()
+    hora_check_out = models.TimeField()
     qtd_previa = models.IntegerField()
     qtd_confirmado = models.IntegerField()
     data_preenchimento = models.DateField()
@@ -769,88 +772,88 @@ class Eventos(models.Model):
     dias_evento = models.IntegerField()
     produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
     produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.DO_NOTHING, blank=True, null=True)
-    adesao = models.DecimalField(decimal_places=2, max_digits=5, default=0.0)
+    adesao = models.FloatField(default=0.0)
     veio_ano_anterior = models.BooleanField(choices=sim_e_nao)
 
     class Meta:
         verbose_name_plural = 'Eventos'
 
-    def vendedor(self):
-        return self.ficha_de_evento.vendedora.usuario.get_full_name()
-
-    def cliente(self):
-        return self.ficha_de_evento.cliente
-
-    def check_in(self):
-        data = self.ordem_de_servico.check_in if self.ordem_de_servico else self.ficha_de_evento.check_in
-        return data.strftime('%d/%m/%Y %H:%M')
-
-    def check_out(self):
-        data = self.ordem_de_servico.check_out if self.ordem_de_servico else self.ficha_de_evento.check_out
-        return data.strftime('%d/%m/%Y %H:%M')
-
-    def qtd_confirmada(self):
-        return self.ordem_de_servico.n_participantes if self.ordem_de_servico else self.ficha_de_evento.qtd_confirmada
-
-    def qtd_previa(self):
-        return self.ficha_de_evento.qtd_convidada
-
-    def data_preenchimento(self):
-        data = self.ordem_de_servico.data_preenchimento if self.ordem_de_servico else self.ficha_de_evento.data_preenchimento
-        return data.strftime('%d/%m/%Y')
-
-    def estagio_evento(self):
-        if self.ordem_de_servico:
-            return 'Ordem de Servico'
-        else:
-            if self.ficha_de_evento.pre_reserva and not self.ficha_de_evento.agendado:
-                return 'Pré reserva'
-            elif self.ficha_de_evento.pre_reserva and self.ficha_de_evento.agendado:
-                return 'Evento confirmado'
-            else:
-                return 'Ficha de evento'
-
-    def codigo_pagamento(self):
-        if not self.ficha_de_evento.pre_reserva:
-            return self.ficha_de_evento.codigos_app.eficha
-        else:
-            return ''
-
-    def tipo_evento(self):
-        if self.ordem_de_servico:
-            return self.ordem_de_servico.tipo
-        else:
-            if self.ficha_de_evento.produto.colegio:
-                return 'Colégio'
-            else:
-                return 'Empresa'
-
-    def dias_evento(self):
-        if self.ordem_de_servico:
-            return (self.ordem_de_servico.check_out.date() - self.ordem_de_servico.check_in.date()).days
-        else:
-            return (self.ficha_de_evento.check_out.date() - self.ficha_de_evento.check_in.date()).days
-
-    def produto_peraltas(self):
-        return self.ficha_de_evento.produto.produto
-
-    def produto_corporativo(self):
-        if self.ficha_de_evento.produto_corporativo:
-            return self.ficha_de_evento.produto_corporativo.produto
-
-    def adesao_evento(self):
-        return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
-
-    def veio_ano_anterior(self):
-        eventos_passados = FichaDeEvento.objects.filter(cliente=self.ficha_de_evento.cliente, os=True).order_by(
-            'check_in')
-
-        for evento in eventos_passados:
-
-            if evento.check_in.year == self.ficha_de_evento.check_in.year - 1:
-                return 'Sim'
-
-        return 'Não'
+    # def vendedor(self):
+    #     return self.ficha_de_evento.vendedora.usuario.get_full_name()
+    #
+    # def cliente(self):
+    #     return self.ficha_de_evento.cliente
+    #
+    # def check_in(self):
+    #     data = self.ordem_de_servico.check_in if self.ordem_de_servico else self.ficha_de_evento.check_in
+    #     return data.strftime('%d/%m/%Y %H:%M')
+    #
+    # def check_out(self):
+    #     data = self.ordem_de_servico.check_out if self.ordem_de_servico else self.ficha_de_evento.check_out
+    #     return data.strftime('%d/%m/%Y %H:%M')
+    #
+    # def qtd_confirmada(self):
+    #     return self.ordem_de_servico.n_participantes if self.ordem_de_servico else self.ficha_de_evento.qtd_confirmada
+    #
+    # def qtd_previa(self):
+    #     return self.ficha_de_evento.qtd_convidada
+    #
+    # def data_preenchimento(self):
+    #     data = self.ordem_de_servico.data_preenchimento if self.ordem_de_servico else self.ficha_de_evento.data_preenchimento
+    #     return data.strftime('%d/%m/%Y')
+    #
+    # def estagio_evento(self):
+    #     if self.ordem_de_servico:
+    #         return 'Ordem de Servico'
+    #     else:
+    #         if self.ficha_de_evento.pre_reserva and not self.ficha_de_evento.agendado:
+    #             return 'Pré reserva'
+    #         elif self.ficha_de_evento.pre_reserva and self.ficha_de_evento.agendado:
+    #             return 'Evento confirmado'
+    #         else:
+    #             return 'Ficha de evento'
+    #
+    # def codigo_pagamento(self):
+    #     if not self.ficha_de_evento.pre_reserva:
+    #         return self.ficha_de_evento.codigos_app.eficha
+    #     else:
+    #         return ''
+    #
+    # def tipo_evento(self):
+    #     if self.ordem_de_servico:
+    #         return self.ordem_de_servico.tipo
+    #     else:
+    #         if self.ficha_de_evento.produto.colegio:
+    #             return 'Colégio'
+    #         else:
+    #             return 'Empresa'
+    #
+    # def dias_evento(self):
+    #     if self.ordem_de_servico:
+    #         return (self.ordem_de_servico.check_out.date() - self.ordem_de_servico.check_in.date()).days
+    #     else:
+    #         return (self.ficha_de_evento.check_out.date() - self.ficha_de_evento.check_in.date()).days
+    #
+    # def produto_peraltas(self):
+    #     return self.ficha_de_evento.produto.produto
+    #
+    # def produto_corporativo(self):
+    #     if self.ficha_de_evento.produto_corporativo:
+    #         return self.ficha_de_evento.produto_corporativo.produto
+    #
+    # def adesao_evento(self):
+    #     return f'{round(self.ficha_de_evento.adesao)}%'.replace('.', ',') if self.ficha_de_evento.adesao else '0,00%'
+    #
+    # def veio_ano_anterior(self):
+    #     eventos_passados = FichaDeEvento.objects.filter(cliente=self.ficha_de_evento.cliente, os=True).order_by(
+    #         'check_in')
+    #
+    #     for evento in eventos_passados:
+    #
+    #         if evento.check_in.year == self.ficha_de_evento.check_in.year - 1:
+    #             return 'Sim'
+    #
+    #     return 'Não'
 
 
 class DisponibilidadePeraltas(models.Model):

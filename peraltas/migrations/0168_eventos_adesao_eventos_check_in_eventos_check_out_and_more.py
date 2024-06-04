@@ -8,10 +8,11 @@ from peraltas.models import FichaDeEvento
 
 def preencher_campos(apps, schema_editor):
     Eventos = apps.get_model('peraltas', 'Eventos')
+
     for evento in Eventos.objects.all():
         ordem = evento.ordem_de_servico if evento.ordem_de_servico else None
         ficha = evento.ficha_de_evento
-        eventos_passados = FichaDeEvento.objects.filter(cliente=ficha.cliente, os=True).order_by('check_in')
+        eventos_passados = FichaDeEvento.objects.filter(cliente=ficha.cliente.id, os=True).order_by('check_in')
         veio_ano_anterior = False
 
         evento.colaborador = ficha.vendedora
@@ -76,7 +77,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='eventos',
             name='adesao',
-            field=models.DecimalField(decimal_places=2, default=0.0, max_digits=5),
+            field=models.FloatField(default=0.0),
         ),
         migrations.AddField(
             model_name='eventos',
@@ -105,12 +106,6 @@ class Migration(migrations.Migration):
             model_name='eventos',
             name='colaborador',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.DO_NOTHING, to='peraltas.vendedor'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='eventos',
-            name='data_alteracao',
-            field=models.DateTimeField(default='2024-01-01 00:00'),
             preserve_default=False,
         ),
         migrations.AddField(

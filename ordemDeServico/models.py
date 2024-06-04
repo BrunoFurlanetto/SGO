@@ -138,6 +138,9 @@ class OrdemDeServico(models.Model):
     permicao_coordenadores = models.BooleanField(default=False)
     data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
 
+    def __str__(self):
+        return f'Ordem de serviço de {self.ficha_de_evento.cliente}'
+
     def dividir_atividades_ceu(self):
         atividades = []
 
