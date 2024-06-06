@@ -454,16 +454,16 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
 
-        ordem_de_servico = form.save()
+        ordem_de_servico = form.save(commit=False)
 
-        try:
-            evento = Eventos.objects.get(ficha_de_evento=ficha)
-        except Eventos.DoesNotExist:
-            ficha_para_evento = FichaDeEvento.objects.get(id=ordem_de_servico.ficha_de_evento.id)
-            evento = Eventos.objects.create(ficha_de_evento=ficha_para_evento)
-
-        evento.ordem_de_servico = ordem_de_servico
-        evento.save()
+        # try:
+        #     evento = Eventos.objects.get(ficha_de_evento=ficha)
+        # except Eventos.DoesNotExist:
+        #     ficha_para_evento = FichaDeEvento.objects.get(id=ordem_de_servico.ficha_de_evento.id)
+        #     # evento = Eventos.objects.create(ficha_de_evento=ficha_para_evento)
+        # else:
+        #     evento.ordem_de_servico = ordem_de_servico
+        #     evento.save()
 
         if ficha.escala:
             ordem_de_servico.escala = True
@@ -479,8 +479,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         return redirect('dashboardPeraltas')
     else:
-        ficha.os = True
-        ficha.save()
+        # ficha.os = True
+        # ficha.save()
 
         if ordem_de_servico.tipo == 'Empresa':
             messages.success(request, f'Ordem de serviço da empresa {ordem_de_servico.instituicao} salva com sucesso')

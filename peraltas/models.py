@@ -778,6 +778,11 @@ class Eventos(models.Model):
     class Meta:
         verbose_name_plural = 'Eventos'
 
+    def adesao_formatado(self):
+        return f'{self.adesao:.2f}%'.replace('.', ',')
+
+    adesao_formatado.short_description = 'Adesão'
+
     # def vendedor(self):
     #     return self.ficha_de_evento.vendedora.usuario.get_full_name()
     #

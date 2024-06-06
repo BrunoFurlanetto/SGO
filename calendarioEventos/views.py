@@ -202,7 +202,7 @@ def eventos(request):
             else:
                 alterar_status(pre_reserva_cadastrada.id_negocio, STATUS_RD['C_OS'])
 
-            Eventos.objects.create(ficha_de_evento=pre_reserva_cadastrada).save()
+            # Eventos.objects.create(ficha_de_evento=pre_reserva_cadastrada).save()
 
         return redirect('calendario_eventos')
     else:

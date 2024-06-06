@@ -258,7 +258,7 @@ class EventosAdmin(ExportMixin, admin.ModelAdmin):
     list_display = (
         'cliente', 'colaborador', 'data_check_in_formatado', 'hora_check_in_formatado', 'data_check_out_formatado',
         'hora_check_out_formatado', 'qtd_previa', 'qtd_confirmado', 'data_preenchimento_formatado', 'estagio_evento',
-        'codigo_pagamento', 'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao',
+        'codigo_pagamento', 'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_formatado',
         'veio_ano_anterior'
     )
     list_display_links = ('cliente',)
