@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('orcamento', '0012_orcamentodiaria'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='orcamentoopicional',
-            name='fixo',
-            field=models.BooleanField(default=False, verbose_name='Opcional fixo'),
-        ),
-    ]
+#    operations = [
+#        migrations.AddField(
+#            model_name='orcamentoopicional',
+#            name='fixo',
+#            field=models.BooleanField(default=False, verbose_name='Opcional fixo'),
+#        ),
+#    ]
