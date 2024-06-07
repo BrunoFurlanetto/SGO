@@ -1,8 +1,10 @@
 from datetime import timedelta
 from django.core.mail import send_mail
+from django.urls import reverse
 
 from orcamento.models import Orcamento
 from ordemDeServico.models import OrdemDeServico
+from projetoCEU.settings import MY_APP_DOMAIN
 
 try:
     from local_settings import *
@@ -97,6 +99,33 @@ class EmailSender:
         '''
 
         self.__enviar_email(__mensagem)
+
+    def mensagem_alteracao_ficha(self, colaborador, cliente, ficha):
+        self._subject = 'ALTERAÇÃO NO EVENTO'
+        nome_colaboradora = colaborador.usuario.get_full_name()
+        check_in = ficha.check_in.strftime('%d/%m/%Y')
+        check_out = ficha.check_out.strftime('%d/%m/%Y')
+        link_ficha = reverse('ver_ficha_de_evento', kwargs={'id_ficha_de_evento': ficha.id})
+        link_completo = f'{MY_APP_DOMAIN}{link_ficha}'
+
+        mensagem = f'''
+            <html>
+                <body>
+                    <p>
+                        A ficha de evento do(a) colaborador(a) {nome_colaboradora}, referente ao evento de {cliente}, que irá
+                        acontecer de {check_in} a {check_out} foi alterado. Por favor verificar as alterações que foram feitas
+                        atravéz do link abaixo.                        
+                    </p>
+                    
+                    <p>
+                        <a href="{link_completo}">Ficha de evento de {cliente}</a>
+                    </p>
+                    {self.__assinatura}
+                </body>
+            </html>
+        '''
+
+        self.__enviar_email(mensagem)
 
     def mensagem_cadastro_escala(self, ficha_de_evento):
         __ordem_servico = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None

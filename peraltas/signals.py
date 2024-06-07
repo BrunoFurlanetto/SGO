@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from datetime import date
 
 from ordemDeServico.models import OrdemDeServico
+from projetoCEU.envio_de_emails import EmailSender
 from .models import FichaDeEvento, Eventos
 
 
@@ -78,6 +79,23 @@ def atualizar_evento(sender, instance, **kwargs):
         evento.produto_corporativo = instance.produto_corporativo
         evento.adesao = instance.adesao if instance.adesao else 0.0
         evento.save()
+
+
+@receiver(post_save, sender=FichaDeEvento)
+def envio_emails(sender, instance, created, **kwargs):
+    if not instance.pre_reserva and not created:
+        operacional = User.objects.filter(groups__name='Operacional')
+        lista_emails = set()
+
+        for grupo in [operacional]:
+            for colaborador in grupo:
+                lista_emails.add(colaborador.email)
+
+        EmailSender(list(lista_emails)).mensagem_alteracao_ficha(
+            instance.vendedora,
+            instance.cliente,
+            instance
+        )
 
 
 @receiver(post_save, sender=OrdemDeServico)

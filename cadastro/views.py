@@ -456,15 +456,6 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         ordem_de_servico = form.save(commit=False)
 
-        # try:
-        #     evento = Eventos.objects.get(ficha_de_evento=ficha)
-        # except Eventos.DoesNotExist:
-        #     ficha_para_evento = FichaDeEvento.objects.get(id=ordem_de_servico.ficha_de_evento.id)
-        #     # evento = Eventos.objects.create(ficha_de_evento=ficha_para_evento)
-        # else:
-        #     evento.ordem_de_servico = ordem_de_servico
-        #     evento.save()
-
         if ficha.escala:
             ordem_de_servico.escala = True
 
@@ -479,9 +470,6 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         return redirect('dashboardPeraltas')
     else:
-        # ficha.os = True
-        # ficha.save()
-
         if ordem_de_servico.tipo == 'Empresa':
             messages.success(request, f'Ordem de serviço da empresa {ordem_de_servico.instituicao} salva com sucesso')
         else:
@@ -527,6 +515,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
+
         return redirect('dashboard')
 
     if is_ajax(request):
