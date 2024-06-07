@@ -38,8 +38,8 @@ def atualizar_evento(sender, instance, **kwargs):
             cliente=instance.cliente,
             data_check_in=instance.check_in.date(),
             data_check_out=instance.check_out.date(),
-            hora_check_in=instance.check_in.time(),
-            hora_check_out=instance.check_out.time(),
+            hora_check_in=instance.check_in.astimezone().time(),
+            hora_check_out=instance.check_out.astimezone().time(),
             qtd_previa=instance.qtd_convidada,
             qtd_confirmado=0,
             data_preenchimento=instance.data_preenchimento,
@@ -64,9 +64,9 @@ def atualizar_evento(sender, instance, **kwargs):
 
         evento.colaborador = instance.vendedora
         evento.data_check_in = instance.check_in.date()
-        evento.hora_check_in = instance.check_in.time()
+        evento.hora_check_in = instance.check_in.astimezone().time()
         evento.data_check_out = instance.check_out.date()
-        evento.hora_check_out = instance.check_out.time()
+        evento.hora_check_out = instance.check_out.astimezone().time()
         evento.qtd_previa = instance.qtd_convidada
         evento.qtd_confirmado = instance.qtd_confirmada if instance.qtd_confirmada else 0
         evento.data_preenchimento = instance.data_preenchimento

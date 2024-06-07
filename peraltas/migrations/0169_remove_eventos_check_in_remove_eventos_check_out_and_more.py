@@ -12,14 +12,14 @@ def separar_data_hora(apps, schema_editor):
 
         if ordem:
             evento.data_check_in = ordem.check_in.date()
-            evento.hora_check_in = ordem.check_in.time()
+            evento.hora_check_in = ordem.check_in.astimezone().time()
             evento.data_check_out = ordem.check_out.date()
-            evento.hora_check_out = ordem.check_out.time()
+            evento.hora_check_out = ordem.check_out.astimezone().time()
         else:
             evento.data_check_in = ficha.check_in.date()
-            evento.hora_check_in = ficha.check_in.time()
+            evento.hora_check_in = ficha.check_in.astimezone().time()
             evento.data_check_out = ficha.check_out.date()
-            evento.hora_check_out = ficha.check_out.time()
+            evento.hora_check_out = ficha.check_out.astimezone().time()
 
         evento.save()
 
