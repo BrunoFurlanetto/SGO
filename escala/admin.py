@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib import admin
-from escala.models import Escala, Disponibilidade, DiaLimite
+from escala.models import Escala, Disponibilidade, DiaLimite, DisponibilidadeForm
 from peraltas.models import DisponibilidadePeraltas, EscalaAcampamento, EscalaHotelaria
 
 
@@ -44,7 +44,9 @@ class DisponibilidadeAdmin(admin.ModelAdmin):
     list_display = ('professor', 'mes', 'ano', 'n_dias')
     list_filter = ('mes', 'ano')
     search_fields = ('professor__usuario__first_name',)
+    readonly_fields = ('professor', 'mes', 'ano')
     list_per_page = 10
+    form = DisponibilidadeForm
 
 
 @admin.register(DisponibilidadePeraltas)
