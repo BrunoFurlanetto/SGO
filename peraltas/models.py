@@ -800,7 +800,10 @@ class Eventos(models.Model):
         relatorios = {}
         relatorio_mes_mes = []
         comparados = []
-        eventos = cls.objects.filter(data_check_in__gte=datetime.today().date())
+        eventos = cls.objects.filter(
+            data_check_in__month__gte=datetime.today().month,
+            data_check_in__year__gte=datetime.today().year
+        )
         # eventos = cls.objects.all().order_by('-data_check_in')
 
         for evento in eventos:
