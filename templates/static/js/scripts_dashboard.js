@@ -13,11 +13,12 @@ let desconto_aplicado = 0*/
 
 $(document).ready(() => {
     moment.locale('pt-br')
-
+    $('#tabela_relatorio').iniciarlizarDataTable([], undefined)
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
         $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
         $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').iniciarlizarDataTable(3, 3)
+
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)

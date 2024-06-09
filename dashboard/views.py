@@ -17,7 +17,7 @@ from escala.models import Escala, DiaLimite
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
-    Vendedor, Eventos
+    Vendedor, Eventos, ProdutosPeraltas
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
@@ -346,7 +346,9 @@ def dashboardPeraltas(request):
         'financeiro': financeiro in grupos_usuario,
         'tratativas': tratativas,
         'pacotes': pacotes,
-        'relatorio_eventos': Eventos.preparar_relatorio_mes_mes()
+        'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
+        'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
+        'produtos_peraltas': ProdutosPeraltas.objects.all()
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 
