@@ -1573,3 +1573,23 @@
 #tabela_tratativas tr:not(:last-child) {
     border-bottom: dashed 1px #b5b2b2
 }
+
+#tabela_relatorio {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_relatorio {
+    border: solid 3px #000000;
+    border-collapse: collapse;
+}
+
+#tabela_relatorio thead tr > th:nth-child(3n),
+#tabela_relatorio tbody tr td:nth-child(4), #tabela_relatorio tbody tr td:nth-child(7),
+#tabela_relatorio tbody tr td:nth-child(10), #tabela_relatorio tbody tr td:nth-child(13){
+    border-right: solid 1px #afafaf;
+}
+
+#tabela_relatorio #data_mes_thead, #tabela_relatorio tbody tr td:first-child {
+    border-right: double 3px #000000;
+}

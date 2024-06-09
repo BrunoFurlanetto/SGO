@@ -1,4 +1,6 @@
+import calendar
 from collections import defaultdict
+from datetime import datetime
 from heapq import nlargest
 
 import reversion
@@ -8,7 +10,8 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, Count, Q, Sum
+from django.db.models.functions import TruncMonth, TruncYear
 from django.utils import timezone
 from import_export import resources
 from import_export.fields import Field
@@ -782,6 +785,66 @@ class Eventos(models.Model):
         return f'{self.adesao:.2f}%'.replace('.', ',')
 
     adesao_formatado.short_description = 'Adesão'
+
+    @staticmethod
+    def nome_mes(n_mes):
+        meses = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ]
+
+        return meses[n_mes - 1]
+
+    @classmethod
+    def preparar_relatorio_mes_mes(cls):
+        relatorios = {}
+        relatorio_mes_mes = []
+        comparados = []
+        eventos = cls.objects.filter(data_check_in__gte=datetime.today().date())
+        # eventos = cls.objects.all().order_by('-data_check_in')
+
+        for evento in eventos:
+            mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
+
+            if f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}' in comparados:
+                relatorios[mes_ano]['n_pre_reserva'] += 1 if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano]['n_previa_pre_reserva'] += evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano]['n_confirmados_pre_reserva'] += evento.qtd_confirmado if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano]['n_confirmado'] += 1 if evento.estagio_evento == 'confirmado' else 0
+                relatorios[mes_ano]['n_previa_confirmado'] += evento.qtd_previa if evento.estagio_evento == 'confirmado' else 0
+                relatorios[mes_ano]['n_confirmados_confirmado'] += evento.qtd_confirmado if evento.estagio_evento == 'confirmado' else 0
+                relatorios[mes_ano]['n_ficha_de_evento'] += 1 if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano]['n_previa_ficha_de_evento'] += evento.qtd_previa if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano]['n_confirmados_ficha_de_evento'] += evento.qtd_confirmado if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano]['n_ordem_de_servico'] += 1 if evento.estagio_evento == 'ordem_servico' else 0
+                relatorios[mes_ano]['n_previa_ordem_de_servico'] += evento.qtd_previa if evento.estagio_evento == 'ordem_servico' else 0
+                relatorios[mes_ano]['n_confirmados_ordem_de_servico'] += evento.qtd_confirmado if evento.estagio_evento == 'ordem_servico' else 0
+            else:
+                comparados.append(mes_ano)
+                relatorios[mes_ano] = {
+                    'n_pre_reserva': 1 if evento.estagio_evento == 'pre_reserva' else 0,
+                    'n_previa_pre_reserva': evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0,
+                    'n_confirmados_pre_reserva': evento.qtd_confirmado if evento.estagio_evento == 'pre_reserva' else 0,
+                    'n_confirmado': 1 if evento.estagio_evento == 'confirmado' else 0,
+                    'n_previa_confirmado': evento.qtd_previa if evento.estagio_evento == 'confirmado' else 0,
+                    'n_confirmados_confirmado': evento.qtd_confirmado if evento.estagio_evento == 'confirmado' else 0,
+                    'n_ficha_de_evento': 1 if evento.estagio_evento == 'ficha_evento' else 0,
+                    'n_previa_ficha_de_evento': evento.qtd_previa if evento.estagio_evento == 'ficha_evento' else 0,
+                    'n_confirmados_ficha_de_evento': evento.qtd_confirmado if evento.estagio_evento == 'ficha_evento' else 0,
+                    'n_ordem_de_servico': 1 if evento.estagio_evento == 'ordem_servico' else 0,
+                    'n_previa_ordem_de_servico': evento.qtd_previa if evento.estagio_evento == 'ordem_servico' else 0,
+                    'n_confirmados_ordem_de_servico': evento.qtd_confirmado if evento.estagio_evento == 'ordem_servico' else 0,
+                }
+
+        for mes_ano, valores in relatorios.items():
+            temp = {'mes_ano': mes_ano}
+
+            for chave, valor in valores.items():
+                temp[chave] = valor
+
+            relatorio_mes_mes.append(temp)
+
+        return relatorio_mes_mes
 
 
 class DisponibilidadePeraltas(models.Model):

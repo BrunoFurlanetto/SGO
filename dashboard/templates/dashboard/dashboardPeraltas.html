@@ -154,6 +154,60 @@
                          onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
                     </div>
                 {% endif %}
+                {% if diretoria %}
+                	<div class="folder"
+                         onclick="alterar_aba(this, 'relatorios_eventos')">Relatórios
+                    </div>
+                {% endif %}
+            </div>
+            <div id="relatorios_eventos" class="section-content">
+                <div class="tabelas" style="overflow-x: auto;">
+                    <table id="tabela_relatorio" class="table table-hover table-striped" style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th rowspan="2" id="data_mes_thead" style="position: sticky; left: 0; z-index: 1; background-color: white;">Mês/Ano</th>
+                            <th colspan="3">Pré reserva</th>
+                            <th colspan="3">Eventos confirmados</th>
+                            <th colspan="3">Ficha de evento</th>
+                            <th colspan="3">Ordem de Serviço</th>
+                        </tr>
+                        <tr>
+
+                            <th>Eventos</th>
+                            <th>QTD previa</th>
+                            <th>QTD confirmados</th>
+                            <th>Eventos</th>
+                            <th>QTD previa</th>
+                            <th>QTD confirmados</th>
+                            <th>Eventos</th>
+                            <th>QTD previa</th>
+                            <th>QTD confirmados</th>
+                            <th>Eventos</th>
+                            <th>QTD previa</th>
+                            <th>QTD confirmados</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for relatorio in relatorio_eventos %}
+                            <tr>
+                                <td style="position: sticky; left: 0; z-index: 1; background-color: white;">{{ relatorio.mes_ano }}</td>
+                                <td>{{ relatorio.n_pre_reserva }}</td>
+                                <td>{{ relatorio.n_previa_pre_reserva }}</td>
+                                <td>{{ relatorio.n_confirmados_pre_reserva }}</td>
+                                <td>{{ relatorio.n_confirmado }}</td>
+                                <td>{{ relatorio.n_previa_confirmado }}</td>
+                                <td>{{ relatorio.n_confirmados_confirmado }}</td>
+                                <td>{{ relatorio.n_ficha_de_evento }}</td>
+                                <td>{{ relatorio.n_previa_ficha_de_evento }}</td>
+                                <td>{{ relatorio.n_confirmados_ficha_de_evento }}</td>
+                                <td>{{ relatorio.n_ordem_de_servico }}</td>
+                                <td>{{ relatorio.n_previa_ordem_de_servico }}</td>
+                                <td>{{ relatorio.n_confirmados_ordem_de_servico }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% if comercial or diretoria %}
                 <div id="adesao" class="section-content ativo">
