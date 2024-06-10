@@ -1579,6 +1579,10 @@
     vertical-align: middle;
 }
 
+#tabela_relatorio thead tr:first-child > th {
+    border-right: solid 1px #afafaf;
+}
+
 #tabela_relatorio {
     border: solid 3px #000000;
     border-collapse: collapse;

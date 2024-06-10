@@ -13,7 +13,7 @@ let desconto_aplicado = 0*/
 
 $(document).ready(() => {
     moment.locale('pt-br')
-    $('#tabela_relatorio').iniciarlizarDataTable([], undefined)
+    // $('#tabela_relatorio').iniciarlizarDataTable([], undefined)
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
         $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
