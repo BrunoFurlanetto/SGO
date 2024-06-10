@@ -347,7 +347,7 @@ def dashboardPeraltas(request):
         'tratativas': tratativas,
         'pacotes': pacotes,
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
-        'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
+        # 'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
         'produtos_peraltas': ProdutosPeraltas.objects.all()
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

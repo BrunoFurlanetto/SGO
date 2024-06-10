@@ -211,49 +211,49 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="tabelas" style="overflow-x: auto;">
-                        <table id="tabela_relatorio" class="table table-hover table-striped" style="border-top: solid">
-                            <thead>
-                            <tr>
-                                <th style="position: sticky; left: 0; z-index: 1; background-color: white;">Mês/Ano</th>
-                                <th style="position: sticky; left: 150px; z-index: 1; background-color: white;">Estágio
-                                    evento
-                                </th>
-                                {% for produto in produtos_peraltas %}
-                                    <th>{{ produto }}</th>
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for relatorio in relatorio_eventos %}
-                                <tr>
-                                    <td rowspan="5"
-                                        style="position: sticky; left: 0; z-index: 1; background-color: white;">{{ relatorio.mes_ano }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">Pré
-                                        reserva
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">
-                                        Confirmado
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">
-                                        Ficha de Evento
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">
-                                        Ordem de Serviço
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+{#                    <div class="tabelas" style="overflow-x: auto;">#}
+{#                        <table id="tabela_relatorio_produtos" class="table table-hover table-striped" style="border-top: solid">#}
+{#                            <thead>#}
+{#                            <tr>#}
+{#                                <th style="position: sticky; left: 0; z-index: 1; background-color: white;">Mês/Ano</th>#}
+{#                                <th style="position: sticky; left: 150px; z-index: 1; background-color: white;">Estágio#}
+{#                                    evento#}
+{#                                </th>#}
+{#                                {% for produto in produtos_peraltas %}#}
+{#                                    <th>{{ produto }}</th>#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{#                            {% for relatorio in relatorio_eventos %}#}
+{#                                <tr>#}
+{#                                    <td rowspan="5"#}
+{#                                        style="position: sticky; left: 0; z-index: 1; background-color: white;">{{ relatorio.mes_ano }}</td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">Pré#}
+{#                                        reserva#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">#}
+{#                                        Confirmado#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">#}
+{#                                        Ficha de Evento#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td style="position: sticky; left: 150px; z-index: 1; background-color: white;">#}
+{#                                        Ordem de Serviço#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                            {% endfor %}#}
+{#                            </tbody>#}
+{#                        </table>#}
+{#                    </div>#}
                 </div>
             {% endif %}
 

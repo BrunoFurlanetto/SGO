@@ -802,15 +802,15 @@ class Eventos(models.Model):
         comparados = []
         eventos = cls.objects.filter(
             data_check_in__month__gte=datetime.today().month,
-            data_check_in__year__gte=datetime.today().year - 4,
+            data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
-        )
+        ).order_by('-data_check_in')
         # eventos = cls.objects.all().order_by('-data_check_in')
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
 
-            if f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}' in comparados:
+            if mes_ano in comparados:
                 relatorios[mes_ano]['n_pre_reserva'] += 1 if evento.estagio_evento == 'pre_reserva' else 0
                 relatorios[mes_ano]['n_previa_pre_reserva'] += evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0
                 relatorios[mes_ano]['n_confirmados_pre_reserva'] += evento.qtd_confirmado if evento.estagio_evento == 'pre_reserva' else 0
@@ -850,16 +850,27 @@ class Eventos(models.Model):
 
         return relatorio_mes_mes
 
-    @classmethod
-    def preparar_relatorio_produtos(cls):
-        relatorios = {}
-        relatorio_mes_mes = []
-        comparados = []
-        eventos = cls.objects.filter(
-            data_check_in__month__gte=datetime.today().month,
-            data_check_in__year__gte=datetime.today().year
-        )
-        eventos = cls.objects.all().order_by('-data_check_in')
+    # @classmethod
+    # def preparar_relatorio_produtos(cls):
+    #     relatorios = {}
+    #     relatorio_mes_mes = []
+    #     comparados = []
+    #     eventos = cls.objects.filter(
+    #         data_check_in__month__gte=datetime.today().month,
+    #         data_check_in__year__gte=datetime.today().year,
+    #         data_check_in__lte=datetime.today().date() + timedelta(days=180),
+    #     ).order_by('-data_check_in')
+    #     # eventos = cls.objects.all().order_by('-data_check_in')
+    #
+    #     for evento in eventos:
+    #         mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
+    #
+    #         if mes_ano in comparados:
+    #             relatorios[mes_ano] = {'pre_reserva': {
+    #                 'produto': 0,
+    #             }}
+    #         else:
+    #             ...
 
 
 class DisponibilidadePeraltas(models.Model):
