@@ -45,9 +45,9 @@ def preencher_campos(apps, schema_editor):
             evento.estagio_evento = 'ordem_servico'
         else:
             if ficha.pre_reserva and not ficha.agendado:
-                evento.estagio_evento =  'pre_reserva'
+                evento.estagio_evento = 'pre_reserva'
             elif ficha.pre_reserva and ficha.agendado:
-                evento.estagio_evento = 'evento_confirmado'
+                evento.estagio_evento = 'confirmado'
             else:
                 evento.estagio_evento = 'ficha_evento'
 
