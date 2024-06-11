@@ -213,6 +213,12 @@ class CadastroOrdemDeServico(forms.ModelForm):
 
         self.fields['monitor_responsavel'].choices = monitores_selecao
 
+    def clean(self):
+        cleaned_data = super(CadastroOrdemDeServico, self).clean()
+        print(cleaned_data)
+
+        return cleaned_data
+
     @staticmethod
     def opt_groups():
         grupos = []

@@ -381,7 +381,6 @@ class RelacaoClienteResponsavel(models.Model):
     responsavel = models.ManyToManyField(Responsavel)
 
 
-@reversion.register
 class FichaDeEvento(models.Model):
     empresa_choices = (
         ('Peraltas', 'Peraltas'),
@@ -755,7 +754,7 @@ class Eventos(models.Model):
 
     ordem_de_servico = models.ForeignKey(
         'ordemDeServico.OrdemDeServico',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         null=True,
         blank=True
     )

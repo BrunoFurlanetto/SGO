@@ -106,6 +106,7 @@ def atualizar_evento(sender, instance, created, **kwargs):
 
     evento = Eventos.objects.get(ficha_de_evento=instance.ficha_de_evento.id)
 
+    evento.ordem_de_servico = instance
     evento.colaborador = instance.vendedor
     evento.data_check_in = instance.check_in.date()
     evento.hora_check_in = instance.check_in.time()

@@ -295,7 +295,7 @@ def empresa(request, id_relatorio=None):
         relatorio = relatorio_empresa.save(commit=False)
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_locacoes_empresa(request.POST, relatorio)
-        print(request.POST)
+
         if request.POST.get('ativ_1', None):
             salvar_atividades_colegio(request.POST, relatorio)
 
@@ -454,12 +454,12 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
         check_in_and_check_out_atividade(ordem_de_servico)
         salvar_locacoes_ceu(request.POST, ordem_de_servico)
 
-        ordem_de_servico = form.save(commit=False)
+        ordem_de_servico = form.save()
 
         if ficha.escala:
             ordem_de_servico.escala = True
 
-        if len(request.POST.getlist('empresa_onibus')) > 0:
+        if len(transportes_salvos) > 0:
             ordem_de_servico.dados_transporte.set(transportes_salvos)
 
         ordem_de_servico.save()
@@ -810,7 +810,6 @@ def listaResponsaveis(request):
 
         try:
             relacoes = RelacaoClienteResponsavel.objects.filter(cliente=int(cliente))
-            print(relacoes)
         except RelacaoClienteResponsavel.DoesNotExist:
             responsaveis = []
         except Exception as e:
