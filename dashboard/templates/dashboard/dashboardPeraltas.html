@@ -154,7 +154,7 @@
                          onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
                     </div>
                 {% endif %}
-                {% if user.is_superuser %}
+                {% if diretoria %}
                     <div class="folder"
                          onclick="alterar_aba(this, 'relatorios_eventos')">Relatórios
                     </div>
