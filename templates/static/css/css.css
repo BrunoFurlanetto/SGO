@@ -1603,4 +1603,9 @@
 
 #tabela_relatorio_produtos th {
     width: 20px;
+    border-right: solid 1px #afafaf;
+}
+
+#tabela_relatorio_produtos .borda_inferior_dupla {
+    border-bottom: double 3px #000000;
 }
