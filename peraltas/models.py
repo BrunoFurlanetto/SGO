@@ -865,7 +865,6 @@ class Eventos(models.Model):
             data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
         ).order_by('data_check_in')
-        # eventos = cls.objects.all().order_by('-data_check_in')
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
@@ -885,8 +884,6 @@ class Eventos(models.Model):
             else:
                 relatorios[mes_ano][evento.estagio_evento][produto] += 1
 
-        # for mes_ano, dados_mes_ano in relatorios.items():
-        #     relatorio_mes_mes.append({mes_ano: dados_mes_ano})
         relatorio_produtos = {
             'relatorio_mes_mes': [],
             'produtos': list(produtos_presentes)
