@@ -804,24 +804,31 @@ class Eventos(models.Model):
             data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
         ).order_by('data_check_in')
-        # eventos = cls.objects.all().order_by('-data_check_in')
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
 
             if mes_ano in comparados:
                 relatorios[mes_ano]['n_pre_reserva'] += 1 if evento.estagio_evento == 'pre_reserva' else 0
-                relatorios[mes_ano]['n_previa_pre_reserva'] += evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0
-                relatorios[mes_ano]['n_confirmados_pre_reserva'] += evento.qtd_confirmado if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano][
+                    'n_previa_pre_reserva'] += evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano][
+                    'n_confirmados_pre_reserva'] += evento.qtd_confirmado if evento.estagio_evento == 'pre_reserva' else 0
                 relatorios[mes_ano]['n_confirmado'] += 1 if evento.estagio_evento == 'confirmado' else 0
-                relatorios[mes_ano]['n_previa_confirmado'] += evento.qtd_previa if evento.estagio_evento == 'confirmado' else 0
-                relatorios[mes_ano]['n_confirmados_confirmado'] += evento.qtd_confirmado if evento.estagio_evento == 'confirmado' else 0
+                relatorios[mes_ano][
+                    'n_previa_confirmado'] += evento.qtd_previa if evento.estagio_evento == 'confirmado' else 0
+                relatorios[mes_ano][
+                    'n_confirmados_confirmado'] += evento.qtd_confirmado if evento.estagio_evento == 'confirmado' else 0
                 relatorios[mes_ano]['n_ficha_de_evento'] += 1 if evento.estagio_evento == 'ficha_evento' else 0
-                relatorios[mes_ano]['n_previa_ficha_de_evento'] += evento.qtd_previa if evento.estagio_evento == 'ficha_evento' else 0
-                relatorios[mes_ano]['n_confirmados_ficha_de_evento'] += evento.qtd_confirmado if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano][
+                    'n_previa_ficha_de_evento'] += evento.qtd_previa if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano][
+                    'n_confirmados_ficha_de_evento'] += evento.qtd_confirmado if evento.estagio_evento == 'ficha_evento' else 0
                 relatorios[mes_ano]['n_ordem_de_servico'] += 1 if evento.estagio_evento == 'ordem_servico' else 0
-                relatorios[mes_ano]['n_previa_ordem_de_servico'] += evento.qtd_previa if evento.estagio_evento == 'ordem_servico' else 0
-                relatorios[mes_ano]['n_confirmados_ordem_de_servico'] += evento.qtd_confirmado if evento.estagio_evento == 'ordem_servico' else 0
+                relatorios[mes_ano][
+                    'n_previa_ordem_de_servico'] += evento.qtd_previa if evento.estagio_evento == 'ordem_servico' else 0
+                relatorios[mes_ano][
+                    'n_confirmados_ordem_de_servico'] += evento.qtd_confirmado if evento.estagio_evento == 'ordem_servico' else 0
             else:
                 comparados.append(mes_ano)
                 relatorios[mes_ano] = {
@@ -849,27 +856,54 @@ class Eventos(models.Model):
 
         return relatorio_mes_mes
 
-    # @classmethod
-    # def preparar_relatorio_produtos(cls):
-    #     relatorios = {}
-    #     relatorio_mes_mes = []
-    #     comparados = []
-    #     eventos = cls.objects.filter(
-    #         data_check_in__month__gte=datetime.today().month,
-    #         data_check_in__year__gte=datetime.today().year,
-    #         data_check_in__lte=datetime.today().date() + timedelta(days=180),
-    #     ).order_by('-data_check_in')
-    #     # eventos = cls.objects.all().order_by('-data_check_in')
-    #
-    #     for evento in eventos:
-    #         mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
-    #
-    #         if mes_ano in comparados:
-    #             relatorios[mes_ano] = {'pre_reserva': {
-    #                 'produto': 0,
-    #             }}
-    #         else:
-    #             ...
+    @classmethod
+    def preparar_relatorio_produtos(cls):
+        relatorios = {}
+        produtos_presentes = set()
+        eventos = cls.objects.filter(
+            data_check_in__month__gte=datetime.today().month,
+            data_check_in__year__gte=datetime.today().year,
+            data_check_in__lte=datetime.today().date() + timedelta(days=180),
+        ).order_by('data_check_in')
+        # eventos = cls.objects.all().order_by('-data_check_in')
+
+        for evento in eventos:
+            mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
+            produto = evento.produto_peraltas.produto
+            produtos_presentes.add(produto)
+
+            if mes_ano not in relatorios:
+                relatorios[mes_ano] = {
+                    'pre_reserva': {},
+                    'confirmado': {},
+                    'ficha_evento': {},
+                    'ordem_servico': {}
+                }
+
+            if produto not in relatorios[mes_ano][evento.estagio_evento]:
+                relatorios[mes_ano][evento.estagio_evento][produto] = 1
+            else:
+                relatorios[mes_ano][evento.estagio_evento][produto] += 1
+
+        # for mes_ano, dados_mes_ano in relatorios.items():
+        #     relatorio_mes_mes.append({mes_ano: dados_mes_ano})
+        relatorio_produtos = {
+            'relatorio_mes_mes': [],
+            'produtos': list(produtos_presentes)
+        }
+
+        for mes_ano, estagios in relatorios.items():
+            relatorio_item = {'mes_ano': mes_ano, 'estagios': {}}
+
+            for estagio, produtos in estagios.items():
+                relatorio_item['estagios'][estagio] = []
+
+                for produto in relatorio_produtos['produtos']:
+                    relatorio_item['estagios'][estagio].append(produtos.get(produto, 0))
+
+            relatorio_produtos['relatorio_mes_mes'].append(relatorio_item)
+
+        return relatorio_produtos
 
 
 class DisponibilidadePeraltas(models.Model):

@@ -1574,7 +1574,7 @@
     border-bottom: dashed 1px #b5b2b2
 }
 
-#tabela_relatorio {
+#tabela_relatorio, #tabela_relatorio_produtos {
     text-align: center;
     vertical-align: middle;
 }
@@ -1583,17 +1583,24 @@
     border-right: solid 1px #afafaf;
 }
 
-#tabela_relatorio {
+#tabela_relatorio, #tabela_relatorio_produtos:not(.borda_direita_dupla) {
     border: solid 3px #000000;
     border-collapse: collapse;
 }
 
 #tabela_relatorio thead tr > th:nth-child(3n),
 #tabela_relatorio tbody tr td:nth-child(4), #tabela_relatorio tbody tr td:nth-child(7),
-#tabela_relatorio tbody tr td:nth-child(10), #tabela_relatorio tbody tr td:nth-child(13){
+#tabela_relatorio tbody tr td:nth-child(10), #tabela_relatorio tbody tr td:nth-child(13),
+#tabela_relatorio_produtos td {
     border-right: solid 1px #afafaf;
 }
 
-#tabela_relatorio #data_mes_thead, #tabela_relatorio tbody tr td:first-child {
+#tabela_relatorio #data_mes_thead, #tabela_relatorio tbody tr td:first-child,
+#tabela_relatorio_produtos th:first-child, #tabela_relatorio_produtos th:nth-child(2),
+#tabela_relatorio_produtos .borda_direita_dupla {
     border-right: double 3px #000000;
+}
+
+#tabela_relatorio_produtos th {
+    width: 20px;
 }
