@@ -10,6 +10,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         dropdownParent: $("#dados_do_pacote .modal-content"),
         width: '100%'
     })
+    $('#apelido_orcamento').val($('#id_apelido').val())
 
     let hoje = new Date()
     $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))

@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             <div class="conteudo" style="width: 35%">
-                                <h5 class="titulo-secao">Transporte</h5>
+                                <h5 class="titulo-secao">Transporte a partir de São Paulo</h5>
                                 <div id="transporte">
                                     {{ orcamento.transporte }}
                                 </div>
@@ -595,7 +595,7 @@
 
     <div class="modal fade" id="modal_apelido_orcamento" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
+         aria-hidden="true" onmousemove="$('#btn_salvar_apelido').prop('disabled', $('#apelido_orcamento').val().length < 5)">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -605,8 +605,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <label for="motivo_recusa">Forneça um apelido para o orçamento</label>
-                    <input type="text" id="motivo_recusa" name="motivo_recusa" onkeyup="atribuir_apelaido(this)" required>
+                    <label for="apelido_orcamento">Forneça um apelido para o orçamento</label>
+                    <input type="text" id="apelido_orcamento" name="apelido_orcamento" onkeyup="atribuir_apelaido(this)" required>
                 </div>
                 <div class="modal-footer">
                     <button id="btn_salvar_apelido" type="button" class="btn btn-primary" onclick="salvar_orcamento(true)" disabled>Salvar</button>
