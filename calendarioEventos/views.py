@@ -13,7 +13,7 @@ from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao, gerar_descritivo_data
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
-    EventosCancelados, Eventos, Vendedor
+    EventosCancelados, Vendedor
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.integracao_rd import alterar_status, verificar_id
 from projetoCEU.utils import verificar_grupo, email_error

@@ -15,7 +15,7 @@ from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, Cadast
     TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, \
     Monitor, EmpresaOnibus, TiposPagamentos
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
@@ -693,6 +693,23 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                     novo_evento.cliente,
                     novo_evento.vendedora
                 )
+            else:
+                if not ficha_de_evento.pre_reserva:
+                    operacional = User.objects.filter(groups__name='Operacional')
+                    lista_emails = set()
+
+                    for grupo in [operacional]:
+                        for colaborador in grupo:
+                            lista_emails.add(colaborador.email)
+
+                    lista_emails.discard(request.user.email)
+                    lista_emails.add('furlanetto438@gmail.com')
+                    EmailSender(list(lista_emails)).mensagem_alteracao_ficha(
+                        request.user,
+                        ficha_de_evento.vendedora,
+                        ficha_de_evento.cliente,
+                        ficha_de_evento
+                    )
 
             try:
                 alterar_campos_personalizados(evento_salvo.id_negocio, evento_salvo)

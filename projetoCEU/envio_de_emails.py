@@ -100,7 +100,7 @@ class EmailSender:
 
         self.__enviar_email(__mensagem)
 
-    def mensagem_alteracao_ficha(self, colaborador, cliente, ficha):
+    def mensagem_alteracao_ficha(self, colaborador_alterou, colaborador, cliente, ficha):
         self._subject = 'ALTERAÇÃO NO EVENTO'
         nome_colaboradora = colaborador.usuario.get_full_name()
         check_in = ficha.check_in.strftime('%d/%m/%Y')
@@ -113,8 +113,8 @@ class EmailSender:
                 <body>
                     <p>
                         A ficha de evento do(a) colaborador(a) {nome_colaboradora}, referente ao evento de {cliente}, que irá
-                        acontecer de {check_in} a {check_out} foi alterado. Por favor verificar as alterações que foram feitas
-                        atravéz do link abaixo.                        
+                        acontecer de {check_in} a {check_out} foi alterado por {colaborador_alterou.get_full_name()}. 
+                        Por favor verificar as alterações que foram feitas atravéz do link abaixo.                        
                     </p>
                     
                     <p>
