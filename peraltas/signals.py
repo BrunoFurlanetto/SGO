@@ -26,9 +26,6 @@ def atualizar_data_preenchimento(sender, instance, **kwargs):
 
 @receiver(post_save, sender=FichaDeEvento)
 def atualizar_evento(sender, instance, **kwargs):
-    with open('teste.txt', 'w') as file:
-        file.write(f'Foi - {datetime.datetime.now()}\n')
-
     try:
         evento = Eventos.objects.get(ficha_de_evento=instance.id)
     except Eventos.DoesNotExist:
@@ -37,9 +34,8 @@ def atualizar_evento(sender, instance, **kwargs):
             os=True,
             check_in__year=instance.check_in.year - 1,
         ).exists()
-        with open('teste.txt', 'a') as file:
-            file.write(f'Não achou - {datetime.datetime.now()}\n')
-        e = Eventos.objects.create(
+
+        Eventos.objects.create(
             ficha_de_evento=instance,
             colaborador=instance.vendedora,
             cliente=instance.cliente,
@@ -58,8 +54,6 @@ def atualizar_evento(sender, instance, **kwargs):
             adesao=0.0,
             veio_ano_anterior=veio_ano_anterior
         )
-        with open('teste.txt', 'a') as file:
-            file.write(f'Criou {e.id} - {datetime.datetime.now()}\n')
     else:
         if not evento.ordem_de_servico:
             if instance.pre_reserva and not instance.agendado:
