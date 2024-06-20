@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import models, transaction
 from django.db.models import ManyToManyField, Count, Q, Sum
 from django.db.models.functions import TruncMonth, TruncYear
 from django.utils import timezone
@@ -448,6 +448,11 @@ class FichaDeEvento(models.Model):
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
 
+    # def save(self, *args, **kwargs):
+    #     with transaction.atomic():
+    #         super().save(*args, **kwargs)
+
+
     def get_all_fields(self):
         return [field.name for field in self._meta.fields]
 
@@ -779,6 +784,9 @@ class Eventos(models.Model):
 
     class Meta:
         verbose_name_plural = 'Eventos'
+
+    def criar_evento(self, ficha_de_evento):
+        ...
 
     def adesao_formatado(self):
         return f'{self.adesao:.2f}%'.replace('.', ',')
