@@ -24,16 +24,83 @@ def default_validade():
 
 
 class ValoresPadrao(models.Model):
+    lista_comportamentos = (
+        ('porcentagem', 'Porcentagem'),
+        ('intervalo_dias', 'Intervalo de dias'),
+        ('numerico', 'Numérico'),
+        ('monetario', 'Monetario'),
+    )
+
     nome_taxa = models.CharField(max_length=255, verbose_name='Nome da taxa')
-    valor_padrao = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=5)
+    valor_padrao = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=4)
     valor_minimo = models.DecimalField(verbose_name='Valor minimo', decimal_places=2, max_digits=5, blank=True, null=True, help_text='Caso não haja, deixe em branco!')
     valor_maximo = models.DecimalField(verbose_name='Valor maximo', decimal_places=2, max_digits=5, blank=True, null=True, help_text='Caso não haja, deixe em branco!')
     descricao = models.TextField(verbose_name='Descrição da taxa')
+    comportamento = models.CharField(
+        verbose_name='Comportamento',
+        max_length=255,
+        choices=lista_comportamentos,
+        default='porcentagem',
+        help_text='Comportamento que a variável vai adotar dentro do sistema de orçamento'
+    )
     id_taxa = models.CharField(max_length=255, editable=False)
 
     class Meta:
         verbose_name = 'Configuração geral'
         verbose_name_plural = '01 - Configurações gerias'
+
+    @property
+    def tipo_variavel(self):
+        if self.comportamento == 'porcentagem' or self.comportamento == 'monetario':
+            return 'text'
+
+        if self.comportamento == 'intervalo_dias':
+            return 'date'
+
+        if self.comportamento == 'numerico':
+            return 'number'
+
+    @property
+    def valor_padrao_formatado(self):
+        if self.comportamento == 'porcentagem':
+            return f'{self.valor_padrao}%'.replace('.', ',')
+
+        if self.comportamento == 'intervalo_dias':
+            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_padrao))).strftime('%Y-%m-%d')
+
+        if self.comportamento == 'monetario':
+            return f'R$ {self.valor_padrao:.2f}'
+
+        if self.comportamento == 'numerico':
+            return int(self.valor_padrao)
+
+    @property
+    def valor_minimo_formatado(self):
+        if self.comportamento == 'porcentagem':
+            return f'{self.valor_minimo}%'.replace('.', ',')
+
+        if self.comportamento == 'intervalo_dias':
+            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_minimo))).strftime('%Y-%m-%d')
+
+        if self.comportamento == 'monetario':
+            return f'R$ {self.valor_minimo:.2f}'
+
+        if self.comportamento == 'numerico':
+            return int(self.valor_minimo)
+
+    @property
+    def valor_maximo_formatado(self):
+        if self.comportamento == 'porcentagem':
+            return f'{self.valor_maximo}%'.replace('.', ',')
+
+        if self.comportamento == 'intervalo_dias':
+            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_maximo))).strftime('%Y-%m-%d')
+
+        if self.valor_maximo and self.comportamento == 'monetario':
+            return f'R$ {self.valor_maximo:.2f}'
+
+        if self.comportamento == 'numerico':
+            return int(self.valor_maximo)
 
     def __str__(self):
         return self.nome_taxa
@@ -73,7 +140,14 @@ class OrcamentoMonitor(models.Model):
 
 
 class OrcamentoOpicional(models.Model):
+    lista_caterogias = (
+        ('ceu', 'CEU'),
+        ('outros', 'Outros opcionais'),
+        ('eco', 'Ecoturismo'),
+    )
+
     nome = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=100, choices=lista_caterogias)
     descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
@@ -317,15 +391,25 @@ class Orcamento(models.Model):
     check_out = models.DateTimeField(verbose_name='Check out', blank=True, null=True)
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
-    opcionais = models.ManyToManyField(
+    outros_opcionais = models.ManyToManyField(
         OrcamentoOpicional,
         blank=True,
-        verbose_name='Opcionais',
-        related_name='opcionais'
+        verbose_name='Outros opcionais',
+        related_name='outros_opcionais'
+    )
+    opcionais_eco = models.ManyToManyField(
+        OrcamentoOpicional,
+        blank=True,
+        verbose_name='Ecoturismo',
+        related_name='opcionais_eco'
+    )
+    opcionais_ceu = models.ManyToManyField(
+        OrcamentoOpicional,
+        blank=True,
+        verbose_name='CEU',
+        related_name='opcionais_ceu'
     )
     opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra', editable=False)
-    atividades = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades Peraltas')
-    atividades_ceu = models.ManyToManyField(Atividades, blank=True, verbose_name='Atividades CEU')
     desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True)
@@ -859,6 +943,10 @@ class CadastroOrcamento(forms.ModelForm):
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         pacotes_promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+        opcionais = OrcamentoOpicional.objects.all()
+        outros_opcionais = [('', '')]
+        opcionais_eco = [('', '')]
+        opcionais_ceu = [('', '')]
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         orcamentos_promocionais = [('', '')]
@@ -881,14 +969,20 @@ class CadastroOrcamento(forms.ModelForm):
         for pacote in pacotes_promocionais:
             orcamentos_promocionais.append((pacote.id, pacote.pacote_promocional.nome_do_pacote))
 
+        for opcional in opcionais:
+            if opcional.categoria == 'outros':
+                outros_opcionais.append((opcional.id, opcional))
+            elif opcional.categoria == 'ceu':
+                opcionais_ceu.append((opcional.id, opcional))
+            else:
+                opcionais_eco.append((opcional.id, opcional))
+
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['orcamento_promocional'].choices = orcamentos_promocionais
-
-        def clean(self):
-            cleaned_data = super(self).clean()
-            print(cleaned_data)
-            eee
+        self.fields['outros_opcionais'].choices = outros_opcionais
+        self.fields['opcionais_ceu'].choices = opcionais_ceu
+        self.fields['opcionais_eco'].choices = opcionais_eco
 
 
 class CadastroHorariosPadroesAdmin(forms.ModelForm):
