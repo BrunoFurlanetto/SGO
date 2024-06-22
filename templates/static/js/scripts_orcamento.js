@@ -13,8 +13,8 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#apelido_orcamento').val($('#id_apelido').val())
 
     let hoje = new Date()
-    $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
-    $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
+    $('#modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
+    // $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
 
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -1199,8 +1199,10 @@ async function resetar_forms() {
         try {
             $('#info_promocional').prop('disabled', true)
             $('#form_gerencia')[0].reset()
-            $('#data_pagamento, #modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
+            $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
             $('#tabela_de_opcionais [id*=desconto]').val('0,00')
+            let default_data_pagamento = $('#data_pagamento').data('valor_default')
+            $('#data_pagamento').val(default_data_pagamento)
 
             resolve(true)
         } catch (e) {

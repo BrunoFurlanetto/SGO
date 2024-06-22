@@ -21,7 +21,8 @@
             <hr>
         </div>
 
-        <form id="orcamento" name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
+        <form id="orcamento"
+              name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
@@ -68,7 +69,8 @@
                         <div id="periodo" onchange="verificar_preenchimento()">
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
-                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem" onchange="separar_produtos(this)"/>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
+                                   onchange="separar_produtos(this)"/>
                             <label for="produto">Produto</label>
                             {{ orcamento.produto }}
                         </div>
@@ -111,18 +113,18 @@
                     <div id="container_opcionais" style="margin-bottom: -45px"
                          class="{% if not id_orcamento %} none {% endif %}">
                         <div id="opcionais" class="conteudo">
-                            <h5 class="titulo-secao">Atividades e Opcionais</h5>
+                            <h5 class="titulo-secao">Opcionais</h5>
                             <div>
-                                <label>Opcionais</label>
-                                {{ orcamento.atividades }}
+                                {{ orcamento.opcionais_ceu.label }}
+                                {{ orcamento.opcionais_ceu }}
                             </div>
                             <div class="mt-3">
-                                {{ orcamento.atividades_ceu.label }}
-                                {{ orcamento.atividades_ceu }}
+                                {{ orcamento.opcionais_eco.label }}
+                                {{ orcamento.opcionais_eco }}
                             </div>
                             <div class="select_opcionais mt-3">
-                                <label>Atividades Peraltas</label>
-                                {{ orcamento.opcionais }}
+                                {{ orcamento.outros_opcionais.label }}
+                                {{ orcamento.outros_opcionais }}
                             </div>
                             <div class="row mt-3" style="align-items: flex-end">
                                 <div class="select_outros">
@@ -156,7 +158,8 @@
                                   rows="10"></textarea>
                     </div>
                     <div class="botoes">
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal" data-target="#modal_apelido_orcamento">
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal"
+                                data-target="#modal_apelido_orcamento">
                             Salvar prévia
                         </button>
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
@@ -337,32 +340,20 @@
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
                                      onchange="verificar_alteracoes(this)">
-                                    <div>
-                                        <label for="comissao">Comissão</label>
-                                        <input type="text" id="comissao" name="comissao" {{ 'comissao' | pegar_taxa }}>
-                                        <input type="hidden" id="comissao_alterado" name="comissao_alterado" value="0">
-                                    </div>
-                                    <div>
-                                        <label for="taxa_comercial">Taxa Comercial</label>
-                                        <input type="text" id="taxa_comercial"
-                                               name="taxa_comercial" {{ 'taxa_comercial' | pegar_taxa }}>
-                                        <input type="hidden" id="taxa_comercial_alterado" name="taxa_comercial_alterado"
-                                               value="0">
-                                    </div>
-                                    <div>
-                                        <label for="minimo_onibus">Mínimo no ônibus</label>
-                                        <input type="number" id="minimo_onibus"
-                                               name="minimo_onibus" {{ 'minimo_onibus' | pegar_taxa }}>
-                                        <input type="hidden" id="minimo_onibus_alterado" name="minimo_onibus_alterado"
-                                               value="0">
-                                    </div>
-                                    <div style="width: 28%">
-                                        <label for="data_pagamento">Data de pagamento</label>
-                                        <input type="date" id="data_pagamento"
-                                               name="data_pagamento" {{ 'data_pagamento' | pegar_taxa }}>
-                                        <input type="hidden" id="data_pagamento_alterado" name="data_pagamento_alterado"
-                                               value="0">
-                                    </div>
+                                    {% for taxa in taxas_padrao %}
+                                        {% if taxa.aparecer_comercial %}
+                                            <div>
+                                                <label>{{ taxa.nome_taxa_comercial }}</label>
+                                                <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"
+                                                       name="{{ taxa.id_taxa }}" value="{{ taxa.valor_padrao_formatado }}"
+                                                       data-valor_default="{{ taxa.valor_padrao_formatado }}"
+                                                       data-valor_inicial="{{ taxa.valor_padrao_formatado }}"
+                                                       data-valor_alterado="{{ taxa.valor_padrao_formatado }}"
+                                                       {% if taxa.valor_maximo %} data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
+                                                       {% if taxa.valor_minimo %} data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
                                     <div>
                                         <label for="ajuste_diaria">Ajuste</label>
                                         <input type="text" id="ajuste_diaria" name="ajuste_diaria" value="0,00"
@@ -595,7 +586,8 @@
 
     <div class="modal fade" id="modal_apelido_orcamento" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
-         aria-hidden="true" onmousemove="$('#btn_salvar_apelido').prop('disabled', $('#apelido_orcamento').val().length < 5)">
+         aria-hidden="true"
+         onmousemove="$('#btn_salvar_apelido').prop('disabled', $('#apelido_orcamento').val().length < 5)">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -606,10 +598,13 @@
                 </div>
                 <div class="modal-body">
                     <label for="apelido_orcamento">Forneça um apelido para o orçamento</label>
-                    <input type="text" id="apelido_orcamento" name="apelido_orcamento" onkeyup="atribuir_apelaido(this)" required>
+                    <input type="text" id="apelido_orcamento" name="apelido_orcamento" onkeyup="atribuir_apelaido(this)"
+                           required>
                 </div>
                 <div class="modal-footer">
-                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary" onclick="salvar_orcamento(true)" disabled>Salvar</button>
+                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary"
+                            onclick="salvar_orcamento(true)" disabled>Salvar
+                    </button>
                 </div>
             </div>
         </div>
