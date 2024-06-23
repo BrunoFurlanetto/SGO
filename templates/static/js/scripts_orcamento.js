@@ -45,7 +45,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         return false
     })
 
-    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:select", async function (e) {
+    $("#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais").on("select2:select", async function (e) {
         const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
@@ -82,7 +82,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         }
     })
 
-    $("#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu").on("select2:unselect", async function (e) {
+    $("#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais").on("select2:unselect", async function (e) {
         loading()
         const opcao = e.params.data;
 
@@ -116,9 +116,9 @@ function verificar_produto() {
     const produto = $('#id_produto option:selected').text().toLowerCase()
 
     if (produto.includes('ceu')) {
-        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', true)
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
     } else {
-        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_atividades, #id_opcionais').prop('disabled', false)
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
     }
 }
 
@@ -272,9 +272,9 @@ function verificar_datas(date) {
 
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido = false) {
     if (removido) {
-        if (nome_id == 'id_atividades') {
+        if (nome_id == 'id_opcionais_eco') {
             $(`#tabela_de_opcionais tbody #atividade_${opcao['id']}`).remove()
-        } else if (nome_id == 'id_atividades_ceu') {
+        } else if (nome_id == 'id_outros_opcionais') {
             $(`#tabela_de_opcionais tbody #atividade_ceu_${opcao['id']}`).remove()
         } else {
             $(`#tabela_de_opcionais tbody #op_${opcao['id']}`).remove()
@@ -285,7 +285,7 @@ async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removid
 
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
-    if (nome_id == 'id_atividades') {
+    if (nome_id == 'id_opcionais_eco') {
         $('#tabela_de_opcionais tbody').append(`
             <tr id="atividade_${opcao['id']}" class="opcionais">
                 <th><input type="text" id="atividade_peraltas_${i}" name="atividade_peraltas_${i}" value='${opcao['text']}' disabled></th>
@@ -295,7 +295,7 @@ async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removid
                 <th><input type="text" id="desconto_atividade_peraltas_${i}" data-limite_desconto="${valor_selecao}" name="atividade_peraltas_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
             </tr>
         `)
-    } else if (nome_id == 'id_atividades_ceu') {
+    } else if (nome_id == 'id_outros_opcionais') {
         $('#tabela_de_opcionais tbody').append(`
             <tr id="atividade_ceu_${opcao['id']}" class="opcionais">
                 <th><input type="text" id="atividade_ceu_${i}" name="atividade_ceu_${i}" value='${opcao['text']}' disabled></th>
@@ -869,7 +869,7 @@ async function verificar_preenchimento() {
 async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
         setTimeout(() => {
-            $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').select2()
+            $('#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais').select2()
         }, 300)
         loading()
 
@@ -895,6 +895,7 @@ async function enviar_op(opcionais) {
 
     try {
         await enviar_form()
+        console.log('Foi')
         $('#container_opcionais .parcial').addClass('visivel')
     } catch (error) {
         $('#container_opcionais .parcial').text('').removeClass('visivel')
@@ -1107,29 +1108,29 @@ async function preencher_promocional(id_promocional) {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
 
-                $('#id_atividades').val(response['atividades'])
-                $('#id_atividades_ceu').val(response['atividades_ceu'])
-                $('#id_opcionais').val(response['opcionais'])
+                $('#id_opcionais_eco').val(response['atividades'])
+                $('#id_outros_opcionais').val(response['atividades_ceu'])
+                $('#id_opcionais_ceu').val(response['opcionais'])
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
                     if (op['valor'] !== undefined) {
                         let dados_op = {'valor': op['valor']}
                         let opcional = {'id': op['id'], 'text': op['nome']}
                         let desconto = formatar_dinheiro(op['desconto'])
-                        listar_op(dados_op, 'id_opcionais', opcional, i + 1, desconto)
+                        listar_op(dados_op, 'id_opcionais_ceu', opcional, i + 1, desconto)
                     } else {
                         op['atividades'].map((ativ) => {
                             let dados_op = {'valor': ativ['valor']}
                             let opcional = {'id': ativ['id'], 'text': ativ['nome']}
                             let desconto = formatar_dinheiro(ativ['desconto'])
-                            listar_op(dados_op, 'id_atividades', opcional, i + 1, desconto)
+                            listar_op(dados_op, 'id_opcionais_eco', opcional, i + 1, desconto)
                         })
 
                         op['atividades_ceu'].map((ativ) => {
                             let dados_op = {'valor': ativ['valor']}
                             let opcional = {'id': ativ['id'], 'text': ativ['nome']}
                             let desconto = formatar_dinheiro(ativ['desconto'])
-                            listar_op(dados_op, 'id_atividades_ceu', opcional, i + 1, desconto)
+                            listar_op(dados_op, 'id_outros_opcionais', opcional, i + 1, desconto)
                         })
                     }
                 })
@@ -1177,7 +1178,7 @@ async function preencher_promocional(id_promocional) {
             }
         }).done(() => {
             verificar_monitoria_transporte()
-            $('#id_atividades, #id_atividades_ceu, #id_opcionais').trigger('change')
+            $('#id_opcionais_eco, #id_outros_opcionais, #opcionais_ceu').trigger('change')
             $('#tabela_de_opcionais input').maskMoney({
                 prefix: 'R$ ',
                 thousands: '.',

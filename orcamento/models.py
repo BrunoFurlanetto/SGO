@@ -957,9 +957,9 @@ class CadastroOrcamento(forms.ModelForm):
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
-            'opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
-            'atividades': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
-            'atividades_ceu': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'outros_opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'opcionais_ceu': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'opcionais_eco': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
             'outros': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
         }
 

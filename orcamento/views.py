@@ -315,14 +315,7 @@ def verificar_responsaveis(request):
 
 def pesquisar_op(request):
     if is_ajax(request):
-        if request.GET.get('nome_id') == 'id_opcionais':
-            selecao = OrcamentoOpicional.objects.get(pk=request.GET.get('id'))
-        elif request.GET.get('nome_id') == 'id_atividades':
-            selecao = AtividadesEco.objects.get(id=request.GET.get('id'))
-        else:
-            selecao = Atividades.objects.get(id=request.GET.get('id'))
-
-        return JsonResponse({'valor': selecao.valor})
+        return JsonResponse({'valor': OrcamentoOpicional.objects.get(pk=request.GET.get('id')).valor})
 
 
 def pegar_dados_pacoe(request):
