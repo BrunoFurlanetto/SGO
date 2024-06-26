@@ -170,7 +170,9 @@ class Budget:
                     other['id'],
                     other['nome'], 
                     self.days, 
-                    other['descricao'])
+                    "extra", 
+                    other['descricao'],
+                    )
                 other_array.append(obj_other.do_object(
                     description=True
                 ))
@@ -198,7 +200,8 @@ class Budget:
                 self.commission, 
                 db_optional.id,
                 db_optional.nome,
-                self.days
+                self.days,
+                "opcional"
             )
             description.set_discount(discount)
             optional_array.append(description.do_object())
@@ -222,7 +225,8 @@ class Budget:
                 self.commission, 
                 db_optional.id,
                 db_optional.nome_atividade_eco,
-                self.days
+                self.days,
+                "ecoturismo"
             )
             description.set_discount(discount)
             activities_array.append(description.do_object())
@@ -247,7 +251,8 @@ class Budget:
                     self.commission, 
                     db_optional.id,
                     db_optional.atividade,
-                    self.days
+                    self.days,
+                    "ceu"
                 )
                 description.set_discount(discount)
                 activities_array.append(description.do_object())
@@ -259,12 +264,12 @@ class Budget:
             return self.array_description_activities_sky
 
     def return_object(self):
-        description_options = self.array_description_optional
-        description_options.append({
-            "outros": self.array_description_others,
-            "atividades": self.array_description_activities,
-            "atividades_ceu": self.array_description_activities_sky
-        })
+        description_options = self.array_description_optional + self.array_description_others + self.array_description_activities + self.array_description_activities_sky
+        # description_options.append({
+        #     "outros": self.array_description_others,
+        #     "atividades": self.array_description_activities,
+        #     "atividades_ceu": self.array_description_activities_sky
+        # })
         return {
             "periodo_viagem": self.period.do_object(),
             "n_dias": self.days,
@@ -274,10 +279,10 @@ class Budget:
                 "diaria": self.daily_rate.do_object(),
                 "transporte": self.transport.do_object(),
                 "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(),
-                "opcionais": self.optional.do_object(),
-                "outros": self.others.do_object(),
-                "atividades": self.activities.do_object(),
-                "atividades_ceu": self.activities_sky.do_object()
+                "outros_opcionais": self.optional.do_object(),
+                "opcionais_extras": self.others.do_object(),
+                "opcionais_ecoturismo": self.activities.do_object(),
+                "opcionais_ceu": self.activities_sky.do_object()
 
             },
             "descricao_opcionais": description_options,
