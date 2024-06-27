@@ -2,7 +2,7 @@ from .basevalue import BaseValue
 
 
 class OptionalDescription(BaseValue):
-    def __init__(self, value, percent_business_fee, percent_commission, optional_id, optional_name, days, category, description="" ):
+    def __init__(self, value, percent_business_fee, percent_commission, optional_id, optional_name, days, category, description=""):
         values = [float(value)]
         for i in range(1, days):
             values.append(0)

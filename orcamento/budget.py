@@ -108,26 +108,25 @@ class Budget:
         if len(valores_op) == 0:
             if "opcionais" in data:
                 opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
-
-            if "atividades" in data:
-                act_data = [[act, 0, 0, 0] for act in data["atividades"]]
+            # if "atividades" in data:
+            #     act_data = [[act, 0, 0, 0] for act in data["atividades"]]
 
             # if "atividades_ceu" in data:
             #     act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
         else:
             for key, value in valores_op.items():
-                if 'opcional' in key:
+                if 'outros' in key:
                     opt_data.append(value)
-                elif 'peraltas' in key:
+                elif 'eco' in key:
                     act_data.append(value)
                 elif 'ceu' in key:
                     act_sky_data.append(value)
-
+        print(act_sky_data, '-------')
         self.set_optional(opt_data)
         self.optional.calc_value_optional(self.array_description_optional)
         self.set_activities(act_data)
         self.activities.calc_value_optional(self.array_description_activities)
-        self.set_activities_sky(data.get('atividades_ceu'))
+        self.set_activities_sky(act_sky_data)
         self.activities_sky.calc_value_optional(self.array_description_activities_sky)
         self.set_others(data.get("outros"))
         self.others.calc_value_optional(self.array_description_others)
@@ -190,9 +189,11 @@ class Budget:
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
-
-            if opt[1]:
+            print(opt)
+            try:
                 discount = opt[1]
+            except IndexError:
+                ...
 
             description = OptionalDescription(
                 db_optional.valor,
@@ -201,7 +202,7 @@ class Budget:
                 db_optional.id,
                 db_optional.nome,
                 self.days,
-                "opcional"
+                db_optional.categoria,
             )
             description.set_discount(discount)
             optional_array.append(description.do_object())
@@ -213,7 +214,7 @@ class Budget:
         activities_array = []
 
         for opt in arr:
-            db_optional = AtividadesEco.objects.get(pk=opt[0])
+            db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
 
             if opt[1]:
@@ -224,9 +225,9 @@ class Budget:
                 self.business_fee,
                 self.commission, 
                 db_optional.id,
-                db_optional.nome_atividade_eco,
+                db_optional.nome,
                 self.days,
-                "ecoturismo"
+                db_optional.categoria,
             )
             description.set_discount(discount)
             activities_array.append(description.do_object())
@@ -236,10 +237,10 @@ class Budget:
 
     def set_activities_sky(self, arr):
         activities_array = []
-
+        print(arr, '++++')
         try:
             for opt in arr:
-                db_optional = Atividades.objects.get(pk=opt)
+                db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
                 discount = 0
 
                 # if opt[1]:
@@ -248,16 +249,18 @@ class Budget:
                 description = OptionalDescription(
                     db_optional.valor,
                     self.business_fee,
-                    self.commission, 
+                    self.commission,
                     db_optional.id,
-                    db_optional.atividade,
+                    db_optional.nome,
                     self.days,
-                    "ceu"
+                    db_optional.categoria,
                 )
                 description.set_discount(discount)
                 activities_array.append(description.do_object())
         except TypeError as e:
             ...
+        except Exception as e:
+            print(f'Erro: ({e}!')
         else:
             self.array_description_activities_sky = activities_array
 

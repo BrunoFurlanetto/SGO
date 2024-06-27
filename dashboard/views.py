@@ -19,7 +19,7 @@ from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
-from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
+from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas, OrcamentosPromocionais
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
@@ -200,7 +200,10 @@ def dashboardPeraltas(request):
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
     tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
-    pacotes = Orcamento.objects.filter(data_vencimento__gte=datetime.today().date()).filter(promocional=True)
+    pacotes = OrcamentosPromocionais.objects.filter(
+        orcamento__data_vencimento__gte=datetime.today().date(),
+        orcamento__previa=False,
+    )
 
     if diretoria:
         fichas_financeira_aprovacao = FichaFinanceira.objects.filter(autorizado_diretoria=False, negado=False)

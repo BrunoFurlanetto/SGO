@@ -371,3 +371,10 @@ input[type='checkbox'] {
     background: none;
     border: none;
 }
+
+#btn_dados_pacote {
+    background: none;
+    border: none;
+    font-size: 25px;
+    display: flex;
+}

@@ -392,20 +392,6 @@ class Orcamento(models.Model):
         blank=True,
         null=True
     )
-    pacote_promocional = models.ForeignKey(
-        DadosDePacotes,
-        verbose_name='Pacote promocional',
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True
-    )
-    orcamento_promocional = models.ForeignKey(
-        'self',
-        null=True,
-        blank=True,
-        on_delete=models.DO_NOTHING,
-        verbose_name='Orçamento promocional'
-    )
     produto = models.ForeignKey(
         ProdutosPeraltas,
         on_delete=models.CASCADE,
@@ -456,7 +442,7 @@ class Orcamento(models.Model):
     data_ultima_edicao = models.DateField(
         blank=True,
         null=True,
-        default=datetime.datetime.now,
+        auto_now=True,
         verbose_name='Data da ultima edição'
     )
 
@@ -468,11 +454,11 @@ class Orcamento(models.Model):
         if not self.promocional:
             return f'Orçamento de {self.cliente}'
         else:
-            return self.pacote_promocional.nome_do_pacote
+            return f'Orçamento promocional {self.id}'
 
     @property
     def oficina_de_foguetes(self):
-        foguetes = self.atividades_ceu.all().filter(atividade__icontains='foguete')
+        foguetes = self.opcionais_ceu.all().filter(atividade__icontains='foguete')
 
         return len(foguetes) > 0
 
@@ -509,41 +495,6 @@ class Orcamento(models.Model):
         check_out = self.check_out.strftime('%d/%m/%Y %H:%M')
 
         return f'{check_in} - {check_out}'
-
-    @staticmethod
-    def pegar_pacotes_promocionais(n_dias, id_produto, check_in, check_out):
-        def comparar_intervalo():
-            intervalos = [valor for p in pacote.pacote_promocional.periodos_aplicaveis for valor in p.values()]
-
-            for intervalo in intervalos:
-                cin, cout = intervalo.split(' - ')
-                i_check_in = datetime.datetime.strptime(cin, '%d/%m/%Y').date()
-                i_check_out = datetime.datetime.strptime(cout, '%d/%m/%Y').date()
-                check_in_formatado = datetime.datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
-                check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
-
-                if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
-                    return True
-
-            return False
-
-        pacotes = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
-        pacotes_validos = []
-
-        for pacote in pacotes:
-            if comparar_intervalo():
-                if pacote.pacote_promocional.minimo_de_diarias <= n_dias <= pacote.pacote_promocional.maximo_de_diarias:
-                    if id_produto in [p.id for p in pacote.pacote_promocional.produtos_elegiveis.all()]:
-                        dados = serializers.serialize('json', [pacote.pacote_promocional, ])
-                        campos = json.loads(dados)[0]['fields']
-
-                        pacotes_validos.append({
-                            'id': pacote.id,
-                            'nome': pacote.pacote_promocional.nome_do_pacote,
-                        })
-
-        return pacotes_validos
-
 
     # def tabelas_opcionais(self):
     #     opcionais = []
@@ -781,20 +732,55 @@ class Orcamento(models.Model):
 
 
 class OrcamentosPromocionais(models.Model):
+    dados_pacote = models.ForeignKey(DadosDePacotes, on_delete=models.CASCADE)
     orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Orçamento promocional'
-        verbose_name_plural = '08 - Pacotes prontos criados'
+        verbose_name = 'Pacotes promocionais'
+        verbose_name_plural = '08 - Pacotes construidos'
 
     def __str__(self):
-        return self.orcamento.pacote_promocional.nome_do_pacote
+        return self.dados_pacote.nome_do_pacote
 
     def valor_base(self):
         return self.orcamento.valor
 
     def validade(self):
         return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
+
+    @classmethod
+    def pegar_pacotes_promocionais(cls, n_dias, id_produto, check_in, check_out):
+        def comparar_intervalo():
+            intervalos = [valor for p in pacote.dados_pacote.periodos_aplicaveis for valor in p.values()]
+
+            for intervalo in intervalos:
+                cin, cout = intervalo.split(' - ')
+                i_check_in = datetime.datetime.strptime(cin, '%d/%m/%Y').date()
+                i_check_out = datetime.datetime.strptime(cout, '%d/%m/%Y').date()
+                check_in_formatado = datetime.datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
+                check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
+
+                if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
+                    return True
+
+            return False
+
+        pacotes = cls.objects.filter(orcamento__data_vencimento__gte=datetime.date.today())
+        pacotes_validos = []
+
+        for pacote in pacotes:
+            if comparar_intervalo():
+                if pacote.dados_pacote.minimo_de_diarias <= n_dias <= pacote.dados_pacote.maximo_de_diarias:
+                    if id_produto in [p.id for p in pacote.dados_pacote.produtos_elegiveis.all()]:
+                        # dados = serializers.serialize('json', [pacote.dados_pacote, ])
+                        # campos = json.loads(dados)[0]['fields']
+
+                        pacotes_validos.append({
+                            'id': pacote.id,
+                            'nome': pacote.dados_pacote.nome_do_pacote,
+                        })
+
+        return pacotes_validos
 
 
 class Tratativas(models.Model):
@@ -950,9 +936,7 @@ class CadastroOrcamento(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'promocional': forms.CheckboxInput(
-                attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
-            'orcamento_promocional': forms.Select(attrs={'disabled': True, 'onchange': 'mostrar_dados_pacote(this)'}),
+            'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
             'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
@@ -967,14 +951,12 @@ class CadastroOrcamento(forms.ModelForm):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
-        pacotes_promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
         opcionais = OrcamentoOpicional.objects.all()
         outros_opcionais = [('', '')]
         opcionais_eco = [('', '')]
         opcionais_ceu = [('', '')]
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
-        orcamentos_promocionais = [('', '')]
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -991,9 +973,6 @@ class CadastroOrcamento(forms.ModelForm):
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
-        for pacote in pacotes_promocionais:
-            orcamentos_promocionais.append((pacote.id, pacote.pacote_promocional.nome_do_pacote))
-
         for opcional in opcionais:
             if opcional.categoria == 'outros':
                 outros_opcionais.append((opcional.id, opcional))
@@ -1004,7 +983,6 @@ class CadastroOrcamento(forms.ModelForm):
 
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
-        self.fields['orcamento_promocional'].choices = orcamentos_promocionais
         self.fields['outros_opcionais'].choices = outros_opcionais
         self.fields['opcionais_ceu'].choices = opcionais_ceu
         self.fields['opcionais_eco'].choices = opcionais_eco

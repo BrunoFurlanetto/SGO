@@ -13,6 +13,7 @@ let desconto_aplicado = 0*/
 
 $(document).ready(() => {
     moment.locale('pt-br')
+    $('#previas_orcamento .tabelas table').iniciarlizarDataTable([0, 1, 4, 5], 0)
 
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)

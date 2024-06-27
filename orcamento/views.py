@@ -147,7 +147,8 @@ def salvar_orcamento(request, id_tratativa=None):
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
-                OrcamentosPromocionais.objects.create(orcamento=orcamento_salvo)
+                print(data)
+                OrcamentosPromocionais.objects.create(orcamento=orcamento_salvo, dados_pacote_id=int(data.get('id_pacote_promocional')))
 
             return JsonResponse({
                 "status": "success",
@@ -187,7 +188,7 @@ def calc_budget(req):
 
         # return
         try:
-            promocionais = Orcamento.pegar_pacotes_promocionais(
+            promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
                 data['n_dias'],
                 int(data['produto']),
                 data['check_in'],
@@ -264,7 +265,7 @@ def preencher_op_extras(request):
 
 def preencher_orcamento_promocional(request):
     if is_ajax(request):
-        orcamento_promocional = Orcamento.objects.get(pk=request.GET.get('id_promocional'))
+        orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_promocional')).orcamento
 
         return JsonResponse({
             'obj': orcamento_promocional.objeto_orcamento,
@@ -274,10 +275,10 @@ def preencher_orcamento_promocional(request):
             'produto': orcamento_promocional.produto.id if orcamento_promocional.produto is not None else '',
             'monitoria': orcamento_promocional.tipo_monitoria.id,
             'transporte': orcamento_promocional.transporte,
-            'opcionais': [op.id for op in orcamento_promocional.opcionais.all() if op is not None],
+            'outros_opcionais': [op.id for op in orcamento_promocional.outros_opcionais.all() if op is not None],
             'opcionais_extra': orcamento_promocional.opcionais_extra,
-            'atividades': [op.id for op in orcamento_promocional.atividades.all() if op is not None],
-            'atividades_ceu': [op.id for op in orcamento_promocional.atividades_ceu.all() if op is not None],
+            'opcionais_eco': [op.id for op in orcamento_promocional.opcionais_eco.all() if op is not None],
+            'opcionais_ceu': [op.id for op in orcamento_promocional.opcionais_ceu.all() if op is not None],
         })
 
 
@@ -320,11 +321,11 @@ def pesquisar_op(request):
 
 def pegar_dados_pacoe(request):
     if is_ajax(request):
-        orcamento_promocional = Orcamento.objects.get(pk=request.GET.get('id_pacote'))
+        orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_pacote'))
 
         return JsonResponse({
-            'orcamento_promocional': orcamento_promocional.serializar_objetos(),
-            'dados_promocionais': orcamento_promocional.pacote_promocional.serializar_objetos()
+            'orcamento_promocional': orcamento_promocional.orcamento.serializar_objetos(),
+            'dados_promocionais': orcamento_promocional.dados_pacote.serializar_objetos()
         })
 
 
@@ -342,8 +343,11 @@ def salvar_pacote(request):
             pacote = dados_pacote_promocional.save(commit=False)
             pacote.save()
         except Exception as e:
-            ...
+            return JsonError(f'Erro ao salvar os dados do pacote ({e})! Tente novavemente mais tarde.')
         else:
             DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
+            menor_horario = HorariosPadroes.objects.all().order_by('horario')[0].horario.strftime('%H:%M')
+            maior_horario = HorariosPadroes.objects.all().order_by('-final_horario')[0].final_horario.strftime('%H:%M')
+            print(menor_horario, maior_horario)
 
-            return HttpResponse(pacote.id)
+            return JsonResponse({'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario})

@@ -26,6 +26,7 @@
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
+                <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional">
                 {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
                                             value="{{ tratativa.id_tratativa }}">{% endif %}
                 <input type="hidden" name="salvar_previa" id="salvar_previa">
@@ -43,23 +44,14 @@
                         {{ orcamento.responsavel }}
                     </div>
 
-                    {% if promocionais %}
-                        <div id="promocionais" class="mt-2">
-                            <label for="orcamentos_promocionais">Promocionais</label>
-                            <select name="orcamento_promocional" id="orcamentos_promocionais"
-                                    onchange="liberar_periodo()">
-                                <option></option>
-                                {% for promocional in promocionais %}
-                                    <option value="{{ promocional.id }}">{{ promocional.nome_promocional }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% endif %}
-
                     {% if financeiro %}
-                        <div class="mt-2" style="display: flex; column-gap: 7px">
+                        <div class="mt-2" style="display: flex; column-gap: 7px; align-items: center">
                             {{ orcamento.promocional }}
                             <label for="id_promocional">{{ orcamento.promocional.label }}</label>
+                            <button type="button" disabled data-toggle="modal" data-target="#dados_do_pacote"
+                                    id="btn_dados_pacote">
+                                <i class='bx bx-message-square-edit'></i>
+                            </button>
                         </div>
                         {{ orcamento.pacote_promocional.as_hidden }}
                     {% endif %}
@@ -77,8 +69,11 @@
                         <hr>
                         <div id="promocionais">
                             <div>
-                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
-                                {{ orcamento.orcamento_promocional }}
+                                <label>Orçamentos promocionais</label>
+                                <label for="id_orcamento_promocional"></label>
+                                <select name="orcamento_promocional" id="id_orcamento_promocional" disabled onchange="mostrar_dados_pacote(this)">
+                                    <option value=""></option>
+                                </select>
                             </div>
                             <button type="button" name="info_promocional" disabled
                                     title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
@@ -524,8 +519,7 @@
                             <h5 class="titulo-secao">Períodos aplicáveis</h5>
                             <div id="lista_de_periodos" class="mb-3">
                                 <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis"
-                                           onchange="atualizar_periodo()">
+                                    <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
                                     <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)">
                                         <span>&times;</span></button>
                                 </div>

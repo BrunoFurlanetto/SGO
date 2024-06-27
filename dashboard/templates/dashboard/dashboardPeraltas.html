@@ -497,9 +497,9 @@
                         <tbody>
                         {% for pacote in pacotes %}
                             <tr>
-                                <td>{{ pacote.pacote_promocional.nome_do_pacote }}</td>
-                                <td>{{ pacote.data_vencimento |date:'d/m/Y' }}</td>
-                                <td>R$ {{ pacote.valor|substituir_ponto }}</td>
+                                <td>{{ pacote.dados_pacote.nome_do_pacote }}</td>
+                                <td>{{ pacote.orcamento.data_vencimento |date:'d/m/Y' }}</td>
+                                <td>R$ {{ pacote.orcamento.valor|substituir_ponto }}</td>
                             </tr>
                         {% endfor %}
 
@@ -509,11 +509,13 @@
             </div>
             <div id="previas_orcamento" class="section-content">
                 <div class="tabelas">
-                    <h5>Tratativas Abertas</h5>
+                    <h5>Prévias em construção</h5>
                     <hr>
                     <table class="table table-hover table-striped">
                         <thead>
                         <tr style="text-align: center">
+                            <th style="width: 30%">Data de criação</th>
+                            <th style="width: 30%">Data edição</th>
                             <th style="width: 30%">Apelido</th>
                             <th style="width: 30%">Cliente</th>
                             <th style="width: 20%">Check in</th>
@@ -525,10 +527,12 @@
                         <tbody>
                         {% for previa in previas_orcamento %}
                             <tr style="cursor: pointer; vertical-align: middle">
+                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.data_preenchimento | date:'Y-m-d' }}</td>
+                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.data_ultima_edicao | date:'Y-m-d' }}</td>
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.apelido }}</td>
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.cliente }}</td>
-                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_in|date:'d/m/Y' }}</td>
-                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_out|date:'d/m/Y' }}</td>
+                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_in|date:'Y-m-d' }}</td>
+                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_out|date:'Y-m-d' }}</td>
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'"><nobr>R$ {{ previa.valor|substituir_ponto }}</nobr></td>
                                 <td title="Apagar prévia" style="font-size: 25px; color: #FF0000" onclick="window.location.href='{% url 'apagar_orcamento' previa.id %}'">&times;</td>
                             </tr>

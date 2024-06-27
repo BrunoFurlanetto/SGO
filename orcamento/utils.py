@@ -58,8 +58,11 @@ def processar_formulario(dados, user):
         correspondencia_gerencia = re.match(padrao_gerencia, key)
 
         if correspondencia_orcamento:
-            if 'opcionais' in key or 'outros' in key or 'atividades' in key:
-                orcamento[correspondencia_orcamento.group(1)] = list(map(int, dados.getlist(key)))
+            if 'opcionais' in key:
+                try:
+                    orcamento[correspondencia_orcamento.group(1)] = list(map(int, dados.getlist(key)))
+                except ValueError:
+                    ...
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
 
@@ -170,7 +173,7 @@ def processar_formulario(dados, user):
             only_sky = False
 
         orcamento['only_sky'] = only_sky
-
+    print(orcamento)
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 
 
