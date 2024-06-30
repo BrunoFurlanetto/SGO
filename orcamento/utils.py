@@ -43,14 +43,14 @@ def processar_formulario(dados, user):
     padrao_orcamento = r'orcamento\[(\w+)\]'
     padrao_valores_op = r'dados_op\[(\w+)\]'
     padrao_gerencia = r'gerencia\[(\w+)\]'
-    padrao_outros = re.compile('.*outros.*')
+    padrao_extra = re.compile('.*extra.*')
 
     for key in dados.keys():
-        if padrao_outros.match(key):
+        if padrao_extra.match(key):
             op_extras += 1 / 4
 
     if op_extras > 0:
-        orcamento['outros'] = compilar_outros(dados, int(op_extras))
+        orcamento['opcionais_extra'] = compilar_outros(dados, int(op_extras))
 
     for key, valor in dados.items():
         correspondencia_orcamento = re.match(padrao_orcamento, key)
@@ -66,7 +66,7 @@ def processar_formulario(dados, user):
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
 
-        if correspondencia_valores_op:
+        if correspondencia_valores_op and not 'extra' in key:
             lista = []
 
             for i, item in enumerate(dados.getlist(key)):
@@ -173,7 +173,7 @@ def processar_formulario(dados, user):
             only_sky = False
 
         orcamento['only_sky'] = only_sky
-    print(orcamento)
+
     return {'orcamento': orcamento, 'valores_op': valores_opcionais, 'gerencia': gerencia}
 
 
@@ -202,10 +202,10 @@ def compilar_outros(dados, op_extras):
 
     for i in range(0, op_extras):
         outros.append({
-            'id': dados[f'outros[{i}][id]'],
-            'nome': dados[f'outros[{i}][nome]'],
-            'valor': float(dados[f'outros[{i}][valor]'].replace(',', '.')),
-            'descricao': dados[f'outros[{i}][descricao]'],
+            'id': dados[f'opcionais_extra[{i}][id]'],
+            'nome': dados[f'opcionais_extra[{i}][nome]'],
+            'valor': float(dados[f'opcionais_extra[{i}][valor]'].replace(',', '.')),
+            'descricao': dados[f'opcionais_extra[{i}][descricao]'],
         })
 
     return outros

@@ -106,7 +106,6 @@ def salvar_orcamento(request, id_tratativa=None):
 
         data['desconto'] = f'{desconto:.2f}'
         data['valor'] = f'{valor_final:.2f}'
-        data['opcionais_extra'] = data.get('outros', [])
         data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
         data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
 
@@ -147,7 +146,6 @@ def salvar_orcamento(request, id_tratativa=None):
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
-                print(data)
                 OrcamentosPromocionais.objects.create(orcamento=orcamento_salvo, dados_pacote_id=int(data.get('id_pacote_promocional')))
 
             return JsonResponse({
@@ -348,6 +346,5 @@ def salvar_pacote(request):
             DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
             menor_horario = HorariosPadroes.objects.all().order_by('horario')[0].horario.strftime('%H:%M')
             maior_horario = HorariosPadroes.objects.all().order_by('-final_horario')[0].final_horario.strftime('%H:%M')
-            print(menor_horario, maior_horario)
 
             return JsonResponse({'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario})

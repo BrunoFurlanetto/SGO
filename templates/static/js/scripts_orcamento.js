@@ -2,6 +2,12 @@ let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar, promocional = false
+const relacao_id_categoria = {
+    'id_outros_opcionais': 'outros',
+    'id_opcionais_eco': 'eco',
+    'id_opcionais_ceu': 'ceu',
+    'op_extras': 'extra'
+}
 const secoes = [
     'diaria',
     'periodo_viagem',
@@ -57,11 +63,13 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
-        let nome_id = $(this).attr('id')
+
+        console.log($(this).attr('id'))
+        let nome_id = relacao_id_categoria[$(this).attr('id')]
         loading()
 
         try {
-            if (nome_id !== 'op_extras') {
+            if (nome_id !== 'extra') {
                 $.ajax({
                     type: 'GET',
                     url: '/orcamento/pesquisar_op/',
@@ -93,9 +101,9 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     $("#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais").on("select2:unselect", async function (e) {
         loading()
         const opcao = e.params.data;
-
+        console.log($(`#opcionais_${relacao_id_categoria[$(this).attr('id')]}_${opcao['id']}`))
         try {
-            $(`#op_${opcao['id']}`).remove()
+            $(`#opcionais_${relacao_id_categoria[$(this).attr('id')]}_${opcao['id']}`).remove()
         } catch (error) {
             alert(error)
             end_loading()
@@ -295,9 +303,9 @@ function verificar_datas(date) {
 
 async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido = false) {
     if (removido) {
-        if (nome_id == 'id_opcionais_eco') {
+        if (nome_id == 'eco') {
             $(`#tabela_de_opcionais tbody #opcional_eco_${opcao['id']}`).remove()
-        } else if (nome_id == 'id_outros_opcionais') {
+        } else if (nome_id == 'outros') {
             $(`#tabela_de_opcionais tbody #outro_opcional_${opcao['id']}`).remove()
         } else {
             $(`#tabela_de_opcionais tbody #opcional_ceu_${opcao['id']}`).remove()
@@ -307,31 +315,31 @@ async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removid
     }
 
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
-
-    if (nome_id == 'id_opcionais_eco') {
+    console.log(nome_id)
+    if (nome_id == 'eco') {
         $('#tabela_de_opcionais tbody').append(`
-            <tr id="opcional_eco_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="opcionais_eco_${i}" name="opcionais_eco_${i}" value='${opcao['text']}' disabled></th>
+            <tr id="opcionais_eco_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="nome_opcionais_eco_${i}" name="opcionais_eco_${i}" value='${opcao['text']}' disabled></th>
                 <input type="hidden" id="id_opcionais_eco_${i}" name="opcionais_eco_${i}" value="${opcao['id']}">                    
                 <input type="hidden" id="valor_bd_opcionais_eco_${i}" name="opcionais_eco_${i}" value='${valor_selecao}' disabled>
                 <th><input type="text" id="valor_opcionais_eco_${i}" disabled name="opcionais_eco_${i}" value='${valor_selecao}'></th>
                 <th><input type="text" id="desconto_opcionais_eco_${i}" data-limite_desconto="${valor_selecao}" name="opcionais_eco_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
             </tr>
         `)
-    } else if (nome_id == 'id_outros_opcionais') {
+    } else if (nome_id == 'outros') {
         $('#tabela_de_opcionais tbody').append(`
-            <tr id="outro_opcional_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="outros_opcionais_${i}" name="outros_opcionais_${i}" value='${opcao['text']}' disabled></th>
-                <input type="hidden" id="id_outros_opcionais_${i}" name="outros_opcionais_${i}" value="${opcao['id']}">                    
-                <input type="hidden" id="valor_bd_outros_opcionais_${i}" name="outros_opcionais_${i}" value='${valor_selecao}' disabled>
-                <th><input type="text" id="valor_outros_opcionais_${i}" disabled name="outros_opcionais_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_outros_opcionais_${i}" name="outros_opcionais_${i}" value="${desconto}" disabled></th> 
+            <tr id="opcionais_outros_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="nome_opcionais_outros_${i}" name="opcionais_outros_${i}" value='${opcao['text']}' disabled></th>
+                <input type="hidden" id="id_opcionais_outros_${i}" name="opcionais_outros_${i}" value="${opcao['id']}">                    
+                <input type="hidden" id="valor_bd_opcionais_outros_${i}" name="opcionais_outros_${i}" value='${valor_selecao}' disabled>
+                <th><input type="text" id="valor_opcionais_outros_${i}" disabled name="opcionais_outros_${i}" value='${valor_selecao}'></th>
+                <th><input type="text" id="desconto_opcionais_outros_${i}" name="opcionais_outros_${i}" value="${desconto}" disabled></th> 
             </tr>
         `)
     } else {
         $('#tabela_de_opcionais tbody').append(`
-            <tr id="opcional_ceu_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['text']}" disabled></th>
+            <tr id="opcionais_ceu_${opcao['id']}" class="opcionais">
+                <th><input type="text" id="nome_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['text']}" disabled></th>
                 <input type="hidden" id="id_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['id']}">                    
                 <input type="hidden" id="valor_bd_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value='${valor_selecao}' disabled>
                 <th><input type="text" id="valor_opcionais_ceu_${i}" disabled name="opcionais_ceu_${i}" value='${valor_selecao}'></th>
@@ -349,10 +357,10 @@ async function listar_op_extras(opcao, i) {
     })[0]
 
     $('#tabela_de_opcionais tbody').append(`
-        <tr id="op_${opcional_extra['id']}" class="opcionais">
-            <th><input type="text" id="opcional_${i}" name="opcional_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
-            <th><input type="text" id="valor_opcional_${i}" disabled name="opcional_${i}" value="${opcional_extra['valor']}"></th>
-            <th><input type="text" id="desconto_opcional_${i}" name="opcional_${i}" value="0,00" disabled></th> 
+        <tr id="opcionais_extra_${opcional_extra['id']}" class="opcionais">
+            <th><input type="text" id="nome_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
+            <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${opcional_extra['valor']}"></th>
+            <th><input type="text" id="desconto_opcionais_extra_${i}" name="opcionais_extra_${i}" value="0,00" disabled></th> 
         </tr>
     `)
 }
@@ -572,12 +580,12 @@ async function enviar_form(salvar = false) {
         }
     }
 
-    let dados_op, gerencia, outros;
+    let dados_op, gerencia, opcionais_extra;
     const form = $('#orcamento');
     const orcamento = form.serializeObject();
 
     if (op_extras.length > 0) {
-        outros = op_extras.filter((op, index) => {
+        opcionais_extra = op_extras.filter((op, index) => {
             if ($('#op_extras').val().includes(op['id'])) {
                 return op;
             }
@@ -594,7 +602,7 @@ async function enviar_form(salvar = false) {
                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                 type: "POST",
                 dataType: 'JSON',
-                data: {orcamento, dados_op, gerencia, outros, 'salvar': salvar},
+                data: {orcamento, dados_op, gerencia, opcionais_extra, 'salvar': salvar},
                 success: function (response) {
                     if (!salvar) {
                         let valores = response['data']['valores']
@@ -913,7 +921,7 @@ async function verificar_monitoria_transporte() {
     }
 }
 
-async function enviar_op(opcionais) {
+async function enviar_op() {
     loading()
 
     try {
@@ -965,7 +973,7 @@ async function adicionar_novo_op() {
     $('#container_opcionais .parcial').addClass('visivel')
 }
 
-async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional) {
+async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional, editando=false) {
     op_extras.push({
         'id': id_op_extra,
         'nome': nome_opcional,
@@ -982,15 +990,17 @@ async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descric
 
     $('#op_extras').append(newOption).trigger('change')
 
-    $('#op_extras').trigger({
-        type: 'select2:select',
-        params: {
-            data: {
-                id: id_op_extra,
-                text: nome_opcional
+    if (!editando) {
+        $('#op_extras').trigger({
+            type: 'select2:select',
+            params: {
+                data: {
+                    id: id_op_extra,
+                    text: nome_opcional
+                }
             }
-        }
-    })
+        })
+    }
 
     await enviar_form()
 
@@ -1117,15 +1127,16 @@ function salvar_dados_do_pacote() {
     end_loading()
 }
 
-async function preencher_op_extras(id_orcamento) {
+async function preencher_op_extras(id_orcamento, editando=false) {
     $.ajax({
         type: 'GET',
         url: '/orcamento/preencher_op_extras/',
         data: {'id_orcamento_extras': id_orcamento},
         success: function (response) {
+            console.log(response)
             if (response['opcionais_extra']) {
                 for (let opt of response['opcionais_extra']) {
-                    novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'])
+                    novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'], editando)
                 }
             }
         }
@@ -1152,21 +1163,7 @@ async function preencher_promocional(id_promocional) {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
                     let desconto = formatar_dinheiro(op['desconto'])
-                    listar_op(dados_op, 'id_opcionais_ceu', opcional, i + 1, desconto)
-                    // console.log(op, '----')
-                    // op['atividades'].map((ativ) => {
-                    //     let dados_op = {'valor': ativ['valor']}
-                    //     let opcional = {'id': ativ['id'], 'text': ativ['nome']}
-                    //     let desconto = formatar_dinheiro(ativ['desconto'])
-                    //     listar_op(dados_op, 'id_opcionais_eco', opcional, i + 1, desconto)
-                    // })
-                    //
-                    // op['atividades_ceu'].map((ativ) => {
-                    //     let dados_op = {'valor': ativ['valor']}
-                    //     let opcional = {'id': ativ['id'], 'text': ativ['nome']}
-                    //     let desconto = formatar_dinheiro(ativ['desconto'])
-                    //     listar_op(dados_op, 'id_outros_opcionais', opcional, i + 1, desconto)
-                    // })
+                    listar_op(dados_op, op['categoria'], opcional, i + 1, desconto)
                 })
 
                 if (response['opcionais_extra']) {

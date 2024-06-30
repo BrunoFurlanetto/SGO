@@ -69,11 +69,8 @@
                         <hr>
                         <div id="promocionais">
                             <div>
-                                <label>Orçamentos promocionais</label>
-                                <label for="id_orcamento_promocional"></label>
-                                <select name="orcamento_promocional" id="id_orcamento_promocional" disabled onchange="mostrar_dados_pacote(this)">
-                                    <option value=""></option>
-                                </select>
+                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
+                                {{ orcamento.orcamento_promocional }}
                             </div>
                             <button type="button" name="info_promocional" disabled
                                     title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
@@ -124,7 +121,7 @@
                             <div class="row mt-3" style="align-items: flex-end">
                                 <div class="select_outros">
                                     <label for="op_extras">Outros itens</label>
-                                    <select name="op_extra" id="op_extras" multiple></select>
+                                    <select name="op_extra" id="op_extras" onchange="enviar_op()" multiple></select>
                                 </div>
                                 <div style="width: 5%">
                                     <button id="botao_add_opcionais" type="button"
@@ -226,81 +223,24 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for op in orcamento_origem.valores_opcionais.descritivo_atividades %}
-                                <tr id="op_{{ op.id }}" class="opcionais">
-                                    <th><input type="text" id="opcional_{{ forloop.counter }}"
-                                               name="opcional_{{ forloop.counter }}"
-                                               value="{{ op.atividade }}" disabled></th>
-                                    <input type="hidden" id="id_opcional_{{ forloop.counter }}"
-                                           name="opcional_{{ forloop.counter }}"
+                            {% for op in orcamento_origem.listar_opcionais %}
+                                <tr id="opcionais_{{ op.categoria }}_{{ op.id }}" class="opcionais">
+                                    <th><input type="text" id="nome_opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                               name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                               value="{{ op.nome }}" disabled></th>
+                                    <input type="hidden" id="id_opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                           name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
                                            value="{{ op.id }}">
-                                    <input type="hidden" id="valor_bd_opcional_{{ forloop.counter }}"
-                                           name="opcional_{{ forloop.counter }}"
-                                           value='{{ op.valor_neto }}' disabled>
-                                    <th><input type="text" id="valor_opcional_{{ forloop.counter }}" disabled
-                                               name="opcional_{{ forloop.counter }}"
-                                               value='{{ op.valor_desconto }}'></th>
-                                    <th><input type="text" id="desconto_opcional_{{ forloop.counter }}"
-                                               name="opcional_{{ forloop.counter }}"
-                                               data-limite_desconto="{{ op.valor_neto }}" value="{{ op.desconto }}"
+                                    <input type="hidden" id="valor_bd_opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                           name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                           value='{{ op.valor }}' disabled>
+                                    <th><input type="text" id="valor_opcionais_{{ op.categoria }}_{{ forloop.counter }}" disabled
+                                               name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                               value='{{ op.valor_com_desconto }}'></th>
+                                    <th><input type="text" id="desconto_opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                               name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
+                                               data-limite_desconto="{{ op.valor }}" value="{{ op.desconto }}"
                                                onchange="aplicar_desconto(this)"></th>
-                                </tr>
-                            {% endfor %}
-                            {% for op in orcamento_origem.valores_ceu.descritivo_atividades %}
-                                <tr id="atividade_ceu_{{ op.id }}" class="opcionais">
-                                    <th><input type="text" id="atividade_ceu_{{ forloop.counter }}"
-                                               name="atividade_ceu_{{ forloop.counter }}"
-                                               value='{{ op.atividade }}' disabled>
-                                    </th>
-                                    <input type="hidden" id="id_atividade_ceu_{{ forloop.counter }}"
-                                           name="atividade_ceu_{{ forloop.counter }}"
-                                           value="{{ op.id }}">
-                                    <input type="hidden" id="valor_bd_atividade_ceu_{{ forloop.counter }}"
-                                           name="atividade_ceu_{{ forloop.counter }}" value='{{ op.valor_neto }}'
-                                           disabled>
-                                    <th><input type="text" id="valor_atividade_ceu_{{ forloop.counter }}" disabled
-                                               name="atividade_ceu_{{ forloop.counter }}"
-                                               value='{{ op.valor_desconto }}'></th>
-                                    <th><input type="text" id="desconto_atividade_ceu_{{ forloop.counter }}"
-                                               data-limite_desconto="{{ op.valor_neto }}"
-                                               name="atividade_ceu_{{ forloop.counter }}"
-                                               value="{{ op.desconto }}" onchange="aplicar_desconto(this)"></th>
-                                </tr>
-                            {% endfor %}
-                            {% for op in orcamento_origem.valores_peraltas.descritivo_atividades %}
-                                <tr id="atividade_{{ op.id }}" class="opcionais">
-                                    <th>
-                                        <input type="text" id="atividade_peraltas_{{ forloop.counter }}"
-                                               name="atividade_peraltas_{{ forloop.counter }}"
-                                               value='{{ op.atividade }}' disabled>
-                                    </th>
-                                    <input type="hidden" id="id_atividade_peraltas_{{ forloop.counter }}"
-                                           name="atividade_peraltas_{{ forloop.counter }}"
-                                           value="{{ op.id }}">
-                                    <input type="hidden" id="valor_bd_atividade_peraltas_{{ forloop.counter }}"
-                                           name="atividade_peraltas_{{ forloop.counter }}" value='{{ op.valor_neto }}'
-                                           disabled>
-                                    <th>
-                                        <input type="text" id="valor_atividade_peraltas_{{ forloop.counter }}" disabled
-                                               name="atividade_peraltas_{{ forloop.counter }}"
-                                               value='{{ op.valor_desconto }}'></th>
-                                    <th><input type="text" id="desconto_atividade_peraltas_{{ forloop.counter }}"
-                                               data-limite_desconto="{{ op.valor_neto }}"
-                                               name="atividade_peraltas_{{ forloop.counter }}"
-                                               value="{{ op.desconto }}" onchange="aplicar_desconto(this)"></th>
-                                </tr>
-                            {% endfor %}
-                            {% for op in orcamento_origem.valores_outros.descritivo_atividades %}
-                                <tr id="op_{{ op.id }}" class="opcionais">
-                                    <th><input type="text" id="opcional_{{ forloop.counter }}"
-                                               name="opcional_{{ forloop.counter }}"
-                                               value="{{ op.atividade }}" disabled></th>
-                                    <th><input type="text" id="valor_opcional_{{ forloop.counter }}" disabled
-                                               name="opcional_{{ forloop.counter }}"
-                                               value="{{ op.valor_neto }}"></th>
-                                    <th><input type="text" id="desconto_opcional_{{ forloop.counter }}"
-                                               name="opcional_{{ forloop.counter }}" value="0,00"
-                                               disabled></th>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -610,9 +550,16 @@
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
-                await preencher_op_extras({{ id_orcamento|safe }})
+                await preencher_op_extras({{ id_orcamento|safe }}, true)
                 $('#data_viagem, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
+                $('#tabela_de_opcionais input').maskMoney({
+                    prefix: 'R$ ',
+                    thousands: '.',
+                    decimal: ',',
+                    allowZero: true,
+                    affixesStay: false,
+                })
             {% else %}
                 await inicializacao();
             {% endif %}

@@ -121,14 +121,14 @@ class Budget:
                     act_data.append(value)
                 elif 'ceu' in key:
                     act_sky_data.append(value)
-        print(act_sky_data, '-------')
+
         self.set_optional(opt_data)
         self.optional.calc_value_optional(self.array_description_optional)
         self.set_activities(act_data)
         self.activities.calc_value_optional(self.array_description_activities)
         self.set_activities_sky(act_sky_data)
         self.activities_sky.calc_value_optional(self.array_description_activities_sky)
-        self.set_others(data.get("outros"))
+        self.set_others(data.get("opcionais_extra"))
         self.others.calc_value_optional(self.array_description_others)
 
         if data.get('transporte') and data.get('transporte') == 'sim' and len(
@@ -237,7 +237,7 @@ class Budget:
 
     def set_activities_sky(self, arr):
         activities_array = []
-        print(arr, '++++')
+
         try:
             for opt in arr:
                 db_optional = OrcamentoOpicional.objects.get(pk=opt[0])

@@ -420,7 +420,7 @@ class Orcamento(models.Model):
         verbose_name='CEU',
         related_name='opcionais_ceu'
     )
-    opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra', editable=False)
+    opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
     desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True)
@@ -428,6 +428,14 @@ class Orcamento(models.Model):
     motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')
     objeto_gerencia = models.JSONField(blank=True, null=True, editable=False)
     objeto_orcamento = models.JSONField(blank=True, null=True, editable=False)
+    orcamento_promocional = models.ForeignKey(
+        'orcamento.OrcamentosPromocionais',
+        on_delete=models.CASCADE,
+        verbose_name='Orçamento Promocional',
+        related_name='id_orcamento_promocional',
+        blank=True,
+        null=True,
+    )
     promocional = models.BooleanField(default=False)
     status_orcamento = models.ForeignKey(
         StatusOrcamento,
@@ -496,19 +504,6 @@ class Orcamento(models.Model):
 
         return f'{check_in} - {check_out}'
 
-    # def tabelas_opcionais(self):
-    #     opcionais = []
-    #
-    #     for op in self.atividades.all():
-    #         opcionais.append({
-    #             'nome': op.nome_atividade_eco,
-    #             'id': op.id,
-    #             'valor': op.valor,
-    #             ''
-    #         })
-    #
-    #     return
-
     def serializar_objetos(self):
         obj = self
         dados = serializers.serialize('json', [obj, ])
@@ -535,6 +530,10 @@ class Orcamento(models.Model):
             'cnpj': self.cliente.cnpj,
             'observacoes_orcamento': self.observacoes,
         }
+
+    def listar_opcionais(self):
+
+        return self.objeto_orcamento['descricao_opcionais']
 
     # -------------------------- Métodos pra tabelar os valores da tabela da ficha financeira --------------------------
     def datas_evento(self):
@@ -588,27 +587,26 @@ class Orcamento(models.Model):
         }
 
     def valores_ceu(self):
-        valores_atividades = self.objeto_orcamento['valores']['atividades_ceu']
+        valores_atividades = self.objeto_orcamento['valores']['opcionais_ceu']
         descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
         dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
         atividades_ceu = []
 
-        for atividades in descritivo_atividades:
-            if atividades.get('atividades_ceu'):
-                for atividade_ceu in atividades.get('atividades_ceu'):
-                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_ceu['valores']))
+        for atividade in descritivo_atividades:
+            if atividade['categoria'] == 'ceu':
+                dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade['valores']))
 
-                    atividades_ceu.append({
-                        'id': atividade_ceu['id'],
-                        'atividade': atividade_ceu['nome'],
-                        'valor_neto': f"{atividade_ceu['valor']:.2f}".replace('.', ','),
-                        'valor_desconto': f"{atividade_ceu['valor_com_desconto']:.2f}".replace('.', ','),
-                        'taxas': f"{atividade_ceu['taxa_comercial']:.2f}".replace('.', ','),
-                        'cov': f"{atividade_ceu['comissao_de_vendas']:.2f}".replace('.', ','),
-                        'desconto': f"{atividade_ceu['desconto']:.2f}".replace('.', ','),
-                        'valor_final': f"{atividade_ceu['valor_final']:.2f}".replace('.', ','),
-                        'dia_dia': dia_dia_ativ
-                    })
+                atividades_ceu.append({
+                    'id': atividade['id'],
+                    'atividade': atividade['nome'],
+                    'valor_neto': f"{atividade['valor']:.2f}".replace('.', ','),
+                    'valor_desconto': f"{atividade['valor_com_desconto']:.2f}".replace('.', ','),
+                    'taxas': f"{atividade['taxa_comercial']:.2f}".replace('.', ','),
+                    'cov': f"{atividade['comissao_de_vendas']:.2f}".replace('.', ','),
+                    'desconto': f"{atividade['desconto']:.2f}".replace('.', ','),
+                    'valor_final': f"{atividade['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_ativ
+                })
 
         return {
             'valor_neto': f"{valores_atividades['valor']:.2f}".replace('.', ','),
@@ -621,27 +619,26 @@ class Orcamento(models.Model):
         }
 
     def valores_peraltas(self):
-        valores_atividades = self.objeto_orcamento['valores']['atividades']
+        valores_atividades = self.objeto_orcamento['valores']['opcionais_ecoturismo']
         descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
         dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
         atividades_peraltas = []
 
-        for atividades in descritivo_atividades:
-            if atividades.get('atividades'):
-                for atividade_peraltas in atividades.get('atividades'):
-                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_peraltas['valores']))
+        for atividade in descritivo_atividades:
+            if atividade['categoria'] == 'outros':
+                dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade['valores']))
 
-                    atividades_peraltas.append({
-                        'id': atividade_peraltas['id'],
-                        'atividade': atividade_peraltas['nome'],
-                        'valor_neto': f"{atividade_peraltas['valor']:.2f}".replace('.', ','),
-                        'valor_desconto': f"{atividade_peraltas['valor_com_desconto']:.2f}".replace('.', ','),
-                        'taxas': f"{atividade_peraltas['taxa_comercial']:.2f}".replace('.', ','),
-                        'cov': f"{atividade_peraltas['comissao_de_vendas']:.2f}".replace('.', ','),
-                        'desconto': f"{atividade_peraltas['desconto']:.2f}".replace('.', ','),
-                        'valor_final': f"{atividade_peraltas['valor_final']:.2f}".replace('.', ','),
-                        'dia_dia': dia_dia_ativ,
-                    })
+                atividades_peraltas.append({
+                    'id': atividade['id'],
+                    'atividade': atividade['nome'],
+                    'valor_neto': f"{atividade['valor']:.2f}".replace('.', ','),
+                    'valor_desconto': f"{atividade['valor_com_desconto']:.2f}".replace('.', ','),
+                    'taxas': f"{atividade['taxa_comercial']:.2f}".replace('.', ','),
+                    'cov': f"{atividade['comissao_de_vendas']:.2f}".replace('.', ','),
+                    'desconto': f"{atividade['desconto']:.2f}".replace('.', ','),
+                    'valor_final': f"{atividade['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_ativ,
+                })
 
         return {
             'valor_neto': f"{valores_atividades['valor']:.2f}".replace('.', ','),
@@ -654,13 +651,13 @@ class Orcamento(models.Model):
         }
 
     def valores_opcionais(self):
-        valores_opcionais = self.objeto_orcamento['valores']['opcionais']
+        valores_opcionais = self.objeto_orcamento['valores']['outros_opcionais']
         descritivo_opcionais = self.objeto_orcamento['descricao_opcionais']
         dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_opcionais['valores']))
         opcionais = []
 
         for opcional in descritivo_opcionais:
-            if opcional.get('valor'):
+            if opcional['categoria'] == 'extras':
                 dia_dia_op = list(map(lambda a: str(round(a, 2)).replace('.', ','), opcional['valores']))
 
                 opcionais.append({
@@ -686,7 +683,7 @@ class Orcamento(models.Model):
         }
 
     def valores_outros(self):
-        valores_outros = self.objeto_orcamento['valores']['outros']
+        valores_outros = self.objeto_orcamento['valores']['opcionais_extras']
         descritivo_outros = self.objeto_orcamento['descricao_opcionais']
         dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_outros['valores']))
         outros = []
@@ -944,7 +941,7 @@ class CadastroOrcamento(forms.ModelForm):
             'outros_opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
             'opcionais_ceu': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
             'opcionais_eco': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
-            'outros': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
+            'orcamento_promocional': forms.Select(attrs={'disabled': True, 'onchange': 'mostrar_dados_pacote(this)'}),
         }
 
     def __init__(self, *args, **kwargs):
