@@ -118,14 +118,19 @@
                                 {{ orcamento.outros_opcionais.label }}
                                 {{ orcamento.outros_opcionais }}
                             </div>
-                            <div class="row mt-3" style="align-items: flex-end">
-                                <div class="select_outros">
-                                    <label for="op_extras">Outros itens</label>
-                                    <select name="op_extra" id="op_extras" onchange="enviar_op()" multiple></select>
+                            <div class="row mt-3">
+                                <p>Outros itens</p>
+                                <hr>
+                                <div id="legenda_opcionais_extra" class="none">
+                                    <p>Nome</p>
+                                    <p>Descrição</p>
+                                    <p>Valor</p>
                                 </div>
-                                <div style="width: 5%">
+                                <div id="lista_opcionais_extra"></div>
+                                <div>
                                     <button id="botao_add_opcionais" type="button"
                                             onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                        Adicionar outro item
                                         <i class='bx bx-plus'></i>
                                     </button>
                                 </div>
@@ -236,10 +241,10 @@
                                            value='{{ op.valor }}' disabled>
                                     <th><input type="text" id="valor_opcionais_{{ op.categoria }}_{{ forloop.counter }}" disabled
                                                name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
-                                               value='{{ op.valor_com_desconto }}'></th>
+                                               value='{{ op.valor_com_desconto | substituir_ponto }}'></th>
                                     <th><input type="text" id="desconto_opcionais_{{ op.categoria }}_{{ forloop.counter }}"
                                                name="opcionais_{{ op.categoria }}_{{ forloop.counter }}"
-                                               data-limite_desconto="{{ op.valor }}" value="{{ op.desconto }}"
+                                               data-limite_desconto="{{ op.valor }}" {% if op.categoria == 'ceu' or op.categoria == 'extra' %} disabled {% endif %} value="{{ op.desconto | substituir_ponto }}"
                                                onchange="aplicar_desconto(this)"></th>
                                 </tr>
                             {% endfor %}

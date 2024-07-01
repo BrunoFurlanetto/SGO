@@ -58,7 +58,7 @@ class Transport(TransportProtocol):
                 values.append(0)
 
             self.values = values
-            print("Transport", self.values)
+
             return self.values
 
     def set_discount(self, value):

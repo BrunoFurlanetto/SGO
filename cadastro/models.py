@@ -33,7 +33,6 @@ class RelatorioDeAtendimentoPublicoCeu(models.Model):
         return list(self.equipe.values())
 
     def listar_atividades(self):
-        print(list(self.atividades.values()))
         return list(self.atividades.values())
 
     def coordenador_escalado(self):

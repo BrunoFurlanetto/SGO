@@ -258,7 +258,7 @@ def preencher_op_extras(request):
         if request.GET.get('id_orcamento_extras'):
             orcamento = Orcamento.objects.get(pk=request.GET.get('id_orcamento_extras'))
 
-            return JsonResponse({'opcionais_extra': orcamento.opcionais_extra})
+            return JsonResponse({'opcionais_extra': orcamento.op_extra_formatado()})
 
 
 def preencher_orcamento_promocional(request):

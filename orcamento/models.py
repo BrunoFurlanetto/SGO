@@ -535,6 +535,19 @@ class Orcamento(models.Model):
 
         return self.objeto_orcamento['descricao_opcionais']
 
+    def op_extra_formatado(self):
+        op_extras = []
+
+        for op in self.opcionais_extra:
+            op_extras.append({
+                'id': op['id'],
+                'nome': op['nome'],
+                'descricao': op['descricao'],
+                'valor': str(op['valor']).replace('.', ','),
+            })
+
+        return op_extras
+
     # -------------------------- Métodos pra tabelar os valores da tabela da ficha financeira --------------------------
     def datas_evento(self):
         data = self.check_in

@@ -59,7 +59,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         return false
     })
 
-    $("#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais").on("select2:select", async function (e) {
+    $("#id_opcionais_ceu, #id_opcionais_eco, #id_outros_opcionais").on("select2:select", async function (e) {
         const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
@@ -69,27 +69,23 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         loading()
 
         try {
-            if (nome_id !== 'extra') {
-                $.ajax({
-                    type: 'GET',
-                    url: '/orcamento/pesquisar_op/',
-                    data: {'nome_id': nome_id, 'id': opcao['id']},
-                }).then(async (response) => {
-                    await listar_op(response, nome_id, opcao, i)
-                }).done(async () => {
-                    $('#tabela_de_opcionais input').maskMoney({
-                        prefix: 'R$ ',
-                        thousands: '.',
-                        decimal: ',',
-                        allowZero: true,
-                        affixesStay: false,
-                    })
-                    await enviar_form()
+            $.ajax({
+                type: 'GET',
+                url: '/orcamento/pesquisar_op/',
+                data: {'nome_id': nome_id, 'id': opcao['id']},
+            }).then(async (response) => {
+                await listar_op(response, nome_id, opcao, i)
+            }).done(async () => {
+                $('#tabela_de_opcionais input').maskMoney({
+                    prefix: 'R$ ',
+                    thousands: '.',
+                    decimal: ',',
+                    allowZero: true,
+                    affixesStay: false,
                 })
-            } else {
-                await listar_op_extras(opcao, i)
                 await enviar_form()
-            }
+            })
+
         } catch (error) {
             alert(error)
         } finally {
@@ -98,10 +94,10 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         }
     })
 
-    $("#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais").on("select2:unselect", async function (e) {
+    $("#id_opcionais_ceu, #id_opcionais_eco, #id_outros_opcionais").on("select2:unselect", async function (e) {
         loading()
         const opcao = e.params.data;
-        console.log($(`#opcionais_${relacao_id_categoria[$(this).attr('id')]}_${opcao['id']}`))
+
         try {
             $(`#opcionais_${relacao_id_categoria[$(this).attr('id')]}_${opcao['id']}`).remove()
         } catch (error) {
@@ -355,11 +351,13 @@ async function listar_op_extras(opcao, i) {
             return op
         }
     })[0]
-
+    console.log(opcional_extra)
     $('#tabela_de_opcionais tbody').append(`
         <tr id="opcionais_extra_${opcional_extra['id']}" class="opcionais">
-            <th><input type="text" id="nome_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['nome']}" disabled></th>                                 
-            <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${opcional_extra['valor']}"></th>
+            <th><input type="text" id="nome_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['nome']}" disabled></th>
+            <input type="hidden" id="id_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['id']}">
+            <input type="hidden" id="valor_bd_opcionais_extra_${i}" name="opcionais_extra_${i}" value='${opcional_extra['valor'].replace('.', ',')}' disabled>                                 
+            <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${opcional_extra['valor'].replace('.', ',')}"></th>
             <th><input type="text" id="desconto_opcionais_extra_${i}" name="opcionais_extra_${i}" value="0,00" disabled></th> 
         </tr>
     `)
@@ -404,7 +402,7 @@ function linhas_descritivo_opcionais(opcionais, id_linha) {
     }
 
     for (let categoria in opcionais) {
-        for (let opt of opcionais[categoria]){
+        for (let opt of opcionais[categoria]) {
             let linhaEspecifica = $(`#tabela_de_valores #${id_linhas[categoria]}`);
             var classe_ultimo_valor = ''
 
@@ -585,11 +583,7 @@ async function enviar_form(salvar = false) {
     const orcamento = form.serializeObject();
 
     if (op_extras.length > 0) {
-        opcionais_extra = op_extras.filter((op, index) => {
-            if ($('#op_extras').val().includes(op['id'])) {
-                return op;
-            }
-        });
+        opcionais_extra = op_extras
     }
 
     dados_op = $('#forms_valores_op').serializeObject();
@@ -973,37 +967,42 @@ async function adicionar_novo_op() {
     $('#container_opcionais .parcial').addClass('visivel')
 }
 
-async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional, editando=false) {
+async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional, editando = false) {
     op_extras.push({
         'id': id_op_extra,
         'nome': nome_opcional,
         'valor': valor_opcional,
         'descricao': descricao_opcional,
     })
-
-    let newOption = new Option(
-        nome_opcional,
-        id_op_extra,
-        true,
-        true
-    );
-
-    $('#op_extras').append(newOption).trigger('change')
+    const opcionais = $('.opcionais').length
+    const i = opcionais + 1
 
     if (!editando) {
-        $('#op_extras').trigger({
-            type: 'select2:select',
-            params: {
-                data: {
-                    id: id_op_extra,
-                    text: nome_opcional
-                }
-            }
-        })
+        await listar_op_extras({'id': id_op_extra}, i)
     }
 
+    let dados_novo_opcional = `
+        <div id="${id_op_extra}" class="opcional_extra">
+            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" title="${nome_opcional}" id="nome_op_extra" name="nome_op_extra" value="${nome_opcional}">
+            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" title="${descricao_opcional}" id="descricao_op_extra" name="descricao_op_extra" value="${descricao_opcional}">
+            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" id="valor_op_extra" name="valor_op_extra" class="valor_opcional_extra" value="${valor_opcional}">
+            <button onclick="remover_opcional_extra('${id_op_extra}')">&times;</button>
+            <hr style="width: 100%">
+        </div>
+    `
+    $('#lista_opcionais_extra').append(dados_novo_opcional)
+    $('.valor_opcional_extra').mascaraDinheiro()
+    $('#legenda_opcionais_extra').removeClass('none')
     await enviar_form()
+}
 
+async function remover_opcional_extra(id_op_extra) {
+    op_extras = op_extras.filter(function (opcional) {
+        return opcional.id !== id_op_extra;
+    })
+    $(`#lista_opcionais_extra #${id_op_extra}`).remove()
+    $(`#opcionais_extra_${id_op_extra}`).remove()
+    await enviar_form()
 }
 
 async function atualizar_valores_op(carregar = false) {
@@ -1127,19 +1126,20 @@ function salvar_dados_do_pacote() {
     end_loading()
 }
 
-async function preencher_op_extras(id_orcamento, editando=false) {
+async function preencher_op_extras(id_orcamento, editando = false) {
     $.ajax({
         type: 'GET',
         url: '/orcamento/preencher_op_extras/',
         data: {'id_orcamento_extras': id_orcamento},
         success: function (response) {
-            console.log(response)
             if (response['opcionais_extra']) {
                 for (let opt of response['opcionais_extra']) {
                     novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'], editando)
                 }
             }
         }
+    }).done(() => {
+        $('#container_opcionais .parcial').addClass('visivel')
     })
 }
 
@@ -1406,3 +1406,23 @@ function atribuir_apelaido(input_apelido) {
         $('#btn_salvar_apelido').prop('disabled', true)
     }
 }
+
+async function editar_opcional_extra(pai, elemento) {
+    const id_pai = $(pai).attr('id')
+    $(elemento).attr('title', $(elemento).val())
+
+    op_extras.forEach((op) => {
+        if (op['id'] == id_pai) {
+            op['nome'] = $(`#${id_pai} #nome_op_extra`).val()
+            op['descricao'] = $(`#${id_pai} #descricao_op_extra`).val()
+            op['valor'] = $(`#${id_pai} #valor_op_extra`).val().replace('R$ ',  '')
+            $(`#opcionais_extra_${id_pai} input`).eq(0).val(op['nome'])
+            $(`#opcionais_extra_${id_pai} input`).eq(3).val(op['valor'])
+        }
+    })
+
+    if ($(elemento).attr('id') == 'valor_op_extra') {
+        await enviar_form()
+    }
+}
+

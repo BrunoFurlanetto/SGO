@@ -33,5 +33,5 @@ class TransportGoAndBack(TransportProtocol):
                 values.append(0)
         finally:
             self.values = values
-            print("Leva e busca", self.values)
+
             return self.values

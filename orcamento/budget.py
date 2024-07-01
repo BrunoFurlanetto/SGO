@@ -178,7 +178,6 @@ class Budget:
         except TypeError:
             ...
         else:
-            print(other_array)
             self.array_description_others = other_array
 
             return self.array_description_others
@@ -189,7 +188,6 @@ class Budget:
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
             discount = 0
-            print(opt)
             try:
                 discount = opt[1]
             except IndexError:

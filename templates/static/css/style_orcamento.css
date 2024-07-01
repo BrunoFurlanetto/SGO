@@ -150,6 +150,7 @@ input[type='checkbox'] {
 #botao_add_opcionais {
     background: none;
     border: none;
+    display: flex;
 }
 
 #botao_add_opcionais i {
@@ -377,4 +378,42 @@ input[type='checkbox'] {
     border: none;
     font-size: 25px;
     display: flex;
+}
+
+#lista_opcionais_extra .opcional_extra{
+    display: flex;
+    column-gap: 5px;
+    flex-wrap: wrap;
+}
+
+#lista_opcionais_extra .opcional_extra > input:nth-child(1) {
+    width: 33%;
+}
+
+#lista_opcionais_extra .opcional_extra > input:nth-child(2) {
+    width: 47%;
+}
+
+#lista_opcionais_extra .opcional_extra > input:nth-child(3) {
+    width: 14%;
+}
+
+#lista_opcionais_extra button {
+    background: none;
+    border: none;
+    font-size: 25px;
+    color: #FF0000FF;
+}
+
+#legenda_opcionais_extra {
+    display: flex;
+}
+
+#legenda_opcionais_extra > p:first-child {
+    margin-left: 85px;
+    margin-right: 180px;
+}
+
+#legenda_opcionais_extra > p:nth-child(2) {
+    margin-right: 110px;
 }

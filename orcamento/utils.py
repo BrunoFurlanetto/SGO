@@ -37,16 +37,16 @@ def verify_data(data):
 def processar_formulario(dados, user):
     valores_opcionais = {}
     gerencia = {}
-    outros = []
+    # outros = []
     op_extras = 0
     orcamento = {}
     padrao_orcamento = r'orcamento\[(\w+)\]'
     padrao_valores_op = r'dados_op\[(\w+)\]'
     padrao_gerencia = r'gerencia\[(\w+)\]'
-    padrao_extra = re.compile('.*extra.*')
+    padrao_extra = r'opcionais_extra\[(\w+)\]'
 
     for key in dados.keys():
-        if padrao_extra.match(key):
+        if re.match(padrao_extra, key):
             op_extras += 1 / 4
 
     if op_extras > 0:
@@ -147,13 +147,14 @@ def processar_formulario(dados, user):
                         dias_semana_validos__in=[current_date.weekday()]
                     )
             except OrcamentoPeriodo.DoesNotExist:
-                return JsonError(f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
+                return JsonError(
+                    f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
             else:
                 period_days.append(period)
                 current_date += timedelta(days=1)
 
         # Calc num days
-               
+
         num_days = len(period_days)
         # Racionais entrada e saída refeição TODO: Retirar depois dos testes do Sérgio
         orcamento['racional_check_in'] = time_in.racional
@@ -199,7 +200,7 @@ def verificar_gerencia(dados):
 
 def compilar_outros(dados, op_extras):
     outros = []
-
+    print(dados)
     for i in range(0, op_extras):
         outros.append({
             'id': dados[f'opcionais_extra[{i}][id]'],

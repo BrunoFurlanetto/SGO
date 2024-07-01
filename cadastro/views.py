@@ -295,7 +295,7 @@ def empresa(request, id_relatorio=None):
         relatorio = relatorio_empresa.save(commit=False)
         salvar_equipe_colegio(request.POST, relatorio)
         salvar_locacoes_empresa(request.POST, relatorio)
-        print(request.POST)
+
         if request.POST.get('ativ_1', None):
             salvar_atividades_colegio(request.POST, relatorio)
 
@@ -806,7 +806,6 @@ def listaResponsaveis(request):
 
         try:
             relacoes = RelacaoClienteResponsavel.objects.filter(cliente=int(cliente))
-            print(relacoes)
         except RelacaoClienteResponsavel.DoesNotExist:
             responsaveis = []
         except Exception as e:

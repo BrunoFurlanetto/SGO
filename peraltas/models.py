@@ -548,8 +548,6 @@ class FichaDeEvento(models.Model):
         previous_version = pre_alteracoes.revision.get_previous()
         diff = pre_alteracoes.difference()
 
-        print(diff)
-
     @staticmethod
     def __agrupar_versoes(pre_alteracoes):
         versoes_agrupadas = defaultdict(list)
