@@ -447,6 +447,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     ordem_de_servico = form.save(commit=False)
     ordem_de_servico.permicao_coordenadores = permicao_coordenacao
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
+    ficha.os = True
     slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
 
     try:
@@ -470,6 +471,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         return redirect('dashboardPeraltas')
     else:
+        ficha.save()
+
         if ordem_de_servico.tipo == 'Empresa':
             messages.success(request, f'Ordem de serviço da empresa {ordem_de_servico.instituicao} salva com sucesso')
         else:
