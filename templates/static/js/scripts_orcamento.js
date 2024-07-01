@@ -968,6 +968,7 @@ async function adicionar_novo_op() {
 }
 
 async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional, editando = false) {
+    loading()
     op_extras.push({
         'id': id_op_extra,
         'nome': nome_opcional,
@@ -983,9 +984,9 @@ async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descric
 
     let dados_novo_opcional = `
         <div id="${id_op_extra}" class="opcional_extra">
-            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" title="${nome_opcional}" id="nome_op_extra" name="nome_op_extra" value="${nome_opcional}">
-            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" title="${descricao_opcional}" id="descricao_op_extra" name="descricao_op_extra" value="${descricao_opcional}">
-            <input type="text" onkeyup="editar_opcional_extra(this.parentElement, this)" id="valor_op_extra" name="valor_op_extra" class="valor_opcional_extra" value="${valor_opcional}">
+            <input type="text" onfocusin="$('.botoes button').prop('disabled', true)" onfocusout="$('.botoes button').prop('disabled', false)" onchange="editar_opcional_extra(this.parentElement, this)" title="${nome_opcional}" id="nome_op_extra" name="nome_op_extra" value="${nome_opcional}">
+            <input type="text" onfocusin="$('.botoes button').prop('disabled', true)" onfocusout="$('.botoes button').prop('disabled', false)" onchange="editar_opcional_extra(this.parentElement, this)" title="${descricao_opcional}" id="descricao_op_extra" name="descricao_op_extra" value="${descricao_opcional}">
+            <input type="text" onfocusin="$('.botoes button').prop('disabled', true)" onfocusout="$('.botoes button').prop('disabled', false)" onchange="editar_opcional_extra(this.parentElement, this)" id="valor_op_extra" name="valor_op_extra" class="valor_opcional_extra" value="${valor_opcional}">
             <button onclick="remover_opcional_extra('${id_op_extra}')">&times;</button>
             <hr style="width: 100%">
         </div>
@@ -994,6 +995,7 @@ async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descric
     $('.valor_opcional_extra').mascaraDinheiro()
     $('#legenda_opcionais_extra').removeClass('none')
     await enviar_form()
+    end_loading()
 }
 
 async function remover_opcional_extra(id_op_extra) {
@@ -1421,7 +1423,9 @@ async function editar_opcional_extra(pai, elemento) {
     })
 
     if ($(elemento).attr('id') == 'valor_op_extra') {
+        loading()
         await enviar_form()
+        end_loading()
     }
 }
 
