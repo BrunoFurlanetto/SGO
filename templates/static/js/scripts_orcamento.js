@@ -1409,6 +1409,7 @@ function atribuir_apelaido(input_apelido) {
 }
 
 async function editar_opcional_extra(pai, elemento) {
+    loading()
     const id_pai = $(pai).attr('id')
     $(elemento).attr('title', $(elemento).val())
 
@@ -1423,9 +1424,8 @@ async function editar_opcional_extra(pai, elemento) {
     })
 
     if ($(elemento).attr('id') == 'valor_op_extra') {
-        loading()
         await enviar_form()
-        end_loading()
     }
+    end_loading()
 }
 
