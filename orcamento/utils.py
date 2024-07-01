@@ -66,11 +66,12 @@ def processar_formulario(dados, user):
             else:
                 orcamento[correspondencia_orcamento.group(1)] = valor
 
-        if correspondencia_valores_op and not 'extra' in key:
+        if correspondencia_valores_op and 'extra' not in key:
             lista = []
 
             for i, item in enumerate(dados.getlist(key)):
                 if i == 0:
+                    print(key, item, i, dados.getlist(key))
                     lista.append(int(item))
                 else:
                     lista.append(float(item.replace(',', '.')))

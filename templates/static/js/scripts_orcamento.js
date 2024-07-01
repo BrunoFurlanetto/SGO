@@ -311,7 +311,7 @@ async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removid
     }
 
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
-    console.log(nome_id)
+
     if (nome_id == 'eco') {
         $('#tabela_de_opcionais tbody').append(`
             <tr id="opcionais_eco_${opcao['id']}" class="opcionais">
@@ -332,7 +332,7 @@ async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removid
                 <th><input type="text" id="desconto_opcionais_outros_${i}" name="opcionais_outros_${i}" value="${desconto}" disabled></th> 
             </tr>
         `)
-    } else {
+    } else if (nome_id == 'ceu') {
         $('#tabela_de_opcionais tbody').append(`
             <tr id="opcionais_ceu_${opcao['id']}" class="opcionais">
                 <th><input type="text" id="nome_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['text']}" disabled></th>
@@ -351,13 +351,13 @@ async function listar_op_extras(opcao, i) {
             return op
         }
     })[0]
-    console.log(opcional_extra)
+
     $('#tabela_de_opcionais tbody').append(`
         <tr id="opcionais_extra_${opcional_extra['id']}" class="opcionais">
             <th><input type="text" id="nome_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['nome']}" disabled></th>
             <input type="hidden" id="id_opcionais_extra_${i}" name="opcionais_extra_${i}" value="${opcional_extra['id']}">
-            <input type="hidden" id="valor_bd_opcionais_extra_${i}" name="opcionais_extra_${i}" value='${opcional_extra['valor'].replace('.', ',')}' disabled>                                 
-            <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${opcional_extra['valor'].replace('.', ',')}"></th>
+            <input type="hidden" id="valor_bd_opcionais_extra_${i}" name="opcionais_extra_${i}" value='${String(opcional_extra['valor']).replace('.', ',')}' disabled>                                 
+            <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${String(opcional_extra['valor']).replace('.', ',')}"></th>
             <th><input type="text" id="desconto_opcionais_extra_${i}" name="opcionais_extra_${i}" value="0,00" disabled></th> 
         </tr>
     `)
@@ -1149,7 +1149,7 @@ async function preencher_promocional(id_promocional) {
             type: 'GET',
             url: '/orcamento/preencher_orcamento_promocional/',
             data: {'id_promocional': id_promocional},
-            success: function (response) {
+            success: async function (response) {
                 $('#id_tipo_monitoria').val(response['monitoria'])
                 $('#id_transporte input').map((index, transporte) => {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
@@ -1158,7 +1158,7 @@ async function preencher_promocional(id_promocional) {
                 $('#id_opcionais_eco').val(response['opcionais_eco'])
                 $('#id_outros_opcionais').val(response['outros_opcionais'])
                 $('#id_opcionais_ceu').val(response['opcionais_ceu'])
-                console.log(response)
+
                 response['obj']['descricao_opcionais'].map((op, i) => {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
@@ -1168,7 +1168,7 @@ async function preencher_promocional(id_promocional) {
 
                 if (response['opcionais_extra']) {
                     for (let opt of response['opcionais_extra']) {
-                        novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'])
+                        await novo_op_extra(opt['id'], opt['nome'], opt['valor'], opt['descricao'])
                     }
                 }
 
@@ -1288,7 +1288,6 @@ async function mostrar_dados_pacote(pacote) {
                 disabled: 'readonly',
                 width: '100%'
             }).trigger('change')
-            // $('#id_produtos_elegiveis').trigger('change')
         }
     }).done(() => {
         $('#dados_do_pacote').modal('show')
