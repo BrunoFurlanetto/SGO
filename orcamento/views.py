@@ -68,6 +68,16 @@ def editar_previa(request, id_orcamento):
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+    pacote_promocional = CadastroPacotePromocional()
+    orcamento_promocional = None
+
+    if orcamento.promocional:
+        orcamento_promocional = OrcamentosPromocionais.objects.get(orcamento=orcamento.id)
+        pacote_promocional = CadastroPacotePromocional(instance=orcamento_promocional.dados_pacote)
+        orcamento = orcamento_promocional.orcamento
+    elif orcamento.orcamento_promocional:
+        pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
+        orcamento_promocional = orcamento.orcamento_promocional
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -78,6 +88,8 @@ def editar_previa(request, id_orcamento):
         'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': id_orcamento,
         'previa': True,
+        'pacote_promocional': pacote_promocional,
+        'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
     })
 
 
@@ -123,6 +135,7 @@ def salvar_orcamento(request, id_tratativa=None):
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
+            pre_orcamento.cliente = None
 
         try:
             orcamento_salvo = orcamento.save()
@@ -146,7 +159,12 @@ def salvar_orcamento(request, id_tratativa=None):
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
-                OrcamentosPromocionais.objects.create(orcamento=orcamento_salvo, dados_pacote_id=int(data.get('id_pacote_promocional')))
+                OrcamentosPromocionais.objects.get_or_create(
+                    orcamento_id=orcamento_salvo.id,
+                    defaults={
+                        'orcamento_id': orcamento_salvo.id,
+                        'dados_pacote_id': int(data.get('id_pacote_promocional'))
+                    })
 
             return JsonResponse({
                 "status": "success",
@@ -320,7 +338,7 @@ def pesquisar_op(request):
 def pegar_dados_pacoe(request):
     if is_ajax(request):
         orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_pacote'))
-
+        print(orcamento_promocional)
         return JsonResponse({
             'orcamento_promocional': orcamento_promocional.orcamento.serializar_objetos(),
             'dados_promocionais': orcamento_promocional.dados_pacote.serializar_objetos()

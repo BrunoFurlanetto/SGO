@@ -532,19 +532,19 @@ class Orcamento(models.Model):
         }
 
     def listar_opcionais(self):
-
         return self.objeto_orcamento['descricao_opcionais']
 
     def op_extra_formatado(self):
         op_extras = []
 
-        for op in self.opcionais_extra:
-            op_extras.append({
-                'id': op['id'],
-                'nome': op['nome'],
-                'descricao': op['descricao'],
-                'valor': str(op['valor']).replace('.', ','),
-            })
+        if self.opcionais_extra:
+            for op in self.opcionais_extra:
+                op_extras.append({
+                    'id': op['id'],
+                    'nome': op['nome'],
+                    'descricao': op['descricao'],
+                    'valor': str(op['valor']).replace('.', ','),
+                })
 
         return op_extras
 
@@ -775,7 +775,10 @@ class OrcamentosPromocionais(models.Model):
 
             return False
 
-        pacotes = cls.objects.filter(orcamento__data_vencimento__gte=datetime.date.today())
+        pacotes = cls.objects.filter(
+            orcamento__data_vencimento__gte=datetime.date.today(),
+            orcamento__previa=False,
+        )
         pacotes_validos = []
 
         for pacote in pacotes:

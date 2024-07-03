@@ -32,7 +32,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     // $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
-    $('#periodo_1').inicializarDateRange('DD/MM/YYYY', false)
+    $('#lista_de_periodos input').inicializarDateRange('DD/MM/YYYY', false)
 
     if (check_in && check_out) {
         $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -1057,7 +1057,7 @@ function montar_pacote(check_promocional = null) {
     if (check_promocional) {
         if ($(check_promocional).prop('checked')) {
             $('#dados_do_pacote').modal('show')
-            $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
+            $('#id_cliente, #id_responsavel, #id_orcamento_promocional').attr('disabled', $('#id_promocional').prop('checked'))
         } else {
             $('#id_cliente').attr('disabled', $('#id_promocional').prop('checked'))
         }
@@ -1282,7 +1282,8 @@ async function mostrar_dados_pacote(pacote) {
                 adicionar_periodo_novo(Object.values(periodos[_p])[0])
             }
 
-            $('#tabela_de_opcionais tbody').empty()
+            $('#tabela_de_opcionais tbody, #lista_opcionais_extra').empty()
+            op_extras = []
             await preencher_promocional(id_pacote)
             $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
             $('#form_dados_pacote fieldset').prop('disabled', true)
