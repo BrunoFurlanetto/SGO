@@ -68,12 +68,12 @@
                             {{ orcamento.produto }}
                         </div>
                         <hr>
-                        <div id="promocionais" class="{% if financeiro and orcamento.promocional %} none {% endif %}">
+                        <div id="promocionais" class="{% if orcamento_origem.promocional %} none {% endif %}">
                             <div>
                                 <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
                                 {{ orcamento.orcamento_promocional }}
                             </div>
-                            <button type="button" name="info_promocional" {% if not orcamento.orcamento_promocional %} disabled {% endif %}
+                            <button type="button" name="info_promocional" {% if not dados_pacote %} disabled {% endif %}
                                     title="Pacotes promocionais que se encaixam no periodo e no produto escolhido"
                                     id="info_promocional" onclick="$('#dados_do_pacote').modal('show')">
                                 <i class='bx bx-info-circle'></i>

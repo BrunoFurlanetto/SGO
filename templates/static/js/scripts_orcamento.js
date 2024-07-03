@@ -1055,8 +1055,10 @@ function montar_pacote(check_promocional = null) {
     if (check_promocional) {
         if ($(check_promocional).prop('checked')) {
             $('#dados_do_pacote').modal('show')
-            $('#id_cliente, #id_responsavel, #id_orcamento_promocional').attr('disabled', $('#id_promocional').prop('checked'))
+            $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
+            $('#promocionais').addClass('none')
         } else {
+            $('#promocionais').removeClass('none')
             $('#id_cliente').attr('disabled', $('#id_promocional').prop('checked'))
         }
     }

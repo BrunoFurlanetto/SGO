@@ -135,7 +135,7 @@ def salvar_orcamento(request, id_tratativa=None):
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
-            pre_orcamento.cliente = pre_orcamento.responsavel = None
+            pre_orcamento.cliente = pre_orcamento.responsavel = pre_orcamento.orcamento_promocional = None
 
         try:
             orcamento_salvo = orcamento.save()
