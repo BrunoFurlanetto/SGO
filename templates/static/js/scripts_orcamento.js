@@ -29,7 +29,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
 
     let hoje = new Date()
     $('#modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
-    // $('#data_pagamento').data('valor_default', moment().add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
     $('#lista_de_periodos input').inicializarDateRange('DD/MM/YYYY', false)
