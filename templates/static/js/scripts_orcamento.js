@@ -88,7 +88,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         } catch (error) {
             alert(error)
         } finally {
-            // await atualizar_valores_op()
             end_loading()
         }
     })
