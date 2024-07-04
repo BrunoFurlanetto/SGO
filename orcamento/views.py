@@ -132,6 +132,7 @@ def salvar_orcamento(request, id_tratativa=None):
         pre_orcamento.objeto_orcamento = budget.return_object()
         pre_orcamento.colaborador = request.user
         pre_orcamento.previa = data.get('salvar_previa') == 'true'
+        pre_orcamento.apelido = '' if not pre_orcamento.previa else pre_orcamento.apelido
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
@@ -147,15 +148,26 @@ def salvar_orcamento(request, id_tratativa=None):
             })
         else:
             if not orcamento_salvo.promocional:
-                if not id_tratativa and not orcamento_salvo.previa:
-                    try:
-                        tratativa = Tratativas.objects.create(cliente=orcamento_salvo.cliente, colaborador=request.user)
-                        tratativa.orcamentos.set([orcamento_salvo])
-                        tratativa.save()
-                    except IntegrityError:
-                        messages.warning(request, f'Tratativa com {pre_orcamento.cliente} já em andamento')
-                elif id_tratativa:
-                    tratativa = Tratativas.objects.get(id_tratativa=data.get('id_tratativa'))
+                try:
+                    tratativa_existente = Tratativas.objects.get(orcamentos__in=[orcamento_salvo.id])
+                except Tratativas.DoesNotExist:
+                    if id_tratativa or not orcamento_salvo.previa:
+                        nova_tratativa, criado = Tratativas.objects.get_or_create(
+                            id_tratativa=id_tratativa,
+                            defaults={
+                                'cliente': orcamento_salvo.cliente,
+                                'colaborador': orcamento_salvo.colaborador,
+                            }
+                        )
+
+                        if criado:
+                            nova_tratativa.orcamentos.set([orcamento_salvo])
+                        else:
+                            nova_tratativa.orcamentos.add(orcamento_salvo)
+
+                        nova_tratativa.save()
+                else:
+                    tratativa = Tratativas.objects.get(id_tratativa=tratativa_existente.id_tratativa)
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
@@ -166,10 +178,10 @@ def salvar_orcamento(request, id_tratativa=None):
                         'dados_pacote_id': int(data.get('id_pacote_promocional'))
                     })
 
-            return JsonResponse({
-                "status": "success",
-                "msg": "",
-            })
+    return JsonResponse({
+        "status": "success",
+        "msg": "",
+    })
 
 
 def apagar_orcamento(request, id_orcamento):
@@ -374,4 +386,13 @@ def salvar_pacote(request):
             menor_horario = HorariosPadroes.objects.all().order_by('horario')[0].horario.strftime('%H:%M')
             maior_horario = HorariosPadroes.objects.all().order_by('-final_horario')[0].final_horario.strftime('%H:%M')
 
-            return JsonResponse({'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario})
+            return JsonResponse(
+                {'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario})
+
+
+def pegar_orcamentos_tratativa(request):
+    if is_ajax(request) and request.method == "GET":
+        if request.GET.get('id_tratativa'):
+            tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
+
+            return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})

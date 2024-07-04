@@ -315,7 +315,7 @@ function modal_de_tratativas(id_tratativa) {
     loading()
     $.ajax({
         type: 'GET',
-        url: '',
+        url: '/orcamento/pegar_orcamentos_tratativa/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {'id_tratativa': id_tratativa},
         success: function (response) {

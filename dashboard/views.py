@@ -224,12 +224,6 @@ def dashboardPeraltas(request):
         fichas_financeira_aprovadas = FichaFinanceira.objects.filter(autorizado_diretoria=True, faturado=False)
 
     if is_ajax(request):
-        if request.method == "GET":
-            if request.GET.get('id_tratativa'):
-                tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
-
-                return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
-
         if request.POST.get('novo_status'):
             status = StatusOrcamento.objects.get(status__icontains=request.POST.get('novo_status'))
 

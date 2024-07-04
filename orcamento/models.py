@@ -855,12 +855,13 @@ class Tratativas(models.Model):
         orcamentos = []
 
         for orcamento in self.orcamentos.all():
-            orcamentos.append({
-                'id_orcamento': orcamento.id,
-                'status': orcamento.status_orcamento.status,
-                'vencimento': orcamento.data_vencimento.strftime('%d/%m/%Y'),
-                'valor': str(orcamento.valor).replace('.', ','),
-            })
+            if not orcamento.previa:
+                orcamentos.append({
+                    'id_orcamento': orcamento.id,
+                    'status': orcamento.status_orcamento.status,
+                    'vencimento': orcamento.data_vencimento.strftime('%d/%m/%Y'),
+                    'valor': str(orcamento.valor).replace('.', ','),
+                })
 
         return orcamentos
 
