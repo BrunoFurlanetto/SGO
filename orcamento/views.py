@@ -271,6 +271,15 @@ def gerar_pdf(request, id_tratativa):
     })
 
 
+@login_required(login_url='login')
+def gerar_pdf_previa(request, id_orcamento):
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+
+    return render(request, 'orcamento/pdf_orcamento.html', {
+        'previa_orcamento': orcamento,
+    })
+
+
 def preencher_op_extras(request):
     if is_ajax(request):
         if request.GET.get('id_orcamento_extras'):

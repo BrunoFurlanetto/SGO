@@ -486,6 +486,12 @@ class Orcamento(models.Model):
     def get_valor_taxa(self):
         return self.objeto_gerencia['taxa_comercial']
 
+    def colaborador_vendedora(self):
+        try:
+            return Vendedor.objects.get(usuario=self.colaborador)
+        except Vendedor.DoesNotExist:
+            return ''
+
     def delete(self, *args, **kwargs):
         id_orcamento = self.pk
         super(Orcamento, self).delete(*args, **kwargs)

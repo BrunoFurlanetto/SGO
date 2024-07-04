@@ -521,6 +521,7 @@
                             <th style="width: 20%">Check in</th>
                             <th style="width: 20%">Check out</th>
                             <th style="width: 20%">Valor</th>
+                            <th></th>
                             <th style="width: 20%"></th>
                         </tr>
                         </thead>
@@ -533,8 +534,19 @@
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.cliente }}</td>
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_in|date:'Y-m-d' }}</td>
                                 <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">{{ previa.check_out|date:'Y-m-d' }}</td>
-                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'"><nobr>R$ {{ previa.valor|substituir_ponto }}</nobr></td>
-                                <td title="Apagar prévia" style="font-size: 25px; color: #FF0000" onclick="window.location.href='{% url 'apagar_orcamento' previa.id %}'">&times;</td>
+                                <td onclick="window.location.href='{% url 'editar_previa' previa.id %}'">
+                                    <nobr>R$ {{ previa.valor|substituir_ponto }}</nobr>
+                                </td>
+                                <td>
+                                    <button type="button" class="button_pdf"
+                                            {% if previa.status in 'Perdido, Vencido' %}
+                                            disabled {% endif %}
+                                            onclick="window.location.href = '{% url 'previa_pdf_orcamento' previa.id %}'">
+                                        <i class='bx bxs-file-pdf'></i></button>
+                                </td>
+                                <td title="Apagar prévia" style="font-size: 25px; color: #FF0000"
+                                    onclick="window.location.href='{% url 'apagar_orcamento' previa.id %}'">&times;
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

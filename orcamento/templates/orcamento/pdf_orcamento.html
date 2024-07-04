@@ -9,41 +9,198 @@
     <div id="conteudo_pdf_orcamento">
         <div id="paginas_pdf_orcamento">
             <div class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/capa_orcamento.png' %}" alt="">
             </div>
             <div class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/pg2_orcamento.png' %}" alt="">
             </div>
             <div class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/pg3_orcamento.png' %}" alt="">
             </div>
             <div id="proposta_comercial" class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/pg4_orcamento.png' %}" alt="">
                 <div class="informacoes">
-                    <div id="cliente">
-                        <P>NOME DO COLÉGIO: {{ tratativa.cliente }}</P>
-                        <P>RESPONSÁVEL: {{ tratativa.responsavel_tratativa.nome }}</P>
-                        <P>TELEFONE: {{ tratativa.responsavel_tratativa.fone }}</P>
-                        <P>E-MAIL: {{ tratativa.responsavel_tratativa.email_responsavel_evento }}</P>
-                    </div>
-                    <div id="vendedora">
-                        <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
-                        <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
-                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
-                        </p>
-                        <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
-                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
-                        </p>
-                        <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
-                            WWW.PERALTAS.COM.BR</p>
-                        <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
-                                                             alt=""></i> {{ tratativa.colaborador.email }}</p>
-                    </div>
+                    {% if tratativa %}
+                        <div id="cliente">
+                            <P>NOME DO COLÉGIO: {{ tratativa.cliente }}</P>
+                            <P>RESPONSÁVEL: {{ tratativa.responsavel_tratativa.nome }}</P>
+                            <P>TELEFONE: {{ tratativa.responsavel_tratativa.fone }}</P>
+                            <P>E-MAIL: {{ tratativa.responsavel_tratativa.email_responsavel_evento }}</P>
+                        </div>
+                        <div id="vendedora">
+                            <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                                 alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                            </p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                                 alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                            </p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                                WWW.PERALTAS.COM.BR</p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                                 alt=""></i> {{ tratativa.colaborador.email }}</p>
+                        </div>
+                    {% else %}
+                        <div id="cliente">
+                            <P>NOME DO COLÉGIO: {{ previa_orcamento.cliente }}</P>
+                            <P>RESPONSÁVEL: {{ previa_orcamento.responsavel.nome }}</P>
+                            <P>TELEFONE: {{ previa_orcamento.responsavel.fone }}</P>
+                            <P>E-MAIL: {{ previa_orcamento.responsavel.email_responsavel_evento }}</P>
+                        </div>
+                        <div id="vendedora">
+                            <p>CONSULTORA RESPONSÁVEL: {{ previa_orcamento.colaborador.get_full_name }}</p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                                 alt=""></i> {{ previa_orcamento.colaborador_vendedora.telefone|fone }}
+                            </p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                                 alt=""></i> {{ previa_orcamento.colaborador_vendedora.telefone|fone }}
+                            </p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                                WWW.PERALTAS.COM.BR</p>
+                            <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                                 alt=""></i> {{ previa_orcamento.colaborador.email }}</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
-            {% for orcamento in tratativa.orcamentos_abertos %}
+            {% if tratativa %}
+                {% for orcamento in tratativa.orcamentos_abertos %}
+                    <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
+                        {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                        <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
+                        <div class="sobre_fundo"></div>
+                        <div class="barra_superior"></div>
+                        <div id="texto_inicial">
+                            <h1>BENEFÍCIOS:</h1>
+                            <ul>
+                                <li>
+                                    As atividades vivenciais, com o auxílio do conteúdo visual, sensorial e auditivo,
+                                    melhora o desempenho, interesse e entendimento do aluno durante as saídas pedagógicas
+                                    ofertadas, quando alinhadas com os conteúdos aprendidos em sala de aula;
+                                </li>
+                                <li>
+                                    Atividades de acordo com as indicações do MEC/BNCC;
+                                </li>
+                                <li>
+                                    Ensino investigativo que proporciona uma reflexão e análise crítica em diferentes áreas,
+                                    motivando alunos e professores que vivem essa experiência;
+                                </li>
+                                <li>
+                                    Melhora na comunicação e relação pessoal/interpessoal do aluno.
+                                </li>
+                                <li>
+                                    Alunos mais participativos e com ganho cultural.
+                                </li>
+                                <li>
+                                    Descoberta, respeito e contato aprofundado com a natureza.
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dados">
+                            <div class="dados_pacote pacote">
+                                <div class="secao"><h4>PACOTE</h4></div>
+                                <div class="descricao">
+                                    <p>{{ orcamento.produto.produto }} {% if 'ceu' not in orcamento.produto.produto|lower %} + 0{{ orcamento.atividades_ceu.all|length }} AT.
+                                        C.E.U {% endif %}</p>
+                                    <p>Investimento:</p>
+                                    {% if orcamento.desconto_aplicado %}
+                                        <p>De: <s>R$ {{ orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
+                                    {% endif %}
+
+                                    <p>{% if orcamento.desconto_aplicado %}Por{% endif %} R$ {{ orcamento.valor|substituir_ponto }} por participante</p>
+                                </div>
+                            </div>
+                            <div class="dados_pacote horarios">
+                                <div class="secao"><h4>HORÁRIOS</h4></div>
+                                <div class="descricao">
+                                    <p>
+                                        Chegada às <strong> {{ orcamento.check_in | date:'d/m/Y H:i' }} </strong> Saída
+                                        às <strong> {{ orcamento.check_out | date:'d/m/Y H:i' }} </strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="dados_pacote incluso">
+                                <div class="secao"><h4>INCLUSO</h4></div>
+                                <div class="descricao">
+                                    <ul>
+                                        {% if 'ceu' not in orcamento.produto.produto|lower %}
+                                            {% if orcamento.check_out|date != orcamento.check_in|date %}
+                                                {% if orcamento.check_in|time:'H' <= '10' %}
+                                                    <li><strong>Primeiro dia: </strong> Lanche da manhã, almoço, jantar e chá da noite</li>
+                                                {% else %}
+                                                    <li><strong>Primeiro dia:</strong> Almoço, jantar e chá da noite</li>
+                                                {% endif %}
+
+                                                <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da noite</li>
+
+                                                {% if orcamento.check_out|time:'H' <= '10' %}
+                                                    <li><strong>Último dia:</strong> Café da manhã</li>
+                                                {% elif orcamento.check_out|time:'H' > '10' and orcamento.check_out|time:'H' <= '16' %}
+                                                    <li><strong>Último dia:</strong> Café da manhã, almoço e lanche antesda saída</li>
+                                                {% elif orcamento.check_out|time:'H' > '16' and orcamento.check_out|time:'H' <= '21' %}
+                                                    <li><strong>Último dia:</strong> Café, almoço e jantar</li>
+                                                {% endif %}
+                                            {% else %}
+                                                {% if orcamento.check_in|time:'H' <= '10' %}
+                                                    <li> Café da manhã, almoço e {% if orcamento.check_out|time:'H' <= '17' %} lanche antes da saída {% else %} jantar {% endif %}</li>
+                                                {% endif %}
+                                            {% endif %}
+                                            <li>01 monitor de lazer a cada 20 pagantes</li>
+                                            <li>Programação de lazer.</li>
+                                        {% endif %}
+                                        {% if orcamento.atividades_ceu.all|length != 0 %}
+                                            <li>
+                                                {% if not orcamento.oficina_de_foguetes %}
+                                                    0{{ orcamento.atividades_ceu.all|length }} atividade(s) no CEU <strong>(exceto oficina de foguetes)</strong>
+                                                {% else %}
+                                                    0{{ orcamento.atividades_ceu.all|length|add:-1 }} atividade(s) no CEU + Oficina de foguetes
+                                                {% endif %}
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="texto_final">
+                            <h3>Condições:</h3>
+                            Investimento por aluno pagante.
+                            <br>
+                            01 cortesia para professor a cada 15 alunos pagantes, o que exceder será cobrado 50% do valor
+                            do pacote.
+                            <br>
+                            Não inclui transporte ida e volta e não oferecemos acomodações para motoristas.
+                            Mínimo de 35 alunos participantes.
+                            <ul>
+                                <li>
+                                    Valores válidos para fechamento até
+                                    <strong>{{ orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens agendadas
+                                    {% if orcamento.check_in.month <= 6 %}
+                                        até <strong> JUNHO </strong>
+                                    {% else %}
+                                        entre <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
+                                    {% endif %}
+                                    de 2024. <strong> Exceto feriados </strong>.
+                                </li>
+                                <li>
+                                    Condições de pagamento:
+                                </li>
+                                <li>
+                                    À vista <strong>R$ {{ orcamento.valor|substituir_ponto }}</strong> ou, parcelado via
+                                    link de pagamento online. Consulte quantidade de
+                                    parcelas.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
                 <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
+                    {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                     <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
                     <div class="sobre_fundo"></div>
                     <div class="barra_superior"></div>
@@ -77,22 +234,22 @@
                         <div class="dados_pacote pacote">
                             <div class="secao"><h4>PACOTE</h4></div>
                             <div class="descricao">
-                                <p>{{ orcamento.produto.produto }} {% if 'ceu' not in orcamento.produto.produto|lower %} + 0{{ orcamento.atividades_ceu.all|length }} AT.
+                                <p>{{ previa_orcamento.produto.produto }} {% if 'ceu' not in previa_orcamento.produto.produto|lower %} + 0{{ previa_orcamento.atividades_ceu.all|length }} AT.
                                     C.E.U {% endif %}</p>
                                 <p>Investimento:</p>
-                                {% if orcamento.desconto_aplicado %}
-                                	<p>De: <s>R$ {{ orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
-                                {% endif %} 
+                                {% if previa_orcamento.desconto_aplicado %}
+                                    <p>De: <s>R$ {{ previa_orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
+                                {% endif %}
 
-                                <p>{% if orcamento.desconto_aplicado %}Por{% endif %} R$ {{ orcamento.valor|substituir_ponto }} por participante</p>
+                                <p>{% if previa_orcamento.desconto_aplicado %}Por{% endif %} R$ {{ previa_orcamento.valor|substituir_ponto }} por participante</p>
                             </div>
                         </div>
                         <div class="dados_pacote horarios">
                             <div class="secao"><h4>HORÁRIOS</h4></div>
                             <div class="descricao">
                                 <p>
-                                    Chegada às <strong> {{ orcamento.check_in | date:'d/m/Y H:i' }} </strong> Saída
-                                    às <strong> {{ orcamento.check_out | date:'d/m/Y H:i' }} </strong>
+                                    Chegada às <strong> {{ previa_orcamento.check_in | date:'d/m/Y H:i' }} </strong> Saída
+                                    às <strong> {{ previa_orcamento.check_out | date:'d/m/Y H:i' }} </strong>
                                 </p>
                             </div>
                         </div>
@@ -100,9 +257,9 @@
                             <div class="secao"><h4>INCLUSO</h4></div>
                             <div class="descricao">
                                 <ul>
-                                    {% if 'ceu' not in orcamento.produto.produto|lower %}
-                                        {% if orcamento.check_out|date != orcamento.check_in|date %}
-                                            {% if orcamento.check_in|time:'H' <= '10' %}
+                                    {% if 'ceu' not in previa_orcamento.produto.produto|lower %}
+                                        {% if previa_orcamento.check_out|date != previa_orcamento.check_in|date %}
+                                            {% if previa_orcamento.check_in|time:'H' <= '10' %}
                                                 <li><strong>Primeiro dia: </strong> Lanche da manhã, almoço, jantar e chá da noite</li>
                                             {% else %}
                                                 <li><strong>Primeiro dia:</strong> Almoço, jantar e chá da noite</li>
@@ -110,27 +267,27 @@
 
                                             <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da noite</li>
 
-                                            {% if orcamento.check_out|time:'H' <= '10' %}
+                                            {% if previa_orcamento.check_out|time:'H' <= '10' %}
                                                 <li><strong>Último dia:</strong> Café da manhã</li>
-                                            {% elif orcamento.check_out|time:'H' > '10' and orcamento.check_out|time:'H' <= '16' %}
+                                            {% elif previa_orcamento.check_out|time:'H' > '10' and previa_orcamento.check_out|time:'H' <= '16' %}
                                                 <li><strong>Último dia:</strong> Café da manhã, almoço e lanche antesda saída</li>
-                                            {% elif orcamento.check_out|time:'H' > '16' and orcamento.check_out|time:'H' <= '21' %}
+                                            {% elif previa_orcamento.check_out|time:'H' > '16' and previa_orcamento.check_out|time:'H' <= '21' %}
                                                 <li><strong>Último dia:</strong> Café, almoço e jantar</li>
                                             {% endif %}
                                         {% else %}
-                                            {% if orcamento.check_in|time:'H' <= '10' %}
-                                                <li> Café da manhã, almoço e {% if orcamento.check_out|time:'H' <= '17' %} lanche antes da saída {% else %} jantar {% endif %}</li>
+                                            {% if previa_orcamento.check_in|time:'H' <= '10' %}
+                                                <li> Café da manhã, almoço e {% if previa_orcamento.check_out|time:'H' <= '17' %} lanche antes da saída {% else %} jantar {% endif %}</li>
                                             {% endif %}
                                         {% endif %}
                                         <li>01 monitor de lazer a cada 20 pagantes</li>
                                         <li>Programação de lazer.</li>
                                     {% endif %}
-                                    {% if orcamento.atividades_ceu.all|length != 0 %}
+                                    {% if previa_orcamento.atividades_ceu.all|length != 0 %}
                                         <li>
-                                            {% if not orcamento.oficina_de_foguetes %}
-                                                0{{ orcamento.atividades_ceu.all|length }} atividade(s) no CEU <strong>(exceto oficina de foguetes)</strong>
+                                            {% if not previa_orcamento.oficina_de_foguetes %}
+                                                0{{ previa_orcamento.atividades_ceu.all|length }} atividade(s) no CEU <strong>(exceto oficina de foguetes)</strong>
                                             {% else %}
-                                                0{{ orcamento.atividades_ceu.all|length|add:-1 }} atividade(s) no CEU + Oficina de foguetes
+                                                0{{ previa_orcamento.atividades_ceu.all|length|add:-1 }} atividade(s) no CEU + Oficina de foguetes
                                             {% endif %}
                                         </li>
                                     {% endif %}
@@ -150,8 +307,8 @@
                         <ul>
                             <li>
                                 Valores válidos para fechamento até
-                                <strong>{{ orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens agendadas
-                                {% if orcamento.check_in.month <= 6 %}
+                                <strong>{{ previa_orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens agendadas
+                                {% if previa_orcamento.check_in.month <= 6 %}
                                     até <strong> JUNHO </strong>
                                 {% else %}
                                     entre <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
@@ -162,32 +319,48 @@
                                 Condições de pagamento:
                             </li>
                             <li>
-                                À vista <strong>R$ {{ orcamento.valor|substituir_ponto }}</strong> ou, parcelado via
+                                À vista <strong>R$ {{ previa_orcamento.valor|substituir_ponto }}</strong> ou, parcelado via
                                 link de pagamento online. Consulte quantidade de
                                 parcelas.
                             </li>
                         </ul>
                     </div>
                 </div>
-            {% endfor %}
+            {% endif %}
 
             <div class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/pg6_orcamento.png' %}" alt="">
             </div>
             <div class="pagina fixo">
+                {% if not tratativa %} <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
                 <img src="{% static 'img/pg7_orcamento.png' %}" alt="">
                 <div id="vendedora_final">
-                    <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
-                    <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
-                                                         alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
-                    </p>
-                    <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
-                                                         alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
-                    </p>
-                    <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
-                        WWW.PERALTAS.COM.BR</p>
-                    <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
-                                                         alt=""></i> {{ tratativa.colaborador.email }}</p>
+                    {% if tratativa %}
+                        <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                            WWW.PERALTAS.COM.BR</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                             alt=""></i> {{ tratativa.colaborador.email }}</p>
+                    {% else %}
+                        <p>CONSULTORA RESPONSÁVEL: {{ previa_orcamento.colaborador.get_full_name }}</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/fone_icon.png' %}"
+                                                             alt=""></i> {{ previa_orcamento.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/whats_icon.png' %}"
+                                                             alt=""></i> {{ previa_orcamento.colaborador_vendedora.telefone|fone }}
+                        </p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/rede_icon.png' %}" alt=""></i>
+                            WWW.PERALTAS.COM.BR</p>
+                        <p><i style="margin-right: 5px"><img src="{% static 'img/email_icon.png' %}"
+                                                             alt=""></i> {{ previa_orcamento.colaborador.email }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

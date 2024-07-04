@@ -23,6 +23,8 @@
     height: 297mm;
     background: white;
     box-shadow: 4px 3px 10px 4px;
+    position: relative;
+    overflow: hidden;
 }
 
 .pagina img {
@@ -206,6 +208,18 @@
 
 #vendedora_final p {
     height: 5mm;
+}
+
+.marca_dagua {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    font-size: 3rem;
+    color: #00000080;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
 }
 
 body {
@@ -445,5 +459,17 @@ body {
 
     #vendedora_final p:first-child {
         font-size: 16pt;
+    }
+
+    .marca_dagua {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+        font-size: 3rem;
+        color: #00000080;
+        white-space: nowrap;
+        z-index: 1;
+        pointer-events: none;
     }
 }
