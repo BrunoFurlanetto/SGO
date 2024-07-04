@@ -82,6 +82,7 @@ def atualizar_pagantes_ficha():
             'ERRO DE CONEXÃO COM SERVIDOR'
         )
 
+
 def verificar_sistema_antigo_cron(codigos):
     """
     Função necessária para o periodo de transição do sistema de pagamntos
@@ -126,13 +127,3 @@ def deletar_versoes_antigas():
     data_de_corte = datetime.now() - timedelta(days=15)
     versoes_antigas = Version.objects.get_for_model(FichaDeEvento).filter(revision__date_created__lt=data_de_corte)
     versoes_antigas.delete()
-
-
-def verificar_validade_orcamento():
-    orcamentos = Orcamento.objects.filter(data_vencimento=datetime.today().date() - timedelta(days=1))
-
-    for orcamento in orcamentos:
-        if 'aberto' in orcamento.status_orcamento.status.lower() or 'analise' in orcamento.status_orcamento.status.lower():
-            status = StatusOrcamento.objects.get(status__icontains='vencido')
-            orcamento.status_orcamento = status
-            orcamento.save()
