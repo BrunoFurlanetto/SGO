@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'calendarioEventos.apps.CalendarioeventosConfig',
     'detector.apps.DetectorConfig',
     'orcamento.apps.OrcamentoConfig',
+    'painelDiretoria.apps.PaineldiretoriaConfig',
 ]
 
 MIDDLEWARE = [
