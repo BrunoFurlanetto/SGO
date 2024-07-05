@@ -486,6 +486,18 @@ class Orcamento(models.Model):
     def get_valor_taxa(self):
         return self.objeto_gerencia['taxa_comercial']
 
+    @property
+    def desconto_percentual_diaria(self):
+        return f'{self.objeto_gerencia["desconto_produto_percent"]:.2f}'.replace('.', ',')
+
+    @property
+    def desconto_percentual_monitoria(self):
+        return f'{self.objeto_gerencia["desconto_monitoria_percent"]:.2f}'.replace('.', ',')
+
+    @property
+    def desconto_percentual_transporte(self):
+        return f'{self.objeto_gerencia["desconto_transporte_percent"]:.2f}'.replace('.', ',')
+
     def colaborador_vendedora(self):
         try:
             return Vendedor.objects.get(usuario=self.colaborador)

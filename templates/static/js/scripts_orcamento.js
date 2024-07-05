@@ -1207,6 +1207,11 @@ async function preencher_promocional(id_promocional) {
                         $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', response['gerencia'][id_campo])
                     }
                 }
+                $('#desconto_produto_percent').val(response['gerencia']['desconto_produto_percent'] + '%')
+                $('#desconto_monitoria_percent').val(response['gerencia']['desconto_monitoria_percent'] + '%')
+                $('#desconto_transporte_percent').val(response['gerencia']['desconto_transporte_percent'])
+                $('#data_vencimento').val(response['gerencia']['data_vencimento'])
+
                 resolve(response)
             }
         }).done(() => {
