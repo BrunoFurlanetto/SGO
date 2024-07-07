@@ -7,7 +7,7 @@ from projetoCEU.utils import is_ajax
 
 
 @login_required
-@permission_required('painelDiretoria.view_painelDiretoria', login_url='dashboard')
+@permission_required('peraltas.view_eventos', login_url='dashboard')
 def index(request):
     return render(request, 'painelDiretoria/index.html', {
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
