@@ -7,6 +7,7 @@
     display: flex;
     width: 80%;
     flex-direction: column;
+    margin-bottom: 20%;
 }
 
 #relatorio_eventos, #relatorio_produtos {
