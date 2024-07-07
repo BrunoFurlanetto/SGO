@@ -40,7 +40,7 @@ function mostrar_infos(estagio, mes_ano) {
 function graficar_produto_estagio(mes_ano) {
     loading()
     $('#grafico_info_extra').removeClass('none')
-    $('#relatorio_produtos .conteudo_grafico_painel_diretoria h4').text(`${mes_ano.split('/')[0]} de ${mes_ano.split('/')[1]}`)
+    $('#relatorio_produtos #grafico_info_extra h4').text(`${mes_ano.split('/')[0]} de ${mes_ano.split('/')[1]}`)
 
     $.ajax({
         url: '/painel-diretoria/infos_produtos_estagios/',
