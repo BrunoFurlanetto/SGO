@@ -303,6 +303,26 @@
 
                 </li>
 
+                {% if perms.painelDiretoria.view_painelDiretoria %}
+                    {% if 'dashboard' in request.path %}
+                        {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                            <li class="item-sidebar">
+                                {% else %}
+                            <li>
+                        {% endif %}
+                    {% else %}
+                        <li>
+                    {% endif %}
+                    <a href="{% url 'painel_diretoria' %}">
+                        <i class='bx bxs-pie-chart-alt-2'></i>
+                        <span class="link_name">Estatísticas</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="{% url 'painel_diretoria' %}">Estatísticas</a></li>
+                    </ul>
+                    </li>
+                {% endif %}
+
                 {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
