@@ -38,7 +38,7 @@ if not em_manutencao:
         path('calendario-eventos/', include('calendarioEventos.urls')),
         path('detector-de-bombas/', include('detector.urls')),
         path('orcamento/', include('orcamento.urls')),
-        path('painel-diretoria/', include('PainelDiretoria.urls')),
+        path('painel-diretoria/', include('painelDiretoria.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:

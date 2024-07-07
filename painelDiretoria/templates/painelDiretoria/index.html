@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_painel_diretoria.css' %}">
+
+    <main id="dashboard_painel_diretoria">
+        {% csrf_token %}
+        <div id="relatorio_eventos">
+            <h4>Relatório de eventos</h4>
+            <div class="conteudo_tabela">
+                <table id="tabela_relatorio" class="table table-hover table-striped" style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th rowspan="2" id="data_mes_thead"
+                            style="position: sticky; left: 0; z-index: 1; background-color: white;">Mês/Ano
+                        </th>
+                        <th colspan="4">Pré reserva</th>
+                        <th colspan="4">Eventos confirmados</th>
+                        <th colspan="4">Ficha de evento</th>
+                        <th colspan="4">Ordem de Serviço</th>
+                    </tr>
+                    <tr>
+                        <th>Eventos</th>
+                        <th>QTD previa</th>
+                        <th>QTD confirmados</th>
+                        <th></th>
+                        <th>Eventos</th>
+                        <th>QTD previa</th>
+                        <th>QTD confirmados</th>
+                        <th></th>
+                        <th>Eventos</th>
+                        <th>QTD previa</th>
+                        <th>QTD confirmados</th>
+                        <th></th>
+                        <th>Eventos</th>
+                        <th>QTD previa</th>
+                        <th>QTD confirmados</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for relatorio in relatorio_eventos %}
+                        <tr>
+                            <td style="position: sticky; left: -10px; z-index: 1; background-color: white;">{{ relatorio.mes_ano }}</td>
+                            <td>{{ relatorio.n_pre_reserva }}</td>
+                            <td>{{ relatorio.n_previa_pre_reserva }}</td>
+                            <td>{{ relatorio.n_confirmados_pre_reserva }}</td>
+                            <td class="icon_informacao {% if relatorio.n_pre_reserva|add:relatorio.n_previa_pre_reserva|add:relatorio.n_confirmados_pre_reserva == 0 %}sem_info{% endif %}">
+                                <i class='bx bx-info-circle'
+                                   onclick="mostrar_infos('pre_reserva', '{{ relatorio.mes_ano|safe }}')"></i></td>
+                            <td>{{ relatorio.n_confirmado }}</td>
+                            <td>{{ relatorio.n_previa_confirmado }}</td>
+                            <td>{{ relatorio.n_confirmados_confirmado }}</td>
+                            <td class="icon_informacao {% if relatorio.n_confirmado|add:relatorio.n_previa_confirmado|add:relatorio.n_confirmados_confirmado == 0 %}sem_info{% endif %}">
+                                <i class='bx bx-info-circle'
+                                   onclick="mostrar_infos('confirmado', '{{ relatorio.mes_ano|safe }}')"></i></td>
+                            <td>{{ relatorio.n_ficha_de_evento }}</td>
+                            <td>{{ relatorio.n_previa_ficha_de_evento }}</td>
+                            <td>{{ relatorio.n_confirmados_ficha_de_evento }}</td>
+                            <td class="icon_informacao {% if relatorio.n_ficha_de_evento|add:relatorio.n_previa_ficha_de_evento|add:relatorio.n_confirmados_ficha_de_evento == 0 %}sem_info{% endif %}">
+                                <i class='bx bx-info-circle'
+                                   onclick="mostrar_infos('ficha_evento', '{{ relatorio.mes_ano|safe }}')"></i></td>
+                            <td>{{ relatorio.n_ordem_de_servico }}</td>
+                            <td>{{ relatorio.n_previa_ordem_de_servico }}</td>
+                            <td>{{ relatorio.n_confirmados_ordem_de_servico }}</td>
+                            <td class="icon_informacao {% if relatorio.n_ordem_de_servico|add:relatorio.n_previa_ordem_de_servico|add:relatorio.n_confirmados_ordem_de_servico == 0 %}sem_info{% endif %}">
+                                <i class='bx bx-info-circle'
+                                   onclick="mostrar_infos('ordem_servico', '{{ relatorio.mes_ano|safe }}')"></i></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="infos_mes_estagio" class="none">
+                <div class="tabela_info_extra">
+                    <div class="titulo_info_extra">
+                        <h4>Eventos em pré reserva de Janeiro de 2024</h4>
+                        <span onclick="$('#infos_mes_estagio').addClass('none')">&times;</span>
+                    </div>
+                    <div class="conteudo_tabela">
+                        <table class="table table-hover table-striped table-bordered" style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>QTD reservado</th>
+                                <th>QTD confirmado</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="relatorio_produtos">
+            <div class="conteudo_tabela">
+                <table id="tabela_relatorio_produtos" class="table table-hover table-striped"
+                       style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th style=" width: 20px; position: sticky; left: -12px; top: -12px; z-index: 2; background-color: white;">
+                            Mês/Ano
+                        </th>
+                        <th style=" width: 20px; position: sticky; left: 128px; top: -12px; z-index: 2; background-color: white;">
+                            Estágio
+                            evento
+                        </th>
+                        {% for produto in relatorio_produtos.produtos %}
+                            <th style="position: sticky; top: -12px; background: white; z-index: 1">{{ produto }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for relatorio in relatorio_produtos.relatorio_mes_mes %}
+                        <tr>
+                            <td class="borda_direita_dupla" rowspan="4"
+                                style="position: sticky; left: -12px; z-index: 1; background-color: white;">
+                                {{ relatorio.mes_ano }}
+                            </td>
+                            <td class="borda_direita_dupla"
+                                style="position: sticky; left: 128px; z-index: 1; background-color: white;">
+                                Pré reserva
+                            </td>
+                            {% for quantidade in relatorio.estagios.pre_reserva %}
+                                <td>{{ quantidade }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="borda_direita_dupla"
+                                style="position: sticky; left: 128px; z-index: 1; background-color: white;">
+                                Confirmado
+                            </td>
+                            {% for quantidade in relatorio.estagios.confirmado %}
+                                <td>{{ quantidade }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="borda_direita_dupla"
+                                style="position: sticky; left: 128px; z-index: 1; background-color: white;">
+                                Ficha de Evento
+                            </td>
+                            {% for quantidade in relatorio.estagios.ficha_evento %}
+                                <td>{{ quantidade }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr class="borda_inferior_dupla">
+                            <td class="borda_direita_dupla"
+                                style="position: sticky; left: 128px; z-index: 1; background-color: white;">
+                                Ordem de Serviço
+                            </td>
+                            {% for quantidade in relatorio.estagios.ordem_servico %}
+                                <td>{{ quantidade }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="conteudo_grafica none"></div>
+        </div>
+
+        <script src="{% static 'js/script_painel_diretoria.js' %}"></script>
+    </main>
+
+{% endblock %}

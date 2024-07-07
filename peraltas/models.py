@@ -794,6 +794,24 @@ class Eventos(models.Model):
 
         return meses[n_mes - 1]
 
+    @staticmethod
+    def numero_mes(nome_mes):
+        meses = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ]
+
+        return meses.index(nome_mes) + 1
+
+    @classmethod
+    def pegar_escolha_estagios_evento(cls, estagio):
+        for choice in cls.estagios_evento:
+            if choice[0] == estagio:
+
+                return choice[1]
+
+        return None
+
     @classmethod
     def preparar_relatorio_mes_mes(cls):
         relatorios = {}
@@ -804,6 +822,7 @@ class Eventos(models.Model):
             data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
         ).order_by('data_check_in')
+        eventos = Eventos.objects.all().order_by('data_check_in')  # TODO: Retirar quando for pra produção
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
@@ -865,6 +884,7 @@ class Eventos(models.Model):
             data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
         ).order_by('data_check_in')
+        eventos = Eventos.objects.all().order_by('data_check_in')  # TODO: Retirar quando for pra produção
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
@@ -901,6 +921,26 @@ class Eventos(models.Model):
             relatorio_produtos['relatorio_mes_mes'].append(relatorio_item)
 
         return relatorio_produtos
+
+    @classmethod
+    def preparar_relatorio_clientes_mes_estagios(cls, estagio, mes, ano):
+        relatorio = []
+        numero_mes = cls.numero_mes(mes)
+        eventos_estagio_mes_ano = cls.objects.filter(
+            estagio_evento=estagio,
+            data_check_in__month=numero_mes,
+            data_check_in__year=ano,
+        )
+
+        for evento in eventos_estagio_mes_ano:
+            relatorio.append({
+                'cliente': evento.cliente.__str__(),
+                'reservado': evento.qtd_previa,
+                'confirmado': evento.qtd_confirmado,
+            })
+
+        print(relatorio)
+        return {'relatorio': relatorio, 'estagio': cls.pegar_escolha_estagios_evento(estagio)}
 
 
 class DisponibilidadePeraltas(models.Model):
