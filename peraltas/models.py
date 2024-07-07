@@ -822,7 +822,6 @@ class Eventos(models.Model):
             data_check_in__year__gte=datetime.today().year,
             data_check_in__lte=datetime.today().date() + timedelta(days=180),
         ).order_by('data_check_in')
-        eventos = Eventos.objects.all().order_by('data_check_in')  # TODO: Retirar quando for pra produção
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
@@ -876,15 +875,29 @@ class Eventos(models.Model):
         return relatorio_mes_mes
 
     @classmethod
-    def preparar_relatorio_produtos(cls):
+    def preparar_relatorio_produtos(
+            cls,
+            pesquisar_seis_meses=True,
+            mes_check_in=None,
+            ano_check_in=None,
+    ):
         relatorios = {}
         produtos_presentes = set()
-        eventos = cls.objects.filter(
-            data_check_in__month__gte=datetime.today().month,
-            data_check_in__year__gte=datetime.today().year,
-            data_check_in__lte=datetime.today().date() + timedelta(days=180),
-        ).order_by('data_check_in')
-        eventos = Eventos.objects.all().order_by('data_check_in')  # TODO: Retirar quando for pra produção
+
+        if pesquisar_seis_meses:
+            eventos = cls.objects.filter(
+                data_check_in__month__gte=datetime.today().month,
+                data_check_in__year__gte=datetime.today().year,
+                data_check_in__lte=datetime.today().date() + timedelta(days=180),
+            ).order_by('data_check_in')
+        else:
+            if not mes_check_in and not ano_check_in:
+                raise f'Informar mes e ano de check in para a montagem do relatório'
+
+            eventos = cls.objects.filter(
+                data_check_in__month=mes_check_in,
+                data_check_in__year=ano_check_in,
+            ).order_by('data_check_in')
 
         for evento in eventos:
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
@@ -939,9 +952,35 @@ class Eventos(models.Model):
                 'confirmado': evento.qtd_confirmado,
             })
 
-        print(relatorio)
         return {'relatorio': relatorio, 'estagio': cls.pegar_escolha_estagios_evento(estagio)}
 
+    @classmethod
+    def peparar_relatorio_estagio(cls, mes, ano):
+        dados = []
+        pre_reserva = confirmado = ficha_evento = ordem_servico = 0
+        eventos = cls.objects.filter(
+            data_check_in__month=mes,
+            data_check_in__year=ano,
+        )
+
+        for evento in eventos:
+            if evento.estagio_evento == 'pre_reserva':
+                pre_reserva += 1
+            elif evento.estagio_evento == 'confirmado':
+                confirmado += 1
+            elif evento.estagio_evento == 'ficha_evento':
+                ficha_evento += 1
+            elif evento.estagio_evento == 'ordem_servico':
+                ordem_servico += 1
+
+        dados.append({
+            'pre_reserva': pre_reserva,
+            'confirmado': confirmado,
+            'ficha_evento': ficha_evento,
+            'ordem_servico': ordem_servico,
+        })
+
+        return dados
 
 class DisponibilidadePeraltas(models.Model):
     meses = (
