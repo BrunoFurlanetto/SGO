@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -7,8 +7,9 @@ from projetoCEU.utils import is_ajax
 
 
 @login_required
-@permission_required('peraltas.view_eventos', login_url='dashboard')
+@permission_required('peraltas.view_eventos', raise_exception=True)
 def index(request):
+    a
     return render(request, 'painelDiretoria/index.html', {
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
         'relatorio_produtos': Eventos.preparar_relatorio_produtos(),

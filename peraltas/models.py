@@ -982,6 +982,7 @@ class Eventos(models.Model):
 
         return dados
 
+
 class DisponibilidadePeraltas(models.Model):
     meses = (
         (1, 'Janeiro'),
