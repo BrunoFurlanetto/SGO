@@ -621,7 +621,8 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 lista_emails = set()
 
                 for coordenador in coordenadores_acampamento:
-                    lista_emails.add(coordenador.email)
+                    if coordenador.email != 'sacieventossp@gmail.com':
+                        lista_emails.add(coordenador.email)
 
                 EmailSender(lista_emails).evento_cancelado_monitores(cliente, check_in)
 
