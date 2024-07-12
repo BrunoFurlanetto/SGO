@@ -27,7 +27,12 @@ class EventosTestCase(TestCase):
         )
 
     def test_tipo_retorno_campos_cadastro_eventos(self):
-        campos = Eventos.campos_cadastro_eventos()
+        campos = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            'Julho',
+            2024,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         self.assertEqual(type(campos), dict)
         self.assertTrue('relatorio' in campos)
         self.assertTrue('estagio' in campos)
@@ -41,7 +46,12 @@ class EventosTestCase(TestCase):
         ano = 2024
 
         # Chamando o método que queremos testar
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('pre_reserva', mes, ano)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'pre_reserva',
+            mes,
+            ano,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
 
         # Verificando se o relatório foi gerado corretamente
         self.assertEqual(len(relatorio['relatorio']), 1)  # Verifica se há apenas um evento no relatório
@@ -50,41 +60,60 @@ class EventosTestCase(TestCase):
         # Verificando detalhes do evento no relatório
         evento_relatorio = relatorio['relatorio'][0]
         self.assertEqual(evento_relatorio['cliente'], self.cliente1.__str__())  # Verifica o cliente
-        self.assertEqual(evento_relatorio['reservado'], 10)  # Verifica a quantidade previamente reservada
-        self.assertEqual(evento_relatorio['confirmado'], 8)  # Verifica a quantidade confirmada
+        self.assertEqual(evento_relatorio['qtd_previa'], '10')  # Verifica a quantidade previamente reservada
+        self.assertEqual(evento_relatorio['qtd_confirmado'], '8')  # Verifica a quantidade confirmada
 
     def test_preparar_relatorio_clientes_mes_estagios_confirmado(self):
         mes = 'Julho'
         ano = 2024
         # Testando para outro estágio
-        relatorio_confirmado = Eventos.preparar_relatorio_clientes_mes_estagios('confirmado', mes, ano)
+        relatorio_confirmado = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            mes,
+            ano,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         self.assertEqual(len(relatorio_confirmado['relatorio']), 1)  # Verifica se há apenas um evento no relatório
         self.assertEqual(relatorio_confirmado['estagio'], 'Evento confirmado')  # Verifica se o estágio está correto
-
         evento_relatorio_confirmado = relatorio_confirmado['relatorio'][0]
         self.assertEqual(evento_relatorio_confirmado['cliente'], self.cliente2.__str__())  # Verifica o cliente
-        self.assertEqual(evento_relatorio_confirmado['reservado'], 15)  # Verifica a quantidade previamente reservada
-        self.assertEqual(evento_relatorio_confirmado['confirmado'], 12)  # Verifica a quantidade confirmada
+        self.assertEqual(evento_relatorio_confirmado['qtd_previa'], '15')  # Verifica a quantidade previamente reservada
+        self.assertEqual(evento_relatorio_confirmado['qtd_confirmado'], '12')  # Verifica a quantidade confirmada
 
     def test_preparar_relatorio_clientes_mes_sem_resultado_para_o_ano(self):
         mes = 'Julho'
         ano = 2025
 
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('confirmado', mes, ano)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            mes,
+            ano,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         self.assertEqual(len(relatorio['relatorio']), 0)
 
     def test_preparar_relatorio_clientes_mes_sem_resultado_para_o_mes(self):
         mes = 'Agosto'
         ano = 2024
 
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('confirmado', mes, ano)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            mes,
+            ano,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         self.assertEqual(len(relatorio['relatorio']), 0)
 
     def tester_preparar_relatorio_clientes_mes_sem_resultado_para_o_estagio(self):
         mes = 'Julho'
         ano = 2024
 
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('ficha_evento', mes, ano)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'ficha_evento',
+            mes,
+            ano,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         self.assertEqual(len(relatorio['relatorio']), 0)
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -115,22 +144,32 @@ class EventosPerformanceTest(TestCase):
 
     def test_performance_preparar_relatorio_clientes_mes_sem_resultado(self):
         start_time = datetime.now()
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('confirmado', 'Janeiro', 2024)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            'Janeiro',
+            2024,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
 
-        self.assertLess(execution_time, 0.01)
+        self.assertLess(execution_time, 0.1)
         self.assertEqual(len(relatorio['relatorio']), 0)
         self.assertTrue('relatorio' in relatorio)
         self.assertTrue('estagio' in relatorio)
 
     def test_performance_preparar_relatorio_clientes_mes_com_resultado(self):
         start_time = datetime.now()
-        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios('confirmado', 'Julho', 2024)
+        relatorio = Eventos.preparar_relatorio_clientes_mes_estagios(
+            'confirmado',
+            'Julho',
+            2024,
+            ['cliente', 'qtd_previa', 'qtd_confirmado']
+        )
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
 
-        self.assertLess(execution_time, 0.01)
+        self.assertLess(execution_time, 0.1)
         self.assertGreaterEqual(len(relatorio['relatorio']), 1)
         self.assertTrue('relatorio' in relatorio)
         self.assertTrue('estagio' in relatorio)

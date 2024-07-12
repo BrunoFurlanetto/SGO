@@ -25,7 +25,7 @@ def infos_clientes_mes_estagios(request):
         mes, ano = request.GET.get('mes_ano').split('/')
         estagio = request.GET.get('estagio')
         campos = request.GET.getlist('campos[]')
-        print(request.GET)
+
         return JsonResponse(Eventos.preparar_relatorio_clientes_mes_estagios(estagio, mes, ano, campos))
     else:
         return redirect('dashboard')
