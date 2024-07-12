@@ -29,7 +29,8 @@ class SecurityTest(TestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={
                 'mes_ano': 'Julho/2024',
-                'estagio': 'confirmado'
+                'estagio': 'confirmado',
+                'campos': ['cliente', 'qtd_previa', 'qtd_confirmado']
             }
         )
 

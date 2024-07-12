@@ -157,3 +157,7 @@
 #grafico_info_extra .titulo_info_extra {
     border-bottom: solid 1px;
 }
+
+#campos_eventos {
+    width: 100% !important;
+}

@@ -2,31 +2,56 @@ let chartProdutoInstance = null;
 let chartEstagioInstance = null;
 let outrosItemsProduto = [];
 let outrosItemsEstagio = [];
+let ultimo_estagio = null
+let ulimo_mes_ano = null
+
+$(document).ready(() => {
+    $('#campos_eventos').select2({
+        maximumSelectionLength: 6
+    })
+
+    $('#campos_eventos').on("select2:select", function () {
+        let selectedOptions = $(this).val()
+        $('#mensagem_aviso').addClass('none')
+
+        if (selectedOptions && selectedOptions.length >= 2) {
+            mostrar_infos(ultimo_estagio, ulimo_mes_ano)
+        } else {
+            $('#mensagem_aviso').removeClass('none');
+        }
+    })
+
+    $('#campos_eventos').on("select2:unselect", function () {
+        let selectedOptions = $(this).val()
+        $('#mensagem_aviso').addClass('none')
+
+        if (selectedOptions && selectedOptions.length >= 2) {
+            mostrar_infos(ultimo_estagio, ulimo_mes_ano)
+        } else {
+            $('#mensagem_aviso').removeClass('none');
+        }
+    })
+})
 
 function mostrar_infos(estagio, mes_ano) {
     loading()
-    const tabela_infos_mes_estagios = $('#infos_mes_estagio table tbody').empty()
+    const campos_selecionados = $('#campos_eventos').val()
+    ulimo_mes_ano = mes_ano
+    ultimo_estagio = estagio
 
     $.ajax({
         url: '/painel-diretoria/infos_clientes_mes_estagios/',
         type: 'GET',
-        data: {'estagio': estagio, 'mes_ano': mes_ano},
+        data: {'estagio': estagio, 'mes_ano': mes_ano, 'campos': campos_selecionados},
         success: function (response) {
-            const infos = response['relatorio']
             const mes = mes_ano.split('/')[0]
             const ano = mes_ano.split('/')[1]
-            $('#infos_mes_estagio .titulo_info_extra h4').text(`Eventos no estágio ${response['estagio']} para ${mes} de ${ano}`)
+            const colunas = response['campos']
+            const relatorios = response['relatorio']
 
-            for (let cliente of infos) {
-                let nova_linha = `
-                    <tr>
-                        <td>${cliente['cliente']}</td>
-                        <td>${cliente['reservado']}</td>
-                        <td>${cliente['confirmado']}</td>
-                    </tr>
-                `
-                tabela_infos_mes_estagios.append(nova_linha)
-            }
+            $('#infos_mes_estagio .titulo_info_extra h4').text(`Eventos no estágio ${response['estagio']} para ${mes} de ${ano}`)
+            tabelar_colunas(colunas)
+            tabelar_dados(relatorios)
         }
     }).done(() => {
         $('#infos_mes_estagio').removeClass('none')
@@ -35,6 +60,31 @@ function mostrar_infos(estagio, mes_ano) {
         alert(e)
         end_loading()
     })
+}
+
+function tabelar_colunas(colunas) {
+    const cabecalho_tabela = $('#tabela_dados_extra_eventos thead tr').empty()
+    colunas.map((coluna) => {
+        console.log(coluna)
+        cabecalho_tabela.append(`<td>${coluna}</td>`)
+    })
+}
+
+function tabelar_dados(relatorios) {
+    const tabela_infos_mes_estagios = $('#infos_mes_estagio table tbody').empty()
+    console.log(relatorios)
+    for (let relatorio of relatorios) {
+        let nova_linha = $(`<tr></tr>`)
+        tabela_infos_mes_estagios.append(nova_linha)
+
+        for (let campo in relatorio) {
+            if (relatorio[campo]['url']) {
+                nova_linha.append(`<td><a target="_blank" href="${relatorio[campo]['url']}">${relatorio[campo]['cliente']}</a></td>`)
+            } else {
+                nova_linha.append(`<td>${relatorio[campo]}</td>`)
+            }
+        }
+    }
 }
 
 function graficar_produto_estagio(mes_ano) {

@@ -13,7 +13,8 @@ def index(request):
     return render(request, 'painelDiretoria/index.html', {
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
         'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
-        'produtos_peraltas': ProdutosPeraltas.objects.all()
+        'produtos_peraltas': ProdutosPeraltas.objects.all(),
+        'campos_cadastro_eventos': Eventos.campos_cadastro_eventos()
     })
 
 
@@ -23,8 +24,9 @@ def infos_clientes_mes_estagios(request):
     if is_ajax(request):
         mes, ano = request.GET.get('mes_ano').split('/')
         estagio = request.GET.get('estagio')
-
-        return JsonResponse(Eventos.preparar_relatorio_clientes_mes_estagios(estagio, mes, ano))
+        campos = request.GET.getlist('campos[]')
+        print(request.GET)
+        return JsonResponse(Eventos.preparar_relatorio_clientes_mes_estagios(estagio, mes, ano, campos))
     else:
         return redirect('dashboard')
 

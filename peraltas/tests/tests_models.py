@@ -26,6 +26,13 @@ class EventosTestCase(TestCase):
             cliente=self.cliente2,
         )
 
+    def test_tipo_retorno_campos_cadastro_eventos(self):
+        campos = Eventos.campos_cadastro_eventos()
+        self.assertEqual(type(campos), dict)
+        self.assertTrue('relatorio' in campos)
+        self.assertTrue('estagio' in campos)
+        self.assertTrue('campos' in campos)
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------- Testes para o preparar_relatorio_clientes_mes_estagios ----------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
