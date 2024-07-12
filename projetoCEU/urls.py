@@ -61,4 +61,5 @@ else:
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'home.views.handler404'
+handler403 = 'home.views.handler403'
 handler500 = 'home.views.handler500'

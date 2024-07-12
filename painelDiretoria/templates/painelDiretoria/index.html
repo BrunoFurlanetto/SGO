@@ -76,17 +76,27 @@
             <div id="infos_mes_estagio" class="none">
                 <div class="tabela_info_extra">
                     <div class="titulo_info_extra">
-                        <h4>Eventos em pré reserva de Janeiro de 2024</h4>
+                        <h4></h4>
                         <span onclick="$('#infos_mes_estagio').addClass('none')">&times;</span>
                     </div>
+                    <div class="mb-3" style="display: flex; flex-direction: column">
+                        <label for="campos_eventos">Campos mostrados</label>
+                        <select name="campos_eventos" id="campos_eventos" multiple>
+                            <option value="cliente" selected>Cliente</option>
+                            <option value="qtd_previa" selected>QTD prévia</option>
+                            <option value="qtd_confirmado" selected>QTD confirmado</option>
+                            {% for nome_campo, verbose_name in campos_cadastro_eventos.items %}
+                                {% if nome_campo not in 'cliente, qtd_previa, qtd_confirmado' %}
+                                    <option value="{{ nome_campo }}">{{ verbose_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <p id="mensagem_aviso" class="alert alert-warning none">É necessário ao menos dois campos selecionados</p>
+                    </div>
                     <div class="conteudo_tabela">
-                        <table class="table table-hover table-striped table-bordered" style="border-top: solid">
+                        <table id="tabela_dados_extra_eventos" class="table table-hover table-striped table-bordered" style="border-top: solid">
                             <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>QTD reservado</th>
-                                <th>QTD confirmado</th>
-                            </tr>
+                                <tr></tr>
                             </thead>
                             <tbody></tbody>
                         </table>

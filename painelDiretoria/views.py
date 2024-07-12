@@ -1,31 +1,40 @@
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_GET
 
 from peraltas.models import Eventos, ProdutosPeraltas
 from projetoCEU.utils import is_ajax
 
 
 @login_required
-@permission_required('peraltas.view_eventos', login_url='dashboard')
+@permission_required('peraltas.view_eventos', raise_exception=True)
 def index(request):
     return render(request, 'painelDiretoria/index.html', {
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
         'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
-        'produtos_peraltas': ProdutosPeraltas.objects.all()
+        'produtos_peraltas': ProdutosPeraltas.objects.all(),
+        'campos_cadastro_eventos': Eventos.campos_cadastro_eventos()
     })
 
 
+@login_required
+@require_GET
 def infos_clientes_mes_estagios(request):
-    if is_ajax(request) and request.method == 'GET':
+    if is_ajax(request):
         mes, ano = request.GET.get('mes_ano').split('/')
         estagio = request.GET.get('estagio')
+        campos = request.GET.getlist('campos[]')
+        print(request.GET)
+        return JsonResponse(Eventos.preparar_relatorio_clientes_mes_estagios(estagio, mes, ano, campos))
+    else:
+        return redirect('dashboard')
 
-        return JsonResponse(Eventos.preparar_relatorio_clientes_mes_estagios(estagio, mes, ano))
 
-
+@login_required
+@require_GET
 def infos_produtos_estagios(request):
-    if is_ajax(request) and request.method == 'GET':
+    if is_ajax(request):
         mes = Eventos.numero_mes(request.GET.get('mes_ano').split('/')[0])
         ano = request.GET.get('mes_ano').split('/')[1]
         dados_produtos_trabalhados = {}
@@ -47,3 +56,5 @@ def infos_produtos_estagios(request):
         dados_estagio = Eventos.peparar_relatorio_estagio(mes, ano)
 
         return JsonResponse({'dados_produto': dados_produtos_trabalhados, 'dados_estagio': dados_estagio})
+    else:
+        return redirect('dashboard')

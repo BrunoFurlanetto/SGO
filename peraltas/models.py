@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from django.db.models import ManyToManyField, Count, Q, Sum
 from django.db.models.functions import TruncMonth, TruncYear
+from django.urls import reverse
 from django.utils import timezone
 from import_export import resources
 from import_export.fields import Field
@@ -758,24 +759,36 @@ class Eventos(models.Model):
         null=True,
         blank=True
     )
-    ficha_de_evento = models.ForeignKey(FichaDeEvento, on_delete=models.CASCADE, null=True, blank=True)
-    colaborador = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING)
-    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE)
-    data_check_in = models.DateField()
-    hora_check_in = models.TimeField()
-    data_check_out = models.DateField()
-    hora_check_out = models.TimeField()
-    qtd_previa = models.IntegerField()
-    qtd_confirmado = models.IntegerField()
-    data_preenchimento = models.DateField()
-    estagio_evento = models.CharField(choices=estagios_evento, max_length=25)
-    codigo_pagamento = models.CharField(max_length=255, blank=True)
-    tipo_evento = models.CharField(max_length=25)
-    dias_evento = models.IntegerField()
-    produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING)
-    produto_corporativo = models.ForeignKey(ProdutoCorporativo, on_delete=models.DO_NOTHING, blank=True, null=True)
-    adesao = models.FloatField(default=0.0)
-    veio_ano_anterior = models.BooleanField(choices=sim_e_nao)
+    ficha_de_evento = models.ForeignKey(
+        FichaDeEvento,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Ficha de evento'
+    )
+    colaborador = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
+    cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
+    data_check_in = models.DateField(verbose_name='Data de check in')
+    hora_check_in = models.TimeField(verbose_name='Hora de check in')
+    data_check_out = models.DateField(verbose_name='Data de check out')
+    hora_check_out = models.TimeField(verbose_name='Hora de check out')
+    qtd_previa = models.IntegerField(verbose_name='QTD reservado')
+    qtd_confirmado = models.IntegerField(verbose_name='QTD confirmado')
+    data_preenchimento = models.DateField(verbose_name='Data de preenchimento')
+    estagio_evento = models.CharField(choices=estagios_evento, max_length=25, verbose_name='Estágio do evento')
+    codigo_pagamento = models.CharField(max_length=255, blank=True, verbose_name='Código de pagamento')
+    tipo_evento = models.CharField(max_length=25, verbose_name='Tipo de evento')
+    dias_evento = models.IntegerField(verbose_name='Dias de evento')
+    produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING, verbose_name='Produto Peraltas')
+    produto_corporativo = models.ForeignKey(
+        ProdutoCorporativo,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        verbose_name='Produto Corporativo'
+    )
+    adesao = models.FloatField(default=0.0, verbose_name='Adesão')
+    veio_ano_anterior = models.BooleanField(choices=sim_e_nao, verbose_name='Veio no ano anterior')
 
     class Meta:
         verbose_name_plural = 'Eventos'
@@ -784,6 +797,10 @@ class Eventos(models.Model):
         return f'{self.adesao:.2f}%'.replace('.', ',')
 
     adesao_formatado.short_description = 'Adesão'
+
+    @classmethod
+    def campos_cadastro_eventos(cls):
+        return {campo.name: campo.verbose_name for campo in cls._meta.get_fields()}
 
     @staticmethod
     def nome_mes(n_mes):
@@ -936,8 +953,9 @@ class Eventos(models.Model):
         return relatorio_produtos
 
     @classmethod
-    def preparar_relatorio_clientes_mes_estagios(cls, estagio, mes, ano):
+    def preparar_relatorio_clientes_mes_estagios(cls, estagio, mes, ano, campos):
         relatorio = []
+        verbose_campos = []
         numero_mes = cls.numero_mes(mes)
         eventos_estagio_mes_ano = cls.objects.filter(
             estagio_evento=estagio,
@@ -946,13 +964,62 @@ class Eventos(models.Model):
         )
 
         for evento in eventos_estagio_mes_ano:
-            relatorio.append({
-                'cliente': evento.cliente.__str__(),
-                'reservado': evento.qtd_previa,
-                'confirmado': evento.qtd_confirmado,
-            })
+            campos_evento = {}
 
-        return {'relatorio': relatorio, 'estagio': cls.pegar_escolha_estagios_evento(estagio)}
+            for campo in campos:
+                valor_campo = getattr(evento, campo)
+                campo_modelo = cls._meta.get_field(campo)
+                verbose_name = campo_modelo.verbose_name if hasattr(campo_modelo, 'verbose_name') else campo
+
+                if verbose_name not in verbose_campos:
+                    verbose_campos.append(verbose_name)
+
+                match campo_modelo:
+                    case models.ForeignKey():
+                        if campo == 'ficha_de_evento':
+                            if evento.estagio_evento in ['ordem_servico', 'ficha_evento']:
+                                valor_campo = {
+                                    'cliente': str(evento.cliente),
+                                    'url': reverse('ver_ficha_de_evento', kwargs={
+                                        'id_ficha_de_evento': evento.ficha_de_evento.pk
+                                    }),
+                                }
+                            else:
+                                valor_campo = ''
+                        elif campo == 'ordem_de_servico' and evento.estagio_evento in ['ordem_servico']:
+                            valor_campo = {
+                                'cliente': str(evento.cliente),
+                                'url': reverse('ver_ordem_de_servico', kwargs={
+                                    'id_ordem_de_servico': evento.ficha_de_evento.pk
+                                }),
+                            }
+                        else:
+                            valor_campo = str(valor_campo) if valor_campo else ''
+                    case models.DateField():
+                        valor_campo = valor_campo.strftime('%d/%m/%Y') if valor_campo else None
+                    case models.TimeField():
+                        valor_campo = valor_campo.strftime('%H:%M') if valor_campo else None
+                    case models.IntegerField():
+                        valor_campo = str(valor_campo)
+                    case models.CharField():
+                        valor_campo = str(valor_campo)
+                    case models.FloatField():
+                        if campo == 'adesao':
+                            valor_campo = f'{valor_campo:.2f}%'.replace('.', ',')
+                        else:
+                            valor_campo = f'{valor_campo:.2f}'.replace('.', ',')
+                    case models.BooleanField():
+                        valor_campo = 'Sim' if valor_campo else 'Não'
+
+                campos_evento[campo] = valor_campo
+
+            relatorio.append(campos_evento)
+
+        return {
+            'relatorio': relatorio,
+            'estagio': cls.pegar_escolha_estagios_evento(estagio),
+            'campos': verbose_campos
+        }
 
     @classmethod
     def peparar_relatorio_estagio(cls, mes, ano):
@@ -981,6 +1048,7 @@ class Eventos(models.Model):
         })
 
         return dados
+
 
 class DisponibilidadePeraltas(models.Model):
     meses = (

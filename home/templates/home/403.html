@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="conteudo-login">
+        <div class="box-manutencao">
+            <img class="logo-central" src="{% static 'img/grupoPeraltas.png' %}" alt="Logo" width="50%" height="auto">
+            <div class="aviso-manutencao">
+                <h2>ACESSO NÃO AUTORIZADO!</h2>
+            </div>
+            <a href="{% url 'dashboard' %}">
+                <img src="{% static 'img/forbidden.gif' %}" alt="Acesso não autorizado" style="width: 40vh">
+            </a>
+        </div>
+    </div>
+{% endblock %}
+</html>
