@@ -7,6 +7,7 @@ import django.db.utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
@@ -401,29 +402,38 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if request.POST.get('excluir'):
         try:
-            EventosCancelados.objects.create(
-                cliente=ordem_servico.ficha_de_evento.cliente.__str__(),
-                cnpj_cliente=ordem_servico.ficha_de_evento.cliente.cnpj,
-                estagio_evento='ordem_servico',
-                atendente=ordem_servico.vendedor.usuario.get_full_name(),
-                produto_contratado=ordem_servico.ficha_de_evento.produto,
-                produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
-                data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
-                data_saida=datetime.now().date(),
-                data_evento=ordem_servico.check_in.date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                participantes=ordem_servico.n_participantes if ordem_servico.n_participantes else 0,
-                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo',
-                colaborador_excluiu=request.user,
-            )
-            ordem_servico.ficha_de_evento.os = False
-            ordem_servico.ficha_de_evento.save()
+            with transaction.atomic():
+                EventosCancelados.objects.create(
+                    cliente=ordem_servico.ficha_de_evento.cliente.__str__(),
+                    cnpj_cliente=ordem_servico.ficha_de_evento.cliente.cnpj,
+                    estagio_evento='ordem_servico',
+                    atendente=ordem_servico.vendedor.usuario.get_full_name(),
+                    produto_contratado=ordem_servico.ficha_de_evento.produto,
+                    produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
+                    data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
+                    data_saida=datetime.now().date(),
+                    data_check_in_evento=ordem_servico.check_in.date(),
+                    hora_check_in_evento=ordem_servico.check_in.time(),
+                    data_check_out_evento=ordem_servico.check_out.date(),
+                    hora_check_out_evento=ordem_servico.check_out.time(),
+                    dias_evento=(ordem_servico.check_out.date() - ordem_servico.check_in.date()).days + 1,
+                    codigo_pagamento=ordem_servico.ficha_de_evento.codigos_app.eficha,
+                    adesao=ordem_servico.ficha_de_evento.adesao,
+                    veio_ano_anterior=FichaDeEvento.objects.filter(check_in__year=ordem_servico.check_in.year - 1).exists(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes_reservados=ordem_servico.ficha_de_evento.qtd_convidada,
+                    participantes_confirmados=ordem_servico.n_participantes,
+                    tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo',
+                    colaborador_excluiu=request.user,
+                )
+                ordem_servico.ficha_de_evento.os = False
+                ordem_servico.ficha_de_evento.save()
 
-            if ordem_servico.dados_transporte:
-                for dados_transporte in ordem_servico.dados_transporte.all():
-                    dados_transporte.delete()
+                if ordem_servico.dados_transporte:
+                    for dados_transporte in ordem_servico.dados_transporte.all():
+                        dados_transporte.delete()
 
-            ordem_servico.delete()
+                ordem_servico.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde')
         else:
@@ -592,26 +602,36 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
 
         try:
-            EventosCancelados.objects.create(
-                cliente=ficha_de_evento.cliente.__str__(),
-                cnpj_cliente=ficha_de_evento.cliente.cnpj,
-                estagio_evento='ficha_evento',
-                atendente=ficha_de_evento.vendedora.usuario.get_full_name(),
-                produto_contratado=ficha_de_evento.produto,
-                produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
-                data_entrada=ficha_de_evento.data_preenchimento,
-                data_saida=datetime.now().date(),
-                data_evento=ficha_de_evento.check_in.date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                participantes=ficha_de_evento.qtd_convidada if ficha_de_evento.qtd_convidada else 0,
-                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio',
-                colaborador_excluiu=request.user,
-            )
+            with transaction.atomic():
+                EventosCancelados.objects.create(
+                    cliente=ficha_de_evento.cliente.__str__(),
+                    cnpj_cliente=ficha_de_evento.cliente.cnpj,
+                    estagio_evento='ficha_evento',
+                    atendente=ficha_de_evento.vendedora.usuario.get_full_name(),
+                    produto_contratado=ficha_de_evento.produto,
+                    produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
+                    data_entrada=ficha_de_evento.data_preenchimento,
+                    data_saida=datetime.now().date(),
+                    data_check_in_evento=ficha_de_evento.check_in.date(),
+                    hora_check_in_evento=ficha_de_evento.check_in.time(),
+                    data_check_out_evento=ficha_de_evento.check_out.date(),
+                    hora_check_out_evento=ficha_de_evento.check_out.time(),
+                    dias_evento=(ficha_de_evento.check_out.date() - ficha_de_evento.check_in.date()).days + 1,
+                    codigo_pagamento=ficha_de_evento.codigos_app.eficha,
+                    adesao=ficha_de_evento.adesao,
+                    veio_ano_anterior=FichaDeEvento.objects.filter(
+                        check_in__year=ficha_de_evento.check_in.year - 1).exists(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes_reservados=ficha_de_evento.qtd_convidada,
+                    participantes_confirmados=ficha_de_evento.qtd_confirmada,
+                    tipo_evento='colegio' if ficha_de_evento.produto.colegio else 'corporativo',
+                    colaborador_excluiu=request.user,
+                )
 
-            cliente = ficha_de_evento.cliente
-            check_in = ficha_de_evento.check_in
-            escala = ficha_de_evento.escala
-            ficha_de_evento.delete()
+                cliente = ficha_de_evento.cliente
+                check_in = ficha_de_evento.check_in
+                escala = ficha_de_evento.escala
+                ficha_de_evento.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
             return redirect('dashboard')

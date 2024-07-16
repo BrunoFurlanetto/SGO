@@ -238,18 +238,67 @@ class TiposPagamentosAdmin(admin.ModelAdmin):
 class EventosCanceladosAdmin(admin.ModelAdmin):
     list_display = (
         'cliente',
+        'colaborador_excluiu',
+        'data_check_in_formatado',
+        'hora_check_in_formatado',
+        'data_check_out_formatado',
+        'hora_check_out_formatado',
+        'participantes_reservados',
+        'participantes_confirmados',
         'estagio_evento',
-        'atendente',
         'motivo_cancelamento',
-        'data_entrada',
-        'data_saida',
-        'data_evento',
-        'participantes',
+        'data_entrada_formatado',
+        'data_saida_formatado',
         'tipo_evento',
-        'colaborador_excluiu'
+        'codigo_pagamento',
+        'produto_contratado',
+        'produto_corporativo_contratado',
+        'dias_evento',
+        'adesao',
+        'veio_ano_anterior',
+        'atendente',
     )
-    list_filter = ('estagio_evento', 'atendente')
-    search_fields = ('cliente', 'atendente')
+    list_filter = ('estagio_evento', 'atendente', 'data_saida')
+    search_fields = ('cliente', 'atendente', 'colaborador_excluiu__first_name', 'colaborador_excluiu__last_name')
+    readonly_fields = [field.name for field in EventosCancelados._meta.fields]
+
+    def get_search_results(self, request, queryset, search_term):
+        search_term = self.format_search_date(search_term)
+
+        return super().get_search_results(request, queryset, search_term)
+
+    def format_search_date(self, search_term):
+        # Tente converter o termo de pesquisa do formato d/m/Y para Y-m-d
+        try:
+            return datetime.strptime(search_term, "%d/%m/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            # Se a conversão falhar, retorne o termo de pesquisa original
+            return search_term
+
+    def data_check_in_formatado(self, obj):
+        return obj.data_check_in_evento.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def data_check_out_formatado(self, obj):
+        return obj.data_check_out_evento.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def hora_check_in_formatado(self, obj):
+        return obj.hora_check_in_evento.strftime("%H:%M")  # Formato de data desejado
+
+    def hora_check_out_formatado(self, obj):
+        return obj.hora_check_out_evento.strftime("%H:%M")  # Formato de data desejado
+
+    def data_saida_formatado(self, obj):
+        return obj.data_saida.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def data_entrada_formatado(self, obj):
+        return obj.data_entrada.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    data_check_in_formatado.short_description = 'Data check in'
+    data_check_out_formatado.short_description = 'Data check out'
+    hora_check_in_formatado.short_description = 'Hora check in'
+    hora_check_out_formatado.short_description = 'Hora check out'
+    data_saida_formatado.short_description = 'Data do cancelamento'
+    data_entrada_formatado.short_description = 'Data de entrada'
 
 
 @admin.register(Eventos)

@@ -4,6 +4,7 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -92,26 +93,37 @@ def eventos(request):
 
         if request.POST.get('excluir'):
             try:
-                EventosCancelados.objects.create(
-                    cliente=pre_reserva.cliente.__str__(),
-                    cnpj_cliente=pre_reserva.cliente.cnpj,
-                    estagio_evento='pre_reserva' if not pre_reserva.agendado else 'reserva_confirmada',
-                    atendente=pre_reserva.vendedora.usuario.get_full_name(),
-                    produto_contratado=pre_reserva.produto,
-                    produto_corporativo_contratado=pre_reserva.produto_corporativo,
-                    data_entrada=pre_reserva.data_preenchimento,
-                    data_saida=datetime.now().date(),
-                    data_evento=pre_reserva.check_in.date(),
-                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                    participantes=pre_reserva.qtd_convidada if pre_reserva.qtd_convidada else 0,
-                    tipo_evento='corporativo' if pre_reserva.produto_corporativo else 'colegio',
-                    colaborador_excluiu=request.user,
-                )
-                pre_reserva.delete()
+                with transaction.atomic():
+                    EventosCancelados.objects.create(
+                        cliente=pre_reserva.cliente.__str__(),
+                        cnpj_cliente=pre_reserva.cliente.cnpj,
+                        estagio_evento='pre_reserva' if not pre_reserva.agendado else 'reserva_confirmada',
+                        atendente=pre_reserva.vendedora.usuario.get_full_name(),
+                        produto_contratado=pre_reserva.produto,
+                        produto_corporativo_contratado=pre_reserva.produto_corporativo,
+                        data_entrada=pre_reserva.data_preenchimento,
+                        data_saida=datetime.now().date(),
+                        data_check_in_evento=pre_reserva.check_in.date(),
+                        hora_check_in_evento=pre_reserva.check_in.time(),
+                        data_check_out_evento=pre_reserva.check_out.date(),
+                        hora_check_out_evento=pre_reserva.check_out.time(),
+                        dias_evento=(pre_reserva.check_out.date() - pre_reserva.check_in.date()).days + 1,
+                        adesao=pre_reserva.adesao if pre_reserva.adesao else 0.00,
+                        veio_ano_anterior=FichaDeEvento.objects.filter(
+                            check_in__year=pre_reserva.check_in.year - 1).exists(),
+                        motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                        participantes_reservados=pre_reserva.qtd_convidada,
+                        participantes_confirmados=0,
+                        tipo_evento='colegio' if pre_reserva.produto.colegio else 'corporativo',
+                        colaborador_excluiu=request.user,
+                    )
+
+                    pre_reserva.delete()
             except Exception as e:
                 messages.error(request, f'Pré reserva não excluida: f{e}')
                 return redirect('calendario_eventos')
             else:
+
                 return redirect('calendario_eventos')
 
         return JsonResponse({
