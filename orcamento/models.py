@@ -164,21 +164,28 @@ class OrcamentoMonitor(models.Model):
         return self.nome_monitoria
 
 
-class OrcamentoOpicional(models.Model):
-    lista_caterogias = (
-        ('ceu', 'CEU'),
-        ('outros', 'Outros opcionais'),
-        ('eco', 'Ecoturismo'),
-    )
+class CategoriaOpcionais(models.Model):
+    nome_categoria = models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name = 'Categoria'
+        verbose_name_plural = '07a - Categorias de opcionais'
+
+    def __str__(self):
+        return self.nome_categoria
+
+
+class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
-    categoria = models.CharField(max_length=100, choices=lista_caterogias)
+    categoria = models.ForeignKey(CategoriaOpcionais, on_delete=models.DO_NOTHING, null=True, blank=True)
     descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    inicio_vigencia = models.DateField()
+    final_vigencia = models.DateField(default=default_validade)
 
     class Meta:
         verbose_name = 'Valor opcionais'
-        verbose_name_plural = '07 - Valores de opcionais'
+        verbose_name_plural = '07b - Valores de opcionais'
 
     def __str__(self):
         return self.nome
@@ -402,23 +409,10 @@ class Orcamento(models.Model):
     check_out = models.DateTimeField(verbose_name='Check out', blank=True, null=True)
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
     transporte = models.CharField(max_length=3, default='', choices=sim_e_nao, verbose_name='Transporte')
-    outros_opcionais = models.ManyToManyField(
+    opcionais = models.ManyToManyField(
         OrcamentoOpicional,
         blank=True,
-        verbose_name='Outros opcionais',
-        related_name='outros_opcionais'
-    )
-    opcionais_eco = models.ManyToManyField(
-        OrcamentoOpicional,
-        blank=True,
-        verbose_name='Ecoturismo',
-        related_name='opcionais_eco'
-    )
-    opcionais_ceu = models.ManyToManyField(
-        OrcamentoOpicional,
-        blank=True,
-        verbose_name='CEU',
-        related_name='opcionais_ceu'
+        verbose_name='Opcionais',
     )
     opcionais_extra = models.JSONField(blank=True, null=True, verbose_name='Opcionais extra')
     desconto = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2, verbose_name='Desconto')
@@ -973,9 +967,6 @@ class CadastroOrcamento(forms.ModelForm):
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),
-            'outros_opcionais': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
-            'opcionais_ceu': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
-            'opcionais_eco': forms.SelectMultiple(attrs={'onchange': 'enviar_op(this)'}),
             'orcamento_promocional': forms.Select(attrs={'disabled': True, 'onchange': 'mostrar_dados_pacote(this)'}),
         }
 
@@ -983,10 +974,6 @@ class CadastroOrcamento(forms.ModelForm):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
-        opcionais = OrcamentoOpicional.objects.all()
-        outros_opcionais = [('', '')]
-        opcionais_eco = [('', '')]
-        opcionais_ceu = [('', '')]
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
 
@@ -1005,19 +992,49 @@ class CadastroOrcamento(forms.ModelForm):
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
-        for opcional in opcionais:
-            if opcional.categoria == 'outros':
-                outros_opcionais.append((opcional.id, opcional))
-            elif opcional.categoria == 'ceu':
-                opcionais_ceu.append((opcional.id, opcional))
-            else:
-                opcionais_eco.append((opcional.id, opcional))
-
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
-        self.fields['outros_opcionais'].choices = outros_opcionais
-        self.fields['opcionais_ceu'].choices = opcionais_ceu
-        self.fields['opcionais_eco'].choices = opcionais_eco
+
+        # Inicializa um dicionário para armazenar os campos opcionais por categoria
+        self.opcionais_por_categoria = {}
+
+        # Itera sobre todas as categorias de opcionais
+        for categoria in CategoriaOpcionais.objects.all():
+            # Obtém os opcionais pertencentes a essa categoria
+            opcionais = OrcamentoOpicional.objects.filter(categoria=categoria)
+            # Define um nome e id customizado para o campo
+            field_name = f'opcionais_{categoria.id}'
+
+            # Cria um campo ModelMultipleChoiceField para esses opcionais usando Select com multiple
+            self.fields[field_name] = forms.ModelMultipleChoiceField(
+                queryset=opcionais,
+                required=False,
+                widget=forms.SelectMultiple(attrs={
+                    'id': f'opcionais_{categoria.id}',
+                    'name': 'opcionais',
+                }),
+                label=categoria.nome_categoria,
+            )
+            # Inicializa o campo se o objeto do formulário já tiver sido criado
+            if self.instance.pk:
+                self.fields[field_name].initial = self.instance.opcionais.filter(categoria=categoria)
+            # Armazena o campo no dicionário
+            self.opcionais_por_categoria[categoria.nome_categoria] = self[field_name]
+
+    def save(self, commit=True):
+        instance = super(CadastroOrcamento, self).save(commit=False)
+        if commit:
+            instance.save()
+            # Limpa os opcionais existentes
+            instance.opcionais.clear()
+            # Adiciona os opcionais selecionados para cada categoria
+            for categoria in CategoriaOpcionais.objects.all():
+                opcionais_selecionados = self.cleaned_data.get(f'opcionais_{categoria.id}')
+                if opcionais_selecionados:
+                    for opcional in opcionais_selecionados:
+                        instance.opcionais.add(opcional)
+
+        return instance
 
 
 class CadastroHorariosPadroesAdmin(forms.ModelForm):

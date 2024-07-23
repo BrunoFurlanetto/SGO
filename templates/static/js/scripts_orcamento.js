@@ -13,9 +13,7 @@ const secoes = [
     'periodo_viagem',
     'tipo_monitoria',
     'transporte',
-    'outros_opcionais',
-    'opcionais_ecoturismo',
-    'opcionais_ceu',
+    'opcionais',
     'opcionais_extras'
 ]
 
@@ -26,6 +24,9 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         width: '100%'
     })
     $('#apelido_orcamento').val($('#id_apelido').val())
+    $('select[name="opcionais"]').on('change', async () => {
+        await enviar_op();
+    });
 
     let hoje = new Date()
     $('#modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
@@ -58,7 +59,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         return false
     })
 
-    $("#id_opcionais_ceu, #id_opcionais_eco, #id_outros_opcionais").on("select2:select", async function (e) {
+    $('select[name="opcionais"]').on("select2:select", async function (e) {
         const opcao = e.params.data;
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
@@ -73,7 +74,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
                 url: '/orcamento/pesquisar_op/',
                 data: {'nome_id': nome_id, 'id': opcao['id']},
             }).then(async (response) => {
-                await listar_op(response, nome_id, opcao, i)
+                await listar_op(response, opcao, i)
             }).done(async () => {
                 $('#tabela_de_opcionais input').maskMoney({
                     prefix: 'R$ ',
@@ -84,7 +85,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
                 })
                 await enviar_form()
             })
-
         } catch (error) {
             alert(error)
         } finally {
@@ -92,7 +92,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         }
     })
 
-    $("#id_opcionais_ceu, #id_opcionais_eco, #id_outros_opcionais").on("select2:unselect", async function (e) {
+    $('select[name="opcionais"]').on("select2:unselect", async function (e) {
         loading()
         const opcao = e.params.data;
 
@@ -103,7 +103,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
             end_loading()
         } finally {
             // await atualizar_valores_op()
-            await listar_op(null, $(this).attr('id'), opcao, null, '0,00', true)
+            await listar_op(null, opcao, null, '0,00', true)
             await enviar_form()
             end_loading()
         }
@@ -295,52 +295,24 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, nome_id, opcao, i, desconto = '0,00', removido = false) {
+async function listar_op(dados_op, opcao, i, desconto = '0,00', removido = false) {
     if (removido) {
-        if (nome_id == 'eco') {
-            $(`#tabela_de_opcionais tbody #opcional_eco_${opcao['id']}`).remove()
-        } else if (nome_id == 'outros') {
-            $(`#tabela_de_opcionais tbody #outro_opcional_${opcao['id']}`).remove()
-        } else {
-            $(`#tabela_de_opcionais tbody #opcional_ceu_${opcao['id']}`).remove()
-        }
+        $(`#tabela_de_opcionais tbody #opcionais_${opcao['id']}`).remove()
 
         return
     }
 
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
-    if (nome_id == 'eco') {
-        $('#tabela_de_opcionais tbody').append(`
-            <tr id="opcionais_eco_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="nome_opcionais_eco_${i}" name="opcionais_eco_${i}" value='${opcao['text']}' disabled></th>
-                <input type="hidden" id="id_opcionais_eco_${i}" name="opcionais_eco_${i}" value="${opcao['id']}">                    
-                <input type="hidden" id="valor_bd_opcionais_eco_${i}" name="opcionais_eco_${i}" value='${valor_selecao}' disabled>
-                <th><input type="text" id="valor_opcionais_eco_${i}" disabled name="opcionais_eco_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_opcionais_eco_${i}" data-limite_desconto="${valor_selecao}" name="opcionais_eco_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
-            </tr>
-        `)
-    } else if (nome_id == 'outros') {
-        $('#tabela_de_opcionais tbody').append(`
-            <tr id="opcionais_outros_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="nome_opcionais_outros_${i}" name="opcionais_outros_${i}" value='${opcao['text']}' disabled></th>
-                <input type="hidden" id="id_opcionais_outros_${i}" name="opcionais_outros_${i}" value="${opcao['id']}">                    
-                <input type="hidden" id="valor_bd_opcionais_outros_${i}" name="opcionais_outros_${i}" value='${valor_selecao}' disabled>
-                <th><input type="text" id="valor_opcionais_outros_${i}" disabled name="opcionais_outros_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_opcionais_outros_${i}" name="opcionais_outros_${i}" value="${desconto}" disabled></th> 
-            </tr>
-        `)
-    } else if (nome_id == 'ceu') {
-        $('#tabela_de_opcionais tbody').append(`
-            <tr id="opcionais_ceu_${opcao['id']}" class="opcionais">
-                <th><input type="text" id="nome_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['text']}" disabled></th>
-                <input type="hidden" id="id_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value="${opcao['id']}">                    
-                <input type="hidden" id="valor_bd_opcionais_ceu_${i}" name="opcionais_ceu_${i}" value='${valor_selecao}' disabled>
-                <th><input type="text" id="valor_opcionais_ceu_${i}" disabled name="opcionais_ceu_${i}" value='${valor_selecao}'></th>
-                <th><input type="text" id="desconto_opcionais_ceu_${i}" name="opcionais_ceu_${i}" data-limite_desconto="${valor_selecao}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
-            </tr>
-        `)
-    }
+    $('#tabela_de_opcionais tbody').append(`
+        <tr id="opcionais_${opcao['id']}" class="opcionais">
+            <th><input type="text" id="nome_opcionais_${i}" name="opcionais_${i}" value='${opcao['text']}' disabled></th>
+            <input type="hidden" id="id_opcionais_${i}" name="opcionais_${i}" value="${opcao['id']}">                    
+            <input type="hidden" id="valor_bd_opcionais_${i}" name="opcionais_${i}" value='${valor_selecao}' disabled>
+            <th><input type="text" id="valor_opcionais_${i}" disabled name="opcionais_${i}" value='${valor_selecao}'></th>
+            <th><input type="text" id="desconto_opcionais_${i}" data-limite_desconto="${valor_selecao}" name="opcionais_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
+        </tr>
+    `)
 }
 
 async function listar_op_extras(opcao, i) {
@@ -361,77 +333,134 @@ async function listar_op_extras(opcao, i) {
     `)
 }
 
-function criar_linhas_tabela_valores(arredondamento) {
+function criar_linhas_tabela_valores(categorias) {
     const tabela_valores = $('#tabela_de_valores tbody').empty()
     tabela_valores.append(`<tr id="diaria"><td colspan="2">Diarias</td></tr>`)
     tabela_valores.append(`<tr id="periodo_viagem"><td colspan="2">Taxa fixa</td></tr>`)
     tabela_valores.append(`<tr id="tipo_monitoria"><td colspan="2">Monitoria</td></tr>`)
     tabela_valores.append(`<tr id="transporte"><td colspan="2">Transporte</td></tr>`)
-    tabela_valores.append(`<tr id='outros_opcionais'><td colspan="2">Outros opcionais<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .outros_opcionais_descritivo').toggleClass('none')"></i></td></tr>`)
-    tabela_valores.append(`<tr id='opcionais_ecoturismo'><td colspan='2'>Opcionais eco<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_ecoturismo_descritivo').toggleClass('none')"></i></td></tr><tr id='atividades_descritivo'></tr>`)
-    tabela_valores.append(`<tr id='opcionais_ceu'><td colspan='2'>Opcionais CEU<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_ceu_descritivo').toggleClass('none')"></i></td></tr><tr id='ceu_descritivo'></tr>`)
-    tabela_valores.append(`<tr id='opcionais_extras'><td colspan='2'>Opcionais extras<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_extras_descritivo').toggleClass('none')"></i></td></tr><tr id='outros_descritivo'></tr>`)
+
+    for (let categoria in categorias) {
+        tabela_valores.append(`<tr id='${categorias[categoria]}'><td colspan="2">${categoria}<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .${categorias[categoria]}_descritivo').toggleClass('none')"></i></td></tr>`)
+    }
+
     tabela_valores.append(`<tr id="arredondamento"><td colspan="2">Arredondamento</td></tr>`)
 }
 
 function separar_atividades(opcionais) {
-    let opts = {
-        'outros': [],
-        'eco': [],
-        'ceu': [],
-        'extra': [],
-    }
+    let opts = []
 
     for (let opt of opcionais) {
-        opts[opt['categoria']].push(opt)
+        opts.push(opt)
     }
 
     return opts
 }
 
-function linhas_descritivo_opcionais(opcionais, id_linha) {
+function sumByCategory(items) {
+    return items.reduce((acc, item) => {
+        const {
+            categoria,
+            valor,
+            valores,
+            comissao_de_vendas,
+            desconto,
+            taxa_comercial,
+            valor_com_desconto,
+            valor_final
+        } = item
+        let categoria_lower = categoria.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+        if (!acc[categoria_lower]) {
+            acc[categoria_lower] = {
+                valor: 0,
+                comissao_de_vendas: 0,
+                desconto: 0,
+                taxa_comercial: 0,
+                valor_com_desconto: 0,
+                valor_final: 0,
+                valores: []
+            }
+        }
+
+        // Soma os campos individuais
+        acc[categoria_lower].valor += valor
+        acc[categoria_lower].comissao += comissao_de_vendas
+        acc[categoria_lower].desconto += desconto
+        acc[categoria_lower].taxa_comercial += taxa_comercial
+        acc[categoria_lower].valor_com_desconto += valor_com_desconto
+        acc[categoria_lower].valor_final += valor_final
+
+        // Soma os valores em cada posição do campo "valores"
+        valores.forEach((v, i) => {
+            if (!acc[categoria_lower].valores[i]) {
+                acc[categoria_lower].valores[i] = 0
+            }
+            acc[categoria_lower].valores[i] += v
+        })
+
+        return acc;
+    }, {})
+}
+
+function linhas_descritivo_opcionais(opcionais) {
     let i = 1
     var classe_ultima_linha = ''
-    const id_linhas = {
-        'outros': 'outros_opcionais',
-        'eco': 'opcionais_ecoturismo',
-        'ceu': 'opcionais_ceu',
-        'extra': 'opcionais_extras'
-    }
+    let id_linhas = {}
 
-    for (let categoria in opcionais) {
-        for (let opt of opcionais[categoria]) {
-            let linhaEspecifica = $(`#tabela_de_valores #${id_linhas[categoria]}`);
-            var classe_ultimo_valor = ''
+    opcionais.map((opt) => {
+        // Remove todos os caracteres especiais, mantendo apenas letras e números
+        let categoria = opt['categoria'].toLowerCase().replace(/[^a-z0-9]/g, '');
 
-            if (i == 1) {
-                classe_ultima_linha = 'ultima_linha'
-            }
-
-            let novaLinha = `<tr id='${id_linhas[categoria]}_${i}' class="${id_linhas[categoria]}_descritivo none atividade_ou_opcional">
-                <td></td>
-                <td>${opt['nome']}</td>
-                <td><nobr>R$ ${formatar_dinheiro(opt['valor'])}</nobr></td>
-                <td><nobr>R$ ${formatar_dinheiro(opt['taxa_comercial'])}</nobr></td>
-                <td><nobr>R$ ${formatar_dinheiro(opt['comissao_de_vendas'])}</nobr></td>
-                <td><nobr>R$ ${formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}</nobr></td>
-                <td class="valor_final_tabela ${classe_ultima_linha}"><nobr>R$ ${formatar_dinheiro(opt['valor_final'])}</nobr></td>
-            </tr>`
-            linhaEspecifica.after(novaLinha)
-
-            for (let valor_dia of opt['valores']) {
-                $(`#tabela_de_valores #${id_linhas[categoria]}_${i}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
-            }
-
-            i++
+        // Verifica se a categoria já existe em id_linhas
+        if (!id_linhas.hasOwnProperty(categoria)) {
+            id_linhas[opt['categoria']] = categoria;
         }
+    })
+
+    for (let opt of opcionais) {
+        let linhaEspecifica = $(`#tabela_de_valores #${id_linhas[opt['categoria']]}`);
+        var classe_ultimo_valor = ''
+
+        if (i == 1) {
+            classe_ultima_linha = 'ultima_linha'
+        }
+
+        let novaLinha = `<tr id='${id_linhas[opt['categoria']]}_${i}' class="${id_linhas[opt['categoria']]}_descritivo none atividade_ou_opcional">
+            <td></td>
+            <td>${opt['nome']}</td>
+            <td><nobr>R$ ${formatar_dinheiro(opt['valor'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opt['taxa_comercial'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opt['comissao_de_vendas'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}</nobr></td>
+            <td class="valor_final_tabela ${classe_ultima_linha}"><nobr>R$ ${formatar_dinheiro(opt['valor_final'])}</nobr></td>
+        </tr>`
+        linhaEspecifica.after(novaLinha)
+
+        for (let valor_dia of opt['valores']) {
+            $(`#tabela_de_valores #${id_linhas[opt['categoria']]}_${i}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+        }
+
+        i++
     }
 }
 
 function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     $('#tabela_de_valores .datas').remove()
     $('.tag_datas').prop('colspan', dias.length)
+    const soma_por_categoria_opcionais = sumByCategory(opcionais)
     let classe_datas = ''
+    let categorias = {}
+
+    opcionais.map((opt) => {
+        // Remove todos os caracteres especiais, mantendo apenas letras e números
+        let categoria = opt['categoria'].toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        // Verifica se a categoria já existe em id_linhas
+        if (!categorias.hasOwnProperty(categoria)) {
+            categorias[opt['categoria']] = categoria;
+        }
+    })
 
     for (let data of dias) {
         let dia
@@ -453,9 +482,12 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
         }
     }
 
-    criar_linhas_tabela_valores()
+    criar_linhas_tabela_valores(categorias)
+
     for (let secao of secoes) {
-        $(`#tabela_de_valores #${secao}`).append(`
+        console.log(secao, valores[secao]['valor'])
+        if (!secao.includes('opcionais')) {
+            $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
@@ -463,13 +495,27 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
             <td class="valor_final_tabela"><nobr>${formatar_dinheiro(valores[secao]['valor_final'])}</nobr></td>
         `)
 
-        for (let valor_dia of valores[secao]['valores']) {
-            $(`#tabela_de_valores #${secao}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+            for (let valor_dia of valores[secao]['valores']) {
+                $(`#tabela_de_valores #${secao}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+            }
         }
     }
 
-    let atividades = separar_atividades(opcionais)
-    linhas_descritivo_opcionais(atividades, 'ceu')
+    for (let categoria in soma_por_categoria_opcionais) {
+        $(`#tabela_de_valores #${categoria}`).append(`
+            <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['taxa_comercial'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['comissao_de_vendas'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor'] - soma_por_categoria_opcionais[categoria]['valor_com_desconto'])}</nobr></td>                 
+            <td class="valor_final_tabela"><nobr>${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor_final'])}</nobr></td>
+        `)
+
+        for (let valor_dia of soma_por_categoria_opcionais[categoria]['valores']) {
+            $(`#tabela_de_valores #${categoria}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
+        }
+    }
+
+    linhas_descritivo_opcionais(opcionais)
 
     $('#tabela_de_valores tbody').append(`
         <tr id="totais">
@@ -608,12 +654,12 @@ async function enviar_form(salvar = false) {
                         const monitoria_transporte = (valor_monitoria + transporte);
                         const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
 
-                        const opcionais = valores['outros_opcionais']['valor_final']
-                        const atividades = valores['opcionais_ecoturismo']['valor_final']
-                        const atividade_ceu = valores['opcionais_ceu']['valor_final']
+                        const opcionais = valores['opcionais']['valor_final']
+                        // const atividades = valores['opcionais_ecoturismo']['valor_final']
+                        // const atividade_ceu = valores['opcionais_ceu']['valor_final']
                         const outros = valores['opcionais_extras']['valor_final']
                         const total = response['data']['total']['valor_final']
-                        const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros + atividades + atividade_ceu)
+                        const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros)
                         const total_formatado = formatar_dinheiro(total)
 
                         // Alteração dos valores das seções
@@ -892,7 +938,7 @@ async function verificar_preenchimento() {
 async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
         setTimeout(() => {
-            $('#id_opcionais_ceu, #op_extras, #id_opcionais_eco, #id_outros_opcionais').select2()
+            $('select[name="opcionais"]').select2()
         }, 300)
         loading()
 
@@ -1423,7 +1469,7 @@ async function editar_opcional_extra(pai, elemento) {
         if (op['id'] == id_pai) {
             op['nome'] = $(`#${id_pai} #nome_op_extra`).val()
             op['descricao'] = $(`#${id_pai} #descricao_op_extra`).val()
-            op['valor'] = $(`#${id_pai} #valor_op_extra`).val().replace('R$ ',  '')
+            op['valor'] = $(`#${id_pai} #valor_op_extra`).val().replace('R$ ', '')
             $(`#opcionais_extra_${id_pai} input`).eq(0).val(op['nome'])
             $(`#opcionais_extra_${id_pai} input`).eq(3).val(op['valor'])
         }
@@ -1434,4 +1480,3 @@ async function editar_opcional_extra(pai, elemento) {
     }
     end_loading()
 }
-

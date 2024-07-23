@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais
+    OrcamentosPromocionais, CategoriaOpcionais
 
 
 @admin.register(HorariosPadroes)
@@ -103,6 +103,11 @@ class ValoresPadraoAdmin(admin.ModelAdmin):
     ordering = ('nome_taxa',)
 
 
+@admin.register(CategoriaOpcionais)
+class CategoriaOpcionaisAdmin(admin.ModelAdmin):
+    list_display = ('nome_categoria',)
+
+
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'descricao', 'valor')
+    list_display = ('nome', 'descricao', 'valor', 'inicio_vigencia', 'final_vigencia')

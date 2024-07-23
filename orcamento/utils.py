@@ -71,7 +71,6 @@ def processar_formulario(dados, user):
 
             for i, item in enumerate(dados.getlist(key)):
                 if i == 0:
-                    print(key, item, i, dados.getlist(key))
                     lista.append(int(item))
                 else:
                     lista.append(float(item.replace(',', '.')))
@@ -201,7 +200,7 @@ def verificar_gerencia(dados):
 
 def compilar_outros(dados, op_extras):
     outros = []
-    print(dados)
+
     for i in range(0, op_extras):
         outros.append({
             'id': dados[f'opcionais_extra[{i}][id]'],

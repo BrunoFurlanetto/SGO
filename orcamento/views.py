@@ -209,7 +209,7 @@ def calc_budget(req):
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
-        print(gerencia)
+
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)
@@ -359,7 +359,7 @@ def pesquisar_op(request):
 def pegar_dados_pacoe(request):
     if is_ajax(request):
         orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_pacote'))
-        print(orcamento_promocional)
+
         return JsonResponse({
             'orcamento_promocional': orcamento_promocional.orcamento.serializar_objetos(),
             'dados_promocionais': orcamento_promocional.dados_pacote.serializar_objetos()

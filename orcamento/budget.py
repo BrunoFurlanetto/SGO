@@ -108,26 +108,16 @@ class Budget:
         if len(valores_op) == 0:
             if "opcionais" in data:
                 opt_data = [[opt, 0, 0, 0] for opt in data['opcionais']]
-            # if "atividades" in data:
-            #     act_data = [[act, 0, 0, 0] for act in data["atividades"]]
-
-            # if "atividades_ceu" in data:
-            #     act_sky_data = [[act, 0, 0, 0] for act in data["atividades_ceu"]]
         else:
             for key, value in valores_op.items():
-                if 'outros' in key:
-                    opt_data.append(value)
-                elif 'eco' in key:
-                    act_data.append(value)
-                elif 'ceu' in key:
-                    act_sky_data.append(value)
+                opt_data.append(value)
 
         self.set_optional(opt_data)
         self.optional.calc_value_optional(self.array_description_optional)
-        self.set_activities(act_data)
-        self.activities.calc_value_optional(self.array_description_activities)
-        self.set_activities_sky(act_sky_data)
-        self.activities_sky.calc_value_optional(self.array_description_activities_sky)
+        # self.set_activities(act_data)
+        # self.activities.calc_value_optional(self.array_description_activities)
+        # self.set_activities_sky(act_sky_data)
+        # self.activities_sky.calc_value_optional(self.array_description_activities_sky)
         self.set_others(data.get("opcionais_extra"))
         self.others.calc_value_optional(self.array_description_others)
 
@@ -200,12 +190,13 @@ class Budget:
                 db_optional.id,
                 db_optional.nome,
                 self.days,
-                db_optional.categoria,
+                db_optional.categoria.nome_categoria,
             )
             description.set_discount(discount)
             optional_array.append(description.do_object())
 
         self.array_description_optional = optional_array
+
         return self.array_description_optional
 
     def set_activities(self, arr):
@@ -280,11 +271,10 @@ class Budget:
                 "diaria": self.daily_rate.do_object(),
                 "transporte": self.transport.do_object(),
                 "transporte_leva_e_busca": self.transport.tranport_go_and_back.do_object(),
-                "outros_opcionais": self.optional.do_object(),
+                "opcionais": self.optional.do_object(),
                 "opcionais_extras": self.others.do_object(),
-                "opcionais_ecoturismo": self.activities.do_object(),
-                "opcionais_ceu": self.activities_sky.do_object()
-
+                # "opcionais_ecoturismo": self.activities.do_object(),
+                # "opcionais_ceu": self.activities_sky.do_object()
             },
             "descricao_opcionais": description_options,
             "total": self.total.do_object(
