@@ -103,13 +103,19 @@ def salvar_orcamento(request, id_tratativa=None):
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
-
+        business_fee = None
+        commission = None
+        business_fee = gerencia["comissao"] if "comissao" in gerencia else ...
+        commission = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
+        
         budget = Budget(
             data['periodo_viagem'],
             data['n_dias'],
             data["hora_check_in"],
             data["hora_check_out"],
-            data["lista_de_dias"]
+            data["lista_de_dias"],
+            business_fee,
+            commission,
         )
         budget.calculate(data, gerencia, valores_op)
 
@@ -230,8 +236,12 @@ def calc_budget(req):
             return JsonError(e)
 
         # GERANDO ORÇAMENTO
+        business_fee = None
+        commission = None
+        business_fee = gerencia["comissao"] if "comissao" in gerencia else ...
+        commission = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
         budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
-                        data["hora_check_out"], data["lista_de_dias"])
+                        data["hora_check_out"], data["lista_de_dias"], business_fee, commission)
         budget.calculate(data, gerencia, valores_op)
 
         if not budget.period.values:

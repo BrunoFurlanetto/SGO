@@ -12,13 +12,20 @@ from .utils import JsonError
 
 
 class Budget:
-    def __init__(self, periods, days, coming_id, exit_id, days_list):
+    def __init__(self, periods, days, coming_id, exit_id, days_list, business_fee=None, commission=None):
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = int(days)
         self.days_list = days_list
-        self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
-        self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
+
+        if business_fee is None:
+            self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
+        else:
+            self.business_fee = business_fee
+        if commission is None:    
+            self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
+        else: 
+            self.commission = commission
 
         self.period = Period(
             days=days_list,
@@ -60,8 +67,8 @@ class Budget:
         self.daily_rate.calc_daily_rate()
 
     def calculate(self, data, gerencia, valores_op):
-        self.set_commission(gerencia["comissao"] / 100) if "comissao" in gerencia else ...
-        self.set_business_fee(gerencia["taxa_comercial"] / 100) if "taxa_comercial" in gerencia else ...
+        # self.set_commission(gerencia["comissao"]) if "comissao" in gerencia else ...
+        # self.set_business_fee(gerencia["taxa_comercial"]) if "taxa_comercial" in gerencia else ...
         opt_data = []
         act_data = []
         act_sky_data = []
@@ -103,7 +110,7 @@ class Budget:
 
         # adjustment values
         self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
-
+        
         # OPICIONAIS
         if len(valores_op) == 0:
             if "opcionais" in data:
@@ -124,7 +131,7 @@ class Budget:
         if data.get('transporte') and data.get('transporte') == 'sim' and len(
                 self.transport.tranport_go_and_back.values) == 0:
             return
-
+        
         # CAlCULAR TOTAL
         is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"
         self.total.calc_total_value(
@@ -139,13 +146,13 @@ class Budget:
             days=data["n_dias"],
         )
 
-    def set_business_fee(self, business_fee):
-        self.business_fee = business_fee
-        return business_fee
+    # def set_business_fee(self, business_fee):
+    #     self.business_fee = business_fee
+    #     return business_fee
 
-    def set_commission(self, commission):
-        self.commission = commission
-        return commission
+    # def set_commission(self, commission):
+    #     self.commission = commission
+    #     return commission
 
     def set_others(self, arr):
         other_array = []
