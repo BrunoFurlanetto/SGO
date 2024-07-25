@@ -313,6 +313,15 @@ def preencher_op_extras(request):
 def preencher_orcamento_promocional(request):
     if is_ajax(request):
         orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_promocional')).orcamento
+        lista_ops = {}
+
+        for op in orcamento_promocional.opcionais.all():
+            if op.categoria.id not in lista_ops:
+                lista_ops[op.categoria.id] = []
+
+            lista_ops[op.categoria.id].append(op.id)
+
+        print(lista_ops)
 
         return JsonResponse({
             'obj': orcamento_promocional.objeto_orcamento,
@@ -322,10 +331,8 @@ def preencher_orcamento_promocional(request):
             'produto': orcamento_promocional.produto.id if orcamento_promocional.produto is not None else '',
             'monitoria': orcamento_promocional.tipo_monitoria.id,
             'transporte': orcamento_promocional.transporte,
-            'outros_opcionais': [op.id for op in orcamento_promocional.outros_opcionais.all() if op is not None],
+            'opcionais': lista_ops,
             'opcionais_extra': orcamento_promocional.opcionais_extra,
-            'opcionais_eco': [op.id for op in orcamento_promocional.opcionais_eco.all() if op is not None],
-            'opcionais_ceu': [op.id for op in orcamento_promocional.opcionais_ceu.all() if op is not None],
         })
 
 

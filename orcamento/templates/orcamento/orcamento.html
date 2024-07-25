@@ -110,13 +110,15 @@
                             <h5 class="titulo-secao">Opcionais</h5>
                             <div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
-                                    <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>
-                                    <select id="{{ opcional.id_for_label }}" name="opcionais" multiple>
-                                        {% for option in opcional.field.queryset %}
-                                            <option value="{{ option.id }}"
-                                                    {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <div class="mt-2 flex-column">
+                                        <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>
+                                        <select id="{{ opcional.id_for_label }}" name="opcionais" multiple>
+                                            {% for option in opcional.field.queryset %}
+                                                <option value="{{ option.id }}"
+                                                        {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                 {% endfor %}
                             </div>
                             <div class="row mt-3">

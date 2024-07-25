@@ -301,7 +301,7 @@ async function listar_op(dados_op, opcao, i, desconto = '0,00', removido = false
 
         return
     }
-    console.log(dados_op, opcao, i)
+
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     $('#tabela_de_opcionais tbody').append(`
@@ -1202,15 +1202,15 @@ async function preencher_promocional(id_promocional) {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
 
-                $('#id_opcionais_eco').val(response['opcionais_eco'])
-                $('#id_outros_opcionais').val(response['outros_opcionais'])
-                $('#id_opcionais_ceu').val(response['opcionais_ceu'])
+                for (let categoria in response['opcionais']) {
+                    $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
+                }
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
                     let desconto = formatar_dinheiro(op['desconto'])
-                    listar_op(dados_op, op['categoria'], opcional, i + 1, desconto)
+                    listar_op(dados_op, opcional, i + 1, desconto)
                 })
 
                 if (response['opcionais_extra']) {
@@ -1261,7 +1261,7 @@ async function preencher_promocional(id_promocional) {
             }
         }).done(() => {
             verificar_monitoria_transporte()
-            $('#id_opcionais_eco, #id_outros_opcionais, #opcionais_ceu').trigger('change')
+            $('select[name="opcionais"]').trigger('change')
             $('#tabela_de_opcionais input').maskMoney({
                 prefix: 'R$ ',
                 thousands: '.',

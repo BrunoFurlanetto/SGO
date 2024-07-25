@@ -110,4 +110,18 @@ class CategoriaOpcionaisAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'descricao', 'valor', 'inicio_vigencia', 'final_vigencia')
+    list_display = ('id', 'nome', 'categoria', 'descricao', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado')
+    ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
+    list_editable = ('valor',)
+    list_per_page = 20
+    search_fields = ('nome',)
+    list_filter = ('categoria', 'final_vigencia')
+
+    def inicio_vigencia_formatado(self, obj):
+        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    def final_vigencia_formatado(self, obj):
+        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+
+    inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    final_vigencia_formatado.short_description = 'Final vigência'

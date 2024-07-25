@@ -1358,7 +1358,7 @@
 }
 
 #conteudo {
-    width: 900px;
+    max-width: 80%;
     justify-content: center;
     align-items: center;
     background-color: #fff;
@@ -1480,6 +1480,10 @@
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 6px 3px;
+}
+
+#previas_orcamento .tabelas > div {
+    overflow: auto;
 }
 
 #abas img {
