@@ -215,7 +215,7 @@ def calc_budget(req):
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
-
+        print(data)
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)

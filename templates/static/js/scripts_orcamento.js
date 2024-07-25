@@ -301,7 +301,7 @@ async function listar_op(dados_op, opcao, i, desconto = '0,00', removido = false
 
         return
     }
-
+    console.log(dados_op, opcao, i)
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     $('#tabela_de_opcionais tbody').append(`
@@ -485,7 +485,6 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     criar_linhas_tabela_valores(categorias)
 
     for (let secao of secoes) {
-        console.log(secao, valores[secao]['valor'])
         if (!secao.includes('opcionais')) {
             $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
