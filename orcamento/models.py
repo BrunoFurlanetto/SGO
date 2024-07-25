@@ -1001,7 +1001,11 @@ class CadastroOrcamento(forms.ModelForm):
         # Itera sobre todas as categorias de opcionais
         for categoria in CategoriaOpcionais.objects.all():
             # Obtém os opcionais pertencentes a essa categoria
-            opcionais = OrcamentoOpicional.objects.filter(categoria=categoria)
+            opcionais = OrcamentoOpicional.objects.filter(
+                categoria=categoria,
+                inicio_vigencia__lte=timezone.now().date(),
+                final_vigencia__gte=timezone.now().date()
+            )
             # Define um nome e id customizado para o campo
             field_name = f'opcionais_{categoria.id}'
 
@@ -1017,24 +1021,11 @@ class CadastroOrcamento(forms.ModelForm):
             )
             # Inicializa o campo se o objeto do formulário já tiver sido criado
             if self.instance.pk:
-                self.fields[field_name].initial = self.instance.opcionais.filter(categoria=categoria)
+                initial_values = self.instance.opcionais.filter(categoria=categoria).values_list('id', flat=True)
+                self.fields[field_name].initial = list(initial_values)
+
             # Armazena o campo no dicionário
             self.opcionais_por_categoria[categoria.nome_categoria] = self[field_name]
-
-    def save(self, commit=True):
-        instance = super(CadastroOrcamento, self).save(commit=False)
-        if commit:
-            instance.save()
-            # Limpa os opcionais existentes
-            instance.opcionais.clear()
-            # Adiciona os opcionais selecionados para cada categoria
-            for categoria in CategoriaOpcionais.objects.all():
-                opcionais_selecionados = self.cleaned_data.get(f'opcionais_{categoria.id}')
-                if opcionais_selecionados:
-                    for opcional in opcionais_selecionados:
-                        instance.opcionais.add(opcional)
-
-        return instance
 
 
 class CadastroHorariosPadroesAdmin(forms.ModelForm):

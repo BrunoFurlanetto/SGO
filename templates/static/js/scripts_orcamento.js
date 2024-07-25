@@ -485,7 +485,6 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     criar_linhas_tabela_valores(categorias)
 
     for (let secao of secoes) {
-        console.log(secao, valores[secao]['valor'])
         if (!secao.includes('opcionais')) {
             $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
@@ -882,6 +881,7 @@ async function separar_produtos(periodo) {
 
             reject(xht['responseJSON']['msg'])
         })
+        verficar_validade_opcionais(check_in)
     })
 
     try {
@@ -1203,15 +1203,15 @@ async function preencher_promocional(id_promocional) {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
 
-                $('#id_opcionais_eco').val(response['opcionais_eco'])
-                $('#id_outros_opcionais').val(response['outros_opcionais'])
-                $('#id_opcionais_ceu').val(response['opcionais_ceu'])
+                for (let categoria in response['opcionais']) {
+                    $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
+                }
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
                     let desconto = formatar_dinheiro(op['desconto'])
-                    listar_op(dados_op, op['categoria'], opcional, i + 1, desconto)
+                    listar_op(dados_op, opcional, i + 1, desconto)
                 })
 
                 if (response['opcionais_extra']) {
@@ -1262,7 +1262,7 @@ async function preencher_promocional(id_promocional) {
             }
         }).done(() => {
             verificar_monitoria_transporte()
-            $('#id_opcionais_eco, #id_outros_opcionais, #opcionais_ceu').trigger('change')
+            $('select[name="opcionais"]').trigger('change')
             $('#tabela_de_opcionais input').maskMoney({
                 prefix: 'R$ ',
                 thousands: '.',
@@ -1479,4 +1479,42 @@ async function editar_opcional_extra(pai, elemento) {
         await enviar_form()
     }
     end_loading()
+}
+
+function verficar_validade_opcionais(check_in) {
+    $('select[name="opcionais"]').val()
+
+    $.ajax({
+        url: '/orcamento/verificar_validade_op/',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'check_in': check_in},
+        success: async function (response) {
+            $('select[name="opcionais"]').each(function () {
+                let select = $(this);
+
+                select.find('option').each(function () {
+                    let op = $(this);
+                    let opValue = parseInt(op.val());
+
+                    if (!response['id_opcionais'].includes(opValue)) {
+                        op.prop('disabled', true);
+
+                        if (op.is(':selected')) {
+                            select.val(select.val().filter(value => value != op.val())).trigger('change');
+                            select.trigger({
+                                type: 'select2:unselect',
+                                params: {
+                                    data: {id: op.val()}
+                                }
+                            });
+                        }
+                    } else {
+                        op.prop('disabled', false);
+                    }
+                })
+            })
+            $('select[name="opcionais"]').select2()
+        }
+    })
 }

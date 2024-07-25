@@ -13,7 +13,7 @@ let desconto_aplicado = 0*/
 
 $(document).ready(() => {
     moment.locale('pt-br')
-    $('#previas_orcamento .tabelas table').iniciarlizarDataTable([0, 1, 4, 5], 0)
+    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8])
 
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
@@ -49,6 +49,37 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
         order: [columnOrder, 'asc']
     })
 }
+
+$.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrderableColumns) {
+    return $(this).DataTable({
+        language: {
+            info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
+            infoEmpty: 'Sem dados',
+            infoFiltered: '(filtrado de _MAX_ dados)',
+            lengthMenu: 'Mostrar _MENU_ por página',
+            zeroRecords: 'Nada encontrado',
+        },
+        columnDefs: [
+            {
+                type: 'date',
+                targets: columnData,
+                render: function (data, type, row) {
+                    if (type === 'display' || type === 'filter') {
+                        return moment(data).format('DD/MM/YYYY')
+                    }
+
+                    return data;
+                },
+            },
+            {
+                orderable: false,
+                targets: nonOrderableColumns
+            },
+        ],
+        order: [columnOrder, 'asc']
+    })
+}
+
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = $('.section-content').map((index, aba) => {
@@ -272,7 +303,7 @@ function calcular_taxas() {
     }
 }*/
 
-function alterar_status(btn, id_orcamento='') {
+function alterar_status(btn, id_orcamento = '') {
     const novo_status = $(btn).attr('id')
     let orcamento_id = id_orcamento
     let motivo_recusa = ''

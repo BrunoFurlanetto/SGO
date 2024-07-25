@@ -215,7 +215,7 @@ def calc_budget(req):
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
-
+        print(data)
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)
@@ -313,6 +313,15 @@ def preencher_op_extras(request):
 def preencher_orcamento_promocional(request):
     if is_ajax(request):
         orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_promocional')).orcamento
+        lista_ops = {}
+
+        for op in orcamento_promocional.opcionais.all():
+            if op.categoria.id not in lista_ops:
+                lista_ops[op.categoria.id] = []
+
+            lista_ops[op.categoria.id].append(op.id)
+
+        print(lista_ops)
 
         return JsonResponse({
             'obj': orcamento_promocional.objeto_orcamento,
@@ -322,10 +331,8 @@ def preencher_orcamento_promocional(request):
             'produto': orcamento_promocional.produto.id if orcamento_promocional.produto is not None else '',
             'monitoria': orcamento_promocional.tipo_monitoria.id,
             'transporte': orcamento_promocional.transporte,
-            'outros_opcionais': [op.id for op in orcamento_promocional.outros_opcionais.all() if op is not None],
+            'opcionais': lista_ops,
             'opcionais_extra': orcamento_promocional.opcionais_extra,
-            'opcionais_eco': [op.id for op in orcamento_promocional.opcionais_eco.all() if op is not None],
-            'opcionais_ceu': [op.id for op in orcamento_promocional.opcionais_ceu.all() if op is not None],
         })
 
 
@@ -406,3 +413,12 @@ def pegar_orcamentos_tratativa(request):
             tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
 
             return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
+
+
+def verificar_validade_opcionais(request):
+    if is_ajax(request) and request.method == "GET":
+        check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
+
+        return JsonResponse({'id_opcionais': [
+            op.id for op in OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
+        ]})
