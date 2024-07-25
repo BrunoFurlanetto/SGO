@@ -110,9 +110,9 @@ class CategoriaOpcionaisAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'categoria', 'descricao', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado')
+    list_display = ('nome', 'categoria', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao')
     ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
-    list_editable = ('valor',)
+    list_editable = ('valor', 'categoria')
     list_per_page = 20
     search_fields = ('nome',)
     list_filter = ('categoria', 'final_vigencia')
