@@ -881,6 +881,7 @@ async function separar_produtos(periodo) {
 
             reject(xht['responseJSON']['msg'])
         })
+        verficar_validade_opcionais(check_in)
     })
 
     try {
@@ -1478,4 +1479,42 @@ async function editar_opcional_extra(pai, elemento) {
         await enviar_form()
     }
     end_loading()
+}
+
+function verficar_validade_opcionais(check_in) {
+    $('select[name="opcionais"]').val()
+
+    $.ajax({
+        url: '/orcamento/verificar_validade_op/',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        type: "GET",
+        data: {'check_in': check_in},
+        success: async function (response) {
+            $('select[name="opcionais"]').each(function () {
+                let select = $(this);
+
+                select.find('option').each(function () {
+                    let op = $(this);
+                    let opValue = parseInt(op.val());
+
+                    if (!response['id_opcionais'].includes(opValue)) {
+                        op.prop('disabled', true);
+
+                        if (op.is(':selected')) {
+                            select.val(select.val().filter(value => value != op.val())).trigger('change');
+                            select.trigger({
+                                type: 'select2:unselect',
+                                params: {
+                                    data: {id: op.val()}
+                                }
+                            });
+                        }
+                    } else {
+                        op.prop('disabled', false);
+                    }
+                })
+            })
+            $('select[name="opcionais"]').select2()
+        }
+    })
 }

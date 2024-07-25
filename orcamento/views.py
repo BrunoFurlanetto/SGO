@@ -413,3 +413,12 @@ def pegar_orcamentos_tratativa(request):
             tratativa = Tratativas.objects.get(pk=request.GET.get('id_tratativa'))
 
             return JsonResponse({'orcamentos': tratativa.pegar_orcamentos()})
+
+
+def verificar_validade_opcionais(request):
+    if is_ajax(request) and request.method == "GET":
+        check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
+
+        return JsonResponse({'id_opcionais': [
+            op.id for op in OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
+        ]})
