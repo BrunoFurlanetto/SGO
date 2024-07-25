@@ -6,27 +6,23 @@ class Total(BaseValue):
         super().__init__(values, percent_business_fee, percent_commission)
         self.general_discount = 0
 
-    def calc_total_value(self, daily_rate, monitor, optional, others, activities,
-                         activities_sky, period, transport, days):
+    def calc_total_value(self, daily_rate, monitor, optional, others, period, transport, days):
         self.general_discount = 0
         values = []
 
         for i in range(days):
             value = (float(daily_rate.get_list_values(days)[i]) + float(monitor.get_list_values(days)[i])
                      + float(optional.get_list_values(days)[i]) + float(others.get_list_values(days)[i])
-                     + float(activities.get_list_values(days)[i]) + float(activities_sky.get_list_values(days)[i])
                      + float(period.get_list_values(days)[i]) + float(transport.get_list_values(days)[i]))
 
             values.append(value)
 
         self.set_values(values)
         self.general_discount = (daily_rate.discount + monitor.discount + optional.discount + others.discount +
-                                 activities.discount + activities_sky.discount +
                                  period.discount + transport.discount + self.discount)
         
         general_adjutiment = (
             daily_rate.get_adjustiment() + monitor.get_adjustiment() + optional.get_adjustiment() + others.get_adjustiment() +
-                                 activities.get_adjustiment() + activities_sky.get_adjustiment() +
                                  period.get_adjustiment() + transport.get_adjustiment() + self.get_adjustiment()
         )
 
