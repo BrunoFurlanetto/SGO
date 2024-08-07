@@ -801,6 +801,10 @@ class Eventos(models.Model):
     class Meta:
         verbose_name_plural = 'Eventos'
 
+        permissions = [
+            ('ver_relatorios_eventos', 'Relatório de eventos'),
+        ]
+
     def adesao_formatado(self):
         return f'{self.adesao:.2f}%'.replace('.', ',')
 

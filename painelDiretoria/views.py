@@ -8,7 +8,7 @@ from projetoCEU.utils import is_ajax
 
 
 @login_required
-@permission_required('peraltas.view_eventos', raise_exception=True)
+@permission_required('peraltas.ver_relatorios_eventos', raise_exception=True)
 def index(request):
     return render(request, 'painelDiretoria/index.html', {
         'relatorio_eventos': Eventos.preparar_relatorio_mes_mes(),
