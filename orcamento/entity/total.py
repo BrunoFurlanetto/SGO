@@ -35,7 +35,7 @@ class Total(BaseValue):
         return super().set_discount(0)
     
     def get_final_value(self):
-        return ceil(round(self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission)), 5)) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
+        return ceil(round(self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission)), 5)) + self.get_adjustiment() #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
 
 
     def do_object(self):
