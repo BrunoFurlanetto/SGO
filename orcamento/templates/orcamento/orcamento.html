@@ -11,9 +11,12 @@
     <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
 
     <div class="conteudo-orcamento">
-        <div id="subtotal" class="div-flutuante none" style="cursor: pointer;"
+        <div id="subtotal" class="div-flutuante none"
+             style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; {% else %} pointer-events: none {% endif %}"
              onclick="$('#modal_descritivo').modal('show')">
-            <div class="floating-box none" id="floatingBox">Clique aqui</div>
+            {% if request.user in usuarios_gerencia or financeiro %}
+                <div class="floating-box none" id="floatingBox">Clique aqui</div>
+            {% endif %}
             <strong>Valor final</strong><span></span>
         </div>
         <div class="head-orcamento">
@@ -157,15 +160,27 @@
                         <textarea name="observacoes" id="observacoes_orcamento" cols="30"
                                   rows="10"></textarea>
                     </div>
+                    {{ orcamento.comentario_desconto.as_hidden }}
+                    {{ orcamento.aprovacao_diretoria.as_hidden }}
+                    <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}" id="id_colaborador">
                     <div class="botoes">
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal"
-                                data-target="#modal_apelido_orcamento">
-                            Salvar prévia
-                        </button>
-                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                onclick="salvar_orcamento()">
-                            Salvar orçamento
-                        </button>
+                        {% if gerente_aprovando %}
+                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" onclick="aprovar_orcamento({{ orcamento_origem.id | safe }})">
+                                Aprovar orçamento
+                            </button>
+                        {% else %}
+                            <button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
+                                    data-target="#modal_cometario_diretoria">Pedido de alteração de taxa
+                            </button>
+                            <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal"
+                                    data-target="#modal_apelido_orcamento">
+                                Salvar prévia
+                            </button>
+                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                    onclick="salvar_orcamento()">
+                                Salvar orçamento
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </fieldset>
@@ -309,33 +324,56 @@
                     <form id="form_gerencia" method="POST">
                         <fieldset>
                             {% csrf_token %}
-                            <input type="hidden" name="id_gerente" id="id_gerente">
+                            <input type="hidden" name="id_gerente" id="id_gerente" {% if  gerente_aprovando %} value="{{ request.user }}" {% endif %}>
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
                                      onchange="verificar_alteracoes(this)">
                                     {% for taxa in taxas_padrao %}
                                         {% if taxa.aparecer_comercial %}
-                                            <div>
-                                                <label>{{ taxa.nome_taxa_comercial }}</label>
-                                                <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"
-                                                       name="{{ taxa.id_taxa }}"
-                                                       value="{{ taxa.valor_padrao_formatado }}"
-                                                       data-valor_default="{{ taxa.valor_padrao_formatado }}"
-                                                       data-valor_inicial="{{ taxa.valor_padrao_formatado }}"
-                                                       data-valor_alterado="{{ taxa.valor_padrao_formatado }}"
-                                                        {% if taxa.valor_maximo %}
-                                                       data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
-                                                        {% if taxa.valor_minimo %}
-                                                       data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
-                                            </div>
+                                            {% if orcamento_origem %}
+                                                {% for taxa_orcamento, valor in orcamento_origem.objeto_gerencia.items %}
+                                                    {% if taxa_orcamento == taxa.id_taxa %}
+                                                        <div>
+                                                            <label>{{ taxa.nome_taxa_comercial }}</label>
+                                                            <input type="{{ taxa.tipo_variavel }}"
+                                                                   id="{{ taxa.id_taxa }}"
+                                                                   name="{{ taxa.id_taxa }}"
+                                                                   value="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
+                                                                   data-valor_default="{{ taxa.valor_padrao_formatado }}"
+                                                                   data-valor_inicial="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
+                                                                   data-valor_alterado="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
+                                                                    {% if taxa.valor_maximo %}
+                                                                   data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
+                                                                    {% if taxa.valor_minimo %}
+                                                                   data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <div>
+                                                    <label>{{ taxa.nome_taxa_comercial }}</label>
+                                                    <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"
+                                                           name="{{ taxa.id_taxa }}"
+                                                           value="{{ taxa.valor_padrao_formatado }}"
+                                                           data-valor_default="{{ taxa.valor_padrao_formatado }}"
+                                                           data-valor_inicial="{{ taxa.valor_padrao_formatado }}"
+                                                           data-valor_alterado="{{ taxa.valor_padrao_formatado }}"
+                                                            {% if taxa.valor_maximo %}
+                                                           data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
+                                                            {% if taxa.valor_minimo %}
+                                                           data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
+                                                </div>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                     <div>
                                         <label for="ajuste_diaria">Ajuste</label>
-                                        <input type="text" id="ajuste_diaria" name="ajuste_diaria" value="0,00"
+                                        <input type="text" id="ajuste_diaria" name="ajuste_diaria"
+                                               value="0,00"
                                                data-valor_default="0,00" data-valor_inicial="0,00"
                                                data-valor_alterado="0,00">
-                                        <input type="hidden" name="ajuste_diaria_alterado" id="ajuste_diaria_alterado"
+                                        <input type="hidden" name="ajuste_diaria_alterado"
+                                               id="ajuste_diaria_alterado"
                                                value="0">
                                     </div>
                                     <div>
@@ -349,26 +387,18 @@
                                     <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"
                                               rows="10"></textarea>
                                 </div>
-                                {% if not financeiro %}
-                                    <p style="margin-left: 20px; font-size: 13px; margin-top: -10px; margin-bottom: 0px;">
-                                        *Alterações nessa parte necessitarão de aprovação da gerência.
-                                    </p>
-                                {% endif %}
                                 <div>
                                     <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não
                                         altorizadas pela gerência!</p>
                                 </div>
                             </div>
-                            <hr {% if not financeiro %} class="none" {% endif %}>
+                            <hr  {% if not financeiro %} class="none" {% endif %}>
                             <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
                                 <div>
                                     <div>
                                         <label for="desconto_produto_percent">Desconto diaria</label>
                                         <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
-                                               value="
-
-
-                                                       {% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
+                                               value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
@@ -393,8 +423,7 @@
                         </fieldset>
                     </form>
                     <hr>
-                    <form id="form_descritivo" method="POST" {% if not financeiro %}
-                          class="none" {% endif %}>
+                    <form id="form_descritivo" method="POST">
                         <fieldset>
                             {% csrf_token %}
                             <h5 class="titulo-secao">Tabela de valores</h5>
@@ -420,12 +449,11 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btn_alterar_taxas" class="btn btn-secondary" data-toggle="modal"
-                            data-target="#verificacao_gerencia">Alterar taxas
-                    </button>
                     {% comment %} TODO: Trocar pra quando não for do financeiro depois {% endcomment %}
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
-                    <button type="button" class="btn btn-dark" id="btnPrint">Imprimir</button>
+                    {% if financeiro %}
+                        <button type="button" class="btn btn-dark" id="btnPrint">Imprimir</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -599,6 +627,46 @@
                 <div class="modal-footer">
                     <button id="btn_salvar_apelido" type="button" class="btn btn-primary"
                             onclick="salvar_orcamento(true)" disabled>Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_cometario_diretoria" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pedido de alteração de taxa para a gerência</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <ul id="avisos_apelidos" class="none alert alert-warning px-lg-4">
+                            <li id="aviso_apelido" class="none">Um apelido para o orçamento deve ser informado com pelo
+                                menos 5 caracteres!
+                            </li>
+                            <li id="aviso_comentario" class="none">O comentário para a gerência deve conter no mínimo 10
+                                caracteres!
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <label for="apelido_orcamento_2">Apelido</label>
+                        <input type="text" name="apelido_orcamento_2" id="apelido_orcamento_2"
+                               onkeyup="atribuir_apelaido(this)" required>
+                    </div>
+                    <label for="apelido_orcamento">Comentário para a gerência</label>
+                    <textarea name="comentario_gerencia" id="comentario_gerencia" cols="30" rows="10"
+                              required>{{ orcamento.comentario_desconto.value }}</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn_salvar_comentario" type="button" class="btn btn-primary"
+                            onclick="salvar_comentario_diretoria()">Salvar
                     </button>
                 </div>
             </div>

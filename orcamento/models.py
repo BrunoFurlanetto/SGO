@@ -430,6 +430,8 @@ class Orcamento(models.Model):
         blank=True,
         null=True,
     )
+    comentario_desconto = models.TextField(blank=True)
+    aprovacao_diretoria = models.BooleanField(default=False)
     promocional = models.BooleanField(default=False)
     status_orcamento = models.ForeignKey(
         StatusOrcamento,

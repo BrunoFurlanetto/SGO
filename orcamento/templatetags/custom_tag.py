@@ -45,3 +45,8 @@ def fone(fone):
 @register.filter
 def substituir_ponto(valor):
     return str(valor).replace('.', ',')
+
+
+@register.filter
+def formatar_porcentagem(valor):
+    return f'{valor:.2f}%'.replace('.', ',')

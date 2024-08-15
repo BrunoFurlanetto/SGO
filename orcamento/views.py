@@ -107,7 +107,7 @@ def salvar_orcamento(request, id_tratativa=None):
         commission = None
         business_fee = gerencia["comissao"] if "comissao" in gerencia else ...
         commission = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
-        
+
         budget = Budget(
             data['periodo_viagem'],
             data['n_dias'],
@@ -136,9 +136,12 @@ def salvar_orcamento(request, id_tratativa=None):
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()
-        pre_orcamento.colaborador = request.user
+        # pre_orcamento.colaborador = request.user
         pre_orcamento.previa = data.get('salvar_previa') == 'true'
         pre_orcamento.apelido = '' if not pre_orcamento.previa else pre_orcamento.apelido
+
+        if pre_orcamento.aprovacao_diretoria:
+            pre_orcamento.status_orcamento = StatusOrcamento.objects.get(status__icontains='análise')
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
@@ -321,8 +324,6 @@ def preencher_orcamento_promocional(request):
 
             lista_ops[op.categoria.id].append(op.id)
 
-        print(lista_ops)
-
         return JsonResponse({
             'obj': orcamento_promocional.objeto_orcamento,
             'gerencia': orcamento_promocional.objeto_gerencia,
@@ -420,5 +421,40 @@ def verificar_validade_opcionais(request):
         check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
 
         return JsonResponse({'id_opcionais': [
-            op.id for op in OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
+            op.id for op in
+            OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
         ]})
+
+
+@login_required(login_url='login')
+def aprovacao_gerencia(request, id_orcamento):
+    taxas_padrao = ValoresPadrao.objects.all()
+    usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
+    financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+    cadastro_orcamento = CadastroOrcamento(instance=orcamento)
+    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+    pacote_promocional = CadastroPacotePromocional()
+    orcamento_promocional = None
+
+    if orcamento.promocional:
+        orcamento_promocional = OrcamentosPromocionais.objects.get(orcamento=orcamento.id)
+        pacote_promocional = CadastroPacotePromocional(instance=orcamento_promocional.dados_pacote)
+        orcamento = orcamento_promocional.orcamento
+    elif orcamento.orcamento_promocional:
+        pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
+        orcamento_promocional = orcamento.orcamento_promocional
+
+    return render(request, 'orcamento/orcamento.html', {
+        'orcamento': cadastro_orcamento,
+        'orcamento_origem': orcamento,
+        'promocionais': promocionais,
+        'taxas_padrao': taxas_padrao,
+        'id_orcamento': id_orcamento,
+        'usuarios_gerencia': usuarios_gerencia,
+        'financeiro': financeiro,
+        'previa': True,
+        'pacote_promocional': pacote_promocional,
+        'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
+        'gerente_aprovando': True
+    })

@@ -23,7 +23,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         dropdownParent: $("#dados_do_pacote .modal-content"),
         width: '100%'
     })
-    $('#apelido_orcamento').val($('#id_apelido').val())
+    $('#apelido_orcamento, #apelido_orcamento_2').val($('#id_apelido').val())
     $('select[name="opcionais"]').on('change', async () => {
         await enviar_op();
     });
@@ -148,17 +148,17 @@ function verificar_produto() {
 }
 
 async function verificar_alteracoes(div) {
-    if ($('#id_promocional').prop('checked')) {
-        await enviar_form()
+    // if ($('#id_promocional').prop('checked')) {
+    await enviar_form()
 
-        return
-    }
+    // return
+    // }
 
     await verificar_pisos_e_tetos()
 
-    setInterval(() => {
-        $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
-    }, 10)
+    // setInterval(() => {
+    //     $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
+    // }, 10)
 
     let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
         let valor
@@ -174,23 +174,23 @@ async function verificar_alteracoes(div) {
         }
     })
 
-    if (mostrar_mensagem) {
-        $('#alteracoes_aviso').removeClass('none')
-    } else {
-        $('#alteracoes_aviso').addClass('none')
-    }
-
-    if (mostrar_mensagem) {
-        $('#div_observacoes_gerencia').removeClass('none')
-        $('#observacoes_gerencia').prop('required', true)
-        // $('#btn_salvar_orcamento').prop('disabled', true)
-        $('.botoes').attr('title', 'Verificar observações para a gerência')
-    } else {
-        $('#div_observacoes_gerencia').addClass('none')
-        $('#observacoes_gerencia').val('').prop('required', false)
-        $('#btn_salvar_orcamento').prop('disabled', false)
-        $('.botoes').attr('title', '')
-    }
+    // if (mostrar_mensagem) {
+    //     $('#alteracoes_aviso').removeClass('none')
+    // } else {
+    //     $('#alteracoes_aviso').addClass('none')
+    // }
+    //
+    // if (mostrar_mensagem) {
+    //     $('#div_observacoes_gerencia').removeClass('none')
+    //     $('#observacoes_gerencia').prop('required', true)
+    //     // $('#btn_salvar_orcamento').prop('disabled', true)
+    //     $('.botoes').attr('title', 'Verificar observações para a gerência')
+    // } else {
+    //     $('#div_observacoes_gerencia').addClass('none')
+    //     $('#observacoes_gerencia').val('').prop('required', false)
+    //     $('#btn_salvar_orcamento').prop('disabled', false)
+    //     $('.botoes').attr('title', '')
+    // }
 }
 
 $('#modal_descritivo').on('hidden.bs.modal', function (e) {
@@ -606,7 +606,7 @@ function valor_padrao() {
     return valor_sem_desconto + taxa_comercial + comissao
 }
 
-async function enviar_form(salvar = false) {
+async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamento = undefined) {
     let url = '/orcamento/calculos/'
 
     if ($('#id_orcamento_promocional').val() != '') {
@@ -615,7 +615,11 @@ async function enviar_form(salvar = false) {
 
     if (salvar) {
         $('#id_cliente, #id_responsavel').prop('disabled', false)
-        url = '/orcamento/salvar/'
+        if (gerente_aprovando) {
+            url = '/orcamento/orcamento_aprovado/' + id_orcamento + '/'
+        } else {
+            url = '/orcamento/salvar/'
+        }
         if ($('#id_tratativa').val() != undefined && $('#id_tratativa').val() != '') {
             url = url + $('#id_tratativa').val() + '/'
         }
@@ -1110,6 +1114,12 @@ function montar_pacote(check_promocional = null) {
     }
 }
 
+async function aprovar_orcamento() {
+    $('#id_comentario_desconto').val('')
+    $('#id_aprovacao_diretoria').val('False')
+    await salvar_orcamento()
+}
+
 function mostrar_limite_cortesia(cortesia) {
     if ($(cortesia).prop('checked')) {
         $('#div_limite_cortesia').removeClass('none')
@@ -1348,9 +1358,12 @@ async function mostrar_dados_pacote(pacote) {
     })
 }
 
-document.getElementById("btnPrint").onclick = function () {
-    printTable()
-}
+try {
+    document.getElementById("btnPrint").onclick = function () {
+        printTable()
+    }
+} catch (e) {}
+
 
 function printTable() {
     var logo = document.getElementById('logo_peraltas').cloneNode(true)
@@ -1517,4 +1530,26 @@ function verficar_validade_opcionais(check_in) {
             $('select[name="opcionais"]').select2()
         }
     })
+}
+
+async function salvar_comentario_diretoria() {
+    if ($('#apelido_orcamento_2').val().length > 5 && $('#comentario_gerencia').val().length > 10) {
+        $('#id_comentario_desconto').val($('#comentario_gerencia').val())
+        $('#id_apelido').val($('#apelido_orcamento_2').val())
+        $('#id_aprovacao_diretoria').val('True')
+        $('#modal_cometario_diretoria').modal('hide')
+        await salvar_orcamento(true)
+    } else {
+        $('#avisos_apelidos').removeClass('none')
+        if ($('#apelido_orcamento_2').val().length < 5) {
+            $('#aviso_apelido').removeClass('none')
+        } else {
+            $('#aviso_apelido').addClass('none')
+        }
+        if ($('#comentario_gerencia').val().length < 5) {
+            $('#aviso_comentario').removeClass('none')
+        } else {
+            $('#aviso_comentario').addClass('none')
+        }
+    }
 }

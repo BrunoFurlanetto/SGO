@@ -22,4 +22,5 @@ urlpatterns = [
     path('previa_pdf_orcamento/<int:id_orcamento>/', views.gerar_pdf_previa, name='previa_pdf_orcamento'),
     path('pegar_orcamentos_tratativa/', views.pegar_orcamentos_tratativa, name='pegar_orcamentos_tratativa'),
     path('verificar_validade_op/', views.verificar_validade_opcionais, name='verificar_validade_opcionais'),
+    path('aprovacao_gerencia/<int:id_orcamento>', views.aprovacao_gerencia, name='aprovacao_gerencia'),
 ]

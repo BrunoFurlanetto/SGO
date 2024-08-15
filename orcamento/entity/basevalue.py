@@ -21,14 +21,14 @@ class BaseValue:
         self.set_discount(discount)
 
         return discount
-    
+
     def set_adjustiment(self, value):
         self.__adjustment = float(value)
         return self.__adjustment
 
     def get_adjustiment(self):
         return self.__adjustment
-    
+
     def get_total_values(self):
         total = 0
 
@@ -51,14 +51,14 @@ class BaseValue:
 
     def calc_commission(self):
         return self.get_final_value() * self.percent_commission
-    
+
     def get_list_values(self, days):
         if len(self.values) == days:
             return self.values
 
         mock_values = [0 for x in range(days)]
         return mock_values
-    
+
     def get_final_value(self):
         return self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission))
 
@@ -66,10 +66,10 @@ class BaseValue:
         return {
             "valor": self.get_total_values(),
             "desconto": self.discount,
-            "valor_final": self.get_final_value(),
-                                # + self.calc_business_fee(percent_business_fee)
-                                # + self.calc_commission(percent_commission)
-                                # + self.get_adjustiment()),
+            "valor_final": self.get_final_value()
+                           + self.calc_business_fee()
+                           + self.calc_commission()
+                           + self.get_adjustiment(),
             "valor_com_desconto": self.calc_value_with_discount(),
             "ajuste": self.get_adjustiment(),
             "taxa_comercial": self.calc_business_fee(),
