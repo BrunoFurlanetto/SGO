@@ -61,7 +61,7 @@ def clonar_orcamento(request, id_tratativa, ):
 
 
 @login_required(login_url='login')
-def editar_previa(request, id_orcamento):
+def editar_previa(request, id_orcamento, gerente_aprovando=0):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     orcamento = Orcamento.objects.get(pk=id_orcamento)
@@ -78,7 +78,7 @@ def editar_previa(request, id_orcamento):
     elif orcamento.orcamento_promocional:
         pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
         orcamento_promocional = orcamento.orcamento_promocional
-
+    print(orcamento_promocional.dados_pacote if orcamento_promocional else None)
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': orcamento,
@@ -89,6 +89,7 @@ def editar_previa(request, id_orcamento):
         'id_orcamento': id_orcamento,
         'previa': True,
         'pacote_promocional': pacote_promocional,
+        'gerente_aprovando': bool(gerente_aprovando),
         'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
     })
 
@@ -424,37 +425,3 @@ def verificar_validade_opcionais(request):
             op.id for op in
             OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
         ]})
-
-
-@login_required(login_url='login')
-def aprovacao_gerencia(request, id_orcamento):
-    taxas_padrao = ValoresPadrao.objects.all()
-    usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
-    financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
-    orcamento = Orcamento.objects.get(pk=id_orcamento)
-    cadastro_orcamento = CadastroOrcamento(instance=orcamento)
-    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
-    pacote_promocional = CadastroPacotePromocional()
-    orcamento_promocional = None
-
-    if orcamento.promocional:
-        orcamento_promocional = OrcamentosPromocionais.objects.get(orcamento=orcamento.id)
-        pacote_promocional = CadastroPacotePromocional(instance=orcamento_promocional.dados_pacote)
-        orcamento = orcamento_promocional.orcamento
-    elif orcamento.orcamento_promocional:
-        pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
-        orcamento_promocional = orcamento.orcamento_promocional
-
-    return render(request, 'orcamento/orcamento.html', {
-        'orcamento': cadastro_orcamento,
-        'orcamento_origem': orcamento,
-        'promocionais': promocionais,
-        'taxas_padrao': taxas_padrao,
-        'id_orcamento': id_orcamento,
-        'usuarios_gerencia': usuarios_gerencia,
-        'financeiro': financeiro,
-        'previa': True,
-        'pacote_promocional': pacote_promocional,
-        'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
-        'gerente_aprovando': True
-    })

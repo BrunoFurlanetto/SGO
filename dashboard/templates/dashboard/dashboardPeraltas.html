@@ -584,7 +584,7 @@
                         <tbody>
                         {% for orcamento in orcamentos_aprovacao %}
                             <tr style="cursor: pointer; vertical-align: middle"
-                                onclick="window.location.href='{% url 'aprovacao_gerencia' orcamento.id %}'">
+                                onclick="window.location.href='{% url 'aprovacao_gerencia' orcamento.id 1 %}'">
                                 <td>{{ orcamento.cliente }}</td>
                                 <td>{{ orcamento.check_in|date:'Y-m-d' }}</td>
                                 <td>{{ orcamento.check_out|date:'Y-m-d' }}</td>

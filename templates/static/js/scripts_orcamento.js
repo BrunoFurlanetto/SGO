@@ -149,12 +149,13 @@ function verificar_produto() {
 
 async function verificar_alteracoes(div) {
     // if ($('#id_promocional').prop('checked')) {
-    await enviar_form()
+
 
     // return
     // }
 
     await verificar_pisos_e_tetos()
+    await enviar_form()
 
     // setInterval(() => {
     //     $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
@@ -551,9 +552,9 @@ async function verificar_pisos_e_tetos() {
             let valor, piso, teto
 
             if ($(campo).val().includes('%')) {
-                valor = $(campo).val().replace(/[^\w\s]/gi, '')
-                piso = $(campo).data('piso').replace(/[^\w\s]/gi, '')
-                teto = $(campo).data('teto').replace(/[^\w\s]/gi, '')
+                valor = $(campo).val().replace('%', '')
+                piso = $(campo).data('piso').replace('%', '')
+                teto = $(campo).data('teto').replace('%', '')
             } else if (!$(campo).val().includes('$')) {
                 valor = $(campo).val()
                 piso = $(campo).data('piso')
@@ -561,7 +562,6 @@ async function verificar_pisos_e_tetos() {
             }
 
             if (parseFloat(valor) < parseFloat(piso)) {
-
                 $(campo).val($(campo).data('piso'))
             }
 
