@@ -60,16 +60,13 @@ class BaseValue:
         return mock_values
 
     def get_final_value(self):
-        return self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission))
+        return (self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission))) + self.get_adjustiment()
 
     def do_object(self):
         return {
             "valor": self.get_total_values(),
             "desconto": self.discount,
-            "valor_final": self.get_final_value()
-                           + self.calc_business_fee()
-                           + self.calc_commission()
-                           + self.get_adjustiment(),
+            "valor_final": self.get_final_value(),
             "valor_com_desconto": self.calc_value_with_discount(),
             "ajuste": self.get_adjustiment(),
             "taxa_comercial": self.calc_business_fee(),
