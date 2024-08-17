@@ -33,6 +33,7 @@ def novo_orcamento(request):
         'financeiro': financeiro,
         'taxas_padrao': taxas_padrao,
         'usuarios_gerencia': usuarios_gerencia,
+        'zerar_taxas': True,
     })
 
 
@@ -57,6 +58,7 @@ def clonar_orcamento(request, id_tratativa, ):
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,
         'id_orcamento': id_orcamento,
+        'zerar_taxas': True,
     })
 
 
@@ -78,7 +80,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     elif orcamento.orcamento_promocional:
         pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
         orcamento_promocional = orcamento.orcamento_promocional
-    print(orcamento_promocional.dados_pacote if orcamento_promocional else None)
+
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': orcamento,

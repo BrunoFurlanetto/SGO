@@ -330,7 +330,7 @@
                                      onchange="verificar_alteracoes(this)">
                                     {% for taxa in taxas_padrao %}
                                         {% if taxa.aparecer_comercial %}
-                                            {% if orcamento_origem %}
+                                            {% if not zerar_taxas %}
                                                 {% for taxa_orcamento, valor in orcamento_origem.objeto_gerencia.items %}
                                                     {% if taxa_orcamento == taxa.id_taxa %}
                                                         <div>
