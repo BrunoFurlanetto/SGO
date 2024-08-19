@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais, CategoriaOpcionais
+    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais
 
 
 @admin.register(HorariosPadroes)
@@ -108,14 +108,20 @@ class CategoriaOpcionaisAdmin(admin.ModelAdmin):
     list_display = ('nome_categoria',)
 
 
+@admin.register(SubcategoriaOpcionais)
+class SubategoriaOpcionaisAdmin(admin.ModelAdmin):
+    list_display = ('nome_sub_categoria',)
+
+
+
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'categoria', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao')
+    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao')
     ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
     list_editable = ('valor', 'categoria')
     list_per_page = 20
     search_fields = ('nome',)
-    list_filter = ('categoria', 'final_vigencia')
+    list_filter = ('categoria', 'sub_categoria', 'final_vigencia')
 
     def inicio_vigencia_formatado(self, obj):
         return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado

@@ -175,9 +175,21 @@ class CategoriaOpcionais(models.Model):
         return self.nome_categoria
 
 
+class SubcategoriaOpcionais(models.Model):
+    nome_sub_categoria = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Subcategoria'
+        verbose_name_plural = '07b - Subcategorias de opcionais'
+
+    def __str__(self):
+        return self.nome_sub_categoria
+
+
 class OrcamentoOpicional(models.Model):
     nome = models.CharField(max_length=100)
     categoria = models.ForeignKey(CategoriaOpcionais, on_delete=models.DO_NOTHING, null=True, blank=True)
+    sub_categoria = models.ForeignKey(SubcategoriaOpcionais, on_delete=models.DO_NOTHING, null=True, blank=True)
     descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     inicio_vigencia = models.DateField()
@@ -185,7 +197,7 @@ class OrcamentoOpicional(models.Model):
 
     class Meta:
         verbose_name = 'Valor opcionais'
-        verbose_name_plural = '07b - Valores de opcionais'
+        verbose_name_plural = '07c - Valores de opcionais'
 
     def __str__(self):
         return self.nome
