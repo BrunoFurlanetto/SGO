@@ -325,6 +325,7 @@
                         <fieldset>
                             {% csrf_token %}
                             <input type="hidden" name="id_gerente" id="id_gerente" {% if  gerente_aprovando %} value="{{ request.user }}" {% endif %}>
+                            <h5>Parâmetros da gerência</h5>
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
                                      onchange="verificar_alteracoes(this)">
@@ -339,12 +340,13 @@
                                                                    id="{{ taxa.id_taxa }}"
                                                                    name="{{ taxa.id_taxa }}"
                                                                    value="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
+                                                                   data-nome_taxa="{{ taxa.nome_taxa_comercial }}"
                                                                    data-valor_default="{{ taxa.valor_padrao_formatado }}"
                                                                    data-valor_inicial="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
                                                                    data-valor_alterado="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
                                                                     {% if taxa.valor_maximo %}
                                                                    data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
-                                                                    {% if taxa.valor_minimo %}
+                                                                    {% if taxa.valor_minimo|floatformat %}
                                                                    data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
                                                         </div>
                                                     {% endif %}
@@ -354,6 +356,7 @@
                                                     <label>{{ taxa.nome_taxa_comercial }}</label>
                                                     <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"
                                                            name="{{ taxa.id_taxa }}"
+                                                           data-nome_taxa="{{ taxa.nome_taxa_comercial }}"
                                                            value="{{ taxa.valor_padrao_formatado }}"
                                                            data-valor_default="{{ taxa.valor_padrao_formatado }}"
                                                            data-valor_inicial="{{ taxa.valor_padrao_formatado }}"
@@ -367,7 +370,7 @@
                                         {% endif %}
                                     {% endfor %}
                                     <div>
-                                        <label for="ajuste_diaria">Ajuste</label>
+                                        <label for="ajuste_diaria">Desconto</label>
                                         <input type="text" id="ajuste_diaria" name="ajuste_diaria"
                                                value="0,00"
                                                data-valor_default="0,00" data-valor_inicial="0,00"
@@ -381,6 +384,7 @@
                                         <input disabled type="text" id="valor_final">
                                     </div>
                                 </div>
+                                <p id="avisos_pisos_tetos" class="none alert alert-warning"></p>
                                 <div id="div_observacoes_gerencia" class="none"
                                      style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
                                     <label for="observacoes_gerencia">Observações</label>
@@ -392,8 +396,9 @@
                                         altorizadas pela gerência!</p>
                                 </div>
                             </div>
-                            <hr  {% if not financeiro %} class="none" {% endif %}>
-                            <div id="div_financeiro" {% if not financeiro %} class="none" {% endif %}>
+                            <hr  {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>
+                            <h5 {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>Parâmetros de pacotes</h5>
+                            <div id="div_financeiro" {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>
                                 <div>
                                     <div>
                                         <label for="desconto_produto_percent">Desconto diaria</label>
@@ -503,21 +508,9 @@
                                     {{ pacote_promocional.minimo_de_pagantes.label_tag }}
                                     {{ pacote_promocional.minimo_de_pagantes }}
                                 </div>
-                                <div class="mt-3" style="display: flex; align-items: center">
-                                    <div style="display: flex; column-gap: 7px; margin-right: 20px">
-                                        {{ pacote_promocional.cortesia }}
-                                        <label for="{{ pacote_promocional.cortesia.id_for_label }}">
-                                            {{ pacote_promocional.cortesia.label }}?
-                                        </label>
-                                    </div>
-                                    <div id="div_limite_cortesia"
-                                         style="display: flex; width: 48%; column-gap: 10px; align-items: center"
-                                         class="{% if not dados_pacote.cortesia %} none {% endif %}">
-                                        <label for="{{ pacote_promocional.limite_cortesia.id_for_label }}">
-                                            <nobr>{{ pacote_promocional.limite_cortesia.label }}</nobr>
-                                        </label>
-                                        {{ pacote_promocional.limite_cortesia }}
-                                    </div>
+                                <div class="mt-2" style="display: flex; align-items: center">
+                                    <label for="{{ pacote_promocional.regra_cortesia.id_for_label }}" class="me-2">Uma cortesia para cada</label>
+                                    {{ pacote_promocional.regra_cortesia }}
                                 </div>
                             </div>
                             <hr>

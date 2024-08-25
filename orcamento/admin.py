@@ -113,7 +113,6 @@ class SubategoriaOpcionaisAdmin(admin.ModelAdmin):
     list_display = ('nome_sub_categoria',)
 
 
-
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(admin.ModelAdmin):
     list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao')

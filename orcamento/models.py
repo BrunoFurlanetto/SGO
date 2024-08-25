@@ -101,6 +101,7 @@ class ValoresPadrao(models.Model):
 
     @property
     def valor_minimo_formatado(self):
+        print(self.nome_taxa, self.valor_minimo)
         if self.comportamento == 'porcentagem':
             return f'{self.valor_minimo}%'.replace('.', ',')
 
@@ -331,8 +332,8 @@ class DadosDePacotes(models.Model):
     maximo_de_diarias = models.PositiveIntegerField(verbose_name="Maximo de diarias")
     minimo_de_pagantes = models.PositiveIntegerField(verbose_name="Minimo de pagantes")
     produtos_elegiveis = models.ManyToManyField(ProdutosPeraltas, verbose_name="Produtos elegíveis")
-    cortesia = models.BooleanField(default=False, verbose_name="Cortesia")
-    limite_cortesia = models.PositiveIntegerField(verbose_name="Limite de cortesias", blank=True, null=True)
+    cortesia = models.BooleanField(default=True, verbose_name="Cortesia")
+    regra_cortesia = models.PositiveIntegerField(verbose_name="Regra de cortesias", blank=True, null=True)
     periodos_aplicaveis = models.JSONField(verbose_name="Periodos aplicaveis")
     descricao = models.TextField(verbose_name="Descrição do pacote")
 
@@ -940,10 +941,7 @@ class CadastroPacotePromocional(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'cortesia': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
-                'onchange': 'mostrar_limite_cortesia(this)'
-            }),
+            'regra_cortesia': forms.NumberInput(attrs={'style': 'width: 15%'}),
             'limite_desconto_geral': forms.TextInput(),
         }
 

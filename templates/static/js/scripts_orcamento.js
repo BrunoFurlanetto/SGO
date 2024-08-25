@@ -231,7 +231,7 @@ $.fn.mascaraDinheiro = function () {
         decimal: ',',
         allowZero: true,
         affixesStay: false,
-        allowNegative: true,
+        allowNegative: false,
     })
 }
 
@@ -546,9 +546,15 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
 }
 
 async function verificar_pisos_e_tetos() {
+    $('#avisos_pisos_tetos').addClass('none')
+
     return await new Promise(async (resolve, reject) => {
         $('#campos_alteraveis input').map((index, campo) => {
             let valor, piso, teto
+
+            if ($(campo).val() == '') {
+                $(campo).val(0)
+            }
 
             if ($(campo).val().includes('%')) {
                 valor = $(campo).val().replace('%', '')
@@ -562,10 +568,12 @@ async function verificar_pisos_e_tetos() {
 
             if (parseFloat(valor) < parseFloat(piso)) {
                 $(campo).val($(campo).data('piso'))
+                $('#avisos_pisos_tetos').text(`O valor mínimo para o campo "${$(campo).data('nome_taxa')}" é de ${piso}`).removeClass('none')
             }
 
             if (parseFloat(valor) > parseFloat(teto)) {
                 $(campo).val($(campo).data('teto'))
+                $('#avisos_pisos_tetos').text(`O valor máximo para o campo "${$(campo).data('nome_taxa')}" é de ${teto}`).removeClass('none')
             }
         })
 
