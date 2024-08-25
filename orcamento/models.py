@@ -154,8 +154,8 @@ class OrcamentoMonitor(models.Model):
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
-    racional_monitoria = models.PositiveIntegerField(
-        default=8, verbose_name="Racional Monitoria")
+    racional_monitoria = models.PositiveIntegerField(default=8, verbose_name="Racional Monitoria")
+    liberado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Valor monitoria'
@@ -193,8 +193,10 @@ class OrcamentoOpicional(models.Model):
     sub_categoria = models.ForeignKey(SubcategoriaOpcionais, on_delete=models.DO_NOTHING, null=True, blank=True)
     descricao = models.TextField()
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    valor_final = models.DecimalField(decimal_places=2, max_digits=5, default=0.00, editable=False)
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
+    liberado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Valor opcionais'
@@ -202,6 +204,12 @@ class OrcamentoOpicional(models.Model):
 
     def __str__(self):
         return self.nome
+
+    def save(self, *args, **kwargs):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+        self.valor_final = float(self.valor) / (1 - ((taxa_comercial + comissao) / 100))
+        super().save(*args, **kwargs)
 
 
 class DiasSemana(models.Model):
@@ -301,6 +309,7 @@ class ValoresTransporte(models.Model):
     inicio_validade = models.DateField(verbose_name='Inicio vigência dos valores', default=timezone.now)
     final_validade = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
+    liberado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Valor do transporte'

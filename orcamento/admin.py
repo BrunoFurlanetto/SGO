@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django_admin_search.admin import AdvancedSearchAdmin
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
@@ -15,7 +16,8 @@ class HorariosPadroesAdmin(admin.ModelAdmin):
 
 @admin.register(Orcamento)
 class OrcamentoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'responsavel', 'check_in_formatado', 'check_out_formatado', 'data_vencimento_formatado')
+    list_display = (
+        'id', 'cliente', 'responsavel', 'check_in_formatado', 'check_out_formatado', 'data_vencimento_formatado')
     list_display_links = ('cliente',)
     list_filter = ('promocional',)
 
@@ -57,12 +59,16 @@ class OrcamentoDiariaAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresTransporte)
 class ValoresTransporteAdmin(admin.ModelAdmin):
-    list_display = ('titulo_transporte', 'inicio_vigencia', 'final_vigencia', 'descricao')
+    list_display = ('titulo_transporte', 'inicio_vigencia', 'final_vigencia', 'descricao', 'liberado')
+    list_editable = ('liberado',)
 
 
 @admin.register(OrcamentoMonitor)
 class OrcamentoMonitorAdmin(admin.ModelAdmin):
-    list_display = ('nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia_formatado', 'final_vigencia_formatado')
+    list_display = (
+        'nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia_formatado', 'final_vigencia_formatado',
+        'liberado')
+    list_editable = ('liberado',)
 
     def inicio_vigencia_formatado(self, obj):
         return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
@@ -76,7 +82,8 @@ class OrcamentoMonitorAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(admin.ModelAdmin):
-    list_display = ('nome_periodo', 'valor', 'descricao')
+    list_display = ('nome_periodo', 'valor', 'descricao', 'liberado')
+    list_editable = ('liberado',)
     form = SeuModeloAdminForm
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
@@ -113,14 +120,48 @@ class SubategoriaOpcionaisAdmin(admin.ModelAdmin):
     list_display = ('nome_sub_categoria',)
 
 
+from django.forms import ModelForm, Form
+from django.forms import DateField, CharField, ChoiceField, TextInput
+
+
+class YourFormSearch(Form):
+    style = """
+        width: 60%; background-color: #fff; border: 1px solid #ced4da; border-radius: 5px;
+        appearance: none; padding: 5px; font-size: 1.2em;',
+    """
+    nome = CharField(required=False, widget=TextInput(attrs={
+        'filter_method': '__icontains',
+    }))
+    inicio_vigencia = DateField(required=False, widget=TextInput(
+        attrs={
+            'type': 'date',
+            'style': style,
+            'class': 'date-form'
+            # 'filter_method': '__gte',
+        }
+    ))
+    final_vigencia = DateField(required=False, widget=TextInput(
+        attrs={
+            'type': 'date',
+            'style': style,
+            # 'filter_method': '__lte',
+        }
+    ))
+
+
 @admin.register(OrcamentoOpicional)
-class OrcamentoOpicionalAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao')
+class OrcamentoOpicionalAdmin(AdvancedSearchAdmin):
+    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'valor_final', 'inicio_vigencia_formatado',
+                    'final_vigencia_formatado', 'liberado')
     ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
-    list_editable = ('valor', 'categoria')
+    list_editable = ('valor', 'categoria', 'liberado', 'sub_categoria')
     list_per_page = 20
     search_fields = ('nome',)
     list_filter = ('categoria', 'sub_categoria', 'final_vigencia')
+    readonly_fields = ('valor_final',)
+    save_as = True
+
+    search_form = YourFormSearch
 
     def inicio_vigencia_formatado(self, obj):
         return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado

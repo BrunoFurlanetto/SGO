@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_crontab',
     'reversion',
+    'django_admin_search',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
     'peraltas.apps.PeraltasConfig',
