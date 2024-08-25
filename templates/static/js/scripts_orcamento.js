@@ -340,12 +340,7 @@ function criar_linhas_tabela_valores(categorias) {
     tabela_valores.append(`<tr id="periodo_viagem"><td colspan="2">Taxa fixa</td></tr>`)
     tabela_valores.append(`<tr id="tipo_monitoria"><td colspan="2">Monitoria</td></tr>`)
     tabela_valores.append(`<tr id="transporte"><td colspan="2">Transporte</td></tr>`)
-    tabela_valores.append(`<tr id="opcionais"><td colspan="2">Opcionais <i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .opcionais_descritivo').toggleClass('none')"</td></tr>`)
-
-    // for (let categoria in categorias) {
-    //     tabela_valores.append(`<tr id='${categorias[categoria]}'><td colspan="2">${categoria}<i class='bx bxs-chevron-down' onclick="$('#tabela_de_valores .${categorias[categoria]}_descritivo').toggleClass('none')"></i></td></tr>`)
-    // }
-
+    tabela_valores.append(`<tr id="opcionais"><td colspan="2">Opcionais</td></tr>`)
     tabela_valores.append(`<tr id="arredondamento"><td colspan="2">Arredondamento</td></tr>`)
 }
 
@@ -428,7 +423,7 @@ function linhas_descritivo_opcionais(opcionais) {
             classe_ultima_linha = 'ultima_linha'
         }
 
-        let novaLinha = `<tr id='opcionais_${i}' class="opcionais_descritivo none atividade_ou_opcional">
+        let novaLinha = `<tr id='opcionais_${i}' class='atividade_ou_opcional'>
             <td></td>
             <td>${opt['nome']}</td>
             <td><nobr>R$ ${formatar_dinheiro(opt['valor'])}</nobr></td>
@@ -450,19 +445,8 @@ function linhas_descritivo_opcionais(opcionais) {
 function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     $('#tabela_de_valores .datas').remove()
     $('.tag_datas').prop('colspan', dias.length)
-    const soma_por_categoria_opcionais = sumByCategory(opcionais)
     let classe_datas = ''
     let categorias = {}
-
-    // opcionais.map((opt) => {
-    //     // Remove todos os caracteres especiais, mantendo apenas letras e números
-    //     let categoria = opt['categoria'].toLowerCase().replace(/[^a-z0-9]/g, '');
-    //
-    //     // Verifica se a categoria já existe em id_linhas
-    //     if (!categorias.hasOwnProperty(categoria)) {
-    //         categorias[opt['categoria']] = categoria;
-    //     }
-    // })
 
     for (let data of dias) {
         let dia
@@ -499,20 +483,6 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
             $(`#tabela_de_valores #${secao}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
         }
     }
-
-    // for (let categoria in soma_por_categoria_opcionais) {
-    //     $(`#tabela_de_valores #${categoria}`).append(`
-    //         <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor'])}</nobr></td>
-    //         <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['taxa_comercial'])}</nobr></td>
-    //         <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['comissao_de_vendas'])}</nobr></td>
-    //         <td><nobr>R$ ${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor'] - soma_por_categoria_opcionais[categoria]['valor_com_desconto'])}</nobr></td>
-    //         <td class="valor_final_tabela"><nobr>${formatar_dinheiro(soma_por_categoria_opcionais[categoria]['valor_final'])}</nobr></td>
-    //     `)
-    //
-    //     for (let valor_dia of soma_por_categoria_opcionais[categoria]['valores']) {
-    //         $(`#tabela_de_valores #${categoria}`).append(`<td><nobr>R$ ${formatar_dinheiro(valor_dia)}</nobr></td>`)
-    //     }
-    // }
 
     linhas_descritivo_opcionais(opcionais)
 
