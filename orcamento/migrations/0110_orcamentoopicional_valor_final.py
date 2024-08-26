@@ -11,7 +11,7 @@ def orcamento_valor_final(apps, schema_editor):
     comissao = float(valores_padrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
 
     for opcional in opcionais.objects.all():
-        opcional.valor_final = opcional.valor / (1 - ((taxa_comercial + comissao) / 100))
+        opcional.valor_final = float(opcional.valor) / (1 - ((taxa_comercial + comissao) / 100))
         opcional.save()
 
 
