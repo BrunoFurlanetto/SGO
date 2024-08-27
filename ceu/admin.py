@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from ceu.models import Professores, Atividades, Locaveis, Limitacoes, Estruturas, ReembolsosProfessores
 from peraltas.admin import VendedorInline, MonitorInline, EnfermeiraInline
+from peraltas.forms import CustomUserCreationForm, CustomUserChangeForm
 
 
 class ProfessorInline(admin.StackedInline):
@@ -11,13 +12,20 @@ class ProfessorInline(admin.StackedInline):
     verbose_name = 'Professor'
     extra = 0
 
+class CustomUserAdmin(BaseUserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = User
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
+    search_fields = ('username', 'email')
+    ordering = ('email',)
 
-class UserAdmin(BaseUserAdmin):
+    # Mantenha seus inlines aqui
     inlines = (ProfessorInline, VendedorInline, MonitorInline, EnfermeiraInline)
 
-
 admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+admin.site.register(User, CustomUserAdmin)
 
 
 @admin.register(Professores)
