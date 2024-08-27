@@ -148,18 +148,9 @@ function verificar_produto() {
 }
 
 async function verificar_alteracoes(div) {
-    // if ($('#id_promocional').prop('checked')) {
-
-
-    // return
-    // }
-
+    loading()
     await verificar_pisos_e_tetos()
     await enviar_form()
-
-    // setInterval(() => {
-    //     $('#btn_salvar_orcamento').prop('disabled', !$('#div_observacoes_gerencia').hasClass('none') && $('#observacoes_gerencia').val().length < 10)
-    // }, 10)
 
     let mostrar_mensagem = $(`#${div.id} input`).toArray().some((input) => {
         let valor
@@ -174,24 +165,7 @@ async function verificar_alteracoes(div) {
             return true
         }
     })
-
-    // if (mostrar_mensagem) {
-    //     $('#alteracoes_aviso').removeClass('none')
-    // } else {
-    //     $('#alteracoes_aviso').addClass('none')
-    // }
-    //
-    // if (mostrar_mensagem) {
-    //     $('#div_observacoes_gerencia').removeClass('none')
-    //     $('#observacoes_gerencia').prop('required', true)
-    //     // $('#btn_salvar_orcamento').prop('disabled', true)
-    //     $('.botoes').attr('title', 'Verificar observações para a gerência')
-    // } else {
-    //     $('#div_observacoes_gerencia').addClass('none')
-    //     $('#observacoes_gerencia').val('').prop('required', false)
-    //     $('#btn_salvar_orcamento').prop('disabled', false)
-    //     $('.botoes').attr('title', '')
-    // }
+    end_loading()
 }
 
 $('#modal_descritivo').on('hidden.bs.modal', function (e) {
