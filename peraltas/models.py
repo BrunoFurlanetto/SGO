@@ -21,6 +21,14 @@ from reversion.models import Version
 from ceu.models import Atividades, Locaveis
 
 
+def atribuir_diretoria_vendedor():
+    return Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first().id
+
+
+def atribuir_diretoria():
+    return User.objects.filter(groups__name__icontains='diretoria').first().id
+
+
 class NivelMonitoria(models.Model):
     nivel = models.CharField(max_length=100)
 
@@ -216,13 +224,13 @@ class ClienteColegio(models.Model):
     cep = models.CharField(max_length=10)
     responsavel_alteracao = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_alteracao'
     )
     responsavel_cadastro = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_cadastro_cliente'
     )
@@ -245,13 +253,13 @@ class Responsavel(models.Model):
     email_responsavel_evento = models.EmailField()
     responsavel_cadastro = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_cadastro'
     )
     responsavel_atualizacao = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_atualizacao'
     )
@@ -302,7 +310,7 @@ class EventosCancelados(models.Model):
     tipo_evento = models.CharField(choices=(('colegio', 'Colégio'), ('corporativo', 'Corporativo')), max_length=12)
     participantes_reservados = models.PositiveIntegerField()
     participantes_confirmados = models.PositiveIntegerField()
-    colaborador_excluiu = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+    colaborador_excluiu = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True,
                                             verbose_name='Colaborador que cancelou')
 
     def __str__(self):
@@ -434,8 +442,8 @@ class FichaDeEvento(models.Model):
     informacoes_locacoes = models.JSONField(blank=True, null=True, verbose_name='Informações de locações')
     atividades_eco = models.ManyToManyField(AtividadesEco, blank=True, verbose_name='Atividades extra')
     atividades_peraltas = models.ManyToManyField(GrupoAtividade, blank=True, verbose_name='Atividades Peraltas')
-    vendedora = models.ForeignKey(Vendedor, on_delete=models.CASCADE,
-                                  verbose_name='Vendedora')  # TODO: Verificar caso de exclusão de colaborador
+    vendedora = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, default=atribuir_diretoria_vendedor,
+                                  verbose_name='Vendedora')
     data_final_inscricao = models.DateField(blank=True, null=True, verbose_name='Data final da inscrição')
     data_divulgacao = models.DateField(blank=True, null=True, verbose_name='Data prevista para divulgação')
     empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True, verbose_name='Empresa')
@@ -774,7 +782,7 @@ class Eventos(models.Model):
         blank=True,
         verbose_name='Ficha de evento'
     )
-    colaborador = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
+    colaborador = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, verbose_name='Colaborador', default=atribuir_diretoria_vendedor)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     data_check_in = models.DateField(verbose_name='Data de check in')
     hora_check_in = models.TimeField(verbose_name='Hora de check in')

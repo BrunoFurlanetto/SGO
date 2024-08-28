@@ -8,6 +8,10 @@ from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEv
 from peraltas.models import Vendedor
 
 
+def atribuir_diretoria_vendedor():
+    return Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first().id
+
+
 class TipoVeiculo(models.Model):
     tipo_veiculo = models.CharField(max_length=255, verbose_name='Tipo de veículo')
 
@@ -21,7 +25,7 @@ class DadosTransporte(models.Model):
     horario_embarque = models.TimeField(blank=True, null=True)
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
-    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.SET_NULL)
     dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': int}
 
     @staticmethod
@@ -115,8 +119,7 @@ class OrdemDeServico(models.Model):
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True,
-                                 null=True)  # TODO: Verificar cado de exclusão de colaborador
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, default=atribuir_diretoria_vendedor)
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ManyToManyField(Monitor)
     dados_transporte = models.ManyToManyField(DadosTransporte, blank=True)

@@ -241,13 +241,13 @@ class Orcamento(models.Model):
         blank=True,
         null=True
     )
-    pacote_promocional = models.ForeignKey(
-        DadosDePacotes,
-        verbose_name='Pacote promocional',
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True
-    )
+    # pacote_promocional = models.ForeignKey(
+    #     DadosDePacotes,
+    #     verbose_name='Pacote promocional',
+    #     on_delete=models.DO_NOTHING,
+    #     blank=True,
+    #     null=True
+    # )
     orcamento_promocional = models.ForeignKey(
         'self',
         null=True,
@@ -282,8 +282,8 @@ class Orcamento(models.Model):
     objeto_gerencia = models.JSONField(blank=True, null=True)
     objeto_orcamento = models.JSONField(blank=True, null=True)
     promocional = models.BooleanField(default=False)
-    aprovado = models.BooleanField(default=False)
-    necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')
+    # aprovado = models.BooleanField(default=False)
+    # necessita_aprovacao_gerencia = models.BooleanField(default=False, verbose_name='Necessita de aprovação da gerência')
     status_orcamento = models.ForeignKey(
         StatusOrcamento,
         on_delete=models.DO_NOTHING,
@@ -371,12 +371,6 @@ class Tratativas(models.Model):
         related_name='orcamento_aceito'
     )
     ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
-
-    @staticmethod
-    @receiver(pre_delete, sender=User)
-    def redifinir_colaborador(sender, instance, **kwargs):
-        diretoria = Vendedor.objects.filter(usuario__groups__icontains='diretoria')[0]
-        Tratativas.objects.filter(colaborador=instance).update(colaborador=diretoria.usuario)
 
     def save(self, *args, **kwargs):
         if not self.id_tratativa:

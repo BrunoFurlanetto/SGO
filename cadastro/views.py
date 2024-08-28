@@ -622,8 +622,8 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                     veio_ano_anterior=FichaDeEvento.objects.filter(
                         check_in__year=ficha_de_evento.check_in.year - 1).exists(),
                     motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                    participantes_reservados=ficha_de_evento.qtd_convidada,
-                    participantes_confirmados=ficha_de_evento.qtd_confirmada,
+                    participantes_reservados=ficha_de_evento.qtd_convidada or 0,
+                    participantes_confirmados=ficha_de_evento.qtd_confirmada or 0,
                     tipo_evento='colegio' if ficha_de_evento.produto.colegio else 'corporativo',
                     colaborador_excluiu=request.user,
                 )
