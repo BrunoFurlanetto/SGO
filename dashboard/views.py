@@ -69,9 +69,9 @@ def dashboardCeu(request):
         relatorios_usuario = list(chain(usuario_publico, usuario_colegio, usuario_empresa))
 
         # ------------------ Parte para chegar no resumo do mês -------------------
-        n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
-        n_horas = contar_horas(usuario_logado, relatorios_usuario)
-
+        # n_atividades = contar_atividades(usuario_logado, relatorios_usuario)
+        # n_horas = contar_horas(usuario_logado, relatorios_usuario)
+        n_atividades = n_horas = 0
         # ------------- Verificação de entrega da disponibilidade do mês sseguinte -------------
         mostrar_aviso_disponibilidade = teste_aviso(request.user.last_login, usuario_logado, request.user.id)
         dia_limite, p = DiaLimite.objects.get_or_create(id=1, defaults={'dia_limite': 25})
