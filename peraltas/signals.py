@@ -1,13 +1,13 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from datetime import date
 
 from ordemDeServico.models import OrdemDeServico
 from projetoCEU.envio_de_emails import EmailSender
-from .models import FichaDeEvento, Eventos
+from .models import FichaDeEvento, Eventos, Vendedor
 
 
 @receiver(pre_save, sender=FichaDeEvento)

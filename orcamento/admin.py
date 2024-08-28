@@ -10,8 +10,15 @@ class HorariosPadroesAdmin(admin.ModelAdmin):
 
 @admin.register(Orcamento)
 class OrcamentoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'responsavel', 'check_in', 'aprovado', 'necessita_aprovacao_gerencia')
-    list_editable = ('necessita_aprovacao_gerencia',)
+    list_display = (
+        'id',
+        'cliente',
+        'responsavel',
+        'check_in',
+        # 'aprovado',
+        # 'necessita_aprovacao_gerencia'
+    )
+    # list_editable = ('necessita_aprovacao_gerencia',)
     list_display_links = ('cliente',)
 
 
