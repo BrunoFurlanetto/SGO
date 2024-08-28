@@ -253,13 +253,13 @@ class Responsavel(models.Model):
     email_responsavel_evento = models.EmailField()
     responsavel_cadastro = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_cadastro'
     )
     responsavel_atualizacao = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_atualizacao'
     )
