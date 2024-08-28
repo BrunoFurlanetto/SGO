@@ -310,7 +310,7 @@ class EventosCancelados(models.Model):
     tipo_evento = models.CharField(choices=(('colegio', 'Colégio'), ('corporativo', 'Corporativo')), max_length=12)
     participantes_reservados = models.PositiveIntegerField()
     participantes_confirmados = models.PositiveIntegerField()
-    colaborador_excluiu = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+    colaborador_excluiu = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True,
                                             verbose_name='Colaborador que cancelou')
 
     def __str__(self):

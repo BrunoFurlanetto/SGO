@@ -25,7 +25,7 @@ class DadosTransporte(models.Model):
     horario_embarque = models.TimeField(blank=True, null=True)
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
-    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.SET_NULL)
     dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': int}
 
     @staticmethod
