@@ -224,13 +224,13 @@ class ClienteColegio(models.Model):
     cep = models.CharField(max_length=10)
     responsavel_alteracao = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_alteracao'
     )
     responsavel_cadastro = models.ForeignKey(
         User,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='responsavel_cadastro_cliente'
     )
