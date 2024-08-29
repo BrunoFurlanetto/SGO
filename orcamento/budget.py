@@ -83,6 +83,18 @@ class Budget:
         self.daily_rate.set_percent_discount(
             gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
       
+        # discount with real 
+        self.transport.set_discount(
+            gerencia["desconto_transporte_real"]) if "desconto_transporte_real" in gerencia and float(gerencia[
+                'desconto_transporte_real']) > 0 else ...
+        self.monitor.set_discount(
+            gerencia["desconto_monitoria_real"]) if "desconto_monitoria_real" in gerencia and float(gerencia[
+                'desconto_monitoria_real']) > 0 else ...
+        self.daily_rate.set_discount(
+            gerencia["desconto_produto_real"]) if "desconto_produto_real" in gerencia and float(gerencia[
+                'desconto_produto_real']) > 0 else ...
+      
+
         # adjustment values
         self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
         
