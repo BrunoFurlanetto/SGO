@@ -23,7 +23,7 @@ class BaseValue:
         return discount
 
     def set_adjustiment(self, value):
-        self.__adjustment = -float(value)
+        self.__adjustment = float(value)
 
         return self.__adjustment
 
