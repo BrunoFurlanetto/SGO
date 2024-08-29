@@ -96,7 +96,7 @@ class Budget:
       
 
         # adjustment values
-        self.daily_rate.set_adjustiment(-float(gerencia["ajuste_diaria"])) if "ajuste_diaria" in gerencia else ...
+        self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
         
         # OPICIONAIS
         if len(valores_op) == 0:
