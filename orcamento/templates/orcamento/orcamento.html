@@ -363,7 +363,7 @@
                                                            data-valor_alterado="{{ taxa.valor_padrao_formatado }}"
                                                             {% if taxa.valor_maximo %}
                                                            data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
-                                                            {% if taxa.valor_minimo %}
+                                                            {% if taxa.valor_minimo|floatformat %}
                                                            data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
                                                 </div>
                                             {% endif %}

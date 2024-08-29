@@ -137,6 +137,9 @@ class ValoresPadrao(models.Model):
 
         super().save(*args, **kwargs)
 
+        if 'comercial' in self.id_taxa or 'comissao' in self.id_taxa:
+            OrcamentoOpicional.update_valor_final()
+
     @classmethod
     def listar_valores(cls):
         valores = cls.objects.all()
@@ -205,10 +208,20 @@ class OrcamentoOpicional(models.Model):
     def __str__(self):
         return self.nome
 
+    @classmethod
+    def update_valor_final(cls):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+
+        for opcional in cls.objects.all():
+            opcional.valor_final = float(opcional.valor) / (1 - ((taxa_comercial + comissao) / 100))
+            opcional.save()
+
     def save(self, *args, **kwargs):
         taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
         comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
         self.valor_final = float(self.valor) / (1 - ((taxa_comercial + comissao) / 100))
+        print('Veio')
         super().save(*args, **kwargs)
 
 
