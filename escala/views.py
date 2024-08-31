@@ -177,6 +177,7 @@ def disponibilidadePeraltas(request):
     if request.method != "POST":
         coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
         coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
+        disponibilidades = []
 
         if coordenador_acampamento or coordenador_hotelaria:
             monitores = Monitor.objects.all().order_by('usuario__first_name')
@@ -186,8 +187,12 @@ def disponibilidadePeraltas(request):
             try:
                 monitores = Monitor.objects.get(usuario=request.user)
             except Monitor.DoesNotExist:
-                enfermeiras = Enfermeira.objects.get(usuario=request.user)
-                disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
+                try:
+                    enfermeiras = Enfermeira.objects.get(usuario=request.user)
+                except Enfermeira.DoesNotExist:
+                    messages.error(request, 'Cadastro de monitor ou enfermeiro não encontrado. Por favor entre em contato com o coordenador!')
+                else:
+                    disponibilidades = DisponibilidadePeraltas.objects.filter(enfermeira=enfermeiras)
             else:
                 disponibilidades = DisponibilidadePeraltas.objects.filter(monitor=monitores)
 
