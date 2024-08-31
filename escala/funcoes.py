@@ -684,34 +684,35 @@ def pegar_dados_monitor_embarque(os):
         areas = []
         monitor = transporte.monitor_embarque
 
-        areas.append('som') if monitor.som else ...
-        areas.append('video') if monitor.video else ...
-        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
-        biologo = 'biologo' if monitor.biologo else ''
+        if monitor:
+            areas.append('som') if monitor.som else ...
+            areas.append('video') if monitor.video else ...
+            areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
+            biologo = 'biologo' if monitor.biologo else ''
 
-        if not monitor.tecnica and not monitor.biologo:
-            if monitor.nivel.nivel in grupos_monitores_1:
-                nivel = 'monitor_1'
-            elif monitor.nivel.nivel in grupos_monitores_2:
-                nivel = 'monitor_2'
-            elif monitor.nivel.nivel in grupos_monitores_3:
-                nivel = 'monitor_3'
+            if not monitor.tecnica and not monitor.biologo:
+                if monitor.nivel.nivel in grupos_monitores_1:
+                    nivel = 'monitor_1'
+                elif monitor.nivel.nivel in grupos_monitores_2:
+                    nivel = 'monitor_2'
+                elif monitor.nivel.nivel in grupos_monitores_3:
+                    nivel = 'monitor_3'
+                else:
+                    nivel = 'monitor_4'
             else:
-                nivel = 'monitor_4'
-        else:
-            nivel = ''
+                nivel = ''
 
-        dados_monitor = {
-            'id': monitor.id,
-            'nome': monitor.usuario.get_full_name(),
-            'setor': 'peraltas',
-            'tecnica': monitor.tecnica,
-            'areas': '-'.join(areas),
-            'biologo': biologo,
-            'nivel': nivel
-        }
+            dados_monitor = {
+                'id': monitor.id,
+                'nome': monitor.usuario.get_full_name(),
+                'setor': 'peraltas',
+                'tecnica': monitor.tecnica,
+                'areas': '-'.join(areas),
+                'biologo': biologo,
+                'nivel': nivel
+            }
 
-        dados_monitores.append(dados_monitor)
+            dados_monitores.append(dados_monitor)
 
     return dados_monitores
 

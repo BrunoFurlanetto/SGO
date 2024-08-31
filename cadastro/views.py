@@ -500,11 +500,12 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
             if len(ordem_de_servico.dados_transporte.all()) > 0:
                 for transporte in ordem_de_servico.dados_transporte.all():
-                    EmailSender([transporte.monitor_embarque.usuario.email]).mensagem_monitor_embarque(
-                        ordem_de_servico.ficha_de_evento.cliente,
-                        ordem_de_servico.check_in,
-                        transporte.monitor_embarque.usuario.get_full_name()
-                    )
+                    if transporte.monitor_embarque:
+                        EmailSender([transporte.monitor_embarque.usuario.email]).mensagem_monitor_embarque(
+                            ordem_de_servico.ficha_de_evento.cliente,
+                            ordem_de_servico.check_in,
+                            transporte.monitor_embarque.usuario.get_full_name()
+                        )
 
         return redirect('dashboardPeraltas')
 
