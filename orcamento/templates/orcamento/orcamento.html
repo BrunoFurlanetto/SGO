@@ -164,6 +164,9 @@
                     {{ orcamento.aprovacao_diretoria.as_hidden }}
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}" id="id_colaborador">
                     <div class="botoes">
+                        <p id="aviso_comentario_gerencia" class="alert alert-warning w-100 none">
+                            Para que o orçamento seja salvo é necessário que haja um comentário por parte do gerente devido ao desconto fornecido!
+                        </p>
                         {% if gerente_aprovando %}
                             <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" onclick="aprovar_orcamento({{ orcamento_origem.id | safe }})">
                                 Aprovar orçamento
@@ -172,7 +175,7 @@
                             <button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
                                     data-target="#modal_cometario_diretoria">Pedido de alteração de taxa
                             </button>
-                            <button type="button" id="btn_salvar_orcamento" class="btn btn-dark" data-toggle="modal"
+                            <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark" data-toggle="modal"
                                     data-target="#modal_apelido_orcamento">
                                 Salvar prévia
                             </button>
@@ -370,13 +373,13 @@
                                         {% endif %}
                                     {% endfor %}
                                     <div>
-                                        <label for="ajuste_diaria">Desconto</label>
-                                        <input type="text" id="ajuste_diaria" name="ajuste_diaria"
+                                        <label for="desconto_geral">Desconto</label>
+                                        <input type="text" id="desconto_geral" name="desconto_geral"
                                                value="0,00"
                                                data-valor_default="0,00" data-valor_inicial="0,00"
                                                data-valor_alterado="0,00">
-                                        <input type="hidden" name="ajuste_diaria_alterado"
-                                               id="ajuste_diaria_alterado"
+                                        <input type="hidden" name="desconto_geral_alterado"
+                                               id="desconto_geral_alterado"
                                                value="0">
                                     </div>
                                     <div>
@@ -389,7 +392,7 @@
                                      style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
                                     <label for="observacoes_gerencia">Observações</label>
                                     <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"
-                                              rows="10"></textarea>
+                                              rows="10" onkeyup="verificar_cometario_gerencia(this)"></textarea>
                                 </div>
                                 <div>
                                     <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não

@@ -159,11 +159,11 @@ input[type='checkbox'] {
     font-size: 25px;
 }
 
-.botoes {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-}
+/*.botoes {*/
+/*    display: flex;*/
+/*    justify-content: flex-end;*/
+/*    gap: 15px;*/
+/*}*/
 
 .div-flutuante {
     display: flex;

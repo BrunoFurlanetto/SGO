@@ -39,7 +39,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
 
     $('#valor_opcional').mascaraDinheiro()
-    $('#ajuste_diaria').mascaraDinheiro()
+    $('#desconto_geral').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
 
@@ -529,32 +529,40 @@ async function verificar_pisos_e_tetos() {
 
 async function teto_desconto() {
     return await new Promise((resolve, reject) => {
-        let teto_percent
-
-        if ($('#id_orcamento_promocional').val() != '') {
-            teto_percent = parseFloat($('#dados_do_pacote #id_limite_desconto_geral').val()) / 100
-        } else {
-            teto_percent = parseFloat(resultado_ultima_consulta['limites_taxas']['teto_desconto']) / 100
+        $('#aviso_comentario_gerencia').addClass('none')
+        const teto_percent = Object.keys(resultado_ultima_consulta['limites_taxas']).filter(chave => chave.includes("desconto")).map(chave => resultado_ultima_consulta['limites_taxas'][chave])[0];
+        const comissao_percent = parseFloat($('#comissao').val().replace(',', '.').replace('%', ''))
+        const taxa_percent = parseFloat($('#taxa_comercial').val().replace(',', '.').replace('%', ''))
+        const valor = resultado_ultima_consulta['data']['valores']['diaria']['valor']
+        let valor_final = valor / (1 - ((parseFloat(comissao_percent) + parseFloat(taxa_percent)) / 100))
+        const desconto = parseFloat($('#desconto_geral').val().replace(',', '.'))
+        let desconto_permitido = ((parseFloat(teto_percent) / 100) * valor_final).toFixed(2);
+        console.log(teto_percent)
+        if (desconto > desconto_permitido) {
+            $('#desconto_geral').val(formatar_dinheiro(desconto_permitido))
+            $('#avisos_pisos_tetos').text(`O valor máximo para o campo "Desconto" é de R$ ${desconto_permitido}`).removeClass('none')
         }
 
-        const desconto = parseFloat($('#ajuste_diaria').val().replace(',', '.'))
-
-        if (desconto > teto_percent * valor_padrao()) {
-            $('#ajuste_diaria').val(formatar_dinheiro((teto_percent * valor_padrao()).toFixed(2)))
+        if (desconto != 0) {
+            $('#div_observacoes_gerencia').removeClass('none')
+            $('.botoes button').prop('disabled', true)
+            $('#aviso_comentario_gerencia').removeClass('none')
         }
 
         resolve()
     })
 }
 
-function valor_padrao() {
-    let taxa_comercial_default = $('#modal_descritivo #taxa_comercial').data('valor_default').replace('%', '')
-    let comissao_default = $('#modal_descritivo #comissao').data('valor_default').replace('%', '')
-    let valor_sem_desconto = resultado_ultima_consulta['data']['total']['valor']
-    let taxa_comercial = (valor_sem_desconto / (1 - (parseFloat(taxa_comercial_default) / 100))) - valor_sem_desconto
-    let comissao = (valor_sem_desconto / (1 - (parseFloat(comissao_default) / 100))) - valor_sem_desconto
+function verificar_cometario_gerencia(textarea) {
+    const comentario = $(textarea).val()
 
-    return valor_sem_desconto + taxa_comercial + comissao
+    if (comentario.length > 10) {
+        $('.botoes button').prop('disabled', false)
+        $('#aviso_comentario_gerencia').addClass('none')
+    } else {
+        $('.botoes button').prop('disabled', true)
+        $('#aviso_comentario_gerencia').removeClass('none')
+    }
 }
 
 async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamento = undefined) {
@@ -1182,7 +1190,7 @@ async function preencher_promocional(id_promocional) {
                 }
 
                 for (let id_campo in response['gerencia']) {
-                    if (id_campo == 'ajuste_diaria') {
+                    if (id_campo == 'desconto_geral') {
                         $(`#form_gerencia #${id_campo}`).val(formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).data('valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
                         $(`#form_gerencia #${id_campo}`).attr('data-valor_inicial', formatar_dinheiro(response['gerencia'][id_campo]))
@@ -1368,7 +1376,7 @@ async function verificar_gerencia() {
         success: async function (response) {
             $('#id_gerente').val($('#usuario').val())
 
-            if ($('#campos_alteraveis #ajuste_diaria').data('valor_alterado') == '0,00') {
+            if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
                 $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
                 $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
             }

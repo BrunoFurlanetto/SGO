@@ -19,9 +19,9 @@ class Budget:
             self.business_fee = float(ValoresPadrao.objects.get(id_taxa='taxa_comercial').valor_padrao)
         else:
             self.business_fee = business_fee
-        if commission is None:    
+        if commission is None:
             self.commission = float(ValoresPadrao.objects.get(id_taxa='comissao').valor_padrao)
-        else: 
+        else:
             self.commission = commission
 
         self.period = Period(
@@ -67,7 +67,7 @@ class Budget:
         self.monitor.set_discount(gerencia["desconto_monitoria"]) if "desconto_monitoria" in gerencia else ...
         self.transport.calc_value_transport(data.get("transporte"))
         self.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
-  
+
         # Veriricação se aplica tava MP
         self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
             'only_sky'] and data.get('promocional', '') != 'on' else ...
@@ -82,7 +82,7 @@ class Budget:
             gerencia["desconto_monitoria_percent"]) if "desconto_monitoria_percent" in gerencia else ...
         self.daily_rate.set_percent_discount(
             gerencia["desconto_produto_percent"]) if "desconto_produto_percent" in gerencia else ...
-      
+
         # discount with real 
         self.transport.set_discount(
             gerencia["desconto_transporte_real"]) if "desconto_transporte_real" in gerencia and float(gerencia[
@@ -93,11 +93,13 @@ class Budget:
         self.daily_rate.set_discount(
             gerencia["desconto_produto_real"]) if "desconto_produto_real" in gerencia and float(gerencia[
                 'desconto_produto_real']) > 0 else ...
-      
+        self.daily_rate.set_discount(
+            gerencia["desconto_geral"]) if "desconto_geral" in gerencia and float(gerencia['desconto_geral']) > 0 else ...
+
 
         # adjustment values
         self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
-        
+
         # OPICIONAIS
         if len(valores_op) == 0:
             if "opcionais" in data:
@@ -114,7 +116,7 @@ class Budget:
         if data.get('transporte') and data.get('transporte') == 'sim' and len(
                 self.transport.tranport_go_and_back.values) == 0:
             return
-        
+
         # CAlCULAR TOTAL
         is_go_and_back = data.get('is_go_and_back') == "vai_e_volta"
         self.total.calc_total_value(
@@ -135,11 +137,11 @@ class Budget:
                 obj_other = OptionalDescription(
                     other['valor'],
                     self.business_fee,
-                    self.commission, 
+                    self.commission,
                     other['id'],
-                    other['nome'], 
-                    self.days, 
-                    "extra", 
+                    other['nome'],
+                    self.days,
+                    "extra",
                     other['descricao'],
                     )
                 other_array.append(obj_other.do_object(
@@ -166,7 +168,7 @@ class Budget:
             description = OptionalDescription(
                 db_optional.valor,
                 self.business_fee,
-                self.commission, 
+                self.commission,
                 db_optional.id,
                 db_optional.nome,
                 self.days,
@@ -178,9 +180,9 @@ class Budget:
         self.array_description_optional = optional_array
 
         return self.array_description_optional
-   
+
     def return_object(self):
-        description_options = self.array_description_optional + self.array_description_others 
+        description_options = self.array_description_optional + self.array_description_others
         return {
             "periodo_viagem": self.period.do_object(),
             "n_dias": self.days,
