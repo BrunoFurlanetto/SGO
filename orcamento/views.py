@@ -430,3 +430,5 @@ def verificar_validade_opcionais(request):
             op.id for op in
             OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
         ]})
+
+

@@ -244,7 +244,6 @@ class OrcamentoPeriodo(models.Model):
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
     descricao = models.TextField(blank=True)
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
-    id_periodo = models.CharField(max_length=255, unique=True, primary_key=True, editable=False)
 
     class Meta:
         verbose_name = 'Valor do periodo'
@@ -322,8 +321,8 @@ class ValoresTransporte(models.Model):
         max_digits=7, decimal_places=2, verbose_name='Leva e Busca', default=0.00)
     percentual = models.DecimalField(
         max_digits=3, decimal_places=2, verbose_name='Percentual', default=0.10)
-    inicio_validade = models.DateField(verbose_name='Inicio vigência dos valores', default=timezone.now)
-    final_validade = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
+    inicio_vigencia = models.DateField(verbose_name='Inicio vigência dos valores', default=timezone.now)
+    final_vigencia = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
     liberado = models.BooleanField(default=False)
 
@@ -332,15 +331,7 @@ class ValoresTransporte(models.Model):
         verbose_name_plural = '06 - Valores de transporte'
 
     def __str__(self):
-        return f'Valores do transporte de {self.inicio_validade.strftime("%d/%m/%Y")} até {self.final_validade.strftime("%d/%m/%Y")}'
-
-    @property
-    def inicio_vigencia(self):
-        return self.inicio_validade.strftime('%d/%m/%Y')
-
-    @property
-    def final_vigencia(self):
-        return self.final_validade.strftime('%d/%m/%Y')
+        return f'Valores do transporte de {self.inicio_vigencia.strftime("%d/%m/%Y")} até {self.final_vigencia.strftime("%d/%m/%Y")}'
 
 
 class StatusOrcamento(models.Model):

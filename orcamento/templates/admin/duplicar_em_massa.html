@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Confirme as novas datas de vigência para duplicar os registros selecionados.</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="aplicar" value="1">
+    <button type="submit" class="button">Duplicar</button>
+</form>
+{% endblock %}
