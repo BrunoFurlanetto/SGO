@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('orcamento', '0113_remove_orcamentoperiodo_id_periodo_and_more'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='orcamentoperiodo',
-            name='dias_semana_validos',
-            field=models.ManyToManyField(to='orcamento.DiasSemana'),
-        ),
-    ]
+    # operations = [
+    #     migrations.AddField(
+    #         model_name='orcamentoperiodo',
+    #         name='dias_semana_validos',
+    #         field=models.ManyToManyField(to='orcamento.DiasSemana'),
+    #     ),
+    # ]
