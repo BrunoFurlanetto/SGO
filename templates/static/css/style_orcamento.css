@@ -159,12 +159,6 @@ input[type='checkbox'] {
     font-size: 25px;
 }
 
-/*.botoes {*/
-/*    display: flex;*/
-/*    justify-content: flex-end;*/
-/*    gap: 15px;*/
-/*}*/
-
 .div-flutuante {
     display: flex;
     flex-direction: column;
@@ -373,6 +367,30 @@ input[type='checkbox'] {
     font-size: 25px;
     background: none;
     border: none;
+}
+
+#lista_de_periodos .div_periodos_aplicaveis {
+    display: flex;
+    column-gap: 10px;
+    flex-wrap: wrap;
+}
+
+#lista_de_periodos .periodos {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+}
+
+#lista_de_periodos .dias {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+#lista_de_periodos .dias div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #btn_dados_pacote {

@@ -1,3 +1,4 @@
+import calendar
 import datetime
 from itertools import chain
 
@@ -390,6 +391,7 @@ def pegar_dados_pacoe(request):
 def salvar_pacote(request):
     if is_ajax(request):
         dados = DadosDePacotes.tratar_dados(request.POST)
+        print(dados)
 
         if request.POST.get('id_pacote') != '':
             pacote_promocional = DadosDePacotes.objects.get(pk=request.POST.get('id_pacote'))
@@ -408,7 +410,8 @@ def salvar_pacote(request):
             maior_horario = HorariosPadroes.objects.all().order_by('-final_horario')[0].final_horario.strftime('%H:%M')
 
             return JsonResponse(
-                {'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario})
+                {'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario}
+            )
 
 
 def pegar_orcamentos_tratativa(request):

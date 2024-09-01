@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import json
 import re
@@ -41,7 +42,8 @@ class ValoresPadrao(models.Model):
         verbose_name='Nome da taxa para o comercial',
         help_text='Nome que irá aparecer para o comercial e/ou para a gerência',
     )
-    aparecer_comercial = models.BooleanField(help_text='Se essa taxa deve ou não ser vista pelo comercial', default=True)
+    aparecer_comercial = models.BooleanField(help_text='Se essa taxa deve ou não ser vista pelo comercial',
+                                             default=True)
     aparecer_gerência = models.BooleanField(help_text='Se essa taxa deve ou não ser vista pela gerência', default=True)
     valor_padrao = models.DecimalField(verbose_name='Valor', decimal_places=2, max_digits=4)
     valor_minimo = models.DecimalField(
@@ -244,7 +246,6 @@ class OrcamentoPeriodo(models.Model):
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
     id_periodo = models.CharField(max_length=255, unique=True, primary_key=True, editable=False)
 
-
     class Meta:
         verbose_name = 'Valor do periodo'
         verbose_name_plural = '03 - Valores de diárias'
@@ -269,8 +270,10 @@ class HorariosPadroes(models.Model):
     horario = models.TimeField(verbose_name='Horário início')
     final_horario = models.TimeField(verbose_name='Horário final')
     entrada_saida = models.BooleanField()
-    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de hotelaria')
-    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00, help_text='Número de diárias de monitoria')
+    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00,
+                                   help_text='Número de diárias de hotelaria')
+    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00,
+                                           help_text='Número de diárias de monitoria')
     descritivo = models.TextField(verbose_name='Descritivo', blank=True)
     descricao_alimentacao = models.TextField(verbose_name='Descrição das alimentações')
 
@@ -393,18 +396,93 @@ class DadosDePacotes(models.Model):
     def juntar_periodos(dados_pacote):
         periodo_n = 1
         periodos = []
-
+        print(dados_pacote)
         while True:
             if dados_pacote.get(f'periodo_{periodo_n}', None):
-                periodos.append({
-                    f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}')
-                })
+                try:
+                    dados_pacote[f'dias_periodo_{periodo_n}[]']
+                except KeyError:
+                    periodos.append({
+                        f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
+                        f'dias_periodos_{periodo_n}': list(map(int, dados_pacote.get(f'dias_periodo_{periodo_n}')))
+                    })
+                else:
+                    periodos.append({
+                        f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
+                        f'dias_periodos_{periodo_n}': list(
+                            map(int, dados_pacote.getlist(f'dias_periodo_{periodo_n}[]')))
+                    })
             else:
                 break
 
             periodo_n += 1
 
         return periodos
+
+    def montar_dados_periodos(self):
+        def unidade_base(periodo, intervalo, lista_dias):
+            return f"""
+                <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
+                    <div class="periodos">
+                        <input type="text" id="{periodo}"
+                               name="{periodo}" value="{intervalo}"
+                               class="periodos_aplicaveis">
+                        <button type="button" class="btn_remover_periodo"
+                                onclick="remover_periodo(this)">
+                            <span>&times;</span></button>
+                    </div>
+                    <div class="dias mt-2">
+                        <div>
+                            <input id="input_seg" type="checkbox" name="dias_{periodo}"
+                                   value="0" {'checked' if 0 in lista_dias else ''}>
+                            <label for="input_seg">Seg</label>
+                        </div>
+                        <div>
+                            <input id="input_ter" type="checkbox" name="dias_{periodo}"
+                                   value="1" {'checked' if 1 in lista_dias else ''}>
+                            <label for="input_ter">Ter</label>
+                        </div>
+                        <div>
+                            <input id="input_qua" type="checkbox" name="dias_{periodo}"
+                                   value="2" {'checked' if 2 in lista_dias else ''}>
+                            <label for="input_qua">Qua</label>
+                        </div>
+                        <div>
+                            <input id="input_qui" type="checkbox" name="dias_{periodo}"
+                                   value="3" {'checked' if 3 in lista_dias else ''}>
+                            <label for="input_qui">Qui</label>
+                        </div>
+                        <div>
+                            <input id="input_sex" type="checkbox" name="dias_{periodo}"
+                                   value="4" {'checked' if 4 in lista_dias else ''}>
+                            <label for="input_sex">Sex</label>
+                        </div>
+                        <div>
+                            <input id="input_sab" type="checkbox" name="dias_{periodo}"
+                                   value="5" {'checked' if 5 in lista_dias else ''}>
+                            <label for="input_sab">Sab</label>
+                        </div>
+                        <div>
+                            <input id="input_dom" type="checkbox" name="dias_{periodo}"
+                                   value="6" {'checked' if 6 in lista_dias else ''}>
+                            <label for="input_dom">Dom</label>
+                        </div>
+                    </div>
+                    <hr style="width: 100%">
+                </div>
+            """
+
+        html_dados = ''
+
+        for i, periodo in enumerate(self.periodos_aplicaveis, start=1):
+            print(i, periodo)
+            html_dados += unidade_base(
+                f'periodo_{i}',
+                periodo[f'periodo_{i}'],
+                periodo[f'dias_periodos_{i}']
+            )
+
+        return html_dados
 
     def serializar_objetos(self):
         obj = self
@@ -504,7 +582,6 @@ class Orcamento(models.Model):
     @property
     def desconto_aplicado(self):
         if self.desconto and self.desconto < 0:
-
             return True
 
         return False
@@ -782,7 +859,8 @@ class Orcamento(models.Model):
 
         return {
             'valor_neto': f"{totais['valor']:.2f}".replace('.', ','),
-            'taxas': f"{(totais['taxa_comercial'] + self.objeto_orcamento['periodo_viagem']['valor']):.2f}".replace('.', ','),
+            'taxas': f"{(totais['taxa_comercial'] + self.objeto_orcamento['periodo_viagem']['valor']):.2f}".replace('.',
+                                                                                                                    ','),
             'cov': f"{totais['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{totais['desconto']:.2f}".replace('.', ','),
             'valor_final': f"{totais['valor_final']:.2f}".replace('.', ','),
@@ -810,17 +888,26 @@ class OrcamentosPromocionais(models.Model):
     @classmethod
     def pegar_pacotes_promocionais(cls, n_dias, id_produto, check_in, check_out):
         def comparar_intervalo():
-            intervalos = [valor for p in pacote.dados_pacote.periodos_aplicaveis for valor in p.values()]
+            intervalos = []
+            dias_semana_validos = []
 
-            for intervalo in intervalos:
+            for p in pacote.dados_pacote.periodos_aplicaveis:
+                intervalos.append(list(p.values())[0])
+                dias_semana_validos.append(list(p.values())[1])
+
+            for i, intervalo in enumerate(intervalos):
                 cin, cout = intervalo.split(' - ')
                 i_check_in = datetime.datetime.strptime(cin, '%d/%m/%Y').date()
                 i_check_out = datetime.datetime.strptime(cout, '%d/%m/%Y').date()
                 check_in_formatado = datetime.datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
                 check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
+                dias = [(check_in_formatado + datetime.timedelta(days=i)) for i in
+                        range((check_out_formatado - check_in_formatado).days + 1)]
+                dias_da_semana = list(map(lambda day: day.weekday(), dias))
 
                 if check_in_formatado >= i_check_in and check_out_formatado <= i_check_out:
-                    return True
+                    if all(dia in dias_semana_validos[i] for dia in dias_da_semana):
+                        return True
 
             return False
 

@@ -32,7 +32,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
-    $('#lista_de_periodos input').inicializarDateRange('DD/MM/YYYY', false)
+    $('#lista_de_periodos .periodos input').inicializarDateRange('DD/MM/YYYY', false)
 
     if (check_in && check_out) {
         $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -128,11 +128,11 @@ function inicializar_funcoes_periodo_viagem() {
 }
 
 function inicializar_funcoes_periodos_promocional() {
-    $('#lista_de_periodos .periodos_aplicaveis').on('apply.daterangepicker', function (ev, picker) {
+    $('#lista_de_periodos .div_periodos_aplicaveis .periodos .periodos_aplicaveis').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY')).trigger('change');
     })
 
-    $('#lista_de_periodos .div_periodos_aplicaveis .periodos_aplicaveis').on('cancel.daterangepicker', function (ev, picker) {
+    $('#lista_de_periodos .div_periodos_aplicaveis .periodos .periodos_aplicaveis').on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
 }
@@ -1089,22 +1089,59 @@ function mostrar_limite_cortesia(cortesia) {
 }
 
 function remover_periodo(btn) {
-    let div_periodo = $(btn).parent().remove()
-    let periodos_restantes = $('.div_periodos_aplicaveis').length
+    let div_periodo = $(btn).parent().parent().remove()
+    let periodos_restantes = $('.div_periodos_aplicaveis')
     let periodos = $('.periodos_aplicaveis')
+    let dias, checks_dias
 
-    for (let i = 1; i <= periodos_restantes; i++) {
+    for (let i = 1; i <= periodos_restantes.length; i++) {
         $(periodos[i - 1]).attr('name', `periodo_${i}`).attr('id', `periodo_${i}`)
+        dias = $(periodos_restantes[i - 1]).find('.dias')
+        $(dias).find('input').attr('name', `dias_periodo_${i}`).attr('id', `dias_periodo_${i}`)
+
     }
 }
 
-function adicionar_periodo_novo(periodo = '') {
+function adicionar_periodo_novo(periodo = '', diasMarcados = []) {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
-
+    console.log(diasMarcados)
     let novo_obj_periodo = `
-        <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-            <input type="text" id="periodo_${periodo_n}" value="${periodo}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
-            <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
+        <div class="mt-3 div_periodos_aplicaveis">
+            <div class="periodos">
+                <input type="text" id="periodo_${periodo_n}" value="${periodo}" name="periodo_${periodo_n}" class="periodos_aplicaveis">
+                <button type="button" class="btn_remover_periodo" onclick="remover_periodo(this)"><span>&times;</span></button>
+            </div>
+            <div class="dias mt-2">
+                <div>
+                    <input id="input_seg" type="checkbox" name="dias_periodo_${periodo_n}" value="0" ${diasMarcados.includes(0) ? 'checked' : ''}>
+                    <label for="input_seg">Seg</label>
+                </div>
+                <div>
+                    <input id="input_ter" type="checkbox" name="dias_periodo_${periodo_n}" value="1" ${diasMarcados.includes(1) ? 'checked' : ''}>
+                    <label for="input_ter">Ter</label>
+                </div>
+                <div>
+                    <input id="input_qua" type="checkbox" name="dias_periodo_${periodo_n}" value="2" ${diasMarcados.includes(2) ? 'checked' : ''}>
+                    <label for="input_qua">Qua</label>
+                </div>
+                <div>
+                    <input id="input_qui" type="checkbox" name="dias_periodo_${periodo_n}" value="3" ${diasMarcados.includes(3) ? 'checked' : ''}>
+                    <label for="input_qui">Qui</label>
+                </div>
+                <div>
+                    <input id="input_sex" type="checkbox" name="dias_periodo_${periodo_n}" value="4" ${diasMarcados.includes(4) ? 'checked' : ''}>
+                    <label for="input_sex">Sex</label>
+                </div>
+                <div>
+                    <input id="input_sab" type="checkbox" name="dias_periodo_${periodo_n}" value="5" ${diasMarcados.includes(5) ? 'checked' : ''}>
+                    <label for="input_sab">Sab</label>
+                </div>
+                <div>
+                    <input id="input_dom" type="checkbox" name="dias_periodo_${periodo_n}" value="6" ${diasMarcados.includes(6) ? 'checked' : ''}>
+                    <label for="input_dom">Dom</label>
+                </div>
+            </div>
+            <hr style="width: 100%">
         </div>`
     $('#lista_de_periodos').append(novo_obj_periodo)
     $(`#periodo_${periodo_n}`).inicializarDateRange('DD/MM/YYYY', false)
@@ -1299,7 +1336,7 @@ async function mostrar_dados_pacote(pacote) {
             }
 
             for (let _p in periodos) {
-                adicionar_periodo_novo(Object.values(periodos[_p])[0])
+                adicionar_periodo_novo(Object.values(periodos[_p])[0], Object.values(periodos[_p])[1])
             }
 
             $('#tabela_de_opcionais tbody, #lista_opcionais_extra').empty()

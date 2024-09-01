@@ -162,20 +162,26 @@
                     </div>
                     {{ orcamento.comentario_desconto.as_hidden }}
                     {{ orcamento.aprovacao_diretoria.as_hidden }}
-                    <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}" id="id_colaborador">
+                    <input type="hidden" name="colaborador" value="
+
+                            {% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
+                           id="id_colaborador">
                     <div class="botoes">
                         <p id="aviso_comentario_gerencia" class="alert alert-warning w-100 none">
-                            Para que o orçamento seja salvo é necessário que haja um comentário por parte do gerente devido ao desconto fornecido!
+                            Para que o orçamento seja salvo é necessário que haja um comentário por parte do gerente
+                            devido ao desconto fornecido!
                         </p>
                         {% if gerente_aprovando %}
-                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" onclick="aprovar_orcamento({{ orcamento_origem.id | safe }})">
+                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                    onclick="aprovar_orcamento({{ orcamento_origem.id | safe }})">
                                 Aprovar orçamento
                             </button>
                         {% else %}
                             <button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
                                     data-target="#modal_cometario_diretoria">Pedido de alteração de taxa
                             </button>
-                            <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark" data-toggle="modal"
+                            <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
+                                    data-toggle="modal"
                                     data-target="#modal_apelido_orcamento">
                                 Salvar prévia
                             </button>
@@ -327,7 +333,8 @@
                     <form id="form_gerencia" method="POST">
                         <fieldset>
                             {% csrf_token %}
-                            <input type="hidden" name="id_gerente" id="id_gerente" {% if  gerente_aprovando %} value="{{ request.user }}" {% endif %}>
+                            <input type="hidden" name="id_gerente" id="id_gerente" {% if  gerente_aprovando %}
+                                   value="{{ request.user }}" {% endif %}>
                             <h5>Parâmetros da gerência</h5>
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
@@ -400,13 +407,17 @@
                                 </div>
                             </div>
                             <hr  {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>
-                            <h5 {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>Parâmetros de pacotes</h5>
-                            <div id="div_financeiro" {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>
+                            <h5 {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>Parâmetros de
+                                pacotes</h5>
+                            <div id="div_financeiro" {% if not perms.orcamento.add_dadosdepacotes %}
+                                 class="none" {% endif %}>
                                 <div>
                                     <div>
                                         <label for="desconto_produto_percent">Desconto diaria</label>
                                         <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
-                                               value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
+                                               value="
+
+                                                       {% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>
@@ -512,7 +523,8 @@
                                     {{ pacote_promocional.minimo_de_pagantes }}
                                 </div>
                                 <div class="mt-2" style="display: flex; align-items: center">
-                                    <label for="{{ pacote_promocional.regra_cortesia.id_for_label }}" class="me-2">Uma cortesia para cada</label>
+                                    <label for="{{ pacote_promocional.regra_cortesia.id_for_label }}" class="me-2">Uma
+                                        cortesia para cada</label>
                                     {{ pacote_promocional.regra_cortesia }}
                                 </div>
                             </div>
@@ -527,25 +539,47 @@
                             <h5 class="titulo-secao">Períodos aplicáveis</h5>
                             <div id="lista_de_periodos" class="mb-3">
                                 {% if dados_pacote %}
-                                    {% for periodo in dados_pacote.periodos_aplicaveis %}
-                                        {% for p, data in periodo.items %}
-                                            <div class="mt-3 div_periodos_aplicaveis"
-                                                 style="display: flex; column-gap: 10px">
-                                                <input type="text" id="{{ p }}"
-                                                       name="{{ p }}" value="{{ data }}"
-                                                       class="periodos_aplicaveis">
-                                                <button type="button" class="btn_remover_periodo"
-                                                        onclick="remover_periodo(this)">
-                                                    <span>&times;</span></button>
-                                            </div>
-                                        {% endfor %}
-                                    {% endfor %}
+                                    {{ dados_pacote.montar_dados_periodos|safe }}
                                 {% else %}
-                                    <div class="div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
-                                        <input type="text" id="periodo_1" name="periodo_1" class="periodos_aplicaveis">
-                                        <button type="button" class="btn_remover_periodo"
-                                                onclick="remover_periodo(this)">
-                                            <span>&times;</span></button>
+                                    <div class="div_periodos_aplicaveis">
+                                        <div class="periodos">
+                                            <input type="text" id="periodo_1" name="periodo_1"
+                                                   class="periodos_aplicaveis">
+                                            <button type="button" class="btn_remover_periodo"
+                                                    onclick="remover_periodo(this)">
+                                                <span>&times;</span></button>
+                                        </div>
+                                        <div class="dias mt-2">
+                                            <div>
+                                                <input id="input_seg" type="checkbox" name="dias_periodo_1" value="0">
+                                                <label for="input_seg">Seg</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_ter" type="checkbox" name="dias_periodo_1" value="1">
+                                                <label for="input_ter">Ter</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_qua" type="checkbox" name="dias_periodo_1" value="2">
+                                                <label for="input_qua">Qua</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_qui" type="checkbox" name="dias_periodo_1" value="3">
+                                                <label for="input_qui">Qui</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_sex" type="checkbox" name="dias_periodo_1" value="4">
+                                                <label for="input_sex">Sex</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_sab" type="checkbox" name="dias_periodo_1" value="5">
+                                                <label for="input_sab">Sab</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_dom" type="checkbox" name="dias_periodo_1" value="6">
+                                                <label for="input_dom">Dom</label>
+                                            </div>
+                                        </div>
+                                        <hr style="width: 100%">
                                     </div>
                                 {% endif %}
                             </div>
