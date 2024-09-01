@@ -1,3 +1,4 @@
+from django.db.models.functions import Cast
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
@@ -73,25 +74,25 @@ class HorariosPadroesAdmin(admin.ModelAdmin):
 @admin.register(Orcamento)
 class OrcamentoAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'cliente', 'responsavel', 'check_in_formatado', 'check_out_formatado', 'data_vencimento_formatado')
+        'id', 'cliente', 'responsavel', 'check_in', 'check_out', 'data_vencimento')
     list_display_links = ('cliente',)
     list_filter = ('promocional',)
 
-    def check_in_formatado(self, obj):
-        return obj.check_in.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
-
-    def check_out_formatado(self, obj):
-        return obj.check_out.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
-
-    def data_vencimento_formatado(self, obj):
-        try:
-            return obj.data_vencimento.strftime("%d/%m/%Y")  # Formato de data desejado
-        except AttributeError:
-            return ''
-
-    check_in_formatado.short_description = 'Check in'
-    check_out_formatado.short_description = 'Check out'
-    data_vencimento_formatado.short_description = 'Data de vencimento'
+    # def check_in_formatado(self, obj):
+    #     return obj.check_in.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+    #
+    # def check_out_formatado(self, obj):
+    #     return obj.check_out.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+    #
+    # def data_vencimento_formatado(self, obj):
+    #     try:
+    #         return obj.data_vencimento.strftime("%d/%m/%Y")  # Formato de data desejado
+    #     except AttributeError:
+    #         return ''
+    #
+    # check_in_formatado.short_description = 'Check in'
+    # check_out_formatado.short_description = 'Check out'
+    # data_vencimento_formatado.short_description = 'Data de vencimento'
 
 
 @admin.register(OrcamentosPromocionais)
@@ -101,48 +102,48 @@ class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
 
 @admin.register(TaxaPeriodo)
 class OrcamentoDiariaAdmin(admin.ModelAdmin):
-    list_display = ('inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao', 'valor')
+    list_display = ('inicio_vigencia', 'final_vigencia', 'descricao', 'valor')
 
-    def inicio_vigencia_formatado(self, obj):
-        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def final_vigencia_formatado(self, obj):
-        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    inicio_vigencia_formatado.short_description = 'Inicio vigência'
-    final_vigencia_formatado.short_description = 'Final vigência'
+    # def inicio_vigencia_formatado(self, obj):
+    #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def final_vigencia_formatado(self, obj):
+    #     return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    # final_vigencia_formatado.short_description = 'Final vigência'
 
 
 @admin.register(ValoresTransporte)
 class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
-    list_display = ('titulo_transporte', 'inicio_vigencia_formatado', 'final_vigencia_formatado', 'descricao', 'liberado')
+    list_display = ('titulo_transporte', 'inicio_vigencia', 'final_vigencia', 'descricao', 'liberado')
     list_editable = ('liberado',)
 
-    def inicio_vigencia_formatado(self, obj):
-        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def final_vigencia_formatado(self, obj):
-        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    inicio_vigencia_formatado.short_description = 'Inicio vigência'
-    final_vigencia_formatado.short_description = 'Final vigência'
+    # def inicio_vigencia_formatado(self, obj):
+    #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def final_vigencia_formatado(self, obj):
+    #     return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    # final_vigencia_formatado.short_description = 'Final vigência'
 
 
 @admin.register(OrcamentoMonitor)
 class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
     list_display = (
-        'nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia_formatado', 'final_vigencia_formatado',
+        'nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia', 'final_vigencia',
         'liberado')
     list_editable = ('liberado',)
 
-    def inicio_vigencia_formatado(self, obj):
-        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def final_vigencia_formatado(self, obj):
-        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    inicio_vigencia_formatado.short_description = 'Inicio vigência'
-    final_vigencia_formatado.short_description = 'Final vigência'
+    # def inicio_vigencia_formatado(self, obj):
+    #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def final_vigencia_formatado(self, obj):
+    #     return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    # final_vigencia_formatado.short_description = 'Final vigência'
 
 
 @admin.register(OrcamentoPeriodo)
@@ -216,8 +217,8 @@ class DuplicarEmMassaForm(forms.Form):
 
 @admin.register(OrcamentoOpicional)
 class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
-    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'valor_final', 'inicio_vigencia_formatado',
-                    'final_vigencia_formatado', 'liberado')
+    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'valor_final', 'inicio_vigencia',
+                    'final_vigencia', 'liberado')
     ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
     list_editable = ('valor', 'categoria', 'liberado', 'sub_categoria')
     list_per_page = 20
@@ -227,11 +228,11 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
     save_as = True
     search_form = YourFormSearch
 
-    def inicio_vigencia_formatado(self, obj):
-        return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def final_vigencia_formatado(self, obj):
-        return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    inicio_vigencia_formatado.short_description = 'Inicio vigência'
-    final_vigencia_formatado.short_description = 'Final vigência'
+    # def inicio_vigencia_formatado(self, obj):
+    #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def final_vigencia_formatado(self, obj):
+    #     return obj.final_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # inicio_vigencia_formatado.short_description = 'Inicio vigência'
+    # final_vigencia_formatado.short_description = 'Final vigência'

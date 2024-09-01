@@ -223,7 +223,7 @@ class OrcamentoOpicional(models.Model):
         taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
         comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
         self.valor_final = float(self.valor) / (1 - ((taxa_comercial + comissao) / 100))
-        print('Veio')
+
         super().save(*args, **kwargs)
 
 
