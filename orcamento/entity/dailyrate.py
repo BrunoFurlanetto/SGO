@@ -33,6 +33,12 @@ class DailyRate(BaseValue):
         self.set_values(values)
 
         return self.values
+    
+    def general_discount_daily(self, value):
+        discount = float(value)
+        if self.discount > 0:
+            discount = self.discount + float(value)
+        self.set_discount(discount)
 
     def do_object(self):
         information = super().do_object()

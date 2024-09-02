@@ -93,7 +93,7 @@ class Budget:
         self.daily_rate.set_discount(
             gerencia["desconto_produto_real"]) if "desconto_produto_real" in gerencia and float(gerencia[
                 'desconto_produto_real']) > 0 else ...
-        self.daily_rate.set_discount(
+        self.daily_rate.general_discount_daily(
             gerencia["desconto_geral"]) if "desconto_geral" in gerencia and float(gerencia['desconto_geral']) > 0 else ...
 
 
