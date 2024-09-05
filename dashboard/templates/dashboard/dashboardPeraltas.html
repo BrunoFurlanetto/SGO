@@ -236,7 +236,7 @@
                             <th style="width: 150px">Produto</th>
                             <th>Estimado</th>
                             <th style="width: 250px">Check in</th>
-                            {% if diretoriaor or  operacional %}
+                            {% if diretoria or operacional %}
                                 <th>Colaborador</th>
                             {% endif %}
                         </tr>
@@ -250,7 +250,8 @@
                                     0 {% endif %}</td>
                                 <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
                                 {% if diretoria or operacional %}
-                                    <td> {{ confirmado.vendedora }} </td> {% endif %}
+                                    <td> {{ confirmado.vendedora }} </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>
