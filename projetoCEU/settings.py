@@ -141,7 +141,7 @@ USE_TZ = True
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d %B %Y']
 
-DATE_FORMAT = 'm/d/Y'  # TODO: Verificar sempre como as datas estão ficando
+DATE_FORMAT = 'd/m/Y'  # TODO: Verificar sempre como as datas estão ficando
 
 DATETIME_FORMAT = 'm/d/Y H:i'
 

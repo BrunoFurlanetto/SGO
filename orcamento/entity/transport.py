@@ -30,8 +30,9 @@ class Transport(TransportProtocol):
 
         try:
             obj_transport = ValoresTransporte.objects.get(
-                inicio_validade__lte=self.checkin,
-                final_validade__gte=self.checkin,
+                inicio_vigencia__lte=self.checkin,
+                final_vigencia__gte=self.checkin,
+                liberado=True,
             )
         except ValoresTransporte.DoesNotExist:
             values = []
