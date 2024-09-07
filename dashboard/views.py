@@ -41,6 +41,7 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def dashboardCeu(request):
+    n_atividades = n_horas = None
     # ------------------ Relatórios para conta de atividades e horas do mês --------------------
     try:  # Try necessário devido ao usuário da Gla ser do CEU e não ser professor
         usuario_logado = Professores.objects.get(usuario=request.user)
