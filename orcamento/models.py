@@ -597,6 +597,18 @@ class Orcamento(models.Model):
     def desconto_percentual_transporte(self):
         return f'{self.objeto_gerencia["desconto_transporte_percent"]:.2f}'.replace('.', ',')
 
+    @property
+    def desconto_real_diaria(self):
+        return f'{self.objeto_gerencia["desconto_produto_real"]:.2f}'.replace('.', ',')
+
+    @property
+    def desconto_real_monitoria(self):
+        return f'{self.objeto_gerencia["desconto_monitoria_real"]:.2f}'.replace('.', ',')
+
+    @property
+    def desconto_real_transporte(self):
+        return f'{self.objeto_gerencia["desconto_transporte_real"]:.2f}'.replace('.', ',')
+
     def colaborador_vendedora(self):
         try:
             return Vendedor.objects.get(usuario=self.colaborador)

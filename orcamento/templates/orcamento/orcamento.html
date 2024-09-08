@@ -413,22 +413,68 @@
                                  class="none" {% endif %}>
                                 <div>
                                     <div>
-                                        <label for="desconto_produto_percent">Desconto diaria</label>
-                                        <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
-                                               value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
-                                               onchange="enviar_infos_gerencia()">
+                                        <div class="div_desconto_percent">
+                                            <label for="desconto_produto_percent">
+                                                Desconto diaria (%)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real none">
+                                            <label for="desconto_produto_real">
+                                                Desconto diaria ($)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_produto_real" name="desconto_produto_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_diaria }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
                                     </div>
                                     <div>
-                                        <label for="desconto_monitoria_percent">Desconto monitoria</label>
-                                        <input type="text" id="desconto_monitoria_percent"
-                                               name="desconto_monitoria_percent"
-                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                        <div class="div_desconto_percent">
+                                            <label for="desconto_monitoria_percent">
+                                                Desconto monitoria (%)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_monitoria_percent"
+                                                   name="desconto_monitoria_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_monitoria }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real none">
+                                            <label for="desconto_monitoria_real">
+                                                Desconto monitoria ($)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_monitoria_real"
+                                                   name="desconto_monitoria_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_monitoria }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
                                     </div>
                                     <div>
-                                        <label for="desconto_transporte_percent">Desconto transporte</label>
-                                        <input type="text" id="desconto_transporte_percent"
-                                               name="desconto_transporte_percent"
-                                               value="0,00" onchange="enviar_infos_gerencia()">
+                                        <div class="div_desconto_percent">
+                                            <label for="desconto_transporte_percent">
+                                                Desconto transporte (%)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_transporte_percent"
+                                                   name="desconto_transporte_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_transporte }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real none">
+                                            <label for="desconto_transporte_real">
+                                                Desconto transporte ($)
+                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_transporte_real"
+                                                   name="desconto_transporte_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_transporte }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
                                     </div>
                                 </div>
                                 <div>

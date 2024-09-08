@@ -437,3 +437,12 @@ input[type='checkbox'] {
 #legenda_opcionais_extra > p:nth-child(2) {
     margin-right: 110px;
 }
+
+.btn-troca-desconto {
+    background: none;
+    border: none;
+}
+
+.btn-troca-desconto i {
+    font-size: 17px;
+}

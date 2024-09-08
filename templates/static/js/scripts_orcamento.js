@@ -38,8 +38,8 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
     }
 
-    $('#valor_opcional').mascaraDinheiro()
-    $('#desconto_geral').mascaraDinheiro()
+    $('#valor_opcional, #desconto_geral').mascaraDinheiro()
+    $('#desconto_produto_real, #desconto_monitoria_real, #desconto_transporte_real').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
 
@@ -1268,7 +1268,10 @@ async function preencher_promocional(id_promocional) {
                 }
                 $('#desconto_produto_percent').val(response['gerencia']['desconto_produto_percent'] + '%')
                 $('#desconto_monitoria_percent').val(response['gerencia']['desconto_monitoria_percent'] + '%')
-                $('#desconto_transporte_percent').val(response['gerencia']['desconto_transporte_percent'])
+                $('#desconto_transporte_percent').val(response['gerencia']['desconto_transporte_percent'] + '%')
+                $('#desconto_produto_real').val(response['gerencia']['desconto_produto_real'])
+                $('#desconto_monitoria_real').val(response['gerencia']['desconto_monitoria_real'])
+                $('#desconto_transporte_real').val(response['gerencia']['desconto_transporte_real'])
                 $('#data_vencimento').val(response['gerencia']['data_vencimento'])
 
                 resolve(response)
@@ -1297,7 +1300,12 @@ async function resetar_forms() {
     await new Promise((resolve, reject) => {
         try {
             $('#info_promocional').prop('disabled', true)
-            $('#form_gerencia')[0].reset()
+
+            for (let input of $('#form_gerencia input')) {
+                if ($(input).data('valor_default')) {
+                    $(input).val($(input).data('valor_default'))
+                }
+            }
             $('#form_gerencia [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
             $('#tabela_de_opcionais [id*=desconto]').val('0,00')
@@ -1559,3 +1567,14 @@ async function salvar_comentario_diretoria() {
         }
     }
 }
+
+async function trocar_modalidade_desconto(btn) {
+    const div_atual = $(btn).closest('div')
+    const div_irmao = div_atual.siblings('div')
+    const input_atual = div_atual.find('input');
+    input_atual.val('0,00');
+    $(div_atual).addClass('none')
+    $(div_irmao).removeClass('none')
+    await enviar_form()
+}
+
