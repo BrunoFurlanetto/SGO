@@ -148,6 +148,9 @@
                     <div class="folder {% if coordenador_monitoria and not diretoria %} ativo {% endif %}"
                          onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
                     </div>
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'com_escala')"> Eventos com escala
+                    </div>
                 {% endif %}
                 {% if financeiro %}
                     <div class="folder"
@@ -381,7 +384,7 @@
                             </thead>
                             <tbody>
                             {% for sem_escala in sem_escalas %}
-                                <tr class="pre_reservas">
+                                <tr>
                                     <td>{{ sem_escala.cliente }}</td>
                                     <td>{{ sem_escala.produto }}</td>
                                     <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
@@ -394,12 +397,40 @@
                         </table>
                     </div>
                 </div>
+                <div id="com_escala"
+                     class="section-content">
+                    <div class="tabelas">
+                        <table id="tabela_com_escala" class="table table-hover table-striped"
+                               style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th style="width: 450px">Cliente</th>
+                                <th style="width: 150px">Produto</th>
+                                <th>Estimado</th>
+                                <th style="width: 250px">Check in</th>
+                                <th>Colaborador</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for com_escala in com_escalas %}
+                                <tr>
+                                    <td>{{ com_escala.cliente }}</td>
+                                    <td>{{ com_escala.produto }}</td>
+                                    <td>{% if com_escala.qtd_convidada %} {{ com_escala.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
+                                    <td>{{ com_escala.check_in| date:'Y-m-d' }}</td>
+                                    <td> {{ com_escala.vendedora }} </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 {% if comercial or diretoria %}
                     <div id="avisos" class="section-content">
                         <div>
                             Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém
-                            com a
-                            ausência da ficha de evento.
+                            com a ausência da ficha de evento.
                         </div>
                         <hr>
                         <div class="tabelas">

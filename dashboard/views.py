@@ -156,7 +156,7 @@ def dashboardPeraltas(request):
         )
 
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
-    msg_monitor = sem_escalas = None
+    msg_monitor = sem_escalas = com_escalas = None
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
@@ -175,9 +175,10 @@ def dashboardPeraltas(request):
     if diretoria or operacional or coordenador_monitoria or monitor:
         fichas_colaborador = FichaDeEvento.objects.filter(
             os=False,
-            check_in__date__gte=datetime.today(),
+            # check_in__date__gte=datetime.today(),
         )
         sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
+        com_escalas = fichas_colaborador.filter(escala=True, pre_reserva=False)
     else:
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
@@ -338,6 +339,7 @@ def dashboardPeraltas(request):
         'pre_reservas': pre_reservas,
         'confirmados': confirmados,
         'sem_escalas': sem_escalas,
+        'com_escalas': com_escalas,
         'avisos': avisos,
         'operacional': operacional,
         'coordenador_monitoria': coordenador_monitoria,
