@@ -415,9 +415,7 @@
                                     <div>
                                         <label for="desconto_produto_percent">Desconto diaria</label>
                                         <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
-                                               value="
-
-                                                       {% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
+                                               value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
                                                onchange="enviar_infos_gerencia()">
                                     </div>
                                     <div>

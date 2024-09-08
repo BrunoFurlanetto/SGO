@@ -530,7 +530,14 @@ async function verificar_pisos_e_tetos() {
 async function teto_desconto() {
     return await new Promise((resolve, reject) => {
         $('#aviso_comentario_gerencia').addClass('none')
-        const teto_percent = Object.keys(resultado_ultima_consulta['limites_taxas']).filter(chave => chave.includes("desconto")).map(chave => resultado_ultima_consulta['limites_taxas'][chave])[0];
+        let teto_percent
+
+        if ($('#id_orcamento_promocional').val() != '') {
+            teto_percent = $('#id_limite_desconto_geral').val().replace(',', '.').replace('%', '')
+        } else {
+            teto_percent = Object.keys(resultado_ultima_consulta['limites_taxas']).filter(chave => chave.includes("desconto")).map(chave => resultado_ultima_consulta['limites_taxas'][chave])[0];
+        }
+
         const comissao_percent = parseFloat($('#comissao').val().replace(',', '.').replace('%', ''))
         const taxa_percent = parseFloat($('#taxa_comercial').val().replace(',', '.').replace('%', ''))
         const valor = resultado_ultima_consulta['data']['valores']['diaria']['valor']
@@ -1286,10 +1293,12 @@ async function preencher_promocional(id_promocional) {
 }
 
 async function resetar_forms() {
+    loading()
     await new Promise((resolve, reject) => {
         try {
             $('#info_promocional').prop('disabled', true)
             $('#form_gerencia')[0].reset()
+            $('#form_gerencia [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
             $('#tabela_de_opcionais [id*=desconto]').val('0,00')
             let default_data_pagamento = $('#data_pagamento').data('valor_default')
@@ -1301,6 +1310,7 @@ async function resetar_forms() {
             reject(e)
         }
     })
+    end_loading()
 }
 
 async function mostrar_dados_pacote(pacote) {
