@@ -175,7 +175,7 @@ def dashboardPeraltas(request):
     if diretoria or operacional or coordenador_monitoria or monitor:
         fichas_colaborador = FichaDeEvento.objects.filter(
             os=False,
-            # check_in__date__gte=datetime.today(),
+            check_in__date__gte=datetime.today(),
         )
         sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
         com_escalas = fichas_colaborador.filter(escala=True, pre_reserva=False)
