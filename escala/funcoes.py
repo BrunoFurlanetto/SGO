@@ -762,7 +762,6 @@ def pegar_dados_monitor_biologo(os):
 
 
 def salvar_ultima_pre_escala(dados_escala, dados_escala_confirmada=None):
-    print(dados_escala_confirmada)
     if not dados_escala_confirmada:
         return {
             'acampamento': list(map(int, dados_escala.getlist('id_monitores[]'))),

@@ -178,7 +178,7 @@ def disponibilidadePeraltas(request):
 
 
 @require_GET
-def verificar_dias_hospedagem(request):
+def verificar_hospedagem(request):
     if is_ajax(request):
         data_enviada = datetime.strptime(request.GET.get('data'), '%Y-%m-%d')
         hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
@@ -231,130 +231,11 @@ def verEscalaPeraltas(request):
             return redirect('ver_escalas_hotelaria')
     else:
         if coordenador_acampamento:
-            redirect('ver_escalas_acampamento')
+            return redirect('ver_escalas_acampamento')
         elif coordenador_hotelaria:
             return redirect('ver_escalas_hotelaria')
         else:
-            setor = None
-            escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
-
-            escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(
-                monitores_acampamento__usuario=request.user
-            )
-
-            escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
-                monitores_embarque__usuario=request.user
-            ).exclude(id__in=escalas_acampamento_acampamento)
-
-            escalas_acampamento_tecnico = EscalaAcampamento.objects.filter(
-                tecnicos__usuario=request.user
-            ).exclude(id__in=escalas_acampamento_acampamento).exclude(id__in=escalas_acampamento_embarque)
-
-            escalas_acampamento_enfermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
-
-            escalas_acampamento = list(chain(
-                escalas_acampamento_acampamento,
-                escalas_acampamento_embarque,
-                escalas_acampamento_enfermeira,
-                escalas_acampamento_tecnico
-            ))
-
-    if request.method != 'POST':
-        if request.GET.get('gerar_pdf'):
-            escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
-            gerar_pdf.dados_monitores(escala_acampamento)
-
-            return FileResponse(
-                open('temp/dados_monitores_escalados.pdf', 'rb'),
-                content_type='application/pdf',
-                as_attachment=True,
-                filename=f'Dados monitores escalados.pdf'
-            )
-
-        if is_ajax(request):
-            data = datetime.strptime(request.GET.get('data_escala'), '%Y-%m-%d')
-            hotelaria = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
-                check_in__date__lte=data,
-                check_out__date__gte=data,
-            )
-
-            return JsonResponse({'hotelaria': len(hotelaria) > 0})
-
-        return render(request, 'escala/escala_peraltas.html', {
-            'coordenador_acampamento': coordenador_acampamento,
-            'coordenador_hotelaria': coordenador_hotelaria,
-            'diretoria': diretoria,
-            'escalas_hotelaria': escalas_hotelaria,
-            'escalas_acampamento': escalas_acampamento,
-            'setor': setor,
-        })
-
-    if is_ajax(request):
-        return JsonResponse(escalados_para_o_evento(request.POST))
-
-    if request.POST.get('id_escala'):
-        escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
-        ficha = escala_acampamento.ficha_de_evento
-
-        try:
-            ordem = OrdemDeServico.objects.get(ficha_de_evento=escala_acampamento.ficha_de_evento)
-        except OrdemDeServico.DoesNotExist:
-            ordem = None
-
-        if request.POST.get('escala_final'):
-            try:
-                escala_acampamento.pre_escala = False
-                escala_acampamento.ultima_pre_escala = salvar_ultima_pre_escala(
-                    None,
-                    dados_escala_confirmada=escala_acampamento
-                )
-                escala_acampamento.save()
-            except Exception as e:
-                messages.error(request, f'Houve um erro inesperado: {e}.')
-                return render(request, 'escala/escala_peraltas.html', {
-                    'coordenador_acampamento': coordenador_acampamento,
-                    'coordenador_hotelaria': coordenador_hotelaria,
-                    'diretoria': diretoria,
-                    'escalas_hotelaria': escalas_hotelaria,
-                    'escalas_acampamento': escalas_acampamento,
-                    'setor': setor,
-                })
-            else:
-                ficha_de_evento = escala_acampamento.ficha_de_evento
-                operacional = User.objects.filter(groups__name='Operacional')
-                lista_emails = set()
-
-                for colaborador in operacional:
-                    lista_emails.add(colaborador.email)
-
-                EmailSender(juntar_emails_monitores(escala_acampamento)).mensagem_cadastro_escala(ficha_de_evento)
-                EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_acampamento)
-
-                messages.success(request, 'Escala salva com sucesso!')
-                return redirect('escalaPeraltas')
-
-        try:
-            escala_acampamento.delete()
-        except Exception as e:
-            messages.error(request, f'Houve um erro inesperado: {e}.')
-            return render(request, 'escala/escala_peraltas.html', {
-                'coordenador_acampamento': coordenador_acampamento,
-                'coordenador_hotelaria': coordenador_hotelaria,
-                'diretoria': diretoria,
-                'escalas_hotelaria': escalas_hotelaria,
-                'escalas_acampamento': escalas_acampamento,
-                'setor': setor,
-            })
-        else:
-            ficha.escala = False
-            ficha.save()
-
-            if ordem:
-                ordem.escala = False
-                ordem.save()
-
-            messages.success(request, 'Escala excluída com sucesso!')
-            return redirect('escalaPeraltas')
+            return redirect('ver_escalas_monitor')
 
 
 @login_required(login_url='login')
@@ -362,10 +243,134 @@ def ver_escalas_acampamento(request):
     escalas_acampamento = EscalaAcampamento.objects.all()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
+    if request.method != 'POST':
+        return render(request, 'escala/escala_peraltas.html', {
+            'coordenador_acampamento': request.user.has_perm('peraltas.add_escalaacampamento'),
+            'coordenador_hotelaria': request.user.has_perm('peraltas.add_escalahotelaria'),
+            'diretoria': diretoria,
+            'escalas_acampamento': escalas_acampamento,
+            'setor': 'acampamento',
+        })
+
 
 @login_required(login_url='login')
 def ver_escalas_hotelaria(request):
-    ...
+    escalas_hotelaria = EscalaHotelaria.objects.all()
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+
+    if request.method != 'POST':
+        return render(request, 'escala/escala_peraltas.html', {
+            'coordenador_acampamento': request.user.has_perm('peraltas.add_escalaacampamento'),
+            'coordenador_hotelaria': request.user.has_perm('peraltas.add_escalahotelaria'),
+            'diretoria': diretoria,
+            'escalas_hotelaria': escalas_hotelaria,
+            'setor': 'hotelaria',
+        })
+
+
+@login_required(login_url='login')
+def ver_escalas_monitor(request):
+    escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
+
+    escalas_acampamento_acampamento = EscalaAcampamento.objects.filter(
+        monitores_acampamento__usuario=request.user
+    )
+
+    escalas_acampamento_embarque = EscalaAcampamento.objects.filter(
+        monitores_embarque__usuario=request.user
+    ).exclude(id__in=escalas_acampamento_acampamento)
+
+    escalas_acampamento_tecnico = EscalaAcampamento.objects.filter(
+        tecnicos__usuario=request.user
+    ).exclude(id__in=escalas_acampamento_acampamento).exclude(id__in=escalas_acampamento_embarque)
+
+    escalas_acampamento_enfermeira = EscalaAcampamento.objects.filter(enfermeiras__usuario=request.user)
+
+    escalas_acampamento = list(chain(
+        escalas_acampamento_acampamento,
+        escalas_acampamento_embarque,
+        escalas_acampamento_enfermeira,
+        escalas_acampamento_tecnico
+    ))
+
+    return render(request, 'escala/escala_peraltas.html', {
+        'coordenador_acampamento': False,
+        'coordenador_hotelaria': False,
+        'escalas_acampamento': escalas_acampamento,
+        'escalas_hotelaria': escalas_hotelaria,
+    })
+
+
+def montar_escala(request):
+    if is_ajax(request):
+        return JsonResponse(escalados_para_o_evento(request.POST))
+
+
+def confirmar_escala(request):
+    escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
+
+    try:
+        escala_acampamento.pre_escala = False
+        escala_acampamento.ultima_pre_escala = salvar_ultima_pre_escala(
+            None,
+            dados_escala_confirmada=escala_acampamento
+        )
+        escala_acampamento.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado: {e}.')
+        return redirect('ver_escalas_acampamento')
+    else:
+        ficha_de_evento = escala_acampamento.ficha_de_evento
+        operacional = User.objects.filter(groups__name='Operacional')
+        lista_emails = set()
+
+        for colaborador in operacional:
+            lista_emails.add(colaborador.email)
+
+        EmailSender(juntar_emails_monitores(escala_acampamento)).mensagem_cadastro_escala(ficha_de_evento)
+        EmailSender(lista_emails).mensagem_cadastro_escala_operacional(ficha_de_evento, escala_acampamento)
+
+        messages.success(request, 'Escala salva com sucesso!')
+        return redirect('escalaPeraltas')
+
+
+def deletar_escala(request):
+    escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
+    ficha = escala_acampamento.ficha_de_evento
+
+    try:
+        ordem = OrdemDeServico.objects.get(ficha_de_evento=escala_acampamento.ficha_de_evento)
+    except OrdemDeServico.DoesNotExist:
+        ordem = None
+
+    try:
+        escala_acampamento.delete()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado: {e}.')
+        return redirect('ver_escalas_acampamento')
+    else:
+        ficha.escala = False
+        ficha.save()
+
+        if ordem:
+            ordem.escala = False
+            ordem.save()
+
+        messages.success(request, 'Escala excluída com sucesso!')
+        return redirect('escalaPeraltas')
+
+
+@require_GET
+def gerar_pdf_escala(request):
+    escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
+    gerar_pdf.dados_monitores(escala_acampamento)
+
+    return FileResponse(
+        open('temp/dados_monitores_escalados.pdf', 'rb'),
+        content_type='application/pdf',
+        as_attachment=True,
+        filename=f'Dados monitores escalados.pdf'
+    )
 # ----------------------------------------------------------------------------------------------------------------------
 
 
