@@ -3,7 +3,7 @@ async function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, i
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: 'GET',
-                url: '',
+                url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                 data: {'data': dia_adicionado},
                 success: function (response) {
@@ -185,7 +185,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
                     if (cell.role !== 'columnheader') {
                         $.ajax({
                             type: 'GET',
-                            url: '',
+                            url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                             data: {'data': cell.getAttribute('data-date')},
                             success: function (response) {
@@ -219,7 +219,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             } else if (coordenacao_hotelaria && !coordenacao_acampamento) {
                 $.ajax({
                     type: 'GET',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {'data': moment(info.event.start).format('YYYY-MM-DD')},
                     success: function (response) {
@@ -247,7 +247,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             if (await adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena, coordenacao_hotelaria, coordenacao_acampamento)) {
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'adicionar_dia': true,
@@ -298,7 +298,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena)) {
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'alterar_dia': true,
@@ -342,7 +342,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
 
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'remover_disponibilidade': true,

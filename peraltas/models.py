@@ -31,6 +31,7 @@ def atribuir_diretoria():
 
 class NivelMonitoria(models.Model):
     nivel = models.CharField(max_length=100)
+    coordenacao = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nivel

@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_GET, require_POST
+
 from ceu.models import Professores
 from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_ajax, \
     pegar_clientes_data_selecionada, escalados_para_o_evento, \
@@ -136,43 +138,10 @@ def disponibilidade(request):
         return redirect('dashboard')
 
 
+# ------------------------------------ Views de disponibilidade Peraltas -----------------------------------------------
 @login_required(login_url='login')
 def disponibilidadePeraltas(request):
     monitores = enfermeiras = None
-
-    if is_ajax(request):
-        if request.method == 'GET':
-            data_enviada = datetime.strptime(request.GET.get('data'), '%Y-%m-%d')
-            hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
-                check_in__date__lte=data_enviada,
-                check_out__date__gte=data_enviada,
-            )
-
-            return JsonResponse({'hospedagem': len(hospedagem) > 0})
-
-        monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
-        enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
-            'id_enfermeira') else None
-        removido = request.POST.get('dia_removido', None)
-        adicionado = request.POST.get('dia_adicionado', None)
-        dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
-        dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
-
-        if request.POST.get('adicionar_dia'):
-            adicionado = adicionar_dia(monitor, dia_adicionado, enfermeira)
-
-            return HttpResponse(adicionado)
-
-        if request.POST.get('alterar_dia'):
-            remover_dia(monitor, dia_removido, enfermeira)
-            adicionar_dia(monitor, dia_adicionado, enfermeira)
-
-            return HttpResponse()
-
-        if request.POST.get('remover_disponibilidade'):
-            remover_dia(monitor, dia_removido, enfermeira)
-
-            return HttpResponse()
 
     if request.method != "POST":
         coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
@@ -208,30 +177,63 @@ def disponibilidadePeraltas(request):
         })
 
 
+@require_GET
+def verificar_dias_hospedagem(request):
+    if is_ajax(request):
+        data_enviada = datetime.strptime(request.GET.get('data'), '%Y-%m-%d')
+        hospedagem = FichaDeEvento.objects.filter(produto__brotas_eco=True).filter(
+            check_in__date__lte=data_enviada,
+            check_out__date__gte=data_enviada,
+        )
+
+        return JsonResponse({'hospedagem': len(hospedagem) > 0})
+
+
+@require_POST
+def alterar_dias_disponibilidade(request):
+    if is_ajax(request):
+        monitor = Monitor.objects.get(pk=request.POST.get('id_monitor')) if request.POST.get('id_monitor') else None
+        enfermeira = Enfermeira.objects.get(pk=request.POST.get('id_enfermeira')) if request.POST.get(
+            'id_enfermeira') else None
+        removido = request.POST.get('dia_removido', None)
+        adicionado = request.POST.get('dia_adicionado', None)
+        dia_adicionado = datetime.strptime(adicionado, '%Y-%m-%d') if adicionado is not None else None
+        dia_removido = datetime.strptime(removido, '%Y-%m-%d') if removido is not None else None
+
+        if request.POST.get('adicionar_dia'):
+            adicionado = adicionar_dia(monitor, dia_adicionado, enfermeira)
+
+            return HttpResponse(adicionado)
+
+        if request.POST.get('alterar_dia'):
+            remover_dia(monitor, dia_removido, enfermeira)
+            adicionar_dia(monitor, dia_adicionado, enfermeira)
+
+            return HttpResponse()
+
+        if request.POST.get('remover_disponibilidade'):
+            remover_dia(monitor, dia_removido, enfermeira)
+
+            return HttpResponse()
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------ Views de Ver as escalas do Peraltas ---------------------------------------------
 @login_required(login_url='login')
 def verEscalaPeraltas(request):
     coordenador_acampamento = request.user.has_perm('peraltas.add_escalaacampamento')
     coordenador_hotelaria = request.user.has_perm('peraltas.add_escalahotelaria')
-    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
     if request.GET.get('setor'):
         if request.GET.get('setor') == 'acampamento':
-            setor = 'acampamento'
-            escalas_acampamento = EscalaAcampamento.objects.all()
-            escalas_hotelaria = None
+            return redirect('ver_escalas_acampamento')
         else:
-            setor = 'hotelaria'
-            escalas_acampamento = None
-            escalas_hotelaria = EscalaHotelaria.objects.all()
+            return redirect('ver_escalas_hotelaria')
     else:
         if coordenador_acampamento:
-            setor = 'acampamento'
-            escalas_acampamento = EscalaAcampamento.objects.all()
-            escalas_hotelaria = None
+            redirect('ver_escalas_acampamento')
         elif coordenador_hotelaria:
-            setor = 'hotelaria'
-            escalas_hotelaria = EscalaHotelaria.objects.all()
-            escalas_acampamento = None
+            return redirect('ver_escalas_hotelaria')
         else:
             setor = None
             escalas_hotelaria = EscalaHotelaria.objects.filter(monitores_escalados__usuario=request.user)
@@ -356,6 +358,18 @@ def verEscalaPeraltas(request):
 
 
 @login_required(login_url='login')
+def ver_escalas_acampamento(request):
+    escalas_acampamento = EscalaAcampamento.objects.all()
+    diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+
+
+@login_required(login_url='login')
+def ver_escalas_hotelaria(request):
+    ...
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+@login_required(login_url='login')
 def escalarMonitores(request, setor, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
@@ -373,7 +387,6 @@ def escalarMonitores(request, setor, data, id_cliente=None):
             return JsonResponse(gerar_disponibilidade(request.POST.get('id_cliente'), data_selecionada))
 
     if request.GET.get('gerar_pdf'):
-        print(setor == 'acampamento')
         if setor == 'acampamento':
             escala_acampamento = EscalaAcampamento.objects.get(pk=request.GET.get('id_escala'))
             gerar_pdf.dados_monitores(escala_acampamento)
