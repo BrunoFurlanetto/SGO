@@ -13,7 +13,7 @@
             <hr>
             {% csrf_token %}
             {% if setor == 'acampamento' %}
-                <form id="form_evento" action="{% url 'escalar_monitores' setor data %}" method="get">
+                <form id="form_evento" action="{% url 'montagem_escala_acampamento' data %}" method="get">
                     <fieldset>
                         <div class="mb-2">
                             <h5 class="titulo-secao">Eventos para {{ data }}</h5>
@@ -265,23 +265,22 @@
                 <div class="botoes" style="display: flex; justify-content: space-between">
                     {% if diretoria %}
                         <button type="button" class="btn btn-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, true)" {% else %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false)" {% endif %}>
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, '{{ data|safe }}', true)" {% else %}
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, '{{ data|safe }}')" {% endif %}>
                             Salvar escala final
                         </button>
                     {% endif %}
 
                     {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados(true, true)" {% else %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true)" {% endif %}>Salvar prévia
+                                onclick="salvar_monitores_escalados(true, true, '{{ data|safe }}')" {% else %}
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true, '{{ data|safe }}')" {% endif %}>Salvar prévia
                         </button>
                     {% endif %}
 
                     {% if id_escala %}
-                        <form action="" method="GET">
+                        <form action="{% url 'gerar_pdf_escala' setor %}" method="GET">
                             <fieldset id="fieldset_pdf">
-                                <input type="hidden" name="gerar_pdf" value="True">
                                 <input type="hidden" name="id_escala" value="{{ id_escala }}">
                                 <button type="submit" class="btn btn-outline-dark">Dados monitores</button>
                             </fieldset>

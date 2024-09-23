@@ -302,16 +302,23 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
-function salvar_monitores_escalados(setor, pre_escala, editando = false) {
+function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
     const enfermeiras_escaladas = $('#enfermagem').children()
+    let url_save = ''
     let erro_sem_alteracao = false
     let erro_biologo = false
     let erro_monitor_embarque = false
     let erro_2_enfermeiras = false
     let erro_3_enfermeiras = false
     $('#mensagem_sem_monitor').remove()
+
+    if (setor == 'acampamento') {
+        url_save = '/escala/peraltas/acampamento/salvar/'
+    } else {
+        url_save = `/escala/peraltas/hotelaria/salvar/${data}/`
+    }
 
     if (setor == 'acampamento') {
         if (produto === 'Só CEU'){
@@ -399,7 +406,7 @@ function salvar_monitores_escalados(setor, pre_escala, editando = false) {
 
     $('.container_loading').removeClass('none')
     $.ajax({
-        url: '',
+        url: url_save,
         type: 'POST',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {

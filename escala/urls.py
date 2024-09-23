@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.escala, name='escala'),
     path('disponibilidade/', views.disponibilidade, name='disponibilidade'),
     path('disponibilidade/ceu/visualizar/', views.visualizarDisponibilidadeCeu, name='visualizarDisponibilidadeCeu'),
+    # ------------------------------------------------------------------------------------------------------------------
     path('disponibilidade_peraltas/', views.disponibilidadePeraltas, name='disponibilidadePeraltas'),
     path('disponibilidade_peraltas/visualizar/', views.visualizarDisponibilidadePeraltas,
          name='visualizarDisponibilidadePeraltas'),
@@ -12,6 +13,7 @@ urlpatterns = [
          name='verificar_dias_hospedagem'),
     path('disponibilidade_peraltas/alterar_dias_disponibilidade/', views.alterar_dias_disponibilidade,
          name='alterar_dias_disponibilidade'),
+    # ------------------------------------------------------------------------------------------------------------------
     path('peraltas/', views.verEscalaPeraltas, name='escalaPeraltas'),
     path('peraltas/acampamento/', views.ver_escalas_acampamento, name='ver_escalas_acampamento'),
     path('peraltas/hotelaria/', views.ver_escalas_hotelaria, name='ver_escalas_hotelaria'),
@@ -19,9 +21,15 @@ urlpatterns = [
     path('peraltas/montar_escala/', views.montar_escala, name='montar_escala'),
     path('peraltas/confirmar_escala/', views.confirmar_escala, name='confirmar_escala'),
     path('peraltas/deletar_escala/', views.deletar_escala, name='deletar_escala'),
-    path('peraltas/gerar_pdf_escala/', views.gerar_pdf_escala, name='gerar_pdf_escala'),
+    path('peraltas/gerar_pdf_escala/<str:setor>/', views.gerar_pdf_escala, name='gerar_pdf_escala'),
     path('peraltas/verificar_setor/', views.verificar_hospedagem, name='verificar_setor'),
-    path('peraltas/<str:setor>/escalar/<str:data>/', views.escalarMonitores, name='escalar_monitores'),
-    path('peraltas/<str:setor>/escalar/<str:data>/<int:id_cliente>/', views.escalarMonitores,
-         name='editar_escala_monitores'),
+    # ------------------------------------------------------------------------------------------------------------------
+    path('peraltas/escalar/<str:setor>/<str:data>/', views.escalarMonitores, name='escalar_monitores'),
+    path('peraltas/acampamento/escalar/<str:data>/<int:id_cliente>/', views.edicao_escala_acampamento,
+         name='edicao_escala_acampamento'),
+    path('peraltas/acampamento/escalar/<str:data>/', views.montagem_escala_acampamento, name='montagem_escala_acampamento'),
+    path('peraltas/acampamento/salvar/', views.salvar_escala_acampamento, name='salvar_escala_acampamento'),
+    path('peraltas/hotelaria/escalar/<str:data>/', views.montagem_escala_hotelaria, name='montagem_escala_hotelaria'),
+    path('peraltas/hotelaria/escalar/<str:data>/editar/', views.edicao_escala_hotelaria, name='edicao_escala_hotelaria'),
+    path('peraltas/hotelaria/salvar/<str:data>/', views.salvar_escala_hotelaria, name='salvar_escala_hotelaria'),
 ]

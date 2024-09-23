@@ -69,7 +69,7 @@
                                     data: {'data': data},
                                     success: function (response) {
                                         if (response['hospedagem']) {
-                                            window.location.href = `/escala/peraltas/hotelaria/escalar/${data}`
+                                            window.location.href = `/escala/peraltas/escalar/hotelaria/${data}`
                                         }
                                     }
                                 })
@@ -354,13 +354,13 @@
                                 <input type="submit" class="btn btn-danger" name="excluir_escala" value="Excluir"/>
                             </fieldset>
                         </form>
+                        <form action="{% url 'gerar_pdf_escala' setor %}" method="GET" id="form_gerar_pdf">
+                            <fieldset id="fieldset_pdf">
+                                <input type="hidden" name="id_escala" id="id_escala">
+                                <button type="submit" class="btn btn-outline-primary">Dados monitores</button>
+                            </fieldset>
+                        </form>
                     {% endif %}
-                    <form action="{% url 'gerar_pdf_escala' %}" method="GET" id="form_gerar_pdf">
-                        <fieldset id="fieldset_pdf">
-                            <input type="hidden" name="id_escala" id="id_escala">
-                            <button type="submit" class="btn btn-outline-primary">Dados monitores</button>
-                        </fieldset>
-                    </form>
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
             </div>
