@@ -4,6 +4,9 @@
 # Arquivos bash do servidor
 *.sh
 
+# Criador de dados fake
+dados_fake.py
+
 # Pasta para o salvamento temporário dos pdfs gerados
 temp/*
 !temp/.gitkeep

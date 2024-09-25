@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from itertools import chain
+from math import ceil
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,11 +16,12 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_escalas, gerar_disponibilidade, pegar_disponiveis, \
     verificar_disponiveis, pegar_escalacoes, \
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
-    pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala, juntar_emails_monitores
+    pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala, juntar_emails_monitores, \
+    calcular_coordenadores
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
-    Enfermeira
+    Enfermeira, NivelMonitoria
 from peraltas.models import Monitor, DisponibilidadePeraltas
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
@@ -396,6 +398,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 def montagem_escala_acampamento(request, data):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
+    niveis_monitoria = NivelMonitoria.objects.all()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 
     if is_ajax(request):
@@ -410,6 +413,7 @@ def montagem_escala_acampamento(request, data):
         cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
         inicio_evento = termino_evento = None
         ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
+        disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
 
         if ordem_de_servico:
             qtd_pagantes = ordem_de_servico.n_participantes
@@ -417,18 +421,15 @@ def montagem_escala_acampamento(request, data):
             qtd_pagantes = ficha_de_evento.qtd_confirmada if ficha_de_evento.qtd_confirmada else 0
 
         if ordem_de_servico:
-            areas = []
             inicio_evento = ordem_de_servico.check_in
             termino_evento = ordem_de_servico.check_out
             n_monitores = int(ordem_de_servico.n_participantes / 10)
-            # n_coordenadores =
             monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
             monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
         else:
             inicio_evento = ficha_de_evento.check_in
             termino_evento = ficha_de_evento.check_out
             n_monitores = int(ficha_de_evento.qtd_convidada / 10)
-            # n_coordenadores =
             monitores_embarque = monitores_biologo = None
 
         return render(request, 'escala/escalar_monitores.html', {
@@ -447,15 +448,17 @@ def montagem_escala_acampamento(request, data):
             'id_cliente': cliente.id,
             'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
             'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
-            'disponiveis': gerar_disponibilidade(cliente.id, data_selecionada),
+            'disponiveis': disponiveis,
             'n_monitores': n_monitores if n_monitores != 0 else 1,
-            # 'n_coordenadores': 1 if ordem_de_servico
+            'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
+            'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis if monitor['nivel'] != ''}),
         })
 
     return render(request, 'escala/escalar_monitores.html', {
         'clientes_dia': clientes_dia,
         'data': data_selecionada,
         'setor': 'acampamento',
+        'niveis_monitoria': niveis_monitoria,
     })
 
 
@@ -507,8 +510,9 @@ def edicao_escala_acampamento(request, data, id_cliente):
             else:
                 disponiveis.append(monitor)
 
-        monitor['tipo_escalacao'] = tipo_escalacao
-        escalado.append(monitor)
+        if len(tipo_escalacao) > 0:
+            monitor['tipo_escalacao'] = tipo_escalacao
+            escalado.append(monitor)
 
     check_in = escala_editada.check_in_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
     check_out = escala_editada.check_out_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
@@ -556,6 +560,8 @@ def edicao_escala_acampamento(request, data, id_cliente):
         'observacoes': escala_editada.observacoes,
         'pre_escala': escala_editada.pre_escala,
         'n_monitores': n_monitores if n_monitores != 0 else 1,
+        'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
+        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis + escalado if monitor['nivel'] != ''}),
     })
 
 
@@ -651,11 +657,14 @@ def montagem_escala_hotelaria(request, data):
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
 
+    disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas)
+
     return render(request, 'escala/escalar_monitores.html', {
         'data': data_selecionada,
         'diretoria': diretoria,
         'setor': 'hotelaria',
-        'disponiveis': pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas),
+        'disponiveis': disponiveis,
+        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis if monitor['nivel'] != ''}),
     })
 
 
@@ -708,6 +717,7 @@ def edicao_escala_hotelaria(request, data):
         'escalados': escalado,
         'pre_escala': escala_hotelaria.pre_escala,
         'id_escala': escala_hotelaria.id,
+        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis + escalado if monitor['nivel'] != ''}),
     })
 
 
@@ -762,6 +772,7 @@ def salvar_escala_hotelaria(request, data):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+# --------------------------------------- Views de mapa de disponibilidade ---------------------------------------------
 @login_required(login_url='login')
 def visualizarDisponibilidadePeraltas(request):
     disponibilidades = DisponibilidadePeraltas.objects.all()

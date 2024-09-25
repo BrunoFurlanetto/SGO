@@ -1,17 +1,13 @@
 import json
 from datetime import datetime, timedelta
 from itertools import chain
+from math import ceil
 
 from ceu.models import Professores
 from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
     Enfermeira, EscalaAcampamento, EscalaHotelaria
-
-grupos_monitores_1 = ['Auxiliar de monitoria 1', 'Auxiliar de monitoria 2',
-                      'Auxiliar de monitoria 3', 'Auxiliar de monitoria 4']
-grupos_monitores_2 = ['Monitor 1', 'Monitor 2', 'Monitor 3']
-grupos_monitores_3 = ['Monitor 4', 'Monitor 5', 'Monitor 6']
 
 
 def is_ajax(request):
@@ -428,21 +424,11 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         areas = []
 
         if disponibilidade.monitor:
-            areas.append('som') if disponibilidade.monitor.som else ...
-            areas.append('video') if disponibilidade.monitor.video else ...
-            areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
-            areas.append('coordenador') if 'Coordenador' in disponibilidade.monitor.nivel.nivel else ...
+            areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
             biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
             if not disponibilidade.monitor.tecnica and not disponibilidade.monitor.biologo:
-                if disponibilidade.monitor.nivel.nivel in grupos_monitores_1:
-                    nivel = 'monitor_1'
-                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_2:
-                    nivel = 'monitor_2'
-                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_3:
-                    nivel = 'monitor_3'
-                else:
-                    nivel = 'monitor_4'
+                nivel = disponibilidade.monitor.nivel.nivel
             else:
                 nivel = ''
 
@@ -647,8 +633,8 @@ def pegar_escalacoes(escala, acampamento=True):
     for monitor in escala.tecnicos.all():
         escalados.append(monitor.id)
 
-    for enfermeira in escala.enfermeiras.all():
-        escalados.append(enfermeira.id)
+    # for enfermeira in escala.enfermeiras.all():
+    #     escalados.append(enfermeira.id)
 
     return escalados
 
@@ -692,14 +678,7 @@ def pegar_dados_monitor_embarque(os):
             biologo = 'biologo' if monitor.biologo else ''
 
             if not monitor.tecnica and not monitor.biologo:
-                if monitor.nivel.nivel in grupos_monitores_1:
-                    nivel = 'monitor_1'
-                elif monitor.nivel.nivel in grupos_monitores_2:
-                    nivel = 'monitor_2'
-                elif monitor.nivel.nivel in grupos_monitores_3:
-                    nivel = 'monitor_3'
-                else:
-                    nivel = 'monitor_4'
+                nivel = monitor.nivel.nivel
             else:
                 nivel = ''
 
@@ -735,14 +714,7 @@ def pegar_dados_monitor_biologo(os):
         biologo = 'biologo' if monitor.biologo else ''
 
         if not monitor.tecnica and not monitor.biologo:
-            if monitor.nivel.nivel in grupos_monitores_1:
-                nivel = 'monitor_1'
-            elif monitor.nivel.nivel in grupos_monitores_2:
-                nivel = 'monitor_2'
-            elif monitor.nivel.nivel in grupos_monitores_3:
-                nivel = 'monitor_3'
-            else:
-                nivel = 'monitor_4'
+            nivel = monitor.nivel.nivel
         else:
             nivel = ''
 
@@ -793,3 +765,10 @@ def juntar_emails_monitores(escala):
             lista_de_emails.add(monitor.usuario.email)
 
     return list(lista_de_emails)
+
+
+def calcular_coordenadores(ordem_de_servico, ficha_de_evento):
+    if ordem_de_servico:
+        return ceil(ordem_de_servico.n_participantes / 50) if ordem_de_servico.n_participantes < 100 else 2
+    else:
+        return ceil(ficha_de_evento.qtd_convidada / 50) if ficha_de_evento.qtd_convidada < 100 else 2

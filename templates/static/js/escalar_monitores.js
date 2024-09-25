@@ -67,9 +67,18 @@ function trocar_card_monitor_escalado(monitor) {
 async function verificar_racionais() {
     $('#escalar .alerta_racionais').remove()
     const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
+    const coordenadores_totais = $('#monitores_escalados').children().map((index, monitor) => {
+        if (monitor.classList.contains('coordenador')) {
+            return monitor
+        }
+    }).get().length
 
     if (monitores_totais > n_monitores) {
         $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
+    }
+
+    if (coordenadores_totais > n_coordenadores) {
+        $('#escalar').append('<div id="alerta_coordenadores" class="alerta_racionais"><p class="alert alert-danger">Número de coordenadores escalados acima do permitido para o evento!</p></div>')
     }
 }
 
@@ -242,9 +251,10 @@ function verificar_tecnica() {
 
     for (let monitor of tecnicos_escalados) {
         if (monitor.classList.contains('tecnica')) {
-            try{
+            try {
                 areas_monitor = monitor.classList[Object.values(monitor.classList).indexOf('tecnica') + 1].replaceAll('_', ' ').split('-')
-            } catch (e) {}
+            } catch (e) {
+            }
 
             areas_monitor.forEach(area => {
                 if (!areas.includes(area)) {
@@ -256,7 +266,7 @@ function verificar_tecnica() {
 
     if (areas.length !== 0) {
         $('#mensagem_tecnica').remove()
-        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert alert-info">Técnico(s) de ${areas.join(', ')} escalado(s)</p></div>`)
+        $('#escalar').append(`<div id="mensagem_tecnica"><p class="alert alert-info">Técnico(s) escalado(s)</p></div>`)
     } else {
         $('#mensagem_tecnica').remove()
     }
@@ -302,6 +312,50 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
+function gerarCorAleatoria() {
+    const letras = '0123456789ABCDEF';
+    let cor = '#';
+    for (let i = 0; i < 6; i++) {
+        cor += letras[Math.floor(Math.random() * 16)];
+    }
+    return cor;
+}
+
+// Função para mapear cores a cada nível
+function aplicarCoresPorNivel() {
+    const coresPorNivel = {};
+
+    // Selecionar todos os monitores e legendas
+    const monitores = document.querySelectorAll('.card-monitor');
+    const legendas = document.querySelectorAll('.card-monitor-legenda');
+    console.log(monitores)
+    // Mapear as cores aleatórias para os níveis das legendas
+    legendas.forEach(function (legenda) {
+        const nivel = legenda.getAttribute('data-nivel');
+        const cor = gerarCorAleatoria();
+        coresPorNivel[nivel] = cor;
+
+        // Aplicar a cor à legenda
+        legenda.style.backgroundColor = cor;
+        legenda.style.color = '#fff';  // Texto branco para contraste
+    });
+
+    // Aplicar as cores aos monitores com base no nível
+    monitores.forEach(function (monitor) {
+        if (!monitor.classList.contains('enfermeira')) {
+            const nivel = monitor.getAttribute('data-nivel');
+            const cor = coresPorNivel[nivel];  // Recuperar a cor associada ao nível
+
+            // Aplicar a cor ao monitor
+            monitor.style.backgroundColor = cor;
+            monitor.style.color = '#fff';  // Texto branco para contraste
+        }
+    });
+}
+
+// Executar a função quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', aplicarCoresPorNivel);
+
 function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()
     const monitores_escalados_embarque = $('#monitor_embarque').children()
@@ -321,7 +375,7 @@ function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
     }
 
     if (setor == 'acampamento') {
-        if (produto === 'Só CEU'){
+        if (produto === 'Só CEU') {
             if ((id_escalados.length + id_monitores_embarque.length + id_tecnicos) === 0) {
                 if (editando) {
                     $('#corpo_site').prepend('<p class="alert alert-warning" id="mensagem_sem_monitor">Nenhuma alteração detectada</p>')
@@ -384,7 +438,8 @@ function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
         let interval = setInterval(function () {
             jQuery('#escalar .alerta_racionais').animate({opacity: 0.7}, 100, "linear", function () {
                 jQuery(this).delay(50);
-                jQuery(this).animate({opacity: 1}, 100, function () {});
+                jQuery(this).animate({opacity: 1}, 100, function () {
+                });
                 jQuery(this).delay(50);
             });
 

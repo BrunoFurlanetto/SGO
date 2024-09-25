@@ -811,7 +811,7 @@
 }
 
 .card-monitor {
-    border: solid 1px;
+    border: solid 1px #000000;
     border-radius: 10px;
     padding: 2px 8px 2px 8px;
     margin: 5px 5px 10px 5px;
@@ -821,7 +821,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100%;
-    box-shadow: 2px 2px 2px;
+    box-shadow: 2px 2px 2px #000000;
     cursor: grab;
 }
 
@@ -863,34 +863,44 @@
     overflow: auto;
 }
 
-.tecnica {
-    font-weight: bolder;
-    background: #c3a06e;
-}
+/*.tecnica {*/
+/*    font-weight: bolder;*/
+/*    background: #c3a06e;*/
+/*}*/
 
-.monitor_1 {
-    font-weight: bolder;
-    background: #BF9106;
-}
+/*.monitor_1 {*/
+/*    font-weight: bolder;*/
+/*    background: #BF9106;*/
+/*}*/
 
-.monitor_2 {
-    font-weight: bolder;
-    background: #999542;
-}
+/*.monitor_2 {*/
+/*    font-weight: bolder;*/
+/*    background: #999542;*/
+/*}*/
 
-.monitor_3 {
-    font-weight: bolder;
-    background: #FF8C00;
-}
+/*.monitor_3 {*/
+/*    font-weight: bolder;*/
+/*    background: #FF8C00;*/
+/*}*/
 
-.monitor_4 {
-    font-weight: bolder;
-    background: #FFC107;
-}
+/*.monitor_4 {*/
+/*    font-weight: bolder;*/
+/*    background: #FFC107;*/
+/*}*/
 
-.biologo {
-    font-weight: bolder;
-    background: #03bb85;
+/*.biologo {*/
+/*    font-weight: bolder;*/
+/*    background: #03bb85;*/
+/*}*/
+
+.card-monitor-legenda {
+    border-radius: 10px;
+    padding: 2px 8px 2px 8px;
+    margin: 5px 5px 10px 5px;
+    width: fit-content;
+    height: fit-content;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 #escalados .tecnica {
