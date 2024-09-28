@@ -29,9 +29,26 @@ def atribuir_diretoria():
     return User.objects.filter(groups__name__icontains='diretoria').first().id
 
 
+def get_first_setor_monitoria():
+    try:
+        # Retorna o primeiro registro, ordenado pelo campo `id`
+        return SetorMonitoria.objects.all().order_by('id').first().id
+    except ObjectDoesNotExist:
+        # Retorna `None` se não houver registros, para evitar erros
+        return None
+
+
+class SetorMonitoria(models.Model):
+    setor = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.setor
+
+
 class NivelMonitoria(models.Model):
     nivel = models.CharField(max_length=100)
     coordenacao = models.BooleanField(default=False)
+    setor_monitoria = models.ForeignKey(SetorMonitoria, on_delete=models.CASCADE, default=get_first_setor_monitoria)
 
     def __str__(self):
         return self.nivel
@@ -44,7 +61,34 @@ class Monitor(models.Model):
     valor_diaria = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     valor_diaria_coordenacao = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     valor_diaria_biologo = models.DecimalField(null=True, decimal_places=2, max_digits=5)
-    nivel = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, default=1)
+    nivel_acampamento = models.ForeignKey(
+        NivelMonitoria,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
+        related_name='nivel_acampamento'
+    )
+    nivel_hotelaria = models.ForeignKey(
+        NivelMonitoria,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
+        related_name='nivel_hotelaria'
+    )
+    nivel_corporativo = models.ForeignKey(
+        NivelMonitoria,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
+        related_name='nivel_corporativo'
+    )
+    nivel_tecnica = models.ForeignKey(
+        NivelMonitoria,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
+        related_name='nivel_tecnica'
+    )
     aceite_do_termo = models.BooleanField(default=False)
     biologo = models.BooleanField(default=False)
     tecnica = models.BooleanField(default=False)
@@ -57,6 +101,23 @@ class Monitor(models.Model):
 
     def nome_completo(self):
         return self.usuario.get_full_name()
+
+    @property
+    def nivel(self):
+        if self.tecnica:
+            return self.nivel_tecnica
+
+        if self.nivel_hotelaria is not None:
+            return self.nivel_hotelaria
+
+        if self.nivel_corporativo is not None:
+            return self.nivel_corporativo
+
+        if self.nivel_hotelaria is None and self.nivel_corporativo is None and not self.tecnica:
+            if self.nivel_acampamento is not None:
+                return self.nivel_acampamento
+            else:
+                return 'Sem nível atribuído'
 
 
 class Enfermeira(models.Model):
@@ -98,7 +159,13 @@ class AtividadePeraltas(models.Model):
     duracao = models.DurationField(blank=True, null=True)
     lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
     tipo_atividade = models.ManyToManyField(TipoAtividade, verbose_name='Tipo da atividade')
-    nivel_atividade = models.ForeignKey(NivelMonitoria, on_delete=models.DO_NOTHING, verbose_name='Nível da atividade')
+    nivel_atividade = models.ForeignKey(
+        NivelMonitoria,
+        on_delete=models.SET_NULL,
+        verbose_name='Nível da atividade',
+        blank=True,
+        null=True
+    )  # TODO: Vai ser verificado o que vai ser feito com este campo
     manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_acampamento/%Y/%m/%d',
                                         verbose_name='Manual')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
@@ -1326,3 +1393,25 @@ class CadastroPreReserva(forms.ModelForm):
 
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel_evento'].choices = responsaveis_cargo
+
+
+class MonitorAdminForm(forms.ModelForm):
+    class Meta:
+        model = Monitor
+        fields = '__all__'
+
+    # Sobrescrevendo os campos para definir os QuerySets específicos
+    def __init__(self, *args, **kwargs):
+        super(MonitorAdminForm, self).__init__(*args, **kwargs)
+
+        # Filtra os níveis de acampamento
+        self.fields['nivel_acampamento'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Acampamento').order_by('id')
+
+        # Filtra os níveis de hotelaria
+        self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
+
+        # Filtra os níveis de corporativo
+        self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Corporativo').order_by('id')
+
+        # Filtra os níveis de técnica
+        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Técnica').order_by('id')

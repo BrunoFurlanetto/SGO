@@ -312,12 +312,34 @@ function verificar_ja_escalado(id_monitor) {
     })
 }
 
+let coresGeradas = [];
+// Função para calcular a distância euclidiana entre duas cores
+function calcularDistancia(cor1, cor2) {
+    const r1 = parseInt(cor1.slice(1, 3), 16);
+    const g1 = parseInt(cor1.slice(3, 5), 16);
+    const b1 = parseInt(cor1.slice(5, 7), 16);
+
+    const r2 = parseInt(cor2.slice(1, 3), 16);
+    const g2 = parseInt(cor2.slice(3, 5), 16);
+    const b2 = parseInt(cor2.slice(5, 7), 16);
+
+    return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
+}
+
 function gerarCorAleatoria() {
-    const letras = '0123456789ABCDEF';
-    let cor = '#';
-    for (let i = 0; i < 6; i++) {
-        cor += letras[Math.floor(Math.random() * 16)];
-    }
+    let cor;
+
+    do {
+        // Gerar componentes de cor de 0 a 255
+        const r = Math.floor(Math.random() * 256); // Vermelho
+        const g = Math.floor(Math.random() * 256); // Verde
+        const b = Math.floor(Math.random() * 256); // Azul
+
+        // Convertendo para formato hexadecimal
+        cor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    } while (coresGeradas.some(existingCor => calcularDistancia(existingCor, cor) < 100)); // Distância mínima
+
+    coresGeradas.push(cor); // Adiciona a nova cor ao array
     return cor;
 }
 
@@ -328,7 +350,7 @@ function aplicarCoresPorNivel() {
     // Selecionar todos os monitores e legendas
     const monitores = document.querySelectorAll('.card-monitor');
     const legendas = document.querySelectorAll('.card-monitor-legenda');
-    console.log(monitores)
+
     // Mapear as cores aleatórias para os níveis das legendas
     legendas.forEach(function (legenda) {
         const nivel = legenda.getAttribute('data-nivel');
@@ -337,7 +359,7 @@ function aplicarCoresPorNivel() {
 
         // Aplicar a cor à legenda
         legenda.style.backgroundColor = cor;
-        legenda.style.color = '#fff';  // Texto branco para contraste
+        legenda.style.color = definirCorTexto(cor); // Definindo a cor do texto com base na cor de fundo
     });
 
     // Aplicar as cores aos monitores com base no nível
@@ -348,9 +370,23 @@ function aplicarCoresPorNivel() {
 
             // Aplicar a cor ao monitor
             monitor.style.backgroundColor = cor;
-            monitor.style.color = '#fff';  // Texto branco para contraste
+            monitor.style.color = definirCorTexto(cor); // Definindo a cor do texto com base na cor de fundo
         }
     });
+}
+
+// Função para definir a cor do texto com base na cor de fundo
+function definirCorTexto(cor) {
+    // Converter a cor hexadecimal para valores RGB
+    const r = parseInt(cor.slice(1, 3), 16);
+    const g = parseInt(cor.slice(3, 5), 16);
+    const b = parseInt(cor.slice(5, 7), 16);
+
+    // Calcular a luminância usando a fórmula de luminância relativa
+    const luminancia = (0.299 * r + 0.587 * g + 0.114 * b);
+
+    // Se a luminância for maior que um certo limiar, retorna preto, senão retorna branco
+    return luminancia > 186 ? '#000' : '#fff'; // 186 é um valor de limiar que pode ser ajustado
 }
 
 // Executar a função quando o DOM estiver carregado

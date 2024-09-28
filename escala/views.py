@@ -398,8 +398,8 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 def montagem_escala_acampamento(request, data):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
-    niveis_monitoria = NivelMonitoria.objects.all()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    niveis_monitoria = []
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -413,7 +413,14 @@ def montagem_escala_acampamento(request, data):
         cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
         inicio_evento = termino_evento = None
         ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
-        disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
+
+        try:
+            disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
+        except AttributeError as e:
+            print(str(e))
+            messages.error(request, e)
+
+            return redirect('dashboardPeraltas')
 
         if ordem_de_servico:
             qtd_pagantes = ordem_de_servico.n_participantes
@@ -431,6 +438,14 @@ def montagem_escala_acampamento(request, data):
             termino_evento = ficha_de_evento.check_out
             n_monitores = int(ficha_de_evento.qtd_convidada / 10)
             monitores_embarque = monitores_biologo = None
+
+        for monitor in disponiveis:
+            if monitor['tecnica']:
+                niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
+            elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
+                niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+            elif monitor['setor'] == 'peraltas':
+                niveis_monitoria.append(monitor['nivel'])
 
         return render(request, 'escala/escalar_monitores.html', {
             'clientes_dia': clientes_dia,
@@ -451,7 +466,7 @@ def montagem_escala_acampamento(request, data):
             'disponiveis': disponiveis,
             'n_monitores': n_monitores if n_monitores != 0 else 1,
             'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
-            'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis if monitor['nivel'] != ''}),
+            'niveis_monitoria': sorted(niveis_monitoria),
         })
 
     return render(request, 'escala/escalar_monitores.html', {
@@ -469,6 +484,7 @@ def edicao_escala_acampamento(request, data, id_cliente):
     setor = 'acampamento'
     disponiveis = []
     escalado = []
+    niveis_monitoria = []
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -484,7 +500,14 @@ def edicao_escala_acampamento(request, data, id_cliente):
         check_out_cliente__date__gte=data_selecionada
     )
     escalados = pegar_escalacoes(escala_editada)
-    teste_disponiveis = gerar_disponibilidade(id_cliente, data_selecionada, True)
+
+    try:
+        teste_disponiveis = gerar_disponibilidade(id_cliente, data_selecionada, True)
+    except AttributeError as e:
+        print(str(e))
+        messages.error(request, e)
+
+        return redirect('dashboardPeraltas')
 
     for monitor in teste_disponiveis:
         tipo_escalacao = []
@@ -540,6 +563,14 @@ def edicao_escala_acampamento(request, data, id_cliente):
             ordem_de_servico = None
             n_monitores = int(ficha_de_evento.qtd_convidada / escala_editada.racional_monitores)
 
+    for monitor in disponiveis + escalado:
+        if monitor['tecnica']:
+            niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
+        elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(monitor['nivel'])
+
     return render(request, 'escala/escalar_monitores.html', {
         'inicio': check_in,
         'diretoria': diretoria,
@@ -561,7 +592,7 @@ def edicao_escala_acampamento(request, data, id_cliente):
         'pre_escala': escala_editada.pre_escala,
         'n_monitores': n_monitores if n_monitores != 0 else 1,
         'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
-        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis + escalado if monitor['nivel'] != ''}),
+        'niveis_monitoria': sorted(niveis_monitoria),
     })
 
 
@@ -644,6 +675,7 @@ def salvar_escala_acampamento(request):
 def montagem_escala_hotelaria(request, data):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    niveis_monitoria = []
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -658,6 +690,14 @@ def montagem_escala_hotelaria(request, data):
     )
 
     disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas)
+
+    for monitor in disponiveis:
+        if monitor['tecnica']:
+            niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
+        elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(monitor['nivel'])
 
     return render(request, 'escala/escalar_monitores.html', {
         'data': data_selecionada,
@@ -676,6 +716,7 @@ def edicao_escala_hotelaria(request, data):
     setor = 'hotelaria'
     disponiveis = []
     escalado = []
+    niveis_monitoria = []
 
     if is_ajax(request):
         if request.POST.get('id_monitor'):
@@ -709,6 +750,14 @@ def edicao_escala_hotelaria(request, data):
             else:
                 disponiveis.append(monitor_teste)
 
+    for monitor in disponiveis + escalado:
+        if monitor['tecnica']:
+            niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
+        elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas':
+            niveis_monitoria.append(monitor['nivel'])
+
     return render(request, 'escala/escalar_monitores.html', {
         'data': data_selecionada,
         'diretoria': diretoria,
@@ -717,7 +766,7 @@ def edicao_escala_hotelaria(request, data):
         'escalados': escalado,
         'pre_escala': escala_hotelaria.pre_escala,
         'id_escala': escala_hotelaria.id,
-        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis + escalado if monitor['nivel'] != ''}),
+        'niveis_monitoria': sorted(niveis_monitoria),
     })
 
 

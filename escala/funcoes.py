@@ -397,7 +397,10 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
         dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')
     )
 
-    disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_peraltas)
+    try:
+        disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_peraltas)
+    except AttributeError as e:
+        raise AttributeError(e)
 
     return disponiveis_intervalo
 
@@ -424,23 +427,23 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
         areas = []
 
         if disponibilidade.monitor:
-            areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
-            biologo = 'biologo' if disponibilidade.monitor.biologo else ''
-
-            if not disponibilidade.monitor.tecnica and not disponibilidade.monitor.biologo:
-                nivel = disponibilidade.monitor.nivel.nivel
+            try:
+                areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
+            except AttributeError:
+                raise AttributeError(f'Monitor {disponibilidade.monitor.usuario.get_full_name()} sem nível atribuído, por favor atribuir')
             else:
-                nivel = ''
+                biologo = 'biologo' if disponibilidade.monitor.biologo else ''
+                nivel = disponibilidade.monitor.nivel.nivel
 
-            dados_monitor = {
-                'id': disponibilidade.monitor.id,
-                'nome': disponibilidade.monitor.usuario.get_full_name(),
-                'setor': 'peraltas',
-                'tecnica': disponibilidade.monitor.tecnica,
-                'areas': '-'.join(areas),
-                'biologo': biologo,
-                'nivel': nivel
-            }
+                dados_monitor = {
+                    'id': disponibilidade.monitor.id,
+                    'nome': disponibilidade.monitor.usuario.get_full_name(),
+                    'setor': 'peraltas',
+                    'tecnica': disponibilidade.monitor.tecnica,
+                    'areas': '-'.join(areas),
+                    'biologo': biologo,
+                    'nivel': nivel
+                }
         else:
             dados_monitor = {
                 'id': disponibilidade.enfermeira.id,

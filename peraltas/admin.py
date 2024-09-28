@@ -10,7 +10,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
-                             TiposPagamentos, RelacaoClienteResponsavel)
+                             TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm)
 from peraltas.models import Vendedor
 from django.db import models
 
@@ -64,8 +64,9 @@ class NivelMonitoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Monitor)
 class MonitorAdmin(admin.ModelAdmin):
-    list_display = ('nome_completo', 'biologo', 'tecnica', 'fixo', 'telefone_formatado')
+    list_display = ('nome_completo', 'biologo', 'tecnica', 'fixo', 'telefone_formatado', 'nivel')
     search_fields = ('usuario__first_name', 'usuario__last_name',)
+    form = MonitorAdminForm
 
     def telefone_formatado(self, obj):
         return f'({obj.telefone[0:2]}) {obj.telefone[2:7]} - {obj.telefone[7:]}'

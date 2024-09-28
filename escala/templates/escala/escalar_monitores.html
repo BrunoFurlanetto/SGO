@@ -112,7 +112,7 @@
                             {% for disponivel in disponiveis %}
                                 {% if 'peraltas' in disponivel.setor %}
                                     <div id="{{ disponivel.id }}"
-                                         data-nivel="{% if disponivel.tecnica %}tecnica{% elif disponivel.biologo %}biologo{% else %}{{ disponivel.nivel }}{% endif %}"
+                                         data-nivel="{% if disponivel.tecnica %}Técnica({{ disponivel.nivel }}){% elif disponivel.biologo %}Biologo({{ disponivel.nivel }}){% else %}{{ disponivel.nivel }}{% endif %}"
                                          class="card-monitor {{ disponivel.nivel }} {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {% if setor == 'acampamento' %} {{ disponivel.biologo }} {% endif %}"
                                          draggable="true">{{ disponivel.nome }}</div>
                                 {% endif %}
@@ -121,8 +121,6 @@
                     </div>
                 </div>
                 <div id="legenda" style="display: flex; flex-wrap: wrap">
-                    <div class="card-monitor-legenda" data-nivel="tecnica">Técnica</div>
-                    <div class="card-monitor-legenda" data-nivel="biologo">Biologo</div>
                     {% for nivel in niveis_monitoria %}
                         <div class="card-monitor-legenda" data-nivel="{{ nivel }}">{{ nivel }}</div>
                     {% endfor %}
@@ -142,6 +140,7 @@
                                     {% for escalado in escalados %}
                                         {% if 'embarque' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
+                                                 data-nivel="{% if escalado.tecnica %}Técnica({{ escalado.nivel }}){% elif escalado.biologo %}Biologo({{ escalado.nivel }}){% else %}{{ escalado.nivel }}{% endif %}"
                                                  class="card-monitor {{ escalado.setor }} embarque {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
@@ -149,6 +148,7 @@
                                 {% else %}
                                     {% for monitor in monitores_embarque %}
                                         <div id="{{ monitor.id }}"
+                                             data-nivel="{% if monitor.tecnica %}Técnica({{ monitor.nivel }}){% elif monitor.biologo %}Biologo({{ monitor.nivel }}){% else %}{{ monitor.nivel }}{% endif %}"
                                              class="card-monitor {{ monitor.setor }} embarque {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
@@ -179,14 +179,15 @@
                                 {% if escalados %}
                                     {% for escalado in escalados %}
                                         {% if 'biologo' in escalado.tipo_escalacao %}
-                                            <div id="{{ escalado.id }}" data-nivel="biologo"
+                                            <div id="{{ escalado.id }}"
+                                                 data-nivel="Biologo({{ escalado.nivel }})"
                                                  class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     {% for monitor in monitores_biologo %}
-                                        <div id="{{ monitor.id }}" data-nivel="biologo"
+                                        <div id="{{ monitor.id }}" data-nivel="Biologo({{ monitor.nivel }})"
                                              class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
@@ -220,7 +221,7 @@
                             {% if escalados %}
                                 {% for escalado in escalados %}
                                     {% if 'tecnico' in escalado.tipo_escalacao %}
-                                        <div id="{{ escalado.id }}" data-nivel="tecnica"
+                                        <div id="{{ escalado.id }}" data-nivel="Técnica({{ escalado.nivel }})"
                                              class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
                                         </div>
@@ -236,7 +237,8 @@
                             {% if escalados %}
                                 {% for escalado in escalados %}
                                     {% if setor in escalado.tipo_escalacao %}
-                                        <div id="{{ escalado.id }}" data-nivel="{{ escalado.nivel }}"
+                                        <div id="{{ escalado.id }}"
+                                             data-nivel="{% if escalado.tecnica %}Técnica({{ escalado.nivel }}){% elif escalado.biologo %}Biologo({{ escalado.nivel }}){% else %}{{ escalado.nivel }}{% endif %}"
                                              class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
 
