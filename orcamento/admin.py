@@ -12,13 +12,52 @@ from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, Orca
     OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais
 
 
+from django.forms import ModelForm, Form
+from django.forms import DateField, CharField, ChoiceField, TextInput
+
+
+class YourFormSearch(Form):
+    style = """
+        width: 60%; background-color: #fff; border: 1px solid #ced4da; border-radius: 5px;
+        appearance: none; padding: 5px; font-size: 1.2em;',
+    """
+    nome = CharField(required=False, widget=TextInput(attrs={
+        'filter_method': '__icontains',
+    }))
+    inicio_vigencia = DateField(required=False, widget=TextInput(
+        attrs={
+            'type': 'date',
+            'style': style,
+            'class': 'date-form'
+        }
+    ))
+    final_vigencia = DateField(required=False, widget=TextInput(
+        attrs={
+            'type': 'date',
+            'style': style,
+        }
+    ))
+
+
+class DuplicarEmMassaForm(forms.Form):
+    data_inicio = forms.DateField(
+        label="Data de Início",
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    data_fim = forms.DateField(
+        label="Data de Fim",
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+
+
 class DuplicarEmMassaAdmin(admin.ModelAdmin):
     actions = ['duplicar_em_massa']
 
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('duplicar-em-massa/', self.admin_site.admin_view(self.duplicar_em_massa_view), name='duplicar_em_massa'),
+            path('duplicar-em-massa/', self.admin_site.admin_view(self.duplicar_em_massa_view),
+                 name='duplicar_em_massa'),
         ]
 
         return custom_urls + urls
@@ -132,8 +171,15 @@ class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
 @admin.register(OrcamentoMonitor)
 class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
     list_display = (
-        'nome_monitoria', 'valor', 'descricao_monitoria', 'inicio_vigencia', 'final_vigencia',
-        'liberado')
+        'nome_monitoria',
+        'valor',
+        'valor_final',
+        'descricao_monitoria',
+        'inicio_vigencia',
+        'final_vigencia',
+        'liberado'
+    )
+    ordering = ('-inicio_vigencia', 'nome_monitoria')
     list_editable = ('liberado',)
 
     # def inicio_vigencia_formatado(self, obj):
@@ -148,7 +194,8 @@ class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
 
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(DuplicarEmMassaAdmin):
-    list_display = ('nome_periodo', 'inicio_vigencia', 'final_vigencia', 'valor', 'valor_final', 'descricao', 'liberado')
+    list_display = (
+    'nome_periodo', 'inicio_vigencia', 'final_vigencia', 'valor', 'valor_final', 'descricao', 'liberado')
     ordering = ('-inicio_vigencia', 'nome_periodo')
     list_editable = ('liberado',)
     form = SeuModeloAdminForm
@@ -174,46 +221,6 @@ class CategoriaOpcionaisAdmin(admin.ModelAdmin):
 @admin.register(SubcategoriaOpcionais)
 class SubategoriaOpcionaisAdmin(admin.ModelAdmin):
     list_display = ('nome_sub_categoria',)
-
-
-from django.forms import ModelForm, Form
-from django.forms import DateField, CharField, ChoiceField, TextInput
-
-
-class YourFormSearch(Form):
-    style = """
-        width: 60%; background-color: #fff; border: 1px solid #ced4da; border-radius: 5px;
-        appearance: none; padding: 5px; font-size: 1.2em;',
-    """
-    nome = CharField(required=False, widget=TextInput(attrs={
-        'filter_method': '__icontains',
-    }))
-    inicio_vigencia = DateField(required=False, widget=TextInput(
-        attrs={
-            'type': 'date',
-            'style': style,
-            'class': 'date-form'
-            # 'filter_method': '__gte',
-        }
-    ))
-    final_vigencia = DateField(required=False, widget=TextInput(
-        attrs={
-            'type': 'date',
-            'style': style,
-            # 'filter_method': '__lte',
-        }
-    ))
-
-
-class DuplicarEmMassaForm(forms.Form):
-    data_inicio = forms.DateField(
-        label="Data de Início",
-        widget=forms.DateInput(attrs={'type': 'date'})
-    )
-    data_fim = forms.DateField(
-        label="Data de Fim",
-        widget=forms.DateInput(attrs={'type': 'date'})
-    )
 
 
 @admin.register(OrcamentoOpicional)
