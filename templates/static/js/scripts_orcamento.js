@@ -1308,7 +1308,8 @@ async function resetar_forms() {
                     $(input).val($(input).data('valor_default'))
                 }
             }
-            $('#form_gerencia [id*=percent]').val('0,00%')
+            $('#form_gerencia #div_financeiro input[id*=real]').val('0,00')
+            $('#form_gerencia #div_financeiro [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
             $('#tabela_de_opcionais [id*=desconto]').val('0,00')
             let default_data_pagamento = $('#data_pagamento').data('valor_default')
