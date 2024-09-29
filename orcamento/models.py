@@ -242,6 +242,7 @@ class OrcamentoPeriodo(models.Model):
                                       default=default_validade)
     dias_semana_validos = models.ManyToManyField(DiasSemana)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    valor_final = models.DecimalField(decimal_places=2, max_digits=5, default=0.00, editable=False, verbose_name='Preço de venda')
     descricao = models.TextField(blank=True)
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
 
@@ -251,6 +252,22 @@ class OrcamentoPeriodo(models.Model):
 
     def __str__(self):
         return self.nome_periodo
+
+    @classmethod
+    def update_valor_final(cls):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+
+        for periodo in cls.objects.all():
+            periodo.valor_final = float(periodo.valor) / (1 - ((taxa_comercial + comissao) / 100))
+            periodo.save()
+
+    def save(self, *args, **kwargs):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+        self.valor_final = float(self.valor) / (1 - ((taxa_comercial + comissao) / 100))
+
+        super().save(*args, **kwargs)
 
 
 class TaxaPeriodo(models.Model):

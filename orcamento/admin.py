@@ -148,7 +148,8 @@ class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
 
 @admin.register(OrcamentoPeriodo)
 class PeriodosAdmin(DuplicarEmMassaAdmin):
-    list_display = ('nome_periodo', 'valor', 'descricao', 'liberado')
+    list_display = ('nome_periodo', 'inicio_vigencia', 'final_vigencia', 'valor', 'valor_final', 'descricao', 'liberado')
+    ordering = ('-inicio_vigencia', 'nome_periodo')
     list_editable = ('liberado',)
     form = SeuModeloAdminForm
 
