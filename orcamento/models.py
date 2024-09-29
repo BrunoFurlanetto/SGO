@@ -141,6 +141,9 @@ class ValoresPadrao(models.Model):
 
         if 'comercial' in self.id_taxa or 'comissao' in self.id_taxa:
             OrcamentoOpicional.update_valor_final()
+            OrcamentoPeriodo.update_valor_final()
+            OrcamentoMonitor.update_valor_final()
+            ValoresTransporte.update_valor_final()
 
     @classmethod
     def listar_valores(cls):
@@ -343,10 +346,16 @@ class ValoresTransporte(models.Model):
     titulo_transporte = models.CharField(max_length=255)
     valor_1_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 1 dia')
+    valor_final_1_dia = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Preço de venda de 1 dia', editable=False, default=0.00)
     valor_2_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 2 dias')
+    valor_final_2_dia = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Preço de venda de 2 dias', editable=False, default=0.00)
     valor_3_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 3 dias')
+    valor_final_3_dia = models.DecimalField(
+        max_digits=7, decimal_places=2, verbose_name='Preço de venda de 3 dias', editable=False, default=0.00)
     valor_4_dia = models.DecimalField(
         max_digits=7, decimal_places=2, verbose_name='Valor de 4 dias')
     valor_5_dia = models.DecimalField(
@@ -372,6 +381,26 @@ class ValoresTransporte(models.Model):
 
     def __str__(self):
         return f'Valores do transporte de {self.inicio_vigencia.strftime("%d/%m/%Y")} até {self.final_vigencia.strftime("%d/%m/%Y")}'
+
+    @classmethod
+    def update_valor_final(cls):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+
+        for trnasporte in cls.objects.all():
+            trnasporte.valor_final_1_dia = float(trnasporte.valor_1_dia) / (1 - ((taxa_comercial + comissao) / 100))
+            trnasporte.valor_final_2_dia = float(trnasporte.valor_2_dia) / (1 - ((taxa_comercial + comissao) / 100))
+            trnasporte.valor_final_3_dia = float(trnasporte.valor_3_Dia) / (1 - ((taxa_comercial + comissao) / 100))
+            trnasporte.save()
+
+    def save(self, *args, **kwargs):
+        taxa_comercial = float(ValoresPadrao.objects.get(id_taxa__icontains='comercial').valor_padrao)
+        comissao = float(ValoresPadrao.objects.get(id_taxa__icontains='comissao').valor_padrao)
+        self.valor_final_1_dia = float(self.valor_1_dia) / (1 - ((taxa_comercial + comissao) / 100))
+        self.valor_final_2_dia = float(self.valor_2_dia) / (1 - ((taxa_comercial + comissao) / 100))
+        self.valor_final_3_dia = float(self.valor_3_dia) / (1 - ((taxa_comercial + comissao) / 100))
+
+        super().save(*args, **kwargs)
 
 
 class StatusOrcamento(models.Model):

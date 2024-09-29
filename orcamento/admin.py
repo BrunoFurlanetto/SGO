@@ -155,8 +155,20 @@ class OrcamentoDiariaAdmin(admin.ModelAdmin):
 
 @admin.register(ValoresTransporte)
 class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
-    list_display = ('titulo_transporte', 'inicio_vigencia', 'final_vigencia', 'descricao', 'liberado')
+    list_display = (
+        'titulo_transporte',
+        'inicio_vigencia',
+        'final_vigencia',
+        'valor_1_dia',
+        'valor_final_1_dia',
+        'valor_2_dia',
+        'valor_final_2_dia',
+        'valor_3_dia',
+        'valor_final_3_dia',
+        'liberado'
+    )
     list_editable = ('liberado',)
+    ordering = ('-inicio_vigencia', 'titulo_transporte')
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
