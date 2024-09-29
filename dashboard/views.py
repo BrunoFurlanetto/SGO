@@ -17,7 +17,7 @@ from escala.models import Escala, DiaLimite
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
-    Vendedor, Eventos, ProdutosPeraltas
+    Vendedor, Eventos, ProdutosPeraltas, NivelMonitoria
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
@@ -166,6 +166,12 @@ def dashboardPeraltas(request):
     except Monitor.DoesNotExist:
         monitor = None
     else:
+        if not isinstance(monitor.nivel, NivelMonitoria):
+            messages.error(
+                request,
+                'Você não tem nenhum nível atribuido no seu perfíl, isto impossibilita que seja escalado. Por favor entrar em contato com o coordenador!'
+            )
+
         msg_monitor = teste_aviso_monitoria(
             request.user.last_login.astimezone(),
             monitor,

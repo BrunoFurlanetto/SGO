@@ -417,7 +417,6 @@ def montagem_escala_acampamento(request, data):
         try:
             disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
         except AttributeError as e:
-            print(str(e))
             messages.error(request, e)
 
             return redirect('dashboardPeraltas')
@@ -689,7 +688,12 @@ def montagem_escala_hotelaria(request, data):
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
 
-    disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas)
+    try:
+        disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas)
+    except AttributeError as e:
+        messages.error(request, e)
+
+        return redirect('dashboardPeraltas')
 
     for monitor in disponiveis:
         if monitor['tecnica']:
@@ -730,11 +734,16 @@ def edicao_escala_hotelaria(request, data):
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
 
-    disponiveis_dia = pegar_disponiveis_intervalo(
-        data_selecionada,
-        data_selecionada,
-        disponibilidades_peraltas
-    )
+    try:
+        disponiveis_dia = pegar_disponiveis_intervalo(
+            data_selecionada,
+            data_selecionada,
+            disponibilidades_peraltas
+        )
+    except AttributeError as e:
+        messages.error(request, e)
+
+        return redirect('dashboardPeraltas')
 
     for monitor_teste in disponiveis_dia:
         if monitor_teste['setor'] != 'enfermeira':
