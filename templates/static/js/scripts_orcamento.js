@@ -670,6 +670,7 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                 }
                 $('#id_orcamento_promocional').val(pacote_selecionado)
             } else {
+                $('#id_orcamento_promocional').empty().trigger('change')
                 $('#id_orcamento_promocional').prop('disabled', true)
             }
         }
