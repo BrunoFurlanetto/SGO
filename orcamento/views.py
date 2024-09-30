@@ -228,23 +228,24 @@ def calc_budget(req):
             return verify_data(data)
 
         # return
-        try:
-            promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
-                data['n_dias'],
-                int(data['produto']),
-                data['check_in'],
-                data['check_out']
-            )
-        except KeyError:
-            promocionais = []
-        except ValueError:
-            promocionais = []
-        except Exception as e:
-            return JsonError(e)
+        # try:
+        #     promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
+        #         data['n_dias'],
+        #         int(data['produto']),
+        #         data['check_in'],
+        #         data['check_out']
+        #     )
+        # except KeyError:
+        #     promocionais = []
+        # except ValueError:
+        #     promocionais = []
+        # except Exception as e:
+        #     return JsonError(e)
 
         # GERANDO ORÇAMENTO
         business_fee = None
         commission = None
+
         business_fee = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
         commission = gerencia["comissao"] if "comissao" in gerencia else ...
         budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
@@ -262,7 +263,7 @@ def calc_budget(req):
         return JsonResponse({
             "status": "success",
             "data": budget.return_object(),
-            "promocionais": promocionais,
+            # "promocionais": promocionais,
             "limites_taxas": ValoresPadrao.listar_valores(),
             "racionais": {
                 'check_in': data['racional_check_in'],
@@ -378,7 +379,7 @@ def pesquisar_op(request):
         return JsonResponse({'valor': OrcamentoOpicional.objects.get(pk=request.GET.get('id')).valor})
 
 
-def pegar_dados_pacoe(request):
+def pegar_dados_pacote(request):
     if is_ajax(request):
         orcamento_promocional = OrcamentosPromocionais.objects.get(pk=request.GET.get('id_pacote'))
 
@@ -432,3 +433,13 @@ def verificar_validade_opcionais(request):
         ]})
 
 
+def verificar_pacotes_promocionais(request):
+    if is_ajax(request):
+        promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
+            int(request.GET.get('n_dias')),
+            int(request.GET.get('id_produto')),
+            request.GET.get('data_check_in'),
+            request.GET.get('data_check_out'),
+        )
+
+        return JsonResponse({'promocionais': promocionais})

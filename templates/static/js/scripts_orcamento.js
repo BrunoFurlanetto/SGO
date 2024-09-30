@@ -141,7 +141,7 @@ function verificar_produto() {
     const produto = $('#id_produto option:selected').text().toLowerCase()
 
     if (produto.includes('ceu')) {
-        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
+        $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
     } else {
         $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
     }
@@ -658,23 +658,6 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
             });
         });
 
-        if (!salvar) {
-            if (response.length > 0) {
-                let pacote_selecionado = $('#id_orcamento_promocional').val()
-                $('#id_orcamento_promocional').empty().append('<option></option>')
-
-                for (let promocional of response) {
-                    $('#id_orcamento_promocional').append(
-                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
-                    ).prop('disabled', false)
-                }
-                $('#id_orcamento_promocional').val(pacote_selecionado)
-            } else {
-                $('#id_orcamento_promocional').empty().trigger('change')
-                $('#id_orcamento_promocional').prop('disabled', true)
-            }
-        }
-
         let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
             let valor
 
@@ -706,6 +689,10 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                 disabled: 'readonly',
                 width: '100%'
             })
+        } else {
+            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
+            $('#form_dados_pacote fieldset').prop('disabled', false)
+            $('#id_produtos_elegiveis').select2({width: '100%'})
         }
 
         return response;
@@ -867,9 +854,52 @@ async function separar_produtos(periodo) {
     }
 }
 
+function verificar_pacotes_promocionais() {
+    const periodo = $('#data_viagem').val()
+    const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
+    const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
+    const n_dias = data_check_out.diff(data_check_in, 'days') + 1
+    const id_produto = $('#id_produto').val()
+
+    if (id_produto != ''){
+        $.ajax({
+            type: 'GET',
+            url: '/orcamento/verificar_pacotes_promocionais/',
+            data: {
+                'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
+                'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
+                'id_produto': id_produto,
+                'n_dias': n_dias
+            },
+            success: async function (response) {
+                const promocionais = response['promocionais']
+                const ids = promocionais.map(obj => obj.id)
+                let select_promocionais = $('#id_orcamento_promocional')
+
+                if (promocionais.length == 0){
+                    select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
+
+                    return
+                } else if (ids.includes(parseInt(select_promocionais.val()))) {
+                    return
+                }
+
+                select_promocionais.empty().append('<option></option>')
+
+                for (let promocional of promocionais) {
+                    $('#id_orcamento_promocional').append(
+                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                    ).prop('disabled', false)
+                }
+            }
+        })
+    }
+}
+
 async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
+    verificar_pacotes_promocionais()
     // await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
@@ -1112,7 +1142,7 @@ function remover_periodo(btn) {
 
 function adicionar_periodo_novo(periodo = '', diasMarcados = []) {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
-    console.log(diasMarcados)
+
     let novo_obj_periodo = `
         <div class="mt-3 div_periodos_aplicaveis">
             <div class="periodos">
@@ -1299,6 +1329,7 @@ async function preencher_promocional(id_promocional) {
 
 async function resetar_forms() {
     loading()
+
     await new Promise((resolve, reject) => {
         try {
             $('#info_promocional').prop('disabled', true)
@@ -1339,7 +1370,7 @@ async function mostrar_dados_pacote(pacote) {
     }
 
     $.ajax({
-        url: '/orcamento/pegar_dados_pacoe/',
+        url: '/orcamento/pegar_dados_pacote/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         type: "GET",
         data: {'id_pacote': id_pacote},
