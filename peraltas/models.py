@@ -119,6 +119,24 @@ class Monitor(models.Model):
             else:
                 return 'Sem nível atribuído'
 
+    @property
+    def setor(self):
+        setores = []
+
+        if self.nivel_acampamento is not None:
+            setores.append('acampamento')
+
+        if self.nivel_hotelaria is not None:
+            setores.append('hotelaria')
+
+        if self.nivel_corporativo is not None:
+            setores.append('corporativo')
+
+        if self.nivel_tecnica is not None:
+            setores.append('tecnica')
+
+        return setores
+
 
 class Enfermeira(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)

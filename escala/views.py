@@ -738,7 +738,8 @@ def edicao_escala_hotelaria(request, data):
         disponiveis_dia = pegar_disponiveis_intervalo(
             data_selecionada,
             data_selecionada,
-            disponibilidades_peraltas
+            disponibilidades_peraltas,
+            setor='hotelaria'
         )
     except AttributeError as e:
         messages.error(request, e)

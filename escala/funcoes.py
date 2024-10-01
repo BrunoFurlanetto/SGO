@@ -405,7 +405,7 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
     return disponiveis_intervalo
 
 
-def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
+def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=None):
     disponiveis_intervalo = []
     dias = check_out - check_in
     monitores_disponiveis_intervalo = []
@@ -421,7 +421,11 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
                 break
 
         if intervalo and disponivel not in disponiveis_intervalo:
-            disponiveis_intervalo.append(disponivel)
+            if setor == 'hotelaria' and disponivel.monitor:
+                if setor in disponivel.monitor.setor or 'tecnica' in disponivel.monitor.setor:
+                    disponiveis_intervalo.append(disponivel)
+            elif not setor:
+                disponiveis_intervalo.append(disponivel)
 
     for disponibilidade in disponiveis_intervalo:
         areas = []
