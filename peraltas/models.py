@@ -1418,18 +1418,9 @@ class MonitorAdminForm(forms.ModelForm):
         model = Monitor
         fields = '__all__'
 
-    # Sobrescrevendo os campos para definir os QuerySets específicos
     def __init__(self, *args, **kwargs):
         super(MonitorAdminForm, self).__init__(*args, **kwargs)
-
-        # Filtra os níveis de acampamento
         self.fields['nivel_acampamento'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Acampamento').order_by('id')
-
-        # Filtra os níveis de hotelaria
         self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
-
-        # Filtra os níveis de corporativo
         self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Corporativo').order_by('id')
-
-        # Filtra os níveis de técnica
-        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Técnica').order_by('id')
+        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
