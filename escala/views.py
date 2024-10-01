@@ -395,7 +395,7 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
 
 @login_required(login_url='login')
-def montagem_escala_acampamento(request, data):
+def montagem_escala_acampamento(request, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
@@ -409,8 +409,8 @@ def montagem_escala_acampamento(request, data):
                 request.POST.get('cliente'))
             )
 
-    if request.GET.get('cliente'):
-        cliente = ClienteColegio.objects.get(id=request.GET.get('cliente'))
+    if request.GET.get('cliente') or id_cliente:
+        cliente = ClienteColegio.objects.get(id=request.GET.get('cliente') if not id_cliente else id_cliente)
         inicio_evento = termino_evento = None
         ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 

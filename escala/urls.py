@@ -28,6 +28,7 @@ urlpatterns = [
     path('peraltas/acampamento/escalar/<str:data>/<int:id_cliente>/', views.edicao_escala_acampamento,
          name='edicao_escala_acampamento'),
     path('peraltas/acampamento/escalar/<str:data>/', views.montagem_escala_acampamento, name='montagem_escala_acampamento'),
+    path('peraltas/acampamento/escalar/<str:data>/<int:id_cliente>/nova/', views.montagem_escala_acampamento, name='montagem_escala_acampamento_cliente'),
     path('peraltas/acampamento/salvar/', views.salvar_escala_acampamento, name='salvar_escala_acampamento'),
     path('peraltas/hotelaria/escalar/<str:data>/', views.montagem_escala_hotelaria, name='montagem_escala_hotelaria'),
     path('peraltas/hotelaria/escalar/<str:data>/editar/', views.edicao_escala_hotelaria, name='edicao_escala_hotelaria'),
