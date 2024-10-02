@@ -20,6 +20,7 @@ urlpatterns = [
     path('peraltas/escalas_monitor/', views.ver_escalas_monitor, name='ver_escalas_monitor'),
     path('peraltas/montar_escala/', views.montar_escala, name='montar_escala'),
     path('peraltas/confirmar_escala/', views.confirmar_escala, name='confirmar_escala'),
+    path('peraltas/confirmar_escala/<int:id_escala>', views.confirmar_escala, name='confirmar_escala_id'),
     path('peraltas/deletar_escala/', views.deletar_escala, name='deletar_escala'),
     path('peraltas/gerar_pdf_escala/<str:setor>/', views.gerar_pdf_escala, name='gerar_pdf_escala'),
     path('peraltas/verificar_setor/', views.verificar_hospedagem, name='verificar_setor'),

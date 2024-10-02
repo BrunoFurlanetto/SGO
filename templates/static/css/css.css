@@ -1368,7 +1368,7 @@
 }
 
 #conteudo {
-    width: 900px;
+    max-width: 80%;
     justify-content: center;
     align-items: center;
     background-color: #fff;
@@ -1473,6 +1473,27 @@
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 6px 3px;
+    overflow: auto;
+}
+
+.btn-confirmar-escala {
+    padding: 0 30% 0 30%;
+    border-radius: 10px;
+    transition: border 0.3s ease, border-radius 0.3s ease, padding 0.3s ease;
+}
+
+.btn-confirmar-escala:hover {
+    outline: none;  /* Remove o foco padrão do navegador */
+    border: 2px solid #14cd18;  /* Adiciona uma borda visível ao focar */
+    padding: 0 20% 0 20%;
+    border-radius: 100px;  /* Aumenta o border-radius ao focar */
+}
+
+.btn-confirmar-escala:focus {
+    background-color: #000000;  /* Cor de fundo ao clicar */
+    border-color: #000000;
+    color: white;  /* Cor do texto ao clicar */
+    border-radius: 50px;  /* Alteração do border-radius ao clicar */
 }
 
 #abas img {

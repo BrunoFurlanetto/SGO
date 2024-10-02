@@ -301,8 +301,8 @@ def montar_escala(request):
         return JsonResponse(escalados_para_o_evento(request.POST))
 
 
-def confirmar_escala(request):
-    escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala'))
+def confirmar_escala(request, id_escala=None):
+    escala_acampamento = EscalaAcampamento.objects.get(pk=request.POST.get('id_escala') if not id_escala else id_escala)
 
     try:
         escala_acampamento.pre_escala = False

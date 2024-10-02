@@ -17,7 +17,7 @@ from escala.models import Escala, DiaLimite
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
-    Vendedor, Eventos, ProdutosPeraltas, NivelMonitoria
+    Vendedor, Eventos, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
@@ -160,6 +160,7 @@ def dashboardPeraltas(request):
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
+    escalas_feitas = None
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -184,7 +185,9 @@ def dashboardPeraltas(request):
             check_in__date__gte=datetime.today(),
         )
         sem_escalas = fichas_colaborador.filter(escala=False, pre_reserva=False)
-        com_escalas = fichas_colaborador.filter(escala=True, pre_reserva=False)
+        escalas_feitas = EscalaAcampamento.objects.filter(
+            check_in_cliente__date__gte=datetime.today(),
+        )
     else:
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
@@ -345,7 +348,7 @@ def dashboardPeraltas(request):
         'pre_reservas': pre_reservas,
         'confirmados': confirmados,
         'sem_escalas': sem_escalas,
-        'com_escalas': com_escalas,
+        'escalas_feitas': escalas_feitas,
         'avisos': avisos,
         'operacional': operacional,
         'coordenador_monitoria': coordenador_monitoria,

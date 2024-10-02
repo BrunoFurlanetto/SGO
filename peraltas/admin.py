@@ -10,7 +10,7 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
-                             TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm)
+                             TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm, EnfermeiraAdminForm)
 from peraltas.models import Vendedor
 from django.db import models
 
@@ -101,8 +101,9 @@ class EnfermeiraInline(admin.StackedInline):
 
 @admin.register(Enfermeira)
 class EnfermeiraAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'telefone_formatado')
+    list_display = ('__str__', 'telefone_formatado', 'nivel')
     search_fields = ('usuario__first_name',)
+    form = EnfermeiraAdminForm
 
     def telefone_formatado(self, obj):
         return f'({obj.telefone[0:2]}) {obj.telefone[2:7]} - {obj.telefone[7:]}'

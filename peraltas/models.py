@@ -144,6 +144,7 @@ class Enfermeira(models.Model):
     valor_diaria = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     valor_pernoite = models.DecimalField(null=True, decimal_places=2, max_digits=5)
     pode_pernoitar = models.BooleanField(default=False)
+    nivel = models.ForeignKey(NivelMonitoria, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.usuario.get_full_name()
@@ -1208,6 +1209,61 @@ class EscalaAcampamento(models.Model):
     class Meta:
         permissions = (('confirmar_escala', 'Confirmar Escala'),)
 
+    @property
+    def valores_escala(self):
+        valores_monitoria = valores_coordenadores = valores_biologo = valores_enfermeiras = valores_tecnicos = 0.00
+        monitores = list(self.monitores_acampamento.all()) + list(self.monitores_embarque.all())
+        dias = (self.check_out_cliente - self.check_in_cliente).days + 1
+
+        for monitor in monitores:
+            if monitor.nivel.coordenacao:
+                valores_coordenadores += float(monitor.valor_diaria_coordenacao)
+            else:
+                valores_monitoria += float(monitor.valor_diaria)
+
+        for biologo in self.biologos.all():
+            valores_biologo += float(biologo.valor_diaria_biologo)
+
+        for enfermeira in self.enfermeiras.all():
+            valores_enfermeiras += float(enfermeira.valor_diaria)
+
+        for tecnico in self.tecnicos.all():
+            valores_tecnicos += float(tecnico.valor_diaria)
+
+        return (valores_monitoria + valores_coordenadores + valores_biologo + valores_enfermeiras + valores_tecnicos) * dias
+
+    @property
+    def contagem_niveis(self):
+        contagem_niveis = {}
+        niveis = ''
+        monitores = list(self.monitores_acampamento.all()) + list(self.monitores_embarque.all())
+
+        for monitor in monitores:
+            if monitor.nivel.nivel in contagem_niveis:
+                contagem_niveis[monitor.nivel.nivel] += 1
+            else:
+                contagem_niveis[monitor.nivel.nivel] = 1
+
+        for tecnico in self.tecnicos.all():
+            if tecnico.nivel.nivel in contagem_niveis:
+                contagem_niveis[tecnico.nivel.nivel] += 1
+            else:
+                contagem_niveis[tecnico.nivel.nivel] = 1
+
+        for biologo in self.biologos.all():
+            if biologo.nivel.nivel in contagem_niveis:
+                contagem_niveis[biologo.nivel.nivel] += 1
+            else:
+                contagem_niveis[biologo.nivel.nivel] = 1
+
+        for enfermeira in self.enfermeiras.all():
+            if enfermeira.nivel.nivel in contagem_niveis.keys():
+                contagem_niveis[enfermeira.nivel.nivel] += 1
+            else:
+                contagem_niveis[enfermeira.nivel.nivel] = 1
+
+        return contagem_niveis
+
 
 class EscalaHotelaria(models.Model):
     coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='coordendadores')
@@ -1424,3 +1480,13 @@ class MonitorAdminForm(forms.ModelForm):
         self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
         self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Corporativo').order_by('id')
         self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
+
+
+class EnfermeiraAdminForm(forms.ModelForm):
+    class Meta:
+        model = Monitor
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(EnfermeiraAdminForm, self).__init__(*args, **kwargs)
+        self.fields['nivel'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Enfermagem').order_by('id')
