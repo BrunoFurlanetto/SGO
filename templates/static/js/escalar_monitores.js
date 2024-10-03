@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', aplicarCoresPorNivel);
 
 function filtrar_niveis(div, nivel) {
     let monitores_disponiveis = $('#monitores_acampamento').children()
-    console.log(niveis_selecionados, nivel)
+
     if (niveis_selecionados.includes(nivel)) {
         $(div).removeClass('clicado')
         niveis_selecionados.splice(niveis_selecionados.indexOf(nivel), 1)

@@ -693,7 +693,7 @@ def montagem_escala_hotelaria(request, data):
     )
 
     try:
-        disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas)
+        disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas, setor='hotelaria')
     except AttributeError as e:
         messages.error(request, e)
 
@@ -713,7 +713,7 @@ def montagem_escala_hotelaria(request, data):
         'diretoria': diretoria,
         'setor': 'hotelaria',
         'disponiveis': disponiveis,
-        'niveis_monitoria': list({monitor['nivel'] for monitor in disponiveis if monitor['nivel'] != ''}),
+        'niveis_monitoria': sorted(niveis_monitoria),
     })
 
 
