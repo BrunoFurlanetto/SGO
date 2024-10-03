@@ -439,11 +439,12 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
             monitores_embarque = monitores_biologo = None
 
         for monitor in disponiveis:
-            if monitor['tecnica']:
+            if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
                 niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
             elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
-                niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
-            elif monitor['setor'] == 'peraltas':
+                if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
+                    niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+            elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
                 niveis_monitoria.append(monitor['nivel'])
 
         return render(request, 'escala/escalar_monitores.html', {
@@ -466,6 +467,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
             'n_monitores': n_monitores if n_monitores != 0 else 1,
             'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
             'niveis_monitoria': sorted(niveis_monitoria),
+            'valor_monitoria': '0,00'
         })
 
     return render(request, 'escala/escalar_monitores.html', {
@@ -563,11 +565,12 @@ def edicao_escala_acampamento(request, data, id_cliente):
             n_monitores = int(ficha_de_evento.qtd_convidada / escala_editada.racional_monitores)
 
     for monitor in disponiveis + escalado:
-        if monitor['tecnica']:
+        if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
             niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
         elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
-            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
-        elif monitor['setor'] == 'peraltas':
+            if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
+                niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
             niveis_monitoria.append(monitor['nivel'])
 
     return render(request, 'escala/escalar_monitores.html', {
@@ -592,6 +595,7 @@ def edicao_escala_acampamento(request, data, id_cliente):
         'n_monitores': n_monitores if n_monitores != 0 else 1,
         'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
         'niveis_monitoria': sorted(niveis_monitoria),
+        'valor_monitoria': f'{escala_editada.valores_escala:.2f}'.replace('.', ','),
     })
 
 
@@ -696,11 +700,12 @@ def montagem_escala_hotelaria(request, data):
         return redirect('dashboardPeraltas')
 
     for monitor in disponiveis:
-        if monitor['tecnica']:
+        if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
             niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
         elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
-            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
-        elif monitor['setor'] == 'peraltas':
+            if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
+                niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
             niveis_monitoria.append(monitor['nivel'])
 
     return render(request, 'escala/escalar_monitores.html', {
@@ -761,11 +766,12 @@ def edicao_escala_hotelaria(request, data):
                 disponiveis.append(monitor_teste)
 
     for monitor in disponiveis + escalado:
-        if monitor['tecnica']:
+        if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
             niveis_monitoria.append(f'Técnica({monitor["nivel"]})')
         elif monitor['biologo'] != '' and monitor['setor'] == 'peraltas':
-            niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
-        elif monitor['setor'] == 'peraltas':
+            if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
+                niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
+        elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
             niveis_monitoria.append(monitor['nivel'])
 
     return render(request, 'escala/escalar_monitores.html', {
@@ -911,3 +917,35 @@ def visualizarDisponibilidadeCeu(request):
 
     return render(request, 'escala/calendario_disponibilidade_ceu.html', {'disponiveis': disponiveis,
                                                                           'eventos': eventos})
+
+
+def atualizar_valor(request):
+    if is_ajax(request):
+        id_monitores = set()
+        valor_monitoria = 0.00
+        id_monitores.update(request.GET.getlist('id_monitores[]') + request.GET.getlist('id_monitores_embarque[]'))
+        data_check_in = datetime.strptime(request.GET.get('check_in'), '%Y-%m-%dT%H:%M').date()
+        data_check_out = datetime.strptime(request.GET.get('check_out'), '%Y-%m-%dT%H:%M').date()
+        n_dias = (data_check_out - data_check_in).days + 1
+
+        for id_monitor in id_monitores:
+            monitor = Monitor.objects.get(pk=id_monitor)
+
+            if monitor.nivel.coordenacao:
+                valor_monitoria += float(monitor.valor_diaria_coordenacao)
+            else:
+                valor_monitoria += float(monitor.valor_diaria)
+
+        for id_monitor in request.GET.getlist('id_biologos[]'):
+            monitor = Monitor.objects.get(pk=id_monitor)
+            valor_monitoria += float(monitor.valor_diaria_biologo)
+
+        for id_monitor in request.GET.getlist('id_tecnicos[]'):
+            monitor = Monitor.objects.get(pk=id_monitor)
+            valor_monitoria += float(monitor.valor_diaria)
+
+        for id_enfermeira in request.GET.getlist('id_enfermeira[]'):
+            enfermeira = Enfermeira.objects.get(pk=id_enfermeira)
+            valor_monitoria += float(enfermeira.valor_diaria)
+
+        return HttpResponse(f'{valor_monitoria * n_dias:.2f}'.replace('.', ','))

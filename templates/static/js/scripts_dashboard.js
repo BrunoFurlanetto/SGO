@@ -350,3 +350,32 @@ function modal_de_tratativas(id_tratativa) {
     $('#tratativas').modal('show')
     end_loading()
 }
+
+const botoes = document.querySelectorAll('.btn-confirmar-escala');
+
+botoes.forEach(function(botao) {
+    // Alterar o texto quando o mouse estiver sobre o botão
+    botao.addEventListener('mouseenter', function() {
+        // Adiciona a classe de desvanecimento
+        this.classList.add('fade-out');
+
+        setTimeout(() => {
+            this.textContent = 'Confirmar';
+            this.classList.remove('fade-out');
+            this.classList.add('fade-in'); // Adiciona a classe de fade-in
+        }, 200); // Tempo para aguardar antes de mudar o texto
+    });
+
+    // Restaurar o texto original quando o mouse sair do botão
+    botao.addEventListener('mouseleave', function() {
+        this.classList.remove('fade-in'); // Remove a classe de fade-in
+        this.classList.add('fade-out'); // Adiciona a classe de desvanecimento
+
+        setTimeout(() => {
+            this.textContent = 'Não';  // Texto original
+            this.classList.remove('fade-out'); // Remove a classe de desvanecimento
+        }, 50); // Tempo para aguardar antes de mudar o texto
+    });
+});
+
+

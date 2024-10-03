@@ -11,6 +11,7 @@ let outras_escalas = []
 let id_enfermeiras = []
 let id_escalados = []
 let areas = []
+let niveis_selecionados = []
 
 espacos.forEach((espaco) => {
     espaco.addEventListener('dragover', (e) => {
@@ -169,7 +170,29 @@ async function escalado(espaco) {
     }
 
     verificar_escalados()
-    verificar_racionais()
+    await verificar_racionais()
+    atualizar_valor()
+}
+
+function atualizar_valor() {
+    $.ajax({
+        url: '/escala/peraltas/atualizar_valor/',
+        type: 'GET',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {
+            'id_monitores': id_escalados,
+            'id_monitores_embarque': id_monitores_embarque,
+            'id_biologos': id_monitores_biologo,
+            'id_enfermeiras': id_enfermeiras,
+            'id_coordenadores': id_coordenadores_escalados,
+            'id_tecnicos': id_tecnicos,
+            'check_in': $('#check_in').val(),
+            'check_out': $('#check_out').val(),
+        },
+        success: function (response) {
+            $('#alerta_valor_monitoria span').text(response)
+        }
+    });
 }
 
 function duplicar_escalado(monitor) {
@@ -331,13 +354,13 @@ function gerarCorAleatoria() {
 
     do {
         // Gerar componentes de cor de 0 a 255
-        const r = Math.floor(Math.random() * 256); // Vermelho
-        const g = Math.floor(Math.random() * 256); // Verde
-        const b = Math.floor(Math.random() * 256); // Azul
+        const r = Math.floor(Math.random() * 200) + 56; // Vermelho
+        const g = Math.floor(Math.random() * 200) + 56; // Verde
+        const b = Math.floor(Math.random() * 200) + 56; // Azul
 
         // Convertendo para formato hexadecimal
         cor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-    } while (coresGeradas.some(existingCor => calcularDistancia(existingCor, cor) < 100)); // Distância mínima
+    } while (coresGeradas.some(existingCor => calcularDistancia(existingCor, cor) < 40)); // Distância mínima
 
     coresGeradas.push(cor); // Adiciona a nova cor ao array
     return cor;
@@ -391,6 +414,30 @@ function definirCorTexto(cor) {
 
 // Executar a função quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', aplicarCoresPorNivel);
+
+function filtrar_niveis(div, nivel) {
+    let monitores_disponiveis = $('#monitores_acampamento').children()
+    console.log(niveis_selecionados, nivel)
+    if (niveis_selecionados.includes(nivel)) {
+        $(div).removeClass('clicado')
+        niveis_selecionados.splice(niveis_selecionados.indexOf(nivel), 1)
+    } else {
+        $(div).addClass('clicado')
+        niveis_selecionados.push(nivel)
+    }
+
+    for (let monitor of monitores_disponiveis) {
+        if (niveis_selecionados.length == 0) {
+            $(monitor).removeClass('none')
+        } else {
+            if (niveis_selecionados.includes($(monitor).data('nivel'))) {
+                $(monitor).removeClass('none')
+            } else {
+                $(monitor).addClass('none')
+            }
+        }
+    }
+}
 
 function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
     const monitores_escalados = $('#monitores_escalados').children()

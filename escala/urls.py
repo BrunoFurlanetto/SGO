@@ -24,6 +24,7 @@ urlpatterns = [
     path('peraltas/deletar_escala/', views.deletar_escala, name='deletar_escala'),
     path('peraltas/gerar_pdf_escala/<str:setor>/', views.gerar_pdf_escala, name='gerar_pdf_escala'),
     path('peraltas/verificar_setor/', views.verificar_hospedagem, name='verificar_setor'),
+    path('peraltas/atualizar_valor/', views.atualizar_valor, name='atualizar_valor'),
     # ------------------------------------------------------------------------------------------------------------------
     path('peraltas/escalar/<str:setor>/<str:data>/', views.escalarMonitores, name='escalar_monitores'),
     path('peraltas/acampamento/escalar/<str:data>/<int:id_cliente>/', views.edicao_escala_acampamento,

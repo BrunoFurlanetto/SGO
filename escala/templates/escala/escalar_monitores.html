@@ -86,6 +86,7 @@
                             {% endif %}
                         </ul>
                     </div>
+                    <div class="alert alert-info" id="alerta_valor_monitoria">O valor aproximado da escala está em: R$ <span>{{ valor_monitoria }}</span></div>
                     <hr>
                 {% endif %}
                 <div class="row mb-1">
@@ -122,7 +123,7 @@
                 </div>
                 <div id="legenda" style="display: flex; flex-wrap: wrap">
                     {% for nivel in niveis_monitoria %}
-                        <div class="card-monitor-legenda" data-nivel="{{ nivel }}">{{ nivel }}</div>
+                        <div class="card-monitor-legenda" onclick="filtrar_niveis(this, '{{ nivel|safe }}')" data-nivel="{{ nivel }}">{{ nivel }}</div>
                     {% endfor %}
                 </div>
                 <hr>

@@ -1212,7 +1212,8 @@ class EscalaAcampamento(models.Model):
     @property
     def valores_escala(self):
         valores_monitoria = valores_coordenadores = valores_biologo = valores_enfermeiras = valores_tecnicos = 0.00
-        monitores = list(self.monitores_acampamento.all()) + list(self.monitores_embarque.all())
+        monitores = set()
+        monitores.update(list(self.monitores_acampamento.all()) + list(self.monitores_embarque.all()))
         dias = (self.check_out_cliente - self.check_in_cliente).days + 1
 
         for monitor in monitores:
@@ -1478,8 +1479,8 @@ class MonitorAdminForm(forms.ModelForm):
         super(MonitorAdminForm, self).__init__(*args, **kwargs)
         self.fields['nivel_acampamento'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Acampamento').order_by('id')
         self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
-        self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Corporativo').order_by('id')
-        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
+        self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
+        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Técnica').order_by('id')
 
 
 class EnfermeiraAdminForm(forms.ModelForm):

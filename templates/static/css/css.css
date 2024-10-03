@@ -901,6 +901,19 @@
     height: fit-content;
     overflow: hidden;
     max-width: 100%;
+    cursor: pointer;
+}
+
+.card-monitor-legenda:hover {
+    border-color: #000000 !important;
+    border-right: solid;
+    border-bottom: solid;
+}
+
+.card-monitor-legenda.clicado {
+    border-color: #000000 !important;
+    border-right: solid;
+    border-bottom: solid;
 }
 
 #escalados .tecnica {
@@ -1479,13 +1492,13 @@
 .btn-confirmar-escala {
     padding: 0 30% 0 30%;
     border-radius: 10px;
-    transition: border 0.3s ease, border-radius 0.3s ease, padding 0.3s ease;
+    transition: border 0.3s ease, border-radius 0.3s ease, padding 0.3s ease, opacity 0.8s ease;
 }
 
 .btn-confirmar-escala:hover {
     outline: none;  /* Remove o foco padrão do navegador */
     border: 2px solid #14cd18;  /* Adiciona uma borda visível ao focar */
-    padding: 0 20% 0 20%;
+    padding: 0 10% 0 10%;
     border-radius: 100px;  /* Aumenta o border-radius ao focar */
 }
 
@@ -1494,6 +1507,14 @@
     border-color: #000000;
     color: white;  /* Cor do texto ao clicar */
     border-radius: 50px;  /* Alteração do border-radius ao clicar */
+}
+
+.fade-out {
+    opacity: 0; /* Torna o botão invisível */
+}
+
+.fade-in {
+    opacity: 1; /* Torna o botão visível */
 }
 
 #abas img {

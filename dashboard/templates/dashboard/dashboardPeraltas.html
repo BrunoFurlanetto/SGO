@@ -444,8 +444,9 @@
                                                     onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
                                                 Não
                                             </button>
+                                        {% else %}
+                                            Sim
                                         {% endif %}
-                                        Sim
                                     </td>
                                 </tr>
                             {% endfor %}
