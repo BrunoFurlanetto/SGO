@@ -484,6 +484,22 @@
 
 }
 
+#nomes_monitores #div_pesquisa_monitores {
+    border-bottom: 1px #000 dashed;
+    width: 120%;
+    margin-left: -5%;
+    height: 55px;
+    padding: 8% 7% 1% 5%;
+    margin-top: -5%;
+    background: #fff;
+}
+
+#nomes_monitores #div_pesquisa_monitores input {
+    width: 100%;
+    padding: 3px 3px 2px 5px;
+    border-radius: 10px;
+}
+
 #calendario_escala {
     width: 80%;
 }
@@ -1625,3 +1641,5 @@
 #tabela_tratativas tr:not(:last-child) {
     border-bottom: dashed 1px #b5b2b2
 }
+
+

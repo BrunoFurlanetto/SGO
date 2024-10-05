@@ -370,3 +370,28 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
     calendar.render()
     calendar.setOption('locale', 'pt-br')
 }
+
+// Função para pesquisar e filtrar os monitores e enfermeiras
+document.querySelector('#div_pesquisa_monitores input').addEventListener('input', function () {
+    // Captura o valor do input em minúsculas para comparação
+    let searchValue = this.value.toLowerCase();
+
+    // Seleciona todas as divs de monitores e enfermeiras
+    let cards = document.querySelectorAll('#nomes_monitores .card-monitor');
+
+    // Itera sobre cada card-monitor
+    cards.forEach(function (card) {
+        // Captura o valor do atributo title em minúsculas
+        let cardTitle = card.getAttribute('data-event').toLowerCase();
+
+        // Verifica se o nome (title) inclui o texto da pesquisa
+        if (cardTitle.includes(searchValue)) {
+            // Se inclui, exibe o card
+            card.style.display = "block";
+        } else {
+            // Se não, esconde o card
+            card.style.display = "none";
+        }
+    });
+});
+

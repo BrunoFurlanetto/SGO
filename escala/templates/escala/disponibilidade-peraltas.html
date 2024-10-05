@@ -9,6 +9,9 @@
         <div style="position: relative">
             <div id="nomes_monitores" {% if coordenador_acampamento or coordenador_hotelaria %} class="sticky" {% endif %}>
                 {% if coordenador_acampamento or coordenador_hotelaria %}
+                    <div id="div_pesquisa_monitores">
+                        <input type="search">
+                    </div>
                     {% for monitor in monitores %}
                         <div class="card-monitor"
                              style="background:
