@@ -208,7 +208,7 @@ class CadastroOrdemDeServico(forms.ModelForm):
         self.fields['cidade'].widget.attrs['readonly'] = True
         self.fields['responsavel_grupo'].widget.attrs['readonly'] = True
 
-        monitores = Monitor.objects.filter(nivel__nivel__contains='Coordenador')
+        monitores = Monitor.objects.filter(nivel_acampamento__coordenacao=True)
         monitores_selecao = []
 
         for monitor in monitores:

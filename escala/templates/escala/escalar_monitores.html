@@ -87,6 +87,9 @@
                         </ul>
                     </div>
                     <div class="alert alert-info" id="alerta_valor_monitoria">O valor aproximado da escala está em: R$ <span>{{ valor_monitoria }}</span></div>
+                    {% if os %}
+                    	<div class="alert alert-info" id="alerta_valor_monitoria">Coordenador(es) do grupo: {{ coordenadores_grupo }}</div>
+                    {% endif %}
                     <hr>
                 {% endif %}
                 <div class="row mb-1">

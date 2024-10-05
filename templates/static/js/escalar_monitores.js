@@ -67,7 +67,7 @@ function trocar_card_monitor_escalado(monitor) {
 
 async function verificar_racionais() {
     $('#escalar .alerta_racionais').remove()
-    const monitores_totais = id_escalados.length + id_monitores_embarque.length + id_monitores_biologo.length
+    const monitores_totais = id_escalados.length
     const coordenadores_totais = $('#monitores_escalados').children().map((index, monitor) => {
         if (monitor.classList.contains('coordenador')) {
             return monitor

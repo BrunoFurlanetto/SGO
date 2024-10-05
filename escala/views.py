@@ -399,6 +399,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    coordenadores_grupo = []
     niveis_monitoria = []
 
     if is_ajax(request):
@@ -429,6 +430,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
         if ordem_de_servico:
             inicio_evento = ordem_de_servico.check_in
             termino_evento = ordem_de_servico.check_out
+            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
             n_monitores = int(ordem_de_servico.n_participantes / 10)
             monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
             monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
@@ -446,7 +448,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
                     niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
             elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
                 niveis_monitoria.append(monitor['nivel'])
-
+        print(coordenadores_grupo)
         return render(request, 'escala/escalar_monitores.html', {
             'clientes_dia': clientes_dia,
             'diretoria': diretoria,
@@ -457,6 +459,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
             'qtd_pagantes': qtd_pagantes,
             'ficha_de_evento': ficha_de_evento,
             'os': ordem_de_servico,
+            'coordenadores_grupo': ', '.join(coordenadores_grupo) if ordem_de_servico else None,
             'monitores_embarque': monitores_embarque,
             'monitores_biologo': monitores_biologo,
             'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
