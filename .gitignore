@@ -7,6 +7,9 @@
 # Arquivos que podem acabar aparecendo devido a sincronização em nuvem fora do github
 desktop.ini
 
+# Pra criação de dados fake
+dados_fake.py
+
 # Pasta para o salvamento temporário dos pdfs gerados
 temp/*
 !temp/.gitkeep
