@@ -23,6 +23,10 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         dropdownParent: $("#dados_do_pacote .modal-content"),
         width: '100%'
     })
+    $('select[name="opcionais"]').select2({
+        width: '100%',
+        minimumResultsForSearch: -1
+    })
     $('#apelido_orcamento, #apelido_orcamento_2').val($('#id_apelido').val())
     $('select[name="opcionais"]').on('change', async () => {
         await enviar_op();
@@ -938,9 +942,12 @@ async function verificar_preenchimento() {
 
 async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
-        setTimeout(() => {
-            $('select[name="opcionais"]').select2()
-        }, 300)
+        // setTimeout(() => {
+        //     $('select[name="opcionais"]').select2({
+        //         width: '100%',
+        //         minimumResultsForSearch: -1
+        //     })
+        // }, 300)
         loading()
 
         try {
@@ -1575,7 +1582,10 @@ function verficar_validade_opcionais(check_in) {
                     }
                 })
             })
-            $('select[name="opcionais"]').select2()
+            $('select[name="opcionais"]').select2({
+                width: '100%',
+                minimumResultsForSearch: -1
+            })
         }
     })
 }
