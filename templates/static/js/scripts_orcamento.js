@@ -1147,7 +1147,7 @@ function remover_periodo(btn) {
     }
 }
 
-function adicionar_periodo_novo(periodo = '', diasMarcados = []) {
+function adicionar_periodo_novo(periodo = '', diasMarcados = [], check_ins=[], check_outs=[]) {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
 
     let novo_obj_periodo = `
@@ -1184,6 +1184,24 @@ function adicionar_periodo_novo(periodo = '', diasMarcados = []) {
                 <div>
                     <input id="input_dom" type="checkbox" name="dias_periodo_${periodo_n}" value="6" ${diasMarcados.includes(6) ? 'checked' : ''}>
                     <label for="input_dom">Dom</label>
+                </div>                
+            </div>
+            <div id="horas_permitidas" class="mt-2">
+                <div id="check_in" >
+                    <label>Periodo de check in</label>
+                    <div>
+                        <input type="time" name="check_in_permitido_${periodo_n}" value="${check_ins[0]}">
+                        a
+                        <input type="time" name="check_in_permitido_${periodo_n}" value="${check_ins[1]}">
+                    </div>
+                </div>
+                <div id="check_out" class="mt-2">
+                    <label>Periodo de check out</label>
+                    <div>
+                        <input type="time" name="check_out_permitido_${periodo_n}" value="${check_outs[0]}">
+                        a
+                        <input type="time" name="check_out_permitido_${periodo_n}" value="${check_outs[1]}">
+                    </div>
                 </div>
             </div>
             <hr style="width: 100%">
@@ -1395,7 +1413,11 @@ async function mostrar_dados_pacote(pacote) {
             }
 
             for (let _p in periodos) {
-                adicionar_periodo_novo(Object.values(periodos[_p])[0], Object.values(periodos[_p])[1])
+                adicionar_periodo_novo(Object.values(periodos[_p])[0],
+                    Object.values(periodos[_p])[1],
+                    Object.values(periodos[_p])[2].split(' - '),
+                    Object.values(periodos[_p])[3].split(' - ')
+                )
             }
 
             $('#tabela_de_opcionais tbody, #lista_opcionais_extra').empty()
@@ -1407,10 +1429,17 @@ async function mostrar_dados_pacote(pacote) {
                 disabled: 'readonly',
                 width: '100%'
             }).trigger('change')
+            verificar_horarios()
         }
     }).done(() => {
         $('#dados_do_pacote').modal('show')
     })
+}
+
+function verificar_horarios() {
+    const hora_check_in = moment($('#data_viagem').val().split(' - ')[0].split(' ')[1], 'HH:MM')
+    const hora_check_out = moment($('#data_viagem').val().split(' - ')[1].split(' ')[1], 'HH:MM')
+    const hora_check_in_permitido = moment()
 }
 
 try {

@@ -392,7 +392,6 @@ def pegar_dados_pacote(request):
 def salvar_pacote(request):
     if is_ajax(request):
         dados = DadosDePacotes.tratar_dados(request.POST)
-        print(dados)
 
         if request.POST.get('id_pacote') != '':
             pacote_promocional = DadosDePacotes.objects.get(pk=request.POST.get('id_pacote'))
@@ -407,8 +406,8 @@ def salvar_pacote(request):
             return JsonError(f'Erro ao salvar os dados do pacote ({e})! Tente novavemente mais tarde.')
         else:
             DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
-            menor_horario = HorariosPadroes.objects.all().order_by('horario')[0].horario.strftime('%H:%M')
-            maior_horario = HorariosPadroes.objects.all().order_by('-final_horario')[0].final_horario.strftime('%H:%M')
+            menor_horario = dados.get('check_in_permitido_1[]')
+            maior_horario = dados.get('check_out_permitido_1[]')
 
             return JsonResponse(
                 {'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario}

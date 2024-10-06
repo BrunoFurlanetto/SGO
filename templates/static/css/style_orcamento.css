@@ -446,3 +446,13 @@ input[type='checkbox'] {
 .btn-troca-desconto i {
     font-size: 17px;
 }
+
+#horas_permitidas{
+    width: 100%;
+}
+
+#horas_permitidas #check_in > div, #horas_permitidas #check_out > div {
+    display: flex;
+    align-items: baseline;
+    column-gap: 15px;
+}

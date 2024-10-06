@@ -456,19 +456,26 @@ class DadosDePacotes(models.Model):
     def juntar_periodos(dados_pacote):
         periodo_n = 1
         periodos = []
-        print(dados_pacote)
+
         while True:
             if dados_pacote.get(f'periodo_{periodo_n}', None):
+                print(dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]'))
                 try:
                     dados_pacote[f'dias_periodo_{periodo_n}[]']
                 except KeyError:
                     periodos.append({
                         f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
-                        f'dias_periodos_{periodo_n}': list(map(int, dados_pacote.get(f'dias_periodo_{periodo_n}')))
+                        f'dias_periodos_{periodo_n}': list(map(int, dados_pacote.get(f'dias_periodo_{periodo_n}'))),
+                        f'check_in_permitido_{periodo_n}': ' - '.join(dados_pacote.getlist(f'check_in_permitido_{periodo_n}[]')),
+                        f'check_out_permitido_{periodo_n}': ' - '.join(dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]')),
                     })
                 else:
                     periodos.append({
                         f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
+                        f'check_in_permitido_{periodo_n}': ' - '.join(
+                            dados_pacote.getlist(f'check_in_permitido_{periodo_n}[]')),
+                        f'ckeck_out_permitido_{periodo_n}': ' - '.join(
+                            dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]')),
                         f'dias_periodos_{periodo_n}': list(
                             map(int, dados_pacote.getlist(f'dias_periodo_{periodo_n}[]')))
                     })
@@ -480,7 +487,7 @@ class DadosDePacotes(models.Model):
         return periodos
 
     def montar_dados_periodos(self):
-        def unidade_base(periodo, intervalo, lista_dias):
+        def unidade_base(periodo, intervalo, lista_dias, check_ins, check_outs):
             return f"""
                 <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
                     <div class="periodos">
@@ -528,6 +535,24 @@ class DadosDePacotes(models.Model):
                             <label for="input_dom">Dom</label>
                         </div>
                     </div>
+                    <div id="horas_permitidas" class="mt-2">
+                        <div id="check_in" >
+                            <label>Periodo de check in</label>
+                            <div>
+                                <input type="time" name="check_in_permitido_1" value="{check_ins[0]}">
+                                a
+                                <input type="time" name="check_in_permitido_1" value="{check_ins[1]}">
+                            </div>
+                        </div>
+                        <div id="check_out" class="mt-2">
+                            <label>Periodo de check out</label>
+                            <div>
+                                <input type="time" name="check_out_permitido_1" value="{check_outs[0]}">
+                                a
+                                <input type="time" name="check_out_permitido_1" value="{check_outs[1]}">
+                            </div>
+                        </div>
+                    </div>
                     <hr style="width: 100%">
                 </div>
             """
@@ -539,7 +564,9 @@ class DadosDePacotes(models.Model):
             html_dados += unidade_base(
                 f'periodo_{i}',
                 periodo[f'periodo_{i}'],
-                periodo[f'dias_periodos_{i}']
+                periodo[f'dias_periodos_{i}'],
+                periodo[f'check_in_permitido_{i}'].split(' - '),
+                periodo[f'check_out_permitido_{i}'].split(' - '),
             )
 
         return html_dados
