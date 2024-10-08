@@ -830,7 +830,6 @@ async function separar_produtos(periodo) {
                         }
                     }
                 }
-
                 resolve(response)
             }
         }).done(() => {
@@ -846,15 +845,15 @@ async function separar_produtos(periodo) {
         verficar_validade_opcionais(check_in)
     })
 
-    try {
-        if (data_check_out.diff(data_check_in, 'days') != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
-            setTimeout(() => {
-                if ($('#id_produto').val() == null) {
-                    $('#id_produto').val('')
-                }
-            }, 1)
+    if (resultado_ultima_consulta['data'] != undefined) {
+        let check_in = $('#data_viagem').val().split(' - ')[0]
+        let check_out = $('#data_viagem').val().split(' - ')[1]
+        let data_check_in = moment(check_in, 'DD/MM/YYYY HH:mm')
+        let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
+
+        if (data_check_out.diff(data_check_in, 'days') + 1 != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
+            $('#id_produto').val('')
         }
-    } catch (e) {
     }
 }
 
@@ -865,7 +864,7 @@ function verificar_pacotes_promocionais() {
     const n_dias = data_check_out.diff(data_check_in, 'days') + 1
     const id_produto = $('#id_produto').val()
 
-    if (id_produto != ''){
+    if (id_produto != '') {
         $.ajax({
             type: 'GET',
             url: '/orcamento/verificar_pacotes_promocionais/',
@@ -880,7 +879,7 @@ function verificar_pacotes_promocionais() {
                 const ids = promocionais.map(obj => obj.id)
                 let select_promocionais = $('#id_orcamento_promocional')
 
-                if (promocionais.length == 0){
+                if (promocionais.length == 0) {
                     select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
 
                     return
@@ -908,8 +907,6 @@ async function verificar_preenchimento() {
     if ($('#id_orcamento_promocional').val() != '') {
         verificar_horarios()
     }
-
-    // await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
         loading()
@@ -1152,7 +1149,7 @@ function remover_periodo(btn) {
     }
 }
 
-function adicionar_periodo_novo(periodo = '', diasMarcados = [], check_ins=[], check_outs=[]) {
+function adicionar_periodo_novo(periodo = '', diasMarcados = [], check_ins = [], check_outs = []) {
     let periodo_n = $('#lista_de_periodos .periodos_aplicaveis').length + 1
 
     let novo_obj_periodo = `
@@ -1464,7 +1461,7 @@ function verificar_horarios() {
                 if (resp) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out.format('HH:mm')}`
-                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
                 } else {
                     $('#id_orcamento_promocional').val('').trigger('change')
                 }
@@ -1476,7 +1473,7 @@ function verificar_horarios() {
                 if (resp) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out_2.format('HH:mm')}`
-                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
                 } else {
                     $('#id_orcamento_promocional').val('').trigger('change')
                 }
@@ -1491,7 +1488,8 @@ try {
     document.getElementById("btnPrint").onclick = function () {
         printTable()
     }
-} catch (e) {}
+} catch (e) {
+}
 
 
 function printTable() {
