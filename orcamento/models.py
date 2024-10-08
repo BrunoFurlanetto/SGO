@@ -653,6 +653,7 @@ class Orcamento(models.Model):
     class Meta:
         verbose_name = 'Orçamento'
         verbose_name_plural = '09 - Orçamentos criados'
+        permissions = (('aprovar_orcamentos', 'Aprovar orcamentos'),)
 
     def __str__(self):
         if not self.promocional:

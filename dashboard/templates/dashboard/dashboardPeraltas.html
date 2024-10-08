@@ -173,7 +173,7 @@
                          onclick="alterar_aba(this, 'fichas_financeiras_aprovadas')"> Fichas Financeiras
                     </div>
                 {% endif %}
-                {% if diretoria %}
+                {% if perms.orcamento.aprovar_orcamentos %}
                     <div class="folder"
                          onclick="alterar_aba(this, 'orcamentos_aprovacao')"> Orçamentos para aprovação
                     </div>
