@@ -474,7 +474,7 @@ class DadosDePacotes(models.Model):
                         f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
                         f'check_in_permitido_{periodo_n}': ' - '.join(
                             dados_pacote.getlist(f'check_in_permitido_{periodo_n}[]')),
-                        f'ckeck_out_permitido_{periodo_n}': ' - '.join(
+                        f'check_out_permitido_{periodo_n}': ' - '.join(
                             dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]')),
                         f'dias_periodos_{periodo_n}': list(
                             map(int, dados_pacote.getlist(f'dias_periodo_{periodo_n}[]')))

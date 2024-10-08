@@ -904,6 +904,11 @@ async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
     verificar_pacotes_promocionais()
+
+    if ($('#id_orcamento_promocional').val() != '') {
+        verificar_horarios()
+    }
+
     // await separar_produtos($('#data_viagem'))
 
     if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
@@ -1437,9 +1442,49 @@ async function mostrar_dados_pacote(pacote) {
 }
 
 function verificar_horarios() {
-    const hora_check_in = moment($('#data_viagem').val().split(' - ')[0].split(' ')[1], 'HH:MM')
-    const hora_check_out = moment($('#data_viagem').val().split(' - ')[1].split(' ')[1], 'HH:MM')
-    const hora_check_in_permitido = moment()
+    const hora_check_in = moment($('#data_viagem').val().split(' - ')[0].split(' ')[1], 'HH:mm')
+    const data_check_in = moment($('#data_viagem').val().split(' - ')[0].split(' ')[0], 'DD/MM/YYYY')
+    const data_check_out = moment($('#data_viagem').val().split(' - ')[1].split(' ')[0], 'DD/MM/YYYY')
+    const hora_check_out = moment($('#data_viagem').val().split(' - ')[1].split(' ')[1], 'HH:mm')
+    let periodos_permitidos = $('#lista_de_periodos .periodos_aplicaveis')
+
+    periodos_permitidos.each(function (index, element) {
+        let check_in_periodo = moment($(element).val().split(' - ')[0], 'DD/MM/YYYY');
+        let check_out_periodo = moment($(element).val().split(' - ')[1], 'DD/MM/YYYY');
+
+        if (data_check_in >= check_in_periodo && data_check_in <= check_out_periodo) {
+            let hora_check_in_1 = moment($(`input[name=check_in_permitido_${index + 1}]`)[0].value, 'HH:mm')
+            let hora_check_in_2 = moment($(`input[name=check_in_permitido_${index + 1}]`)[1].value, 'HH:mm')
+            let hora_check_out_1 = moment($(`input[name=check_out_permitido_${index + 1}]`)[0].value, 'HH:mm')
+            let hora_check_out_2 = moment($(`input[name=check_out_permitido_${index + 1}]`)[1].value, 'HH:mm')
+
+            if (!(hora_check_in >= hora_check_in_1 && hora_check_in <= hora_check_in_2)) {
+                let resp = confirm('Horário de check in do grupo fora do permitido para o pacote. Alterar data de check in para se enquadrar?')
+
+                if (resp) {
+                    let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
+                    let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out.format('HH:mm')}`
+                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                } else {
+                    $('#id_orcamento_promocional').val('').trigger('change')
+                }
+            }
+
+            if (!(hora_check_out >= hora_check_out_1 && hora_check_out <= hora_check_out_2)) {
+                let resp = confirm('Horário de check out do grupo fora do permitido para o pacote. Alterar data de check out para se enquadrar?')
+
+                if (resp) {
+                    let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
+                    let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out_2.format('HH:mm')}`
+                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                } else {
+                    $('#id_orcamento_promocional').val('').trigger('change')
+                }
+            }
+        }
+
+        inicializar_funcoes_periodo_viagem()
+    })
 }
 
 try {
