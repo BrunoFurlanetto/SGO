@@ -275,7 +275,7 @@ def calc_budget(req):
 
 @login_required(login_url='login')
 def editar_pacotes_promocionais(request, id_dados_pacote):
-    promocional = OrcamentosPromocionais.objects.get(dados_pacote__pk=id_dados_pacote)
+    promocional = OrcamentosPromocionais.objects.get(pk=id_dados_pacote)
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
