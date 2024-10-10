@@ -273,6 +273,31 @@ def calc_budget(req):
         })
 
 
+@login_required(login_url='login')
+def editar_pacotes_promocionais(request, id_dados_pacote):
+    promocional = OrcamentosPromocionais.objects.get(dados_pacote__pk=id_dados_pacote)
+    financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
+    taxas_padrao = ValoresPadrao.objects.all()
+    usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
+    cadastro_orcamento = CadastroOrcamento(instance=promocional.orcamento)
+    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+    pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
+
+    return render(request, 'orcamento/orcamento.html', {
+        'orcamento': cadastro_orcamento,
+        'orcamento_origem': promocional.orcamento,
+        'promocionais': promocionais,
+        'financeiro': financeiro,
+        'taxas_padrao': taxas_padrao,
+        'usuarios_gerencia': usuarios_gerencia,
+        'id_orcamento': promocional.orcamento.id,
+        'previa': True,
+        'pacote_promocional': pacote_promocional,
+        'gerente_aprovando': False,
+        'dados_pacote': promocional.dados_pacote,
+    })
+
+
 def veriricar_gerencia(request):
     id_usuario = request.POST.get('id_usuario')
     senha = request.POST.get('senha')

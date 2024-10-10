@@ -501,7 +501,7 @@
                         </thead>
                         <tbody>
                         {% for pacote in pacotes %}
-                            <tr>
+                            <tr style="cursor: pointer" onclick="window.location.href = '{% url 'editar_pacotes_promocionais' pacote.id %}'">
                                 <td>{{ pacote.dados_pacote.nome_do_pacote }}</td>
                                 <td>{{ pacote.orcamento.data_vencimento |date:'d/m/Y' }}</td>
                                 <td>R$ {{ pacote.orcamento.valor|substituir_ponto }}</td>

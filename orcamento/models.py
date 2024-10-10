@@ -565,8 +565,8 @@ class DadosDePacotes(models.Model):
                 f'periodo_{i}',
                 periodo[f'periodo_{i}'],
                 periodo[f'dias_periodos_{i}'],
-                periodo[f'check_in_permitido_{i}'].split(' - '),
-                periodo[f'check_out_permitido_{i}'].split(' - '),
+                periodo[f'check_in_permitido_{i}'].split(' - ') if periodo.get(f'check_in_permitido_{i}') else ['', ''],
+                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['', ''],
             )
 
         return html_dados
