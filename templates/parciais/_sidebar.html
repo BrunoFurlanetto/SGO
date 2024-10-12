@@ -127,7 +127,6 @@
                 {% endif %}
 
                 {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.ordemDeServico.add_ordemdeservico or perms.peraltas.add_fichadeevento %}
-
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-archive'></i>
@@ -313,14 +312,18 @@
                     {% else %}
                         <li>
                     {% endif %}
-                    <a href="{% url 'painel_diretoria' %}">
-                        <i class='bx bxs-pie-chart-alt-2'></i>
-                        <span class="link_name">Estatísticas</span>
-                    </a>
-                    <ul class="sub-menu blank">
-                        <li><a class="link_name" href="{% url 'painel_diretoria' %}">Estatísticas</a></li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-pie-chart-alt-2'></i>
+                            <span class="link_name">Estatísticas</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow'></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name">Estatísticas</a></li>
+                            <li><a href="{% url 'painel_diretoria' %}">Eventos</a></li>
+                            <li><a href="{% url 'estatisticas_monitoria' %}">Monitoria</a></li>
                     </ul>
-                    </li>
                 {% endif %}
 
                 {% if 'dashboard' in request.path %}
