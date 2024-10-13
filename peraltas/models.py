@@ -1,4 +1,5 @@
 import calendar
+import math
 from collections import defaultdict
 from datetime import datetime, timedelta
 from heapq import nlargest
@@ -1264,6 +1265,36 @@ class EscalaAcampamento(models.Model):
                 contagem_niveis[enfermeira.nivel.nivel] = 1
 
         return contagem_niveis
+
+    def relacao_monitor_participante(self):
+        return round(self.ficha_de_evento.qtd_convidada / len(self.monitores_acampamento.all()), 2)
+
+    def media_diarias(self):
+        soma_diarias = 0.00
+        monitores = set()
+        monitores.update(list(self.monitores_acampamento.all()) + list(self.monitores_embarque.all()))
+
+        for monitor in monitores:
+            if monitor.nivel.coordenacao:
+                soma_diarias += float(monitor.valor_diaria_coordenacao)
+            else:
+                soma_diarias += float(monitor.valor_diaria)
+
+        return round(soma_diarias / len(monitores), 2)
+
+    @classmethod
+    def soma_valor_diaria_nivel(cls, id_escala, id_nivel):
+        valor_diaria = 0.00
+        escala = cls.objects.get(pk=id_escala)
+
+        for monitor in escala.monitores_acampamento.all():
+            if monitor.nivel.id == id_nivel:
+                if monitor.nivel.coordenacao:
+                    valor_diaria += float(monitor.valor_diaria_coordenacao)
+                else:
+                    valor_diaria += float(monitor.valor_diaria)
+
+        return f'{valor_diaria:.2f}'.replace('.', ',') if valor_diaria != 0.00 else ''
 
 
 class EscalaHotelaria(models.Model):

@@ -1,0 +1,129 @@
+#corpo_site {
+    display: flex;
+    justify-content: center;
+}
+
+#dashboard_estatisticas_monitoria {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    flex-direction: column;
+    margin-bottom: 20%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+#dashboard_estatisticas_monitoria #descritivo {
+    min-width: 80%;
+    max-width: 100%;
+    overflow: auto;
+}
+
+#dados_acumulados {
+    border: 2px dashed #b1b5b9;
+    border-radius: 11px;
+    padding: 5px 10px 0 5px;
+    margin-bottom: 11px;
+}
+
+#tabela_descritivo_diarias {
+    table-layout: fixed;
+    min-width: 1500px;
+    width: 100%;
+    border: none;
+}
+
+#tabela_descritivo_diarias td{
+    max-width: 120px;
+    min-width: 110px;
+    vertical-align: middle;
+    text-align: center;
+    overflow: hidden; /* Oculta o excesso de conteúdo */
+    text-overflow: ellipsis; /* Adiciona '...' se o texto for cortado */
+    white-space: nowrap; /* Evita quebra de linha */
+}
+
+#tabela_descritivo_diarias th{
+    max-width: 130px;
+    min-width: 120px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Estilo para células da tabela */
+.table-bordered {
+    border-collapse: separate; /* Garante que as bordas não se sobreponham */
+    border-spacing: 0; /* Remove o espaçamento entre as células */
+}
+
+/* Estilo para todas as células da tabela */
+.table-bordered td,
+.table-bordered th {
+    border: 1px solid #dee2e6; /* Define a cor da borda */
+    border-radius: 8px; /* Ajuste o valor para o nível de arredondamento desejado */
+    padding: 8px; /* Adiciona algum espaçamento interno */
+    text-align: center; /* Alinhamento centralizado */
+}
+
+/* Estilo opcional para a borda da tabela */
+.table-bordered {
+    border: 1px solid #dee2e6; /* Define a cor da borda da tabela */
+    border-radius: 8px; /* Arredonda as bordas da tabela */
+}
+
+.separador_secao {
+    height: 10px;
+    border: none !important;
+}
+
+.vertical-header {
+    writing-mode: vertical-rl; /* Rotaciona o texto verticalmente */
+    transform: rotate(180deg); /* Opcional, inverte o texto se necessário */
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+}
+
+.under {
+    color: #2cd32c;
+}
+
+.equal {
+    color: #c6c616;
+}
+
+.over {
+    color: #dd1616;
+}
+.under:hover {
+    color: #2cd32c !important;
+}
+
+.equal:hover {
+    color: #c6c616 !important;
+}
+
+.over:hover {
+    color: #dd1616 !important;
+}
+
+#header_tabela_estatisticas_monitoria {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 20px;
+    padding-right: 5px;
+}
+
+#header_tabela_estatisticas_monitoria > div:last-child {
+    display: flex;
+    align-items: end;
+}
+
+.btn-descritivo-monitoria {
+    background: none;
+    border: none;
+    font-size: 30px;
+}

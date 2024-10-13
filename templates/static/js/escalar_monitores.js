@@ -74,7 +74,7 @@ async function verificar_racionais() {
         }
     }).get().length
 
-    if (monitores_totais > n_monitores) {
+    if (monitores_totais > (n_monitores + n_coordenadores)) {
         $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
     }
 

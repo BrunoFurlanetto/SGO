@@ -1,9 +1,12 @@
+from datetime import datetime, timedelta
+
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET
 
-from peraltas.models import Eventos, ProdutosPeraltas
+from painelDiretoria.models import Metas
+from peraltas.models import Eventos, ProdutosPeraltas, EscalaAcampamento
 from projetoCEU.utils import is_ajax
 
 
@@ -15,6 +18,46 @@ def index(request):
         'relatorio_produtos': Eventos.preparar_relatorio_produtos(),
         'produtos_peraltas': ProdutosPeraltas.objects.all(),
         'campos_cadastro_eventos': Eventos.campos_cadastro_eventos()
+    })
+
+
+@permission_required('peraltas.ver_relatorios_eventos', raise_exception=True)
+def estatisticas_monitoria(request):
+    escalas = EscalaAcampamento.objects.filter(
+        check_in_cliente__date__gte=datetime.today().date(),
+        check_out_cliente__date__lte=(datetime.today() + timedelta(days=6)).date(),
+    ).order_by('check_in_cliente')
+    grupos = [('Grupo', 'cliente'), ('Tipo', 'ficha_de_evento.produto'),
+              ('Participantes', 'ficha_de_evento.qtd_convidada')]
+    niveis_coordenacao = set()
+    niveis_monitoria = set()
+
+    # Dicionário para agrupar escalas por data
+    escalas_por_data = {}
+
+    for escala in escalas:
+        data = escala.check_in_cliente.date()
+        if data not in escalas_por_data:
+            escalas_por_data[data] = []
+        escalas_por_data[data].append(escala)
+
+        for monitor in escala.monitores_acampamento.all():
+            if monitor.nivel.coordenacao:
+                niveis_coordenacao.add((monitor.nivel.nivel, monitor.nivel.id))
+            else:
+                niveis_monitoria.add((monitor.nivel.nivel, monitor.nivel.id))
+
+    acumulado_relacao, acumulado_diarias = Metas.acumulado_dias(escalas)
+
+    return render(request, 'painelDiretoria/estatisticas_monitoria.html', {
+        'escalas_por_data': escalas_por_data,  # Passa o dicionário para o template
+        'niveis_coordenacao': sorted(list(niveis_coordenacao)),
+        'niveis_monitoria': sorted(list(niveis_monitoria)),
+        'grupos': grupos,
+        'n_escalas': len(escalas),
+        'metas': Metas.objects.all().first(),
+        'acumulado_relacao': acumulado_relacao,
+        'acumulado_diarias': acumulado_diarias,
     })
 
 
