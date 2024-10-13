@@ -21,7 +21,7 @@ def index(request):
     })
 
 
-@permission_required('peraltas.ver_relatorios_eventos', raise_exception=True)
+@permission_required('painelDiretoria.ver_estatisticas_monitoria', raise_exception=True)
 def estatisticas_monitoria(request):
     escalas = EscalaAcampamento.objects.filter(
         check_in_cliente__date__gte=datetime.today().date(),

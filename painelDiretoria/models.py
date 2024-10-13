@@ -21,6 +21,9 @@ class Metas(models.Model):
         default=0.00
     )
 
+    class Meta:
+        permissions = (('ver_estatisticas_monitoria', 'Ver estatísticas da monitoria'),)
+
     @staticmethod
     def acumulado_dias(escalas):
         acumulado_diaria = 0.00
