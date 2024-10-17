@@ -226,22 +226,8 @@ def calc_budget(req):
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)
-
-        # return
-        # try:
-        #     promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
-        #         data['n_dias'],
-        #         int(data['produto']),
-        #         data['check_in'],
-        #         data['check_out']
-        #     )
-        # except KeyError:
-        #     promocionais = []
-        # except ValueError:
-        #     promocionais = []
-        # except Exception as e:
-        #     return JsonError(e)
-
+        print(data)
+        print(gerencia)
         # GERANDO ORÇAMENTO
         business_fee = None
         commission = None
@@ -280,13 +266,12 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
     taxas_padrao = ValoresPadrao.objects.all()
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=promocional.orcamento)
-    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
+    promocional.orcamento.orcamento_promocional = promocional
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': promocional.orcamento,
-        'promocionais': promocionais,
         'financeiro': financeiro,
         'taxas_padrao': taxas_padrao,
         'usuarios_gerencia': usuarios_gerencia,

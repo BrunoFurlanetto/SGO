@@ -162,9 +162,7 @@
                     </div>
                     {{ orcamento.comentario_desconto.as_hidden }}
                     {{ orcamento.aprovacao_diretoria.as_hidden }}
-                    <input type="hidden" name="colaborador" value="
-
-                            {% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
+                    <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
                     <div class="botoes">
                         <p id="aviso_comentario_gerencia" class="alert alert-warning w-100 none">
@@ -416,16 +414,21 @@
                                         <div class="div_desconto_percent">
                                             <label for="desconto_produto_percent">
                                                 Desconto diaria (%)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
-                                            <input type="text" id="desconto_produto_percent" name="desconto_produto_percent"
+                                            <input type="text" id="desconto_produto_percent"
+                                                   name="desconto_produto_percent"
                                                    value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
                                                    onchange="enviar_infos_gerencia()">
                                         </div>
                                         <div class="div_desconto_real none">
                                             <label for="desconto_produto_real">
                                                 Desconto diaria ($)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
                                             <input type="text" id="desconto_produto_real" name="desconto_produto_real"
                                                    value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_diaria }}{% else %}0,00{% endif %}"
@@ -436,7 +439,9 @@
                                         <div class="div_desconto_percent">
                                             <label for="desconto_monitoria_percent">
                                                 Desconto monitoria (%)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
                                             <input type="text" id="desconto_monitoria_percent"
                                                    name="desconto_monitoria_percent"
@@ -446,7 +451,9 @@
                                         <div class="div_desconto_real none">
                                             <label for="desconto_monitoria_real">
                                                 Desconto monitoria ($)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
                                             <input type="text" id="desconto_monitoria_real"
                                                    name="desconto_monitoria_real"
@@ -458,7 +465,9 @@
                                         <div class="div_desconto_percent">
                                             <label for="desconto_transporte_percent">
                                                 Desconto transporte (%)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
                                             <input type="text" id="desconto_transporte_percent"
                                                    name="desconto_transporte_percent"
@@ -468,7 +477,9 @@
                                         <div class="div_desconto_real none">
                                             <label for="desconto_transporte_real">
                                                 Desconto transporte ($)
-                                                <button type="button" class="btn-troca-desconto" onclick="trocar_modalidade_desconto(this)"><i class='bx bx-transfer-alt'></i></button>
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
                                             </label>
                                             <input type="text" id="desconto_transporte_real"
                                                    name="desconto_transporte_real"
@@ -482,6 +493,11 @@
                                     <input type="date" name="data_vencimento" id="data_vencimento" required
                                            onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
                                 </div>
+                            </div>
+                            <div>
+                                <strong>Apelido do orçamento:</strong> {{ orcamento_origem.apelido }}
+                                <br>
+                                <strong>Nome do pacote:</strong> {{ dados_pacote.nome_do_pacote }}
                             </div>
                         </fieldset>
                     </form>
@@ -624,7 +640,7 @@
                                             </div>
                                         </div>
                                         <div id="horas_permitidas" class="mt-2">
-                                            <div id="check_in" >
+                                            <div id="check_in">
                                                 <label>Periodo de check in</label>
                                                 <div>
                                                     <input type="time" name="check_in_permitido_1">

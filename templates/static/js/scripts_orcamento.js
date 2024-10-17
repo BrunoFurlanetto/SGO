@@ -1385,8 +1385,13 @@ async function resetar_forms() {
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
     $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
+    $('#opcionais select').val('')
 
     if (id_pacote == '') {
+        if ($('#id_promocional').prop('checked')) {
+            return
+        }
+
         await resetar_forms()
         await enviar_form()
         $('#info_promocional').prop('disabled', true)

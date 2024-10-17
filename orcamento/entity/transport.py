@@ -37,6 +37,7 @@ class Transport(TransportProtocol):
         except ValoresTransporte.DoesNotExist:
             values = []
         else:
+            print(obj_transport.valor_final_2_dia, obj_transport.percentual, self.min_payers)
             if self.days == 1:
                 value = (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 2:
