@@ -25,7 +25,7 @@ def index(request):
 def estatisticas_monitoria(request):
     escalas = EscalaAcampamento.objects.filter(
         check_in_cliente__date__gte=datetime.today().date(),
-        check_out_cliente__date__lte=datetime(2024, 11, 30).date(),
+        check_out_cliente__date__lte=(datetime.today() + timedelta(days=6)).date(),
     ).order_by('check_in_cliente')
     grupos = [('Grupo', 'cliente'), ('Tipo', 'ficha_de_evento.produto'),
               ('Participantes', 'ficha_de_evento.qtd_convidada')]
