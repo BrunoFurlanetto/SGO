@@ -108,17 +108,17 @@ class Monitor(models.Model):
         if self.tecnica:
             return self.nivel_tecnica
 
+        if self.nivel_acampamento is not None:
+            return self.nivel_acampamento
+
         if self.nivel_hotelaria is not None:
             return self.nivel_hotelaria
 
         if self.nivel_corporativo is not None:
             return self.nivel_corporativo
 
-        if self.nivel_hotelaria is None and self.nivel_corporativo is None and not self.tecnica:
-            if self.nivel_acampamento is not None:
-                return self.nivel_acampamento
-            else:
-                return 'Sem nível atribuído'
+        else:
+            return 'Sem nível atribuído'
 
     @property
     def setor(self):
