@@ -1218,10 +1218,11 @@ class EscalaAcampamento(models.Model):
         dias = (self.check_out_cliente - self.check_in_cliente).days + 1
 
         for monitor in monitores:
-            if monitor.nivel.coordenacao:
-                valores_coordenadores += float(monitor.valor_diaria_coordenacao)
-            else:
-                valores_monitoria += float(monitor.valor_diaria)
+            if isinstance(monitor.nivel, NivelMonitoria):
+                if monitor.nivel.coordenacao:
+                    valores_coordenadores += float(monitor.valor_diaria_coordenacao)
+                else:
+                    valores_monitoria += float(monitor.valor_diaria)
 
         for biologo in self.biologos.all():
             valores_biologo += float(biologo.valor_diaria_biologo)
