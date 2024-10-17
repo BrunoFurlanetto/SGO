@@ -448,7 +448,7 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
                     niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
             elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
                 niveis_monitoria.append(monitor['nivel'])
-        print(coordenadores_grupo)
+
         return render(request, 'escala/escalar_monitores.html', {
             'clientes_dia': clientes_dia,
             'diretoria': diretoria,
@@ -489,7 +489,7 @@ def edicao_escala_acampamento(request, data, id_cliente):
     disponiveis = []
     escalado = []
     niveis_monitoria = []
-
+    coordenadores_grupo = []
     if is_ajax(request):
         if request.POST.get('id_monitor'):
             return JsonResponse(verificar_escalas(
@@ -566,6 +566,8 @@ def edicao_escala_acampamento(request, data, id_cliente):
         except OrdemDeServico.DoesNotExist:
             ordem_de_servico = None
             n_monitores = int(ficha_de_evento.qtd_convidada / escala_editada.racional_monitores)
+        else:
+            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
 
     for monitor in disponiveis + escalado:
         if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
@@ -585,6 +587,7 @@ def edicao_escala_acampamento(request, data, id_cliente):
         'qtd': ordem_de_servico.n_participantes if ordem_de_servico else ficha_de_evento.qtd_convidada,
         'ficha_de_evento': ficha_de_evento,
         'os': ordem_de_servico,
+        'coordenadores_grupo': ', '.join(coordenadores_grupo) if ordem_de_servico else None,
         'embarque': ficha_de_evento.informacoes_adcionais.transporte,
         'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
         'cliente': escala_editada.cliente.nome_fantasia,
