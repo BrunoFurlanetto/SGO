@@ -44,9 +44,12 @@ def estatisticas_monitoria(request):
             escalas_por_data[data] = []
 
         for monitor in escala.monitores_acampamento.all():
-            if monitor.nivel.coordenacao:
-                escala.coordenadores.append(monitor)
-            else:
+            try:
+                if monitor.nivel.coordenacao:
+                    escala.coordenadores.append(monitor)
+                else:
+                    escala.monitores.append(monitor)
+            except AttributeError:
                 escala.monitores.append(monitor)
 
         n_coordenadores = escala.coordenadores if len(escala.coordenadores) > len(n_coordenadores) else n_coordenadores
