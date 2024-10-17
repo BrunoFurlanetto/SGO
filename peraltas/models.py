@@ -1235,6 +1235,21 @@ class EscalaAcampamento(models.Model):
         return (valores_monitoria + valores_coordenadores + valores_biologo + valores_enfermeiras + valores_tecnicos) * dias
 
     @property
+    def valor_escala_sem_extra(self):
+        valores_monitoria = valores_coordenadores = 0.00
+        monitores = set()
+        monitores.update(list(self.monitores_acampamento.all()))
+        dias = (self.check_out_cliente - self.check_in_cliente).days + 1
+
+        for monitor in monitores:
+            if monitor.nivel.coordenacao:
+                valores_coordenadores += float(monitor.valor_diaria_coordenacao)
+            else:
+                valores_monitoria += float(monitor.valor_diaria)
+
+        return (valores_monitoria + valores_coordenadores) * dias
+
+    @property
     def contagem_niveis(self):
         contagem_niveis = {}
         niveis = ''

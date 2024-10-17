@@ -18,3 +18,11 @@ def get_attr(obj, attr):
     for at in attrs:
         obj = getattr(obj, at)
     return obj
+
+
+@register.filter
+def get_by_index(lista, index):
+    try:
+        return lista[index]
+    except IndexError:
+        return None

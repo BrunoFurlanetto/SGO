@@ -14,12 +14,17 @@
             <div id="dados_acumulados">
                 Acumulado dos 7 dias:
                 <ul>
-                    <li>Monitor/Participantes: <span class="{% if acumulado_relacao < metas.pax_mon %} under {% elif acumulado_relacao == metas.pax_mon %} equal {% else %} over {% endif %}">{{ acumulado_relacao|floatformat:"2" }}</span></li>
-                    <li>Média de diárias: <span class="{% if acumulado_diarias < metas.min_media_diarias %} under {% elif acumulado_diarias >= metas.min_media_diarias and acumulado_diarias < metas.max_media_diarias %} under {% elif acumulado_diarias == metas.max_media_diarias %} equal {% else %} over {% endif %}">{{ acumulado_diarias|floatformat:"2" }}</span></li>
+                    <li>Monitor/Participantes: <span
+                            class="{% if acumulado_relacao < metas.pax_mon %} under {% elif acumulado_relacao == metas.pax_mon %} equal {% else %} over {% endif %}">{{ acumulado_relacao|floatformat:"2" }}</span>
+                    </li>
+                    <li>Média de diárias: <span
+                            class="{% if acumulado_diarias < metas.min_media_diarias %} under {% elif acumulado_diarias >= metas.min_media_diarias and acumulado_diarias < metas.max_media_diarias %} under {% elif acumulado_diarias == metas.max_media_diarias %} equal {% else %} over {% endif %}">{{ acumulado_diarias|floatformat:"2" }}</span>
+                    </li>
                 </ul>
             </div>
             <div>
-                <button type="button" class="btn-descritivo-monitoria" onclick="$('.descritivo-monitoria').toggleClass('none')">
+                <button type="button" class="btn-descritivo-monitoria"
+                        onclick="$('.descritivo-monitoria').toggleClass('none')">
                     <i class='bx bx-list-plus fixed-icon'></i>
                 </button>
             </div>
@@ -37,9 +42,9 @@
                 </thead>
                 <!-- Corpo da Tabela: Dados do Grupo -->
                 <tbody>
-                    <tr>
-                        <th rowspan="4" class="vertical-header">Dados do grupo</th>
-                    </tr>
+                <tr>
+                    <th rowspan="4" class="vertical-header">Dados do grupo</th>
+                </tr>
                 {% for header, attr in grupos %}
                     <tr>
                         <th>{{ header }}</th>
@@ -83,14 +88,22 @@
                 <!-- Corpo da Tabela: Níveis de Coordenação -->
                 <tbody class="descritivo-monitoria none">
                 <tr>
-                    <th rowspan="{{ niveis_monitoria|length }}" class="vertical-header">Dados da coordenação</th>
+                    <th rowspan="{{ max_coordenadores|length|add:'1' }}" class="vertical-header">Dados da coordenação</th>
                 </tr>
-                {% for nivel, id_nivel in niveis_coordenacao %}
+                <script>console.log('{{ max_coordenadores }}')</script>
+                {% for i in max_coordenadores %}
+                    <script>console.log('{{ i }}')</script>
                     <tr>
-                        <th>{{ nivel }}</th>
+                        <th>C{{ forloop.counter }}</th>
                         {% for data, escalas in escalas_por_data.items %}
                             {% for escala in escalas %}
-                                <td>{% soma_valor_nivel escala.id id_nivel %}</td>
+                                <td>
+                                    {% with escala.coordenadores|get_by_index:i as monitor %}
+                                        {% if monitor %}
+                                            {{ monitor.valor_diaria_coordenacao|floatformat:'2' }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
                             {% endfor %}
                         {% endfor %}
                     </tr>
@@ -102,19 +115,36 @@
 
                 <!-- Corpo da Tabela: Níveis de Monitoria -->
                 <tbody class="descritivo-monitoria none">
+                <!-- Cabeçalho da tabela com as datas -->
                 <tr>
-                    <th rowspan="{{ niveis_monitoria|length|add:"1" }}" class="vertical-header">Dados da monitoria</th>
+                    <th rowspan="{{ max_monitores|length|add:'1' }}" class="vertical-header">Dados da monitoria</th>
                 </tr>
-                {% for nivel, id_nivel in niveis_monitoria %}
+                {% for i in max_monitores %}
                     <tr>
-                        <th>{{ nivel }}</th>
+                        <th>M{{ forloop.counter }}</th>
                         {% for data, escalas in escalas_por_data.items %}
                             {% for escala in escalas %}
-                                <td>{% soma_valor_nivel escala.id id_nivel %}</td>
+                                <td>
+                                    {% with escala.monitores|get_by_index:i as monitor %}
+                                        {% if monitor %}
+                                            {{ monitor.valor_diaria|floatformat:'2' }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
                             {% endfor %}
                         {% endfor %}
                     </tr>
                 {% endfor %}
+                </tbody>
+                <tbody>
+                <tr>
+                    <th colspan="2">Valor total</th>
+                    {% for data, escalas in escalas_por_data.items %}
+                        {% for escala in escalas %}
+                            <th>{{ escala.valor_escala_sem_extra|floatformat:'2' }}</th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
                 </tbody>
             </table>
         </div>

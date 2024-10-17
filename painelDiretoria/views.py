@@ -25,39 +25,45 @@ def index(request):
 def estatisticas_monitoria(request):
     escalas = EscalaAcampamento.objects.filter(
         check_in_cliente__date__gte=datetime.today().date(),
-        check_out_cliente__date__lte=(datetime.today() + timedelta(days=6)).date(),
+        check_out_cliente__date__lte=datetime(2024, 11, 30).date(),
     ).order_by('check_in_cliente')
     grupos = [('Grupo', 'cliente'), ('Tipo', 'ficha_de_evento.produto'),
               ('Participantes', 'ficha_de_evento.qtd_convidada')]
-    niveis_coordenacao = set()
-    niveis_monitoria = set()
 
     # Dicionário para agrupar escalas por data
     escalas_por_data = {}
+    n_monitores = []
+    n_coordenadores = []
 
     for escala in escalas:
+        escala.coordenadores = []
+        escala.monitores = []
         data = escala.check_in_cliente.date()
+
         if data not in escalas_por_data:
             escalas_por_data[data] = []
-        escalas_por_data[data].append(escala)
 
         for monitor in escala.monitores_acampamento.all():
             if monitor.nivel.coordenacao:
-                niveis_coordenacao.add((monitor.nivel.nivel, monitor.nivel.id))
+                escala.coordenadores.append(monitor)
             else:
-                niveis_monitoria.add((monitor.nivel.nivel, monitor.nivel.id))
+                escala.monitores.append(monitor)
+
+        n_coordenadores = escala.coordenadores if len(escala.coordenadores) > len(n_coordenadores) else n_coordenadores
+        n_monitores = escala.monitores if len(escala.monitores) > len(n_monitores) else n_monitores
+        escalas_por_data[data].append(escala)
 
     acumulado_relacao, acumulado_diarias = Metas.acumulado_dias(escalas)
 
     return render(request, 'painelDiretoria/estatisticas_monitoria.html', {
         'escalas_por_data': escalas_por_data,  # Passa o dicionário para o template
-        'niveis_coordenacao': sorted(list(niveis_coordenacao)),
-        'niveis_monitoria': sorted(list(niveis_monitoria)),
         'grupos': grupos,
         'n_escalas': len(escalas),
         'metas': Metas.objects.all().first(),
         'acumulado_relacao': acumulado_relacao,
         'acumulado_diarias': acumulado_diarias,
+        'max_monitores': range(0, len(n_monitores)),
+        'max_coordenadores': range(0, len(n_coordenadores)),
     })
 
 
