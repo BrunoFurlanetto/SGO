@@ -460,7 +460,8 @@
     padding: 5px 15px 5px 5px;
     background: #e9e9e9;
     width: 20%;
-    height: 450px;
+    min-height: 450px;
+    max-height: 650px;
     overflow: auto;
 }
 
