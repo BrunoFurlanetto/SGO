@@ -64,9 +64,8 @@ class NivelMonitoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Monitor)
 class MonitorAdmin(admin.ModelAdmin):
-    list_display = ('nome_completo', 'nivel_acampamento', 'nivel_hotelaria', 'nivel_tecnica', 'biologo', 'tecnica', 'fixo', 'telefone_formatado', 'nivel')
+    list_display = ('nome_completo', 'biologo', 'tecnica', 'fixo', 'telefone_formatado', 'nivel')
     search_fields = ('usuario__first_name', 'usuario__last_name',)
-    list_editable = ('nivel_acampamento', 'nivel_hotelaria', 'nivel_tecnica')
     form = MonitorAdminForm
 
     def telefone_formatado(self, obj):
