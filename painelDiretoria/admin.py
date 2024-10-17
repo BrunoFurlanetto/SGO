@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from painelDiretoria.models import Metas
+
+
+@admin.register(Metas)
+class MetasAdmin(admin.ModelAdmin):
+    list_display = ('id', 'pax_mon', 'min_media_diarias', 'max_media_diarias')
+    list_editable = ('pax_mon', 'min_media_diarias', 'max_media_diarias')

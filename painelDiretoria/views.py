@@ -62,7 +62,7 @@ def estatisticas_monitoria(request):
         'escalas_por_data': escalas_por_data,  # Passa o dicionário para o template
         'grupos': grupos,
         'n_escalas': len(escalas),
-        'metas': Metas.objects.all().first(),
+        'metas': Metas.objects.all().last(),
         'acumulado_relacao': acumulado_relacao,
         'acumulado_diarias': acumulado_diarias,
         'max_monitores': range(0, len(n_monitores)),

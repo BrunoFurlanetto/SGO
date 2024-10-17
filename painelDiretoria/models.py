@@ -21,6 +21,10 @@ class Metas(models.Model):
         default=0.00
     )
 
+    def __str__(self):
+        return (f'Meta de relação participantes/monitroia: {self.pax_mon:.2f} e de média de diarias: {self.min_media_diarias:.2f}'
+                f' - {self.max_media_diarias:.2f}')
+
     class Meta:
         permissions = (('ver_estatisticas_monitoria', 'Ver estatísticas da monitoria'),)
 
