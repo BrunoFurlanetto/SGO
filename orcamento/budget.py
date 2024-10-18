@@ -107,7 +107,7 @@ class Budget:
         else:
             for key, value in valores_op.items():
                 opt_data.append(value)
-
+        print(opt_data)
         self.set_optional(opt_data)
         self.optional.calc_value_optional(self.array_description_optional)
         self.set_others(data.get("opcionais_extra"))
@@ -159,9 +159,11 @@ class Budget:
 
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
-            discount = 0
+            discount = adjustiment = 0
+
             try:
                 discount = opt[1]
+                adjustiment = opt[2]
             except IndexError:
                 ...
 
@@ -175,6 +177,7 @@ class Budget:
                 db_optional.categoria.nome_categoria,
             )
             description.set_discount(discount)
+            description.set_adjustiment(adjustiment)
             optional_array.append(description.do_object())
 
         self.array_description_optional = optional_array

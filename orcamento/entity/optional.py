@@ -8,11 +8,12 @@ class Optional(BaseValue):
 
     def calc_value_optional(self, optional_description):
         total = 0
-        discount = 0
+        discount = adjustiment = 0
 
         for opt in optional_description:
             total += opt["valor"]
             discount += opt["desconto"]
+            adjustiment += opt["ajuste"]
 
         value = [total]
         for i in range(1, self.days):
@@ -20,5 +21,6 @@ class Optional(BaseValue):
 
         self.set_values(value)
         self.set_discount(discount)
+        self.set_adjustiment(adjustiment)
 
         return self.values

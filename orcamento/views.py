@@ -130,7 +130,7 @@ def salvar_orcamento(request, id_tratativa=None):
         data['valor'] = f'{valor_final:.2f}'
         data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
         data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
-
+        print(data)
         if data.get('id_previa_orcamento'):
             previa_orcamento = Orcamento.objects.get(pk=data['id_previa_orcamento'])
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
@@ -140,7 +140,6 @@ def salvar_orcamento(request, id_tratativa=None):
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()
-        # pre_orcamento.colaborador = request.user
         pre_orcamento.previa = data.get('salvar_previa') == 'true'
         pre_orcamento.apelido = '' if not pre_orcamento.previa else pre_orcamento.apelido
 
@@ -226,8 +225,7 @@ def calc_budget(req):
         # Verificar parametros obrigatórios
         if verify_data(data):
             return verify_data(data)
-        print(data)
-        print(gerencia)
+
         # GERANDO ORÇAMENTO
         business_fee = None
         commission = None

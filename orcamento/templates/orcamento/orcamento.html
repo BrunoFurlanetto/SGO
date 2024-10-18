@@ -250,6 +250,7 @@
                                 <th style="width: 50%">Opcional</th>
                                 <th style="width: 25%">Valor</th>
                                 <th style="width: 25%">Desconto</th>
+                                <th style="width: 25%">Acrescimo</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -269,12 +270,17 @@
                                         <th><input type="text" id="valor_opcionais_{{ forloop.counter }}"
                                                    disabled
                                                    name="opcionais_{{ forloop.counter }}"
-                                                   value='{{ op.valor_com_desconto | substituir_ponto }}'></th>
+                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
                                         <th><input type="text"
                                                    id="desconto_opcionais_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
                                                    data-limite_desconto="{{ op.valor }}"
-                                                   value="{{ op.desconto | substituir_ponto }}"
+                                                   value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_{{ forloop.counter }}"
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   value="{{ op.ajuste | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
                                 {% else %}
@@ -292,16 +298,20 @@
                                         <th><input type="text" id="valor_opcionais_extra_{{ forloop.counter }}"
                                                    disabled
                                                    name="opcionais_extra_{{ forloop.counter }}"
-                                                   value='{{ op.valor_com_desconto | substituir_ponto }}'></th>
+                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
                                         <th><input type="text"
                                                    id="desconto_opcionais_extra_{{ forloop.counter }}"
                                                    name="opcionais_extra_{{ forloop.counter }}"
                                                    data-limite_desconto="{{ op.valor }}"
-                                                   disabled value="{{ op.desconto | substituir_ponto }}"
+                                                   disabled value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_extra_{{ forloop.counter }}"
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   value="{{ op.ajuste | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
                                 {% endif %}
-
                             {% endfor %}
                             </tbody>
                         </table>

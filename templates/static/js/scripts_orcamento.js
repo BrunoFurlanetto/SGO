@@ -42,7 +42,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
     }
 
-    $('#valor_opcional, #desconto_geral').mascaraDinheiro()
+    $('#valor_opcional, #desconto_geral, .opcionais [id*="desconto"], .opcionais [id*="acrescimo"]').mascaraDinheiro()
     $('#desconto_produto_real, #desconto_monitoria_real, #desconto_transporte_real').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
@@ -107,7 +107,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
             end_loading()
         } finally {
             // await atualizar_valores_op()
-            await listar_op(null, opcao, null, '0,00', true)
+            await listar_op(null, opcao, null, '0,00', '0,00', true)
             await enviar_form()
             end_loading()
         }
@@ -274,13 +274,13 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, opcao, i, desconto = '0,00', removido = false) {
+async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo='0,00', removido = false) {
     if (removido) {
         $(`#tabela_de_opcionais tbody #opcionais_${opcao['id']}`).remove()
 
         return
     }
-
+    console.log(dados_op)
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     $('#tabela_de_opcionais tbody').append(`
@@ -290,6 +290,7 @@ async function listar_op(dados_op, opcao, i, desconto = '0,00', removido = false
             <input type="hidden" id="valor_bd_opcionais_${i}" name="opcionais_${i}" value='${valor_selecao}' disabled>
             <th><input type="text" id="valor_opcionais_${i}" disabled name="opcionais_${i}" value='${valor_selecao}'></th>
             <th><input type="text" id="desconto_opcionais_${i}" data-limite_desconto="${valor_selecao}" name="opcionais_${i}" value="${desconto}" onchange="aplicar_desconto(this)"></th> 
+            <th><input type="text" id="acrescimo_opcionais_${i}" name="opcionais_${i}" value="${acrescimo}" onchange="aplicar_desconto(this)"></th> 
         </tr>
     `)
 }
@@ -985,19 +986,26 @@ async function enviar_op() {
 
 function aplicar_desconto(desconto) {
     const posicao = $(desconto).prop('name').split('_')[1]
-    const opcional = $(`#${$(desconto).prop('id').replace('desconto', 'valor')}`)
-    const id_bd = $(desconto).prop('id').replace('desconto', 'valor_bd')
+    const opcional = $(`#${$(desconto).prop('id').replace('desconto', 'valor').replace('acrescimo', 'valor')}`)
+    const id_bd = $(desconto).prop('id').replace('desconto', 'valor_bd').replace('acrescimo', 'valor_bd')
     const valor_bd_opcional = parseFloat($(`#${id_bd}`).val().replace(',', '.'))
     const valor_opcional = parseFloat($(opcional).val().replace(',', '.'))
     const limite_desconto = parseFloat($(desconto).data()['limite_desconto'])
     let desconto_aplicado = parseFloat($(desconto).val().replace(',', '.'))
+    let novo_valor
 
-    if (desconto_aplicado > limite_desconto) {
-        desconto_aplicado = limite_desconto
-        $(desconto).val(limite_desconto.toFixed(2).replace('.', ','))
+    if (!$(desconto).prop('id').includes('acrescimo')) {
+        if (desconto_aplicado > limite_desconto) {
+            desconto_aplicado = limite_desconto
+            $(desconto).val(limite_desconto.toFixed(2).replace('.', ','))
+        }
     }
 
-    const novo_valor = valor_bd_opcional - desconto_aplicado
+    if ($(desconto).prop('id').includes('acrescimo')) {
+        novo_valor = valor_bd_opcional + desconto_aplicado
+    } else {
+        novo_valor = valor_bd_opcional - desconto_aplicado
+    }
     opcional.val(`${novo_valor.toFixed(2).replace('.', ',')}`)
 }
 
@@ -1273,7 +1281,7 @@ async function preencher_promocional(id_promocional) {
                 $('#id_transporte input').map((index, transporte) => {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
-
+                console.log(response['opcionais'])
                 for (let categoria in response['opcionais']) {
                     $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
                 }
@@ -1282,7 +1290,8 @@ async function preencher_promocional(id_promocional) {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
                     let desconto = formatar_dinheiro(op['desconto'])
-                    listar_op(dados_op, opcional, i + 1, desconto)
+                    let acrescimo = formatar_dinheiro(op['ajuste'])
+                    listar_op(dados_op, opcional, i + 1, desconto, acrescimo)
                 })
 
                 if (response['opcionais_extra']) {
