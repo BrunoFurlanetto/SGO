@@ -274,13 +274,13 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo='0,00', removido = false) {
+async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo = '0,00', removido = false) {
     if (removido) {
         $(`#tabela_de_opcionais tbody #opcionais_${opcao['id']}`).remove()
 
         return
     }
-    console.log(dados_op)
+
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     $('#tabela_de_opcionais tbody').append(`
@@ -858,7 +858,7 @@ async function separar_produtos(periodo) {
     }
 }
 
-function verificar_pacotes_promocionais() {
+async function verificar_pacotes_promocionais() {
     const periodo = $('#data_viagem').val()
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
     const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
@@ -866,44 +866,53 @@ function verificar_pacotes_promocionais() {
     const id_produto = $('#id_produto').val()
 
     if (id_produto != '') {
-        $.ajax({
-            type: 'GET',
-            url: '/orcamento/verificar_pacotes_promocionais/',
-            data: {
-                'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
-                'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
-                'id_produto': id_produto,
-                'n_dias': n_dias
-            },
-            success: async function (response) {
-                const promocionais = response['promocionais']
-                const ids = promocionais.map(obj => obj.id)
-                let select_promocionais = $('#id_orcamento_promocional')
+        await new Promise(function (resolve, reject) {
+            $.ajax({
+                type: 'GET',
+                url: '/orcamento/verificar_pacotes_promocionais/',
+                data: {
+                    'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
+                    'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
+                    'id_produto': id_produto,
+                    'n_dias': n_dias
+                },
+                success: async function (response) {
+                    const promocionais = response['promocionais']
+                    const ids = promocionais.map(obj => obj.id)
+                    let select_promocionais = $('#id_orcamento_promocional')
 
-                if (promocionais.length == 0) {
-                    select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
+                    if (promocionais.length == 0) {
+                        select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
 
-                    return
-                } else if (ids.includes(parseInt(select_promocionais.val()))) {
-                    return
+                        return
+                    } else if (ids.includes(parseInt(select_promocionais.val()))) {
+                        return
+                    } else {
+                        await resetar_forms()
+                    }
+
+                    select_promocionais.empty().append('<option></option>')
+
+                    for (let promocional of promocionais) {
+                        $('#id_orcamento_promocional').append(
+                            `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                        ).prop('disabled', false)
+                    }
                 }
-
-                select_promocionais.empty().append('<option></option>')
-
-                for (let promocional of promocionais) {
-                    $('#id_orcamento_promocional').append(
-                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
-                    ).prop('disabled', false)
-                }
-            }
+            }).done(async ()=>{
+                resolve(true)
+            }).catch((e) => {
+                reject(e)
+            })
         })
     }
+
 }
 
 async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
-    verificar_pacotes_promocionais()
+    await verificar_pacotes_promocionais()
 
     if ($('#id_orcamento_promocional').val() != '') {
         verificar_horarios()
@@ -1281,7 +1290,7 @@ async function preencher_promocional(id_promocional) {
                 $('#id_transporte input').map((index, transporte) => {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
-                console.log(response['opcionais'])
+
                 for (let categoria in response['opcionais']) {
                     $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
                 }
@@ -1333,7 +1342,7 @@ async function preencher_promocional(id_promocional) {
                         $(`#form_gerencia #${id_campo}`).attr('data-valor_alterado', response['gerencia'][id_campo])
                     }
                 }
-                console.log()
+
                 $('#desconto_produto_percent').val(response['gerencia']['desconto_produto_percent'] + '%')
                 $('#desconto_monitoria_percent').val(response['gerencia']['desconto_monitoria_percent'] + '%')
                 $('#desconto_transporte_percent').val(response['gerencia']['desconto_transporte_percent'] + '%')
@@ -1375,6 +1384,8 @@ async function resetar_forms() {
                     $(input).val($(input).data('valor_default'))
                 }
             }
+
+            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
             $('#form_gerencia #div_financeiro input[id*=real]').val('0,00')
             $('#form_gerencia #div_financeiro [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
@@ -1388,6 +1399,7 @@ async function resetar_forms() {
             reject(e)
         }
     })
+
     end_loading()
 }
 
