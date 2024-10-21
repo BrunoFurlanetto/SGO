@@ -278,6 +278,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'pacote_promocional': pacote_promocional,
         'gerente_aprovando': False,
         'dados_pacote': promocional.dados_pacote,
+        'editando_pacote': True,
     })
 
 

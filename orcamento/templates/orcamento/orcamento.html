@@ -83,6 +83,15 @@
                                 <i class='bx bx-info-circle'></i>
                             </button>
                         </div>
+                        {% if editando_pacote %}
+                            <div>
+                                {% if orcamento_origem.apelido != '' %}
+                                    <strong>Apelido do orçamento:</strong> {{ orcamento_origem.apelido }}
+                                    <br>
+                                {% endif %}
+                                <strong>Nome do pacote:</strong> {{ dados_pacote.nome_do_pacote }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="parcial"></div>
                 </div>
