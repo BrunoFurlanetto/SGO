@@ -922,7 +922,11 @@ async function verificar_preenchimento() {
         loading()
 
         try {
-            await enviar_form()
+            if (!$('#data_viagem').data('programmatic')) {
+                await enviar_form()
+            } else {
+                $('#data_viagem').data('programmatic', false)
+            }
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
             $('#container_monitoria_transporte').removeClass('none')
@@ -954,12 +958,6 @@ async function verificar_preenchimento() {
 
 async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
-        // setTimeout(() => {
-        //     $('select[name="opcionais"]').select2({
-        //         width: '100%',
-        //         minimumResultsForSearch: -1
-        //     })
-        // }, 300)
         loading()
 
         try {
