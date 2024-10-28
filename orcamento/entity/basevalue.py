@@ -52,7 +52,7 @@ class BaseValue:
         return self.values
 
     def calc_value_with_discount(self):
-        return self.get_total_values() - self.discount + self.get_addition()
+        return self.get_total_values() - self.discount
 
     def calc_business_fee(self):
         return self.get_final_value() * self.percent_business_fee
@@ -68,7 +68,7 @@ class BaseValue:
         return mock_values
 
     def get_final_value(self):
-        return (self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission))) + self.get_adjustiment()
+        return ((self.calc_value_with_discount() + self.__addition) / (1 - (self.percent_business_fee + self.percent_commission))) + self.get_adjustiment()
 
     def do_object(self):
         return {

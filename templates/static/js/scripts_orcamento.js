@@ -343,7 +343,8 @@ function sumByCategory(items) {
             desconto,
             taxa_comercial,
             valor_com_desconto,
-            valor_final
+            valor_final,
+            acrescimo
         } = item
         let categoria_lower = categoria.toLowerCase().replace(/[^a-z0-9]/g, '')
 
@@ -355,6 +356,7 @@ function sumByCategory(items) {
                 taxa_comercial: 0,
                 valor_com_desconto: 0,
                 valor_final: 0,
+                acrescimo: 0,
                 valores: []
             }
         }
@@ -365,6 +367,7 @@ function sumByCategory(items) {
         acc[categoria_lower].desconto += desconto
         acc[categoria_lower].taxa_comercial += taxa_comercial
         acc[categoria_lower].valor_com_desconto += valor_com_desconto
+        acc[categoria_lower].acrescimo += acrescimo
         acc[categoria_lower].valor_final += valor_final
 
         // Soma os valores em cada posição do campo "valores"
@@ -406,9 +409,13 @@ function linhas_descritivo_opcionais(opcionais) {
             <td></td>
             <td>${opt['nome']}</td>
             <td><nobr>R$ ${formatar_dinheiro(opt['valor'])}</nobr></td>
+            <td><nobr>${(opt['valor'] - opt['valor_com_desconto']) > 0
+                ? '- R$' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])
+                : 'R$ ' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}
+            </nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(opt['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(opt['comissao_de_vendas'])}</nobr></td>
-            <td><nobr>R$ ${formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}</nobr></td>
+            <td><nobr>R$ ${formatar_dinheiro(opt['acrescimo'])}</nobr></td>
             <td class="valor_final_tabela ${classe_ultima_linha}"><nobr>R$ ${formatar_dinheiro(opt['valor_final'])}</nobr></td>
         </tr>`
         linhaEspecifica.after(novaLinha)
@@ -452,9 +459,13 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
     for (let secao of secoes) {
         $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
+            <td><nobr> ${(valores[secao]['valor'] - valores[secao]['valor_com_desconto']) > 0
+                ? '- R$' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])
+                : 'R$ ' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}                 
+            </nobr></td>            
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
-            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}</nobr></td>                 
+            <td><nobr>R$ ${formatar_dinheiro(valores[secao]['acrescimo'])}</nobr></td>                             
             <td class="valor_final_tabela"><nobr>${formatar_dinheiro(valores[secao]['valor_final'])}</nobr></td>
         `)
 
@@ -469,10 +480,15 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
         <tr id="totais">
             <td></td>
             <th>Total</th>
-            <th><nobr>R$ ${formatar_dinheiro(totais['valor'])}</nobr></th>            
+            <th><nobr>R$ ${formatar_dinheiro(totais['valor'])}</nobr></th>
+            <th><nobr>
+                ${(totais['valor'] - totais['valor_com_desconto']) > 0
+                ? '- R$' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])
+                : 'R$ ' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])}            
+            </nobr></th>            
             <th><nobr>R$ ${formatar_dinheiro(totais['taxa_comercial'])}</nobr></th>            
             <th><nobr>R$ ${formatar_dinheiro(totais['comissao_de_vendas'])}</nobr></th>            
-            <th><nobr>R$ ${formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])}</nobr></th>            
+            <th><nobr>R$ ${formatar_dinheiro(totais['acrescimo'])}</nobr></th>            
             <th class="valor_final_tabela"><nobr>R$ ${formatar_dinheiro(totais['valor_final'])}</nobr></th>            
         </tr>
     `)
@@ -485,6 +501,7 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
         <td><nobr>R$ 0</nobr></td>
         <td><nobr>R$ 0</nobr></td>
         <td><nobr>R$ 0</nobr></td>
+        <td><nobr>R$ 0</nobr></td>                 
         <td><nobr>R$ 0</nobr></td>                 
         <td class="valor_final_tabela"><nobr>${formatar_dinheiro(valores['total']['arredondamento'])}</nobr></td>
     `)
@@ -1297,7 +1314,7 @@ async function preencher_promocional(id_promocional) {
                     let dados_op = {'valor': op['valor']}
                     let opcional = {'id': op['id'], 'text': op['nome']}
                     let desconto = formatar_dinheiro(op['desconto'])
-                    let acrescimo = formatar_dinheiro(op['ajuste'])
+                    let acrescimo = formatar_dinheiro(op['acrescimo'])
                     listar_op(dados_op, opcional, i + 1, desconto, acrescimo)
                 })
 

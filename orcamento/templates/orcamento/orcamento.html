@@ -289,7 +289,7 @@
                                         <th><input type="text"
                                                    id="acrescimo_opcionais_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
-                                                   value="{{ op.ajuste | floatformat:'2' }}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
                                 {% else %}
@@ -317,7 +317,7 @@
                                         <th><input type="text"
                                                    id="acrescimo_opcionais_extra_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
-                                                   value="{{ op.ajuste | floatformat:'2' }}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
                                 {% endif %}
@@ -528,16 +528,17 @@
                             <table id="tabela_de_valores" class="table table-hover table-borderless">
                                 <thead>
                                 <tr>
-                                    <th colspan="7"></th>
+                                    <th colspan="8"></th>
                                     <th class="tag_datas">Datas</th>
                                 </tr>
                                 <tr class="cabecalho">
                                     <th></th>
                                     <th style="width: 50%">Seção</th>
                                     <th style="width: 25%">Valor</th>
+                                    <th style="width: 25%">Desconto</th>
                                     <th style="width: 25%">Taxa comercial</th>
                                     <th style="width: 25%">Comissão</th>
-                                    <th style="width: 25%">Desconto</th>
+                                    <th style="width: 25%">Acréscimo</th>
                                     <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
                                 </tr>
                                 </thead>

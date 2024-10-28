@@ -1,6 +1,7 @@
 from .basevalue import BaseValue
 from math import ceil
 
+
 class Total(BaseValue):
     def __init__(self, values, percent_business_fee, percent_commission):
         super().__init__(values, percent_business_fee, percent_commission)
@@ -20,10 +21,10 @@ class Total(BaseValue):
         self.set_values(values)
         self.general_discount = (daily_rate.discount + monitor.discount + optional.discount + others.discount +
                                  period.discount + transport.discount + self.discount)
-        
+
         general_adjutiment = (
-            daily_rate.get_adjustiment() + monitor.get_adjustiment() + optional.get_adjustiment() + others.get_adjustiment() +
-                                 period.get_adjustiment() + transport.get_adjustiment() + self.get_adjustiment()
+                daily_rate.get_adjustiment() + monitor.get_adjustiment() + optional.get_adjustiment() + others.get_adjustiment() +
+                period.get_adjustiment() + transport.get_adjustiment() + self.get_adjustiment()
         )
         self.set_adjustiment(general_adjutiment)
 
@@ -34,24 +35,24 @@ class Total(BaseValue):
         self.set_addition(ganeral_addition)
 
     def calc_value_with_discount(self):
-        return self.get_total_values() - self.general_discount + self.get_addition()
-    
+        return self.get_total_values() - self.general_discount
+
     def set_discount(self, value):
         return super().set_discount(0)
-    
-    def get_final_value(self):
-        return ceil(round(self.calc_value_with_discount() / (1 - (self.percent_business_fee + self.percent_commission)), 5)) + self.get_adjustiment() #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
 
+    def get_final_value(self):
+        return ceil(round((self.calc_value_with_discount() + self.get_addition()) / (1 - (self.percent_business_fee + self.percent_commission)),
+                          5)) + self.get_adjustiment()  #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
 
     def do_object(self):
         information = super().do_object()
-        information["taxa_comercial"] = self.calc_business_fee(),
-        information["comissao_de_vendas"] = self.calc_commission(),
+        information["taxa_comercial"] = self.calc_business_fee()
+        information["comissao_de_vendas"] = self.calc_commission()
         information["desconto_geral"] = self.general_discount
         information["descricao_valores"] = self.values
-        information["valor_final"] = (self.get_final_value()) #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
+        information["valor_final"] = (
+            self.get_final_value())  #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
         information["arredondamento"] = (self.get_final_value()) - (
-            self.calc_value_with_discount() + self.calc_business_fee() + self.calc_commission()
-        ) #=PF-(PTF+PD+PM+PB+POp-PDesc+PCom+PNeg)
+                self.calc_value_with_discount() + self.calc_business_fee() + self.calc_commission() + self.get_addition()
+        )  #=PF-(PTF+PD+PM+PB+POp-PDesc+PCom+PNeg)
         return information
-        
