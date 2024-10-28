@@ -100,6 +100,9 @@ class Budget:
         # adjustment values
         self.daily_rate.set_adjustiment(gerencia["ajuste_diaria"]) if "ajuste_diaria" in gerencia else ...
 
+        # addition values  (Acréscimos)
+        self.daily_rate.set_addition(gerencia["acrescimo_diaria"]) if "acrescimo_diaria" in gerencia else ...
+
         # OPICIONAIS
         if len(valores_op) == 0:
             if "opcionais" in data:
@@ -159,11 +162,11 @@ class Budget:
 
         for opt in arr:
             db_optional = OrcamentoOpicional.objects.get(pk=opt[0])
-            discount = adjustiment = 0
+            discount = addition = 0
 
             try:
                 discount = opt[1]
-                adjustiment = opt[2]
+                addition = opt[2]
             except IndexError:
                 ...
 
@@ -177,7 +180,7 @@ class Budget:
                 db_optional.categoria.nome_categoria,
             )
             description.set_discount(discount)
-            description.set_adjustiment(adjustiment)
+            description.set_addition(addition)
             optional_array.append(description.do_object())
 
         self.array_description_optional = optional_array
