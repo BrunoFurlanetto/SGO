@@ -25,11 +25,16 @@ class Total(BaseValue):
             daily_rate.get_adjustiment() + monitor.get_adjustiment() + optional.get_adjustiment() + others.get_adjustiment() +
                                  period.get_adjustiment() + transport.get_adjustiment() + self.get_adjustiment()
         )
-
         self.set_adjustiment(general_adjutiment)
 
+        ganeral_addition = (
+            daily_rate.get_addition() + monitor.get_addition() + optional.get_addition() + others.get_addition() +
+                                 period.get_addition() + transport.get_addition() + self.get_addition()
+        )
+        self.set_addition(ganeral_addition)
+
     def calc_value_with_discount(self):
-        return self.get_total_values() - self.general_discount
+        return self.get_total_values() - self.general_discount + self.get_addition()
     
     def set_discount(self, value):
         return super().set_discount(0)

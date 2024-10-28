@@ -52,7 +52,7 @@ class BaseValue:
         return self.values
 
     def calc_value_with_discount(self):
-        return self.get_total_values() - self.discount + self.__addition
+        return self.get_total_values() - self.discount + self.get_addition()
 
     def calc_business_fee(self):
         return self.get_final_value() * self.percent_business_fee
