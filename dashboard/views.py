@@ -17,7 +17,7 @@ from escala.models import Escala, DiaLimite
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
-    Vendedor, Eventos, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
+    Vendedor, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais

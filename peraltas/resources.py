@@ -11,6 +11,11 @@ class EventosResource(resources.ModelResource):
             'ficha_de_evento__id',
             'colaborador',
             'cliente',
+            'cnpj',
+            'responsavel',
+            'cargo_responsavel',
+            'telefone_responsavel',
+            'email_responsavel',
             'data_check_in',
             'hora_check_in',
             'data_check_out',
@@ -48,6 +53,9 @@ class EventosResource(resources.ModelResource):
 
     def dehydrate_cliente(self, evento):
         return evento.cliente
+
+    def dehydrate_responsavel(self, evento):
+        return evento.responsavel
 
     def dehydrate_qtd_previa(self, evento):
         return int(evento.qtd_previa)

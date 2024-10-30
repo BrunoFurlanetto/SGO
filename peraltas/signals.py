@@ -38,6 +38,11 @@ def atualizar_evento(sender, instance, **kwargs):
         Eventos.objects.create(
             ficha_de_evento=instance,
             colaborador=instance.vendedora,
+            cnpj=instance.cliente.cnpj,
+            responsavel=instance.responsavel_evento,
+            cargo_responsavel=instance.responsavel_evento.listar_cargos,
+            telefone_responsavel=instance.responsavel_evento.fone,
+            email_responsavel=instance.responsavel_evento.email_responsavel_evento,
             cliente=instance.cliente,
             data_check_in=instance.check_in.date(),
             data_check_out=instance.check_out.date(),
