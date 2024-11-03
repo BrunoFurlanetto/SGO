@@ -6,6 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
@@ -13,7 +14,7 @@ from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes
+    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote
 from .utils import verify_data, processar_formulario, JsonError
 from .budget import Budget
 
@@ -343,7 +344,7 @@ def preencher_orcamento_promocional(request):
             'gerencia': orcamento_promocional.objeto_gerencia,
             'check_in': orcamento_promocional.check_in.astimezone().strftime('%d/%m/%Y %H:%M'),
             'check_out': orcamento_promocional.check_out.astimezone().strftime('%d/%m/%Y %H:%M'),
-            'produto': orcamento_promocional.produto.id if orcamento_promocional.produto is not None else '',
+            'tipo_de_pacote': orcamento_promocional.tipo_de_pacote.id if orcamento_promocional.tipo_de_pacote is not None else '',
             'monitoria': orcamento_promocional.tipo_monitoria.id,
             'transporte': orcamento_promocional.transporte,
             'opcionais': lista_ops,
@@ -355,18 +356,10 @@ def validar_produtos(request):
     if is_ajax(request):
         check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M')
         check_out = datetime.datetime.strptime(request.GET.get('check_out'), '%d/%m/%Y %H:%M')
-        n_pernoites = (check_out.date() - check_in.date()).days
-        produtos = list(chain(ProdutosPeraltas.objects.filter(n_dias=n_pernoites)))
-        produtos.append(ProdutosPeraltas.objects.get(produto__icontains='all party'))
+        diarias = (check_out.date() - check_in.date()).days + 1
+        tipos_de_pacote = list(TiposDePacote.objects.filter(Q(n_diarias=diarias) | Q(n_diarias=None)))
 
-        if n_pernoites == 0:
-            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
-            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica'))
-
-        if n_pernoites >= 2:
-            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ac 3 dias ou mais'))
-
-        return JsonResponse({'ids': [produto.id for produto in produtos]})
+        return JsonResponse({'ids': [tipo.id for tipo in tipos_de_pacote]})
 
 
 def verificar_responsaveis(request):
@@ -414,13 +407,16 @@ def salvar_pacote(request):
         except Exception as e:
             return JsonError(f'Erro ao salvar os dados do pacote ({e})! Tente novavemente mais tarde.')
         else:
-            DadosDePacotes.objects.get(pk=pacote.id).produtos_elegiveis.set(dados['produtos_elegiveis'])
+            diarias = TiposDePacote.objects.get(pk=pacote.tipos_de_pacote_elegivel.id).n_diarias
             menor_horario = dados.get('check_in_permitido_1[]')
             maior_horario = dados.get('check_out_permitido_1[]')
 
-            return JsonResponse(
-                {'id_pacote': pacote.id, 'menor_horario': menor_horario, 'maior_horario': maior_horario}
-            )
+            return JsonResponse({
+                'id_pacote': pacote.id,
+                'menor_horario': menor_horario,
+                'maior_horario': maior_horario,
+                'diarias': diarias
+            })
 
 
 def pegar_orcamentos_tratativa(request):
@@ -445,7 +441,7 @@ def verificar_pacotes_promocionais(request):
     if is_ajax(request):
         promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
             int(request.GET.get('n_dias')),
-            int(request.GET.get('id_produto')),
+            int(request.GET.get('id_tipo_de_pacote')),
             request.GET.get('data_check_in'),
             request.GET.get('data_check_out'),
         )

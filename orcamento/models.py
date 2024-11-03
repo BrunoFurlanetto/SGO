@@ -410,13 +410,81 @@ class StatusOrcamento(models.Model):
         return self.status
 
 
+class TiposDePacote(models.Model):
+    titulo = models.CharField(max_length=100, verbose_name="Título")
+    n_diarias = models.PositiveIntegerField(
+        verbose_name='Número de diarias',
+        blank=True,
+        null=True,
+        help_text='Deixar em branco em caso de não ter um número de diarias definido'
+    )
+    teto_desconto_geral = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    minimo_taxa_negocial = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    valor_padrao_taxa_negocial = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    maximo_taxa_negocial = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    minimo_comissao = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    valor_padrao_comissoa = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    maximo_comissao = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        blank=True,
+        null=True,
+        help_text='Deixar em branco para pegar os valores padrão'
+    )
+    aparecer_montagem_pacotes = models.BooleanField(default=True)
+    so_ceu = models.BooleanField(default=False)
+    descricao = models.TextField()
+
+    class Meta:
+        verbose_name = '10 - Tipos de pacote'
+
+    def __str__(self):
+        return self.titulo
+
+
 class DadosDePacotes(models.Model):
     nome_do_pacote = models.CharField(max_length=255, verbose_name="Nome do Pacote")
-    limite_desconto_geral = models.DecimalField(verbose_name="Limite de desconto geral", decimal_places=2, max_digits=5)
-    minimo_de_diarias = models.PositiveIntegerField(verbose_name="Minimo de diarias")
-    maximo_de_diarias = models.PositiveIntegerField(verbose_name="Maximo de diarias")
     minimo_de_pagantes = models.PositiveIntegerField(verbose_name="Minimo de pagantes")
-    produtos_elegiveis = models.ManyToManyField(ProdutosPeraltas, verbose_name="Produtos elegíveis")
+    tipos_de_pacote_elegivel = models.ForeignKey(TiposDePacote, verbose_name="Pacotes elegíveis", on_delete=models.PROTECT)
+    monitoria_fechado = models.BooleanField(default=True)
+    transporte_fechado = models.BooleanField(default=True)
+    opcionais_fechado = models.BooleanField(default=True)
     cortesia = models.BooleanField(default=True, verbose_name="Cortesia")
     regra_cortesia = models.PositiveIntegerField(verbose_name="Regra de cortesias", blank=True, null=True)
     periodos_aplicaveis = models.JSONField(verbose_name="Periodos aplicaveis")
@@ -442,12 +510,12 @@ class DadosDePacotes(models.Model):
             else:
                 dados_tratados[campo] = dado_int
 
-        if dados.getlist('produtos_elegiveis[]'):
-            lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
-        else:
-            lista = [int(dados.get('produtos_elegiveis'))]
-
-        dados_tratados['produtos_elegiveis'] = lista
+        # if dados.getlist('produtos_elegiveis[]'):
+        #     lista = [int(i) for i in dados.getlist('produtos_elegiveis[]')]
+        # else:
+        #     lista = [int(dados.get('produtos_elegiveis'))]
+        #
+        # dados_tratados['produtos_elegiveis'] = lista
         dados_tratados['periodos_aplicaveis'] = DadosDePacotes.juntar_periodos(dados)
 
         return dados_tratados
@@ -599,10 +667,10 @@ class Orcamento(models.Model):
         blank=True,
         null=True
     )
-    produto = models.ForeignKey(
-        ProdutosPeraltas,
+    tipo_de_pacote = models.ForeignKey(
+        TiposDePacote,
         on_delete=models.CASCADE,
-        verbose_name='Produto Peraltas',
+        verbose_name='Tipo de pacote',
         blank=True,
         null=True)
     check_in = models.DateTimeField(verbose_name='Check in', blank=True, null=True)
@@ -986,7 +1054,7 @@ class OrcamentosPromocionais(models.Model):
         return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
 
     @classmethod
-    def pegar_pacotes_promocionais(cls, n_dias, id_produto, check_in, check_out):
+    def pegar_pacotes_promocionais(cls, n_dias, id_tipo_pacote, check_in, check_out):
         def comparar_intervalo():
             intervalos = []
             dias_semana_validos = []
@@ -1019,15 +1087,14 @@ class OrcamentosPromocionais(models.Model):
 
         for pacote in pacotes:
             if comparar_intervalo():
-                if pacote.dados_pacote.minimo_de_diarias <= n_dias <= pacote.dados_pacote.maximo_de_diarias:
-                    if id_produto in [p.id for p in pacote.dados_pacote.produtos_elegiveis.all()]:
-                        # dados = serializers.serialize('json', [pacote.dados_pacote, ])
-                        # campos = json.loads(dados)[0]['fields']
+                if id_tipo_pacote == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
+                    # dados = serializers.serialize('json', [pacote.dados_pacote, ])
+                    # campos = json.loads(dados)[0]['fields']
 
-                        pacotes_validos.append({
-                            'id': pacote.id,
-                            'nome': pacote.dados_pacote.nome_do_pacote,
-                        })
+                    pacotes_validos.append({
+                        'id': pacote.id,
+                        'nome': pacote.dados_pacote.nome_do_pacote,
+                    })
 
         return pacotes_validos
 
@@ -1184,7 +1251,7 @@ class CadastroOrcamento(forms.ModelForm):
 
         widgets = {
             'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
-            'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
+            # 'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),

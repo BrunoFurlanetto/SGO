@@ -68,8 +68,8 @@
                             <label for="data_viagem">Data da viagem</label>
                             <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
                                    onchange="separar_produtos(this)"/>
-                            <label for="produto">Produto</label>
-                            {{ orcamento.produto }}
+                            <label for="produto">Tipo de pacote</label>
+                            {{ orcamento.tipo_de_pacote }}
                         </div>
                         <hr>
                         <div id="promocionais" class="{% if orcamento_origem.promocional %} none {% endif %}">
@@ -586,18 +586,6 @@
                             <hr>
                             <h5 class="titulo_secao">Limites</h5>
                             <div class="secao">
-                                <div style="width: 47%">
-                                    {{ pacote_promocional.limite_desconto_geral.label_tag }}
-                                    {{ pacote_promocional.limite_desconto_geral }}
-                                </div>
-                                <div style="width: 47%">
-                                    {{ pacote_promocional.minimo_de_diarias.label_tag }}
-                                    {{ pacote_promocional.minimo_de_diarias }}
-                                </div>
-                                <div style="width: 47%" class="mt-2">
-                                    {{ pacote_promocional.maximo_de_diarias.label_tag }}
-                                    {{ pacote_promocional.maximo_de_diarias }}
-                                </div>
                                 <div style="width: 47%" class="mt-2">
                                     {{ pacote_promocional.minimo_de_pagantes.label_tag }}
                                     {{ pacote_promocional.minimo_de_pagantes }}
@@ -609,10 +597,26 @@
                                 </div>
                             </div>
                             <hr>
-                            <h5 class="titulo-secao">Produtos elegíveis</h5>
+                            <h5 class="titulo-secao">Seções bloqueadas para edição</h5>
+                            <div class="secao">
+                                <div>
+                                    {{ pacote_promocional.monitoria_fechado }}
+                                    <label for="{{ pacote_promocional.monitoria_fechado.id_for_label }}">Monitoria</label>
+                                </div>
+                                <div>
+                                    {{ pacote_promocional.transporte_fechado }}
+                                    <label for="{{ pacote_promocional.transporte_fechado.id_for_label }}">Transporte</label>
+                                </div>
+                                <div>
+                                    {{ pacote_promocional.opcionais_fechado }}
+                                    <label for="{{ pacote_promocional.opcionais_fechado.id_for_label }}">Opcionais</label>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Tipo de pacote elegível</h5>
                             <div class="secao">
                                 <div style="width: 100%">
-                                    {{ pacote_promocional.produtos_elegiveis }}
+                                    {{ pacote_promocional.tipos_de_pacote_elegivel }}
                                 </div>
                             </div>
                             <hr>
@@ -818,6 +822,10 @@
                     allowZero: true,
                     affixesStay: false,
                 })
+
+                {% if dados_pacote %}
+                    $('#id_orcamento_promocional').trigger('change')
+                {% endif %}
             {% else %}
                 await inicializacao();
             {% endif %}

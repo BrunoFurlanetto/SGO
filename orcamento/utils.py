@@ -6,7 +6,7 @@ from django.http import JsonResponse
 
 from peraltas.models import ProdutosPeraltas
 from .mock import mock_optional
-from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo
+from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo, TiposDePacote
 
 
 def JsonError(msg):
@@ -44,7 +44,7 @@ def processar_formulario(dados, user):
     padrao_valores_op = r'dados_op\[(\w+)\]'
     padrao_gerencia = r'gerencia\[(\w+)\]'
     padrao_extra = r'opcionais_extra\[(\w+)\]'
-
+    print(dados)
     for key in dados.keys():
         if re.match(padrao_extra, key):
             op_extras += 1 / 4
@@ -170,7 +170,7 @@ def processar_formulario(dados, user):
         orcamento['check_out'] = datetime.strptime(checks[1], '%d/%m/%Y %H:%M').astimezone().strftime('%Y-%m-%d %H:%M')
 
         try:
-            only_sky = ProdutosPeraltas.objects.filter(pk=orcamento['produto'], produto__icontains='ceu').exists()
+            only_sky = TiposDePacote.objects.filter(pk=orcamento['tipo_de_pacote'], so_ceu=True).exists()
         except ValueError:
             only_sky = False
 

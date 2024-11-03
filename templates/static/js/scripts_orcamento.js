@@ -19,7 +19,7 @@ const secoes = [
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
-    $('#id_produtos_elegiveis').select2({
+    $('#id_tipos_de_pacote_elegivel').select2({
         dropdownParent: $("#dados_do_pacote .modal-content"),
         width: '100%'
     })
@@ -141,15 +141,15 @@ function inicializar_funcoes_periodos_promocional() {
     });
 }
 
-function verificar_produto() {
-    const produto = $('#id_produto option:selected').text().toLowerCase()
-
-    if (produto.includes('ceu')) {
-        $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
-    } else {
-        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
-    }
-}
+// function verificar_produto() {
+//     const produto = $('#id_tipo_de_pacote option:selected').text().toLowerCase()
+//
+//     if (produto.includes('ceu')) {
+//         $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
+//     } else {
+//         $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
+//     }
+// }
 
 async function verificar_alteracoes(div) {
     loading()
@@ -705,16 +705,16 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
         }
 
         if ($('#id_orcamento_promocional').val() != '') {
-            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
+            // $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
             $('#form_dados_pacote fieldset').prop('disabled', true)
-            $('#id_produtos_elegiveis').select2({
+            $('#id_tipos_de_pacote_elegivel').select2({
                 disabled: 'readonly',
                 width: '100%'
             })
         } else {
             $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
             $('#form_dados_pacote fieldset').prop('disabled', false)
-            $('#id_produtos_elegiveis').select2({width: '100%'})
+            $('#id_tipos_de_pacote_elegivel').select2({width: '100%'})
         }
 
         return response;
@@ -839,7 +839,7 @@ async function separar_produtos(periodo) {
             url: '/orcamento/validar_produtos/',
             data: {'check_in': check_in, 'check_out': check_out},
             success: function (response) {
-                for (let produto of $('#id_produto option')) {
+                for (let produto of $('#id_tipo_de_pacote option')) {
                     if (produto.value != '') {
                         if (response['ids'].includes(parseInt($(produto).val()))) {
                             $(produto).prop('disabled', false)
@@ -851,11 +851,11 @@ async function separar_produtos(periodo) {
                 resolve(response)
             }
         }).done(() => {
-            $('#id_produto').prop('disabled', false)
+            $('#id_tipo_de_pacote').prop('disabled', false)
             $('#subtotal').removeClass('none')
         }).catch((xht, status, error) => {
             alert(xht['responseJSON']['msg'])
-            $('#id_produto').val('')
+            $('#id_tipo_de_pacote').val('')
             $('#subtotal').addClass('none')
 
             reject(xht['responseJSON']['msg'])
@@ -870,7 +870,7 @@ async function separar_produtos(periodo) {
         let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
 
         if (data_check_out.diff(data_check_in, 'days') + 1 != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
-            $('#id_produto').val('')
+            $('#id_tipo_de_pacote').val('')
         }
     }
 }
@@ -880,9 +880,9 @@ async function verificar_pacotes_promocionais() {
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
     const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
     const n_dias = data_check_out.diff(data_check_in, 'days') + 1
-    const id_produto = $('#id_produto').val()
+    const id_tipo_de_pacote = $('#id_tipo_de_pacote').val()
 
-    if (id_produto != '') {
+    if (id_tipo_de_pacote != '') {
         await new Promise(function (resolve, reject) {
             $.ajax({
                 type: 'GET',
@@ -890,7 +890,7 @@ async function verificar_pacotes_promocionais() {
                 data: {
                     'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
                     'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
-                    'id_produto': id_produto,
+                    'id_tipo_de_pacote': id_tipo_de_pacote,
                     'n_dias': n_dias
                 },
                 success: async function (response) {
@@ -935,7 +935,7 @@ async function verificar_preenchimento() {
         verificar_horarios()
     }
 
-    if ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != '')) {
+    if ($('#data_viagem').val() != '' && ($('#id_tipo_de_pacote').val() != null && $('#id_tipo_de_pacote').val() != '')) {
         loading()
 
         try {
@@ -1256,14 +1256,14 @@ function salvar_dados_do_pacote() {
         data: dados_pacote,
         success: function (response) {
             $('#id_pacote, #id_pacote_promocional').val(response['id_pacote'])
-            const min_diarias = parseInt($('#id_minimo_de_diarias').val())
+            const min_diarias = parseInt(response['diarias'])
             const data_1 = moment($('#periodo_1').val().split(' - ')[0], 'DD/MM/YYYY')
             const data_2 = moment(data_1).add(min_diarias - 1, 'd')
             let periodo = $('#data_viagem').data('daterangepicker')
             periodo.setStartDate(data_1.format('DD/MM/YYYY') + ' ' + response['menor_horario']);
             periodo.setEndDate(data_2.format('DD/MM/YYYY') + ' ' + response['maior_horario']);
             $('#data_viagem').val(periodo.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + periodo.endDate.format('DD/MM/YYYY HH:mm')).trigger('change');
-            $('#id_produto').val($('#id_produtos_elegiveis').val()).prop('disabled', false).trigger('change')
+            $('#id_tipo_de_pacote').val($('#id_tipos_de_pacote_elegivel').val()).prop('disabled', false).trigger('change')
             // inicializar_funcoes_periodo_viagem()
         }
     }).done(async () => {
@@ -1466,9 +1466,27 @@ async function mostrar_dados_pacote(pacote) {
             $('#tabela_de_opcionais tbody, #lista_opcionais_extra').empty()
             op_extras = []
             await preencher_promocional(id_pacote)
-            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', true)
+
+            if (response['dados_promocionais']['fields']['monitoria_fechado']) {
+                $('#campos_fixos #monitoria select').prop('disabled', true)
+            } else {
+                $('#campos_fixos #monitoria select').prop('disabled', false)
+            }
+
+            if (response['dados_promocionais']['fields']['transporte_fechado']) {
+                $('#campos_fixos #transporte input').prop('disabled', true)
+            } else {
+                $('#campos_fixos #transporte input').prop('disabled', false)
+            }
+
+            if (response['dados_promocionais']['fields']['opcionais_fechado']) {
+                $('#campos_fixos #container_opcionais select').prop('disabled', true)
+            } else {
+                $('#campos_fixos #container_opcionais select').prop('disabled', false)
+            }
+
             $('#form_dados_pacote fieldset').prop('disabled', true)
-            $('#id_produtos_elegiveis').select2({
+            $('#id_tipos_de_pacote_elegivel').select2({
                 disabled: 'readonly',
                 width: '100%'
             }).trigger('change')

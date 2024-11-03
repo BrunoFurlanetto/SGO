@@ -9,8 +9,7 @@ from django_admin_search.admin import AdvancedSearchAdmin
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais
-
+    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote
 
 from django.forms import ModelForm, Form
 from django.forms import DateField, CharField, ChoiceField, TextInput
@@ -256,3 +255,8 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
     #
     # inicio_vigencia_formatado.short_description = 'Inicio vigência'
     # final_vigencia_formatado.short_description = 'Final vigência'
+
+
+@admin.register(TiposDePacote)
+class TiposDePacoteAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'descricao')
