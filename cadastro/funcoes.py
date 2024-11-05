@@ -178,7 +178,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 'nickname': cliente_bd.nickname,
                 'endereco': cliente_bd.endereco,
                 'bairro': cliente_bd.bairro,
-                'cidade': cliente_bd.bairro,
+                'cidade': cliente_bd.cidade,
                 'estado': cliente_bd.estado,
                 'cep': cliente_bd.cep,
             }
@@ -196,7 +196,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 'nickname': cliente_bd.nickname,
                 'endereco': cliente_bd.endereco,
                 'bairro': cliente_bd.bairro,
-                'cidade': cliente_bd.bairro,
+                'cidade': cliente_bd.cidade,
                 'estado': cliente_bd.estado,
                 'cep': cliente_bd.cep,
                 'responsaveis': responsaveis
