@@ -173,6 +173,8 @@ def processar_formulario(dados, user):
             only_sky = TiposDePacote.objects.filter(pk=orcamento['tipo_de_pacote'], so_ceu=True).exists()
         except ValueError:
             only_sky = False
+        except KeyError:
+            only_sky = False
 
         orcamento['only_sky'] = only_sky
 

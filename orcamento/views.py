@@ -33,8 +33,8 @@ def novo_orcamento(request):
         'promocionais': promocionais,
         'pacote_promocional': pacote_promocional,
         'financeiro': financeiro,
-        'taxas_padrao': taxas_padrao,
         'usuarios_gerencia': usuarios_gerencia,
+        'taxas_padrao': ValoresPadrao.mostrar_taxas(),
         'zerar_taxas': True,
     })
 
@@ -56,11 +56,13 @@ def clonar_orcamento(request, id_tratativa, ):
         'orcamento_origem': orcamento,
         'promocionais': promocionais,
         'financeiro': financeiro,
-        'taxas_padrao': taxas_padrao,
+        'taxas_padrao': ValoresPadrao.mostrar_taxas(
+            orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
+            orcamento.orcamento_promocional.tipo_de_pacote.id if orcamento.orcamento_promocional else None,
+        ),
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,
         'id_orcamento': id_orcamento,
-        'zerar_taxas': True,
     })
 
 
@@ -88,7 +90,10 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'orcamento_origem': orcamento,
         'promocionais': promocionais,
         'financeiro': financeiro,
-        'taxas_padrao': taxas_padrao,
+        'taxas_padrao': ValoresPadrao.mostrar_taxas(
+            orcamento.objeto_gerencia,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
+        ),
         'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': id_orcamento,
         'previa': True,
@@ -131,7 +136,7 @@ def salvar_orcamento(request, id_tratativa=None):
         data['valor'] = f'{valor_final:.2f}'
         data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
         data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
-        print(data)
+
         if data.get('id_previa_orcamento'):
             previa_orcamento = Orcamento.objects.get(pk=data['id_previa_orcamento'])
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
@@ -272,7 +277,10 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'orcamento': cadastro_orcamento,
         'orcamento_origem': promocional.orcamento,
         'financeiro': financeiro,
-        'taxas_padrao': taxas_padrao,
+        'taxas_padrao': ValoresPadrao.mostrar_taxas(
+            promocional.orcamento.objeto_gerencia,
+            promocional.orcamento.tipo_de_pacote
+        ),
         'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': promocional.orcamento.id,
         'previa': True,
@@ -356,10 +364,22 @@ def validar_produtos(request):
     if is_ajax(request):
         check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M')
         check_out = datetime.datetime.strptime(request.GET.get('check_out'), '%d/%m/%Y %H:%M')
-        diarias = (check_out.date() - check_in.date()).days + 1
-        tipos_de_pacote = list(TiposDePacote.objects.filter(Q(n_diarias=diarias) | Q(n_diarias=None)))
+        n_pernoites = (check_out.date() - check_in.date()).days
+        produtos = list(chain(ProdutosPeraltas.objects.filter(n_dias=n_pernoites)))
+        produtos.append(ProdutosPeraltas.objects.get(produto__icontains='all party'))
+        tipos_de_pacote = TiposDePacote.objects.filter(n_diarias=n_pernoites + 1)
 
-        return JsonResponse({'ids': [tipo.id for tipo in tipos_de_pacote]})
+        if n_pernoites == 0:
+            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
+            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica'))
+
+        if n_pernoites >= 2:
+            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ac 3 dias ou mais'))
+
+        return JsonResponse({
+            'ids_produtos': [produto.id for produto in produtos],
+            'ids_tipo_de_pacote': [tipo.id for tipo in tipos_de_pacote],
+        })
 
 
 def verificar_responsaveis(request):
@@ -441,9 +461,22 @@ def verificar_pacotes_promocionais(request):
     if is_ajax(request):
         promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
             int(request.GET.get('n_dias')),
-            int(request.GET.get('id_tipo_de_pacote')),
+            request.GET.get('id_tipo_de_pacote'),
             request.GET.get('data_check_in'),
             request.GET.get('data_check_out'),
         )
 
-        return JsonResponse({'promocionais': promocionais})
+        if request.GET.get('id_tipo_de_pacote') != '':
+            dados_taxas = TiposDePacote.objects.get(pk=request.GET.get('id_tipo_de_pacote')).retornar_dados_gerencia()
+        else:
+            dados_taxas = ValoresPadrao.retornar_dados_gerencia()
+
+        return JsonResponse({
+            'promocionais': promocionais,
+            'dados_taxas': dados_taxas
+        })
+
+
+def pegar_dados_tipo_pacote(request):
+    if is_ajax(request):
+        return

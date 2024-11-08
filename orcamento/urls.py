@@ -15,6 +15,7 @@ urlpatterns = [
     path('verificar_pacotes_promocionais/', views.verificar_pacotes_promocionais, name='verificar_pacotes_promocionais'),
     path('editar_pacotes_promocionais/<int:id_dados_pacote>', views.editar_pacotes_promocionais, name='editar_pacotes_promocionais'),
     path('validar_produtos/', views.validar_produtos, name='validar_produtos'),
+    path('pegar_dados_tipo_pacote/', views.pegar_dados_tipo_pacote, name='pegar_dados_tipo_pacote'),
     path('verificar_responsaveis/', views.verificar_responsaveis, name='verificar_responsaveis'),
     path('pesquisar_op/', views.pesquisar_op, name='pesquisar_op'),
     path('pegar_dados_pacote/', views.pegar_dados_pacote, name='pegar_dados_pacote'),

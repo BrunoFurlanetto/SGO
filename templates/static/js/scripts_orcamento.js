@@ -1,7 +1,7 @@
 let resultado_ultima_consulta = {}
 let op_extras = []
 let mostrar_instrucao = true
-let enviar, promocional = false
+let enviar, promocional, editando_pacote = false
 const relacao_id_categoria = {
     'id_outros_opcionais': 'outros',
     'id_opcionais_eco': 'eco',
@@ -141,15 +141,15 @@ function inicializar_funcoes_periodos_promocional() {
     });
 }
 
-// function verificar_produto() {
-//     const produto = $('#id_tipo_de_pacote option:selected').text().toLowerCase()
-//
-//     if (produto.includes('ceu')) {
-//         $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
-//     } else {
-//         $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
-//     }
-// }
+function verificar_produto() {
+    const produto = $('#id_tipo_de_pacote option:selected').text().toLowerCase()
+
+    if (produto.includes('ceu')) {
+        $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
+    } else {
+        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
+    }
+}
 
 async function verificar_alteracoes(div) {
     loading()
@@ -410,8 +410,8 @@ function linhas_descritivo_opcionais(opcionais) {
             <td>${opt['nome']}</td>
             <td><nobr>R$ ${formatar_dinheiro(opt['valor'])}</nobr></td>
             <td><nobr>${(opt['valor'] - opt['valor_com_desconto']) > 0
-                ? '- R$' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])
-                : 'R$ ' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}
+            ? '- R$' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])
+            : 'R$ ' + formatar_dinheiro(opt['valor'] - opt['valor_com_desconto'])}
             </nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(opt['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(opt['comissao_de_vendas'])}</nobr></td>
@@ -460,8 +460,8 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
         $(`#tabela_de_valores #${secao}`).append(`
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['valor'])}</nobr></td>
             <td><nobr> ${(valores[secao]['valor'] - valores[secao]['valor_com_desconto']) > 0
-                ? '- R$' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])
-                : 'R$ ' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}                 
+            ? '- R$' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])
+            : 'R$ ' + formatar_dinheiro(valores[secao]['valor'] - valores[secao]['valor_com_desconto'])}                 
             </nobr></td>            
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['taxa_comercial'])}</nobr></td>
             <td><nobr>R$ ${formatar_dinheiro(valores[secao]['comissao_de_vendas'])}</nobr></td>
@@ -483,8 +483,8 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
             <th><nobr>R$ ${formatar_dinheiro(totais['valor'])}</nobr></th>
             <th><nobr>
                 ${(totais['valor'] - totais['valor_com_desconto']) > 0
-                ? '- R$' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])
-                : 'R$ ' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])}            
+        ? '- R$' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])
+        : 'R$ ' + formatar_dinheiro(totais['valor'] - totais['valor_com_desconto'])}            
             </nobr></th>            
             <th><nobr>R$ ${formatar_dinheiro(totais['taxa_comercial'])}</nobr></th>            
             <th><nobr>R$ ${formatar_dinheiro(totais['comissao_de_vendas'])}</nobr></th>            
@@ -514,6 +514,17 @@ function tabela_descrito(valores, dias, taxa, opcionais, totais, racionais) {
 async function verificar_pisos_e_tetos() {
     $('#avisos_pisos_tetos').addClass('none')
 
+    // $.ajax({
+    //     url: url,
+    //     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+    //     type: "POST",
+    //     dataType: 'JSON',
+    //     data: {'id_tipo_pacote': $('#id_tipo_pacote')},
+    //     success: function (response) {
+    //
+    //     }
+    // })
+
     return await new Promise(async (resolve, reject) => {
         $('#campos_alteraveis input').map((index, campo) => {
             let valor, piso, teto
@@ -522,24 +533,26 @@ async function verificar_pisos_e_tetos() {
                 $(campo).val(0)
             }
 
-            if ($(campo).val().includes('%')) {
-                valor = $(campo).val().replace('%', '')
-                piso = $(campo).data('piso').replace('%', '')
-                teto = $(campo).data('teto').replace('%', '')
-            } else if (!$(campo).val().includes('$')) {
-                valor = $(campo).val()
-                piso = $(campo).data('piso')
-                teto = $(campo).data('teto')
-            }
+            if ($(campo).attr('name') != 'desconto_geral') {
+                if ($(campo).val().includes('%')) {
+                    valor = $(campo).val().replace('%', '')
+                    piso = $(campo).data('piso').replace('%', '')
+                    teto = $(campo).data('teto').replace('%', '')
+                } else if (!$(campo).val().includes('$')) {
+                    valor = $(campo).val()
+                    piso = $(campo).data('piso')
+                    teto = $(campo).data('teto')
+                }
 
-            if (parseFloat(valor) < parseFloat(piso)) {
-                $(campo).val($(campo).data('piso'))
-                $('#avisos_pisos_tetos').text(`O valor mínimo para o campo "${$(campo).data('nome_taxa')}" é de ${piso}`).removeClass('none')
-            }
+                if (parseFloat(valor) < parseFloat(piso)) {
+                    $(campo).val($(campo).data('piso'))
+                    $('#avisos_pisos_tetos').text(`O valor mínimo para o campo "${$(campo).data('nome_taxa')}" é de ${piso}`).removeClass('none')
+                }
 
-            if (parseFloat(valor) > parseFloat(teto)) {
-                $(campo).val($(campo).data('teto'))
-                $('#avisos_pisos_tetos').text(`O valor máximo para o campo "${$(campo).data('nome_taxa')}" é de ${teto}`).removeClass('none')
+                if (parseFloat(valor) > parseFloat(teto)) {
+                    $(campo).val($(campo).data('teto'))
+                    $('#avisos_pisos_tetos').text(`O valor máximo para o campo "${$(campo).data('nome_taxa')}" é de ${teto}`).removeClass('none')
+                }
             }
         })
 
@@ -554,10 +567,11 @@ async function teto_desconto() {
         $('#aviso_comentario_gerencia').addClass('none')
         let teto_percent
 
-        if ($('#id_orcamento_promocional').val() != '') {
-            teto_percent = $('#id_limite_desconto_geral').val().replace(',', '.').replace('%', '')
+        if ($('#id_tipo_de_pacote').val() != '') {
+            teto_percent = parseFloat($('#desconto_geral').data('teto')) / 100
         } else {
-            teto_percent = Object.keys(resultado_ultima_consulta['limites_taxas']).filter(chave => chave.includes("desconto")).map(chave => resultado_ultima_consulta['limites_taxas'][chave])[0];
+            teto_percent = Object.keys(resultado_ultima_consulta['limites_taxas']).filter(chave => chave.includes("desconto")).map(chave => resultado_ultima_consulta['limites_taxas'][chave])[0]
+            teto_percent = teto_percent / 100
         }
 
         const comissao_percent = parseFloat($('#comissao').val().replace(',', '.').replace('%', ''))
@@ -565,17 +579,19 @@ async function teto_desconto() {
         const valor = resultado_ultima_consulta['data']['valores']['diaria']['valor']
         let valor_final = valor / (1 - ((parseFloat(comissao_percent) + parseFloat(taxa_percent)) / 100))
         const desconto = parseFloat($('#desconto_geral').val().replace(',', '.'))
-        let desconto_permitido = ((parseFloat(teto_percent) / 100) * valor_final).toFixed(2);
-        console.log(teto_percent)
+        let desconto_permitido = (teto_percent * valor_final).toFixed(2);
+
         if (desconto > desconto_permitido) {
             $('#desconto_geral').val(formatar_dinheiro(desconto_permitido))
-            $('#avisos_pisos_tetos').text(`O valor máximo para o campo "Desconto" é de R$ ${desconto_permitido}`).removeClass('none')
+            $('#avisos_pisos_tetos').text(`O valor máximo para o campo "Desconto" é de R$ ${formatar_dinheiro(desconto_permitido)}`).removeClass('none')
         }
 
         if (desconto != 0) {
             $('#div_observacoes_gerencia').removeClass('none')
             $('.botoes button').prop('disabled', true)
             $('#aviso_comentario_gerencia').removeClass('none')
+        } else {
+            $('#div_observacoes_gerencia').addClass('none')
         }
 
         resolve()
@@ -596,10 +612,6 @@ function verificar_cometario_gerencia(textarea) {
 
 async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamento = undefined) {
     let url = '/orcamento/calculos/'
-
-    if ($('#id_orcamento_promocional').val() != '') {
-        $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
-    }
 
     if (salvar) {
         $('#id_cliente, #id_responsavel').prop('disabled', false)
@@ -712,7 +724,7 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                 width: '100%'
             })
         } else {
-            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
+            $('.bloqueado').addClass('none')
             $('#form_dados_pacote fieldset').prop('disabled', false)
             $('#id_tipos_de_pacote_elegivel').select2({width: '100%'})
         }
@@ -839,23 +851,33 @@ async function separar_produtos(periodo) {
             url: '/orcamento/validar_produtos/',
             data: {'check_in': check_in, 'check_out': check_out},
             success: function (response) {
-                for (let produto of $('#id_tipo_de_pacote option')) {
+                for (let produto of $('#id_produto option')) {
                     if (produto.value != '') {
-                        if (response['ids'].includes(parseInt($(produto).val()))) {
+                        if (response['ids_produtos'].includes(parseInt($(produto).val()))) {
                             $(produto).prop('disabled', false)
                         } else {
                             $(produto).prop('disabled', true)
                         }
                     }
                 }
+
+                for (let tipo of $('#id_tipo_de_pacote option')) {
+                    if (tipo.value != '') {
+                        if (response['ids_tipo_de_pacote'].includes(parseInt($(tipo).val()))) {
+                            $(tipo).prop('disabled', false)
+                        } else {
+                            $(tipo).prop('disabled', true)
+                        }
+                    }
+                }
                 resolve(response)
             }
         }).done(() => {
-            $('#id_tipo_de_pacote').prop('disabled', false)
+            $('#id_produto').prop('disabled', false)
             $('#subtotal').removeClass('none')
         }).catch((xht, status, error) => {
             alert(xht['responseJSON']['msg'])
-            $('#id_tipo_de_pacote').val('')
+            $('#id_produto').val('')
             $('#subtotal').addClass('none')
 
             reject(xht['responseJSON']['msg'])
@@ -870,72 +892,121 @@ async function separar_produtos(periodo) {
         let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
 
         if (data_check_out.diff(data_check_in, 'days') + 1 != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
-            $('#id_tipo_de_pacote').val('')
+            $('#id_produto, #id_tipo_de_pacote').val('')
+            $('#container_periodo .parcial').removeClass('visivel')
+            $('.div-flutuante').removeClass('visivel')
+            $('#container_monitoria_transporte, #container_opcionais, #finalizacao').addClass('none')
         }
     }
 }
 
+async function alterar_valores_das_taxas(dados_taxas) {
+    function formatarPorcentagem(valor, valorAtual) {
+        return valor != null ? valor.toString().replace('.', ',') + '%' : valorAtual;
+    }
+
+    let taxa_negocial = $('#taxa_comercial')
+    let comissao = $('#comissao')
+    let desconto = $('#desconto_geral')
+    console.log(dados_taxas)
+    taxa_negocial.val(formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.val())).data({
+        'valor_default': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_default')),
+        'valor_inicial': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_inicial')),
+        'valor_alterado': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_alterado')),
+        'teto': formatarPorcentagem(dados_taxas['taxa_negocial']['teto_taxa_negocial'], taxa_negocial.data('teto')),
+        'piso': formatarPorcentagem(dados_taxas['taxa_negocial']['piso_taxa_negocial'], taxa_negocial.data('piso'))
+    }).attr({
+        'data-valor_default': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_default')),
+        'data-valor_inicial': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_inicial')),
+        'data-valor_alterado': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_alterado')),
+        'data-teto': formatarPorcentagem(dados_taxas['taxa_negocial']['teto_taxa_negocial'], taxa_negocial.data('teto')),
+        'data-piso': formatarPorcentagem(dados_taxas['taxa_negocial']['piso_taxa_negocial'], taxa_negocial.data('piso'))
+    })
+
+    comissao.val(formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_comissao'], comissao.val())).data({
+        'valor_default': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_default')),
+        'valor_inicial': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_inicial')),
+        'valor_alterado': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_alterado')),
+        'teto': formatarPorcentagem(dados_taxas['comissao']['teto_comissao'], comissao.data('teto')),
+        'piso': formatarPorcentagem(dados_taxas['comissao']['piso_comissao'], comissao.data('piso'))
+    }).attr({
+        'data-valor_default': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_default')),
+        'data-valor_inicial': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_inicial')),
+        'data-valor_alterado': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_alterado')),
+        'data-teto': formatarPorcentagem(dados_taxas['comissao']['teto_comissao'], comissao.data('teto')),
+        'data-piso': formatarPorcentagem(dados_taxas['comissao']['piso_comissao'], taxa_negocial.data('piso'))
+    })
+
+    desconto.data({
+        'teto': dados_taxas['teto_desconto_geral']
+    }).attr({
+        'data-teto': dados_taxas['teto_desconto_geral']
+    })
+}
+
 async function verificar_pacotes_promocionais() {
+    loading()
     const periodo = $('#data_viagem').val()
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
     const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
     const n_dias = data_check_out.diff(data_check_in, 'days') + 1
     const id_tipo_de_pacote = $('#id_tipo_de_pacote').val()
 
-    if (id_tipo_de_pacote != '') {
-        await new Promise(function (resolve, reject) {
-            $.ajax({
-                type: 'GET',
-                url: '/orcamento/verificar_pacotes_promocionais/',
-                data: {
-                    'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
-                    'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
-                    'id_tipo_de_pacote': id_tipo_de_pacote,
-                    'n_dias': n_dias
-                },
-                success: async function (response) {
-                    const promocionais = response['promocionais']
-                    const ids = promocionais.map(obj => obj.id)
-                    let select_promocionais = $('#id_orcamento_promocional')
 
-                    if (promocionais.length == 0) {
-                        select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
+    await new Promise(function (resolve, reject) {
+        $.ajax({
+            type: 'GET',
+            url: '/orcamento/verificar_pacotes_promocionais/',
+            data: {
+                'data_check_in': data_check_in.format('YYYY-MM-DD HH:mm'),
+                'data_check_out': data_check_out.format('YYYY-MM-DD HH:mm'),
+                'id_tipo_de_pacote': id_tipo_de_pacote,
+                'n_dias': n_dias
+            },
+            success: async function (response) {
+                await alterar_valores_das_taxas(response['dados_taxas']);
+                const promocionais = response['promocionais']
+                const ids = promocionais.map(obj => obj.id)
+                let select_promocionais = $('#id_orcamento_promocional')
 
-                        return
-                    } else if (ids.includes(parseInt(select_promocionais.val()))) {
-                        return
-                    } else {
-                        await resetar_forms()
-                    }
+                if (promocionais.length == 0) {
+                    select_promocionais.empty().append('<option></option>').trigger('change').prop('disabled', true)
 
-                    select_promocionais.empty().append('<option></option>')
-
-                    for (let promocional of promocionais) {
-                        $('#id_orcamento_promocional').append(
-                            `<option value="${promocional['id']}">${promocional['nome']}</option>`
-                        ).prop('disabled', false)
-                    }
+                    return
+                } else if (ids.includes(parseInt(select_promocionais.val()))) {
+                    return
+                } else {
+                    await resetar_forms()
                 }
-            }).done(async ()=>{
-                resolve(true)
-            }).catch((e) => {
-                reject(e)
-            })
-        })
-    }
 
+                select_promocionais.empty().append('<option></option>')
+
+                for (let promocional of promocionais) {
+                    $('#id_orcamento_promocional').append(
+                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                    ).prop('disabled', false)
+                }
+            }
+        }).done(async () => {
+            resolve(true)
+        }).catch((e) => {
+            reject(e)
+        })
+    })
+    end_loading()
 }
 
 async function verificar_preenchimento() {
     const floatingBox = $('#floatingBox')
     $('.div-flutuante').removeClass('none')
-    await verificar_pacotes_promocionais()
+    // await verificar_pacotes_promocionais()
 
     if ($('#id_orcamento_promocional').val() != '') {
         verificar_horarios()
     }
 
-    if ($('#data_viagem').val() != '' && ($('#id_tipo_de_pacote').val() != null && $('#id_tipo_de_pacote').val() != '')) {
+    if (editando_pacote || ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != ''))) {
+        editando_pacote = false
         loading()
 
         try {
@@ -965,6 +1036,7 @@ async function verificar_preenchimento() {
             alert(error)
         } finally {
             const check_in = moment($('#data_viagem').val().split(' - ')[0], 'DD/MM/YYYY HH:mm')
+            $('#id_tipo_de_pacote').prop('disabled', false)
             end_loading()
         }
     } else {
@@ -1258,12 +1330,13 @@ function salvar_dados_do_pacote() {
             $('#id_pacote, #id_pacote_promocional').val(response['id_pacote'])
             const min_diarias = parseInt(response['diarias'])
             const data_1 = moment($('#periodo_1').val().split(' - ')[0], 'DD/MM/YYYY')
-            const data_2 = moment(data_1).add(min_diarias - 1, 'd')
+            const data_2 = moment(data_1).add(min_diarias, 'd')
             let periodo = $('#data_viagem').data('daterangepicker')
             periodo.setStartDate(data_1.format('DD/MM/YYYY') + ' ' + response['menor_horario']);
             periodo.setEndDate(data_2.format('DD/MM/YYYY') + ' ' + response['maior_horario']);
             $('#data_viagem').val(periodo.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + periodo.endDate.format('DD/MM/YYYY HH:mm')).trigger('change');
-            $('#id_tipo_de_pacote').val($('#id_tipos_de_pacote_elegivel').val()).prop('disabled', false).trigger('change')
+            $('#id_tipo_de_pacote').val($('#id_tipos_de_pacote_elegivel').val())
+            $('#id_tipo_de_pacote').prop('disabled', false).trigger('change')
             // inicializar_funcoes_periodo_viagem()
         }
     }).done(async () => {
@@ -1400,7 +1473,7 @@ async function resetar_forms() {
                 }
             }
 
-            $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
+            $('.bloqueado').addClass('none')
             $('#form_gerencia #div_financeiro input[id*=real]').val('0,00')
             $('#form_gerencia #div_financeiro [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
@@ -1420,7 +1493,7 @@ async function resetar_forms() {
 
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
-    $('#campos_fixos input, #campos_fixos select, #campos_fixos button').prop('disabled', false)
+    $('.bloqueado').addClass('none')
     $('#opcionais select').val('')
 
     if (id_pacote == '') {
@@ -1468,21 +1541,21 @@ async function mostrar_dados_pacote(pacote) {
             await preencher_promocional(id_pacote)
 
             if (response['dados_promocionais']['fields']['monitoria_fechado']) {
-                $('#campos_fixos #monitoria select').prop('disabled', true)
+                $('#campos_fixos #monitoria .bloqueado').removeClass('none')
             } else {
-                $('#campos_fixos #monitoria select').prop('disabled', false)
+                $('#campos_fixos #monitoria .bloqueado').addClass('none')
             }
 
             if (response['dados_promocionais']['fields']['transporte_fechado']) {
-                $('#campos_fixos #transporte input').prop('disabled', true)
+                $('#campos_fixos #transporte .bloqueado').removeClass('none')
             } else {
-                $('#campos_fixos #transporte input').prop('disabled', false)
+                $('#campos_fixos #transporte .bloqueado').addClass('none')
             }
 
             if (response['dados_promocionais']['fields']['opcionais_fechado']) {
-                $('#campos_fixos #container_opcionais select').prop('disabled', true)
+                $('#campos_fixos #container_opcionais .bloqueado').removeClass('none')
             } else {
-                $('#campos_fixos #container_opcionais select').prop('disabled', false)
+                $('#campos_fixos #container_opcionais .bloqueado').addClass('none')
             }
 
             $('#form_dados_pacote fieldset').prop('disabled', true)
@@ -1590,65 +1663,66 @@ function printTable() {
     }, 50);
 }
 
-async function verificar_gerencia() {
-    loading()
-    $('#server_error, #login_error').addClass('none').text('')
-    $('#id_gerente').val('')
-
-    $.ajax({
-        url: '/orcamento/verificar_gerencia/',
-        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        type: "POST",
-        data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
-        success: async function (response) {
-            $('#id_gerente').val($('#usuario').val())
-
-            if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
-                $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
-                $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
-            }
-
-            await enviar_form()
-            $('#campos_alteraveis input').map((index, input) => {
-                $(input).data('valor_alterado', $(input).val())
-                $(input).attr('data-valor_alterado', $(input).val())
-            })
-
-            let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
-                let valor
-
-                if ($(input).data('mask') != undefined) {
-                    valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
-                } else {
-                    valor = $(input).val()
-                }
-
-                if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final' && $(input).data('valor_inicial') != $(input).data('valor_alterado')) {
-                    return true
-                }
-            })
-
-            if (!obs) {
-                $('#modal_descritivo #observacoes_gerencia').val('')
-                $('#modal_descritivo #div_observacoes_gerencia').addClass('none')
-            }
-
-            $('#verificacao_gerencia').modal('hide')
-            $('#alteracoes_aviso').addClass('none')
-        },
-        error: function (xht, status, error) {
-            if (xht.status == 500) {
-                $('#server_error').removeClass('none').text(xht['responseJSON']['msg'])
-            }
-
-            if (xht.status == 401) {
-                $('#login_error').removeClass('none').text(xht['responseJSON']['msg'])
-            }
-        }
-    })
-    end_loading()
-    $('#verificacao_gerencia #senha').val('')
-}
+// async function verificar_gerencia() {
+//     loading()
+//     $('#server_error, #login_error').addClass('none').text('')
+//     $('#id_gerente').val('')
+//
+//     $.ajax({
+//         url: '/orcamento/verificar_gerencia/',
+//         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+//         type: "POST",
+//         data: {'id_usuario': $('#usuario').val(), 'senha': $('#senha').val()},
+//         success: async function (response) {
+//             $('#id_gerente').val($('#usuario').val())
+//
+//             if ($('#campos_alteraveis #desconto_geral').data('valor_alterado') == '0,00') {
+//                 $('#campos_alteraveis #valor_final').data('valor_inicial', $('#campos_alteraveis #valor_final').val())
+//                 $('#campos_alteraveis #valor_final').attr('data-valor_inicial', $('#campos_alteraveis #valor_final').val())
+//             }
+//
+//             await enviar_form()
+//             $('#campos_alteraveis input').map((index, input) => {
+//                 $(input).data('valor_alterado', $(input).val())
+//                 $(input).attr('data-valor_alterado', $(input).val())
+//             })
+//
+//             let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
+//                 let valor
+//                 console.log(input)
+//
+//                 if ($(input).data('mask') != undefined) {
+//                     valor = parseFloat($(input).val()).toFixed(2).replace('.', ',') + '%'
+//                 } else {
+//                     valor = $(input).val()
+//                 }
+//
+//                 if (!$(input).attr('id').includes('alterado') && $(input).attr('id') != 'valor_final' && $(input).data('valor_inicial') != $(input).data('valor_alterado')) {
+//                     return true
+//                 }
+//             })
+//
+//             if (!obs) {
+//                 $('#modal_descritivo #observacoes_gerencia').val('')
+//                 $('#modal_descritivo #div_observacoes_gerencia').addClass('none')
+//             }
+//
+//             $('#verificacao_gerencia').modal('hide')
+//             $('#alteracoes_aviso').addClass('none')
+//         },
+//         error: function (xht, status, error) {
+//             if (xht.status == 500) {
+//                 $('#server_error').removeClass('none').text(xht['responseJSON']['msg'])
+//             }
+//
+//             if (xht.status == 401) {
+//                 $('#login_error').removeClass('none').text(xht['responseJSON']['msg'])
+//             }
+//         }
+//     })
+//     end_loading()
+//     $('#verificacao_gerencia #senha').val('')
+// }
 
 function atribuir_apelaido(input_apelido) {
     $('#id_apelido').val(input_apelido.value)

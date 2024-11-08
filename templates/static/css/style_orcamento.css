@@ -360,7 +360,8 @@ input[type='checkbox'] {
 }
 
 #promocionais div:first-child {
-    width: 95%;
+    width: 40%;
+    margin-right: 10px;
 }
 
 #promocionais button {
@@ -455,4 +456,16 @@ input[type='checkbox'] {
     display: flex;
     align-items: baseline;
     column-gap: 15px;
+}
+
+.bloqueado {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(179 173 173 / 30%);
+    border-radius: 15px;
+    cursor: not-allowed;
+    z-index: 1;
 }

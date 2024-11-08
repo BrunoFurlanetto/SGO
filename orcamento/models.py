@@ -130,6 +130,24 @@ class ValoresPadrao(models.Model):
         if self.comportamento == 'numerico':
             return int(self.valor_maximo)
 
+    @classmethod
+    def retornar_dados_gerencia(cls):
+        taxas_base = cls.objects.filter(id_taxa__in=['taxa_comercial', 'comissao', 'desconto_geral'])
+
+        return {
+            'teto_desconto_geral': taxas_base.get(id_taxa='desconto_geral').valor_padrao,
+            'taxa_negocial': {
+                'piso_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_minimo,
+                'padrao_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_padrao,
+                'teto_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_maximo,
+            },
+            'comissao': {
+                'piso_comissao': taxas_base.get(id_taxa='comissao').valor_minimo,
+                'padrao_comissao': taxas_base.get(id_taxa='comissao').valor_padrao,
+                'teto_comissao': taxas_base.get(id_taxa='comissao').valor_maximo,
+            }
+        }
+
     def __str__(self):
         return self.nome_taxa
 
@@ -154,6 +172,104 @@ class ValoresPadrao(models.Model):
             lista_valores[valor.id_taxa] = valor.valor_padrao
 
         return lista_valores
+
+    @classmethod
+    def mostrar_taxas(cls, objeto_gerencia=None, tipo_de_pacote=None):
+        def html_base(nome_taxa, tipo_input, id_taxa, valor_padrao, valor_maximo, valor_minimo):
+            return f"""
+                <div>
+                    <label>{ nome_taxa }</label>
+                    <input type="{ tipo_input }" id="{ id_taxa }" name="{ id_taxa }" value="{ valor_padrao }"
+                           data-nome_taxa="{ nome_taxa }" data-valor_default="{ valor_padrao }"
+                           data-valor_inicial="{ valor_padrao }" data-valor_alterado="{ valor_padrao }"                            
+                           data-teto="{ valor_maximo }" data-piso="{ valor_minimo }">
+                </div>                        
+            """
+
+        html = ''
+        novas_taxas = None
+        taxas_cadastradas = cls.objects.filter(aparecer_comercial=True)
+        valor_padrao = valor_maximo = valor_minimo = ''
+        relacao_tipo_comportamento = {
+            'numerico': 'number',
+            'intervalo_dias': 'date',
+            'porcentagem': 'text',
+            'monetario': 'text',
+        }
+
+        if tipo_de_pacote:
+            novas_taxas = tipo_de_pacote.retornar_dados_gerencia()
+
+        for taxa in taxas_cadastradas:
+            if taxa.id_taxa == 'minimo_onibus':
+                valor_padrao = int(taxa.valor_padrao) if objeto_gerencia is None else int(objeto_gerencia['minimo_onibus'])
+                valor_maximo = int(taxa.valor_maximo)
+                valor_minimo = int(taxa.valor_minimo)
+
+            if taxa.id_taxa == 'data_pagamento':
+                if objeto_gerencia is None:
+                    valor = datetime.datetime.today().date() + datetime.timedelta(days=int(taxa.valor_padrao))
+                    valor_padrao = valor.strftime('%Y-%m-%d')
+                else:
+                    valor_padrao = objeto_gerencia['data_pagamento']
+
+            if taxa.id_taxa == 'comissao':
+                if objeto_gerencia is None:
+                    valor_padrao = str(taxa.valor_padrao).replace('.', ',') + '%'
+                else:
+                    valor_padrao = f"{objeto_gerencia['comissao']:.2f}%".replace('.', ',')
+
+                valor_maximo = str(taxa.valor_maximo).replace('.', ',') + '%'
+                valor_minimo = str(taxa.valor_minimo).replace('.', ',') + '%'
+
+                if tipo_de_pacote:
+                    if novas_taxas['comissao']['padrao_comissao'] is not None:
+                        valor_padrao = str(novas_taxas['comissao']['padrao_comissao']).replace('.', ',') + '%'
+
+                    if novas_taxas['comissao']['piso_comissao'] is not None:
+                        valor_minimo = str(novas_taxas['comissao']['piso_comissao']).replace('.', ',') + '%'
+
+                    if novas_taxas['comissao']['teto_comissao'] is not None:
+                        valor_maximo = str(novas_taxas['comissao']['teto_comissao']).replace('.', ',') + '%'
+
+            if taxa.id_taxa == 'taxa_comercial':
+                if objeto_gerencia is None:
+                    valor_padrao = str(taxa.valor_padrao).replace('.', ',') + '%'
+                else:
+                    valor_padrao = f"{objeto_gerencia['taxa_comercial']:.2f}%".replace('.', ',')
+
+                valor_maximo = str(taxa.valor_maximo).replace('.', ',') + '%'
+                valor_minimo = str(taxa.valor_minimo).replace('.', ',') + '%'
+
+                if tipo_de_pacote:
+                    if novas_taxas['taxa_negocial']['padrao_taxa_negocial'] is not None:
+                        valor_padrao = str(novas_taxas['taxa_negocial']['padrao_taxa_negocial']).replace('.', ',') + '%'
+
+                    if novas_taxas['taxa_negocial']['piso_taxa_negocial'] is not None:
+                        valor_minimo = str(novas_taxas['taxa_negocial']['piso_taxa_negocial']).replace('.', ',') + '%'
+
+                    if novas_taxas['taxa_negocial']['teto_taxa_negocial'] is not None:
+                        valor_maximo = str(novas_taxas['taxa_negocial']['teto_taxa_negocial']).replace('.', ',') + '%'
+
+            html += html_base(
+                taxa.nome_taxa_comercial,
+                relacao_tipo_comportamento[taxa.comportamento],
+                taxa.id_taxa,
+                valor_padrao,
+                valor_maximo,
+                valor_minimo
+            )
+
+        html += html_base(
+            'Desconto',
+            'text',
+            'desconto_geral',
+            '0,00',
+            str(novas_taxas['teto_desconto_geral']).replace('.', ',') if tipo_de_pacote else '0,00',
+            '0,00'
+        )
+
+        return html
 
 
 class OrcamentoMonitor(models.Model):
@@ -268,7 +384,8 @@ class OrcamentoPeriodo(models.Model):
                                       default=default_validade)
     dias_semana_validos = models.ManyToManyField(DiasSemana)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
-    valor_final = models.DecimalField(decimal_places=2, max_digits=5, default=0.00, editable=False, verbose_name='Preço de venda')
+    valor_final = models.DecimalField(decimal_places=2, max_digits=5, default=0.00, editable=False,
+                                      verbose_name='Preço de venda')
     descricao = models.TextField(blank=True)
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
 
@@ -312,10 +429,18 @@ class HorariosPadroes(models.Model):
     horario = models.TimeField(verbose_name='Horário início')
     final_horario = models.TimeField(verbose_name='Horário final')
     entrada_saida = models.BooleanField()
-    racional = models.DecimalField(max_digits=3, decimal_places=2, default=1.00,
-                                   help_text='Número de diárias de hotelaria')
-    racional_monitor = models.DecimalField(max_digits=3, decimal_places=2, default=1.00,
-                                           help_text='Número de diárias de monitoria')
+    racional = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=1.00,
+        help_text='Número de diárias de hotelaria'
+    )
+    racional_monitor = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=1.00,
+        help_text='Número de diárias de monitoria'
+    )
     descritivo = models.TextField(verbose_name='Descritivo', blank=True)
     descricao_alimentacao = models.TextField(verbose_name='Descrição das alimentações')
 
@@ -412,12 +537,6 @@ class StatusOrcamento(models.Model):
 
 class TiposDePacote(models.Model):
     titulo = models.CharField(max_length=100, verbose_name="Título")
-    n_diarias = models.PositiveIntegerField(
-        verbose_name='Número de diarias',
-        blank=True,
-        null=True,
-        help_text='Deixar em branco em caso de não ter um número de diarias definido'
-    )
     teto_desconto_geral = models.DecimalField(
         decimal_places=2,
         max_digits=5,
@@ -453,7 +572,7 @@ class TiposDePacote(models.Model):
         null=True,
         help_text='Deixar em branco para pegar os valores padrão'
     )
-    valor_padrao_comissoa = models.DecimalField(
+    valor_padrao_comissao = models.DecimalField(
         decimal_places=2,
         max_digits=5,
         blank=True,
@@ -467,7 +586,7 @@ class TiposDePacote(models.Model):
         null=True,
         help_text='Deixar em branco para pegar os valores padrão'
     )
-    aparecer_montagem_pacotes = models.BooleanField(default=True)
+    n_diarias = models.PositiveIntegerField(default=1, verbose_name='Número de diarias')
     so_ceu = models.BooleanField(default=False)
     descricao = models.TextField()
 
@@ -477,11 +596,33 @@ class TiposDePacote(models.Model):
     def __str__(self):
         return self.titulo
 
+    @classmethod
+    def dados_do_tipo_de_pacote(cls):
+        dados = {}
+
+        return
+
+    def retornar_dados_gerencia(self):
+        return {
+            'teto_desconto_geral': self.teto_desconto_geral,
+            'taxa_negocial': {
+                'piso_taxa_negocial': self.minimo_taxa_negocial,
+                'padrao_taxa_negocial': self.valor_padrao_taxa_negocial,
+                'teto_taxa_negocial': self.maximo_taxa_negocial,
+            },
+            'comissao': {
+                'piso_comissao': self.minimo_comissao,
+                'padrao_comissao': self.valor_padrao_comissao,
+                'teto_comissao': self.maximo_comissao,
+            }
+        }
+
 
 class DadosDePacotes(models.Model):
     nome_do_pacote = models.CharField(max_length=255, verbose_name="Nome do Pacote")
     minimo_de_pagantes = models.PositiveIntegerField(verbose_name="Minimo de pagantes")
-    tipos_de_pacote_elegivel = models.ForeignKey(TiposDePacote, verbose_name="Pacotes elegíveis", on_delete=models.PROTECT)
+    tipos_de_pacote_elegivel = models.ForeignKey(TiposDePacote, verbose_name="Pacotes elegíveis",
+                                                 on_delete=models.PROTECT)
     monitoria_fechado = models.BooleanField(default=True)
     transporte_fechado = models.BooleanField(default=True)
     opcionais_fechado = models.BooleanField(default=True)
@@ -534,8 +675,10 @@ class DadosDePacotes(models.Model):
                     periodos.append({
                         f'periodo_{periodo_n}': dados_pacote.get(f'periodo_{periodo_n}'),
                         f'dias_periodos_{periodo_n}': list(map(int, dados_pacote.get(f'dias_periodo_{periodo_n}'))),
-                        f'check_in_permitido_{periodo_n}': ' - '.join(dados_pacote.getlist(f'check_in_permitido_{periodo_n}[]')),
-                        f'check_out_permitido_{periodo_n}': ' - '.join(dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]')),
+                        f'check_in_permitido_{periodo_n}': ' - '.join(
+                            dados_pacote.getlist(f'check_in_permitido_{periodo_n}[]')),
+                        f'check_out_permitido_{periodo_n}': ' - '.join(
+                            dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]')),
                     })
                 else:
                     periodos.append({
@@ -634,7 +777,8 @@ class DadosDePacotes(models.Model):
                 periodo[f'periodo_{i}'],
                 periodo[f'dias_periodos_{i}'],
                 periodo[f'check_in_permitido_{i}'].split(' - ') if periodo.get(f'check_in_permitido_{i}') else ['', ''],
-                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['', ''],
+                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['',
+                                                                                                                  ''],
             )
 
         return html_dados
@@ -672,7 +816,15 @@ class Orcamento(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Tipo de pacote',
         blank=True,
-        null=True)
+        null=True
+    )
+    produto = models.ForeignKey(
+        ProdutosPeraltas,
+        on_delete=models.CASCADE,
+        verbose_name='Produto',
+        blank=True,
+        null=True
+    )
     check_in = models.DateTimeField(verbose_name='Check in', blank=True, null=True)
     check_out = models.DateTimeField(verbose_name='Check out', blank=True, null=True)
     tipo_monitoria = models.ForeignKey(OrcamentoMonitor, on_delete=models.CASCADE, verbose_name='Tipo de monitoria')
@@ -1087,7 +1239,7 @@ class OrcamentosPromocionais(models.Model):
 
         for pacote in pacotes:
             if comparar_intervalo():
-                if id_tipo_pacote == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
+                if int(id_tipo_pacote) if id_tipo_pacote != '' else 0 == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
                     # dados = serializers.serialize('json', [pacote.dados_pacote, ])
                     # campos = json.loads(dados)[0]['fields']
 
@@ -1251,7 +1403,8 @@ class CadastroOrcamento(forms.ModelForm):
 
         widgets = {
             'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
-            # 'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
+            'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
+            'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_pacotes_promocionais()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),

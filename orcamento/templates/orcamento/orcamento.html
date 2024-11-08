@@ -68,13 +68,18 @@
                             <label for="data_viagem">Data da viagem</label>
                             <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
                                    onchange="separar_produtos(this)"/>
-                            <label for="produto">Tipo de pacote</label>
-                            {{ orcamento.tipo_de_pacote }}
+                            <label for="id_produto">Produto</label>
+                            {{ orcamento.produto }}
                         </div>
                         <hr>
+                        <h5 class="titulo-secao">Pacotes promocionais</h5>
                         <div id="promocionais" class="{% if orcamento_origem.promocional %} none {% endif %}">
                             <div>
-                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">{{ orcamento.orcamento_promocional.label }}</label>
+                                <label for="produto">Tipo de pacote</label>
+                                {{ orcamento.tipo_de_pacote }}
+                            </div>
+                            <div style="width: 60%">
+                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">Pacote promocional</label>
                                 {{ orcamento.orcamento_promocional }}
                             </div>
                             <button type="button" name="info_promocional" {% if not dados_pacote %} disabled {% endif %}
@@ -101,6 +106,7 @@
                         <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                              onchange="verificar_monitoria_transporte()">
                             <div id="monitoria" class="conteudo" style="width: 62%">
+                                <div class="bloqueado none"></div>
                                 <h5 class="titulo-secao">Monitoria</h5>
                                 <div>
                                     {{ orcamento.tipo_monitoria.label }}
@@ -110,6 +116,7 @@
                             <div class="conteudo" style="width: 35%">
                                 <h5 class="titulo-secao">Transporte a partir de São Paulo</h5>
                                 <div id="transporte">
+                                    <div class="bloqueado none"></div>
                                     {{ orcamento.transporte }}
                                 </div>
                             </div>
@@ -119,6 +126,7 @@
                     <div id="container_opcionais" style="margin-bottom: -45px"
                          class="{% if not id_orcamento %} none {% endif %}">
                         <div id="opcionais" class="conteudo">
+                            <div class="bloqueado none"></div>
                             <h5 class="titulo-secao">Opcionais</h5>
                             <div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
@@ -356,56 +364,47 @@
                             <div style="border: dashed 1px #5c636a">
                                 <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
                                      onchange="verificar_alteracoes(this)">
-                                    {% for taxa in taxas_padrao %}
-                                        {% if taxa.aparecer_comercial %}
-                                            {% if not zerar_taxas %}
-                                                {% for taxa_orcamento, valor in orcamento_origem.objeto_gerencia.items %}
-                                                    {% if taxa_orcamento == taxa.id_taxa %}
-                                                        <div>
-                                                            <label>{{ taxa.nome_taxa_comercial }}</label>
-                                                            <input type="{{ taxa.tipo_variavel }}"
-                                                                   id="{{ taxa.id_taxa }}"
-                                                                   name="{{ taxa.id_taxa }}"
-                                                                   value="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
-                                                                   data-nome_taxa="{{ taxa.nome_taxa_comercial }}"
-                                                                   data-valor_default="{{ taxa.valor_padrao_formatado }}"
-                                                                   data-valor_inicial="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
-                                                                   data-valor_alterado="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"
-                                                                    {% if taxa.valor_maximo %}
-                                                                   data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
-                                                                    {% if taxa.valor_minimo|floatformat %}
-                                                                   data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% else %}
-                                                <div>
-                                                    <label>{{ taxa.nome_taxa_comercial }}</label>
-                                                    <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"
-                                                           name="{{ taxa.id_taxa }}"
-                                                           data-nome_taxa="{{ taxa.nome_taxa_comercial }}"
-                                                           value="{{ taxa.valor_padrao_formatado }}"
-                                                           data-valor_default="{{ taxa.valor_padrao_formatado }}"
-                                                           data-valor_inicial="{{ taxa.valor_padrao_formatado }}"
-                                                           data-valor_alterado="{{ taxa.valor_padrao_formatado }}"
-                                                            {% if taxa.valor_maximo %}
-                                                           data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}
-                                                            {% if taxa.valor_minimo|floatformat %}
-                                                           data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>
-                                                </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    <div>
-                                        <label for="desconto_geral">Desconto</label>
-                                        <input type="text" id="desconto_geral" name="desconto_geral"
-                                               value="0,00"
-                                               data-valor_default="0,00" data-valor_inicial="0,00"
-                                               data-valor_alterado="0,00">
-                                        <input type="hidden" name="desconto_geral_alterado"
-                                               id="desconto_geral_alterado"
-                                               value="0">
-                                    </div>
+{#                                    {% for taxa in taxas_padrao %}#}
+{#                                        {% if taxa.aparecer_comercial %}#}
+{#                                            {% if not zerar_taxas %}#}
+{#                                                {% for taxa_orcamento, valor in orcamento_origem.objeto_gerencia.items %}#}
+{#                                                    {% if taxa_orcamento == taxa.id_taxa %}#}
+{#                                                        <div>#}
+{#                                                            <label>{{ taxa.nome_taxa_comercial }}</label>#}
+{#                                                            <input type="{{ taxa.tipo_variavel }}"#}
+{#                                                                   id="{{ taxa.id_taxa }}"#}
+{#                                                                   name="{{ taxa.id_taxa }}"#}
+{#                                                                   value="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"#}
+{#                                                                   data-nome_taxa="{{ taxa.nome_taxa_comercial }}"#}
+{#                                                                   data-valor_default="{{ taxa.valor_padrao_formatado }}"#}
+{#                                                                   data-valor_inicial="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"#}
+{#                                                                   data-valor_alterado="{% if taxa.tipo_variavel == 'text' %}{{ valor|formatar_porcentagem }}{% else %}{{ valor }}{% endif %}"#}
+{#                                                                    {% if taxa.valor_maximo %}#}
+{#                                                                   data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}#}
+{#                                                                    {% if taxa.valor_minimo|floatformat %}#}
+{#                                                                   data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>#}
+{#                                                        </div>#}
+{#                                                    {% endif %}#}
+{#                                                {% endfor %}#}
+{#                                            {% else %}#}
+{#                                                <div>#}
+{#                                                    <label>{{ taxa.nome_taxa_comercial }}</label>#}
+{#                                                    <input type="{{ taxa.tipo_variavel }}" id="{{ taxa.id_taxa }}"#}
+{#                                                           name="{{ taxa.id_taxa }}"#}
+{#                                                           data-nome_taxa="{{ taxa.nome_taxa_comercial }}"#}
+{#                                                           value="{{ taxa.valor_padrao_formatado }}"#}
+{#                                                           data-valor_default="{{ taxa.valor_padrao_formatado }}"#}
+{#                                                           data-valor_inicial="{{ taxa.valor_padrao_formatado }}"#}
+{#                                                           data-valor_alterado="{{ taxa.valor_padrao_formatado }}"#}
+{#                                                            {% if taxa.valor_maximo %}#}
+{#                                                           data-teto="{{ taxa.valor_maximo_formatado }}" {% endif %}#}
+{#                                                            {% if taxa.valor_minimo|floatformat %}#}
+{#                                                           data-piso="{{ taxa.valor_minimo_formatado }}" {% endif %}>#}
+{#                                                </div>#}
+{#                                            {% endif %}#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+                                    {{ taxas_padrao|safe }}
                                     <div>
                                         <label for="valor_final">Valor final</label>
                                         <input disabled type="text" id="valor_final">
@@ -808,6 +807,7 @@
     <script>
         $(document).ready(async () => {
             {% if id_orcamento %}
+                editando_pacote = true
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
