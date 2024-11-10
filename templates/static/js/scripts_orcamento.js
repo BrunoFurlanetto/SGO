@@ -141,16 +141,6 @@ function inicializar_funcoes_periodos_promocional() {
     });
 }
 
-function verificar_produto() {
-    const produto = $('#id_tipo_de_pacote option:selected').text().toLowerCase()
-
-    if (produto.includes('ceu')) {
-        $('/*#form_gerencia fieldset, */#btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', true)
-    } else {
-        $('#form_gerencia fieldset, #btn_alterar_taxas, #id_opcionais_eco, #id_opcionais_ceu').prop('disabled', false)
-    }
-}
-
 async function verificar_alteracoes(div) {
     loading()
     await verificar_pisos_e_tetos()
@@ -875,9 +865,11 @@ async function separar_produtos(periodo) {
         }).done(() => {
             $('#id_produto').prop('disabled', false)
             $('#subtotal').removeClass('none')
+            $('#id_tipo_de_pacote').trigger('change')
         }).catch((xht, status, error) => {
             alert(xht['responseJSON']['msg'])
             $('#id_produto').val('')
+            $('#id_tipo_de_pacote').val('').trigger('change')
             $('#subtotal').addClass('none')
 
             reject(xht['responseJSON']['msg'])
@@ -895,6 +887,7 @@ async function separar_produtos(periodo) {
             $('#id_produto, #id_tipo_de_pacote').val('')
             $('#container_periodo .parcial').removeClass('visivel')
             $('.div-flutuante').removeClass('visivel')
+            await verificar_preenchimento()
             $('#container_monitoria_transporte, #container_opcionais, #finalizacao').addClass('none')
         }
     }
@@ -908,7 +901,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     let taxa_negocial = $('#taxa_comercial')
     let comissao = $('#comissao')
     let desconto = $('#desconto_geral')
-    console.log(dados_taxas)
+
     taxa_negocial.val(formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.val())).data({
         'valor_default': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_default')),
         'valor_inicial': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_inicial')),
@@ -923,7 +916,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
         'data-piso': formatarPorcentagem(dados_taxas['taxa_negocial']['piso_taxa_negocial'], taxa_negocial.data('piso'))
     })
 
-    comissao.val(formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_comissao'], comissao.val())).data({
+    comissao.val(formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.val())).data({
         'valor_default': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_default')),
         'valor_inicial': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_inicial')),
         'valor_alterado': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_alterado')),
@@ -1007,7 +1000,6 @@ async function verificar_preenchimento() {
 
     if (editando_pacote || ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != ''))) {
         editando_pacote = false
-        loading()
 
         try {
             if (!$('#data_viagem').data('programmatic')) {
@@ -1015,6 +1007,7 @@ async function verificar_preenchimento() {
             } else {
                 $('#data_viagem').data('programmatic', false)
             }
+
             $('#container_periodo .parcial').addClass('visivel')
             $('.div-flutuante').addClass('visivel')
             $('#container_monitoria_transporte').removeClass('none')
@@ -1042,7 +1035,6 @@ async function verificar_preenchimento() {
     } else {
         $('#container_periodo .visivel, #subtotal span').text('R$ 0,00')
     }
-
 }
 
 async function verificar_monitoria_transporte() {
@@ -1330,7 +1322,7 @@ function salvar_dados_do_pacote() {
             $('#id_pacote, #id_pacote_promocional').val(response['id_pacote'])
             const min_diarias = parseInt(response['diarias'])
             const data_1 = moment($('#periodo_1').val().split(' - ')[0], 'DD/MM/YYYY')
-            const data_2 = moment(data_1).add(min_diarias, 'd')
+            const data_2 = moment(data_1).add(min_diarias - 1, 'd')
             let periodo = $('#data_viagem').data('daterangepicker')
             periodo.setStartDate(data_1.format('DD/MM/YYYY') + ' ' + response['menor_horario']);
             periodo.setEndDate(data_2.format('DD/MM/YYYY') + ' ' + response['maior_horario']);

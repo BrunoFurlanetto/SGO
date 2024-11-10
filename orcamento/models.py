@@ -1234,19 +1234,19 @@ class OrcamentosPromocionais(models.Model):
         pacotes = cls.objects.filter(
             orcamento__data_vencimento__gte=datetime.date.today(),
             orcamento__previa=False,
+            dados_pacote__tipos_de_pacote_elegivel_id=int(id_tipo_pacote) if id_tipo_pacote != '' else 0
         )
         pacotes_validos = []
 
         for pacote in pacotes:
             if comparar_intervalo():
-                if int(id_tipo_pacote) if id_tipo_pacote != '' else 0 == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
+                # if int(id_tipo_pacote) if id_tipo_pacote != '' else 0 == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
                     # dados = serializers.serialize('json', [pacote.dados_pacote, ])
                     # campos = json.loads(dados)[0]['fields']
-
-                    pacotes_validos.append({
-                        'id': pacote.id,
-                        'nome': pacote.dados_pacote.nome_do_pacote,
-                    })
+                pacotes_validos.append({
+                    'id': pacote.id,
+                    'nome': pacote.dados_pacote.nome_do_pacote,
+                })
 
         return pacotes_validos
 
@@ -1403,7 +1403,7 @@ class CadastroOrcamento(forms.ModelForm):
 
         widgets = {
             'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
-            'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_produto()'}),
+            'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_preenchimento()'}),
             'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_pacotes_promocionais()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),

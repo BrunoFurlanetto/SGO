@@ -63,7 +63,7 @@
                 </div>
                 <div id="container_periodo" class="{% if not id_orcamento %} none {% endif %}">
                     <div id="periodo_viagem" class="conteudo">
-                        <div id="periodo" onchange="verificar_preenchimento()">
+                        <div id="periodo" >
                             <h5 class="titulo-secao">Período da viagem</h5>
                             <label for="data_viagem">Data da viagem</label>
                             <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
@@ -812,8 +812,8 @@
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
                 await preencher_op_extras({{ id_orcamento|safe }}, true)
-                $('#data_viagem').data('programmatic', true)
-                $('#data_viagem, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
+                $('#id_produto').data('programmatic', true)
+                $('#id_produto, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
                 $('#tabela_de_opcionais input').maskMoney({
                     prefix: 'R$ ',
