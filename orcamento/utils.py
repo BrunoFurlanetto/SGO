@@ -70,7 +70,7 @@ def processar_formulario(dados, user):
             lista = []
 
             for i, item in enumerate(dados.getlist(key)):
-                print(i, item)
+                print(i, item, key)
                 if i == 0:
                     lista.append(int(item))
                 else:

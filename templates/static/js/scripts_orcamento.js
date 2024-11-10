@@ -299,6 +299,7 @@ async function listar_op_extras(opcao, i) {
             <input type="hidden" id="valor_bd_opcionais_extra_${i}" name="opcionais_extra_${i}" value='${String(opcional_extra['valor']).replace('.', ',')}' disabled>                                 
             <th><input type="text" id="valor_opcionais_extra_${i}" disabled name="opcionais_extra_${i}" value="${String(opcional_extra['valor']).replace('.', ',')}"></th>
             <th><input type="text" id="desconto_opcionais_extra_${i}" name="opcionais_extra_${i}" value="0,00" disabled></th> 
+            <th><input type="text" id="acrescimo_opcionais_extra_${i}" name="opcionais_extra_${i}" value="0,00" disabled></th>
         </tr>
     `)
 }
@@ -1376,11 +1377,13 @@ async function preencher_promocional(id_promocional) {
                 }
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
-                    let dados_op = {'valor': op['valor']}
-                    let opcional = {'id': op['id'], 'text': op['nome']}
-                    let desconto = formatar_dinheiro(op['desconto'])
-                    let acrescimo = formatar_dinheiro(op['acrescimo'])
-                    listar_op(dados_op, opcional, i + 1, desconto, acrescimo)
+                    if (op['categoria'] != 'extra') {
+                        let dados_op = {'valor': op['valor']}
+                        let opcional = {'id': op['id'], 'text': op['nome']}
+                        let desconto = formatar_dinheiro(op['desconto'])
+                        let acrescimo = formatar_dinheiro(op['acrescimo'])
+                        listar_op(dados_op, opcional, i + 1, desconto, acrescimo)
+                    }
                 })
 
                 if (response['opcionais_extra']) {
