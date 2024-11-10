@@ -58,7 +58,7 @@ def clonar_orcamento(request, id_tratativa, ):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
-            orcamento.orcamento_promocional.tipo_de_pacote.id if orcamento.orcamento_promocional else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
         ),
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,

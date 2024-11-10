@@ -106,7 +106,7 @@
                         <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
                              onchange="verificar_monitoria_transporte()">
                             <div id="monitoria" class="conteudo" style="width: 62%">
-                                <div class="bloqueado none"></div>
+                                <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.monitoria_fechado %} none {% endif %}"></div>
                                 <h5 class="titulo-secao">Monitoria</h5>
                                 <div>
                                     {{ orcamento.tipo_monitoria.label }}
@@ -116,7 +116,7 @@
                             <div class="conteudo" style="width: 35%">
                                 <h5 class="titulo-secao">Transporte a partir de São Paulo</h5>
                                 <div id="transporte">
-                                    <div class="bloqueado none"></div>
+                                    <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.transporte_fechado %} none {% endif %}"></div>
                                     {{ orcamento.transporte }}
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                     <div id="container_opcionais" style="margin-bottom: -45px"
                          class="{% if not id_orcamento %} none {% endif %}">
                         <div id="opcionais" class="conteudo">
-                            <div class="bloqueado none"></div>
+                            <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.opcionais_fechado %} none {% endif %}"></div>
                             <h5 class="titulo-secao">Opcionais</h5>
                             <div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
@@ -429,7 +429,7 @@
                                  class="none" {% endif %}>
                                 <div>
                                     <div>
-                                        <div class="div_desconto_percent">
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_diaria != '0,00'%} none {% endif %}">
                                             <label for="desconto_produto_percent">
                                                 Desconto diaria (%)
                                                 <button type="button" class="btn-troca-desconto"
@@ -441,7 +441,7 @@
                                                    value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
                                                    onchange="enviar_infos_gerencia()">
                                         </div>
-                                        <div class="div_desconto_real none">
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_diaria == '0,00' %} none {% endif %}">
                                             <label for="desconto_produto_real">
                                                 Desconto diaria ($)
                                                 <button type="button" class="btn-troca-desconto"
@@ -454,7 +454,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="div_desconto_percent">
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_monitoria != '0,00'%} none {% endif %}">
                                             <label for="desconto_monitoria_percent">
                                                 Desconto monitoria (%)
                                                 <button type="button" class="btn-troca-desconto"
@@ -466,7 +466,7 @@
                                                    value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_monitoria }}{% else %}0,00{% endif %}%"
                                                    onchange="enviar_infos_gerencia()">
                                         </div>
-                                        <div class="div_desconto_real none">
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_monitoria == '0,00' %} none {% endif %}">
                                             <label for="desconto_monitoria_real">
                                                 Desconto monitoria ($)
                                                 <button type="button" class="btn-troca-desconto"
@@ -480,7 +480,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="div_desconto_percent">
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_transporte != '0,00'%} none {% endif %}">
                                             <label for="desconto_transporte_percent">
                                                 Desconto transporte (%)
                                                 <button type="button" class="btn-troca-desconto"
@@ -492,7 +492,7 @@
                                                    value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_transporte }}{% else %}0,00{% endif %}%"
                                                    onchange="enviar_infos_gerencia()">
                                         </div>
-                                        <div class="div_desconto_real none">
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_transporte == '0,00' %} none {% endif %}">
                                             <label for="desconto_transporte_real">
                                                 Desconto transporte ($)
                                                 <button type="button" class="btn-troca-desconto"
