@@ -54,7 +54,7 @@ def fichaAvaliacao(request, id_ficha=None):
 
     grupos = verificar_grupo(request.user.groups.all())
 
-    if not User.objects.filter(pk=request.user.id, groups__name='Colégio'):
+    if not User.objects.filter(pk=request.user.id, groups__name__icontains='colégio'):
         return redirect('dashboard')
 
     ordem = OrdemDeServico.objects.get(pk=request.user.username)
@@ -63,7 +63,7 @@ def fichaAvaliacao(request, id_ficha=None):
     formulario.dados_avaliador = pegar_dados_avaliador(request.user.username)
     formulario.atividades = pegar_atividades_relatorio(request.user.username)
     professores = formulario.professores = pegar_professores_relatorio(request.user.username)
-    ver_icons = User.objects.filter(pk=request.user.id, groups__name='Colégio').exists()
+    ver_icons = User.objects.filter(pk=request.user.id, groups__name__icontains='colégio').exists()
 
     if request.method != 'POST':
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {

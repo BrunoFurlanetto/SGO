@@ -147,14 +147,14 @@ def criar_usuario_colegio(dados_colegio, id_ordem):
         username=colegio_username,
         email=colegio_email,
         password=colegio_password,
-        first_name='Colégio',
+        first_name='Colégio - Avaliação',
         last_name=colegio_last_name
     )
 
     user.save()
 
     usuario = User.objects.get(id=user.id)
-    grupo_colegio = Group.objects.get(name='Colégio')
+    grupo_colegio = Group.objects.get(name__icontains='colégio')
     usuario.groups.add(grupo_colegio)
 
     return colegio_email, colegio_password
