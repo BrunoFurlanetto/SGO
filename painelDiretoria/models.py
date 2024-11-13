@@ -33,7 +33,11 @@ class Metas(models.Model):
         acumulado_diaria = 0.00
         n_participantes = sum([escala.ficha_de_evento.qtd_convidada for escala in escalas])
         n_monitores = sum([len(escala.monitores_acampamento.all()) for escala in escalas])
-        acumulado_relacao = n_participantes / n_monitores
+
+        try:
+            acumulado_relacao = n_participantes / n_monitores
+        except ZeroDivisionError:
+            acumulado_relacao = 0
 
         for escala in escalas:
             for monitor in escala.monitores_acampamento.all():
@@ -42,6 +46,9 @@ class Metas(models.Model):
                 else:
                     acumulado_diaria += float(monitor.valor_diaria)
 
-        acumulado_diaria_media = acumulado_diaria / n_monitores
+        try:
+            acumulado_diaria_media = acumulado_diaria / n_monitores
+        except ZeroDivisionError:
+            acumulado_diaria_media = 0
 
         return acumulado_relacao, acumulado_diaria_media
