@@ -39,6 +39,7 @@ if not em_manutencao:
         path('detector-de-bombas/', include('detector.urls')),
         path('orcamento/', include('orcamento.urls')),
         path('painel-diretoria/', include('painelDiretoria.urls')),
+        path('cozinha/', include('cozinha.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
@@ -57,6 +58,7 @@ else:
         path('detector-de-bombas/', manutencao),
         path('orcamento/', manutencao),
         path('painel-diretoria/', manutencao),
+        path('cozinha/', manutencao),
         path('admin/', manutencao),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

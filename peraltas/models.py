@@ -51,6 +51,7 @@ class NivelMonitoria(models.Model):
     coordenacao = models.BooleanField(default=False)
     setor_monitoria = models.ForeignKey(SetorMonitoria, on_delete=models.CASCADE, default=get_first_setor_monitoria)
 
+
     def __str__(self):
         return self.nivel
 

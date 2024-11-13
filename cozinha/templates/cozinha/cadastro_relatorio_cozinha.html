@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag_painel_diretoria %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_cozinha.css' %}">
+
+    <main id="cadastro_relatorio">
+
+    </main>
+
+    <script src="{% static 'js/scripts_cozinha.js' %}"></script>
+{% endblock %}
