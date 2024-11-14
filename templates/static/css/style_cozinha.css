@@ -1,0 +1,100 @@
+#corpo_site {
+    display: flex;
+    justify-content: center;
+}
+
+input {
+    background-color: #fff;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    appearance: none;
+    padding: 12px;
+    height: 38px;
+}
+
+#participantes input {
+    text-align: center;
+}
+
+#cadastro_relatorio {
+    display: flex;
+    align-items: center;
+    width: 40%;
+    flex-direction: column;
+    margin-bottom: 20%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+#ficha_de_evento {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#header_cadastro_relatorio {
+    width: 100%;
+    text-align: center;
+}
+
+#dados_do_evento {
+    width: 100%;
+}
+
+#dados_do_evento #participantes {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 10%;
+    justify-content: space-around;
+}
+
+#dados_do_evento #participantes > p, #dados_gerais p {
+    width: 100%;
+}
+
+#dados_do_evento #participantes div{
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    text-align: center;
+}
+
+#dados_gerais {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1%;
+    justify-content: space-around;
+}
+
+#dados_do_evento #dados_gerais div {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    text-align: center;
+}
+
+#dados_refeicoes table {
+    vertical-align: middle;
+    text-align: center;
+}
+
+#dados_refeicoes table input {
+    border: none;
+    padding: 0;
+    text-align: center;
+    background: none;
+}
+
+.botoes {
+    width: 100%;
+    text-align: end;
+}
+
+#dados_refeicoes .btn_tirar_refeicao {
+    cursor: pointer;
+    color: #ff0000;
+    font-size: 20px;
+}

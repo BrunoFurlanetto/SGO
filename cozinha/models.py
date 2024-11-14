@@ -27,6 +27,53 @@ class Relatorio(models.Model):
     def __str__(self):
         return f'Dados refeições {self.grupo}'
 
+    @staticmethod
+    def dividir_refeicoes(dados_refeicoes):
+        refeicoes= {}
+
+        for refeicao_dia in dados_refeicoes.keys():
+            if '-' in refeicao_dia:
+                refeicao, dia = refeicao_dia.split('-')
+                participantes = dados_refeicoes.getlist(refeicao_dia)
+
+                if refeicao not in refeicoes:
+                    refeicoes[refeicao] = []
+
+                refeicoes[refeicao].append({
+                    'dia': dia,
+                    'participantes': {
+                        'hora': participantes[0],
+                        'adultos': participantes[1],
+                        'criancas': participantes[2],
+                        'monitoria': participantes[3],
+                        'total': participantes[4],
+                    }
+                })
+
+        return refeicoes
+
+    def salvar_refeicoes(self, lista_refeicoes):
+        refeicoes = lista_refeicoes.keys()
+
+        if 'cafe_manha' in refeicoes:
+            self.dados_cafe_da_manha = lista_refeicoes['cafe_manha']
+
+        if 'lanche_manha' in refeicoes:
+            self.dados_lanche_da_manha = lista_refeicoes['lanche_manha']
+
+        if 'almoco' in refeicoes:
+            self.dados_almoco = lista_refeicoes['almoco']
+
+        if 'lanche_tarde' in refeicoes:
+            self.dados_lanche_da_tarde = lista_refeicoes['lanche_tarde']
+
+        if 'jantar' in refeicoes:
+            self.dados_jantar = lista_refeicoes['jantar']
+
+        if 'lanche_noite' in refeicoes:
+            self.dados_lanche_da_noite = lista_refeicoes['lanche_noite']
+
+
     def save(self, *args, **kwargs):
         self.total_pax = self.pax_adulto + self.pax_crianca + self.pax_monitoria
         super().save(*args, **kwargs)

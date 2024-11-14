@@ -7,7 +7,179 @@
     <link rel="stylesheet" href="{% static 'css/style_cozinha.css' %}">
 
     <main id="cadastro_relatorio">
-
+        <div id="header_cadastro_relatorio">
+            <h3>Cadastro de relatório de refeições</h3>
+            <hr>
+        </div>
+        <div id="dados_do_evento">
+            <div id="ficha_de_evento">
+                <label for="fichas_evento">Evento</label>
+                <form action="{% url 'cadastro_relatorio_cozinha' %}" method="GET">
+                    <fieldset>
+                        <select name="fichas_de_evento" id="fichas_evento" onchange="this.form.submit()">
+                            <option></option>
+                            {% for ficha in fichas_de_evento %}
+                                <option value="{{ ficha.id }}" {% if ficha.id|safe == request.GET.fichas_de_evento %}
+                                        selected {% endif %}>
+                                    {{ ficha.cliente }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </fieldset>
+                </form>
+            </div>
+            <hr>
+            <div class="{% if not dados_evento %} none {% endif %}">
+                <div id="dados_gerais">
+                    <p class="titulo-secao"><strong>Dados do evento</strong></p>
+                    <div>
+                        <label for="grupo">Grupo</label>
+                        <input name="grupo" id="grupo" type="text" readonly value="{{ dados_evento.grupo }}">
+                    </div>
+                    <div>
+                        <label for="tipo_evento">Tipo de evento</label>
+                        <input name="tipo_evento" id="tipo_evento" type="text" readonly
+                               value="{{ dados_evento.tipo_evento }}">
+                    </div>
+                    <div>
+                        <label for="check_in">Check in</label>
+                        <input name="check_in" id="check_in" type="text" readonly
+                               value="{{ dados_evento.check_in }}">
+                    </div>
+                    <div>
+                        <label for="check_out">Check out</label>
+                        <input name="check_out" id="check_out" type="text" readonly
+                               value="{{ dados_evento.check_out }}">
+                    </div>
+                </div>
+                <hr>
+                <div id="participantes">
+                    <p class="titulo-secao"><strong>Participantes</strong></p>
+                    <div>
+                        <label for="adultos">Adultos</label>
+                        <input name="adultos" id="adultos" type="number" readonly value="{{ dados_evento.adultos }}">
+                    </div>
+                    <div>
+                        <label for="criancas">Crianças</label>
+                        <input name="criancas" id="criancas" type="number" readonly value="{{ dados_evento.criancas }}">
+                    </div>
+                    <div>
+                        <label for="monitoria">Monitoria</label>
+                        <input name="monitoria" id="monitoria" type="number" value="{{ dados_evento.monitores }}"
+                               onchange="atualizar_participantes()">
+                    </div>
+                    <div>
+                        <label for="total">Total</label>
+                        <input name="total" id="total" type="number" class="total" readonly
+                               value="{{ dados_evento.total }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="width: 100%">
+        <form action="{% url 'salvar_evento' %}" method="POST">
+            <fieldset>
+                {% csrf_token %}
+                <input type="hidden" name="id_ficha" value="{{ request.GET.fichas_de_evento }}">
+                <input type="hidden" name="adultos" value="{{ dados_evento.adultos }}">
+                <input type="hidden" name="criancas" value="{{ dados_evento.criancas }}">
+                <input type="hidden" class="total_monitores" name="monitoria" value="{{ dados_evento.monitores }}">
+                <div id="dados_refeicoes">
+                    <p class="titulo-secao"><strong>Dados das refeições</strong></p>
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Hora</th>
+                            <th>Adultos</th>
+                            <th>Crianças</th>
+                            <th>Monitoria</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% for data in dados_evento.datas %}
+                            <thead>
+                            <tr>
+                                <th colspan="6">{{ data|date:'d/m/Y' }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th>Café da manhã</th>
+                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                            <tr>
+                                <th>Lanche manhã</th>
+                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                            <tr>
+                                <th>Almoço</th>
+                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                            <tr>
+                                <th>Lanche tarde</th>
+                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                            <tr>
+                                <th>Jantar</th>
+                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                            <tr>
+                                <th>Lanche noite</th>
+                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
+                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
+                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
+                                           value="{{ dados_evento.monitores }}">
+                                </td>
+                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
+                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="botoes">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </fieldset>
+        </form>
     </main>
 
     <script src="{% static 'js/scripts_cozinha.js' %}"></script>
