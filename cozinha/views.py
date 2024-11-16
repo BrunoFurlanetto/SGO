@@ -75,33 +75,25 @@ def salvar_evento(request):
 
 @login_required(login_url='login')
 def cadastro_relatorio_dia_cozinha(request):
-    eventos = data = None
-    totais = {}
+    eventos = data = relatorios = None
 
     if request.method == 'GET' and request.GET.get('data'):
         data = datetime.strptime(request.GET.get('data'), '%Y-%m-%d').date()
         criancas = adultos = monitoria = geral = 0
+        relatorios_evento = Relatorio.objects.filter(
+            ficha_de_evento__check_in__date__lte=data,
+            ficha_de_evento__check_out__date__gte=data,
+        )
+        relatorios = [relatorio.relatorio_refeicoes_dia(data) for relatorio in relatorios_evento]
         eventos = FichaDeEvento.objects.filter(
             check_in__date__lte=data,
             check_out__date__gte=data,
             pre_reserva=False,
-        )
-
-        for evento in eventos:
-            criancas += evento.numero_criancas()
-            adultos += evento.numero_adultos()
-            geral += evento.numero_criancas() + evento.numero_adultos()
-
-        totais = {
-            'criancas': criancas,
-            'adultos': adultos,
-            'monitoria': monitoria,
-            'geral': geral,
-        }
+        ).exclude(pk__in=[relatorio.ficha_de_evento.id for relatorio in relatorios_evento]).order_by('check_in')
 
     return render(request, 'cozinha/cadastro_relatorio_cozinha_dia.html', {
         'eventos': eventos,
-        'totais': totais,
+        'relatorios': relatorios,
         'data': data,
     })
 

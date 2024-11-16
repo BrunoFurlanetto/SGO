@@ -34,6 +34,10 @@
                     </tr>
                     </thead>
                     <tbody>
+                    {% for relatorio in relatorios %}
+                    	{{ relatorio|safe }}
+                    {% endfor %}
+
                     {% for evento in eventos %}
                         <tr>
                             <td rowspan="2" class="informacao_grupo">{{ evento.cliente }}</td>
@@ -162,39 +166,39 @@
                     <tr>
                         <td rowspan="4">Totais</td>
                         <td>Adultos</td>
-                        <td class="cafe_manha total_adultos">{{ totais.adultos }}</td>
-                        <td class="lanche_manha total_adultos">{{ totais.adultos }}</td>
-                        <td class="almoco total_adultos">{{ totais.adultos }}</td>
-                        <td class="lanche_tarde total_adultos">{{ totais.adultos }}</td>
-                        <td class="jantar total_adultos">{{ totais.adultos }}</td>
-                        <td class="lanche_noite total_adultos">{{ totais.adultos }}</td>
+                        <td class="cafe_manha total_adultos"></td>
+                        <td class="lanche_manha total_adultos"></td>
+                        <td class="almoco total_adultos"></td>
+                        <td class="lanche_tarde total_adultos"></td>
+                        <td class="jantar total_adultos"></td>
+                        <td class="lanche_noite total_adultos"></td>
                     </tr>
                     <tr>
                         <td>Crianças</td>
-                        <td class="cafe_manha total_criancas">{{ totais.criancas }}</td>
-                        <td class="lanche_manha total_criancas">{{ totais.criancas }}</td>
-                        <td class="almoco total_criancas">{{ totais.criancas }}</td>
-                        <td class="lanche_tarde total_criancas">{{ totais.criancas }}</td>
-                        <td class="jantar total_criancas">{{ totais.criancas }}</td>
-                        <td class="lanche_noite total_criancas">{{ totais.criancas }}</td>
+                        <td class="cafe_manha total_criancas"></td>
+                        <td class="lanche_manha total_criancas"></td>
+                        <td class="almoco total_criancas"></td>
+                        <td class="lanche_tarde total_criancas"></td>
+                        <td class="jantar total_criancas"></td>
+                        <td class="lanche_noite total_criancas"></td>
                     </tr>
                     <tr>
                         <td>Monitoria</td>
-                        <td class="cafe_manha total_monitoria">{{ totais.monitoria }}</td>
-                        <td class="lanche_manha total_monitoria">{{ totais.monitoria }}</td>
-                        <td class="almoco total_monitoria">{{ totais.monitoria }}</td>
-                        <td class="lanche_tarde total_monitoria">{{ totais.monitoria }}</td>
-                        <td class="jantar total_monitoria">{{ totais.monitoria }}</td>
-                        <td class="lanche_noite total_monitoria">{{ totais.monitoria }}</td>
+                        <td class="cafe_manha total_monitoria"></td>
+                        <td class="lanche_manha total_monitoria"></td>
+                        <td class="almoco total_monitoria"></td>
+                        <td class="lanche_tarde total_monitoria"></td>
+                        <td class="jantar total_monitoria"></td>
+                        <td class="lanche_noite total_monitoria"></td>
                     </tr>
                      <tr>
                         <td>Geral</td>
-                        <td class="cafe_manha total_geral">{{ totais.geral }}</td>
-                        <td class="lanche_manha total_geral">{{ totais.geral }}</td>
-                        <td class="almoco total_geral">{{ totais.geral }}</td>
-                        <td class="lanche_tarde total_geral">{{ totais.geral }}</td>
-                        <td class="jantar total_geral">{{ totais.geral }}</td>
-                        <td class="lanche_noite total_geral">{{ totais.geral }}</td>
+                        <td class="cafe_manha total_geral"></td>
+                        <td class="lanche_manha total_geral"></td>
+                        <td class="almoco total_geral"></td>
+                        <td class="lanche_tarde total_geral"></td>
+                        <td class="jantar total_geral"></td>
+                        <td class="lanche_noite total_geral"></td>
                     </tr>
                     </tbody>
                 </table>

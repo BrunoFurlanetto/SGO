@@ -1,7 +1,10 @@
+refeicoes = ['cafe_manha', 'lanche_manha', 'almoco', 'lanche_tarde', 'jantar', 'lanche_noite']
+
 $(document).ready(() => {
     $('#fichas_evento').select2({
         width: '100%'
     })
+    somar_todas_as_refeicoes()
 })
 
 function atualizar_participantes() {
@@ -16,20 +19,19 @@ function zerar_refeicao_grupo(celula_pai) {
     const refeicao_data_evento = celula_pai.className
     $(`.${refeicao_data_evento} input`).prop('disabled', true)
     $(`.${refeicao_data_evento} button`).toggleClass('none')
-    atualizar_totais(refeicao_data_evento)
+    atualizar_totais(refeicao_data_evento.split('-')[0])
 }
 
 function adicionar_refeicao_grupo(celula_pai) {
     const refeicao_data_evento = celula_pai.className
     $(`.${refeicao_data_evento} input`).prop('disabled', false)
     $(`.${refeicao_data_evento} button`).toggleClass('none')
-    atualizar_totais(refeicao_data_evento)
+    atualizar_totais(refeicao_data_evento.split('-')[0])
 }
 
-function atualizar_totais(refeicao_data_evento) {
-    const valores = $(`input.${refeicao_data_evento.split('-')[0]}`)
+function atualizar_totais(refeicao) {
+    const valores = $(`input.${refeicao}`)
     let soma_adultos = 0, soma_criancas = 0, soma_monitoria = 0, soma_geral = 0;
-    const refeicao = refeicao_data_evento.split('-')[0]
     const totais_refeicao = $(`.${refeicao}`)
 
     valores.each(function () {
@@ -70,5 +72,11 @@ function atualizar_monitoria(monitoria) {
         }
     })
     $(`.${refeicao_data_evento} .geral`).val(soma_valores)
-    atualizar_totais(refeicao_data_evento)
+    atualizar_totais(refeicao_data_evento.split('-')[0])
+}
+
+function somar_todas_as_refeicoes() {
+    for (let refeicao of refeicoes) {
+        atualizar_totais(refeicao)
+    }
 }
