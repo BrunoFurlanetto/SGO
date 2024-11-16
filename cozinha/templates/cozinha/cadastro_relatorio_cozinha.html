@@ -76,110 +76,136 @@
                 </div>
             </div>
         </div>
-        <hr style="width: 100%">
-        <form action="{% url 'salvar_evento' %}" method="POST">
-            <fieldset>
-                {% csrf_token %}
-                <input type="hidden" name="id_ficha" value="{{ request.GET.fichas_de_evento }}">
-                <input type="hidden" name="adultos" value="{{ dados_evento.adultos }}">
-                <input type="hidden" name="criancas" value="{{ dados_evento.criancas }}">
-                <input type="hidden" class="total_monitores" name="monitoria" value="{{ dados_evento.monitores }}">
-                <div id="dados_refeicoes">
-                    <p class="titulo-secao"><strong>Dados das refeições</strong></p>
-                    <table class="table table-hover table-bordered">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>Hora</th>
-                            <th>Adultos</th>
-                            <th>Crianças</th>
-                            <th>Monitoria</th>
-                            <th>Total</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        {% for data in dados_evento.datas %}
+        <div class="{% if not dados_evento %} none {% endif %}">
+            <hr style="width: 100%">
+            <form action="{% url 'salvar_evento' %}" method="POST">
+                <fieldset>
+                    {% csrf_token %}
+                    <input type="hidden" name="id_ficha" value="{{ request.GET.fichas_de_evento }}">
+                    <input type="hidden" name="adultos" value="{{ dados_evento.adultos }}">
+                    <input type="hidden" name="criancas" value="{{ dados_evento.criancas }}">
+                    <input type="hidden" class="total_monitores" name="monitoria" value="{{ dados_evento.monitores }}">
+                    <div id="dados_refeicoes">
+                        <p class="titulo-secao"><strong>Dados das refeições</strong></p>
+                        <table class="table table-hover table-bordered">
                             <thead>
                             <tr>
-                                <th colspan="6">{{ data|date:'d/m/Y' }}</th>
+                                <th></th>
+                                <th>Hora</th>
+                                <th>Adultos</th>
+                                <th>Crianças</th>
+                                <th>Monitoria</th>
+                                <th>Total</th>
+                                <th></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <th>Café da manhã</th>
-                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                            <tr>
-                                <th>Lanche manhã</th>
-                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                            <tr>
-                                <th>Almoço</th>
-                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                            <tr>
-                                <th>Lanche tarde</th>
-                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                            <tr>
-                                <th>Jantar</th>
-                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                            <tr>
-                                <th>Lanche noite</th>
-                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="time"></td>
-                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.adultos }}"></td>
-                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly value="{{ dados_evento.criancas }}"></td>
-                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly class="total_monitores"
-                                           value="{{ dados_evento.monitores }}">
-                                </td>
-                                <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" class="total" readonly value="{{ dados_evento.total }}"></td>
-                                <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="botoes">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-            </fieldset>
-        </form>
+                            {% for data in dados_evento.datas %}
+                                <thead>
+                                <tr>
+                                    <th colspan="6">{{ data|date:'d/m/Y' }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th>Café da manhã</th>
+                                    <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                                <tr>
+                                    <th>Lanche manhã</th>
+                                    <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                                <tr>
+                                    <th>Almoço</th>
+                                    <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="almoco-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                                <tr>
+                                    <th>Lanche tarde</th>
+                                    <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                                <tr>
+                                    <th>Jantar</th>
+                                    <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="jantar-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                                <tr>
+                                    <th>Lanche noite</th>
+                                    <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="time"></td>
+                                    <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.adultos }}"></td>
+                                    <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               value="{{ dados_evento.criancas }}"></td>
+                                    <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                               class="total_monitores"
+                                               value="{{ dados_evento.monitores }}">
+                                    </td>
+                                    <td><input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                               readonly value="{{ dados_evento.total }}"></td>
+                                    <td class="btn_tirar_refeicao" onclick="this.parentNode.remove()">&times;</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="botoes">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     </main>
 
     <script src="{% static 'js/scripts_cozinha.js' %}"></script>

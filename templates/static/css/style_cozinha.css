@@ -29,6 +29,19 @@ input {
     box-shadow: 0 0 6px 3px;
 }
 
+#cadastro_relatorio_dia {
+    display: flex;
+    align-items: center;
+    min-width: 70%;
+    max-width: 90%;
+    flex-direction: column;
+    margin-bottom: 20%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
 #ficha_de_evento {
     display: flex;
     flex-direction: column;
@@ -81,7 +94,7 @@ input {
     text-align: center;
 }
 
-#dados_refeicoes table input {
+#dados_refeicoes table input, #cadastro_relatorio_dia table input {
     border: none;
     padding: 0;
     text-align: center;
@@ -97,4 +110,41 @@ input {
     cursor: pointer;
     color: #ff0000;
     font-size: 20px;
+}
+
+#cadastro_relatorio_dia .informacao_grupo {
+    border-right: double 3px #000000;
+}
+
+#cadastro_relatorio_dia .ultima_linha {
+    border-bottom: solid 2px #000000;
+}
+
+#cadastro_relatorio_dia table {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#cadastro_relatorio_dia table input[type='time'] {
+    width: 50%;
+}
+
+#cadastro_relatorio_dia table input[disabled] {
+    color: #e3dbdb;
+}
+
+.btn_zerar_refeicao {
+    background: none;
+    border: none;
+    font-size: 22px;
+    margin-left: 10px;
+    color: #ff0000;
+}
+
+.btn_adicionar_refeicao {
+    background: none;
+    border: none;
+    font-size: 22px;
+    margin-left: 10px;
+    color: #2cd32c;
 }

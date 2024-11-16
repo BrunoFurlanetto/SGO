@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from peraltas.models import ClienteColegio, FichaDeEvento, ProdutosPeraltas
 
@@ -41,8 +42,8 @@ class Relatorio(models.Model):
 
                 refeicoes[refeicao].append({
                     'dia': dia,
+                    'hora': participantes[0],
                     'participantes': {
-                        'hora': participantes[0],
                         'adultos': participantes[1],
                         'criancas': participantes[2],
                         'monitoria': participantes[3],
@@ -73,7 +74,29 @@ class Relatorio(models.Model):
         if 'lanche_noite' in refeicoes:
             self.dados_lanche_da_noite = lista_refeicoes['lanche_noite']
 
-
     def save(self, *args, **kwargs):
         self.total_pax = self.pax_adulto + self.pax_crianca + self.pax_monitoria
+        super().save(*args, **kwargs)
+
+
+class RelatorioDia(models.Model):
+    fichas_de_evento = models.ManyToManyField(FichaDeEvento)
+    grupos = models.ManyToManyField(ClienteColegio)
+    data = models.DateField(default=timezone.now)
+    total_pax_adulto = models.PositiveIntegerField(default=0)
+    total_pax_crianca = models.PositiveIntegerField(default=0)
+    total_pax_monitoria = models.PositiveIntegerField(default=0)
+    total_geral_pax = models.PositiveIntegerField(default=0, editable=False)
+    dados_cafe_da_manha = models.JSONField(null=True, blank=True)
+    dados_lanche_da_manha = models.JSONField(null=True, blank=True)
+    dados_almoco = models.JSONField(null=True, blank=True)
+    dados_lanche_da_tarde = models.JSONField(null=True, blank=True)
+    dados_jantar = models.JSONField(null=True, blank=True)
+    dados_lanche_da_noite = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Relatorio rfeicoes {self.data.strftime("%d/%m/%Y")}'
+
+    def save(self, *args, **kwargs):
+        self.total_geral_pax = self.total_pax_adulto + self.total_pax_crianca + self.total_pax_monitoria
         super().save(*args, **kwargs)

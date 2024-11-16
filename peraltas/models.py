@@ -579,6 +579,7 @@ class FichaDeEvento(models.Model):
 
     def numero_adultos(self):
         soma_adultos = self.qtd_homens if self.qtd_homens else 0 + self.qtd_mulheres if self.qtd_mulheres else 0
+
         return soma_adultos + self.qtd_professores if self.qtd_professores else 0
 
     # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------

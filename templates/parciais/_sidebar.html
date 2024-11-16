@@ -343,6 +343,30 @@
                 </ul>
                 </li>
 
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-knife'></i>
+                            <span class="link_name">Cozinha</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow'></i>
+                    </div>
+
+                    <ul class="sub-menu">
+                        <li><a class="link_name">Cozinha</a></li>
+                        <li><a href="{% url 'cadastro_relatorio_cozinha' %}">Cadastrar evento</a></li>
+                        <li><a href="{% url 'cadastro_relatorio_dia_cozinha' %}">Cadastrar dia</a></li>
+                    </ul>
+                </li>
+
                 <li>
                     <div class="profile-details">
                         <div class="profile-content">
