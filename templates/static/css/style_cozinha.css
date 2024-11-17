@@ -123,10 +123,17 @@ input {
 #cadastro_relatorio_dia table {
     text-align: center;
     vertical-align: middle;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+#cadastro_relatorio_dia table td:not(.informacao_grupo) {
+    white-space: nowrap;
 }
 
 #cadastro_relatorio_dia table input[type='time'] {
     width: 50%;
+    min-width: 80px;
 }
 
 #cadastro_relatorio_dia table input[disabled] {
