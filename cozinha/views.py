@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 
-from cozinha.models import Relatorio
+from cozinha.models import Relatorio, RelatorioDia
 from peraltas.models import FichaDeEvento, EscalaAcampamento
 
 
@@ -98,5 +98,25 @@ def cadastro_relatorio_dia_cozinha(request):
     })
 
 
-def salvar_relatorio_dia(request):
-    ...
+def salvar_relatorio_dia(request, data_refeicoes):
+    refeicoes, id_eventos, ids_grupos = RelatorioDia.processar_refeicoes(request.POST)
+    data_formatada = datetime.strptime(data_refeicoes, '%Y-%m-%d').date().strftime('%d/%m/%Y')
+    print(ids_grupos, id_eventos)
+    try:
+        relatorio = RelatorioDia.objects.create(
+            data=datetime.strptime(data_refeicoes, '%Y-%m-%d').date(),
+            dados_cafe_da_manha=refeicoes['dados_cafe_da_manha'],
+            dados_lanche_da_manha=refeicoes['dados_lanche_da_manha'],
+            dados_almoco=refeicoes['dados_almoco'],
+            dados_lanche_da_tarde=refeicoes['dados_lanche_da_tarde'],
+            dados_jantar=refeicoes['dados_jantar'],
+            dados_lanche_da_noite=refeicoes['dados_lanche_da_noite'],
+        )
+        relatorio.fichas_de_evento.add(*id_eventos)
+        relatorio.grupos.add(*ids_grupos)
+    except Exception as e:
+        messages.error(request, f'Erro ao salvar o relatório do dia ({e}). Por favor tente mais tarde!')
+        return redirect('dashboard')
+    else:
+        messages.success(request, f'Relatório das refeições do dia {data_formatada} salva com sucesso!')
+        return redirect('dashboard')

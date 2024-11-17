@@ -229,10 +229,6 @@ class RelatorioDia(models.Model):
     fichas_de_evento = models.ManyToManyField(FichaDeEvento)
     grupos = models.ManyToManyField(ClienteColegio)
     data = models.DateField(default=timezone.now)
-    total_pax_adulto = models.PositiveIntegerField(default=0)
-    total_pax_crianca = models.PositiveIntegerField(default=0)
-    total_pax_monitoria = models.PositiveIntegerField(default=0)
-    total_geral_pax = models.PositiveIntegerField(default=0, editable=False)
     dados_cafe_da_manha = models.JSONField(null=True, blank=True)
     dados_lanche_da_manha = models.JSONField(null=True, blank=True)
     dados_almoco = models.JSONField(null=True, blank=True)
@@ -243,6 +239,73 @@ class RelatorioDia(models.Model):
     def __str__(self):
         return f'Relatorio rfeicoes {self.data.strftime("%d/%m/%Y")}'
 
-    def save(self, *args, **kwargs):
-        self.total_geral_pax = self.total_pax_adulto + self.total_pax_crianca + self.total_pax_monitoria
-        super().save(*args, **kwargs)
+    @staticmethod
+    def processar_refeicoes(dados):
+        refeicoes_map = {
+            'cafe_manha': 'dados_cafe_da_manha',
+            'lanche_manha': 'dados_lanche_da_manha',
+            'almoco': 'dados_almoco',
+            'lanche_tarde': 'dados_lanche_da_tarde',
+            'jantar': 'dados_jantar',
+            'lanche_noite': 'dados_lanche_da_noite',
+        }
+        lista_ids_eventos = set()
+        lista_ids_grupos = set()
+        dados_refeicoes = {campo: {'dados_grupos': [], 'totais': {'adultos': 0, 'criancas': 0, 'monitoria': 0, 'total': 0}} for campo in refeicoes_map.values()}
+
+        for key, value in dados.lists():
+            if key == 'csrfmiddlewaretoken':
+                continue  # Ignora o token CSRF
+
+            # Divide a chave no formato refeicao-data-id_ficha_de_evento
+            try:
+                _, _, ficha_id = key.split('-')
+                lista_ids_eventos.add(int(ficha_id))
+            except ValueError:
+                continue
+
+        fichas = FichaDeEvento.objects.filter(id__in=list(lista_ids_eventos)).values('id', 'cliente__id')
+        fichas_dict = {str(ficha['id']): ficha['cliente__id'] for ficha in fichas}  # Mapeia ficha_id -> grupo_id
+
+        # Processa cada item do QueryDict
+        for key, value in dados.lists():
+            if key == 'csrfmiddlewaretoken':
+                continue
+
+            # Divide a chave no formato refeicao-data-id_ficha_de_evento
+            try:
+                refeicao, _, ficha_id = key.split('-')
+            except ValueError:
+                continue  # Pula entradas com formato inesperado
+
+            # Obtém o grupo_id correspondente
+            grupo_id = fichas_dict.get(ficha_id)
+            if not grupo_id:
+                continue  # Ignora se a ficha não tem grupo associado
+
+            # Garante que a refeição mapeia para um campo no modelo
+            campo_modelo = refeicoes_map.get(refeicao)
+            lista_ids_grupos.add(int(grupo_id))
+            if not campo_modelo:
+                continue
+
+            participantes = {
+                'adultos': int(value[1]),
+                'criancas': int(value[2]),
+                'monitoria': int(value[3]),
+                'total': int(value[4]),
+            }
+            dados_refeicao = {
+                'grupo_id': grupo_id,
+                'hora': value[0],
+                'participantes': participantes,
+            }
+            dados_refeicoes[campo_modelo]['dados_grupos'].append(dados_refeicao)
+
+            # Atualiza os totais para a refeição
+            dados_refeicoes[campo_modelo]['totais']['adultos'] += participantes['adultos']
+            dados_refeicoes[campo_modelo]['totais']['criancas'] += participantes['criancas']
+            dados_refeicoes[campo_modelo]['totais']['monitoria'] += participantes['monitoria']
+            dados_refeicoes[campo_modelo]['totais']['total'] += participantes['total']
+            print('Ué')
+        return dados_refeicoes, list(lista_ids_eventos), list(lista_ids_grupos)

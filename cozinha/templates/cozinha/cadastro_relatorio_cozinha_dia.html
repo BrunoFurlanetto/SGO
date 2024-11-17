@@ -17,193 +17,201 @@
                 <input type="date" name="data" id="data" value="{{ request.GET.data }}" onchange="this.form.submit()">
             </form>
         </div>
-        <hr>
-        <div>
-            <form action="">
-                <table class="table table-bordered table-hover table-striped">
-                    <thead>
-                    <tr>
-                        <th>Grupos</th>
-                        <th></th>
-                        <th>Café manhã</th>
-                        <th>Lanche manhã</th>
-                        <th>Almoço</th>
-                        <th>Lanche tarde</th>
-                        <th>Jantar</th>
-                        <th>Lanche noite</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for relatorio in relatorios %}
-                    	{{ relatorio|safe }}
-                    {% endfor %}
+        <hr class="w-100">
+        {% if relatorios or eventos %}
+            <form action="{% url 'salvar_relatorio_dia' data|date:'Y-m-d' %}" method="POST">
+                {% csrf_token %}
+                <div>
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>Grupos</th>
+                            <th></th>
+                            <th>Café manhã</th>
+                            <th>Lanche manhã</th>
+                            <th>Almoço</th>
+                            <th>Lanche tarde</th>
+                            <th>Jantar</th>
+                            <th>Lanche noite</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for relatorio in relatorios %}
+                            {{ relatorio|safe }}
+                        {% endfor %}
 
-                    {% for evento in eventos %}
+                        {% for evento in eventos %}
+                            <tr>
+                                <td rowspan="2" class="informacao_grupo">{{ evento.cliente }}</td>
+                                <th>Hora</th>
+                                <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                                <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                                <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                                <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                                <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                                <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
+                                    <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
+                                    <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Adultos</th>
+                                <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="cafe_manha adultos" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                                <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_manha adultos" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                                <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="almoco adultos" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                                <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_tarde adultos" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                                <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="jantar adultos" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                                <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_noite adultos" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="informacao_grupo">{{ evento.produto }}</td>
+                                <th>Crianças</th>
+                                <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="cafe_manha criancas" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_manha criancas" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                                <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="almoco criancas" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_tarde criancas" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                                <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="jantar criancas" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_noite criancas" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="informacao_grupo">{{ evento.numero_adultos }} adultos</td>
+                                <th>Monitoria</th>
+                                <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="cafe_manha monitoria" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                                <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_manha monitoria" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                                <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="almoco monitoria" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                                <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_tarde monitoria" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                                <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="jantar monitoria" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                                <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_noite monitoria" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
+                                </td>
+                            </tr>
+                            <tr class="ultima_linha">
+                                <td class="informacao_grupo">{{ evento.numero_criancas }} crianças</td>
+                                <th>Total</th>
+                                <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="cafe_manha geral" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_manha geral" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                                <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="almoco geral" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_tarde geral" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                                <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="jantar geral" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                                <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
+                                    <input class="lanche_noite geral" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tbody>
                         <tr>
-                            <td rowspan="2" class="informacao_grupo">{{ evento.cliente }}</td>
-                            <th>Hora</th>
-                            <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
-                            <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="lanhce_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
-                            <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
-                            <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
-                            <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
-                            <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="time">
-                                <button type="button" title="Remover refeição do grupo" class="btn_zerar_refeicao" onclick="zerar_refeicao_grupo(this.parentNode)">&times;</button>
-                                <button type="button" title="Adicionar refeição ao grupo" class="none btn_adicionar_refeicao" onclick="adicionar_refeicao_grupo(this.parentNode)">&plus;</button>
-                            </td>
+                            <td rowspan="4">Totais</td>
+                            <td>Adultos</td>
+                            <td class="cafe_manha total_adultos"></td>
+                            <td class="lanche_manha total_adultos"></td>
+                            <td class="almoco total_adultos"></td>
+                            <td class="lanche_tarde total_adultos"></td>
+                            <td class="jantar total_adultos"></td>
+                            <td class="lanche_noite total_adultos"></td>
                         </tr>
                         <tr>
-                            <th>Adultos</th>
-                            <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="cafe_manha adultos" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
-                            <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_manha adultos" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
-                            <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="almoco adultos" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
-                            <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_tarde adultos" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
-                            <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="jantar adultos" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
-                            <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_noite adultos" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos }}">
-                            </td>
+                            <td>Crianças</td>
+                            <td class="cafe_manha total_criancas"></td>
+                            <td class="lanche_manha total_criancas"></td>
+                            <td class="almoco total_criancas"></td>
+                            <td class="lanche_tarde total_criancas"></td>
+                            <td class="jantar total_criancas"></td>
+                            <td class="lanche_noite total_criancas"></td>
                         </tr>
                         <tr>
-                            <td class="informacao_grupo">{{ evento.produto }}</td>
-                            <th>Crianças</th>
-                            <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="cafe_manha criancas" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_manha criancas" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
-                            <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="almoco criancas" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_tarde criancas" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
-                            <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="jantar criancas" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_noite criancas" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_criancas }}">
-                            </td>
+                            <td>Monitoria</td>
+                            <td class="cafe_manha total_monitoria"></td>
+                            <td class="lanche_manha total_monitoria"></td>
+                            <td class="almoco total_monitoria"></td>
+                            <td class="lanche_tarde total_monitoria"></td>
+                            <td class="jantar total_monitoria"></td>
+                            <td class="lanche_noite total_monitoria"></td>
                         </tr>
-                        <tr>
-                            <td class="informacao_grupo">{{ evento.numero_adultos }} adultos</td>
-                            <th>Monitoria</th>
-                            <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="cafe_manha monitoria" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
-                            <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_manha monitoria" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
-                            <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="almoco monitoria" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
-                            <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_tarde monitoria" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
-                            <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="jantar monitoria" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
-                            <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_noite monitoria" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" onchange="atualizar_monitoria(this)" value="0">
-                            </td>
+                         <tr>
+                            <td>Geral</td>
+                            <td class="cafe_manha total_geral"></td>
+                            <td class="lanche_manha total_geral"></td>
+                            <td class="almoco total_geral"></td>
+                            <td class="lanche_tarde total_geral"></td>
+                            <td class="jantar total_geral"></td>
+                            <td class="lanche_noite total_geral"></td>
                         </tr>
-                        <tr class="ultima_linha">
-                            <td class="informacao_grupo">{{ evento.numero_criancas }} crianças</td>
-                            <th>Total</th>
-                            <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="cafe_manha geral" name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_manha geral" name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                            <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="almoco geral" name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_tarde geral" name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                            <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="jantar geral" name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                            <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
-                                <input class="lanche_noite geral" name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number" readonly value="{{ evento.numero_adultos|add:evento.numero_criancas }}">
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                    <tbody>
-                    <tr>
-                        <td rowspan="4">Totais</td>
-                        <td>Adultos</td>
-                        <td class="cafe_manha total_adultos"></td>
-                        <td class="lanche_manha total_adultos"></td>
-                        <td class="almoco total_adultos"></td>
-                        <td class="lanche_tarde total_adultos"></td>
-                        <td class="jantar total_adultos"></td>
-                        <td class="lanche_noite total_adultos"></td>
-                    </tr>
-                    <tr>
-                        <td>Crianças</td>
-                        <td class="cafe_manha total_criancas"></td>
-                        <td class="lanche_manha total_criancas"></td>
-                        <td class="almoco total_criancas"></td>
-                        <td class="lanche_tarde total_criancas"></td>
-                        <td class="jantar total_criancas"></td>
-                        <td class="lanche_noite total_criancas"></td>
-                    </tr>
-                    <tr>
-                        <td>Monitoria</td>
-                        <td class="cafe_manha total_monitoria"></td>
-                        <td class="lanche_manha total_monitoria"></td>
-                        <td class="almoco total_monitoria"></td>
-                        <td class="lanche_tarde total_monitoria"></td>
-                        <td class="jantar total_monitoria"></td>
-                        <td class="lanche_noite total_monitoria"></td>
-                    </tr>
-                     <tr>
-                        <td>Geral</td>
-                        <td class="cafe_manha total_geral"></td>
-                        <td class="lanche_manha total_geral"></td>
-                        <td class="almoco total_geral"></td>
-                        <td class="lanche_tarde total_geral"></td>
-                        <td class="jantar total_geral"></td>
-                        <td class="lanche_noite total_geral"></td>
-                    </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="botoes">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
             </form>
-        </div>
+        {% elif data and not eventos and not relatorios %}
+            <p class="alert alert-info w-100 text-center">Nenhum evento cadastrado para o dia {{ data|date:'d/m/Y' }}</p>
+        {% endif %}
     </main>
 
     <script src="{% static 'js/scripts_cozinha.js' %}"></script>
