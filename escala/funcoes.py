@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from itertools import chain
 from math import ceil
 
-from ceu.models import Professores
+from django.db.models import Q, F
+
 from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
@@ -394,15 +395,37 @@ def gerar_disponibilidade(id_cliente, data, editando=False):
         check_out = ordem_cliente.check_out
 
     disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
-        dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')
+        Q(dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')) |
+        Q(dias_disponiveis__icontains=check_out.strftime('%d/%m/%Y'))
     )
+    disponibilidades_agrupadas = agrupar_disponibilidades_por_monitor(disponibilidades_peraltas)
 
     try:
-        disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_peraltas)
+        disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_agrupadas)
     except AttributeError as e:
         raise AttributeError(e)
 
     return disponiveis_intervalo
+
+
+def agrupar_disponibilidades_por_monitor(disponibilidades_peraltas):
+    agrupamento = {}
+
+    for disponibilidade in disponibilidades_peraltas:
+        monitor_id = disponibilidade.monitor_id
+
+        if monitor_id not in agrupamento:
+            agrupamento[monitor_id] = {
+                'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
+                'disponivel': disponibilidade,
+                'todos_dias': []
+            }
+
+        agrupamento[monitor_id]['todos_dias'].extend(
+            disponibilidade.dias_disponiveis.split(', ')
+        )
+
+    return agrupamento
 
 
 def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=None):
@@ -410,22 +433,25 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
     dias = check_out - check_in
     monitores_disponiveis_intervalo = []
 
-    for disponivel in lista_disponiveis:
+    for _, disponivel in lista_disponiveis.items():
         intervalo = True
 
         for i in range(0, dias.days + 1):
-            if (check_in + timedelta(days=i)).strftime('%d/%m/%Y') in disponivel.dias_disponiveis:
+            if (check_in + timedelta(days=i)).strftime('%d/%m/%Y') in disponivel['todos_dias']:
                 continue
             else:
                 intervalo = False
                 break
 
         if intervalo and disponivel not in disponiveis_intervalo:
-            if setor == 'hotelaria' and disponivel.monitor:
-                if setor in disponivel.monitor.setor or 'tecnica' in disponivel.monitor.setor:
-                    disponiveis_intervalo.append(disponivel)
+            monitor = disponivel['monitor']
+            disponibilidade = disponivel['disponivel']
+
+            if setor == 'hotelaria' and monitor:
+                if setor in monitor.setor or 'tecnica' in monitor.setor:
+                    disponiveis_intervalo.append(disponibilidade)
             elif not setor:
-                disponiveis_intervalo.append(disponivel)
+                disponiveis_intervalo.append(disponibilidade)
 
     for disponibilidade in disponiveis_intervalo:
         areas = []
