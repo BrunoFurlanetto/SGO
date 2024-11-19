@@ -1,13 +1,54 @@
 from datetime import datetime, timedelta
+from itertools import chain
 from time import sleep
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from cozinha.models import Relatorio, RelatorioDia
 from peraltas.models import FichaDeEvento, EscalaAcampamento
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    relatorios_dia = RelatorioDia.objects.all()
+    relatorios_evento = Relatorio.objects.all()
+    relatorios = list(chain(relatorios_dia, relatorios_evento))
+    dados_relatorios = []
+
+    for relatorio in relatorios:
+        if isinstance(relatorio, RelatorioDia):
+            dados_relatorios.append({
+                'title': 'Refeições do dia',
+                'start': relatorio.data.strftime('%Y-%m-%d'),
+                'end': relatorio.data.strftime('%Y-%m-%d'),
+                # 'url',
+                'color': '#fcc607',
+            })
+        else:
+            dados_relatorios.append({
+                'title': f'Refeições de {relatorio.grupo}',
+                'start': relatorio.ficha_de_evento.check_in.strftime('%Y-%m-%d %H:%M'),
+                'end': relatorio.ficha_de_evento.check_out.strftime('%Y-%m-%d %H:%M'),
+                # 'url',
+                'color': '#ff7474',
+            })
+
+    return render(request, 'cozinha/dashboard_cozinha.html', {
+        'relatorios_refeicoes': dados_relatorios,
+    })
+
+
+def verificar_relatorios_dia(request, data):
+    data_formatada = datetime.strptime(data, '%Y-%m-%d').date()
+
+    if RelatorioDia.objects.filter(data=data_formatada).exists():
+        return redirect('dashboard_cozinha')
+    else:
+        return redirect(reverse('cadastro_relatorio_dia_cozinha') + f'?data={data_formatada}')
 
 
 @login_required(login_url='login')
@@ -98,10 +139,14 @@ def cadastro_relatorio_dia_cozinha(request):
     })
 
 
+def edicao_relatorio_dia_cozinha(request, data_edicao):
+    data = datetime.strptime()
+
+
 def salvar_relatorio_dia(request, data_refeicoes):
     refeicoes, id_eventos, ids_grupos = RelatorioDia.processar_refeicoes(request.POST)
     data_formatada = datetime.strptime(data_refeicoes, '%Y-%m-%d').date().strftime('%d/%m/%Y')
-    print(ids_grupos, id_eventos)
+
     try:
         relatorio = RelatorioDia.objects.create(
             data=datetime.strptime(data_refeicoes, '%Y-%m-%d').date(),

@@ -42,6 +42,18 @@ input {
     box-shadow: 0 0 6px 3px;
 }
 
+#dashboard_cozinha {
+    display: flex;
+    align-items: center;
+    max-width: 70%;
+    flex-direction: column;
+    margin-bottom: 20%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
 #ficha_de_evento {
     display: flex;
     flex-direction: column;
