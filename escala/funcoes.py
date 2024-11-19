@@ -713,7 +713,11 @@ def pegar_dados_monitor_biologo(os):
     for atividade in os.atividades_eco.values():
         areas = []
         id_monitor = atividade['biologo']
-        monitor = Monitor.objects.get(pk=id_monitor)
+
+        try:
+            monitor = Monitor.objects.get(pk=id_monitor)
+        except ValueError:
+            continue
 
         areas.append('som') if monitor.som else ...
         areas.append('video') if monitor.video else ...
