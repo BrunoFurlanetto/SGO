@@ -142,19 +142,29 @@ def cadastro_relatorio_dia_cozinha(request):
 def edicao_relatorio_dia_cozinha(request, data_edicao):
     data = datetime.strptime(data_edicao, '%Y-%m-%d').date()
     relatorio_dia = RelatorioDia.objects.get(data=data)
+    relatorios_evento = Relatorio.objects.filter(
+        ficha_de_evento__check_in__date__lte=data,
+        ficha_de_evento__check_out__date__gte=data,
+    )
 
     return render(request, 'cozinha/cadastro_relatorio_cozinha_dia.html', {
-        'eventos': relatorio_dia.separar_refeicoes(),
+        'eventos': relatorio_dia.separar_refeicoes([relatorio.grupo.id for relatorio in relatorios_evento]),
         'data': data,
         'editando': True,
+        'relatorios': [relatorio.relatorio_refeicoes_dia(data) for relatorio in relatorios_evento],
         'id_relatorio': relatorio_dia.id,
     })
 
 
 def salvar_relatorio_dia(request, data_refeicoes):
     refeicoes, id_eventos, ids_grupos = RelatorioDia.processar_refeicoes(request.POST)
-    data_formatada = datetime.strptime(data_refeicoes, '%Y-%m-%d').date().strftime('%d/%m/%Y')
+    data = datetime.strptime(data_refeicoes, '%Y-%m-%d').date()
+    data_formatada = data.strftime('%d/%m/%Y')
     id_relatorio = request.POST.get('id_relatorio')
+    relatorios_evento = Relatorio.objects.filter(
+        ficha_de_evento__check_in__date__lte=data,
+        ficha_de_evento__check_out__date__gte=data,
+    )
 
     try:
         if id_relatorio:  # Caso um id_relatorio tenha sido enviado, tentamos editar o relatório existente

@@ -117,109 +117,109 @@ class Relatorio(models.Model):
                     <td rowspan="2" class="informacao_grupo">{ self.grupo }</td>
                     <th>Hora</th>
                     <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if cafe_manha != obj_nulo else 'disabled' } value="{ cafe_manha['hora'] }" type="time">
+                        <input class="grupo" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ cafe_manha['hora'] }" type="time">
                     </td>
                     <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="lanhce_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_manha != obj_nulo else 'disabled' } value="{ lanche_manha['hora'] }" type="time">                        
+                        <input class="grupo" name="lanhce_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_manha['hora'] }" type="time">                        
                     </td>
                     <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if almoco != obj_nulo else 'disabled' } value="{ almoco['hora'] }" type="time">                        
+                        <input class="grupo" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ almoco['hora'] }" type="time">                        
                     </td>
                     <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_tarde != obj_nulo else 'disabled' } value="{ lanche_tarde['hora'] }" type="time">                        
+                        <input class="grupo" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_tarde['hora'] }" type="time">                        
                     </td>
                     <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if jantar != obj_nulo else 'disabled' } value="{ jantar['hora'] }" type="time">                        
+                        <input class="grupo" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ jantar['hora'] }" type="time">                        
                     </td>
                     <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_noite != obj_nulo else 'disabled' } value="{ lanche_noite['hora'] }" type="time">                        
+                        <input class="grupo" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_noite['hora'] }" type="time">                        
                     </td>
                 </tr>
                 <tr>
                     <th>Adultos</th>
                     <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="cafe_manha adultos" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if cafe_manha != obj_nulo else 'disabled' } value="{ cafe_manha['participantes']['adultos'] }">
+                        <input class="grupo cafe_manha adultos" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['adultos'] }">
                     </td>
                     <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_manha adultos" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_manha != obj_nulo else 'disabled' } value="{ lanche_manha['participantes']['adultos'] }">
+                        <input class="grupo lanche_manha adultos" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['adultos'] }">
                     </td>
                     <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="almoco adultos" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if almoco != obj_nulo else 'disabled' } value="{ almoco['participantes']['adultos'] }">
+                        <input class="grupo almoco adultos" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['adultos'] }">
                     </td>
                     <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_tarde adultos" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_tarde != obj_nulo else 'disabled' } value="{ lanche_tarde['participantes']['adultos'] }">
+                        <input class="grupo lanche_tarde adultos" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['adultos'] }">
                     </td>
                     <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="jantar adultos" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if jantar != obj_nulo else 'disabled' } value="{ jantar['participantes']['adultos'] }">
+                        <input class="grupo jantar adultos" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['adultos'] }">
                     </td>
                     <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_noite adultos" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_noite != obj_nulo else 'disabled' } value="{ lanche_noite['participantes']['adultos'] }">
+                        <input class="grupo lanche_noite adultos" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['adultos'] }">
                     </td>
                 </tr>
                 <tr>
                     <td class="informacao_grupo">{ self.tipo_evento }</td>
                     <th>Crianças</th>
                     <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="cafe_manha criancas" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if cafe_manha != obj_nulo else 'disabled' } value="{ cafe_manha['participantes']['criancas'] }">
+                        <input class="grupo cafe_manha criancas" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['criancas'] }">
                     </td>
                     <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_manha criancas" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_manha != obj_nulo else 'disabled' } value="{ lanche_manha['participantes']['criancas'] }">
+                        <input class="grupo lanche_manha criancas" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['criancas'] }">
                     </td>
                     <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="almoco criancas" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if almoco != obj_nulo else 'disabled' } value="{ almoco['participantes']['criancas'] }">
+                        <input class="grupo almoco criancas" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['criancas'] }">
                     </td>
                     <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_tarde criancas" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_tarde != obj_nulo else 'disabled' } value="{ lanche_tarde['participantes']['criancas'] }">
+                        <input class="grupo lanche_tarde criancas" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['criancas'] }">
                     </td>
                     <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="jantar criancas" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if jantar != obj_nulo else 'disabled' } value="{ jantar['participantes']['criancas'] }">
+                        <input class="grupo jantar criancas" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['criancas'] }">
                     </td>
                     <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_noite criancas" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_noite != obj_nulo else 'disabled' } value="{ lanche_noite['participantes']['criancas'] }">
+                        <input class="grupo lanche_noite criancas" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['criancas'] }">
                     </td>
                 </tr>
                 <tr>
                     <td class="informacao_grupo">{ self.ficha_de_evento.numero_adultos() } adultos</td>
                     <th>Monitoria</th>
                     <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="cafe_manha monitoria" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if cafe_manha != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ cafe_manha['participantes']['monitoria'] }">
+                        <input class="grupo cafe_manha monitoria" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ cafe_manha['participantes']['monitoria'] }">
                     </td>
                     <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_manha monitoria" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_manha != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ lanche_manha['participantes']['monitoria'] }">
+                        <input class="grupo lanche_manha monitoria" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_manha['participantes']['monitoria'] }">
                     </td>
                     <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="almoco monitoria" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if almoco != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ almoco['participantes']['monitoria'] }">
+                        <input class="grupo almoco monitoria" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ almoco['participantes']['monitoria'] }">
                     </td>
                     <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_tarde monitoria" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_tarde != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ lanche_tarde['participantes']['monitoria'] }">
+                        <input class="grupo lanche_tarde monitoria" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_tarde['participantes']['monitoria'] }">
                     </td>
                     <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="jantar monitoria" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if jantar != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ jantar['participantes']['monitoria'] }">
+                        <input class="grupo jantar monitoria" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ jantar['participantes']['monitoria'] }">
                     </td>
                     <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_noite monitoria" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" { 'readonly' if lanche_noite != obj_nulo else 'disabled' } type="number" onchange="atualizar_monitoria(this)" value="{ lanche_noite['participantes']['monitoria'] }">
+                        <input class="grupo lanche_noite monitoria" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_noite['participantes']['monitoria'] }">
                     </td>
                 </tr>
                 <tr class="ultima_linha">
                     <td class="informacao_grupo">{ self.ficha_de_evento.numero_criancas() } crianças</td>
                     <th>Total</th>
                     <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="cafe_manha geral" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if cafe_manha != obj_nulo else 'disabled' } value="{ cafe_manha['participantes']['total'] }">
+                        <input class="grupo cafe_manha geral" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['total'] }">
                     </td>
                     <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_manha geral" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_manha != obj_nulo else 'disabled' } value="{ lanche_manha['participantes']['total'] }">
+                        <input class="grupo lanche_manha geral" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['total'] }">
                     </td>
                     <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="almoco geral" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if almoco != obj_nulo else 'disabled' } value="{ almoco['participantes']['total'] }">
+                        <input class="grupo almoco geral" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['total'] }">
                     </td>
                     <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_tarde geral" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_tarde != obj_nulo else 'disabled' } value="{ lanche_tarde['participantes']['total'] }">
+                        <input class="grupo lanche_tarde geral" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['total'] }">
                     </td>
                     <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="jantar geral" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if jantar != obj_nulo else 'disabled' } value="{ jantar['participantes']['total'] }">
+                        <input class="grupo jantar geral" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['total'] }">
                     </td>
                     <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="lanche_noite geral" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" { 'readonly' if lanche_noite != obj_nulo else 'disabled' } value="{ lanche_noite['participantes']['total'] }">
+                        <input class="grupo lanche_noite geral" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['total'] }">
                     </td>
                 </tr>
             """
@@ -348,18 +348,19 @@ class RelatorioDia(models.Model):
 
         return dados_grupo
 
-    def separar_refeicoes(self):
+    def separar_refeicoes(self, id_grupos_excluidos):
         fichas = self.fichas_de_evento.all()
         eventos = []
 
         for ficha in fichas:
-            eventos.append({
-                'id': ficha.id,
-                'cliente': ficha.cliente,
-                'produto': ficha.produto,
-                'numero_adultos': ficha.numero_adultos(),
-                'numero_criancas': ficha.numero_criancas(),
-                'dados_refeicoes': self.pegar_dados_refeicoes(ficha.cliente.id, ficha)
-            })
+            if ficha.cliente.id not in id_grupos_excluidos:
+                eventos.append({
+                    'id': ficha.id,
+                    'cliente': ficha.cliente,
+                    'produto': ficha.produto,
+                    'numero_adultos': ficha.numero_adultos(),
+                    'numero_criancas': ficha.numero_criancas(),
+                    'dados_refeicoes': self.pegar_dados_refeicoes(ficha.cliente.id, ficha)
+                })
 
         return eventos
