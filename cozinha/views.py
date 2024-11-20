@@ -46,7 +46,7 @@ def verificar_relatorios_dia(request, data):
     data_formatada = datetime.strptime(data, '%Y-%m-%d').date()
 
     if RelatorioDia.objects.filter(data=data_formatada).exists():
-        return redirect('dashboard_cozinha')
+        return redirect('edicao_relatorio_dia_cozinha', data_formatada.strftime('%Y-%m-%d'))
     else:
         return redirect(reverse('cadastro_relatorio_dia_cozinha') + f'?data={data_formatada}')
 
@@ -140,28 +140,59 @@ def cadastro_relatorio_dia_cozinha(request):
 
 
 def edicao_relatorio_dia_cozinha(request, data_edicao):
-    data = datetime.strptime()
+    data = datetime.strptime(data_edicao, '%Y-%m-%d').date()
+    relatorio_dia = RelatorioDia.objects.get(data=data)
+
+    return render(request, 'cozinha/cadastro_relatorio_cozinha_dia.html', {
+        'eventos': relatorio_dia.separar_refeicoes(),
+        'data': data,
+        'editando': True,
+        'id_relatorio': relatorio_dia.id,
+    })
 
 
 def salvar_relatorio_dia(request, data_refeicoes):
     refeicoes, id_eventos, ids_grupos = RelatorioDia.processar_refeicoes(request.POST)
     data_formatada = datetime.strptime(data_refeicoes, '%Y-%m-%d').date().strftime('%d/%m/%Y')
+    id_relatorio = request.POST.get('id_relatorio')
 
     try:
-        relatorio = RelatorioDia.objects.create(
-            data=datetime.strptime(data_refeicoes, '%Y-%m-%d').date(),
-            dados_cafe_da_manha=refeicoes['dados_cafe_da_manha'],
-            dados_lanche_da_manha=refeicoes['dados_lanche_da_manha'],
-            dados_almoco=refeicoes['dados_almoco'],
-            dados_lanche_da_tarde=refeicoes['dados_lanche_da_tarde'],
-            dados_jantar=refeicoes['dados_jantar'],
-            dados_lanche_da_noite=refeicoes['dados_lanche_da_noite'],
-        )
-        relatorio.fichas_de_evento.add(*id_eventos)
-        relatorio.grupos.add(*ids_grupos)
+        if id_relatorio:  # Caso um id_relatorio tenha sido enviado, tentamos editar o relatório existente
+            relatorio = RelatorioDia.objects.get(id=id_relatorio)  # Busca o relatório pelo id
+            relatorio.data = datetime.strptime(data_refeicoes, '%Y-%m-%d').date()
+            relatorio.dados_cafe_da_manha = refeicoes['dados_cafe_da_manha']
+            relatorio.dados_lanche_da_manha = refeicoes['dados_lanche_da_manha']
+            relatorio.dados_almoco = refeicoes['dados_almoco']
+            relatorio.dados_lanche_da_tarde = refeicoes['dados_lanche_da_tarde']
+            relatorio.dados_jantar = refeicoes['dados_jantar']
+            relatorio.dados_lanche_da_noite = refeicoes['dados_lanche_da_noite']
+        else:  # Caso contrário, cria um novo relatório
+            relatorio = RelatorioDia.objects.create(
+                data=datetime.strptime(data_refeicoes, '%Y-%m-%d').date(),
+                dados_cafe_da_manha=refeicoes['dados_cafe_da_manha'],
+                dados_lanche_da_manha=refeicoes['dados_lanche_da_manha'],
+                dados_almoco=refeicoes['dados_almoco'],
+                dados_lanche_da_tarde=refeicoes['dados_lanche_da_tarde'],
+                dados_jantar=refeicoes['dados_jantar'],
+                dados_lanche_da_noite=refeicoes['dados_lanche_da_noite'],
+            )
+
+        # Atualizar ou adicionar os eventos e grupos relacionados
+        relatorio.fichas_de_evento.clear()  # Limpa os eventos atuais
+        relatorio.fichas_de_evento.add(*id_eventos)  # Adiciona os novos eventos
+        relatorio.grupos.clear()  # Limpa os grupos atuais
+        relatorio.grupos.add(*ids_grupos)  # Adiciona os novos grupos
+
+        # Salvar o objeto, caso tenha sido editado
+        relatorio.save()
+
+    except RelatorioDia.DoesNotExist:
+        messages.error(request, 'Relatório não encontrado. Por favor, verifique os dados e tente novamente.')
+        return redirect('dashboard')
     except Exception as e:
-        messages.error(request, f'Erro ao salvar o relatório do dia ({e}). Por favor tente mais tarde!')
+        messages.error(request, f'Erro ao salvar ou editar o relatório do dia ({e}). Por favor tente mais tarde!')
         return redirect('dashboard')
     else:
-        messages.success(request, f'Relatório das refeições do dia {data_formatada} salva com sucesso!')
+        messages.success(request, f'Relatório das refeições do dia {data_formatada} salvo(a) com sucesso!')
         return redirect('dashboard')
+

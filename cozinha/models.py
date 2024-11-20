@@ -307,5 +307,59 @@ class RelatorioDia(models.Model):
             dados_refeicoes[campo_modelo]['totais']['criancas'] += participantes['criancas']
             dados_refeicoes[campo_modelo]['totais']['monitoria'] += participantes['monitoria']
             dados_refeicoes[campo_modelo]['totais']['total'] += participantes['total']
-            print('Ué')
+
         return dados_refeicoes, list(lista_ids_eventos), list(lista_ids_grupos)
+
+    def pegar_dados_refeicoes(self, id_cliente, ficha):
+        campos_refeicoes = [
+            'dados_cafe_da_manha',
+            'dados_lanche_da_manha',
+            'dados_almoco',
+            'dados_lanche_da_tarde',
+            'dados_jantar',
+            'dados_lanche_da_noite',
+        ]
+        dados_grupo = {}
+
+        for campo in campos_refeicoes:
+            dados_refeicao = getattr(self, campo, None)
+
+            if dados_refeicao:
+                for grupo in dados_refeicao.get('dados_grupos', []):
+                    if grupo['grupo_id'] == id_cliente:
+                        dados_grupo[campo] = {
+                            'hora': grupo.get('hora'),
+                            'adultos': grupo['participantes'].get('adultos'),
+                            'criancas': grupo['participantes'].get('criancas'),
+                            'monitoria': grupo['participantes'].get('monitoria'),
+                            'geral': grupo['participantes'].get('total'),
+                        }
+
+                        break
+
+            if campo not in dados_grupo:
+                dados_grupo[campo] = {
+                    'hora': '',
+                    'adultos': ficha.numero_adultos(),
+                    'criancas': ficha.numero_criancas(),
+                    'monitoria': 0,
+                    'geral': ficha.numero_adultos() + ficha.numero_criancas(),
+                }
+
+        return dados_grupo
+
+    def separar_refeicoes(self):
+        fichas = self.fichas_de_evento.all()
+        eventos = []
+
+        for ficha in fichas:
+            eventos.append({
+                'id': ficha.id,
+                'cliente': ficha.cliente,
+                'produto': ficha.produto,
+                'numero_adultos': ficha.numero_adultos(),
+                'numero_criancas': ficha.numero_criancas(),
+                'dados_refeicoes': self.pegar_dados_refeicoes(ficha.cliente.id, ficha)
+            })
+
+        return eventos
