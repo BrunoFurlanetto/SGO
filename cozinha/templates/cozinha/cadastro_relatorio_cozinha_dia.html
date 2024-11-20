@@ -14,7 +14,7 @@
         <div>
             <form action="{% url 'cadastro_relatorio_dia_cozinha' %}">
                 <label for="data">Data</label>
-                <input type="date" name="data" id="data" value="{{ request.GET.data }}" onchange="this.form.submit()">
+                <input type="date" name="data" id="data"  {% if not editando %} value="{{ request.GET.data }}" {% else %} readonly value="{{ data|date:'Y-m-d' }}" {% endif %} onchange="this.form.submit()">
             </form>
         </div>
         <hr class="w-100">
