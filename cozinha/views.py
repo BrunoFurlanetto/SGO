@@ -25,7 +25,9 @@ def dashboard(request):
                 'title': 'Refeições do dia',
                 'start': relatorio.data.strftime('%Y-%m-%d'),
                 'end': relatorio.data.strftime('%Y-%m-%d'),
-                # 'url',
+                'url': reverse('edicao_relatorio_dia_cozinha', kwargs={
+                    'data_edicao': relatorio.data.strftime('%Y-%m-%d')
+                }),
                 'color': '#fcc607',
             })
         else:
@@ -33,7 +35,9 @@ def dashboard(request):
                 'title': f'Refeições de {relatorio.grupo}',
                 'start': relatorio.ficha_de_evento.check_in.strftime('%Y-%m-%d %H:%M'),
                 'end': relatorio.ficha_de_evento.check_out.strftime('%Y-%m-%d %H:%M'),
-                # 'url',
+                'url': reverse('edicao_relatorio_evento_cozinha', kwargs={
+                    'id_relatorio': relatorio.pk,
+                }),
                 'color': '#ff7474',
             })
 
@@ -92,24 +96,60 @@ def cadastro_relatorio_evento_cozinha(request):
     })
 
 
+def edicao_relatorio_evento_cozinha(request, id_relatorio):
+    relatorio = Relatorio.objects.get(pk=id_relatorio)
+    dados_evento = relatorio.pegar_refeicoes_edicao()
+    dados_evento['monitores'] = relatorio.pax_monitoria
+    dados_evento['total'] = relatorio.total_pax
+    dados_evento['grupo'] = relatorio.grupo
+    dados_evento['tipo_evento'] = relatorio.tipo_evento
+    dados_evento['check_in'] = relatorio.ficha_de_evento.check_in.strftime('%d/%m/%Y %H:%m')
+    dados_evento['check_out'] = relatorio.ficha_de_evento.check_out.strftime('%d/%m/%Y %H:%m')
+    dados_evento['id_ficha'] = relatorio.ficha_de_evento.id
+
+    return render(request, 'cozinha/cadastro_relatorio_cozinha.html', {
+        'relatorio': relatorio,
+        'dados_evento': dados_evento,
+        'editando': True,
+    })
+
+
 def salvar_evento(request):
     ficha_de_evento = FichaDeEvento.objects.get(pk=request.POST.get('id_ficha'))
-
+    print(request.POST)
     try:
-        relatorio = Relatorio(
+        # Tenta recuperar o relatório existente com base na ficha_de_evento
+        relatorio, criado = Relatorio.objects.get_or_create(
             ficha_de_evento=ficha_de_evento,
-            grupo=ficha_de_evento.cliente,
-            tipo_evento=ficha_de_evento.produto,
-            pax_adulto=int(request.POST.get('adultos')),
-            pax_crianca=int(request.POST.get('criancas')),
-            pax_monitoria=int(request.POST.get('monitoria')),
+            defaults={
+                'grupo': ficha_de_evento.cliente,
+                'tipo_evento': ficha_de_evento.produto,
+                'pax_adulto': int(request.POST.get('adultos')),
+                'pax_crianca': int(request.POST.get('criancas')),
+                'pax_monitoria': int(request.POST.get('monitoria')),
+            }
         )
+
+        if not criado:
+            relatorio.pax_adulto = int(request.POST.get('adultos'))
+            relatorio.pax_crianca = int(request.POST.get('criancas'))
+            relatorio.pax_monitoria = int(request.POST.get('monitoria'))
+            relatorio.dados_cafe_da_manha = relatorio.dados_lanche_da_manha = relatorio.dados_almoco = None
+            relatorio.dados_lanche_da_tarde = relatorio.dados_jantar = relatorio.dados_lanche_da_noite = None
+            # Atualize outros campos mutáveis, se necessário
     except Exception as e:
         messages.error(request, f'Erro ao salvar o relatório ({e}). Tente novamente mais tarde.')
+        return redirect('dashboard')
     else:
+        # Atualiza as refeições independentemente de ser um novo ou existente
         refeicoes = Relatorio.dividir_refeicoes(request.POST)
         relatorio.salvar_refeicoes(refeicoes)
         relatorio.save()
+
+        if criado:
+            messages.success(request, 'Relatório criado com sucesso!')
+        else:
+            messages.success(request, 'Relatório atualizado com sucesso!')
 
         return redirect('dashboard')
 

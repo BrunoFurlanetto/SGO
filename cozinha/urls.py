@@ -9,5 +9,6 @@ urlpatterns = [
     path('cadastro/salvar_evento/', views.salvar_evento, name='salvar_evento'),
     path('cadastro/relatorio/dia/', views.cadastro_relatorio_dia_cozinha, name='cadastro_relatorio_dia_cozinha'),
     path('edicao/relatorio/dia/<str:data_edicao>/', views.edicao_relatorio_dia_cozinha, name='edicao_relatorio_dia_cozinha'),
+    path('edicao/relatorio/evento/<int:id_relatorio>/', views.edicao_relatorio_evento_cozinha, name='edicao_relatorio_evento_cozinha'),
     path('cadastro/relatorio/dia/<str:data_refeicoes>/salvar/', views.salvar_relatorio_dia, name='salvar_relatorio_dia'),
 ]

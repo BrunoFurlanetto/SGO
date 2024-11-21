@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -78,6 +80,54 @@ class Relatorio(models.Model):
         self.total_pax = self.pax_adulto + self.pax_crianca + self.pax_monitoria
         super().save(*args, **kwargs)
 
+    def pegar_refeicoes_edicao(self):
+        check_in = self.ficha_de_evento.check_in
+        check_out = self.ficha_de_evento.check_out
+        data_atual = check_in
+
+        # Lista para armazenar as informações das refeições por dia
+        refeicoes_por_dia = []
+
+        while data_atual <= check_out:
+            campos_refeicoes = [
+                'dados_cafe_da_manha',
+                'dados_lanche_da_manha',
+                'dados_almoco',
+                'dados_lanche_da_tarde',
+                'dados_jantar',
+                'dados_lanche_da_noite',
+            ]
+
+            # Inicializa o dicionário para o dia atual
+            refeicoes_dia = {'data': data_atual}
+
+            for campo in campos_refeicoes:
+                dados_refeicao = getattr(self, campo, None)
+
+                if dados_refeicao:
+                    # Filtra as refeições pela data
+                    for refeicao in dados_refeicao:
+                        if refeicao['dia'] == data_atual.strftime('%Y_%m_%d'):
+                            refeicoes_dia[campo] = {
+                                'hora': refeicao['hora'],
+                                'adultos': refeicao['participantes']['adultos'],
+                                'criancas': refeicao['participantes']['criancas'],
+                                'monitoria': refeicao['participantes']['monitoria'],
+                                'total': refeicao['participantes']['total'],
+                            }
+
+            # Adiciona o dicionário do dia à lista de resultados
+            refeicoes_por_dia.append(refeicoes_dia)
+
+            # Incrementa para o próximo dia
+            data_atual += timedelta(days=1)
+        print(refeicoes_por_dia)
+        return {
+            'datas': refeicoes_por_dia,
+            'adultos': self.ficha_de_evento.numero_adultos(),
+            'criancas': self.ficha_de_evento.numero_criancas(),
+        }
+
     def relatorio_refeicoes_dia(self, data):
         obj_nulo = {'hora': '', 'participantes': {'total': '0', 'adultos': '0', 'criancas': '0', 'monitoria': '0'}}
         cafe_manha = lanche_manha = almoco = lanche_tarde = jantar = lanche_noite = obj_nulo
@@ -113,116 +163,116 @@ class Relatorio(models.Model):
                     lanche_noite = dia
 
         return f"""
-                <tr>
-                    <td rowspan="2" class="informacao_grupo">{ self.grupo }</td>
-                    <th>Hora</th>
-                    <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ cafe_manha['hora'] }" type="time">
-                    </td>
-                    <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="lanhce_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_manha['hora'] }" type="time">                        
-                    </td>
-                    <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ almoco['hora'] }" type="time">                        
-                    </td>
-                    <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_tarde['hora'] }" type="time">                        
-                    </td>
-                    <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ jantar['hora'] }" type="time">                        
-                    </td>
-                    <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_noite['hora'] }" type="time">                        
-                    </td>
-                </tr>
-                <tr>
-                    <th>Adultos</th>
-                    <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo cafe_manha adultos" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['adultos'] }">
-                    </td>
-                    <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_manha adultos" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['adultos'] }">
-                    </td>
-                    <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo almoco adultos" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['adultos'] }">
-                    </td>
-                    <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_tarde adultos" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['adultos'] }">
-                    </td>
-                    <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo jantar adultos" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['adultos'] }">
-                    </td>
-                    <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_noite adultos" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['adultos'] }">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="informacao_grupo">{ self.tipo_evento }</td>
-                    <th>Crianças</th>
-                    <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo cafe_manha criancas" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['criancas'] }">
-                    </td>
-                    <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_manha criancas" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['criancas'] }">
-                    </td>
-                    <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo almoco criancas" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['criancas'] }">
-                    </td>
-                    <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_tarde criancas" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['criancas'] }">
-                    </td>
-                    <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo jantar criancas" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['criancas'] }">
-                    </td>
-                    <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_noite criancas" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['criancas'] }">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="informacao_grupo">{ self.ficha_de_evento.numero_adultos() } adultos</td>
-                    <th>Monitoria</th>
-                    <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo cafe_manha monitoria" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ cafe_manha['participantes']['monitoria'] }">
-                    </td>
-                    <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_manha monitoria" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_manha['participantes']['monitoria'] }">
-                    </td>
-                    <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo almoco monitoria" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ almoco['participantes']['monitoria'] }">
-                    </td>
-                    <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_tarde monitoria" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_tarde['participantes']['monitoria'] }">
-                    </td>
-                    <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo jantar monitoria" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ jantar['participantes']['monitoria'] }">
-                    </td>
-                    <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_noite monitoria" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_noite['participantes']['monitoria'] }">
-                    </td>
-                </tr>
-                <tr class="ultima_linha">
-                    <td class="informacao_grupo">{ self.ficha_de_evento.numero_criancas() } crianças</td>
-                    <th>Total</th>
-                    <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo cafe_manha geral" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['total'] }">
-                    </td>
-                    <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_manha geral" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['total'] }">
-                    </td>
-                    <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo almoco geral" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['total'] }">
-                    </td>
-                    <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_tarde geral" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['total'] }">
-                    </td>
-                    <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo jantar geral" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['total'] }">
-                    </td>
-                    <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
-                        <input class="grupo lanche_noite geral" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['total'] }">
-                    </td>
-                </tr>
-            """
+            <tr>
+                <td rowspan="2" class="informacao_grupo">{ self.grupo }</td>
+                <th>Hora</th>
+                <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ cafe_manha['hora'] }" type="time">
+                </td>
+                <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="lanhce_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_manha['hora'] }" type="time">                        
+                </td>
+                <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ almoco['hora'] }" type="time">                        
+                </td>
+                <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_tarde['hora'] }" type="time">                        
+                </td>
+                <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ jantar['hora'] }" type="time">                        
+                </td>
+                <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled value="{ lanche_noite['hora'] }" type="time">                        
+                </td>
+            </tr>
+            <tr>
+                <th>Adultos</th>
+                <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo cafe_manha adultos" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['adultos'] }">
+                </td>
+                <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_manha adultos" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['adultos'] }">
+                </td>
+                <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo almoco adultos" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['adultos'] }">
+                </td>
+                <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_tarde adultos" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['adultos'] }">
+                </td>
+                <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo jantar adultos" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['adultos'] }">
+                </td>
+                <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_noite adultos" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['adultos'] }">
+                </td>
+            </tr>
+            <tr>
+                <td class="informacao_grupo">{ self.tipo_evento }</td>
+                <th>Crianças</th>
+                <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo cafe_manha criancas" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['criancas'] }">
+                </td>
+                <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_manha criancas" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['criancas'] }">
+                </td>
+                <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo almoco criancas" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['criancas'] }">
+                </td>
+                <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_tarde criancas" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['criancas'] }">
+                </td>
+                <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo jantar criancas" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['criancas'] }">
+                </td>
+                <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_noite criancas" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['criancas'] }">
+                </td>
+            </tr>
+            <tr>
+                <td class="informacao_grupo">{ self.ficha_de_evento.numero_adultos() } adultos</td>
+                <th>Monitoria</th>
+                <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo cafe_manha monitoria" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ cafe_manha['participantes']['monitoria'] }">
+                </td>
+                <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_manha monitoria" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_manha['participantes']['monitoria'] }">
+                </td>
+                <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo almoco monitoria" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ almoco['participantes']['monitoria'] }">
+                </td>
+                <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_tarde monitoria" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_tarde['participantes']['monitoria'] }">
+                </td>
+                <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo jantar monitoria" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ jantar['participantes']['monitoria'] }">
+                </td>
+                <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_noite monitoria" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" disabled type="number" onchange="atualizar_monitoria(this)" value="{ lanche_noite['participantes']['monitoria'] }">
+                </td>
+            </tr>
+            <tr class="ultima_linha">
+                <td class="informacao_grupo">{ self.ficha_de_evento.numero_criancas() } crianças</td>
+                <th>Total</th>
+                <td class="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo cafe_manha geral" name="cafe_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ cafe_manha['participantes']['total'] }">
+                </td>
+                <td class="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_manha geral" name="lanche_manha-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_manha['participantes']['total'] }">
+                </td>
+                <td class="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo almoco geral" name="almoco-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ almoco['participantes']['total'] }">
+                </td>
+                <td class="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_tarde geral" name="lanche_tarde-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_tarde['participantes']['total'] }">
+                </td>
+                <td class="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo jantar geral" name="jantar-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ jantar['participantes']['total'] }">
+                </td>
+                <td class="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }">
+                    <input class="grupo lanche_noite geral" name="lanche_noite-{ data.strftime('%d_%m_%Y') }-{ self.ficha_de_evento.id }" type="number" disabled value="{ lanche_noite['participantes']['total'] }">
+                </td>
+            </tr>
+        """
 
 
 class RelatorioDia(models.Model):

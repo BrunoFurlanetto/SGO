@@ -148,7 +148,7 @@ input {
     min-width: 80px;
 }
 
-#cadastro_relatorio_dia table input[disabled]:not(.grupo) {
+#cadastro_relatorio_dia table input[disabled]:not(.grupo), #dados_refeicoes_evento table input[disabled]{
     color: #e3dbdb;
 }
 

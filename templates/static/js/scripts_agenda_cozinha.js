@@ -14,11 +14,15 @@ function montar_agenda_cozinha(eventos) {
         contentHeight: 'auto',
         handleWindowResize: true,
         navLinks: true,
+        eventDayClick: true,
         navLinkDayClick: function (date, jsEvent) {
             const data = moment(date).format('YYYY-MM-DD')
             window.location.href = `/cozinha/verificar_relatorios_dia/${data}`
         },
         events: eventos,
+        eventClick: function (info) {
+            console.log(info)
+        }
     })
 
     calendar.render();
