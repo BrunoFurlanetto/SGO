@@ -161,3 +161,19 @@
 #campos_eventos {
     width: 100% !important;
 }
+
+#dashboard_cozinha_diretoria {
+    align-items: center;
+    width: 80%;
+    overflow: auto;
+    flex-direction: column;
+    margin-bottom: 5%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+#dashboard_cozinha_diretoria #agenda {
+    height: 80vh;
+}

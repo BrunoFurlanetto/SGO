@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+from itertools import chain
 
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.http import require_GET
 
+from cozinha.models import RelatorioDia, Relatorio
 from painelDiretoria.models import Metas
 from peraltas.models import Eventos, ProdutosPeraltas, EscalaAcampamento
 from projetoCEU.utils import is_ajax
@@ -110,3 +113,78 @@ def infos_produtos_estagios(request):
         return JsonResponse({'dados_produto': dados_produtos_trabalhados, 'dados_estagio': dados_estagio})
     else:
         return redirect('dashboard')
+
+
+def cozinha(request):
+    relatorios_dia = RelatorioDia.objects.all()
+    relatorios_evento = Relatorio.objects.all()
+    dados_relatorios = []
+
+    def criar_objeto_evento(refeicao, cliente, data, hora, participantes):
+        cores = {
+            'Café da Manhã': '#6610f2',
+            'Lanche da Manhã': '#dc3545',
+            'Almoço': '#fd7e1',
+            'Lanche da Tarde': '#0dcaf0',
+            'Jantar': '#dc3545',
+            'Lanche da Noite': '#2cd32c',
+        }
+        inicio = datetime.combine(data, datetime.strptime(hora, "%H:%M").time())
+        fim = inicio + timedelta(hours=1)
+        print(participantes)
+        return {
+            'title': cliente.__str__(),
+            'start': inicio.isoformat(),
+            'end': fim.isoformat(),
+            'color': cores[refeicao],
+            'extendedProps': {
+                'refeicao': refeicao,
+                'adultos': participantes['adultos'],
+                'criancas': participantes['criancas'],
+                'monitoria': participantes['monitoria'],
+                'total': participantes['total'],
+            }
+        }
+
+    # Processar dados do RelatorioDia
+    for relatorio in relatorios_dia:
+        data = relatorio.data
+
+        for refeicao, dados in [
+            ("Café da Manhã", relatorio.dados_cafe_da_manha),
+            ("Lanche da Manhã", relatorio.dados_lanche_da_manha),
+            ("Almoço", relatorio.dados_almoco),
+            ("Lanche da Tarde", relatorio.dados_lanche_da_tarde),
+            ("Jantar", relatorio.dados_jantar),
+            ("Lanche da Noite", relatorio.dados_lanche_da_noite),
+        ]:
+            if dados and "dados_grupos" in dados:
+                for grupo in dados["dados_grupos"]:
+                    for cliente in relatorio.grupos.all():
+                        if cliente.id == grupo['grupo_id']:
+                            cliente = cliente
+
+                            break
+
+                    evento = criar_objeto_evento(refeicao, cliente, data, grupo["hora"], grupo['participantes'])
+                    dados_relatorios.append(evento)
+
+    # Processar dados do Relatorio
+    for relatorio in relatorios_evento:
+        for refeicao, dados in [
+            ("Café da Manhã", relatorio.dados_cafe_da_manha),
+            ("Lanche da Manhã", relatorio.dados_lanche_da_manha),
+            ("Almoço", relatorio.dados_almoco),
+            ("Lanche da Tarde", relatorio.dados_lanche_da_tarde),
+            ("Jantar", relatorio.dados_jantar),
+            ("Lanche da Noite", relatorio.dados_lanche_da_noite),
+        ]:
+            if dados:
+                for item in dados:
+                    data = datetime.strptime(item["dia"], "%Y_%m_%d").date()
+                    evento = criar_objeto_evento(refeicao, relatorio.grupo, data, item["hora"], item["participantes"])
+                    dados_relatorios.append(evento)
+    print(dados_relatorios)
+    return render(request, 'painelDiretoria/cozinha.html', {
+        'relatorios_refeicoes': dados_relatorios
+    })

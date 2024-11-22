@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag_painel_diretoria %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_painel_diretoria.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.13.2/jquery-ui.css' %}">
+
+    <main id="dashboard_cozinha_diretoria">
+        <div class="text-center">
+            <h3>Agenda de refeições</h3>
+        </div>
+        <div id="dialog" title="Detalhes">
+            <p><strong>Cliente: </strong> <span id="cliente"></span></p>
+            <p><strong>Refeição:</strong> <span id="refeicao"></span></p>
+            <p><strong>Adultos:</strong> <span id="adultos"></span></p>
+            <p><strong>Crianças:</strong> <span id="criancas"></span></p>
+            <p><strong>Monitores:</strong> <span id="monitores"></span></p>
+            <p><strong>Total:</strong> <span id="total"></span></p>
+        </div>
+        <div id="agenda" class="card p-2"></div>
+    </main>
+
+    <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
+    <script src="{% static 'jquery-ui-1.13.2/jquery-ui.js' %}"></script>
+    <script src="{% static 'js/script_painel_diretoria.js' %}"></script>
+    <script>
+        $(document).ready(() => {
+            montar_agenda_refeicoes_dia({{ relatorios_refeicoes|safe }})
+        })
+    </script>
+{% endblock %}

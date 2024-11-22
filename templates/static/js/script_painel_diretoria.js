@@ -6,6 +6,13 @@ let ultimo_estagio = null
 let ulimo_mes_ano = null
 
 $(document).ready(() => {
+    $('#dialog').dialog({
+        autoOpen: false,
+        modal: false,
+        width: 250,
+        position: {my: "right top", at: "right top", of: window}
+    });
+
     $('#campos_eventos').select2({
         maximumSelectionLength: 6
     })
@@ -235,4 +242,37 @@ function drawChartEstagio(dadosEstagio) {
             }
         }
     });
+}
+
+function montar_agenda_refeicoes_dia(eventos) {
+    const calendarUI = document.getElementById('agenda');
+    const detector = new FullCalendar.Calendar(calendarUI, {
+        headerToolbar: {
+            left: 'prev, today',
+            center: 'title',
+            right: 'next',
+        },
+
+        initialDate: Date.now(),
+        duration: {days: 4},
+        initialView: 'timeGrid',
+        eventOrderStrict: true,
+        locale: 'pt-br',
+        allDaySlot: false,
+        slotMinTime: '06:00:00',
+        nowIndicator: true,
+        slotDuration: '00:10:00',
+        events: eventos,
+        eventClick: function (calEvent, jsEvent) {
+            $('#cliente').text(calEvent.event.title);
+            $('#refeicao').text(calEvent.event.extendedProps['refeicao']);
+            $('#adultos').text(calEvent.event.extendedProps['adultos']);
+            $('#criancas').text(calEvent.event.extendedProps['criancas']);
+            $('#monitores').text(calEvent.event.extendedProps['monitoria']);
+            $('#total').text(calEvent.event.extendedProps['total']);
+            $('#dialog').dialog('open');
+        },
+    })
+    detector.render()
+    detector.setOption('locale', 'pt-br')
 }
