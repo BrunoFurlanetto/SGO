@@ -174,6 +174,49 @@
     box-shadow: 0 0 6px 3px;
 }
 
-#dashboard_cozinha_diretoria #agenda {
+#dashboard_cozinha_diretoria #container_agenda {
+    padding: 1% 2% 1% 2%;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#agenda_descritivo {
     height: 80vh;
+}
+
+#dashboard_cozinha_diretoria #container_agenda #agenda_cozinha,
+#dashboard_cozinha_diretoria #container_agenda #agenda_descritivo,
+#dashboard_cozinha_diretoria #container_agenda button {
+    box-shadow: 1px 1px 1px 1px !important;
+}
+
+#legenda_refeicoes {
+    justify-content: space-evenly;
+}
+
+#legenda_refeicoes .refeicao div {
+    height: fit-content;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px 1px #000000;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#legenda_refeicoes .refeicao_cafe_manha div {
+    background: #6610f2;
+}
+#legenda_refeicoes .refeicao_lanche_manha div {
+    background: #dc3545;
+}
+#legenda_refeicoes .refeicao_almoco div {
+    background: #fd7e14;
+}
+#legenda_refeicoes .refeicao_lanche_tarde div {
+    background: #0dcaf0;
+}
+#legenda_refeicoes .refeicao_jantar div {
+    background: #dc3545;
+}
+#legenda_refeicoes .refeicao_lanche_noite div {
+    background: #2cd32c;
 }

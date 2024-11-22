@@ -19,7 +19,36 @@
             <p><strong>Monitores:</strong> <span id="monitores"></span></p>
             <p><strong>Total:</strong> <span id="total"></span></p>
         </div>
-        <div id="agenda" class="card p-2"></div>
+        <div id="container_agenda" class="rounded-3 bg-dark bg-opacity-10">
+            <div id="agenda_cozinha" class="card p-2"></div>
+            <div id="div_agenda_descritivo" class="none">
+                <hr class="w-100">
+                <div class="w-100 d-flex justify-content-end">
+                    <div id="legenda_refeicoes" class="d-flex w-100">
+                        <div class="d-flex refeicao refeicao_cafe_manha">
+                            <div><nobr>Café da manhã</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_manha">
+                            <div><nobr>Lanche da manhã</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_almoco">
+                            <div><nobr>Almoço</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_tarde">
+                            <div><nobr>Lanche da tarde</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_jantar">
+                            <div><nobr>Jantar</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_noite">
+                            <div><nobr>Lanche da noite</nobr></div>
+                        </div>
+                    </div>
+                    <button class="btn mb-2 p-0 fs-3 bg-white shadow-sm" onclick="$(this).parent().parent().addClass('none')">&times;</button>
+                </div>
+                <div id="agenda_descritivo" class="card p-2 bg-white"></div>
+            </div>
+        </div>
     </main>
 
     <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
@@ -27,7 +56,7 @@
     <script src="{% static 'js/script_painel_diretoria.js' %}"></script>
     <script>
         $(document).ready(() => {
-            montar_agenda_refeicoes_dia({{ relatorios_refeicoes|safe }})
+            montar_agendas_refeicoes({{ refeicoes_eventos|safe }}, {{ relatorios_refeicoes|safe }})
         })
     </script>
 {% endblock %}

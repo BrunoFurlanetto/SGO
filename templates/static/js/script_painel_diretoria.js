@@ -4,6 +4,7 @@ let outrosItemsProduto = [];
 let outrosItemsEstagio = [];
 let ultimo_estagio = null
 let ulimo_mes_ano = null
+let descritivo_refeicoes = null
 
 $(document).ready(() => {
     $('#dialog').dialog({
@@ -244,35 +245,62 @@ function drawChartEstagio(dadosEstagio) {
     });
 }
 
-function montar_agenda_refeicoes_dia(eventos) {
-    const calendarUI = document.getElementById('agenda');
-    const detector = new FullCalendar.Calendar(calendarUI, {
+function montar_agendas_refeicoes(relatorios_eventos, descritivo_refeicoes) {
+    const calendarUIDescritivo = document.getElementById('agenda_descritivo');
+    const calendarUIAgendaRefeicoes = document.getElementById('agenda_cozinha');
+
+    const agenda_refeicoes = new FullCalendar.Calendar(calendarUIAgendaRefeicoes, {
         headerToolbar: {
-            left: 'prev, today',
+            left: '',
             center: 'title',
-            right: 'next',
         },
 
-        initialDate: Date.now(),
-        duration: {days: 4},
-        initialView: 'timeGrid',
         eventOrderStrict: true,
         locale: 'pt-br',
-        allDaySlot: false,
-        slotMinTime: '06:00:00',
-        nowIndicator: true,
-        slotDuration: '00:10:00',
-        events: eventos,
-        eventClick: function (calEvent, jsEvent) {
-            $('#cliente').text(calEvent.event.title);
-            $('#refeicao').text(calEvent.event.extendedProps['refeicao']);
-            $('#adultos').text(calEvent.event.extendedProps['adultos']);
-            $('#criancas').text(calEvent.event.extendedProps['criancas']);
-            $('#monitores').text(calEvent.event.extendedProps['monitoria']);
-            $('#total').text(calEvent.event.extendedProps['total']);
-            $('#dialog').dialog('open');
+        dayMaxEvents: 5,
+        fixedWeekCount: false,
+        height: 'parent',
+        contentHeight: 'auto',
+        handleWindowResize: true,
+        navLinks: true,
+        navLinkDayClick: function (date, jsEvent) {
+            const agenda_descritivo_refeicoes = new FullCalendar.Calendar(calendarUIDescritivo, {
+                headerToolbar: {
+                    left: 'prev, today',
+                    center: 'title',
+                    right: 'next',
+                },
+
+                initialDate: date,
+                duration: {days: 4},
+                initialView: 'timeGrid',
+                eventOrderStrict: true,
+                locale: 'pt-br',
+                allDaySlot: false,
+                slotMinTime: '06:00:00',
+                nowIndicator: true,
+                slotDuration: '00:10:00',
+                events: descritivo_refeicoes,
+                eventClick: function (calEvent, jsEvent) {
+                    $('#cliente').text(calEvent.event.title);
+                    $('#refeicao').text(calEvent.event.extendedProps['refeicao']);
+                    $('#adultos').text(calEvent.event.extendedProps['adultos']);
+                    $('#criancas').text(calEvent.event.extendedProps['criancas']);
+                    $('#monitores').text(calEvent.event.extendedProps['monitoria']);
+                    $('#total').text(calEvent.event.extendedProps['total']);
+                    $('#dialog').dialog('open');
+                },
+            })
+            $('#div_agenda_descritivo').removeClass('none')
+            agenda_descritivo_refeicoes.render()
+            agenda_descritivo_refeicoes.setOption('locale', 'pt-br')
         },
+        events: relatorios_eventos,
+        eventClick: function (info) {
+            console.log(info)
+        }
     })
-    detector.render()
-    detector.setOption('locale', 'pt-br')
+
+    agenda_refeicoes.render();
+    agenda_refeicoes.setOption('locale', 'pt-br')
 }

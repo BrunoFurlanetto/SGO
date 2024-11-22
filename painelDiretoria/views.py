@@ -119,19 +119,20 @@ def cozinha(request):
     relatorios_dia = RelatorioDia.objects.all()
     relatorios_evento = Relatorio.objects.all()
     dados_relatorios = []
+    refecioes_eventos = []
 
     def criar_objeto_evento(refeicao, cliente, data, hora, participantes):
         cores = {
             'Café da Manhã': '#6610f2',
             'Lanche da Manhã': '#dc3545',
-            'Almoço': '#fd7e1',
+            'Almoço': '#fd7e14',
             'Lanche da Tarde': '#0dcaf0',
             'Jantar': '#dc3545',
             'Lanche da Noite': '#2cd32c',
         }
         inicio = datetime.combine(data, datetime.strptime(hora, "%H:%M").time())
         fim = inicio + timedelta(hours=1)
-        print(participantes)
+
         return {
             'title': cliente.__str__(),
             'start': inicio.isoformat(),
@@ -149,6 +150,15 @@ def cozinha(request):
     # Processar dados do RelatorioDia
     for relatorio in relatorios_dia:
         data = relatorio.data
+        refecioes_eventos.append({
+            'title': 'Refeições do dia',
+            'start': relatorio.data.strftime('%Y-%m-%d'),
+            'end': relatorio.data.strftime('%Y-%m-%d'),
+            'url': reverse('edicao_relatorio_dia_cozinha', kwargs={
+                'data_edicao': relatorio.data.strftime('%Y-%m-%d')
+            }),
+            'color': '#fcc607',
+        })
 
         for refeicao, dados in [
             ("Café da Manhã", relatorio.dados_cafe_da_manha),
@@ -171,6 +181,16 @@ def cozinha(request):
 
     # Processar dados do Relatorio
     for relatorio in relatorios_evento:
+        refecioes_eventos.append({
+            'title': f'Refeições de {relatorio.grupo}',
+            'start': relatorio.ficha_de_evento.check_in.strftime('%Y-%m-%d %H:%M'),
+            'end': relatorio.ficha_de_evento.check_out.strftime('%Y-%m-%d %H:%M'),
+            'url': reverse('edicao_relatorio_evento_cozinha', kwargs={
+                'id_relatorio': relatorio.pk,
+            }),
+            'color': '#ff7474',
+        })
+
         for refeicao, dados in [
             ("Café da Manhã", relatorio.dados_cafe_da_manha),
             ("Lanche da Manhã", relatorio.dados_lanche_da_manha),
@@ -184,7 +204,8 @@ def cozinha(request):
                     data = datetime.strptime(item["dia"], "%Y_%m_%d").date()
                     evento = criar_objeto_evento(refeicao, relatorio.grupo, data, item["hora"], item["participantes"])
                     dados_relatorios.append(evento)
-    print(dados_relatorios)
+
     return render(request, 'painelDiretoria/cozinha.html', {
-        'relatorios_refeicoes': dados_relatorios
+        'relatorios_refeicoes': dados_relatorios,
+        'refeicoes_eventos': refecioes_eventos,
     })
