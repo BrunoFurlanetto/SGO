@@ -354,12 +354,14 @@
                         </table>
                     </div>
                 </fieldset>
-                <div class="botoes">
-                    {% if editando %}
-                    	<button type="button" class="btn btn-secondary" onclick="$('#realtorio_refeicoes_dia, #btn_salvar').prop('disabled', false)">Editar</button>
-                    {% endif %}
-                    <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %} class="btn btn-primary">Salvar</button>
-                </div>
+                {% if perms.cozinha.change_relatoriodia %}
+                    <div class="botoes">
+                        {% if editando %}
+                            <button type="button" class="btn btn-secondary" onclick="$('#realtorio_refeicoes_dia, #btn_salvar').prop('disabled', false)">Editar</button>
+                        {% endif %}
+                        <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %} class="btn btn-primary">Salvar</button>
+                    </div>
+                {% endif %}
             </form>
         {% elif data and not eventos and not relatorios %}
             <p class="alert alert-info w-100 text-center">Nenhum evento cadastrado para o

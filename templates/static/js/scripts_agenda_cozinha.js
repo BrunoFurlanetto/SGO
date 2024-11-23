@@ -1,4 +1,4 @@
-function montar_agenda_cozinha(eventos) {
+function montar_agenda_cozinha(eventos, permissao_adicao_relatorios) {
     const calendarUI = document.getElementById('agenda_cozinha');
     const calendar = new FullCalendar.Calendar(calendarUI, {
         headerToolbar: {
@@ -14,15 +14,13 @@ function montar_agenda_cozinha(eventos) {
         contentHeight: 'auto',
         handleWindowResize: true,
         navLinks: true,
-        eventDayClick: true,
         navLinkDayClick: function (date, jsEvent) {
-            const data = moment(date).format('YYYY-MM-DD')
-            window.location.href = `/cozinha/verificar_relatorios_dia/${data}`
+            if (permissao_adicao_relatorios == 'True') {
+                const data = date.toISOString().split('T')[0];
+                window.location.href = `/cozinha/verificar_relatorios_dia/${data}`
+            }
         },
         events: eventos,
-        eventClick: function (info) {
-            console.log(info)
-        }
     })
 
     calendar.render();

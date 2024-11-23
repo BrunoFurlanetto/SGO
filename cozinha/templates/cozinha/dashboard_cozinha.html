@@ -17,7 +17,7 @@
     <script src="{% static 'js/scripts_agenda_cozinha.js' %}"></script>
     <script>
         $(document).ready(() => {
-            montar_agenda_cozinha({{ relatorios_refeicoes|safe }})
+            montar_agenda_cozinha({{ relatorios_refeicoes|safe }}, '{{ perms.cozinha.add_relatorio|safe }}')
         })
     </script>
 {% endblock %}

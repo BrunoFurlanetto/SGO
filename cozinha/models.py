@@ -11,6 +11,16 @@ class Cozinheiro(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=11)
 
+    @property
+    def nome_completo(self):
+        return self.usuario.get_full_name()
+
+    @property
+    def funcao(self):
+        return ', '.join([
+            grupo.__str__() for grupo in self.usuario.groups.all() if 'cozinha' in grupo.__str__() or 'Cozinheiro' in grupo.__str__()
+        ])
+
 
 class Relatorio(models.Model):
     ficha_de_evento = models.OneToOneField(FichaDeEvento, on_delete=models.CASCADE)
@@ -288,6 +298,9 @@ class RelatorioDia(models.Model):
 
     def __str__(self):
         return f'Relatorio rfeicoes {self.data.strftime("%d/%m/%Y")}'
+
+    class Meta:
+        permissions = (('ver_descritivo_refeicoes', 'Ver descritivo as refeições'),)
 
     @staticmethod
     def processar_refeicoes(dados):
