@@ -127,7 +127,7 @@ def cozinha(request):
             'Lanche da Manhã': '#dc3545',
             'Almoço': '#fd7e14',
             'Lanche da Tarde': '#0dcaf0',
-            'Jantar': '#dc3545',
+            'Jantar': '#f3cd0e',
             'Lanche da Noite': '#2cd32c',
         }
         inicio = datetime.combine(data, datetime.strptime(hora, "%H:%M").time())
