@@ -23,8 +23,8 @@
             <div id="agenda_cozinha" class="card p-2"></div>
             <div id="div_agenda_descritivo" class="none">
                 <hr class="w-100">
-                <div class="w-100 d-flex justify-content-end">
-                    <div id="legenda_refeicoes" class="d-flex w-100">
+                <div id="cabecalho_descritivo_refeicoes" class="w-100 d-flex position-relative justify-content-end">
+                    <div id="legenda_refeicoes" class="d-flex w-100 mb-3">
                         <div class="d-flex refeicao refeicao_cafe_manha">
                             <div><nobr>Café da manhã</nobr></div>
                         </div>
@@ -44,7 +44,8 @@
                             <div><nobr>Lanche da noite</nobr></div>
                         </div>
                     </div>
-                    <button class="btn mb-2 p-0 fs-3 bg-white shadow-sm" onclick="$(this).parent().parent().addClass('none')">&times;</button>
+                    <div id="_"></div>
+                    <button class="btn p-0 fs-3 bg-white" onclick="$(this).parent().parent().addClass('none')">&times;</button>
                 </div>
                 <div id="agenda_descritivo" class="card p-2 bg-white"></div>
             </div>
