@@ -196,7 +196,7 @@ class ValoresPadrao(models.Model):
             'porcentagem': 'text',
             'monetario': 'text',
         }
-
+        print(objeto_gerencia)
         if tipo_de_pacote:
             novas_taxas = tipo_de_pacote.retornar_dados_gerencia()
 

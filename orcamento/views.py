@@ -100,6 +100,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'pacote_promocional': pacote_promocional,
         'gerente_aprovando': bool(gerente_aprovando),
         'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
+        'data_vencimento': orcamento.objeto_gerencia['data_vencimento']
     })
 
 
@@ -288,6 +289,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'gerente_aprovando': False,
         'dados_pacote': promocional.dados_pacote,
         'editando_pacote': True,
+        'data_vencimento': promocional.orcamento.objeto_gerencia['data_vencimento'],
     })
 
 
