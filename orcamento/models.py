@@ -311,6 +311,30 @@ class OrcamentoMonitor(models.Model):
 
         super().save(*args, **kwargs)
 
+    @classmethod
+    def verificar_validade(cls, check_in, check_out, financeiro):
+        data = check_in
+
+        while data <= check_out:
+            if financeiro:
+                monitoria = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                ).exists()
+            else:
+                monitoria = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                    liberado=True,
+                ).exists()
+
+            if not monitoria:
+                return False
+
+            data += datetime.timedelta(days=1)
+
+        return True
+
 
 class CategoriaOpcionais(models.Model):
     nome_categoria = models.CharField(max_length=100)
@@ -388,6 +412,7 @@ class OrcamentoPeriodo(models.Model):
                                       verbose_name='Preço de venda')
     descricao = models.TextField(blank=True)
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
+    exclusivo_montagem_pacote = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Valor do periodo'
@@ -411,6 +436,32 @@ class OrcamentoPeriodo(models.Model):
         self.valor_final = float(self.valor) / (1 - ((taxa_comercial + comissao) / 100))
 
         super().save(*args, **kwargs)
+
+    @classmethod
+    def verificar_validade(cls, check_in, check_out, financeiro):
+        data = check_in
+
+        while data <= check_out:
+            if financeiro:
+                periodo = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                    dias_semana_validos__in=[data.weekday()],
+                ).exists()
+            else:
+                periodo = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                    dias_semana_validos__in=[data.weekday()],
+                    liberado=True,
+                ).exists()
+
+            if not periodo:
+                return False
+
+            data += datetime.timedelta(days=1)
+
+        return True
 
 
 class TaxaPeriodo(models.Model):
@@ -526,6 +577,30 @@ class ValoresTransporte(models.Model):
         self.valor_final_3_dia = float(self.valor_3_dia) / (1 - ((taxa_comercial + comissao) / 100))
 
         super().save(*args, **kwargs)
+
+    @classmethod
+    def verificar_validade(cls, check_in, check_out, financeiro):
+        data = check_in
+
+        while data <= check_out:
+            if financeiro:
+                transporte = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                ).exists()
+            else:
+                transporte = cls.objects.filter(
+                    inicio_vigencia__lte=data,
+                    final_vigencia__gte=data,
+                    liberado=True,
+                ).exists()
+
+            if not transporte:
+                return False
+
+            data += datetime.timedelta(days=1)
+
+        return True
 
 
 class StatusOrcamento(models.Model):
@@ -1191,6 +1266,7 @@ class Orcamento(models.Model):
 class OrcamentosPromocionais(models.Model):
     dados_pacote = models.ForeignKey(DadosDePacotes, on_delete=models.CASCADE)
     orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
+    liberados_para_venda = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Pacotes promocionais'
@@ -1415,8 +1491,10 @@ class CadastroOrcamento(forms.ModelForm):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
+        valores_monitorias = OrcamentoMonitor.objects.filter(liberado=True).order_by('nome_monitoria')
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
+        opcoes_validas_monitoria = [('', '')]
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
@@ -1433,8 +1511,12 @@ class CadastroOrcamento(forms.ModelForm):
             else:
                 responsaveis_cargo.append((responsavel.id, responsavel.nome))
 
+        for valor in valores_monitorias:
+            opcoes_validas_monitoria.append((valor.id, valor.nome_monitoria))
+
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
+        self.fields['tipo_monitoria'].choices = opcoes_validas_monitoria
 
         # Inicializa um dicionário para armazenar os campos opcionais por categoria
         self.opcionais_por_categoria = {}
@@ -1446,7 +1528,7 @@ class CadastroOrcamento(forms.ModelForm):
                 categoria=categoria,
                 inicio_vigencia__lte=timezone.now().date(),
                 final_vigencia__gte=timezone.now().date()
-            )
+            ).order_by('nome')
             # Define um nome e id customizado para o campo
             field_name = f'opcionais_{categoria.id}'
 

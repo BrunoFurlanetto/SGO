@@ -260,3 +260,4 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
 @admin.register(TiposDePacote)
 class TiposDePacoteAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'descricao')
+    ordering = ('titulo',)

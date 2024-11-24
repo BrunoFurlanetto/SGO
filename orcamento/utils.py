@@ -6,7 +6,8 @@ from django.http import JsonResponse
 
 from peraltas.models import ProdutosPeraltas
 from .mock import mock_optional
-from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo, TiposDePacote
+from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo, TiposDePacote, Orcamento, OrcamentoMonitor, \
+    ValoresTransporte
 
 
 def JsonError(msg):
@@ -44,7 +45,7 @@ def processar_formulario(dados, user):
     padrao_valores_op = r'dados_op\[(\w+)\]'
     padrao_gerencia = r'gerencia\[(\w+)\]'
     padrao_extra = r'opcionais_extra\[(\w+)\]'
-    print(dados)
+
     for key in dados.keys():
         if re.match(padrao_extra, key):
             op_extras += 1 / 4
@@ -129,32 +130,42 @@ def processar_formulario(dados, user):
         period_days = []
         days_list = []
         current_date = date_check_in
+        usuario_financeiro = User.objects.filter(pk=user.id, groups__name__icontains='financeiro').exists()
+
+        if not OrcamentoPeriodo.verificar_validade(date_check_in, date_check_out, usuario_financeiro):
+            return JsonError(
+                f'Não foi encontrado tarifario para as datas solicitadas, por favor peça o cadastro a diretoria.'
+            )
+
+        if not OrcamentoMonitor.verificar_validade(date_check_in, date_check_out, usuario_financeiro):
+            return JsonError(
+                f'Não foi encontrado tarifario de monitoria para as datas solicitadas, por favor peça o cadastro a diretoria.'
+            )
+
+        if not ValoresTransporte.verificar_validade(date_check_in, date_check_out, usuario_financeiro):
+            return JsonError(
+                f'Não foi encontrado tarifario de monitoria para as datas solicitadas, por favor peça o cadastro a diretoria.'
+            )
 
         while current_date <= date_check_out:
             days_list.append(current_date)
 
-            try:
-                if not User.objects.filter(pk=user.id, groups__name__icontains='financeiro').exists():
-                    period = OrcamentoPeriodo.objects.get(
-                        inicio_vigencia__lte=current_date,
-                        final_vigencia__gte=current_date,
-                        dias_semana_validos__in=[current_date.weekday()],
-                        liberado=True
-                    )
-                else:
-                    period = OrcamentoPeriodo.objects.get(
-                        inicio_vigencia__lte=current_date,
-                        final_vigencia__gte=current_date,
-                        dias_semana_validos__in=[current_date.weekday()]
-                    )
-            except OrcamentoPeriodo.DoesNotExist:
-                return JsonError(
-                    f'Não foi encontrado tarifario para essa data, por favor peça o cadastro para a data: {current_date} a diretoria')
+            if usuario_financeiro:
+                period = OrcamentoPeriodo.objects.get(
+                    inicio_vigencia__lte=current_date,
+                    final_vigencia__gte=current_date,
+                    dias_semana_validos__in=[current_date.weekday()],
+                    liberado=True
+                )
             else:
-                period_days.append(period)
-                current_date += timedelta(days=1)
+                period = OrcamentoPeriodo.objects.get(
+                    inicio_vigencia__lte=current_date,
+                    final_vigencia__gte=current_date,
+                    dias_semana_validos__in=[current_date.weekday()]
+                )
 
-        # Calc num days
+            period_days.append(period)
+            current_date += timedelta(days=1)
 
         num_days = len(period_days)
         # Racionais entrada e saída refeição TODO: Retirar depois dos testes do Sérgio
