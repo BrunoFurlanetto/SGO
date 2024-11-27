@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag_painel_diretoria %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_cozinha.css' %}">
+
+    <main id="dashboard_cozinha">
+        <div>
+            <h3>Agenda de refeições</h3>
+        </div>
+        <div id="agenda_cozinha" class="card p-2"></div>
+    </main>
+
+    <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
+    <script src="{% static 'js/scripts_agenda_cozinha.js' %}"></script>
+    <script>
+        $(document).ready(() => {
+            montar_agenda_cozinha({{ relatorios_refeicoes|safe }}, '{{ perms.cozinha.add_relatorio|safe }}')
+        })
+    </script>
+{% endblock %}

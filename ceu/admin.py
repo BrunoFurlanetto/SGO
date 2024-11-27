@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from ceu.models import Professores, Atividades, Locaveis, Limitacoes, Estruturas, ReembolsosProfessores
+from cozinha.admin import CozinheiroInline
 from peraltas.admin import VendedorInline, MonitorInline, EnfermeiraInline
 from peraltas.forms import CustomUserCreationForm, CustomUserChangeForm
 
@@ -22,7 +23,7 @@ class CustomUserAdmin(BaseUserAdmin):
     ordering = ('email',)
 
     # Mantenha seus inlines aqui
-    inlines = (ProfessorInline, VendedorInline, MonitorInline, EnfermeiraInline)
+    inlines = (ProfessorInline, VendedorInline, MonitorInline, EnfermeiraInline, CozinheiroInline)
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

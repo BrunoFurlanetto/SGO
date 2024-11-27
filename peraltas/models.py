@@ -51,6 +51,7 @@ class NivelMonitoria(models.Model):
     coordenacao = models.BooleanField(default=False)
     setor_monitoria = models.ForeignKey(SetorMonitoria, on_delete=models.CASCADE, default=get_first_setor_monitoria)
 
+
     def __str__(self):
         return self.nivel
 
@@ -572,6 +573,14 @@ class FichaDeEvento(models.Model):
 
     def listar_atividades_ceu(self):
         return ', '.join([atividade.atividade for atividade in self.atividades_ceu.all()])
+
+    def numero_criancas(self):
+        return self.qtd_meninos if self.qtd_meninos else 0 + self.qtd_meninas if self.qtd_meninas else 0
+
+    def numero_adultos(self):
+        soma_adultos = self.qtd_homens if self.qtd_homens else 0 + self.qtd_mulheres if self.qtd_mulheres else 0
+
+        return soma_adultos + self.qtd_professores if self.qtd_professores else 0
 
     # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------
     @classmethod

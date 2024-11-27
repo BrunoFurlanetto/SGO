@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag_painel_diretoria %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_painel_diretoria.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.13.2/jquery-ui.css' %}">
+
+    <main id="dashboard_cozinha_diretoria">
+        <div class="text-center">
+            <h3>Agenda de refeições</h3>
+        </div>
+        <div id="dialog" title="Detalhes">
+            <p><strong>Cliente: </strong> <span id="cliente"></span></p>
+            <p><strong>Refeição:</strong> <span id="refeicao"></span></p>
+            <p><strong>Adultos:</strong> <span id="adultos"></span></p>
+            <p><strong>Crianças:</strong> <span id="criancas"></span></p>
+            <p><strong>Monitores:</strong> <span id="monitores"></span></p>
+            <p><strong>Total:</strong> <span id="total"></span></p>
+        </div>
+        <div id="container_agenda" class="rounded-3 bg-dark bg-opacity-10">
+            <div id="agenda_cozinha" class="card p-2"></div>
+            <div id="div_agenda_descritivo" class="none">
+                <hr class="w-100">
+                <div id="cabecalho_descritivo_refeicoes" class="w-100 d-flex position-relative justify-content-end">
+                    <div id="legenda_refeicoes" class="d-flex w-100 mb-3">
+                        <div class="d-flex refeicao refeicao_cafe_manha">
+                            <div><nobr>Café da manhã</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_manha">
+                            <div><nobr>Lanche da manhã</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_almoco">
+                            <div><nobr>Almoço</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_tarde">
+                            <div><nobr>Lanche da tarde</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_jantar">
+                            <div><nobr>Jantar</nobr></div>
+                        </div>
+                        <div class="d-flex refeicao refeicao_lanche_noite">
+                            <div><nobr>Lanche da noite</nobr></div>
+                        </div>
+                    </div>
+                    <div id="_"></div>
+                    <button class="btn p-0 fs-3 bg-white" onclick="$(this).parent().parent().addClass('none')">&times;</button>
+                </div>
+                <div id="agenda_descritivo" class="card p-2 bg-white"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'fullcalendar/main.js' %}"></script><!-- Script para o calendário da escala -->
+    <script src="{% static 'jquery-ui-1.13.2/jquery-ui.js' %}"></script>
+    <script src="{% static 'js/script_painel_diretoria.js' %}"></script>
+    <script>
+        $(document).ready(() => {
+            montar_agendas_refeicoes({{ refeicoes_eventos|safe }}, {{ relatorios_refeicoes|safe }})
+        })
+    </script>
+{% endblock %}

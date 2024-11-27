@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'detector.apps.DetectorConfig',
     'orcamento.apps.OrcamentoConfig',
     'painelDiretoria.apps.PaineldiretoriaConfig',
+    'cozinha.apps.CozinhaConfig',
 ]
 
 MIDDLEWARE = [
