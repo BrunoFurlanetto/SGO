@@ -412,18 +412,32 @@ def agrupar_disponibilidades_por_monitor(disponibilidades_peraltas):
     agrupamento = {}
 
     for disponibilidade in disponibilidades_peraltas:
-        monitor_id = disponibilidade.monitor_id
+        try:
+            monitor_id = disponibilidade.monitor.id
+        except AttributeError:
+            monitor_id = disponibilidade.enfermeira.id
 
-        if monitor_id not in agrupamento:
-            agrupamento[monitor_id] = {
-                'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
-                'disponivel': disponibilidade,
-                'todos_dias': []
-            }
+            if f'enfermeira_id_{monitor_id}' not in agrupamento:
+                agrupamento[f'enfermeira_id_{monitor_id}'] = {
+                    'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
+                    'disponivel': disponibilidade,
+                    'todos_dias': []
+                }
 
-        agrupamento[monitor_id]['todos_dias'].extend(
-            disponibilidade.dias_disponiveis.split(', ')
-        )
+            agrupamento[f'enfermeira_id_{monitor_id}']['todos_dias'].extend(
+                disponibilidade.dias_disponiveis.split(', ')
+            )
+        else:
+            if f'monitor_id_{monitor_id}' not in agrupamento:
+                agrupamento[f'monitor_id_{monitor_id}'] = {
+                    'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
+                    'disponivel': disponibilidade,
+                    'todos_dias': []
+                }
+
+            agrupamento[f'monitor_id_{monitor_id}']['todos_dias'].extend(
+                disponibilidade.dias_disponiveis.split(', ')
+            )
 
     return agrupamento
 
@@ -432,7 +446,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
     disponiveis_intervalo = []
     dias = check_out - check_in
     monitores_disponiveis_intervalo = []
-
+    print(lista_disponiveis)
     for _, disponivel in lista_disponiveis.items():
         intervalo = True
 
@@ -455,7 +469,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
 
     for disponibilidade in disponiveis_intervalo:
         areas = []
-
+        print(disponibilidade.enfermeira)
         if disponibilidade.monitor:
             try:
                 areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
