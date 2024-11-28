@@ -196,11 +196,13 @@ class ValoresPadrao(models.Model):
             'porcentagem': 'text',
             'monetario': 'text',
         }
-        print(objeto_gerencia)
+
         if tipo_de_pacote:
             novas_taxas = tipo_de_pacote.retornar_dados_gerencia()
 
         for taxa in taxas_cadastradas:
+            valor_maximo = valor_minimo = ''
+
             if taxa.id_taxa == 'minimo_onibus':
                 valor_padrao = int(taxa.valor_padrao) if objeto_gerencia is None else int(objeto_gerencia['minimo_onibus'])
                 valor_maximo = int(taxa.valor_maximo)
@@ -1310,6 +1312,7 @@ class OrcamentosPromocionais(models.Model):
         pacotes = cls.objects.filter(
             orcamento__data_vencimento__gte=datetime.date.today(),
             orcamento__previa=False,
+            liberados_para_venda=True,
             dados_pacote__tipos_de_pacote_elegivel_id=int(id_tipo_pacote) if id_tipo_pacote != '' else 0
         )
         pacotes_validos = []
