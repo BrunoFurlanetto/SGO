@@ -490,24 +490,32 @@
             {% endif %}
             {#        {% if financeiro %}#}
             <div class="section-content {% if financeiro %} ativo {% endif %}" id="pacotes">
-                <div class="tabelas">
+                <div id="tabela_pacotes_promocionais" class="tabelas">
+                    <div class="mb-2">
+                        <label for="vencidos">
+                            Exibir pacotes vencidos:
+                            <input type="radio" name="vencidos" value="sim" id="mostrarVencidos"> Sim
+                            <input type="radio" name="vencidos" value="nao" id="mostrarNaoVencidos" checked> Não
+                        </label>
+                    </div>
                     <table class="table table-hover table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 50%">Pacote promocional</th>
-                            <th style="width: 25%">Data de vencimento</th>
-                            <th style="width: 25%">Valor base</th>
+                            <th style="width: 30%">Tipo de pacote</th>
+                            <th style="width: 30%">Nome de pacote</th>
+                            <th style="width: 20%">Data de vencimento</th>
+                            <th style="width: 20%">Valor base</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for pacote in pacotes %}
                             <tr style="cursor: pointer" onclick="window.location.href = '{% url 'editar_pacotes_promocionais' pacote.id %}'">
+                                <td>{{ pacote.dados_pacote.tipos_de_pacote_elegivel }}</td>
                                 <td>{{ pacote.dados_pacote.nome_do_pacote }}</td>
-                                <td>{{ pacote.orcamento.data_vencimento |date:'d/m/Y' }}</td>
+                                <td>{{ pacote.orcamento.data_vencimento| date:'Y-m-d' }}</td>
                                 <td>R$ {{ pacote.orcamento.valor|substituir_ponto }}</td>
                             </tr>
                         {% endfor %}
-
                         </tbody>
                     </table>
                 </div>

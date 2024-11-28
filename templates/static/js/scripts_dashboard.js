@@ -11,9 +11,93 @@ let taxa_aplicada = false
 let outros = []
 let desconto_aplicado = 0*/
 
+
+
+$.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrderableColumns) {
+    // Inicializa o DataTable
+    var tabela = $(this).DataTable({
+        language: {
+            info: 'Mostrando _PAGE_ página de _PAGES_ páginas',
+            infoEmpty: 'Sem dados',
+            infoFiltered: '(filtrado de _MAX_ dados)',
+            lengthMenu: 'Mostrar _MENU_ por página',
+            zeroRecords: 'Nada encontrado',
+        },
+        columnDefs: [
+            {
+                type: 'date',
+                targets: columnData,
+                render: function (data, type, row) {
+                    if (type === 'display' || type === 'filter') {
+                        return moment(data).format('DD/MM/YYYY')
+                    }
+                    return data;
+                },
+            },
+            {
+                orderable: false,
+                targets: nonOrderableColumns
+            },
+        ],
+        order: [
+            [columnOrder[0], 'asc'],
+            [columnOrder[1], 'asc'],
+        ]
+    });
+
+    // Filtro de data de vencimento
+    function aplicarFiltroVencimento() {
+        // Limpa os filtros antigos
+        $.fn.dataTable.ext.search = [];
+
+        // Obtém o valor selecionado no radio input
+        var valorFiltro = $('input[name="vencidos"]:checked').val();
+
+        // Se for 'sim', filtra pacotes vencidos
+        if (valorFiltro === 'sim') {
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                var dataVencimento = data[2]; // Índice da coluna de vencimento
+                var dataHoje = moment(); // Data de hoje
+                var dataTabela = moment(dataVencimento, 'DD/MM/YYYY');
+                return dataTabela.isBefore(dataHoje); // Mostrar pacotes vencidos
+            });
+        }
+        // Se for 'não', filtra pacotes não vencidos
+        else if (valorFiltro === 'nao') {
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                var dataVencimento = data[2]; // Índice da coluna de vencimento
+                var dataHoje = moment(); // Data de hoje
+                var dataTabela = moment(dataVencimento, 'DD/MM/YYYY');
+                return dataTabela.isSameOrAfter(dataHoje); // Mostrar pacotes não vencidos
+            });
+        }
+
+        // Atualiza a tabela com o filtro aplicado
+        tabela.draw();
+    }
+
+    // Chama a função sempre que o valor do radio mudar
+    $('input[name="vencidos"]').change(function () {
+        aplicarFiltroVencimento();
+    });
+
+    // Aplica o filtro inicial, de acordo com o valor default
+    aplicarFiltroVencimento();
+
+    return tabela;
+}
+
 $(document).ready(() => {
-    moment.locale('pt-br')
-    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8])
+    moment.locale('pt-br');
+
+    // Inicialização da tabela de orçamentos (caso exista)
+    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
+
+    // Inicialização da tabela de pacotes promocionais
+    var tabelaPacotes = $('#tabela_pacotes_promocionais table').iniciarlizarDataTablePacotes(2, [0, 1, 2, 3], []);
+
+    // Redesenha a tabela após a inicialização (pode ser necessário, caso queira garantir a aplicação do filtro)
+    tabelaPacotes.draw();
 
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
@@ -79,7 +163,6 @@ $.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrde
         order: [columnOrder, 'desc']
     })
 }
-
 
 function alterar_aba(aba, sectionId) {
     const conteudos_abas = $('.section-content').map((index, aba) => {

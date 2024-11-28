@@ -202,7 +202,6 @@ def dashboardPeraltas(request):
     )
     tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
     pacotes = OrcamentosPromocionais.objects.filter(
-        orcamento__data_vencimento__gte=datetime.today().date(),
         orcamento__previa=False,
     )
 
