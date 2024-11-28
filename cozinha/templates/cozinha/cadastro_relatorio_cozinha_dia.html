@@ -11,12 +11,13 @@
             <h3>Cadastro de relatório de refeições</h3>
             <hr>
         </div>
-        <div>
-            <form action="{% url 'cadastro_relatorio_dia_cozinha' %}">
+        <form action="{% url 'cadastro_relatorio_dia_cozinha' %}">
+            <div class="d-flex flex-column">
                 <label for="data">Data</label>
-                <input type="date" name="data" id="data"  {% if not editando %} value="{{ request.GET.data }}" {% else %} readonly value="{{ data|date:'Y-m-d' }}" {% endif %} onchange="this.form.submit()">
-            </form>
-        </div>
+                <input type="date" name="data" id="data" {% if not editando %} value="{{ request.GET.data }}" {% else %} readonly value="{{ data|date:'Y-m-d' }}" {% endif %}>
+                <button type="button" class="btn btn-outline-dark mt-3" onclick="this.form.submit()">Buscar eventos</button>
+            </div>
+        </form>
         <hr class="w-100">
         {% if relatorios or eventos %}
             <form class="w-100" action="{% url 'salvar_relatorio_dia' data|date:'Y-m-d' %}" method="POST">

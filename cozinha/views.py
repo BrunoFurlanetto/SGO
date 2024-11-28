@@ -116,7 +116,7 @@ def edicao_relatorio_evento_cozinha(request, id_relatorio):
 
 def salvar_evento(request):
     ficha_de_evento = FichaDeEvento.objects.get(pk=request.POST.get('id_ficha'))
-    print(request.POST)
+
     try:
         # Tenta recuperar o relatório existente com base na ficha_de_evento
         relatorio, criado = Relatorio.objects.get_or_create(
