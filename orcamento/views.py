@@ -14,7 +14,8 @@ from ceu.models import Atividades
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
-    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote
+    DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
+    CategoriaOpcionais
 from .utils import verify_data, processar_formulario, JsonError
 from .budget import Budget
 
@@ -35,6 +36,7 @@ def novo_orcamento(request):
         'financeiro': financeiro,
         'usuarios_gerencia': usuarios_gerencia,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(),
+        'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'zerar_taxas': True,
     })
 
@@ -60,6 +62,7 @@ def clonar_orcamento(request, id_tratativa, ):
             orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
             orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
         ),
+        'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,
         'id_orcamento': id_orcamento,
@@ -94,6 +97,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
             orcamento.objeto_gerencia,
             orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
         ),
+        'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': id_orcamento,
         'previa': True,
@@ -282,6 +286,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
             promocional.orcamento.objeto_gerencia,
             promocional.orcamento.tipo_de_pacote
         ),
+        'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': promocional.orcamento.id,
         'previa': True,

@@ -208,7 +208,7 @@ class ValoresPadrao(models.Model):
 
             if taxa.id_taxa == 'data_pagamento':
                 if objeto_gerencia is None:
-                    valor = datetime.datetime.today().date() + datetime.timedelta(days=int(taxa.valor_padrao))
+                    valor = datetime.today().date() + timedelta(days=int(taxa.valor_padrao))
                     valor_padrao = valor.strftime('%Y-%m-%d')
                 else:
                     valor_padrao = objeto_gerencia['data_pagamento']
@@ -338,6 +338,7 @@ class OrcamentoMonitor(models.Model):
 
 class CategoriaOpcionais(models.Model):
     nome_categoria = models.CharField(max_length=100)
+    staff = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Categoria'
@@ -1069,8 +1070,8 @@ class Orcamento(models.Model):
             'check_out': self.check_out,
             'comissao': '0,00%',
             'valor_a_vista': str(self.valor).replace('.', ','),
-            'inicio_vencimento': datetime.datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
-            'final_vencimento': datetime.datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
+            'inicio_vencimento': datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
+            'final_vencimento': datetime.strptime(self.objeto_gerencia['data_pagamento'], '%Y-%m-%d'),
             'razao_social': self.cliente.razao_social,
             'endereco': self.cliente.endereco,
             'cnpj': self.cliente.cnpj,
@@ -1396,7 +1397,7 @@ class Tratativas(models.Model):
     def save(self, *args, **kwargs):
         if not self.id_tratativa:
             cnpj = self.cliente.cnpj
-            data = datetime.datetime.now().date().strftime('%d%m%Y')
+            data = datetime.now().date().strftime('%d%m%Y')
             fim = randint(11111111, 99999999)
             self.id_tratativa = f'{data}_{re.sub(r"[^a-zA-Z0-9]", "", cnpj)}_{fim}'
 

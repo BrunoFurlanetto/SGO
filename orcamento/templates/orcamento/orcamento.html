@@ -130,7 +130,7 @@
                             <h5 class="titulo-secao">Opcionais</h5>
                             <div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
-                                    <div class="mt-2 flex-column">
+                                    <div class="mt-2 flex-column {% if opcionais_staff.nome_categoria == categoria and not financeiro %} none {% endif %}">
                                         <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>
                                         <select id="{{ opcional.id_for_label }}" name="opcionais" multiple>
                                             {% for option in opcional.field.queryset %}
