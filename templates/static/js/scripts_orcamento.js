@@ -952,11 +952,13 @@ async function alterar_valores_das_taxas(dados_taxas) {
 
 async function verificar_pacotes_promocionais() {
     loading()
+
     const periodo = $('#data_viagem').val()
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
     const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
     const n_dias = data_check_out.diff(data_check_in, 'days') + 1
     const id_tipo_de_pacote = $('#id_tipo_de_pacote').val()
+    const promocional_selecionado = $('#id_orcamento_promocional').val()
 
 
     await new Promise(function (resolve, reject) {
@@ -980,7 +982,7 @@ async function verificar_pacotes_promocionais() {
 
                     return
                 } else if (ids.includes(parseInt(select_promocionais.val()))) {
-                    return
+
                 } else {
                     await resetar_forms()
                 }
@@ -989,7 +991,7 @@ async function verificar_pacotes_promocionais() {
 
                 for (let promocional of promocionais) {
                     $('#id_orcamento_promocional').append(
-                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                        `<option value="${promocional['id']}" ${promocional['id'] == promocional_selecionado ? 'selected' : ''} >${promocional['nome']}</option>`
                     ).prop('disabled', false)
                 }
             }

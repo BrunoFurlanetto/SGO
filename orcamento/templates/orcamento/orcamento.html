@@ -59,6 +59,13 @@
                             </button>
                         </div>
                         {{ orcamento.pacote_promocional.as_hidden }}
+                        {% if promocional %}
+                        <div class="d-flex gap-1 mt-2">
+                            <input type="checkbox" class="form-check-input" name="liberado_para_venda" id="liberado_para_venda"
+                                {% if promocional.liberado_para_venda %} checked {% endif %}>
+                            <label for="liberado_para_venda">Liberado para venda</label>
+                        </div>
+                    {% endif %}
                     {% endif %}
                 </div>
                 <div id="container_periodo" class="{% if not id_orcamento %} none {% endif %}">
@@ -826,6 +833,8 @@
                 {% if dados_pacote %}
                     $('#id_orcamento_promocional').trigger('change')
                 {% endif %}
+                $('#data_viagem').trigger('change')
+                await verificar_pacotes_promocionais()
             {% else %}
                 await inicializacao();
             {% endif %}

@@ -1292,7 +1292,7 @@ class Orcamento(models.Model):
 class OrcamentosPromocionais(models.Model):
     dados_pacote = models.ForeignKey(DadosDePacotes, on_delete=models.CASCADE)
     orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
-    liberados_para_venda = models.BooleanField(default=False)
+    liberado_para_venda = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Pacotes promocionais'
@@ -1336,7 +1336,7 @@ class OrcamentosPromocionais(models.Model):
         pacotes = cls.objects.filter(
             orcamento__data_vencimento__gte=datetime.today().date(),
             orcamento__previa=False,
-            liberados_para_venda=True,
+            liberado_para_venda=True,
             dados_pacote__tipos_de_pacote_elegivel_id=int(id_tipo_pacote) if id_tipo_pacote != '' else 0
         )
         pacotes_validos = []

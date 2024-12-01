@@ -194,12 +194,17 @@ def salvar_orcamento(request, id_tratativa=None):
                     tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
-                OrcamentosPromocionais.objects.get_or_create(
+                promocional, criado = OrcamentosPromocionais.objects.get_or_create(
                     orcamento_id=orcamento_salvo.id,
                     defaults={
                         'orcamento_id': orcamento_salvo.id,
                         'dados_pacote_id': int(data.get('id_pacote_promocional'))
                     })
+
+                if not criado:
+                    promocional.liberado_para_venda = bool(data.get('liberado_para_venda', False))
+                    promocional.save()
+
 
     return JsonResponse({
         "status": "success",
@@ -295,6 +300,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'dados_pacote': promocional.dados_pacote,
         'editando_pacote': True,
         'data_vencimento': promocional.orcamento.objeto_gerencia['data_vencimento'],
+        'promocional': promocional,
     })
 
 
@@ -466,6 +472,7 @@ def verificar_validade_opcionais(request):
 
 def verificar_pacotes_promocionais(request):
     if is_ajax(request):
+        print('Veio')
         promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
             int(request.GET.get('n_dias')),
             request.GET.get('id_tipo_de_pacote'),

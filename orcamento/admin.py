@@ -197,7 +197,8 @@ class OrcamentoAdmin(admin.ModelAdmin):
 
 @admin.register(OrcamentosPromocionais)
 class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'valor_base', 'validade')
+    list_display = ('__str__', 'valor_base', 'validade', 'liberado_para_venda')
+    list_editable = ('liberado_para_venda',)
     actions = [duplicar_orcamentos_promocionais]
 
 

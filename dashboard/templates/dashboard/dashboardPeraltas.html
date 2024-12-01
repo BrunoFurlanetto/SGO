@@ -504,7 +504,8 @@
                             <th style="width: 30%">Tipo de pacote</th>
                             <th style="width: 30%">Nome de pacote</th>
                             <th style="width: 20%">Data de vencimento</th>
-                            <th style="width: 20%">Valor base</th>
+                            <th style="width: 10%">Valor base</th>
+                            <th style="width: 10%">Liberado</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -514,6 +515,7 @@
                                 <td>{{ pacote.dados_pacote.nome_do_pacote }}</td>
                                 <td>{{ pacote.orcamento.data_vencimento| date:'Y-m-d' }}</td>
                                 <td>R$ {{ pacote.orcamento.valor|substituir_ponto }}</td>
+                                <td>{{ pacote.liberado_para_venda | yesno:'Sim, Não' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
