@@ -1,5 +1,4 @@
-import calendar
-import datetime
+from datetime import datetime, timedelta
 import json
 import re
 from random import randint
@@ -9,12 +8,11 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models import PositiveIntegerField
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from unidecode import unidecode
-from django.contrib.postgres.fields import ArrayField
+
 
 from ceu.models import Atividades
 from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor, ProdutosPeraltas, AtividadesEco
@@ -93,7 +91,7 @@ class ValoresPadrao(models.Model):
             return f'{self.valor_padrao}%'.replace('.', ',')
 
         if self.comportamento == 'intervalo_dias':
-            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_padrao))).strftime('%Y-%m-%d')
+            return (datetime.today() + timedelta(days=int(self.valor_padrao))).strftime('%Y-%m-%d')
 
         if self.comportamento == 'monetario':
             return f'R$ {self.valor_padrao:.2f}'
@@ -108,7 +106,7 @@ class ValoresPadrao(models.Model):
             return f'{self.valor_minimo}%'.replace('.', ',')
 
         if self.comportamento == 'intervalo_dias':
-            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_minimo))).strftime('%Y-%m-%d')
+            return (datetime.today() + timedelta(days=int(self.valor_minimo))).strftime('%Y-%m-%d')
 
         if self.comportamento == 'monetario':
             return f'R$ {self.valor_minimo:.2f}'
@@ -122,7 +120,7 @@ class ValoresPadrao(models.Model):
             return f'{self.valor_maximo}%'.replace('.', ',')
 
         if self.comportamento == 'intervalo_dias':
-            return (datetime.datetime.today() + datetime.timedelta(days=int(self.valor_maximo))).strftime('%Y-%m-%d')
+            return (datetime.today() + timedelta(days=int(self.valor_maximo))).strftime('%Y-%m-%d')
 
         if self.valor_maximo and self.comportamento == 'monetario':
             return f'R$ {self.valor_maximo:.2f}'
@@ -333,7 +331,7 @@ class OrcamentoMonitor(models.Model):
             if not monitoria:
                 return False
 
-            data += datetime.timedelta(days=1)
+            data += timedelta(days=1)
 
         return True
 
@@ -461,7 +459,7 @@ class OrcamentoPeriodo(models.Model):
             if not periodo:
                 return False
 
-            data += datetime.timedelta(days=1)
+            data += timedelta(days=1)
 
         return True
 
@@ -600,7 +598,7 @@ class ValoresTransporte(models.Model):
             if not transporte:
                 return False
 
-            data += datetime.timedelta(days=1)
+            data += timedelta(days=1)
 
         return True
 
@@ -773,6 +771,31 @@ class DadosDePacotes(models.Model):
             periodo_n += 1
 
         return periodos
+
+    def ajustar_periodos(self):
+        """
+        Avança os períodos elegíveis em um ano à frente.
+        """
+        novos_periodos = []
+        periodos = self.periodos_aplicaveis  # Acesso direto ao JSONField, sem json.loads
+
+        for periodo in periodos:
+            novo_periodo = {}
+
+            for key, value in periodo.items():
+                if 'dias' not in key and 'check' not in key:
+                    datas = value.split(" - ")
+                    print(key)
+                    novas_datas = [
+                        (datetime.strptime(data, "%d/%m/%Y") + timedelta(days=365)).strftime("%d/%m/%Y")
+                        for data in datas
+                    ]
+                    novo_periodo[key] = " - ".join(novas_datas)
+                else:
+                    novo_periodo[key] = value
+            novos_periodos.append(novo_periodo)
+
+        return novos_periodos
 
     def montar_dados_periodos(self):
         def unidade_base(periodo, intervalo, lista_dias, check_ins, check_outs):
@@ -1078,7 +1101,7 @@ class Orcamento(models.Model):
 
         while data <= self.check_out:
             datas.append(data.strftime('%d/%m'))
-            data += datetime.timedelta(days=1)
+            data += timedelta(days=1)
 
         return datas
 
@@ -1295,11 +1318,11 @@ class OrcamentosPromocionais(models.Model):
 
             for i, intervalo in enumerate(intervalos):
                 cin, cout = intervalo.split(' - ')
-                i_check_in = datetime.datetime.strptime(cin, '%d/%m/%Y').date()
-                i_check_out = datetime.datetime.strptime(cout, '%d/%m/%Y').date()
-                check_in_formatado = datetime.datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
-                check_out_formatado = datetime.datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
-                dias = [(check_in_formatado + datetime.timedelta(days=i)) for i in
+                i_check_in = datetime.strptime(cin, '%d/%m/%Y').date()
+                i_check_out = datetime.strptime(cout, '%d/%m/%Y').date()
+                check_in_formatado = datetime.strptime(check_in, '%Y-%m-%d %H:%M').date()
+                check_out_formatado = datetime.strptime(check_out, '%Y-%m-%d %H:%M').date()
+                dias = [(check_in_formatado + timedelta(days=i)) for i in
                         range((check_out_formatado - check_in_formatado).days + 1)]
                 dias_da_semana = list(map(lambda day: day.weekday(), dias))
 
@@ -1310,7 +1333,7 @@ class OrcamentosPromocionais(models.Model):
             return False
 
         pacotes = cls.objects.filter(
-            orcamento__data_vencimento__gte=datetime.date.today(),
+            orcamento__data_vencimento__gte=datetime.today().date(),
             orcamento__previa=False,
             liberados_para_venda=True,
             dados_pacote__tipos_de_pacote_elegivel_id=int(id_tipo_pacote) if id_tipo_pacote != '' else 0

@@ -1,3 +1,6 @@
+import json
+from datetime import timedelta, datetime
+
 from django.db.models.functions import Cast
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
@@ -9,7 +12,7 @@ from django_admin_search.admin import AdvancedSearchAdmin
 
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote
+    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes
 
 from django.forms import ModelForm, Form
 from django.forms import DateField, CharField, ChoiceField, TextInput
@@ -102,6 +105,65 @@ class DuplicarEmMassaAdmin(admin.ModelAdmin):
         })
 
 
+@admin.action(description="Duplicar Orçamentos Promocionais (avançar períodos e vencimento em 1 ano)")
+def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
+    for orcamento_promocional in queryset:
+        orcamento = orcamento_promocional.orcamento
+        dados_pacote = orcamento_promocional.dados_pacote
+
+        # Duplicar DadosDePacotes com períodos ajustados
+        novos_periodos = dados_pacote.ajustar_periodos()
+        novo_dados_pacote = DadosDePacotes.objects.create(
+            nome_do_pacote=dados_pacote.nome_do_pacote,
+            minimo_de_pagantes=dados_pacote.minimo_de_pagantes,
+            tipos_de_pacote_elegivel=dados_pacote.tipos_de_pacote_elegivel,
+            monitoria_fechado=dados_pacote.monitoria_fechado,
+            transporte_fechado=dados_pacote.transporte_fechado,
+            opcionais_fechado=dados_pacote.opcionais_fechado,
+            cortesia=dados_pacote.cortesia,
+            regra_cortesia=dados_pacote.regra_cortesia,
+            periodos_aplicaveis=novos_periodos,
+            descricao=dados_pacote.descricao,
+        )
+
+        # Duplicar Orcamento com data de vencimento ajustada
+        novo_orcamento = Orcamento.objects.create(
+            apelido=orcamento.apelido,
+            check_in=orcamento.check_in + timedelta(days=365),
+            check_out=orcamento.check_out + timedelta(days=365),
+            tipo_de_pacote=orcamento.tipo_de_pacote,
+            tipo_monitoria=orcamento.tipo_monitoria,
+            transporte=orcamento.transporte,
+            desconto=0,
+            valor=orcamento.valor,
+            colaborador=orcamento.colaborador,
+            observacoes=orcamento.observacoes,
+            promocional=True,
+            status_orcamento=orcamento.status_orcamento,
+            objeto_orcamento=orcamento.objeto_orcamento,
+            objeto_gerencia=orcamento.objeto_gerencia,
+            previa=False,
+            data_preenchimento=datetime.today().date(),
+            data_ultima_edicao=datetime.today().date(),
+            data_vencimento=orcamento.data_vencimento + timedelta(days=365),
+        )
+        data_pagamento_antigo = datetime.strptime(novo_orcamento.objeto_gerencia['data_pagamento'], '%Y-%m-%d')
+        data_vencimento_antigo = datetime.strptime(novo_orcamento.objeto_gerencia['data_vencimento'], '%Y-%m-%d')
+        novo_orcamento.objeto_gerencia['data_pagamento'] = (data_pagamento_antigo + timedelta(days=365)).strftime('%Y-%m-%d')
+        novo_orcamento.objeto_gerencia['data_vencimento'] = (data_vencimento_antigo + timedelta(days=365)).strftime('%Y-%m-%d')
+        novo_orcamento.save()
+        novo_orcamento.opcionais.set(orcamento.opcionais.all())
+
+        # Criar novo OrcamentosPromocionais
+        OrcamentosPromocionais.objects.create(
+            dados_pacote=novo_dados_pacote,
+            orcamento=novo_orcamento,
+            liberados_para_venda=orcamento_promocional.liberados_para_venda,
+        )
+    modeladmin.message_user(request, "Duplicação concluída com sucesso!")
+
+
+
 @admin.register(HorariosPadroes)
 class HorariosPadroesAdmin(admin.ModelAdmin):
     list_display = ('refeicao', 'tipo', 'hora', 'horario_final', 'descritivo')
@@ -136,6 +198,7 @@ class OrcamentoAdmin(admin.ModelAdmin):
 @admin.register(OrcamentosPromocionais)
 class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'valor_base', 'validade')
+    actions = [duplicar_orcamentos_promocionais]
 
 
 @admin.register(TaxaPeriodo)
