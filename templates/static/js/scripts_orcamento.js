@@ -556,8 +556,16 @@ async function verificar_pisos_e_tetos() {
     })
 }
 
+async function soma_descontos_pacote() {
+    const desconto_percent = (parseFloat($('#desconto_produto_percent').val().replace(',', '.').replace('%',''))) / 100
+    const desconto_real = parseFloat($('#desconto_produto_real').val().replace(',', '.'))
+    const valor_diaria = resultado_ultima_consulta['data']['valores']['diaria']['valor']
+
+    return desconto_real + (valor_diaria * desconto_percent)
+}
+
 async function teto_desconto() {
-    return await new Promise((resolve, reject) => {
+    return await new Promise(async (resolve, reject) => {
         $('#aviso_comentario_gerencia').addClass('none')
         let teto_percent
 
@@ -568,10 +576,11 @@ async function teto_desconto() {
             teto_percent = teto_percent / 100
         }
 
+        let descontos_pacote = await soma_descontos_pacote()
         const comissao_percent = parseFloat($('#comissao').val().replace(',', '.').replace('%', ''))
         const taxa_percent = parseFloat($('#taxa_comercial').val().replace(',', '.').replace('%', ''))
         const valor = resultado_ultima_consulta['data']['valores']['diaria']['valor']
-        let valor_final = valor / (1 - ((parseFloat(comissao_percent) + parseFloat(taxa_percent)) / 100))
+        let valor_final = (valor - descontos_pacote) / (1 - ((parseFloat(comissao_percent) + parseFloat(taxa_percent)) / 100))
         const desconto = parseFloat($('#desconto_geral').val().replace(',', '.'))
         let desconto_permitido = (teto_percent * valor_final).toFixed(2);
 
