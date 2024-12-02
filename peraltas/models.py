@@ -518,7 +518,7 @@ class FichaDeEvento(models.Model):
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True,
                                                   verbose_name='Perfíl dos participantes')
     refeicoes = models.JSONField(blank=True, null=True, verbose_name='Refeições')
-    observacoes_refeicoes = models.TextField(blank=True, null=True, verbose_name='Observações das refeições')
+    observacoes_refeicoes = models.TextField(verbose_name='Observações das refeições')
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True,
                                               verbose_name='Informações adicionais')
     observacoes = models.TextField(blank=True, verbose_name='Observações')

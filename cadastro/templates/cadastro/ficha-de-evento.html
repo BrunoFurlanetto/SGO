@@ -338,15 +338,7 @@
                             style="margin-left: 5px; margin-top: -15px">
                         <span><i class='bx bxs-plus-circle'></i></span>
                     </button>
-                    <div class="form-group form-check form-switch mb-3 mt-3">
-                        <input type="checkbox" class="form-check-input switch"
-                                {% if ficha_de_evento and ficha_de_evento.observacoes_refeicoes %}
-                               checked {% endif %} onChange="obs()">
-                        <label class="form-check-label">Observações</label>
-                    </div>
-                    <div id="observacoes_refeicoes"
-                            {% if not ficha_de_evento or not ficha_de_evento.observacoes_refeicoes %}
-                         class="none" {% endif %}>
+                    <div class="mb-3 mt-3">                                            
                         <label>Observações</label>
                         {{ form.observacoes_refeicoes }}
                     </div>

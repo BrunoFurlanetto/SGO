@@ -262,10 +262,6 @@ function pegar_horario_padrao(check_in, check_out) {
     }
 }
 
-function obs() {
-    $('#observacoes_refeicoes').toggleClass('none')
-}
-
 function add_refeicao(data = null) {
     let i = document.querySelectorAll('.linha').length
     $('#corpo-tabela-refeicao').append(`<tr class="linha" id="linha_${i + 1}"></tr>`)
