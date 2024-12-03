@@ -38,10 +38,14 @@ def dashboard(request):
 
 def salvar_visualizacao_cozinheiro(request):
     try:
-        RegistroVisualizacoes.objects.get_or_create(usuario=request.user, defaults={
-            'usuario': request.user,
-            'data_refeicoes': datetime.strptime(request.POST.get('data_refeicoes'), '%Y-%m-%d'),
-        })
+        RegistroVisualizacoes.objects.get_or_create(
+            usuario=request.user,
+            data_refeicoes=datetime.strptime(request.POST.get('data_refeicoes'), '%Y-%m-%d').date(),
+            defaults={
+                'usuario': request.user,
+                'data_refeicoes': datetime.strptime(request.POST.get('data_refeicoes'), '%Y-%m-%d'),
+            }
+        )
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ao salvar a sua visualização ({e}), por favor tente novamente mais tarde!')
         return redirect('dashboard')
