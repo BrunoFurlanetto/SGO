@@ -146,6 +146,12 @@ USE_TZ = True
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d %B %Y']
 
+DATE_FORMAT = 'd/m/Y'  # TODO: Verificar sempre como as datas estão ficando
+
+TIME_FORMAT = 'H:i'
+
+DATETIME_FORMAT = 'm/d/Y H:i'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

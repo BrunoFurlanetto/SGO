@@ -276,10 +276,17 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="botoes">
-                <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %} class="btn btn-primary">Visto</button>
-            </div>
+            {% if not visto %}
+                <div class="botoes">
+                    <form action="{% url 'salvar_visualizacao_cozinheiro' %}" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="data_refeicoes" value="{{ data | date:'Y-m-d' }}">
+                            <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %} class="btn btn-primary">Visto</button>
+                        </fieldset>
+                    </form>
+                </div>
+            {% endif %}
         {% elif data and not eventos %}
             <p class="alert alert-info w-100 text-center">Nenhum evento cadastrado para o
                 dia {{ data|date:'d/m/Y' }}</p>

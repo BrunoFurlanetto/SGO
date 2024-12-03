@@ -48,6 +48,12 @@ class RegistroVisualizacoes(models.Model):
     def __str__(self):
         return f'Visualização das refeições de {self.usuario.get_full_name()}'
 
+    def nome_cozinheiro(self):
+        return self.usuario.get_full_name()
+
+    class Meta:
+        verbose_name_plural = 'Registro de visualizações'
+
 
 class Cozinheiro(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)

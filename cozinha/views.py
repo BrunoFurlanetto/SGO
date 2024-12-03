@@ -8,7 +8,7 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from cozinha.models import HorarioRefeicoes
+from cozinha.models import HorarioRefeicoes, RegistroVisualizacoes
 # from cozinha.models import Relatorio, RelatorioDia
 from peraltas.models import FichaDeEvento, EscalaAcampamento
 
@@ -34,6 +34,20 @@ def dashboard(request):
     return render(request, 'cozinha/dashboard_cozinha.html', {
         'relatorios_refeicoes': dados_eventos,
     })
+
+
+def salvar_visualizacao_cozinheiro(request):
+    try:
+        RegistroVisualizacoes.objects.get_or_create(usuario=request.user, defaults={
+            'usuario': request.user,
+            'data_refeicoes': datetime.strptime(request.POST.get('data_refeicoes'), '%Y-%m-%d'),
+        })
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ao salvar a sua visualização ({e}), por favor tente novamente mais tarde!')
+        return redirect('dashboard')
+
+    messages.success(request, 'Visualização das refeições salva com sucesso!')
+    return redirect('dashboard')
 
 
 # def verificar_relatorios_dia(request, data):
@@ -175,7 +189,8 @@ def ver_relatorio_dia_cozinha(request, data):
     return render(request, 'cozinha/cadastro_relatorio_cozinha_dia.html', {
         'eventos': FichaDeEvento.separar_refeicoes(data_datetime),
         'data': data_datetime,
-        'horarios_refeicoes': HorarioRefeicoes.horarios()
+        'horarios_refeicoes': HorarioRefeicoes.horarios(),
+        'visto': RegistroVisualizacoes.objects.filter(usuario=request.user, data_refeicoes=data_datetime).exists(),
     })
 
 

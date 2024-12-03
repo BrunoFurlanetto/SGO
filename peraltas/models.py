@@ -603,7 +603,7 @@ class FichaDeEvento(models.Model):
 
             if ficha.escala:
                 numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque)
-            print(ficha.refeicoes)
+
             eventos.append({
                 'id': ficha.id,
                 'cliente': ficha.cliente,
