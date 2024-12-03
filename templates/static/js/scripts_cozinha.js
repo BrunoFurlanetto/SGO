@@ -30,13 +30,16 @@ function adicionar_refeicao(celula_pai) {
 function zerar_refeicao_grupo(celula_pai) {
     const refeicao_data_evento = celula_pai.className
     $(`.${refeicao_data_evento} input`).prop('disabled', true)
+    $(celula_pai).addClass('disabled')
     $(`.${refeicao_data_evento} button`).toggleClass('none')
     atualizar_totais(refeicao_data_evento.split('-')[0])
 }
 
 function adicionar_refeicao_grupo(celula_pai) {
-    const refeicao_data_evento = celula_pai.className
+    console.log(celula_pai)
+    const refeicao_data_evento = celula_pai.className.split(' ')[0]
     $(`.${refeicao_data_evento} input`).prop('disabled', false)
+    $(celula_pai).removeClass('disabled')
     $(`.${refeicao_data_evento} button`).toggleClass('none')
     atualizar_totais(refeicao_data_evento.split('-')[0])
 }

@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
-from cozinha.models import RelatorioDia, Relatorio
+# from cozinha.models import RelatorioDia, Relatorio
 from painelDiretoria.models import Metas
 from peraltas.models import Eventos, ProdutosPeraltas, EscalaAcampamento
 from projetoCEU.utils import is_ajax
@@ -116,8 +116,8 @@ def infos_produtos_estagios(request):
 
 
 def cozinha(request):
-    relatorios_dia = RelatorioDia.objects.all()
-    relatorios_evento = Relatorio.objects.all()
+    # relatorios_dia = RelatorioDia.objects.all()
+    # relatorios_evento = Relatorio.objects.all()
     dados_relatorios = []
     refecioes_eventos = []
 

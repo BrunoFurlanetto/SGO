@@ -15,10 +15,8 @@ function montar_agenda_cozinha(eventos, permissao_adicao_relatorios) {
         handleWindowResize: true,
         navLinks: true,
         navLinkDayClick: function (date, jsEvent) {
-            if (permissao_adicao_relatorios == 'True') {
-                const data = date.toISOString().split('T')[0];
-                window.location.href = `/cozinha/verificar_relatorios_dia/${data}`
-            }
+            const data = date.toISOString().split('T')[0];
+            window.location.href = `/cozinha/visualizar/relatorio/dia/${data}`
         },
         events: eventos,
     })

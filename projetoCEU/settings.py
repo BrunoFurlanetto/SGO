@@ -90,11 +90,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries':  {
-                            'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
-                            'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
-                            'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
-                            'custom_tag': 'orcamento.templatestags.custom_tag'
-                        }
+                'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
+                'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
+                'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
+                'custom_tag': 'orcamento.templatestags.custom_tag',
+            }
         },
     },
 ]
