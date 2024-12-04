@@ -12,18 +12,17 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
                              TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm, EnfermeiraAdminForm)
 from peraltas.models import Vendedor
-from django.db import models
 
 from peraltas.resources import EventosResource
 
 
-class CustomDateInput(DateInput):
-    input_type = 'date'
-    format = '%d/%m/%Y'
-
-    def __init__(self, *args, **kwargs):
-        kwargs['format'] = self.format
-        super().__init__(*args, **kwargs)
+# class CustomDateInput(DateInput):
+#     input_type = 'date'
+#     format = '%d/%m/%Y'
+#
+#     def __init__(self, *args, **kwargs):
+#         kwargs['format'] = self.format
+#         super().__init__(*args, **kwargs)
 
 
 @admin.register(TipoAtividade)
@@ -118,27 +117,27 @@ class EmpresaOnibusAdmin(admin.ModelAdmin):
 
 @admin.register(FichaDeEvento)
 class FichaDeEventoAdmin(admin.ModelAdmin):
-    list_display = ('cliente', 'vendedora', 'check_in_formatado', 'check_out_formatado', 'qtd_convidada',
-                    'data_preenchimento_formatado')
+    list_display = ('cliente', 'vendedora', 'check_in', 'check_out', 'qtd_convidada',
+                    'data_preenchimento')
     list_filter = ('pre_reserva', 'data_preenchimento', 'check_in')
     search_fields = ('cliente__nome_fantasia', 'vendedora__usuario__first_name', 'vendedora__usuario__last_name')
     ordering = ('-check_in',)
 
-    def check_in_formatado(self, obj):
-        return obj.check_in.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
-
-    def check_out_formatado(self, obj):
-        return obj.check_out.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
-
-    def data_preenchimento_formatado(self, obj):
-        try:
-            return obj.data_preenchimento.strftime("%d/%m/%Y")  # Formato de data desejado
-        except AttributeError:
-            return ''
-
-    check_in_formatado.short_description = 'Check in'
-    check_out_formatado.short_description = 'Check out'
-    data_preenchimento_formatado.short_description = 'Data de preenchimento'
+    # def check_in_formatado(self, obj):
+    #     return obj.check_in.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+    #
+    # def check_out_formatado(self, obj):
+    #     return obj.check_out.strftime("%d/%m/%Y %H:%M")  # Formato de data desejado
+    #
+    # def data_preenchimento_formatado(self, obj):
+    #     try:
+    #         return obj.data_preenchimento.strftime("%d/%m/%Y")  # Formato de data desejado
+    #     except AttributeError:
+    #         return ''
+    #
+    # check_in_formatado.short_description = 'Check in'
+    # check_out_formatado.short_description = 'Check out'
+    # data_preenchimento_formatado.short_description = 'Data de preenchimento'
 
 
 @admin.register(ProdutosPeraltas)
@@ -307,8 +306,8 @@ class EventosCanceladosAdmin(admin.ModelAdmin):
 class EventosAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = EventosResource
     list_display = (
-        'cliente', 'colaborador', 'data_check_in_formatado', 'hora_check_in_formatado', 'data_check_out_formatado',
-        'hora_check_out_formatado', 'qtd_previa', 'qtd_confirmado', 'data_preenchimento_formatado', 'estagio_evento',
+        'cliente', 'colaborador', 'data_check_in', 'hora_check_in', 'data_check_out',
+        'hora_check_out', 'qtd_previa', 'qtd_confirmado', 'data_preenchimento', 'estagio_evento',
         'codigo_pagamento', 'produto_peraltas', 'produto_corporativo', 'tipo_evento', 'dias_evento', 'adesao_formatado',
         'veio_ano_anterior'
     )
@@ -330,26 +329,26 @@ class EventosAdmin(ExportMixin, admin.ModelAdmin):
             # Se a conversão falhar, retorne o termo de pesquisa original
             return search_term
 
-    def data_check_in_formatado(self, obj):
-        return obj.data_check_in.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def data_check_out_formatado(self, obj):
-        return obj.data_check_out.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    def hora_check_in_formatado(self, obj):
-        return obj.hora_check_in.strftime("%H:%M")  # Formato de data desejado
-
-    def hora_check_out_formatado(self, obj):
-        return obj.hora_check_out.strftime("%H:%M")  # Formato de data desejado
-
-    def data_preenchimento_formatado(self, obj):
-        return obj.data_preenchimento.strftime("%d/%m/%Y")  # Formato de data desejado
-
-    data_check_in_formatado.short_description = 'Data check in'
-    data_check_out_formatado.short_description = 'Data check out'
-    hora_check_in_formatado.short_description = 'Hora check in'
-    hora_check_out_formatado.short_description = 'Hora check out'
-    data_preenchimento_formatado.short_description = 'Data preenchimento'
+    # def data_check_in_formatado(self, obj):
+    #     return obj.data_check_in.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def data_check_out_formatado(self, obj):
+    #     return obj.data_check_out.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # def hora_check_in_formatado(self, obj):
+    #     return obj.hora_check_in.strftime("%H:%M")  # Formato de data desejado
+    #
+    # def hora_check_out_formatado(self, obj):
+    #     return obj.hora_check_out.strftime("%H:%M")  # Formato de data desejado
+    #
+    # def data_preenchimento_formatado(self, obj):
+    #     return obj.data_preenchimento.strftime("%d/%m/%Y")  # Formato de data desejado
+    #
+    # data_check_in_formatado.short_description = 'Data check in'
+    # data_check_out_formatado.short_description = 'Data check out'
+    # hora_check_in_formatado.short_description = 'Hora check in'
+    # hora_check_out_formatado.short_description = 'Hora check out'
+    # data_preenchimento_formatado.short_description = 'Data preenchimento'
 
     search_fields = (
         'cliente__nome_fantasia',

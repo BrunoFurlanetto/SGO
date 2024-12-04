@@ -322,9 +322,6 @@
                         <li><a class="link_name">Estatísticas</a></li>
                             <li><a href="{% url 'painel_diretoria' %}">Eventos</a></li>
                             <li><a href="{% url 'estatisticas_monitoria' %}">Monitoria</a></li>
-                            {% if perms.cozinha.ver_descritivo_refeicoes %}
-                                <li><a href="{% url 'cozinha' %}">Cozinha</a></li>
-                            {% endif %}
                     </ul>
                 {% endif %}
 
@@ -367,10 +364,6 @@
                         <ul class="sub-menu">
                             <li><a class="link_name">Cozinha</a></li>
                             <li><a href="{% url 'dashboard_cozinha' %}">Agenda</a></li>
-                            {% if perms.cozinha.add_relatorio %}
-                                <li><a href="{% url 'cadastro_relatorio_cozinha' %}">Cadastrar evento</a></li>
-                                <li><a href="{% url 'cadastro_relatorio_dia_cozinha' %}">Cadastrar dia</a></li>
-                            {% endif %}
                         </ul>
                     {% endif %}
                 </li>

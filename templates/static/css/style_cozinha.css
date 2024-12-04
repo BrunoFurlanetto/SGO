@@ -148,8 +148,9 @@ input {
     min-width: 80px;
 }
 
-#cadastro_relatorio_dia table input[disabled]:not(.grupo), #dados_refeicoes_evento table input[disabled]{
-    color: #e3dbdb;
+#cadastro_relatorio_dia table input[disabled]:not(.grupo), #dados_refeicoes table tbody tr.disabled td input,
+#dados_refeicoes table tbody tr.disabled, #cadastro_relatorio_dia table td.disabled {
+    color: transparent !important;
 }
 
 .btn_zerar_refeicao {
@@ -166,4 +167,9 @@ input {
     font-size: 22px;
     margin-left: 10px;
     color: #2cd32c;
+}
+
+#cadastro_relatorio_dia #obs {
+     white-space: normal !important;
+    text-align: justify;
 }

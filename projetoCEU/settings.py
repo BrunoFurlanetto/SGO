@@ -90,11 +90,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries':  {
-                            'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
-                            'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
-                            'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
-                            'custom_tag': 'orcamento.templatestags.custom_tag'
-                        }
+                'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
+                'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
+                'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
+                'custom_tag': 'orcamento.templatestags.custom_tag',
+            }
         },
     },
 ]
@@ -145,6 +145,12 @@ USE_L10N = False
 USE_TZ = True
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d %B %Y']
+
+DATE_FORMAT = 'd/m/Y'  # TODO: Verificar sempre como as datas estão ficando
+
+TIME_FORMAT = 'H:i'
+
+DATETIME_FORMAT = 'm/d/Y H:i'
 
 
 # Static files (CSS, JavaScript, Images)

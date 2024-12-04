@@ -269,12 +269,13 @@ function add_refeicao(data = null) {
 
     $(linha).append(`<td><input type="date" class="data" name="data_refeicao_${i + 1}" style="width:  180px" value="${data}"></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input cafe" id="cafe_${i + 1}" name="cafe_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    if (evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i + 1}" name="coffee_m_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (!evento_corporativo) $(linha).append(`<td class="lanches"><center><input type="checkbox" class="form-check-input lanche_m" id="lanche_m_${i + 1}" name="lanche_m_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (evento_corporativo) $(linha).append(`<td class="coffees"><center><input type="checkbox" class="form-check-input coffee_m" id="coffee_m_${i + 1}" name="coffee_m_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input almoco" id="almoco_${i + 1}" name="almoco_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    if (!evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_t" id="lanche_t_${i + 1}" name="lanche_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    if (evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i + 1}" name="coffee_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (!evento_corporativo) $(linha).append(`<td class="lanches"><center><input type="checkbox" class="form-check-input lanche_t" id="lanche_t_${i + 1}" name="lanche_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (evento_corporativo) $(linha).append(`<td class="coffees"><center><input type="checkbox" class="form-check-input coffee_t" id="coffee_t_${i + 1}" name="coffee_t_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><input type="checkbox" class="form-check-input jantar" id="jantar_${i + 1}" name="jantar_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
-    if (!evento_corporativo) $(linha).append(`<td><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i + 1}" name="lanche_n_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
+    if (!evento_corporativo) $(linha).append(`<td class="lanches"><center><input type="checkbox" class="form-check-input lanche_n" id="lanche_n_${i + 1}" name="lanche_n_${i + 1}" style="width: 5px; height: 5px"></center></td>`)
     $(linha).append(`<td><center><button class="buton-x-ref" id="btn-ref_${i + 1}" type="button" onClick="remover_dia_refeicao(this)"><span><i class='bx bx-x'></i></span></button></center></td>`)
 }
 

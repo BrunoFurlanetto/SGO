@@ -20,6 +20,7 @@ from import_export.fields import Field
 from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
+from cozinha.models import HorarioRefeicoes
 
 
 def atribuir_diretoria_vendedor():
@@ -582,212 +583,41 @@ class FichaDeEvento(models.Model):
 
         return soma_adultos + (self.qtd_professores if self.qtd_professores else 0)
 
-    # -------------------------------- Funçõs do para o LOG das fichas de evento ---------------------------------------
+    def verificar_refeicao(self, data, refeicao):
+        for data_ref, refeicoes in self.refeicoes.items():
+            if data_ref == data and refeicao in refeicao in refeicoes:
+                return True
+
+        return False
+
     @classmethod
-    def logs_de_alteracao(cls):
-        dados_alterados = []
-
-        pre_alteracoes = (
-            Version.objects
-            .get_for_model(cls)
-            .select_related('revision')
-            .order_by('-revision__date_created')[:100]
+    def separar_refeicoes(cls, data):
+        fichas = cls.objects.filter(
+            check_in__date__lte=data,
+            check_out__date__gte=data,
         )
+        eventos = []
 
-        versoes_agrupadas = cls.__agrupar_versoes(pre_alteracoes)
-        # cls.teste()
+        for ficha in fichas:
+            numero_monitores = 0
 
-        for obj, versoes in versoes_agrupadas.items():
-            campos_alterados = []
+            if ficha.escala:
+                numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque.all())
 
-            if obj == 'excluidas':
-                for versao in versoes:
-                    motivo_cancelamento = cls.__pegar_motivo_cancelamento(versao.field_dict['cliente_id'])
-                    dados_alterados.append({
-                        'ficha': {
-                            'ficha': versao,
-                            'id_ficha': '',
-                        },
-                        'campos_alterados': 'excluido',
-                        'motivo': motivo_cancelamento,
-                        'colaborador': versao.revision.user.get_full_name() if versao.revision.user else '',
-                        'data_e_hora': timezone.localtime(versao.revision.date_created).strftime('%d/%m/%Y às %H:%M')
-                    })
+            eventos.append({
+                'id': ficha.id,
+                'cliente': ficha.cliente,
+                'produto': ficha.produto,
+                'check_in': ficha.check_in,
+                'check_out': ficha.check_out,
+                'numero_adultos': ficha.numero_adultos(),
+                'numero_criancas': ficha.numero_criancas(),
+                'numero_monitores': numero_monitores,
+                'refeicoes': ficha.refeicoes[data.strftime('%Y-%m-%d')],
+                'obs': ficha.observacoes_refeicoes,
+            })
 
-                continue
-
-            if len(versoes) == 1 or (versoes[1].field_dict['pre_reserva'] and not versoes[0].field_dict['pre_reserva']):
-                versao = versoes[0]
-
-                dados_alterados.append({
-                    'ficha': {
-                        'ficha': versao,
-                        'id_ficha': versao.object.id,
-                    },
-                    'campos_alterados': '',
-                    'colaborador': versao.revision.user.get_full_name() if versao.revision.user else '',
-                    'data_e_hora': timezone.localtime(versao.revision.date_created).strftime('%d/%m/%Y às %H:%M')
-                })
-            else:
-                versao_atual = versoes[0]
-                versao_anterior = versoes[1]
-
-                campos_alterados.extend(cls.__comparar_campos_simples(versao_atual, versao_anterior))
-                campos_alterados.extend(cls.__comparar_many_to_many(versao_atual, versao_anterior))
-
-                dados_alterados.append({
-                    'ficha': {
-                        'ficha': versao_atual.object,
-                        'id_ficha': versao_atual.object.id,
-                    },
-                    'campos_alterados': campos_alterados,
-                    'colaborador': versao_atual.revision.user.get_full_name(),
-                    'data_e_hora': timezone.localtime(versao_atual.revision.date_created).strftime(
-                        '%d/%m/%Y às %H:%M')
-                })
-
-        return dados_alterados
-
-    @staticmethod
-    def __pegar_motivo_cancelamento(id_cliente):
-        cliente = ClienteColegio.objects.get(pk=id_cliente)
-        evento_cancelado = EventosCancelados.objects.filter(cnpj_cliente=cliente.cnpj).last()
-
-        return evento_cancelado.motivo_cancelamento
-
-    @staticmethod
-    def teste():
-        pre_alteracoes = (
-            Version.objects
-            .get_for_model(FichaDeEvento)
-            .select_related('revision')
-            .order_by('-revision__date_created')[1]
-        )
-
-        previous_version = pre_alteracoes.revision.get_previous()
-        diff = pre_alteracoes.difference()
-
-        print(diff)
-
-    @staticmethod
-    def __agrupar_versoes(pre_alteracoes):
-        versoes_agrupadas = defaultdict(list)
-        excluidas = []
-
-        for versao in pre_alteracoes:
-            try:
-                ficha = versao.content_type.get_object_for_this_type(pk=versao.object_id)
-            except ObjectDoesNotExist:
-                ...
-            else:
-                if versao not in versoes_agrupadas['excluidas']:
-                    if not ficha.pre_reserva and versao.revision.user and len(versoes_agrupadas) < 10:
-                        versoes_agrupadas[ficha].append(versao)
-
-        versoes_agrupadas['excluidas'] = excluidas
-
-        for obj, versoes in versoes_agrupadas.items():
-            versoes_agrupadas[obj] = nlargest(2, versoes, key=lambda x: x.revision.date_created)
-
-        return versoes_agrupadas
-
-    @staticmethod
-    def __comparar_campos_simples(versao_atual, versao_anterior):
-        campos_alterados = []
-
-        for campo in versao_atual.object.get_all_fields():
-            if versao_atual.object.get_field_type(campo) == 'ForeignKey':
-                valor_anterior = versao_anterior.field_dict[f'{campo}_id']
-                valor_atual = versao_atual.field_dict[f'{campo}_id']
-
-                if campo == 'vendedora':
-                    valor_anterior = Vendedor.objects.get(pk=valor_anterior).usuario.get_full_name()
-                    valor_atual = Vendedor.objects.get(pk=valor_atual).usuario.get_full_name()
-            else:
-                valor_anterior = versao_anterior.field_dict[campo]
-                valor_atual = versao_atual.field_dict[campo]
-
-            if valor_anterior != valor_atual:
-                campo_alterado = {
-                    'campo': {
-                        'nome_campo': versao_atual.object.get_field_verbose_name(campo),
-                        'valor_anterior': valor_anterior,
-                        'novo_valor': valor_atual,
-                        'tipo_campo': versao_atual.object.get_field_type(campo)
-                    }
-                }
-
-                campos_alterados.append(campo_alterado)
-
-        return campos_alterados
-
-    @staticmethod
-    def __comparar_many_to_many(versao_atual, versao_anterior):
-        campos_alterados = []
-        campos_m2m = versao_atual.object._meta.many_to_many
-
-        for campo in campos_m2m:
-            campo_nome = campo.name
-            campo_verbose_name = campo.verbose_name
-            campo_tipo = campo.remote_field.model.__name__
-
-            if campo_nome not in versao_atual.field_dict or campo_nome not in versao_anterior.field_dict:
-                continue
-
-            ids_anterior = versao_anterior.field_dict[campo_nome]
-            ids_atual = versao_atual.field_dict[campo_nome]
-
-            valores_anterior = []
-            valores_atual = []
-
-            if ids_anterior != ids_atual:
-                model_class = campo.remote_field.model
-
-                if len(ids_atual) > 0:
-                    objetos_atual = model_class.objects.filter(pk__in=ids_atual)
-                    valores_atual = [str(objeto) for objeto in objetos_atual]
-
-                if len(ids_anterior) > 0:
-                    objetos_anterior = model_class.objects.filter(pk__in=ids_anterior)
-                    valores_anterior = [str(objeto) for objeto in objetos_anterior]
-
-                campo_alterado = {
-                    'campo': {
-                        'nome_campo': campo_verbose_name,
-                        'valor_anterior': ', '.join(valores_anterior) if valores_anterior else '"Vazio"',
-                        'novo_valor': ', '.join(valores_atual) if valores_atual else '"Vazio"',
-                        'tipo_campo': campo_tipo
-                    }
-                }
-
-                campos_alterados.append(campo_alterado)
-
-        return campos_alterados
-
-    @staticmethod
-    def __comparar_json_field(versao_atual, versao_anterior):
-        campos_alterados = []
-
-        for campo in versao_atual.object.get_all_fields():
-            if versao_atual.object.get_field_type(campo) == 'JSONField':
-                valor_anterior = versao_anterior.field_dict[campo]
-                valor_atual = versao_atual.field_dict[campo]
-
-                if valor_atual != valor_anterior:
-                    campo_alterado = {
-                        'campo': {
-                            'nome_campo': campo,
-                            'valor_anterior': '',
-                            'novo_valor': '',
-                            'tipo_campo': 'JSONField'
-                        }
-                    }
-
-                    campos_alterados.append(campo_alterado)
-
-            return campos_alterados
-
-    # ------------------------------------------------------------------------------------------------------------------
+        return eventos
 
     def tabelar_refeicoes(self):
         dados = []
@@ -796,13 +626,14 @@ class FichaDeEvento(models.Model):
             dados_refeicoes = []
 
             dados_refeicoes = [
-                'Café' in self.refeicoes[dia],
-                'Coffee manhã' in self.refeicoes[dia],
-                'Almoço' in self.refeicoes[dia],
-                'Lanche tarde' in self.refeicoes[dia],
-                'Coffee tarde' in self.refeicoes[dia],
-                'Jantar' in self.refeicoes[dia],
-                'Lanche noite' in self.refeicoes[dia],
+                'cafe_manha' in self.refeicoes[dia],
+                'lanche_manha' in self.refeicoes[dia],
+                'coffee_manha' in self.refeicoes[dia],
+                'almoco' in self.refeicoes[dia],
+                'lanche_tarde' in self.refeicoes[dia],
+                'coffee_tarde' in self.refeicoes[dia],
+                'jantar' in self.refeicoes[dia],
+                'lanche_noite' in self.refeicoes[dia],
             ]
 
             dados.append({'dia': dia, 'refeicoes': dados_refeicoes})
@@ -815,13 +646,13 @@ class FichaDeEvento(models.Model):
         for dia in self.refeicoes:
             dados_refeicoes = []
 
-            dados_refeicoes.append('Café da manhã') if 'Café' in self.refeicoes[dia] else ...
-            dados_refeicoes.append('Coffee manhã') if 'Coffee manhã' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Café da manhã') if 'cafe_manha' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Coffee manhã') if 'coffee_manha' in self.refeicoes[dia] else ...
             dados_refeicoes.append('Almoço') if 'Almoço' in self.refeicoes[dia] else ...
-            dados_refeicoes.append('Lanche da tarde') if 'Lanche tarde' in self.refeicoes[dia] else ...
-            dados_refeicoes.append('Coffee tarde') if 'Coffee tarde' in self.refeicoes[dia] else ...
-            dados_refeicoes.append('Jantar') if 'Jantar' in self.refeicoes[dia] else ...
-            dados_refeicoes.append('Lanche da noite') if 'Lanche noite' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Lanche da tarde') if 'lanche_tarde' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Coffee tarde') if 'coffee_tarde' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Jantar') if 'jantar' in self.refeicoes[dia] else ...
+            dados_refeicoes.append('Lanche da noite') if 'lanche_noite' in self.refeicoes[dia] else ...
 
             dados.append({'dia': dia, 'refeicoes': ', '.join(dados_refeicoes)})
 
