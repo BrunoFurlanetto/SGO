@@ -14,24 +14,8 @@
         <div id="dados_do_evento">
             <div id="ficha_de_evento">
                 <label for="fichas_evento">Evento</label>
-                <form action="{% url 'cadastro_relatorio_cozinha' %}" method="GET">
-                    <fieldset>
-                        {% if not editando %}
-                        	<select name="fichas_de_evento" id="fichas_evento" onchange="this.form.submit()">
-                                <option></option>
-                                {% for ficha in fichas_de_evento %}
-                                    <option value="{{ ficha.id }}" {% if ficha.id|safe == request.GET.fichas_de_evento %}
-                                            selected {% endif %}>
-                                        {{ ficha.cliente }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <h5 class="text-center">{{ dados_evento.grupo }}</h5>
-                        {% endif %}
-                    </fieldset>
-                </form>
-            </div>
+                    <h5 class="text-center">{{ dados_evento.grupo }}</h5>
+                </div>
             <hr>
             <div class="{% if not dados_evento %} none {% endif %}">
                 <div id="dados_gerais">
@@ -69,8 +53,7 @@
                     </div>
                     <div>
                         <label for="monitoria">Monitoria</label>
-                        <input name="monitoria" id="monitoria" type="number" value="{{ dados_evento.monitores }}"
-                               {% if editando %} disabled {% endif %}
+                        <input name="monitoria" id="monitoria" type="number" value="{{ dados_evento.monitores }}" readonly
                                onchange="atualizar_participantes()">
                     </div>
                     <div>
@@ -79,264 +62,179 @@
                                value="{{ dados_evento.total }}">
                     </div>
                 </div>
+                <hr>
+                <div>
+                    <label><strong>Observações:</strong></label>
+                    <br>
+                    <div class="px-2" style="text-align: justify">
+                        {{ dados_evento.obs }}
+                    </div>
+                </div>
             </div>
         </div>
         <div class="{% if not dados_evento %} none {% endif %}">
             <hr style="width: 100%">
-            <form action="{% url 'salvar_evento' %}" method="POST">
-                <fieldset id="dados_refeicoes_evento" {% if editando %} disabled {% endif %}>
-                    {% csrf_token %}
-                    {% if editando %}
-                        <input type="hidden" name="id_relatorio" value="{{ relatorio.id }}">
-                    {% endif %}
-                    <input type="hidden" name="id_ficha" {% if not editando %} value="{{ request.GET.fichas_de_evento }}" {% else %} value="{{ dados_evento.id_ficha }}" {% endif %}>
-                    <input type="hidden" name="adultos" value="{{ dados_evento.adultos }}">
-                    <input type="hidden" name="criancas" value="{{ dados_evento.criancas }}">
-                    <input type="hidden" class="total_monitores" name="monitoria" value="{{ dados_evento.monitores }}">
-                    <div id="dados_refeicoes">
-                        <p class="titulo-secao"><strong>Dados das refeições</strong></p>
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                            <tr>
-                                <th></th>
-                                <th>Hora</th>
-                                <th>Adultos</th>
-                                <th>Crianças</th>
-                                <th>Monitoria</th>
-                                <th>Total</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            {% for data in dados_evento.datas %}
-                                <thead>
-                                <tr>
-                                    <th colspan="6">{% if not editando %} {{ data|date:'d/m/Y' }} {% else %} {{ data.data|date:'d/m/Y' }} {% endif %}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <th>Café da manhã</th>
-                                    <td {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} name="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                               {% if editando %} value="{{ data.dados_cafe_da_manha.hora }}" {% endif %}
-                                               {% if editando and not data.dados_cafe_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} name="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_cafe_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} name="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_cafe_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} name="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_cafe_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} name="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                               {% if editando and not data.dados_cafe_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="cafe_manha-{{ data|date:'Y_m_d' }}" {% else %} class="cafe_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_cafe_da_manha.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_cafe_da_manha.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Lanche manhã</th>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                            {% if editando %} value="{{ data.dados_lanche_da_manha.hora }}" {% endif %}
-                                            {% if editando and not data.dados_lanche_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_lanche_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_lanche_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_lanche_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                               {% if editando and not data.dados_lanche_da_manha.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_manha-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_manha-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_lanche_da_manha.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_lanche_da_manha.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Almoço</th>
-                                    <td  {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="almoco-{{ data|date:'Y_m_d' }}" {% else %} name="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                        {% if editando %} value="{{ data.dados_almoco.hora }}" {% endif %}
-                                               {% if editando and not data.dados_almoco.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="almoco-{{ data|date:'Y_m_d' }}" {% else %} name="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_almoco.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="almoco-{{ data|date:'Y_m_d' }}" {% else %} name="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_almoco.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="almoco-{{ data|date:'Y_m_d' }}" {% else %} name="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_almoco.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="almoco-{{ data|date:'Y_m_d' }}" {% else %} name="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                               {% if editando and not data.dados_almoco.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="almoco-{{ data|date:'Y_m_d' }}" {% else %} class="almoco-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_almoco.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_almoco.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Lanche tarde</th>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                        {% if editando %} value="{{ data.dados_lanche_da_tarde.hora }}" {% endif %}
-                                               {% if editando and not data.dados_lanche_da_tarde.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_lanche_da_tarde.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_lanche_da_tarde.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_lanche_da_tarde.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                           {% if editando and not data.dados_lanche_da_tarde.hora %} disabled {% endif %}></td>
-                                    <td {% if not editando %} class="lanche_tarde-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_tarde-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_lanche_da_tarde.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_lanche_da_tarde.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jantar</th>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="jantar-{{ data|date:'Y_m_d' }}" {% else %} name="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                        {% if editando %} value="{{ data.dados_jantar.hora }}" {% endif %}
-                                               {% if editando and not data.dados_jantar.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="jantar-{{ data|date:'Y_m_d' }}" {% else %} name="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_jantar.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="jantar-{{ data|date:'Y_m_d' }}" {% else %} name="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_jantar.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="jantar-{{ data|date:'Y_m_d' }}" {% else %} name="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_jantar.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="jantar-{{ data|date:'Y_m_d' }}" {% else %} name="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                               {% if editando and not data.dados_jantar.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="jantar-{{ data|date:'Y_m_d' }}" {% else %} class="jantar-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_jantar.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_jantar.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Lanche noite</th>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %} type="time"
-                                        {% if editando %} value="{{ data.dados_lanche_da_noite.hora }}" {% endif %}
-                                               {% if editando and not data.dados_lanche_da_noite.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.adultos }}"
-                                               {% if editando and not data.dados_lanche_da_noite.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               value="{{ dados_evento.criancas }}"
-                                               {% if editando and not data.dados_lanche_da_noite.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" readonly
-                                               class="total_monitores"
-                                               value="{{ dados_evento.monitores }}"
-                                               {% if editando and not data.dados_lanche_da_noite.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <input {% if not editando %} name="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} name="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %} type="number" class="total"
-                                               readonly value="{{ dados_evento.total }}"
-                                               {% if editando and not data.dados_lanche_da_noite.hora %} disabled {% endif %}>
-                                    </td>
-                                    <td {% if not editando %} class="lanche_noite-{{ data|date:'Y_m_d' }}" {% else %} class="lanche_noite-{{ data.data|date:'Y_m_d' }}" {% endif %}>
-                                        <button type="button" title="Remover refeição do grupo" onclick="zerar_refeicao_grupo(this.parentNode)"
-                                                class="btn_zerar_refeicao {% if editando and not data.dados_lanche_da_noite.hora %} none {% endif %}">&times;</button>
-                                        <button type="button" title="Adicionar refeição ao grupo" onclick="adicionar_refeicao_grupo(this.parentNode)"
-                                                class="btn_adicionar_refeicao {% if not editando or data.dados_lanche_da_noite.hora %} none {% endif %}">&plus;</button>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </fieldset>
-                {% if perms.cozinha.change_relatorio %}
-                    <div class="botoes">
-                        {% if dados_evento %}
-                            <button type="button" onclick="$('#dados_refeicoes_evento, #btn_salvar_relatorio, #monitoria').prop('disabled', false)" class="btn btn-secondary">Editar</button>
-                        {% endif %}
-                        <button type="submit" id="btn_salvar_relatorio" {% if editando %} disabled {% endif %} class="btn btn-primary">Salvar</button>
-                    </div>
-                {% endif %}
-            </form>
+            <div id="dados_refeicoes">
+                <p class="titulo-secao"><strong>Dados das refeições</strong></p>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Hora</th>
+                        <th>Adultos</th>
+                        <th>Crianças</th>
+                        <th>Monitoria</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    {% for data, refeicoes in dados_evento.refeicoes_data.items %}
+                        <thead>
+                        <tr>
+                            <th colspan="6">{{ data|date:'d/m/Y' }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr {% if 'cafe_manha' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Café da manhã</th>
+                            <td class="cafe_manha-{{ data|date:'Y_m_d' }}">
+                               <nobr>{{ horario_refeicoes.cafe_manha }}</nobr>
+                            </td>
+                            <td class="cafe_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="cafe_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="cafe_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores"
+                                       value="{{ dados_evento.monitores }}">
+                            </td>
+                            <td class="cafe_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="cafe_manha-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                        <tr {% if 'lanche_manha' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Lanche manhã</th>
+                            <td class="lanche_manha-{{ data|date:'Y_m_d' }}">
+                                <nobr>{{ horario_refeicoes.lanche_manha }}</nobr>
+                            </td>
+                            <td class="lanche_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="lanche_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="lanche_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores" value="{{ dados_evento.monitores }}">
+                            </td>
+                            <td class="lanche_manha-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_manha-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                        <tr {% if 'almoco' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Almoço</th>
+                            <td  class="almoco-{{ data|date:'Y_m_d' }}">
+                                <nobr>{{ horario_refeicoes.almoco }}</nobr>
+                            </td>
+                            <td class="almoco-{{ data|date:'Y_m_d' }}">
+                                <input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="almoco-{{ data|date:'Y_m_d' }}">
+                                <input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="almoco-{{ data|date:'Y_m_d' }}">
+                                <input name="almoco-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores"
+                                       value="{{ dados_evento.monitores }}">
+                            </td>
+                            <td class="almoco-{{ data|date:'Y_m_d' }}">
+                                <input name="almoco-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                        <tr {% if 'lanche_tarde' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Lanche tarde</th>
+                            <td class="lanche_tarde-{{ data|date:'Y_m_d' }}">
+                                <nobr>{{ horario_refeicoes.lanche_tarde }}</nobr>
+                            </td>
+                            <td class="lanche_tarde-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="lanche_tarde-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="lanche_tarde-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores"
+                                       value="{{ dados_evento.monitores }}"}>
+                            </td>
+                            <td class="lanche_tarde-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_tarde-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                        <tr {% if 'jantar' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Jantar</th>
+                            <td class="jantar-{{ data|date:'Y_m_d' }}">
+                                <nobr>{{ horario_refeicoes.jantar }}</nobr>
+                            </td>
+                            <td class="jantar-{{ data|date:'Y_m_d' }}">
+                                <input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="jantar-{{ data|date:'Y_m_d' }}">
+                                <input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="jantar-{{ data|date:'Y_m_d' }}">
+                                <input name="jantar-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores"
+                                       value="{{ dados_evento.monitores }}">
+                            </td>
+                            <td class="jantar-{{ data|date:'Y_m_d' }}">
+                                <input name="jantar-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                        <tr {% if 'lanche_noite' not in refeicoes %} class="disabled" {% endif %}>
+                            <th>Lanche noite</th>
+                            <td class="lanche_noite-{{ data|date:'Y_m_d' }}">
+                                <nobr>{{ horario_refeicoes.lanche_noite }}</nobr>
+                            </td>
+                            <td class="lanche_noite-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.adultos }}">
+                            </td>
+                            <td class="lanche_noite-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       value="{{ dados_evento.criancas }}">
+                            </td>
+                            <td class="lanche_noite-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" readonly
+                                       class="total_monitores"
+                                       value="{{ dados_evento.monitores }}">
+                            </td>
+                            <td class="lanche_noite-{{ data|date:'Y_m_d' }}">
+                                <input name="lanche_noite-{{ data|date:'Y_m_d' }}" type="number" class="total"
+                                       readonly value="{{ dados_evento.total }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 

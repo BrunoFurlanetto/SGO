@@ -602,7 +602,7 @@ class FichaDeEvento(models.Model):
             numero_monitores = 0
 
             if ficha.escala:
-                numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque)
+                numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque.all())
 
             eventos.append({
                 'id': ficha.id,

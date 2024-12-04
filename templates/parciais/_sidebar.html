@@ -322,9 +322,6 @@
                         <li><a class="link_name">Estatísticas</a></li>
                             <li><a href="{% url 'painel_diretoria' %}">Eventos</a></li>
                             <li><a href="{% url 'estatisticas_monitoria' %}">Monitoria</a></li>
-                            {% if perms.cozinha.ver_descritivo_refeicoes %}
-                                <li><a href="{% url 'cozinha' %}">Cozinha</a></li>
-                            {% endif %}
                     </ul>
                 {% endif %}
 

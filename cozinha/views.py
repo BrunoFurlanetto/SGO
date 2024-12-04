@@ -104,22 +104,42 @@ def salvar_visualizacao_cozinheiro(request):
 #     })
 
 
-def ver_relatorio_evento_cozinha(request, id_relatorio):
-    ...
-    # dados_evento = relatorio.pegar_refeicoes_edicao()
-    # dados_evento['monitores'] = relatorio.pax_monitoria
-    # dados_evento['total'] = relatorio.total_pax
-    # dados_evento['grupo'] = relatorio.grupo
-    # dados_evento['tipo_evento'] = relatorio.tipo_evento
-    # dados_evento['check_in'] = relatorio.ficha_de_evento.check_in.strftime('%d/%m/%Y %H:%m')
-    # dados_evento['check_out'] = relatorio.ficha_de_evento.check_out.strftime('%d/%m/%Y %H:%m')
-    # dados_evento['id_ficha'] = relatorio.ficha_de_evento.id
+def ver_relatorio_evento_cozinha(request, id_evento):
+    evento = FichaDeEvento.objects.get(pk=id_evento)
+    numero_monitores = 0
 
-    # return render(request, 'cozinha/cadastro_relatorio_cozinha.html', {
-    #     'relatorio': relatorio,
-    #     'dados_evento': dados_evento,
-    #     'editando': True,
-    # })
+    if evento.escala:
+        numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=evento.id).monitores_acampamento.all())
+
+    dados_evento = {
+        'monitores': numero_monitores,
+        'adultos': evento.numero_adultos(),
+        'criancas': evento.numero_criancas(),
+        'total': evento.numero_adultos() + evento.numero_criancas(),
+        'grupo': evento.cliente,
+        'tipo_evento': evento.produto,
+        'check_in': evento.check_in.strftime('%d/%m/%Y %H:%m'),
+        'check_out': evento.check_out.strftime('%d/%m/%Y %H:%m'),
+        'id_ficha': evento.id,
+        'obs': evento.observacoes_refeicoes,
+    }
+
+    datas = []
+    data = evento.check_in
+
+    while data <= evento.check_out:
+        datas.append(data)
+        data += timedelta(days=1)
+
+    dados_evento['datas'] = datas
+    dados_evento['refeicoes_data'] = {
+        datetime.strptime(data, '%Y-%m-%d').date(): refeicoes for data, refeicoes in evento.refeicoes.items()
+    }
+
+    return render(request, 'cozinha/cadastro_relatorio_cozinha.html', {
+        'dados_evento': dados_evento,
+        'horario_refeicoes': HorarioRefeicoes.horarios(),
+    })
 
 
 # def salvar_evento(request):
