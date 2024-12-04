@@ -595,6 +595,7 @@ class FichaDeEvento(models.Model):
         fichas = cls.objects.filter(
             check_in__date__lte=data,
             check_out__date__gte=data,
+            pre_reserva=False
         )
         eventos = []
 
