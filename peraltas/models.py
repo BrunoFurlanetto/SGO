@@ -519,7 +519,7 @@ class FichaDeEvento(models.Model):
     perfil_participantes = models.ManyToManyField(PerfilsParticipantes, blank=True,
                                                   verbose_name='Perfíl dos participantes')
     refeicoes = models.JSONField(blank=True, null=True, verbose_name='Refeições')
-    observacoes_refeicoes = models.TextField(blank=True, null=True, verbose_name='Observações das refeições')
+    observacoes_refeicoes = models.TextField(verbose_name='Observações das refeições')
     informacoes_adcionais = models.ForeignKey(InformacoesAdcionais, on_delete=models.CASCADE, blank=True, null=True,
                                               verbose_name='Informações adicionais')
     observacoes = models.TextField(blank=True, verbose_name='Observações')
@@ -576,12 +576,12 @@ class FichaDeEvento(models.Model):
         return ', '.join([atividade.atividade for atividade in self.atividades_ceu.all()])
 
     def numero_criancas(self):
-        return self.qtd_meninos if self.qtd_meninos else 0 + self.qtd_meninas if self.qtd_meninas else 0
+        return (self.qtd_meninos if self.qtd_meninos else 0) + (self.qtd_meninas if self.qtd_meninas else 0)
 
     def numero_adultos(self):
-        soma_adultos = self.qtd_homens if self.qtd_homens else 0 + self.qtd_mulheres if self.qtd_mulheres else 0
+        soma_adultos = (self.qtd_homens if self.qtd_homens else 0) + (self.qtd_mulheres if self.qtd_mulheres else 0)
 
-        return soma_adultos + self.qtd_professores if self.qtd_professores else 0
+        return soma_adultos + (self.qtd_professores if self.qtd_professores else 0)
 
     def verificar_refeicao(self, data, refeicao):
         for data_ref, refeicoes in self.refeicoes.items():
