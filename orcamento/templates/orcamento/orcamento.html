@@ -833,7 +833,7 @@
                 {% if dados_pacote %}
                     $('#id_orcamento_promocional').trigger('change')
                 {% endif %}
-                $('#data_viagem').trigger('change')
+
                 await verificar_pacotes_promocionais()
             {% else %}
                 await inicializacao();
