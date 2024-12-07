@@ -27,7 +27,15 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         width: '100%',
         minimumResultsForSearch: -1
     })
-
+    $('#id_produto').on('change', function() {
+        if (!$('#id_promocional').prop('checked')) {
+            if ($(this).val() !== null && $(this).val() !== '') {
+                $('.botoes button').prop('disabled', false);
+            } else {
+                $('.botoes button').prop('disabled', true);
+            }
+        }
+    });
     $('#apelido_orcamento, #apelido_orcamento_2').val($('#id_apelido').val())
     $('select[name="opcionais"]').on('change', async () => {
         await enviar_op();
@@ -72,7 +80,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         const opcionais = $('.opcionais').length
         const i = opcionais + 1
 
-        console.log($(this).attr('id'))
         let nome_id = relacao_id_categoria[$(this).attr('id')]
         loading()
 
@@ -951,7 +958,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     })
 }
 
-async function verificar_pacotes_promocionais() {
+async function verificar_pacotes_promocionais(editando=false) {
     loading()
 
     const periodo = $('#data_viagem').val()
@@ -960,7 +967,6 @@ async function verificar_pacotes_promocionais() {
     const n_dias = data_check_out.diff(data_check_in, 'days') + 1
     const id_tipo_de_pacote = $('#id_tipo_de_pacote').val()
     const promocional_selecionado = $('#id_orcamento_promocional').val()
-
 
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -985,7 +991,9 @@ async function verificar_pacotes_promocionais() {
                 } else if (ids.includes(parseInt(select_promocionais.val()))) {
 
                 } else {
-                    await resetar_forms()
+                    if (editando_pacote) {
+                        await resetar_forms()
+                    }
                 }
 
                 select_promocionais.empty().append('<option></option>')
@@ -1504,12 +1512,8 @@ async function resetar_forms() {
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
     $('.bloqueado').addClass('none')
-    console.log($('#id_orcamento_promocional').data('programmatic'))
-    if (!$('#id_orcamento_promocional').data('programmatic')) {
-        $('#opcionais select').val('').trigger('change')
-    } else {
-        $('#id_orcamento_promocional').data('programmatic', false)
-    }
+    $('#opcionais select').val('').trigger('change')
+
 
     if (id_pacote == '') {
         if ($('#id_promocional').prop('checked')) {

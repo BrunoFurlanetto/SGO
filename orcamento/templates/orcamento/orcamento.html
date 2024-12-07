@@ -831,12 +831,10 @@
                 })
 
                 {% if dados_pacote %}
-                    $('#id_orcamento_promocional').data('programmatic', true)
-                    $('#id_orcamento_promocional').trigger('change')
                     $('#data_viagem').trigger('change')
                 {% endif %}
 
-                await verificar_pacotes_promocionais()
+                await verificar_pacotes_promocionais(true)
             {% else %}
                 await inicializacao();
             {% endif %}
