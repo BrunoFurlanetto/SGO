@@ -218,11 +218,12 @@ $.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, show_i
     if (!isInvalidDate) isInvalidDate = null
     if (!show_initial_date) show_initial_date = true
     if (!ranges) ranges = ''
+
     return this.daterangepicker({
         "timePicker": time_picker,
         "timePicker24Hour": true,
         "timePickerIncrement": 30,
-        "minDate": moment(),
+        "minDate": $('#id_promocional').prop('checked') ? false : moment(),
         "locale": {
             "format": format,
             "separator": " - ",
@@ -261,18 +262,18 @@ $.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, show_i
 }
 
 function verificar_datas(date) {
-    if ($('#id_promocional').prop('checked') || $('#id_orcamento_promocional').val() != '') {
-        let periodos = $('#lista_de_periodos input').map(function () {
-            let inicio = moment($(this).val().split(' - ')[0], 'DD/MM/YYYY')
-            let final = moment($(this).val().split(' - ')[1], 'DD/MM/YYYY')
-
-            return {'inicio': inicio, 'final': final.add(1, 'days')}
-        }).get();
-
-        return !periodos.some(function (periodo) {
-            return date.isSameOrAfter(periodo.inicio) && date.isSameOrBefore(periodo.final);
-        });
-    }
+    // if ($('#id_promocional').prop('checked') || $('#id_orcamento_promocional').val() != '') {
+    //     let periodos = $('#lista_de_periodos input').map(function () {
+    //         let inicio = moment($(this).val().split(' - ')[0], 'DD/MM/YYYY')
+    //         let final = moment($(this).val().split(' - ')[1], 'DD/MM/YYYY')
+    //
+    //         return {'inicio': inicio, 'final': final.add(1, 'days')}
+    //     }).get();
+    //
+    //     return !periodos.some(function (periodo) {
+    //         return date.isSameOrAfter(periodo.inicio) && date.isSameOrBefore(periodo.final);
+    //     });
+    // }
 }
 
 async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo = '0,00', removido = false) {
