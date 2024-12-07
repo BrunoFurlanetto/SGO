@@ -27,6 +27,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         width: '100%',
         minimumResultsForSearch: -1
     })
+
     $('#apelido_orcamento, #apelido_orcamento_2').val($('#id_apelido').val())
     $('select[name="opcionais"]').on('change', async () => {
         await enviar_op();
@@ -1503,7 +1504,12 @@ async function resetar_forms() {
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
     $('.bloqueado').addClass('none')
-    $('#opcionais select').val('')
+    console.log($('#id_orcamento_promocional').data('programmatic'))
+    if (!$('#id_orcamento_promocional').data('programmatic')) {
+        $('#opcionais select').val('').trigger('change')
+    } else {
+        $('#id_orcamento_promocional').data('programmatic', false)
+    }
 
     if (id_pacote == '') {
         if ($('#id_promocional').prop('checked')) {
@@ -1764,8 +1770,6 @@ async function editar_opcional_extra(pai, elemento) {
 }
 
 function verficar_validade_opcionais(check_in) {
-    $('select[name="opcionais"]').val()
-
     $.ajax({
         url: '/orcamento/verificar_validade_op/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
