@@ -909,7 +909,6 @@ async function separar_produtos(periodo) {
             $('#container_periodo .parcial').removeClass('visivel')
             $('.div-flutuante').removeClass('visivel')
             await verificar_preenchimento()
-            $('#container_monitoria_transporte, #container_opcionais, #finalizacao').addClass('none')
         }
     }
 }
@@ -1399,8 +1398,17 @@ async function preencher_promocional(id_promocional) {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
 
-                for (let categoria in response['opcionais']) {
-                    $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
+                for (let categoria of $('#opcionais select')) {
+                    if (Object.keys(response['opcionais']).includes(categoria.id.split('_')[1])) {
+                        for (let cat in response['opcionais']) {
+                            if (cat == categoria.id.split('_')[1]) {
+                                $(categoria).val(response['opcionais'][cat])
+                            }
+                        }
+                    } else {
+                        $(categoria).val('')
+                    }
+                    // $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
                 }
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
@@ -1499,7 +1507,7 @@ async function resetar_forms() {
             $('#form_gerencia #div_financeiro input[id*=real]').val('0,00')
             $('#form_gerencia #div_financeiro [id*=percent]').val('0,00%')
             $('#modal_descritivo #data_vencimento').val(moment().add(15, 'd').format('YYYY-MM-DD'))
-            $('#tabela_de_opcionais [id*=desconto]').val('0,00')
+            $('#tabela_de_opcionais [id*=desconto]').val('0,00').trigger('change')
             let default_data_pagamento = $('#data_pagamento').data('valor_default')
             $('#data_pagamento').val(default_data_pagamento)
 
@@ -1516,8 +1524,7 @@ async function resetar_forms() {
 async function mostrar_dados_pacote(pacote) {
     let id_pacote = pacote.value
     $('.bloqueado').addClass('none')
-    console.trace()
-    $('#opcionais select').val('').trigger('change')
+    // $('#opcionais select').val('').trigger('change')
 
 
     if (id_pacote == '') {
