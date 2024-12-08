@@ -16,6 +16,7 @@ let desconto_aplicado = 0*/
 $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrderableColumns) {
     // Inicializa o DataTable
     var tabela = $(this).DataTable({
+        pageLength: 25,
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ páginas',
             infoEmpty: 'Sem dados',
