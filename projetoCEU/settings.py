@@ -150,7 +150,7 @@ DATE_FORMAT = 'd/m/Y'  # TODO: Verificar sempre como as datas estão ficando
 
 TIME_FORMAT = 'H:i'
 
-DATETIME_FORMAT = 'm/d/Y H:i'
+DATETIME_FORMAT = 'd/m/Y H:i'
 
 
 # Static files (CSS, JavaScript, Images)
