@@ -7,13 +7,6 @@ let ulimo_mes_ano = null
 let descritivo_refeicoes = null
 
 $(document).ready(() => {
-    $('#dialog').dialog({
-        autoOpen: false,
-        modal: false,
-        width: 250,
-        position: {my: "right top", at: "right top", of: window}
-    });
-
     $('#campos_eventos').select2({
         maximumSelectionLength: 6
     })
@@ -243,64 +236,4 @@ function drawChartEstagio(dadosEstagio) {
             }
         }
     });
-}
-
-function montar_agendas_refeicoes(relatorios_eventos, descritivo_refeicoes) {
-    const calendarUIDescritivo = document.getElementById('agenda_descritivo');
-    const calendarUIAgendaRefeicoes = document.getElementById('agenda_cozinha');
-
-    const agenda_refeicoes = new FullCalendar.Calendar(calendarUIAgendaRefeicoes, {
-        headerToolbar: {
-            left: '',
-            center: 'title',
-        },
-
-        eventOrderStrict: true,
-        locale: 'pt-br',
-        dayMaxEvents: 5,
-        fixedWeekCount: false,
-        height: 'parent',
-        contentHeight: 'auto',
-        handleWindowResize: true,
-        navLinks: true,
-        navLinkDayClick: function (date, jsEvent) {
-            const agenda_descritivo_refeicoes = new FullCalendar.Calendar(calendarUIDescritivo, {
-                headerToolbar: {
-                    left: 'prev, today',
-                    center: 'title',
-                    right: 'next',
-                },
-
-                initialDate: date,
-                duration: {days: 4},
-                initialView: 'timeGrid',
-                eventOrderStrict: true,
-                locale: 'pt-br',
-                allDaySlot: false,
-                slotMinTime: '06:00:00',
-                nowIndicator: true,
-                slotDuration: '00:10:00',
-                events: descritivo_refeicoes,
-                eventClick: function (calEvent, jsEvent) {
-                    $('#cliente').text(calEvent.event.title);
-                    $('#refeicao').text(calEvent.event.extendedProps['refeicao']);
-                    $('#adultos').text(calEvent.event.extendedProps['adultos']);
-                    $('#criancas').text(calEvent.event.extendedProps['criancas']);
-                    $('#monitores').text(calEvent.event.extendedProps['monitoria']);
-                    $('#total').text(calEvent.event.extendedProps['total']);
-                    $('#dialog').dialog('open');
-                },
-            })
-            $('#div_agenda_descritivo').removeClass('none')
-            agenda_descritivo_refeicoes.render()
-            agenda_descritivo_refeicoes.setOption('locale', 'pt-br')
-        },
-        events: relatorios_eventos,
-        eventClick: function (info) {
-            console.log(info)
-        }
-    })
-
-    agenda_refeicoes.render();
-    agenda_refeicoes.setOption('locale', 'pt-br')
 }
