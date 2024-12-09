@@ -188,10 +188,17 @@ def dashboardPeraltas(request):
         escalas_feitas = EscalaAcampamento.objects.filter(
             check_in_cliente__date__gte=datetime.today(),
         )
+        ordens_colaborador = OrdemDeServico.objects.filter(
+            check_in__date__gte=datetime.today(),
+        )
     else:
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
             os=False,
+            check_in__date__gte=datetime.today(),
+        )
+        ordens_colaborador = OrdemDeServico.objects.filter(
+            vendedor__usuario=request.user,
             check_in__date__gte=datetime.today(),
         )
 
@@ -199,10 +206,6 @@ def dashboardPeraltas(request):
     pre_reservas = fichas_colaborador.filter(pre_reserva=True, agendado=False)
     confirmados = fichas_colaborador.filter(pre_reserva=True, agendado=True)
     fichas_adesao = fichas_colaborador.filter(os=False, pre_reserva=False)
-    ordens_colaborador = OrdemDeServico.objects.filter(
-        vendedor__usuario=request.user,
-        check_in__date__gte=datetime.today(),
-    )
     avisos = fichas_colaborador.filter(
         pre_reserva=True,
         check_in__date__gte=datetime.today().date(),
