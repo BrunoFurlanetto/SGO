@@ -164,7 +164,8 @@ def atualizar_contagem_hotelaria():
             data_check_out = datetime.strptime(reserva['HORTUDATASAIDA'], '%Y-%m-%d %H:%M:%S').date()
 
             if reserva['K_HOTCODIGO'] == '000027' or (data_check_out - data_check_in).days > 0:
-                for dia in (data_check_in + timedelta(days=n) for n in range((data_check_out - data_check_in).days)):
+                for n in range((data_check_out - data_check_in).days + 1):  # Inclui o dia de check-out
+                    dia = data_check_in + timedelta(days=n)
                     dados_por_dia[dia]['data'] = dia.strftime('%Y-%m-%d')
                     dados_por_dia[dia]['soma_adultos'] += int(reserva.get('HORTUQUANTIDADEADULTO', 0))
                     dados_por_dia[dia]['soma_criancas'] += int(reserva.get('HORTUQUANTIDADECRIANCA', 0))
