@@ -579,9 +579,16 @@ class FichaDeEvento(models.Model):
         return (self.qtd_meninos if self.qtd_meninos else 0) + (self.qtd_meninas if self.qtd_meninas else 0)
 
     def numero_adultos(self):
-        soma_adultos = (self.qtd_homens if self.qtd_homens else 0) + (self.qtd_mulheres if self.qtd_mulheres else 0)
+        if self.produto.colegio:
+            if 'visita' in self.produto.produto.lower():
+                soma_adultos = self.qtd_confirmada
+            else:
+                soma_adultos = self.qtd_professores if self.qtd_professores else 0
 
-        return soma_adultos + (self.qtd_professores if self.qtd_professores else 0)
+        else:
+            soma_adultos = self.qtd_confirmada
+
+        return soma_adultos
 
     def verificar_refeicao(self, data, refeicao):
         for data_ref, refeicoes in self.refeicoes.items():
