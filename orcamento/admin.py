@@ -199,6 +199,7 @@ class OrcamentoAdmin(admin.ModelAdmin):
 class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'valor_base', 'validade', 'liberado_para_venda')
     list_editable = ('liberado_para_venda',)
+    ordering = ('dados_pacote__nome_do_pacote',)
     actions = [duplicar_orcamentos_promocionais]
 
 
