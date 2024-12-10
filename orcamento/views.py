@@ -481,10 +481,12 @@ def verificar_pacotes_promocionais(request):
         )
 
         if request.GET.get('id_tipo_de_pacote') != '':
+            print(TiposDePacote.objects.get(pk=request.GET.get('id_tipo_de_pacote')))
             dados_taxas = TiposDePacote.objects.get(pk=request.GET.get('id_tipo_de_pacote')).retornar_dados_gerencia()
         else:
+            print('Hum')
             dados_taxas = ValoresPadrao.retornar_dados_gerencia()
-
+        print(dados_taxas)
         return JsonResponse({
             'promocionais': promocionais,
             'dados_taxas': dados_taxas

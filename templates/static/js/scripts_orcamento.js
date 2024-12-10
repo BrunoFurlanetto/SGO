@@ -963,7 +963,7 @@ async function verificar_pacotes_promocionais(editando=false) {
     const periodo = $('#data_viagem').val()
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
     const data_check_out = moment(periodo.split(' - ')[1], 'DD/MM/YYYY HH:mm')
-    const n_dias = data_check_out.diff(data_check_in, 'days') + 1
+    const n_dias = moment(data_check_out).startOf('day').diff(moment(data_check_in).startOf('day'), 'days') + 1;
     const id_tipo_de_pacote = $('#id_tipo_de_pacote').val()
     const promocional_selecionado = $('#id_orcamento_promocional').val()
 
