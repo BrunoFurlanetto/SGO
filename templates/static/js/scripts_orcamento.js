@@ -978,7 +978,9 @@ async function verificar_pacotes_promocionais(editando=false) {
                 'n_dias': n_dias
             },
             success: async function (response) {
-                await alterar_valores_das_taxas(response['dados_taxas']);
+                if (!editando) {
+                    await alterar_valores_das_taxas(response['dados_taxas']);
+                }
                 const promocionais = response['promocionais']
                 const ids = promocionais.map(obj => obj.id)
                 let select_promocionais = $('#id_orcamento_promocional')
