@@ -77,10 +77,20 @@
                                    onchange="separar_produtos(this)"/>
                             <label for="id_produto">Produto</label>
                             {{ orcamento.produto }}
-{#                            <div class="mt-2">#}
-{#                                <input type="checkbox" id="so_ceu" onchange="">#}
-{#                                <label for="so_ceu">Só CEU</label>#}
-{#                            </div>#}
+                            <div class="mt-2">
+                                <input class="form-check-input" type="checkbox" name="so_ceu" id="so_ceu" onchange="modalidade_so_ceu()">
+                                <label for="so_ceu">Só CEU</label>
+                                <div class="alert alert-info mt-2 none" id="aviso_orcamento_so_ceu">
+                                    Em orçamentos do tipo só CEU se atente nas seguintes características:
+                                    <ul>
+                                        <li>Entrada e saída no mesmo dia</li>
+                                        <li>Produto somente "Só CEU"</li>
+                                        <li>Não é permitido orçamentos promocionais</li>
+                                        <li>Não é permitido monitoria e nem transporte</li>
+                                        <li>Opcionais apenas na categoria "CEU sem hospedagem"</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <hr>
                         <h5 class="titulo-secao">Pacotes promocionais</h5>

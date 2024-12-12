@@ -26,4 +26,5 @@ urlpatterns = [
     path('pegar_orcamentos_tratativa/', views.pegar_orcamentos_tratativa, name='pegar_orcamentos_tratativa'),
     path('verificar_validade_op/', views.verificar_validade_opcionais, name='verificar_validade_opcionais'),
     path('aprovacao_gerencia/<int:id_orcamento>/<int:gerente_aprovando>', views.editar_previa, name='aprovacao_gerencia'),
+    path('verificar_dados_so_ceu/', views.verificar_dados_so_ceu, name='verificar_dados_so_ceu'),
 ]

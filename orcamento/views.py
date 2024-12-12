@@ -15,7 +15,7 @@ from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosP
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
     DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
-    CategoriaOpcionais
+    CategoriaOpcionais, OrcamentoMonitor
 from .utils import verify_data, processar_formulario, JsonError
 from .budget import Budget
 
@@ -496,3 +496,21 @@ def verificar_pacotes_promocionais(request):
 def pegar_dados_tipo_pacote(request):
     if is_ajax(request):
         return
+
+
+def verificar_dados_so_ceu(request):
+    if is_ajax(request):
+        data = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
+        id_produto = ProdutosPeraltas.objects.get(produto__icontains='só ceu').id
+        id_monitoria = OrcamentoMonitor.objects.filter(
+            inicio_vigencia__lte=data,
+            final_vigencia__gte=data,
+            sem_monitoria=True
+        ).first().id
+        categorias_opcionais = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+
+        return JsonResponse({
+            'id_produto': id_produto,
+            'id_monitoria': id_monitoria,
+            'id_categoria_opcionais': [categoria.id for categoria in categorias_opcionais]
+        })

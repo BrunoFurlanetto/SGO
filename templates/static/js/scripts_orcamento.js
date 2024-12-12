@@ -27,7 +27,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         width: '100%',
         minimumResultsForSearch: -1
     })
-    $('#id_produto').on('change', function() {
+    $('#id_produto').on('change', function () {
         if (!$('#id_promocional').prop('checked')) {
             if ($(this).val() !== null && $(this).val() !== '') {
                 $('.botoes button').prop('disabled', false);
@@ -48,7 +48,26 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     }
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
     $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas, moment())
-    $('#lista_de_periodos .periodos input').inicializarDateRange('DD/MM/YYYY', false,)
+        .on('apply.daterangepicker', function (ev, picker) {
+            if ($('#so_ceu').prop('checked')) {
+                const startDate = picker.startDate;
+                const endDate = picker.endDate;
+
+                // Verifica se a data inicial é diferente da data final
+                if (!startDate.isSame(endDate, 'day')) {
+                    // Ajusta para que a data final seja igual à inicial
+                    picker.setStartDate(startDate); // Não altera o horário
+                    picker.setEndDate(startDate.clone().hour(endDate.hour()).minute(endDate.minute()));
+
+                    // Atualiza o input com o novo valor
+                    $(this).val(
+                        startDate.format('DD/MM/YYYY HH:mm') + ' - ' +
+                        startDate.format('DD/MM/YYYY HH:mm')
+                    );
+                }
+            }
+        });
+    $('#lista_de_periodos .periodos input').inicializarDateRange('DD/MM/YYYY', false)
 
     if (check_in && check_out) {
         $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -58,6 +77,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#desconto_produto_real, #desconto_monitoria_real, #desconto_transporte_real').mascaraDinheiro()
     $('#desconto_transporte_percent, #desconto_produto_percent, #desconto_monitoria_percent').mask('00,00%', {reverse: true})
     $('#comissao, #taxa_comercial, #id_limite_desconto_geral').mask('00,00%', {reverse: true})
+
 
     jQuery('#orcamento').submit(function () {
         const dados = jQuery(this).serialize()
@@ -565,7 +585,7 @@ async function verificar_pisos_e_tetos() {
 }
 
 async function soma_descontos_pacote() {
-    const desconto_percent = (parseFloat($('#desconto_produto_percent').val().replace(',', '.').replace('%',''))) / 100
+    const desconto_percent = (parseFloat($('#desconto_produto_percent').val().replace(',', '.').replace('%', ''))) / 100
     const desconto_real = parseFloat($('#desconto_produto_real').val().replace(',', '.'))
     const valor_diaria = resultado_ultima_consulta['data']['valores']['diaria']['valor']
 
@@ -957,7 +977,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     })
 }
 
-async function verificar_pacotes_promocionais(editando=false) {
+async function verificar_pacotes_promocionais(editando = false) {
     loading()
 
     const periodo = $('#data_viagem').val()
@@ -1055,9 +1075,10 @@ async function verificar_preenchimento() {
 
             alert(error)
         } finally {
-            const check_in = moment($('#data_viagem').val().split(' - ')[0], 'DD/MM/YYYY HH:mm')
-            $('#id_tipo_de_pacote').prop('disabled', false)
-            end_loading()
+            if (!$('#so_ceu').prop('checked')) {
+                $('#id_tipo_de_pacote').prop('disabled', false)
+                end_loading()
+            }
         }
     } else {
         $('#container_periodo .visivel, #subtotal span').text('R$ 0,00')
@@ -1858,3 +1879,68 @@ async function trocar_modalidade_desconto(btn) {
     await enviar_form()
 }
 
+function modalidade_so_ceu() {
+    if ($('#so_ceu').prop('checked')) {
+        loading()
+        $('#aviso_orcamento_so_ceu').removeClass('none')
+        const picker = $('#data_viagem').data('daterangepicker');
+
+        // Verifica se o picker está inicializado
+        if ($('#data_viagem').val() == '') {
+            // Define o dia atual com horários específicos
+            const startDate = moment().startOf('day').hour(6);  // Hoje às 06:00
+            const endDate = moment().startOf('day').hour(22);   // Hoje às 22:00
+
+            // Define as datas no DateRangePicker
+            picker.setStartDate(startDate);
+            picker.setEndDate(endDate);
+            // Opcional: Atualiza o valor do input manualmente (se necessário)
+            $('#data_viagem').val(
+                startDate.format('DD/MM/YYYY HH:mm') + ' - ' + endDate.format('DD/MM/YYYY HH:mm')
+            );
+        }
+        const check_in = $('#data_viagem').val().split(' - ')[0]
+
+        $.ajax({
+            url: '/orcamento/verificar_dados_so_ceu/',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "GET",
+            data: {'check_in': check_in},
+            success: function (response) {
+                $('#id_produto').val(response['id_produto'])
+                $('#id_tipo_monitoria').val(response['id_monitoria'])
+                $('#id_transporte_1').prop('checked', true)
+
+                if (picker) {
+                    const startDate = picker.startDate; // Data inicial
+                    const endDate = picker.endDate;     // Data final
+
+                    // Verifica se a data inicial é diferente da data final
+                    if (!startDate.isSame(endDate, 'day')) {
+                        // Ajusta a data final para ser igual à inicial (mantendo o horário)
+                        picker.setStartDate(startDate); // Define nova data inicial
+                        picker.setEndDate(startDate.clone().hour(endDate.hour()).minute(endDate.minute())); // Ajusta a data final
+
+                        // Atualiza o campo de entrada com o novo valor
+                        $('#data_viagem').val(
+                            startDate.format('DD/MM/YYYY HH:mm') + ' - ' +
+                            startDate.format('DD/MM/YYYY HH:mm')
+                        )
+                    }
+                }
+
+                for (let categoria of $('#opcionais select')) {
+                    if (!response['id_categoria_opcionais'].includes(parseInt(categoria.id.split('_')[1]))) {
+                        $(categoria).prop('disabled', true)
+                    }
+                }
+            }
+        }).done(async () => {
+            await separar_produtos($('#data_viagem'))
+            await verificar_preenchimento()
+            await verificar_monitoria_transporte()
+            await enviar_form()
+        })
+    }
+    end_loading()
+}

@@ -286,6 +286,7 @@ class OrcamentoMonitor(models.Model):
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
     racional_monitoria = models.PositiveIntegerField(default=8, verbose_name="Racional Monitoria")
+    sem_monitoria = models.BooleanField(default=False)
     liberado = models.BooleanField(default=False)
 
     class Meta:
@@ -339,6 +340,7 @@ class OrcamentoMonitor(models.Model):
 class CategoriaOpcionais(models.Model):
     nome_categoria = models.CharField(max_length=100)
     staff = models.BooleanField(default=False)
+    ceu_sem_hospedagem = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Categoria'
@@ -481,6 +483,7 @@ class HorariosPadroes(models.Model):
     horario = models.TimeField(verbose_name='Horário início')
     final_horario = models.TimeField(verbose_name='Horário final')
     entrada_saida = models.BooleanField()
+    so_ceu = models.BooleanField(default=False)
     racional = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -1553,8 +1556,8 @@ class CadastroOrcamento(forms.ModelForm):
             # Obtém os opcionais pertencentes a essa categoria
             opcionais = OrcamentoOpicional.objects.filter(
                 categoria=categoria,
-                inicio_vigencia__lte=timezone.now().date(),
-                final_vigencia__gte=timezone.now().date()
+                # inicio_vigencia__lte=timezone.now().date(),
+                # final_vigencia__gte=timezone.now().date()
             ).order_by('nome')
             # Define um nome e id customizado para o campo
             field_name = f'opcionais_{categoria.id}'

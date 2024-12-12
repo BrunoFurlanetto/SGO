@@ -108,23 +108,42 @@ def processar_formulario(dados, user):
         date_check_out = datetime.strptime(check_out_complete[0], '%d/%m/%Y').date()
 
         # filter check_in and check_out
-        try:
-            time_in = HorariosPadroes.objects.get(
-                horario__lte=hour_check_in,
-                final_horario__gte=hour_check_in,
-                entrada_saida=True,
-            )
-        except HorariosPadroes.DoesNotExist:
-            return JsonError(f'Horário de check in informado não permitido!')
+        if not dados.get('orcamento[so_ceu]'):
+            try:
+                time_in = HorariosPadroes.objects.get(
+                    horario__lte=hour_check_in,
+                    final_horario__gte=hour_check_in,
+                    entrada_saida=True,
+                    so_ceu=False
+                )
+            except HorariosPadroes.DoesNotExist:
+                return JsonError(f'Horário de check in informado não permitido!')
 
-        try:
-            time_out = HorariosPadroes.objects.get(
-                horario__lte=hour_check_out,
-                final_horario__gte=hour_check_out,
-                entrada_saida=False,
-            )
-        except HorariosPadroes.DoesNotExist:
-            return JsonError(f'Horário de check out informado não permitido!')
+            try:
+                time_out = HorariosPadroes.objects.get(
+                    horario__lte=hour_check_out,
+                    final_horario__gte=hour_check_out,
+                    entrada_saida=False,
+                    so_ceu=False
+                )
+            except HorariosPadroes.DoesNotExist:
+                return JsonError(f'Horário de check out informado não permitido!')
+        else:
+            try:
+                time_in = HorariosPadroes.objects.get(
+                    entrada_saida=True,
+                    so_ceu=True
+                )
+            except HorariosPadroes.DoesNotExist:
+                return JsonError(f'Horário de check in Só CEU não cadastrado')
+
+            try:
+                time_out = HorariosPadroes.objects.get(
+                    entrada_saida=False,
+                    so_ceu=True
+                )
+            except HorariosPadroes.DoesNotExist:
+                return JsonError(f'Horário de check out informado não permitido!')
 
         # Do period list
         period_days = []
