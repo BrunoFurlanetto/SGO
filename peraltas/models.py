@@ -249,6 +249,7 @@ class ProdutoCorporativo(models.Model):
     n_dias = models.PositiveIntegerField(blank=True, null=True, verbose_name='Número de pernoites')
     hora_padrao_check_in = models.TimeField(blank=True, null=True)
     hora_padrao_check_out = models.TimeField(blank=True, null=True)
+    brotas_eco = models.BooleanField(default=0)
 
     def __str__(self):
         return self.produto

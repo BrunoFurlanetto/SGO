@@ -146,7 +146,7 @@ def atualizar_contagem_hotelaria():
     cliente_brotas_eco = ClienteColegio.objects.get(cnpj='03.694.061/0001-90')
     relacao_responsavel = RelacaoClienteResponsavel.objects.filter(cliente=cliente_brotas_eco).first()
     produto = ProdutosPeraltas.objects.get(brotas_eco=True)
-    produto_hospedagem = ProdutoCorporativo.objects.get(produto__icontains='hospedagem')
+    produto_hospedagem = ProdutoCorporativo.objects.filter(brotas_eco=True).first()
     atendente = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first()
 
     dados_por_dia = defaultdict(lambda: {
