@@ -1950,8 +1950,8 @@ async function modalidade_so_ceu(editando=false) {
         // Verifica se o picker está inicializado
         if ($('#data_viagem').val() == '') {
             // Define o dia atual com horários específicos
-            const startDate = moment().startOf('day').hour(6);  // Hoje às 06:00
-            const endDate = moment().startOf('day').hour(22);   // Hoje às 22:00
+            const startDate = moment().add(1, 'days').startOf('day').hour(6);  // Hoje às 06:00
+            const endDate = moment().add(1, 'days').startOf('day').hour(22);   // Hoje às 22:00
 
             // Define as datas no DateRangePicker
             picker.setStartDate(startDate);
