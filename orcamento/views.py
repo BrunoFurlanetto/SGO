@@ -28,6 +28,7 @@ def novo_orcamento(request):
     taxas_padrao = ValoresPadrao.objects.all()
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     cadastro_orcamento = CadastroOrcamento()
+    categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -38,6 +39,8 @@ def novo_orcamento(request):
         'taxas_padrao': ValoresPadrao.mostrar_taxas(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'zerar_taxas': True,
+        'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
+        'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
     })
 
 
@@ -52,6 +55,7 @@ def clonar_orcamento(request, id_tratativa, ):
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+    categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -60,12 +64,14 @@ def clonar_orcamento(request, id_tratativa, ):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or orcamento.tipo_de_pacote.so_ceu else None,
         ),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
         'tratativa': tratativa,
         'id_orcamento': id_orcamento,
+        'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
+        'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
     })
 
 
@@ -79,6 +85,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     pacote_promocional = CadastroPacotePromocional()
     orcamento_promocional = None
+    categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
 
     if orcamento.promocional:
         orcamento_promocional = OrcamentosPromocionais.objects.get(orcamento=orcamento.id)
@@ -95,7 +102,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.objeto_gerencia,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or orcamento.tipo_de_pacote.so_ceu else None,
         ),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
@@ -104,7 +111,9 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'pacote_promocional': pacote_promocional,
         'gerente_aprovando': bool(gerente_aprovando),
         'dados_pacote': orcamento_promocional.dados_pacote if orcamento_promocional else None,
-        'data_vencimento': orcamento.objeto_gerencia['data_vencimento']
+        'data_vencimento': orcamento.objeto_gerencia['data_vencimento'],
+        'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
+        'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
     })
 
 
@@ -153,6 +162,9 @@ def salvar_orcamento(request, id_tratativa=None):
         pre_orcamento.objeto_orcamento = budget.return_object()
         pre_orcamento.previa = data.get('salvar_previa') == 'true'
         pre_orcamento.apelido = '' if not pre_orcamento.previa else pre_orcamento.apelido
+
+        if data['so_ceu']:
+            pre_orcamento.objeto_orcamento['so_ceu'] = True
 
         if pre_orcamento.aprovacao_diretoria:
             pre_orcamento.status_orcamento = StatusOrcamento.objects.get(status__icontains='análise')
@@ -282,6 +294,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
     cadastro_orcamento = CadastroOrcamento(instance=promocional.orcamento)
     pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
     promocional.orcamento.orcamento_promocional = promocional
+    categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -301,6 +314,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'editando_pacote': True,
         'data_vencimento': promocional.orcamento.objeto_gerencia['data_vencimento'],
         'promocional': promocional,
+        'categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
     })
 
 
@@ -381,9 +395,11 @@ def validar_produtos(request):
         produtos = list(chain(ProdutosPeraltas.objects.filter(n_dias=n_pernoites)))
         produtos.append(ProdutosPeraltas.objects.get(produto__icontains='all party'))
         tipos_de_pacote = TiposDePacote.objects.filter(n_diarias=n_pernoites + 1)
-
+        print(request.GET.get('so_ceu'))
         if n_pernoites == 0:
-            produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
+            if request.GET.get('so_ceu') == 'true':
+                produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
+
             produtos.append(ProdutosPeraltas.objects.get(produto__icontains='visita técnica'))
 
         if n_pernoites >= 2:
@@ -472,7 +488,6 @@ def verificar_validade_opcionais(request):
 
 def verificar_pacotes_promocionais(request):
     if is_ajax(request):
-        print('Veio')
         promocionais = OrcamentosPromocionais.pegar_pacotes_promocionais(
             int(request.GET.get('n_dias')),
             request.GET.get('id_tipo_de_pacote'),
@@ -481,15 +496,13 @@ def verificar_pacotes_promocionais(request):
         )
 
         if request.GET.get('id_tipo_de_pacote') != '':
-            print(TiposDePacote.objects.get(pk=request.GET.get('id_tipo_de_pacote')))
             dados_taxas = TiposDePacote.objects.get(pk=request.GET.get('id_tipo_de_pacote')).retornar_dados_gerencia()
         else:
-            print('Hum')
             dados_taxas = ValoresPadrao.retornar_dados_gerencia()
-        print(dados_taxas)
+
         return JsonResponse({
             'promocionais': promocionais,
-            'dados_taxas': dados_taxas
+            'dados_taxas': dados_taxas,
         })
 
 
@@ -507,10 +520,10 @@ def verificar_dados_so_ceu(request):
             final_vigencia__gte=data,
             sem_monitoria=True
         ).first().id
-        categorias_opcionais = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+        pacotes_so_ceu = TiposDePacote.objects.filter(so_ceu=True)
 
         return JsonResponse({
             'id_produto': id_produto,
             'id_monitoria': id_monitoria,
-            'id_categoria_opcionais': [categoria.id for categoria in categorias_opcionais]
+            'id_pacotes_so_ceu': [pacote.id for pacote in pacotes_so_ceu],
         })

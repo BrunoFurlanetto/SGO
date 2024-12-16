@@ -683,6 +683,7 @@ class TiposDePacote(models.Model):
 
     def retornar_dados_gerencia(self):
         return {
+            'so_ceu': self.so_ceu,
             'teto_desconto_geral': self.teto_desconto_geral,
             'taxa_negocial': {
                 'piso_taxa_negocial': self.minimo_taxa_negocial,
@@ -1478,6 +1479,14 @@ class CadastroPacotePromocional(forms.ModelForm):
             'regra_cortesia': forms.NumberInput(attrs={'style': 'width: 15%'}),
             'limite_desconto_geral': forms.TextInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CadastroPacotePromocional, self).__init__(*args, **kwargs)
+        tipos_de_pacote = TiposDePacote.objects.all().order_by('titulo')
+
+        self.fields['tipos_de_pacote_elegivel'].choices = [("", "---------")] + [
+            (tipo.id, tipo.titulo) for tipo in tipos_de_pacote
+        ]
 
 
 class SeuModeloAdminForm(forms.ModelForm):
