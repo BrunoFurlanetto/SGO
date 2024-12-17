@@ -158,7 +158,7 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
         OrcamentosPromocionais.objects.create(
             dados_pacote=novo_dados_pacote,
             orcamento=novo_orcamento,
-            liberado_para_venda=orcamento_promocional.liberado_para_venda,
+            liberado_para_venda=False,
         )
     modeladmin.message_user(request, "Duplicação concluída com sucesso!")
 
