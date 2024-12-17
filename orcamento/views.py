@@ -448,13 +448,13 @@ def salvar_pacote(request):
         )
         pacotes = [promocional.dados_pacote.nome_do_pacote for promocional in promocionais]
 
-        if dados['nome_do_pacote'] in pacotes:
-            return JsonError('Nome do pacote já existente.', status_code=409)
-
         if request.POST.get('id_pacote') != '':
             pacote_promocional = DadosDePacotes.objects.get(pk=request.POST.get('id_pacote'))
             dados_pacote_promocional = CadastroPacotePromocional(dados, instance=pacote_promocional)
         else:
+            if dados['nome_do_pacote'] in pacotes:
+                return JsonError('Nome do pacote já existente.', status_code=409)
+
             dados_pacote_promocional = CadastroPacotePromocional(dados)
 
         try:
