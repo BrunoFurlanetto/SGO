@@ -114,7 +114,7 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
         # Duplicar DadosDePacotes com períodos ajustados
         novos_periodos = dados_pacote.ajustar_periodos()
         novo_dados_pacote = DadosDePacotes.objects.create(
-            nome_do_pacote=dados_pacote.nome_do_pacote,
+            nome_do_pacote=dados_pacote.nome_do_pacote + ' - DUPLICADO',
             minimo_de_pagantes=dados_pacote.minimo_de_pagantes,
             tipos_de_pacote_elegivel=dados_pacote.tipos_de_pacote_elegivel,
             monitoria_fechado=dados_pacote.monitoria_fechado,
@@ -158,7 +158,7 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
         OrcamentosPromocionais.objects.create(
             dados_pacote=novo_dados_pacote,
             orcamento=novo_orcamento,
-            liberados_para_venda=orcamento_promocional.liberados_para_venda,
+            liberado_para_venda=orcamento_promocional.liberado_para_venda,
         )
     modeladmin.message_user(request, "Duplicação concluída com sucesso!")
 
