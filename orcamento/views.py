@@ -163,7 +163,7 @@ def salvar_orcamento(request, id_tratativa=None):
         pre_orcamento.previa = data.get('salvar_previa') == 'true'
         pre_orcamento.apelido = '' if not pre_orcamento.previa else pre_orcamento.apelido
 
-        if data['so_ceu']:
+        if data.get('so_ceu'):
             pre_orcamento.objeto_orcamento['so_ceu'] = True
 
         if pre_orcamento.aprovacao_diretoria:
@@ -443,6 +443,13 @@ def pegar_dados_pacote(request):
 def salvar_pacote(request):
     if is_ajax(request):
         dados = DadosDePacotes.tratar_dados(request.POST)
+        promocionais = OrcamentosPromocionais.objects.filter(
+            orcamento__data_vencimento__year__gte=datetime.datetime.today().year - 1,
+        )
+        pacotes = [promocional.dados_pacote.nome_do_pacote for promocional in promocionais]
+
+        if dados['nome_do_pacote'] in pacotes:
+            return JsonError('Nome do pacote já existente.', status_code=409)
 
         if request.POST.get('id_pacote') != '':
             pacote_promocional = DadosDePacotes.objects.get(pk=request.POST.get('id_pacote'))
@@ -453,8 +460,10 @@ def salvar_pacote(request):
         try:
             pacote = dados_pacote_promocional.save(commit=False)
             pacote.save()
+        except ValueError:
+            return JsonError('Exitem dados fantantes no cadastro do pacote.', status_code=400)
         except Exception as e:
-            return JsonError(f'Erro ao salvar os dados do pacote ({e})! Tente novavemente mais tarde.')
+            return JsonError(f'Erro ao salvar os dados do pacote ({e})! Tente novavemente mais tarde.', status_code=500)
         else:
             diarias = TiposDePacote.objects.get(pk=pacote.tipos_de_pacote_elegivel.id).n_diarias
             menor_horario = dados.get('check_in_permitido_1[]')

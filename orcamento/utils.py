@@ -10,12 +10,12 @@ from .models import OrcamentoOpicional, HorariosPadroes, OrcamentoPeriodo, Tipos
     ValoresTransporte
 
 
-def JsonError(msg):
+def JsonError(msg, status_code=422):
     return JsonResponse({
         "status": "error",
         "data": {},
         "msg": msg
-    }, status=422)
+    }, status=status_code)
 
 
 def verify_data(data):

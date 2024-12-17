@@ -1119,8 +1119,8 @@ async function verificar_preenchimento() {
             alert(error)
         } finally {
             // if (!$('#so_ceu').prop('checked')) {
-                $('#id_tipo_de_pacote').prop('disabled', false)
-                end_loading()
+            $('#id_tipo_de_pacote').prop('disabled', false)
+            end_loading()
             // }
         }
     } else {
@@ -1423,6 +1423,9 @@ function salvar_dados_do_pacote() {
             $('#id_tipo_de_pacote').val($('#id_tipos_de_pacote_elegivel').val())
             $('#id_tipo_de_pacote').prop('disabled', false).trigger('change')
             // inicializar_funcoes_periodo_viagem()
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseJSON.msg)
         }
     }).done(async () => {
         $('#dados_do_pacote').modal('hide')
@@ -1926,7 +1929,7 @@ async function trocar_modalidade_desconto(btn) {
     await enviar_form()
 }
 
-async function modalidade_so_ceu(editando=false) {
+async function modalidade_so_ceu(editando = false) {
     loading()
 
     if (!editando) {
