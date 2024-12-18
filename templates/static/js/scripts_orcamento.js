@@ -120,7 +120,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         const i = opcionais + 1
 
         let nome_id = relacao_id_categoria[$(this).attr('id')]
-        loading()
+        // loading()
 
         try {
             $.ajax({
@@ -142,24 +142,24 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         } catch (error) {
             alert(error)
         } finally {
-            end_loading()
+            // end_loading()
         }
     })
 
     $('select[name="opcionais"]').on("select2:unselect", async function (e) {
-        loading()
+        // loading()
         const opcao = e.params.data;
 
         try {
             $(`#opcionais_${relacao_id_categoria[$(this).attr('id')]}_${opcao['id']}`).remove()
         } catch (error) {
             alert(error)
-            end_loading()
+            // end_loading()
         } finally {
             // await atualizar_valores_op()
             await listar_op(null, opcao, null, '0,00', '0,00', true)
             await enviar_form()
-            end_loading()
+            // end_loading()
         }
     })
 
@@ -192,7 +192,7 @@ function inicializar_funcoes_periodos_promocional() {
 }
 
 async function verificar_alteracoes(div) {
-    loading()
+    // loading()
     await verificar_pisos_e_tetos()
     await enviar_form()
 
@@ -209,7 +209,7 @@ async function verificar_alteracoes(div) {
             return true
         }
     })
-    end_loading()
+    // end_loading()
 }
 
 $('#modal_descritivo').on('hidden.bs.modal', function (e) {
@@ -1016,7 +1016,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
 }
 
 async function verificar_pacotes_promocionais(editando = false) {
-    loading()
+    // loading()
 
     const periodo = $('#data_viagem').val()
     const data_check_in = moment(periodo.split(' - ')[0], 'DD/MM/YYYY HH:mm')
@@ -1067,7 +1067,7 @@ async function verificar_pacotes_promocionais(editando = false) {
 
                 for (let promocional of promocionais) {
                     $('#id_orcamento_promocional').append(
-                        `<option value="${promocional['id']}" ${promocional['id'] == promocional_selecionado ? 'selected' : ''} >${promocional['nome']}</option>`
+                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
                     ).prop('disabled', false)
                 }
             }
@@ -1077,7 +1077,7 @@ async function verificar_pacotes_promocionais(editando = false) {
             reject(e)
         })
     })
-    end_loading()
+    // end_loading()
 }
 
 async function verificar_preenchimento() {
@@ -1086,7 +1086,7 @@ async function verificar_preenchimento() {
     // await verificar_pacotes_promocionais()
 
     if ($('#id_orcamento_promocional').val() != '') {
-        verificar_horarios()
+        await verificar_horarios()
     }
 
     if (editando_pacote || ($('#data_viagem').val() != '' && ($('#id_produto').val() != null && $('#id_produto').val() != ''))) {
@@ -1121,7 +1121,7 @@ async function verificar_preenchimento() {
         } finally {
             // if (!$('#so_ceu').prop('checked')) {
             $('#id_tipo_de_pacote').prop('disabled', false)
-            end_loading()
+            // end_loading()
             // }
         }
     } else {
@@ -1131,7 +1131,7 @@ async function verificar_preenchimento() {
 
 async function verificar_monitoria_transporte() {
     if ($('#id_tipo_monitoria').val() !== '' && $('input[name="transporte"]:checked').val() != undefined) {
-        loading()
+        // loading()
 
         try {
             await enviar_form()
@@ -1143,7 +1143,7 @@ async function verificar_monitoria_transporte() {
 
             alert(error)
         } finally {
-            end_loading()
+            // end_loading()
         }
     } else {
         $('#container_opcionais, #finalizacao').addClass('none')
@@ -1151,7 +1151,7 @@ async function verificar_monitoria_transporte() {
 }
 
 async function enviar_op() {
-    loading()
+    // loading()
 
     try {
         await enviar_form()
@@ -1160,7 +1160,7 @@ async function enviar_op() {
         $('#container_opcionais .parcial').text('').removeClass('visivel')
         alert(error)
     } finally {
-        end_loading()
+        // end_loading()
     }
 }
 
@@ -1210,7 +1210,7 @@ async function adicionar_novo_op() {
 }
 
 async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descricao_opcional, editando = false) {
-    loading()
+    // loading()
     op_extras.push({
         'id': id_op_extra,
         'nome': nome_opcional,
@@ -1237,7 +1237,7 @@ async function novo_op_extra(id_op_extra, nome_opcional, valor_opcional, descric
     $('.valor_opcional_extra').mascaraDinheiro()
     $('#legenda_opcionais_extra').removeClass('none')
     await enviar_form()
-    end_loading()
+    // end_loading()
 }
 
 async function remover_opcional_extra(id_op_extra) {
@@ -1251,7 +1251,7 @@ async function remover_opcional_extra(id_op_extra) {
 
 async function atualizar_valores_op(carregar = false) {
     if (carregar) {
-        loading()
+        // loading()
     }
 
     try {
@@ -1262,13 +1262,13 @@ async function atualizar_valores_op(carregar = false) {
         $('#valores_outros_opcionais').modal('hide')
     } finally {
         if (carregar) {
-            end_loading()
+            // end_loading()
         }
     }
 }
 
 async function enviar_infos_gerencia() {
-    loading()
+    // loading()
 
     try {
         await enviar_form()
@@ -1277,12 +1277,12 @@ async function enviar_infos_gerencia() {
         alert(error)
         $('#modal_gerencia').modal('hide')
     } finally {
-        end_loading()
+        // end_loading()
     }
 }
 
 async function salvar_orcamento(salvar_previa = false) {
-    loading()
+    // loading()
 
     try {
         $('#salvar_previa').val(String(salvar_previa))
@@ -1291,7 +1291,7 @@ async function salvar_orcamento(salvar_previa = false) {
     } catch (error) {
         alert(error)
     } finally {
-        end_loading()
+        // end_loading()
     }
 }
 
@@ -1405,7 +1405,7 @@ function adicionar_periodo_novo(periodo = '', diasMarcados = [], check_ins = [],
 }
 
 function salvar_dados_do_pacote() {
-    loading()
+    // loading()
     const dados_pacote = $('#form_dados_pacote').serializeObject()
 
     $.ajax({
@@ -1436,7 +1436,7 @@ function salvar_dados_do_pacote() {
         $('.div-flutuante, #container_periodo .parcial').addClass('visivel')
         $('#btn_dados_pacote').prop('disabled', false)
     })
-    end_loading()
+    // end_loading()
 }
 
 async function preencher_op_extras(id_orcamento, editando = false) {
@@ -1561,7 +1561,7 @@ async function preencher_promocional(id_promocional) {
 }
 
 async function resetar_forms() {
-    loading()
+    // loading()
 
     await new Promise((resolve, reject) => {
         try {
@@ -1590,7 +1590,7 @@ async function resetar_forms() {
         }
     })
 
-    end_loading()
+    // end_loading()
 }
 
 async function mostrar_dados_pacote(pacote) {
@@ -1668,7 +1668,7 @@ async function mostrar_dados_pacote(pacote) {
                 disabled: 'readonly',
                 width: '100%'
             }).trigger('change')
-            verificar_horarios()
+            await verificar_horarios()
         }
     }).done(() => {
         $('#dados_do_pacote').modal('show')
@@ -1682,7 +1682,7 @@ function verificar_horarios() {
     const hora_check_out = moment($('#data_viagem').val().split(' - ')[1].split(' ')[1], 'HH:mm')
     let periodos_permitidos = $('#lista_de_periodos .periodos_aplicaveis')
 
-    periodos_permitidos.each(function (index, element) {
+    periodos_permitidos.each(async function (index, element) {
         let check_in_periodo = moment($(element).val().split(' - ')[0], 'DD/MM/YYYY');
         let check_out_periodo = moment($(element).val().split(' - ')[1], 'DD/MM/YYYY');
 
@@ -1693,9 +1693,9 @@ function verificar_horarios() {
             let hora_check_out_2 = moment($(`input[name=check_out_permitido_${index + 1}]`)[1].value, 'HH:mm')
 
             if (!(hora_check_in >= hora_check_in_1 && hora_check_in <= hora_check_in_2)) {
-                let resp = confirm('Horário de check in do grupo fora do permitido para o pacote. Alterar data de check in para se enquadrar?')
+                var resp1 = confirm('Horário de check in do grupo fora do permitido para o pacote. Alterar data de check in para se enquadrar?')
 
-                if (resp) {
+                if (resp1) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out.format('HH:mm')}`
                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
@@ -1705,15 +1705,21 @@ function verificar_horarios() {
             }
 
             if (!(hora_check_out >= hora_check_out_1 && hora_check_out <= hora_check_out_2)) {
-                let resp = confirm('Horário de check out do grupo fora do permitido para o pacote. Alterar data de check out para se enquadrar?')
+                var resp2 = confirm('Horário de check out do grupo fora do permitido para o pacote. Alterar data de check out para se enquadrar?')
 
-                if (resp) {
+                if (resp2) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out_2.format('HH:mm')}`
                     $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
                 } else {
                     $('#id_orcamento_promocional').val('').trigger('change')
                 }
+            }
+
+            if (resp1 || resp2) {
+                // loading()
+                await enviar_form()
+                // end_loading()
             }
         }
 
@@ -1839,7 +1845,7 @@ function atribuir_apelaido(input_apelido) {
 }
 
 async function editar_opcional_extra(pai, elemento) {
-    loading()
+    // loading()
     const id_pai = $(pai).attr('id')
     $(elemento).attr('title', $(elemento).val())
 
@@ -1856,7 +1862,7 @@ async function editar_opcional_extra(pai, elemento) {
     if ($(elemento).attr('id') == 'valor_op_extra') {
         await enviar_form()
     }
-    end_loading()
+    // end_loading()
 }
 
 function verficar_validade_opcionais(check_in) {
@@ -1931,7 +1937,7 @@ async function trocar_modalidade_desconto(btn) {
 }
 
 async function modalidade_so_ceu(editando = false) {
-    loading()
+    // loading()
 
     if (!editando) {
         $('#opcionais select').each(function () {
@@ -2037,5 +2043,5 @@ async function modalidade_so_ceu(editando = false) {
         await enviar_form()
         await separar_produtos($('#data_viagem'))
     }
-    end_loading()
+    // end_loading()
 }

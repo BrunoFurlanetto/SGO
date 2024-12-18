@@ -34,6 +34,7 @@
 </section>
 <script src="{% static 'js/script.js' %}"></script>
 <script>
+    let ajaxActiveRequests = 0;
     function loading() {
         $('.container_loading').removeClass('none')
     }
@@ -49,6 +50,22 @@
 
     $(document).ready(() => {
         end_loading()
+    })
+
+    // Função chamada antes de cada requisição AJAX
+    $(document).ajaxSend(function () {
+        ajaxActiveRequests++;
+        if (ajaxActiveRequests === 1) {
+            loading()
+        }
+    })
+
+    // Função chamada após cada requisição AJAX
+    $(document).ajaxComplete(function () {
+        ajaxActiveRequests--;
+        if (ajaxActiveRequests === 0) {
+            end_loading()
+        }
     })
 </script>
 </body>
