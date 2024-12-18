@@ -169,19 +169,22 @@ def processar_formulario(dados, user):
         while current_date <= date_check_out:
             days_list.append(current_date)
 
-            if usuario_financeiro:
-                period = OrcamentoPeriodo.objects.get(
-                    inicio_vigencia__lte=current_date,
-                    final_vigencia__gte=current_date,
-                    dias_semana_validos__in=[current_date.weekday()],
-                    liberado=True
-                )
-            else:
-                period = OrcamentoPeriodo.objects.get(
-                    inicio_vigencia__lte=current_date,
-                    final_vigencia__gte=current_date,
-                    dias_semana_validos__in=[current_date.weekday()]
-                )
+            try:
+                if usuario_financeiro:
+                    period = OrcamentoPeriodo.objects.get(
+                        inicio_vigencia__lte=current_date,
+                        final_vigencia__gte=current_date,
+                        dias_semana_validos__in=[current_date.weekday()],
+                    )
+                else:
+                    period = OrcamentoPeriodo.objects.get(
+                        inicio_vigencia__lte=current_date,
+                        final_vigencia__gte=current_date,
+                        dias_semana_validos__in=[current_date.weekday()],
+                        liberado=True
+                    )
+            except OrcamentoPeriodo.DoesNotExist:
+                return JsonError('Período da viagem não cadastrado ou não liberado para venda', status_code=404)
 
             period_days.append(period)
             current_date += timedelta(days=1)

@@ -456,7 +456,7 @@ def salvar_pacote(request):
                 return JsonError('Nome do pacote já existente.', status_code=409)
 
             dados_pacote_promocional = CadastroPacotePromocional(dados)
-
+        print(dados)
         try:
             pacote = dados_pacote_promocional.save(commit=False)
             pacote.save()

@@ -744,7 +744,8 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                     resolve(response['promocionais']);
                 },
                 error: function (xht, status, error) {
-                    reject(xht['responseJSON']['msg']);
+                    alert(xht['responseJSON']['msg'])
+                    reject(xht['responseJSON']['msg'])
                 }
             });
         });
