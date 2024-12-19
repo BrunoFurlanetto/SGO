@@ -1053,13 +1053,11 @@
         </script>
     {% endif %}
 
-    <div class="modal fade" id="modal_tratativas" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal modal-dialog-centered" role="document">
+    <div class="modal fade bd-example-modal-lg show" id="modal_tratativas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tratativas</h5>
+                    <h5 class="modal-title">Tratativas com <span></span></h5>
                     <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -1072,7 +1070,11 @@
                                 <thead style="text-align: center">
                                 <tr>
                                     <th>Status</th>
+                                    <th>Apelido</th>
                                     <th>Vencimento</th>
+                                    <th>Data ultima edição</th>
+                                    <th>Check in</th>
+                                    <th>Check out</th>
                                     <th>Valor</th>
                                     <th>Ganho/Perdido</th>
                                 </tr>

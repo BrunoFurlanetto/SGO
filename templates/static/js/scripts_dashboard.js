@@ -227,6 +227,7 @@ function modal_de_tratativas(id_tratativa) {
         success: function (response) {
             const orcamentos = response['orcamentos']
             const tabela_tratativas = $('#tabela_tratativas tbody').empty()
+            $('#modal_tratativas .modal-title span').text(orcamentos[0]['cliente'])
             $('#adicionar_tratativa').click(() => {
                 window.location.href = `/orcamento/tratativa/${id_tratativa}/`
             })
@@ -235,7 +236,11 @@ function modal_de_tratativas(id_tratativa) {
                 tabela_tratativas.append(
                     `<tr id="orcamento_${orcamento['id_orcamento']}">
                         <td>${orcamento['status']}</td>
+                        <td>${orcamento['apelido']}</td>
                         <td>${orcamento['vencimento']}</td>
+                        <td>${orcamento['data_edicao']}</td>
+                        <td>${orcamento['check_in']}</td>
+                        <td>${orcamento['check_out']}</td>
                         <td>R$ ${orcamento['valor']}</td>
                         <td style="white-space: nowrap">
                             <button type="button" id="ganho" class="button_ganho" onclick="alterar_status(this, ${orcamento['id_orcamento']})">

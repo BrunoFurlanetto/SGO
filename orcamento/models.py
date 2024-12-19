@@ -1413,9 +1413,14 @@ class Tratativas(models.Model):
         for orcamento in self.orcamentos.all():
             if not orcamento.previa:
                 orcamentos.append({
+                    'cliente': orcamento.cliente.__str__(),
                     'id_orcamento': orcamento.id,
                     'status': orcamento.status_orcamento.status,
+                    'apelido': orcamento.apelido,
                     'vencimento': orcamento.data_vencimento.strftime('%d/%m/%Y'),
+                    'data_edicao': orcamento.data_ultima_edicao.strftime('%d/%m/%Y'),
+                    'check_in': orcamento.check_in.astimezone().strftime('%d/%m/%Y %H:%M'),
+                    'check_out': orcamento.check_out.astimezone().strftime('%d/%m/%Y %H:%M'),
                     'valor': str(orcamento.valor).replace('.', ','),
                 })
 
