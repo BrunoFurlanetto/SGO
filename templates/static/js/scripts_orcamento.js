@@ -901,6 +901,27 @@ async function liberar_periodo(id_responsavel = null) {
     }
 }
 
+async function pegar_monitoria_valida() {
+    let check_in = $('#data_viagem').val().split(' - ')[0]
+    let select_monitoria = $('#id_tipo_monitoria')
+    let monitoria_selecionada = parseInt(select_monitoria.val())
+
+    $.ajax({
+        type: 'GET',
+        url: '/orcamento/pegar_monitoria_valida/',
+        data: {'check_in': check_in},
+        success: function (response) {
+            select_monitoria.empty().append('<option></option>')
+            for (let monitor of response['monitorias']) {
+                select_monitoria.append(`<option value="${monitor['id']}" ${monitor['id'] == monitoria_selecionada ? 'selected' : ''}>${monitor['nome']}</option>`)
+            }
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseJSON.msg)
+        }
+    })
+}
+
 async function separar_produtos(periodo) {
     let check_in = $(periodo).val().split(' - ')[0]
     let check_out = $(periodo).val().split(' - ')[1]
@@ -936,7 +957,8 @@ async function separar_produtos(periodo) {
                 }
                 resolve(response)
             }
-        }).done(() => {
+        }).done(async () => {
+            await pegar_monitoria_valida()
             $('#id_produto').prop('disabled', false)
             $('#subtotal').removeClass('none')
             if (!$('#so_ceu').prop('checked')) {

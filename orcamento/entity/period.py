@@ -11,6 +11,7 @@ class Period(BaseValue):
 
     def set_period_rate(self):
         taxa = 0
+
         try:
             taxa_periodo = TaxaPeriodo.objects.get(
                 inicio_vigencia__lte=self.date_to_check, 
@@ -21,6 +22,6 @@ class Period(BaseValue):
         else:
             taxa = taxa_periodo.valor
             self.values[0] = float(taxa)
-        print(self.values, '-----')
+
         return self.values
  

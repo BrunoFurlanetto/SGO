@@ -69,7 +69,6 @@ class Budget:
         self.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
 
         # Veriricação se aplica tava MP
-        print(self.daily_rate)
         self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data.get('only_sky') and not data.get('promocional') else ...
 
         if not self.period.values:
@@ -110,7 +109,7 @@ class Budget:
         else:
             for key, value in valores_op.items():
                 opt_data.append(value)
-        print(opt_data)
+
         self.set_optional(opt_data)
         self.optional.calc_value_optional(self.array_description_optional)
         self.set_others(data.get("opcionais_extra"))

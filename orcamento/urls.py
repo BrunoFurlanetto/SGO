@@ -19,6 +19,7 @@ urlpatterns = [
     path('verificar_responsaveis/', views.verificar_responsaveis, name='verificar_responsaveis'),
     path('pesquisar_op/', views.pesquisar_op, name='pesquisar_op'),
     path('pegar_dados_pacote/', views.pegar_dados_pacote, name='pegar_dados_pacote'),
+    path('pegar_monitoria_valida/', views.pegar_monitoria_valida, name='pegar_monitoria_valida'),
     path('salvar_pacote/', views.salvar_pacote, name='salvar_pacote'),
     path('verificar_gerencia/', views.veriricar_gerencia, name='verificar_gerencia'),
     path('pdf_orcamento/<str:id_tratativa>/', views.gerar_pdf, name='pdf_orcamento'),

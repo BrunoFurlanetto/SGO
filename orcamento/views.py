@@ -64,7 +64,7 @@ def clonar_orcamento(request, id_tratativa, ):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or orcamento.tipo_de_pacote.so_ceu else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
         ),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
@@ -102,7 +102,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.objeto_gerencia,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or orcamento.tipo_de_pacote.so_ceu else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
         ),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
@@ -257,7 +257,7 @@ def calc_budget(req):
         # GERANDO ORÇAMENTO
         business_fee = None
         commission = None
-        print(data['periodo_viagem'])
+
         business_fee = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
         commission = gerencia["comissao"] if "comissao" in gerencia else ...
         budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
@@ -395,7 +395,7 @@ def validar_produtos(request):
         produtos = list(chain(ProdutosPeraltas.objects.filter(n_dias=n_pernoites)))
         produtos.append(ProdutosPeraltas.objects.get(produto__icontains='all party'))
         tipos_de_pacote = TiposDePacote.objects.filter(n_diarias=n_pernoites + 1)
-        print(request.GET.get('so_ceu'))
+
         if n_pernoites == 0:
             if request.GET.get('so_ceu') == 'true':
                 produtos.append(ProdutosPeraltas.objects.get(produto__icontains='ceu'))
@@ -456,7 +456,7 @@ def salvar_pacote(request):
                 return JsonError('Nome do pacote já existente.', status_code=409)
 
             dados_pacote_promocional = CadastroPacotePromocional(dados)
-        print(dados)
+
         try:
             pacote = dados_pacote_promocional.save(commit=False)
             pacote.save()
@@ -535,4 +535,28 @@ def verificar_dados_so_ceu(request):
             'id_produto': id_produto,
             'id_monitoria': id_monitoria,
             'id_pacotes_so_ceu': [pacote.id for pacote in pacotes_so_ceu],
+        })
+
+
+def pegar_monitoria_valida(request):
+    if is_ajax(request):
+        check_in = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
+
+        try:
+            if request.user.groups.filter(name__icontains='financeiro').exists():
+                monitorias_validas = OrcamentoMonitor.objects.filter(
+                    inicio_vigencia__lte=check_in,
+                    final_vigencia__gte=check_in,
+                )
+            else:
+                monitorias_validas = OrcamentoMonitor.objects.filter(
+                    inicio_vigencia__lte=check_in,
+                    final_vigencia__gte=check_in,
+                    liberado=True
+                )
+        except OrcamentoMonitor.DoesNotExist:
+            return JsonError('Sem tarifário de monitoria para o período em questão', status_code=404)
+
+        return JsonResponse({
+            'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria} for monitoria in monitorias_validas]
         })

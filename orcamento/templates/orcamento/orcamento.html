@@ -842,6 +842,8 @@
                     allowZero: true,
                     affixesStay: false,
                 })
+                console.log("{{ orcamento_origem.tipo_monitoria.id }}")
+                await pegar_monitoria_valida()
 
                 {% if dados_pacote %}
                     $('#data_viagem').trigger('change')
