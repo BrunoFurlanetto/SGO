@@ -524,16 +524,16 @@ def verificar_dados_so_ceu(request):
     if is_ajax(request):
         data = datetime.datetime.strptime(request.GET.get('check_in'), '%d/%m/%Y %H:%M').date()
         id_produto = ProdutosPeraltas.objects.get(produto__icontains='só ceu').id
-        id_monitoria = OrcamentoMonitor.objects.filter(
+        ids_monitoria = OrcamentoMonitor.objects.filter(
             inicio_vigencia__lte=data,
             final_vigencia__gte=data,
             sem_monitoria=True
-        ).first().id
+        )
         pacotes_so_ceu = TiposDePacote.objects.filter(so_ceu=True)
 
         return JsonResponse({
             'id_produto': id_produto,
-            'id_monitoria': id_monitoria,
+            'ids_monitoria': [monitoria.id for monitoria in ids_monitoria],
             'id_pacotes_so_ceu': [pacote.id for pacote in pacotes_so_ceu],
         })
 
@@ -558,5 +558,5 @@ def pegar_monitoria_valida(request):
             return JsonError('Sem tarifário de monitoria para o período em questão', status_code=404)
 
         return JsonResponse({
-            'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria} for monitoria in monitorias_validas]
+            'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria, 'sem': monitoria.sem_monitoria} for monitoria in monitorias_validas]
         })

@@ -913,7 +913,7 @@ async function pegar_monitoria_valida() {
         success: function (response) {
             select_monitoria.empty().append('<option></option>')
             for (let monitor of response['monitorias']) {
-                select_monitoria.append(`<option value="${monitor['id']}" ${monitor['id'] == monitoria_selecionada ? 'selected' : ''}>${monitor['nome']}</option>`)
+                select_monitoria.append(`<option ${$('#so_ceu') && monitor['sem'] ? 'selected' : ''} value="${monitor['id']}" ${monitor['id'] == monitoria_selecionada ? 'selected' : ''}>${monitor['nome']}</option>`)
             }
         },
         error: function (xhr, status, error) {

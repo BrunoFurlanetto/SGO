@@ -832,6 +832,7 @@
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
                 await preencher_op_extras({{ id_orcamento|safe }}, true)
+                $('#data_viagem').trigger('change')
                 $('#id_produto').data('programmatic', true)
                 $('#id_produto, #id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
                 $('#conteudo_primeiro select').prop('disabled', true)
