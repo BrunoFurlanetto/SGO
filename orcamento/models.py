@@ -803,7 +803,7 @@ class DadosDePacotes(models.Model):
         return novos_periodos
 
     def montar_dados_periodos(self):
-        def unidade_base(periodo, intervalo, lista_dias, check_ins, check_outs):
+        def unidade_base(i, periodo, intervalo, lista_dias, check_ins, check_outs):
             return f"""
                 <div class="mt-3 div_periodos_aplicaveis" style="display: flex; column-gap: 10px">
                     <div class="periodos">
@@ -855,17 +855,17 @@ class DadosDePacotes(models.Model):
                         <div id="check_in" >
                             <label>Periodo de check in</label>
                             <div>
-                                <input type="time" name="check_in_permitido_1" value="{check_ins[0]}">
+                                <input type="time" name="check_in_permitido_{i}" value="{check_ins[0]}">
                                 a
-                                <input type="time" name="check_in_permitido_1" value="{check_ins[1]}">
+                                <input type="time" name="check_in_permitido_{i}" value="{check_ins[1]}">
                             </div>
                         </div>
                         <div id="check_out" class="mt-2">
                             <label>Periodo de check out</label>
                             <div>
-                                <input type="time" name="check_out_permitido_1" value="{check_outs[0]}">
+                                <input type="time" name="check_out_permitido_{i}" value="{check_outs[0]}">
                                 a
-                                <input type="time" name="check_out_permitido_1" value="{check_outs[1]}">
+                                <input type="time" name="check_out_permitido_{i}" value="{check_outs[1]}">
                             </div>
                         </div>
                     </div>
@@ -878,12 +878,12 @@ class DadosDePacotes(models.Model):
         for i, periodo in enumerate(self.periodos_aplicaveis, start=1):
             print(i, periodo)
             html_dados += unidade_base(
+                i,
                 f'periodo_{i}',
                 periodo[f'periodo_{i}'],
                 periodo[f'dias_periodos_{i}'],
                 periodo[f'check_in_permitido_{i}'].split(' - ') if periodo.get(f'check_in_permitido_{i}') else ['', ''],
-                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['',
-                                                                                                                  ''],
+                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['', ''],
             )
 
         return html_dados
