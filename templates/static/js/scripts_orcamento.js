@@ -975,7 +975,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     function formatarPorcentagem(valor, valorAtual) {
         return valor != null ? valor.toString().replace('.', ',') + '%' : valorAtual;
     }
-
+    console.log(dados_taxas)
     let taxa_negocial = $('#taxa_comercial')
     let comissao = $('#comissao')
     let desconto = $('#desconto_geral')
@@ -1036,6 +1036,7 @@ async function verificar_pacotes_promocionais(editando = false) {
                 'n_dias': n_dias
             },
             success: async function (response) {
+                console.log(editando)
                 if (!editando) {
                     await alterar_valores_das_taxas(response['dados_taxas']);
                 }
@@ -1043,7 +1044,8 @@ async function verificar_pacotes_promocionais(editando = false) {
                 const promocionais = response['promocionais']
                 const ids = promocionais.map(obj => obj.id)
                 let select_promocionais = $('#id_orcamento_promocional')
-
+                const id_promocional_selecionado = parseInt(select_promocionais.val())
+                console.log(ids.includes(id_promocional_selecionado), ids, id_promocional_selecionado)
                 if (response['dados_taxas']['so_ceu'] && $('#so_ceu').prop('checked')) {
                     await verificar_preenchimento()
                     await verificar_monitoria_transporte()
@@ -1067,7 +1069,7 @@ async function verificar_pacotes_promocionais(editando = false) {
 
                 for (let promocional of promocionais) {
                     $('#id_orcamento_promocional').append(
-                        `<option value="${promocional['id']}">${promocional['nome']}</option>`
+                        `<option value="${promocional['id']}" ${promocional['id'] == id_promocional_selecionado ? 'selected' : ''}>${promocional['nome']}</option>`
                     ).prop('disabled', false)
                 }
             }

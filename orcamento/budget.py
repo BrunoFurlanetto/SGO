@@ -69,8 +69,8 @@ class Budget:
         self.transport.set_discount(gerencia["desconto_transporte"]) if "desconto_transporte" in gerencia else ...
 
         # Veriricação se aplica tava MP
-        self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data[
-            'only_sky'] and data.get('promocional', '') != 'on' else ...
+        print(self.daily_rate)
+        self.period.set_period_rate() if data.get('orcamento_promocional', '') == '' and not data.get('only_sky') and not data.get('promocional') else ...
 
         if not self.period.values:
             return

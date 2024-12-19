@@ -21,6 +21,6 @@ class Period(BaseValue):
         else:
             taxa = taxa_periodo.valor
             self.values[0] = float(taxa)
-
+        print(self.values, '-----')
         return self.values
  

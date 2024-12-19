@@ -257,7 +257,7 @@ def calc_budget(req):
         # GERANDO ORÇAMENTO
         business_fee = None
         commission = None
-
+        print(data['periodo_viagem'])
         business_fee = gerencia["taxa_comercial"] if "taxa_comercial" in gerencia else ...
         commission = gerencia["comissao"] if "comissao" in gerencia else ...
         budget = Budget(data['periodo_viagem'], data['n_dias'], data["hora_check_in"],
