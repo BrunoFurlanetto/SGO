@@ -132,6 +132,7 @@ class OrdemDeServico(models.Model):
     locacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
     ficha_de_avaliacao = models.FileField(blank=True, null=True, upload_to='avaliacoes/%Y/%m/%d')
+    observacoes_ficha_de_evento = models.TextField(blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)
     ficha_avaliacao = models.BooleanField(default=False)

@@ -62,7 +62,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
             'locacoes_ceu': locacoes_ceu,
             'atividades_eco': atividades_eco,
             'atividades_peraltas': atividades_peraltas,
-            'id_observacoes': ficha_de_evento.observacoes,
+            'id_observacoes_ficha_de_evento': ficha_de_evento.observacoes,
             'corporativo': not ficha_de_evento.produto.colegio
         }
 

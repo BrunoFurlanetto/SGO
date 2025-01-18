@@ -522,8 +522,13 @@
                 {% endif %}
                 <hr>
                 <div>
+                    <h5 class="titulo-secao">Observações</h5>
                     <div class="row mb-3">
-                        <h5 class="titulo-secao">Outras observações</h5>
+                        <label>Observações da ficha de evento</label>
+                        {{ form.observacoes_ficha_de_evento }}
+                    </div>
+                    <div class="row mb-3">
+                        <label>Observações da ordem de servico</label>
                         {{ form.observacoes }}
                     </div>
                 </div>
