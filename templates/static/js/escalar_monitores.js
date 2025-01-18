@@ -78,9 +78,9 @@ async function verificar_racionais() {
         $('#escalar').append('<div id="alerta_monitores" class="alerta_racionais"><p class="alert alert-danger">Número de monitores escalados acima do permitido para o evento!</p></div>')
     }
 
-    if (coordenadores_totais > n_coordenadores) {
-        $('#escalar').append('<div id="alerta_coordenadores" class="alerta_racionais"><p class="alert alert-danger">Número de coordenadores escalados acima do permitido para o evento!</p></div>')
-    }
+    // if (coordenadores_totais > n_coordenadores) {
+    //     $('#escalar').append('<div id="alerta_coordenadores" class="alerta_racionais"><p class="alert alert-danger">Número de coordenadores escalados acima do permitido para o evento!</p></div>')
+    // }
 }
 
 async function escalado(espaco) {

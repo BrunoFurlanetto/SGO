@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
+from ordemDeServico.models import OrdemDeServico
 # from cozinha.models import RelatorioDia, Relatorio
 from painelDiretoria.models import Metas
 from peraltas.models import Eventos, ProdutosPeraltas, EscalaAcampamento
@@ -28,7 +29,7 @@ def index(request):
 def estatisticas_monitoria(request):
     escalas = EscalaAcampamento.objects.filter(
         check_in_cliente__date__gte=datetime.today().date(),
-        check_out_cliente__date__lte=(datetime.today() + timedelta(days=6)).date(),
+        check_out_cliente__date__lte=(datetime.today() + timedelta(days=15)).date(),
     ).order_by('check_in_cliente')
     grupos = [('Grupo', 'cliente'), ('Tipo', 'ficha_de_evento.produto'),
               ('Participantes', 'ficha_de_evento.qtd_convidada')]
@@ -39,18 +40,19 @@ def estatisticas_monitoria(request):
     n_coordenadores = []
 
     for escala in escalas:
-        escala.coordenadores = []
         escala.monitores = []
         data = escala.check_in_cliente.date()
+
+        if escala.ficha_de_evento.os:
+            ordem = OrdemDeServico.objects.get(ficha_de_evento=escala.ficha_de_evento)
+            escala.coordenadores = [monitor for monitor in ordem.monitor_responsavel.all()]
 
         if data not in escalas_por_data:
             escalas_por_data[data] = []
 
         for monitor in escala.monitores_acampamento.all():
             try:
-                if monitor.nivel.coordenacao:
-                    escala.coordenadores.append(monitor)
-                else:
+                if monitor not in escala.coordenadores:
                     escala.monitores.append(monitor)
             except AttributeError:
                 escala.monitores.append(monitor)
