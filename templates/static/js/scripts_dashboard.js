@@ -16,12 +16,14 @@ $(document).ready(() => {
     // $('#tabela_relatorio').iniciarlizarDataTable([], undefined)
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
-        $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
-        $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala, #tabela_com_escala').iniciarlizarDataTable(3, 3)
+        $('#status #tabela_status_ficha').iniciarlizarDataTable(5, 5)
+        $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_avisos, #tabela_sem_escala, #tabela_com_escala').iniciarlizarDataTable(3, 3)
+        $('#tabela_status_ordem').iniciarlizarDataTable([4], 4)
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)
-        $('#tabela_status_ordem, #tabela_status_ficha').iniciarlizarDataTable([4, 5], 4)
+        $('#tabela_status_ordem').iniciarlizarDataTable([5], 5)
+        $('#tabela_status_ficha').iniciarlizarDataTable([5], 6)
     }
 })
 
