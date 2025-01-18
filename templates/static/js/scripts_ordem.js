@@ -208,10 +208,6 @@ function completar_dados_os(selecao) {
     }, 600)
 }
 
-function completar_dados_cliente() {
-
-}
-
 function atualizar_participantes(participantes) {
     $('#mensagens_preenchimento_atividades').empty()
 
