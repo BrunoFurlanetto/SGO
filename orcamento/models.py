@@ -1568,11 +1568,19 @@ class CadastroOrcamento(forms.ModelForm):
         # Itera sobre todas as categorias de opcionais
         for categoria in CategoriaOpcionais.objects.all():
             # Obtém os opcionais pertencentes a essa categoria
-            opcionais = OrcamentoOpicional.objects.filter(
-                categoria=categoria,
-                # inicio_vigencia__lte=timezone.now().date(),
-                # final_vigencia__gte=timezone.now().date()
-            ).order_by('nome')
+
+            if self.instance.pk is None or self.instance.previa:
+                opcionais = OrcamentoOpicional.objects.filter(
+                    categoria=categoria,
+                    inicio_vigencia__lte=timezone.now().date(),
+                    final_vigencia__gte=timezone.now().date(),
+                    liberado=True
+                ).order_by('nome')
+            else:
+                opcionais = OrcamentoOpicional.objects.filter(
+                    categoria=categoria,
+                    liberado=True
+                ).order_by('nome')
             # Define um nome e id customizado para o campo
             field_name = f'opcionais_{categoria.id}'
 

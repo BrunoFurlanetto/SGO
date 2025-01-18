@@ -11,13 +11,16 @@ class DailyRate(BaseValue):
         self.periods = periods
         self.days = int(days)
     
-    def calc_daily_rate(self):
+    def calc_daily_rate(self, so_ceu=False):
         check_in = float(HorariosPadroes.objects.get(pk=self.check_in_id).racional)
         check_out = float(HorariosPadroes.objects.get(pk=self.check_out_id).racional)
         values = []
 
         if self.days == 1:
-            value_period = float((self.periods[0]).valor)
+            if not so_ceu:
+                value_period = float((self.periods[0]).valor)
+            else:
+                value_period = 0.00
             values.append(value_period)
         else:
             value_period_check_in = float(self.periods[0].valor)
@@ -25,7 +28,11 @@ class DailyRate(BaseValue):
             values.append(check_in * value_period_check_in)
 
             for i in range(1, (len(self.periods) - 1)):
-                value_period = float((self.periods[i]).valor)
+                if not so_ceu:
+                    value_period = float((self.periods[i]).valor)
+                else:
+                    value_period = 0.00
+
                 values.append(value_period)
 
             values.append(check_out * value_period_check_out)
@@ -36,8 +43,10 @@ class DailyRate(BaseValue):
     
     def general_discount_daily(self, value):
         discount = float(value)
+
         if self.discount > 0:
             discount = self.discount + float(value)
+
         self.set_discount(discount)
 
     def do_object(self):

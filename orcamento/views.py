@@ -491,7 +491,11 @@ def verificar_validade_opcionais(request):
 
         return JsonResponse({'id_opcionais': [
             op.id for op in
-            OrcamentoOpicional.objects.filter(inicio_vigencia__lte=check_in, final_vigencia__gte=check_in)
+            OrcamentoOpicional.objects.filter(
+                inicio_vigencia__lte=check_in,
+                final_vigencia__gte=check_in,
+                liberado=True
+            )
         ]})
 
 
@@ -527,7 +531,8 @@ def verificar_dados_so_ceu(request):
         ids_monitoria = OrcamentoMonitor.objects.filter(
             inicio_vigencia__lte=data,
             final_vigencia__gte=data,
-            sem_monitoria=True
+            sem_monitoria=True,
+            liberado=True
         )
         pacotes_so_ceu = TiposDePacote.objects.filter(so_ceu=True)
 

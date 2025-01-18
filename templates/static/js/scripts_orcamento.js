@@ -1904,7 +1904,7 @@ function verficar_validade_opcionais(check_in) {
                     let opValue = parseInt(op.val())
 
                     if (!response['id_opcionais'].includes(opValue)) {
-                        op.prop('disabled', true)
+                        $(op).addClass('none').prop('disabled', true)
 
                         if (op.is(':selected')) {
                             select.val(select.val().filter(value => value != op.val())).trigger('change');
@@ -1916,7 +1916,7 @@ function verficar_validade_opcionais(check_in) {
                             });
                         }
                     } else {
-                        op.prop('disabled', false);
+                        $(op).removeClass('none').prop('disabled', false)
                     }
                 })
             })
