@@ -101,7 +101,6 @@ class ValoresPadrao(models.Model):
 
     @property
     def valor_minimo_formatado(self):
-        print(self.nome_taxa, self.valor_minimo)
         if self.comportamento == 'porcentagem':
             return f'{self.valor_minimo}%'.replace('.', ',')
 
@@ -133,16 +132,16 @@ class ValoresPadrao(models.Model):
         taxas_base = cls.objects.filter(id_taxa__in=['taxa_comercial', 'comissao', 'desconto_geral'])
 
         return {
-            'teto_desconto_geral': taxas_base.get(id_taxa='desconto_geral').valor_padrao,
+            'teto_desconto_geral': float(taxas_base.get(id_taxa='desconto_geral').valor_padrao),
             'taxa_negocial': {
-                'piso_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_minimo,
-                'padrao_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_padrao,
-                'teto_taxa_negocial': taxas_base.get(id_taxa='taxa_comercial').valor_maximo,
+                'piso_taxa_negocial': float(taxas_base.get(id_taxa='taxa_comercial').valor_minimo),
+                'padrao_taxa_negocial': float(taxas_base.get(id_taxa='taxa_comercial').valor_padrao),
+                'teto_taxa_negocial': float(taxas_base.get(id_taxa='taxa_comercial').valor_maximo),
             },
             'comissao': {
-                'piso_comissao': taxas_base.get(id_taxa='comissao').valor_minimo,
-                'padrao_comissao': taxas_base.get(id_taxa='comissao').valor_padrao,
-                'teto_comissao': taxas_base.get(id_taxa='comissao').valor_maximo,
+                'piso_comissao': float(taxas_base.get(id_taxa='comissao').valor_minimo),
+                'padrao_comissao': float(taxas_base.get(id_taxa='comissao').valor_padrao),
+                'teto_comissao': float(taxas_base.get(id_taxa='comissao').valor_maximo),
             }
         }
 

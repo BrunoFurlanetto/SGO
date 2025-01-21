@@ -1,4 +1,6 @@
 let resultado_ultima_consulta = {}
+let valores_taxas = {}
+let valores_taxas_padrao = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar, promocional, editando_pacote = false
@@ -997,7 +999,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     function formatarPorcentagem(valor, valorAtual) {
         return valor != null ? valor.toString().replace('.', ',') + '%' : valorAtual;
     }
-    console.log(dados_taxas)
+
     let taxa_negocial = $('#taxa_comercial')
     let comissao = $('#comissao')
     let desconto = $('#desconto_geral')
@@ -1035,6 +1037,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     }).attr({
         'data-teto': dados_taxas['teto_desconto_geral']
     })
+    valores_taxas = {}
 }
 
 async function verificar_pacotes_promocionais(editando = false) {
@@ -1058,9 +1061,14 @@ async function verificar_pacotes_promocionais(editando = false) {
                 'n_dias': n_dias
             },
             success: async function (response) {
-                console.log(editando)
-                if (!editando) {
-                    await alterar_valores_das_taxas(response['dados_taxas']);
+                console.log(response['dados_taxas'])
+                if (!editando && $('#id_orcamento_promocional').val() != '') {
+                    await alterar_valores_das_taxas(response['dados_taxas'])
+                    valores_taxas = {}
+                } else if (id_tipo_de_pacote == ''){
+                    await alterar_valores_das_taxas(response['dados_taxas'])
+                } else if ($('#id_orcamento_promocional').val() == '') {
+                    valores_taxas = response['dados_taxas']
                 }
 
                 const promocionais = response['promocionais']
@@ -1621,8 +1629,9 @@ async function mostrar_dados_pacote(pacote) {
     }
     // $('#opcionais select').val('').trigger('change')
 
-
     if (id_pacote == '') {
+        await alterar_valores_das_taxas(valores_taxas_padrao)
+
         if ($('#id_promocional').prop('checked')) {
             return
         }
@@ -1689,6 +1698,11 @@ async function mostrar_dados_pacote(pacote) {
                 disabled: 'readonly',
                 width: '100%'
             }).trigger('change')
+
+            if (Object.keys(valores_taxas).length > 0) {
+                await alterar_valores_das_taxas(valores_taxas)
+            }
+
             await verificar_horarios()
         }
     }).done(() => {

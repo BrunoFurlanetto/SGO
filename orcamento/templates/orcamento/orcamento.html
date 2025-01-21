@@ -116,7 +116,7 @@
                                     <strong>Apelido do orçamento:</strong> {{ orcamento_origem.apelido }}
                                     <br>
                                 {% endif %}
-                                {% if dados_pacote.nome_do_pacote %}
+                                {% if financeiro %}
                                     <strong>Nome do pacote:</strong> {{ dados_pacote.nome_do_pacote }}
                                 {% endif %}
                             </div>
@@ -829,6 +829,7 @@
 
     <script>
         $(document).ready(async () => {
+            valores_taxas_padrao = {{ valores_taxas_padrao | safe }}
             {% if id_orcamento %}
                 editando_pacote = true
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
@@ -860,7 +861,7 @@
                 {% endif %}
 
             {% else %}
-                await inicializacao();
+                await inicializacao()
             {% endif %}
         })
     </script>
