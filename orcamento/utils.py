@@ -245,3 +245,15 @@ def compilar_outros(dados, op_extras):
         })
 
     return outros
+
+
+def pegar_datas_padroes_pacotes_salvos(data_inicial, dias_semana, check_in_permitido, check_out_permitido, dias):
+    data = datetime.strptime(data_inicial, '%d/%m/%Y')
+
+    while data.weekday() not in dias_semana:
+        data += timedelta(days=1)
+
+    check_in_inicial = data.strftime('%d/%m/%Y') + ' ' + check_in_permitido
+    check_out_final = (data + timedelta(days=dias - 1)).strftime('%d/%m/%Y') + ' ' + check_out_permitido
+
+    return check_in_inicial, check_out_final

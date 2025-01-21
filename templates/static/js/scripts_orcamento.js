@@ -1438,12 +1438,9 @@ function salvar_dados_do_pacote() {
         data: dados_pacote,
         success: function (response) {
             $('#id_pacote, #id_pacote_promocional').val(response['id_pacote'])
-            const min_diarias = parseInt(response['diarias'])
-            const data_1 = moment($('#periodo_1').val().split(' - ')[0], 'DD/MM/YYYY')
-            const data_2 = moment(data_1).add(min_diarias - 1, 'd')
             let periodo = $('#data_viagem').data('daterangepicker')
-            periodo.setStartDate(data_1.format('DD/MM/YYYY') + ' ' + response['menor_horario']);
-            periodo.setEndDate(data_2.format('DD/MM/YYYY') + ' ' + response['maior_horario']);
+            periodo.setStartDate(response['data_inicial'])
+            periodo.setEndDate(response['data_final'])
             $('#data_viagem').val(periodo.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + periodo.endDate.format('DD/MM/YYYY HH:mm')).trigger('change');
             $('#id_tipo_de_pacote').val($('#id_tipos_de_pacote_elegivel').val())
             $('#id_tipo_de_pacote').prop('disabled', false).trigger('change')

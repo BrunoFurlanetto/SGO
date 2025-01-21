@@ -16,7 +16,7 @@ from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
     DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
     CategoriaOpcionais, OrcamentoMonitor
-from .utils import verify_data, processar_formulario, JsonError
+from .utils import verify_data, processar_formulario, JsonError, pegar_datas_padroes_pacotes_salvos
 from .budget import Budget
 
 
@@ -469,11 +469,18 @@ def salvar_pacote(request):
             menor_horario = dados.get('check_in_permitido_1[]')
             maior_horario = dados.get('check_out_permitido_1[]')
 
+            data_inicial, data_final = pegar_datas_padroes_pacotes_salvos(
+                request.POST.get('periodo_1').split(' - ')[0],
+                list(map(int, request.POST.getlist('dias_periodo_1[]'))),
+                menor_horario,
+                maior_horario,
+                diarias
+            )
+
             return JsonResponse({
                 'id_pacote': pacote.id,
-                'menor_horario': menor_horario,
-                'maior_horario': maior_horario,
-                'diarias': diarias
+                'data_inicial': data_inicial,
+                'data_final': data_final,
             })
 
 
