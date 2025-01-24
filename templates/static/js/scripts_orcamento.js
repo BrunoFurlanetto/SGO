@@ -1061,8 +1061,10 @@ async function verificar_pacotes_promocionais(editando = false) {
                 'n_dias': n_dias
             },
             success: async function (response) {
-                console.log(response['dados_taxas'])
                 if (!editando && $('#id_orcamento_promocional').val() != '') {
+                    await alterar_valores_das_taxas(response['dados_taxas'])
+                    valores_taxas = {}
+                } else if ($('#id_promocional').prop('checked')) {
                     await alterar_valores_das_taxas(response['dados_taxas'])
                     valores_taxas = {}
                 } else if (id_tipo_de_pacote == ''){
