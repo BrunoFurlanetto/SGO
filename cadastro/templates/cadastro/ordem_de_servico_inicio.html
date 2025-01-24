@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <div class="row conteudo-os">
+        <div class="titulo-os">
+            <center>
+                <h2>Ordem de serviço</h2>
+            </center>
+            <hr>
+        </div>
+        <form action="{% url 'ordem_de_servico' %}" method="POST">
+            <fieldset id="fieldset">
+                {% csrf_token %}
+                {% if not ordem_servico %}
+                    <div style="width: 75%">
+                        <label>Ficha de evento</label>
+                        <select name="ficha_de_evento" id="ficha_de_evento" onchange="this.form.submit()">
+                            <option selected></option>
+                            {% for ficha in fichas %}
+                                <option value="{{ ficha.id }}"
+                                        {% if ficha_de_evento and ficha_de_evento.id == ficha.id %}
+                                        selected {% endif %}>{{ ficha.cliente.nome_fantasia }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <hr>
+                {% endif %}
+            </fieldset>
+        </form>
+    </div>
+                
+    <script src="{% static 'js/scripts_ordem.js' %}"></script>
+{% endblock %}

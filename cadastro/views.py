@@ -324,6 +324,17 @@ def empresa(request, id_relatorio=None):
 
 
 @login_required(login_url='login')
+def inicioOrdemDeServico(request):
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False).order_by('check_in')
+
+    if request.method == 'POST' and request.POST.get('ficha_de_evento') != '':
+        return redirect('ordem_de_servico_com_ficha', int(request.POST.get('ficha_de_evento')))
+
+    return render(request, 'cadastro/ordem_de_servico_inicio.html', {
+        'fichas': fichas_de_evento,
+    })
+
+@login_required(login_url='login')
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
