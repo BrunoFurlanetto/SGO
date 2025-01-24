@@ -1,4 +1,3 @@
-const pdfContainer = document.getElementById('paginas_pdf_orcamento');
 let scale = 1.0;
 
 
@@ -53,21 +52,21 @@ function updateScale() {
     }
 }
 
-function createPDF() {
-    const doc = new jsPDF()
-    var specialElementHandlers = {
-        '#getPDF': function (element, renderer) {
-            return true;
-        },
-        '.controls': function (element, renderer) {
-            return true;
-        }
-    };
-
-    // All units are in the set measurement for the document
-    // This can be changed to "pt" (points), "mm" (Default), "cm", "in"
-    doc.fromHTML($('.pagina').get(0), 15, 15, {
-        'width': 170,
-        'elementHandlers': specialElementHandlers
-    });
-}
+// function createPDF() {
+//     const doc = new jsPDF()
+//     var specialElementHandlers = {
+//         '#getPDF': function (element, renderer) {
+//             return true;
+//         },
+//         '.controls': function (element, renderer) {
+//             return true;
+//         }
+//     };
+//
+//     // All units are in the set measurement for the document
+//     // This can be changed to "pt" (points), "mm" (Default), "cm", "in"
+//     doc.fromHTML($('.pagina').get(0), 15, 15, {
+//         'width': 170,
+//         'elementHandlers': specialElementHandlers
+//     });
+// }
