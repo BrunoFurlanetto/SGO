@@ -731,7 +731,7 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                         const total = response['data']['total']['valor_final']
                         const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros)
                         const total_formatado = formatar_dinheiro(total)
-
+                        console.trace(opcionais_e_atividades_formatado)
                         // Alteração dos valores das seções
                         $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado) // Periodo da viagem
                         $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado) // Monitoria + transporte
@@ -1196,7 +1196,7 @@ async function enviar_op() {
     // loading()
 
     try {
-        await enviar_form()
+        // await enviar_form()
         $('#container_opcionais .parcial').addClass('visivel')
     } catch (error) {
         $('#container_opcionais .parcial').text('').removeClass('visivel')

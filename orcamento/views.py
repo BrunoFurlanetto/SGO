@@ -308,7 +308,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
     pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
     promocional.orcamento.orcamento_promocional = promocional
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
-
+    print('Aqui mesmo')
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': promocional.orcamento,
