@@ -830,6 +830,7 @@
     <script>
         $(document).ready(async () => {
             valores_taxas_padrao = {{ valores_taxas_padrao | safe }}
+
             {% if id_orcamento %}
                 editando_pacote = true
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
@@ -847,7 +848,8 @@
                     allowZero: true,
                     affixesStay: false,
                 })
-                console.log("{{ orcamento_origem.tipo_monitoria.id }}")
+                opcionais_promocionais = {{ ids_opts_promocionais | safe }}
+
                 await pegar_monitoria_valida()
 
                 {% if dados_pacote %}
@@ -860,6 +862,7 @@
                     await verificar_pacotes_promocionais(true)
                 {% endif %}
 
+                alterar_cor_op()
             {% else %}
                 await inicializacao()
             {% endif %}

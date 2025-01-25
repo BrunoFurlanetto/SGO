@@ -18,6 +18,7 @@ const secoes = [
     'opcionais',
     'opcionais_extras'
 ]
+let opcionais_promocionais = []
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
@@ -144,7 +145,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         } catch (error) {
             alert(error)
         } finally {
-            // end_loading()
+            alterar_cor_op()
         }
     })
 
@@ -161,7 +162,14 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
             // await atualizar_valores_op()
             await listar_op(null, opcao, null, '0,00', '0,00', true)
             await enviar_form()
+            alterar_cor_op()
             // end_loading()
+        }
+    })
+
+    $('select[name="opcionais"]').on("select2:unselecting", async function (e) {
+        if (opcionais_promocionais.includes(parseInt(e.params.args.data.id))) {
+            e.preventDefault()
         }
     })
 
@@ -1487,6 +1495,23 @@ async function preencher_op_extras(id_orcamento, editando = false) {
     })
 }
 
+function alterar_cor_op() {
+    let opcionais = $('#opcionais select option')
+
+    for (let op of opcionais) {
+        let value = parseInt($(op).val())
+        let title = $(op).text()
+
+        setTimeout(() => {
+            if (opcionais_promocionais.includes(value)) {
+                $(`li[title="${title}"]`).addClass('op_bloqueado')
+            } else {
+                $(`li[title="${title}"]`).removeClass('op_bloqueado')
+            }
+        }, 100)
+    }
+}
+
 async function preencher_promocional(id_promocional) {
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -1498,6 +1523,8 @@ async function preencher_promocional(id_promocional) {
                 $('#id_transporte input').map((index, transporte) => {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
+                opcionais_promocionais = Object.values(response['opcionais']).flat()
+                alterar_cor_op()
 
                 for (let categoria of $('#opcionais select')) {
                     if (Object.keys(response['opcionais']).includes(categoria.id.split('_')[1])) {
@@ -1633,6 +1660,8 @@ async function mostrar_dados_pacote(pacote) {
 
     if (id_pacote == '') {
         await alterar_valores_das_taxas(valores_taxas_padrao)
+        opcionais_promocionais = []
+        alterar_cor_op()
 
         if ($('#id_promocional').prop('checked')) {
             return

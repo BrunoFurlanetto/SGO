@@ -469,3 +469,7 @@ input[type='checkbox'] {
     cursor: not-allowed;
     z-index: 1;
 }
+
+.op_bloqueado {
+    background: #A5A5A5 !important;
+}

@@ -57,6 +57,10 @@ def clonar_orcamento(request, id_tratativa, ):
     tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+    ids_opts_promocionais = []
+
+    if orcamento.orcamento_promocional:
+        ids_opts_promocionais = [op.id for op in orcamento.orcamento_promocional.orcamento.opcionais.all()]
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -74,6 +78,7 @@ def clonar_orcamento(request, id_tratativa, ):
         'id_orcamento': id_orcamento,
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
+        'ids_opts_promocionais': ids_opts_promocionais,
     })
 
 
@@ -88,6 +93,10 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     pacote_promocional = CadastroPacotePromocional()
     orcamento_promocional = None
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+    ids_opts_promocionais = []
+
+    if orcamento.orcamento_promocional:
+        ids_opts_promocionais = [op.id for op in orcamento.orcamento_promocional.orcamento.opcionais.all()]
 
     if orcamento.promocional:
         orcamento_promocional = OrcamentosPromocionais.objects.get(orcamento=orcamento.id)
@@ -117,6 +126,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'data_vencimento': orcamento.objeto_gerencia['data_vencimento'],
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
+        'ids_opts_promocionais': ids_opts_promocionais,
     })
 
 
