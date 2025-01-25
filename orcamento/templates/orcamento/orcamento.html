@@ -153,6 +153,10 @@
                             <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.opcionais_fechado %} none {% endif %}"></div>
                             <h5 class="titulo-secao">Opcionais</h5>
                             <div>
+                                <div class="{% if not editando_pacote and not orcamento_origem.orcamento_promocional %} none {% endif %} alert alert-info">
+                                    Em pacotes promocionais, não é possível remover opcionais setados como padrão pelo
+                                    administrador, apenas adicionar outros opcionais.
+                                </div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
                                     <div class="mt-2 flex-column {% if opcionais_staff.nome_categoria == categoria and not financeiro %} none {% endif %}">
                                         <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>

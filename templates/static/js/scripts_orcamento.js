@@ -1662,6 +1662,7 @@ async function mostrar_dados_pacote(pacote) {
         await alterar_valores_das_taxas(valores_taxas_padrao)
         opcionais_promocionais = []
         alterar_cor_op()
+        $('#opcionais .alert').addClass('none')
 
         if ($('#id_promocional').prop('checked')) {
             return
@@ -1737,6 +1738,7 @@ async function mostrar_dados_pacote(pacote) {
             await verificar_horarios()
         }
     }).done(() => {
+        $('#opcionais .alert').removeClass('none')
         $('#dados_do_pacote').modal('show')
     })
 }
