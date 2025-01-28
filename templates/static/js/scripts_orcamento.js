@@ -145,7 +145,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         } catch (error) {
             alert(error)
         } finally {
-            alterar_cor_op()
+
         }
     })
 
@@ -162,7 +162,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
             // await atualizar_valores_op()
             await listar_op(null, opcao, null, '0,00', '0,00', true)
             await enviar_form()
-            alterar_cor_op()
             // end_loading()
         }
     })
@@ -1501,23 +1500,6 @@ async function preencher_op_extras(id_orcamento, editando = false) {
     })
 }
 
-function alterar_cor_op() {
-    let opcionais = $('#opcionais select option')
-
-    for (let op of opcionais) {
-        let value = parseInt($(op).val())
-        let title = $(op).text()
-
-        setTimeout(() => {
-            if (opcionais_promocionais.includes(value)) {
-                $(`li[title="${title}"]`).addClass('op_bloqueado')
-            } else {
-                $(`li[title="${title}"]`).removeClass('op_bloqueado')
-            }
-        }, 100)
-    }
-}
-
 async function preencher_promocional(id_promocional) {
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -1695,7 +1677,6 @@ async function mostrar_dados_pacote(pacote) {
     if (id_pacote == '') {
         await alterar_valores_das_taxas(valores_taxas_padrao)
         opcionais_promocionais = []
-        alterar_cor_op()
         $('#opcionais .alert').addClass('none')
         $('#opcionais .alert-info').addClass('none')
         $('#tabela_de_opcionais .opcionais.promocional').remove()
