@@ -167,12 +167,6 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         }
     })
 
-    $('select[name="opcionais"]').on("select2:unselecting", async function (e) {
-        if (opcionais_promocionais.includes(parseInt(e.params.args.data.id))) {
-            e.preventDefault()
-        }
-    })
-
     if ($('#data_vencimento').val() != '') {
         $('#btn_salvar_orcamento').prop('disabled', false)
     }
@@ -324,9 +318,21 @@ function verificar_datas(date) {
     }
 }
 
-async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo = '0,00', removido = false) {
+async function listar_op(
+    dados_op,
+    opcao,
+    i,
+    desconto = '0,00',
+    acrescimo = '0,00',
+    removido = false,
+    promocional = false
+) {
     if (removido) {
-        $(`#tabela_de_opcionais tbody #opcionais_${opcao['id']}`).remove()
+        $(`#tabela_de_opcionais tbody #opcionais_${opcao['id']}`).map((index, op) => {
+            if (!$(op).attr('class').split(' ').includes('promocional')) {
+                $(op).remove()
+            }
+        })
 
         return
     }
@@ -334,7 +340,7 @@ async function listar_op(dados_op, opcao, i, desconto = '0,00', acrescimo = '0,0
     const valor_selecao = formatar_dinheiro(dados_op['valor'])
 
     $('#tabela_de_opcionais tbody').append(`
-        <tr id="opcionais_${opcao['id']}" class="opcionais">
+        <tr id="opcionais_${opcao['id']}" class="opcionais ${promocional ? 'promocional' : ''}">
             <th><input type="text" id="nome_opcionais_${i}" name="opcionais_${i}" value='${opcao['text']}' disabled></th>
             <input type="hidden" id="id_opcionais_${i}" name="opcionais_${i}" value="${opcao['id']}">                    
             <input type="hidden" id="valor_bd_opcionais_${i}" name="opcionais_${i}" value='${valor_selecao}' disabled>
@@ -731,7 +737,7 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                         const total = response['data']['total']['valor_final']
                         const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros)
                         const total_formatado = formatar_dinheiro(total)
-                        console.trace(opcionais_e_atividades_formatado)
+
                         // Alteração dos valores das seções
                         $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado) // Periodo da viagem
                         $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado) // Monitoria + transporte
@@ -1075,7 +1081,7 @@ async function verificar_pacotes_promocionais(editando = false) {
                 } else if ($('#id_promocional').prop('checked')) {
                     await alterar_valores_das_taxas(response['dados_taxas'])
                     valores_taxas = {}
-                } else if (id_tipo_de_pacote == ''){
+                } else if (id_tipo_de_pacote == '') {
                     await alterar_valores_das_taxas(response['dados_taxas'])
                 } else if ($('#id_orcamento_promocional').val() == '') {
                     valores_taxas = response['dados_taxas']
@@ -1524,19 +1530,46 @@ async function preencher_promocional(id_promocional) {
                     $(transporte).prop('checked', transporte.value === response['transporte'])
                 })
                 opcionais_promocionais = Object.values(response['opcionais']).flat()
-                alterar_cor_op()
 
                 for (let categoria of $('#opcionais select')) {
+                     $(categoria).val('')
+                    // Verifica se a categoria existe no objeto response['opcionais']
                     if (Object.keys(response['opcionais']).includes(categoria.id.split('_')[1])) {
-                        for (let cat in response['opcionais']) {
-                            if (cat == categoria.id.split('_')[1]) {
-                                $(categoria).val(response['opcionais'][cat])
+                        // Obtém o ID da categoria
+                        let categoriaId = categoria.id.split('_')[1];
+
+                        // Obtém a lista de opcionais para essa categoria
+                        let opcionaisIds = response['opcionais'][categoriaId];
+
+                        // Cria uma string para armazenar os nomes dos opcionais
+                        let opcionaisNomes = '';
+
+                        // Itera sobre os opcionais da categoria
+                        for (let opcionalId of opcionaisIds) {
+                            // Encontra o opcional correspondente no objeto response['obj']['descricao_opcionais']
+                            let opcional = response['obj']['descricao_opcionais'].find(op => op.id === opcionalId);
+
+                            // Se o opcional for encontrado, adiciona o nome à string
+                            if (opcional) {
+                                console.log(opcional)
+                                opcionaisNomes += opcional.nome + ', '
                             }
                         }
+
+                        opcionaisNomes = opcionaisNomes.replace(/,\s*$/, '');
+                        // Adiciona a lista de opcionais na div correspondente
+                        $(`#opcionais_${categoriaId} .alert-info span`).text(opcionaisNomes)
+                        // Verifica se há opcionais para essa categoria
+                        if (opcionaisIds.length > 0) {
+                            // Remove a classe "none" se houver opcionais
+                            $(`#opcionais_${categoriaId} .alert-info`).removeClass('none');
+                        } else {
+                            // Adiciona a classe "none" se não houver opcionais
+                            $(`#opcionais_${categoriaId} .alert-info`).addClass('none');
+                        }
                     } else {
-                        $(categoria).val('')
+                        $(`#opcionais_${categoria.id.split('_')[1]} .alert-info`).addClass('none');
                     }
-                    // $(`#opcionais_${categoria}`).val(response['opcionais'][categoria])
                 }
 
                 response['obj']['descricao_opcionais'].map((op, i) => {
@@ -1545,8 +1578,9 @@ async function preencher_promocional(id_promocional) {
                         let opcional = {'id': op['id'], 'text': op['nome']}
                         let desconto = formatar_dinheiro(op['desconto'])
                         let acrescimo = formatar_dinheiro(op['acrescimo'])
-                        listar_op(dados_op, opcional, i + 1, desconto, acrescimo)
+                        listar_op(dados_op, opcional, i + 1, desconto, acrescimo, false, true)
                     }
+                    console.log(op)
                 })
 
                 if (response['opcionais_extra']) {
@@ -1663,6 +1697,8 @@ async function mostrar_dados_pacote(pacote) {
         opcionais_promocionais = []
         alterar_cor_op()
         $('#opcionais .alert').addClass('none')
+        $('#opcionais .alert-info').addClass('none')
+        $('#tabela_de_opcionais .opcionais.promocional').remove()
 
         if ($('#id_promocional').prop('checked')) {
             return

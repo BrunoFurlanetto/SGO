@@ -1082,7 +1082,20 @@ class Orcamento(models.Model):
         }
 
     def listar_opcionais(self):
-        return self.objeto_orcamento['descricao_opcionais']
+        ops_validos = []
+
+        if self.orcamento_promocional:
+            for op in self.orcamento_promocional.orcamento.objeto_orcamento['descricao_opcionais']:
+                if op in self.objeto_orcamento['descricao_opcionais']:
+                    self.objeto_orcamento['descricao_opcionais'].remove(op)
+
+                    continue
+
+            ops_validos = self.objeto_orcamento['descricao_opcionais']
+        else:
+            ops_validos = self.objeto_orcamento['descricao_opcionais']
+
+        return ops_validos
 
     def op_extra_formatado(self):
         op_extras = []
@@ -1309,6 +1322,21 @@ class OrcamentosPromocionais(models.Model):
 
     def validade(self):
         return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
+
+    def listar_ops_promocionais(self):
+        return self.orcamento.objeto_orcamento['descricao_opcionais']
+
+    def listar_opcionais(self):
+        opcionais = self.orcamento.opcionais.all()
+        lista_opcionais = {}
+
+        for opcional in opcionais:
+            if f'opcionais_{opcional.categoria.id}' not in lista_opcionais.keys():
+                lista_opcionais[f'opcionais_{opcional.categoria.id}'] = [opcional.nome]
+            else:
+                lista_opcionais[f'opcionais_{opcional.categoria.id}'].append(opcional.nome)
+
+        return lista_opcionais
 
     @classmethod
     def pegar_pacotes_promocionais(cls, n_dias, id_tipo_pacote, check_in, check_out):

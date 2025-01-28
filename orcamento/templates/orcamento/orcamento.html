@@ -158,7 +158,7 @@
                                     administrador, apenas adicionar outros opcionais.
                                 </div>
                                 {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
-                                    <div class="mt-2 flex-column {% if opcionais_staff.nome_categoria == categoria and not financeiro %} none {% endif %}">
+                                    <div id="{{ opcional.id_for_label }}" class="mt-2 flex-column {% if opcionais_staff.nome_categoria == categoria and not financeiro %} none {% endif %}">
                                         <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>
                                         <select {% if categoria in categorias_so_ceu %} class="so_ceu" disabled {% endif %} id="{{ opcional.id_for_label }}" name="opcionais" multiple>
                                             {% for option in opcional.field.queryset %}
@@ -166,6 +166,15 @@
                                                         {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
                                             {% endfor %}
                                         </select>
+                                        <div class="{% if not opcional.id_for_label in opcionais_pacote.keys %} none {% endif %} px-2 pt-1 pb-1 alert-info">{{ categoria }} já presentes no pacote: <span>
+                                            {% if opcional.id_for_label in opcionais_pacote.keys %}
+                                                {% for cat, opts_pacote in opcionais_pacote.items %}
+                                                	{% if cat == opcional.id_for_label %}
+                                                		{{ opts_pacote | join:', ' }}
+                                                	{% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </span></div>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -298,9 +307,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for op in orcamento_origem.listar_opcionais %}
-                                {% if op.categoria != 'extra' %}
-                                    <tr id="opcionais_{{ op.id }}" class="opcionais">
+                            {% if orcamento_origem.orcamento_promocional %}
+                                {% for op in orcamento_origem.orcamento_promocional.listar_ops_promocionais %}
+                                    <tr id="opcionais_{{ op.id }}" class="opcionais promocional">
                                         <th><input type="text" id="nome_opcionais_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
                                                    value="{{ op.nome }}" disabled></th>
@@ -324,6 +333,37 @@
                                         <th><input type="text"
                                                    id="acrescimo_opcionais_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            {% for op in orcamento_origem.listar_opcionais %}
+                                {% if op.categoria != 'extra' %}
+                                    <tr id="opcionais_{{ op.id }}" class="opcionais">
+                                        <th><input type="text" id="nome_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   value="{{ op.nome }}" disabled></th>
+                                        <input type="hidden" id="id_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                               name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                               value="{{ op.id }}">
+                                        <input type="hidden"
+                                               id="valor_bd_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                               name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                               value='{{ op.valor }}' disabled>
+                                        <th><input type="text" id="valor_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   disabled
+                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
+                                        <th><input type="text"
+                                                   id="desconto_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   data-limite_desconto="{{ op.valor }}"
+                                                   value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
                                                    value="{{ op.acrescimo | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
@@ -584,7 +624,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
