@@ -995,7 +995,7 @@ class Orcamento(models.Model):
         return todos_opcionais
 
     def descritivo_opcionais(self):
-        set(op for op in self.opcionais_contratados if not op.categora.staff)
+        set(op for op in self.opcionais_contratados if not op.categoria.staff)
 
         return set(self.opcionais_contratados)
 
