@@ -1083,14 +1083,12 @@ class Orcamento(models.Model):
 
     def listar_opcionais(self):
         ops_validos = []
-
-        if self.orcamento_promocional:
+        if not self.promocional and self.orcamento_promocional:
             for op in self.orcamento_promocional.orcamento.objeto_orcamento['descricao_opcionais']:
                 if op in self.objeto_orcamento['descricao_opcionais']:
                     self.objeto_orcamento['descricao_opcionais'].remove(op)
 
                     continue
-
             ops_validos = self.objeto_orcamento['descricao_opcionais']
         else:
             ops_validos = self.objeto_orcamento['descricao_opcionais']
@@ -1324,6 +1322,7 @@ class OrcamentosPromocionais(models.Model):
         return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
 
     def listar_ops_promocionais(self):
+        print(self.orcamento.id)
         return self.orcamento.objeto_orcamento['descricao_opcionais']
 
     def listar_opcionais(self):
@@ -1413,6 +1412,17 @@ class Tratativas(models.Model):
             return Vendedor.objects.get(usuario=self.colaborador)
         except Vendedor.DoesNotExist:
             return ''
+
+    @property
+    def opcionais_contratados_unicos(self):
+        # Coleta todos os opcionais únicos dos orçamentos ativos
+        opcionais_unicos = set()
+        for orcamento in self.orcamentos_abertos():  # Supondo um campo "ativo" no Orcamento
+            for opcional in orcamento.opcionais.all():  # Supondo que "opcionais_contratados" seja o campo no Orcamento
+                if not opcional.categoria.staff:
+                    opcionais_unicos.add(opcional.id)
+
+        return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)
 
     @staticmethod
     @receiver(pre_delete, sender=User)

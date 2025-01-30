@@ -101,7 +101,7 @@ class Budget:
 
         # addition values  (Acréscimos)
         self.daily_rate.set_addition(gerencia["acrescimo_diaria"]) if "acrescimo_diaria" in gerencia else ...
-
+        print(valores_op)
         # OPICIONAIS
         if len(valores_op) == 0:
             if "opcionais" in data:

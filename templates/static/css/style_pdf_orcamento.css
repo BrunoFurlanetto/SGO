@@ -253,6 +253,8 @@ body {
         width: 210mm;
         height: 297mm;
         background: white;
+        overflow: visible !important;
+        page-break-inside: avoid;
     }
 
     .pagina img {
@@ -472,4 +474,61 @@ body {
         z-index: 1;
         pointer-events: none;
     }
+
+    .atividade-wrapper {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+        -webkit-region-break-inside: avoid;
+    }
+
+    .lista-atividades {
+        display: block;
+        page-break-before: auto;
+        page-break-after: auto;
+    }
+}
+/* Estilos para a página de atividades */
+.atividades-conteudo {
+    position: absolute;
+    top: 18mm;
+    padding: 0 15mm 0 12mm;
+    color: #495C90;
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.atividades-conteudo h1 {
+    font-size: 24pt;
+    margin-bottom: 10mm;
+    text-align: center;
+}
+
+.lista-atividades {
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+}
+
+.atividade-wrapper {
+    page-break-inside: avoid;
+    break-inside: avoid-page;
+    position: relative;
+}
+
+.atividade-item {
+    background: #f8f8f8;
+    padding: 5mm;
+    border-radius: 2mm;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.atividade-item h3 {
+    color: #E96E17;
+    margin: 0 0 2mm 0;
+    font-size: 16pt;
+}
+
+.atividade-item p {
+    margin: 0;
+    font-size: 12pt;
+    text-align: justify;
 }

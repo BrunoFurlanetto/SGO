@@ -50,3 +50,7 @@ def substituir_ponto(valor):
 @register.filter
 def formatar_porcentagem(valor):
     return f'{valor:.2f}%'.replace('.', ',')
+
+@register.filter
+def somar_float(valor1, valor2):
+    return valor1 + valor2

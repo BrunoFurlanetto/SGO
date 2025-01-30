@@ -16,6 +16,7 @@ class Optional(BaseValue):
             addition += opt["acrescimo"]
 
         value = [total]
+
         for i in range(1, self.days):
             value.append(0)
 

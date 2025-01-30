@@ -169,7 +169,7 @@ def salvar_orcamento(request, id_tratativa=None):
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
         else:
             orcamento = CadastroOrcamento(data)
-
+        print(data)
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()

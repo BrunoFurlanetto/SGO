@@ -307,7 +307,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% if orcamento_origem.orcamento_promocional %}
+                            {% if not orcamento_origem.promocional and orcamento_origem.orcamento_promocional %}
                                 {% for op in orcamento_origem.orcamento_promocional.listar_ops_promocionais %}
                                     <tr id="opcionais_{{ op.id }}" class="opcionais promocional">
                                         <th><input type="text" id="nome_opcionais_{{ forloop.counter }}"
@@ -323,7 +323,7 @@
                                         <th><input type="text" id="valor_opcionais_{{ forloop.counter }}"
                                                    disabled
                                                    name="opcionais_{{ forloop.counter }}"
-                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
+                                                   value='{{ op.valor_com_desconto | somar_float:op.acrescimo | floatformat:'2' }}'></th>
                                         <th><input type="text"
                                                    id="desconto_opcionais_{{ forloop.counter }}"
                                                    name="opcionais_{{ forloop.counter }}"
@@ -341,29 +341,29 @@
                             {% for op in orcamento_origem.listar_opcionais %}
                                 {% if op.categoria != 'extra' %}
                                     <tr id="opcionais_{{ op.id }}" class="opcionais">
-                                        <th><input type="text" id="nome_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                        <th><input type="text" id="nome_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                    value="{{ op.nome }}" disabled></th>
-                                        <input type="hidden" id="id_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                               name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                        <input type="hidden" id="id_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                value="{{ op.id }}">
                                         <input type="hidden"
-                                               id="valor_bd_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                               name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                               id="valor_bd_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                value='{{ op.valor }}' disabled>
-                                        <th><input type="text" id="valor_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                        <th><input type="text" id="valor_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                    disabled
-                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   value='{{ op.valor | somar_float:op.acrescimo | floatformat:'2' }}'></th>
                                         <th><input type="text"
-                                                   id="desconto_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   id="desconto_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                    data-limite_desconto="{{ op.valor }}"
                                                    value="{{ op.desconto | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                         <th><input type="text"
-                                                   id="acrescimo_opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
-                                                   name="opcionais_{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}"
+                                                   id="acrescimo_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
                                                    value="{{ op.acrescimo | floatformat:'2' }}"
                                                    onchange="aplicar_desconto(this)"></th>
                                     </tr>
