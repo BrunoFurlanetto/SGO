@@ -499,6 +499,14 @@ body {
         -webkit-region-break-inside: avoid;
     }
 
+    .atividades-conteudo {
+        position: absolute;
+        top: 5mm;
+        padding: 0 15mm 0 12mm;
+        color: #495C90;
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+
     .lista-atividades {
         display: block;
         page-break-before: auto;
@@ -508,7 +516,7 @@ body {
 /* Estilos para a página de atividades */
 .atividades-conteudo {
     position: absolute;
-    top: 18mm;
+    top: 15mm;
     padding: 0 15mm 0 12mm;
     color: #495C90;
     font-family: 'IBM Plex Sans', sans-serif;
@@ -516,7 +524,7 @@ body {
 
 .atividades-conteudo h1 {
     font-size: 24pt;
-    margin-bottom: 10mm;
+    margin-bottom: 2mm;
     text-align: center;
 }
 
