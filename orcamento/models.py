@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import json
 import re
+from itertools import chain
 from random import randint
 
 from django import forms
@@ -1030,6 +1031,32 @@ class Orcamento(models.Model):
     def desconto_real_transporte(self):
         return f'{self.objeto_gerencia.get("desconto_transporte_real", 0.00):.2f}'.replace('.', ',')
 
+    @property
+    def refeicoes_check_in(self):
+        return HorariosPadroes.objects.get(
+            entrada_saida=True,
+            so_ceu=False,
+            horario__lte=self.check_in.astimezone().time(),
+            final_horario__gte=self.check_in.astimezone().time()
+        ).descricao_alimentacao
+
+    @property
+    def refeicoes_check_out(self):
+        return HorariosPadroes.objects.get(
+            entrada_saida=False,
+            so_ceu=False,
+            horario__lte=self.check_out.astimezone().time(),
+            final_horario__gte=self.check_out.astimezone().time(),
+        ).descricao_alimentacao
+
+    def opcionais_ceu(self):
+        opcionais_contratados = [
+            OrcamentoOpicional.objects.get(pk=op['id']) for op in self.objeto_orcamento['descricao_opcionais']
+        ]
+        ceu = [op for op in opcionais_contratados if 'ceu' in op.categoria.nome_categoria]
+
+        return ceu
+
     def colaborador_vendedora(self):
         try:
             return Vendedor.objects.get(usuario=self.colaborador)
@@ -1418,8 +1445,13 @@ class Tratativas(models.Model):
         # Coleta todos os opcionais únicos dos orçamentos ativos
         opcionais_unicos = set()
         for orcamento in self.orcamentos_abertos():  # Supondo um campo "ativo" no Orcamento
-            for opcional in orcamento.opcionais.all():  # Supondo que "opcionais_contratados" seja o campo no Orcamento
+            opcionais_orcamento = orcamento.opcionais.all()
+            opcionais_pacote = orcamento.orcamento_promocional.orcamento.opcionais.all() if orcamento.orcamento_promocional else []
+            todos_opcionais = list(chain(opcionais_orcamento, opcionais_pacote))
+
+            for opcional in todos_opcionais:  # Supondo que "opcionais_contratados" seja o campo no Orcamento
                 if not opcional.categoria.staff:
+                    print(opcional)
                     opcionais_unicos.add(opcional.id)
 
         return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)

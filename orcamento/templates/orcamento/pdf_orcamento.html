@@ -117,9 +117,11 @@
                                     <div class="secao"><h4>PACOTE</h4></div>
                                     <div class="descricao">
                                         <p>{{ orcamento.produto.produto }}
-                                            {% if 'ceu' not in orcamento.produto.produto|lower %} + 0
-                                                {{ orcamento.atividades_ceu.all|length }} AT.
-                                                C.E.U {% endif %}</p>
+                                            {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
+                                                {% if orcamento.opcionais_ceu|length > 0 %}
+                                                	+ {{ orcamento.opcionais_ceu | length }} AT. C.E.U
+                                                {% endif %}
+                                            {% endif %}
                                         <p>Investimento:</p>
                                         {% if orcamento.desconto_aplicado %}
                                             <p>De: <s>R$ {{ orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
@@ -143,35 +145,18 @@
                                     <div class="secao"><h4>INCLUSO</h4></div>
                                     <div class="descricao">
                                         <ul>
-                                            {% if 'ceu' not in orcamento.produto.produto|lower %}
+                                            {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
                                                 {% if orcamento.check_out|date != orcamento.check_in|date %}
-                                                    {% if orcamento.check_in|time:'H' <= '10' %}
-                                                        <li><strong>Primeiro dia: </strong> Lanche da manhã, almoço,
-                                                            jantar e chá da noite
-                                                        </li>
-                                                    {% else %}
-                                                        <li><strong>Primeiro dia:</strong> Almoço, jantar e chá da noite
-                                                        </li>
-                                                    {% endif %}
+                                                    <li><strong>Primeiro dia: </strong>{{ orcamento.refeicoes_check_in }}</li>
 
                                                     <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da
                                                         noite
                                                     </li>
 
-                                                    {% if orcamento.check_out|time:'H' <= '10' %}
-                                                        <li><strong>Último dia:</strong> Café da manhã</li>
-                                                    {% elif orcamento.check_out|time:'H' > '10' and orcamento.check_out|time:'H' <= '16' %}
-                                                        <li><strong>Último dia:</strong> Café da manhã, almoço e lanche
-                                                            antesda saída
-                                                        </li>
-                                                    {% elif orcamento.check_out|time:'H' > '16' and orcamento.check_out|time:'H' <= '21' %}
-                                                        <li><strong>Último dia:</strong> Café, almoço e jantar</li>
-                                                    {% endif %}
+                                                    <li><strong>Último dia: </strong>{{ orcamento.refeicoes_check_out }}</li>
                                                 {% else %}
                                                     {% if orcamento.check_in|time:'H' <= '10' %}
-                                                        <li> Café da manhã, almoço e
-                                                            {% if orcamento.check_out|time:'H' <= '17' %} lanche antesda
-                                                                saída {% else %} jantar {% endif %}</li>
+                                                        <li>{{ orcamento.refeicoes_check_in }}</li>
                                                     {% endif %}
                                                 {% endif %}
                                                 <li>01 monitor de lazer a cada 20 pagantes</li>
