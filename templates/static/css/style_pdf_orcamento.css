@@ -32,6 +32,24 @@
     height: 100%;
 }
 
+.rec_ano {
+    position: absolute;
+    top: 20mm;
+    left: 18mm;
+    width: 65mm;
+    height: 25mm;
+    background: #E96E17;
+    border-radius: 6mm;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: 500;
+    font-size: 40pt;
+    font-family: 'IBM Plex Sans', sans-serif;
+    border: 2px solid;
+}
+
 #proposta_comercial .informacoes {
     color: #838083;
     position: relative;
@@ -182,7 +200,7 @@
 
 .texto_final {
     position: absolute;
-    top: 220mm;
+    top: 225mm;
     padding: 0 10mm 0 15mm;
     font-family: 'IBM Plex Sans', sans-serif;
     color: #495C90;

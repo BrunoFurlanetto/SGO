@@ -987,8 +987,19 @@ class Orcamento(models.Model):
             return f'Orçamento promocional {self.id}'
 
     @property
+    def opcionais_contratados(self):
+        opcionais_orcamento = self.opcionais.all()
+        opcionais_pacote = self.orcamento_promocional.orcamento.opcionais.all() if self.orcamento_promocional else []
+        todos_opcionais = list(chain(opcionais_orcamento, opcionais_pacote))
+
+        return todos_opcionais
+
+    def descritivo_opcionais(self):
+        return set(self.opcionais_contratados)
+
+    @property
     def oficina_de_foguetes(self):
-        foguetes = self.opcionais_ceu.all().filter(atividade__icontains='foguete')
+        foguetes = [op for op in self.opcionais_contratados if 'PHOBOS' in op.nome]
 
         return len(foguetes) > 0
 
@@ -1049,13 +1060,19 @@ class Orcamento(models.Model):
             final_horario__gte=self.check_out.astimezone().time(),
         ).descricao_alimentacao
 
+    @property
     def opcionais_ceu(self):
-        opcionais_contratados = [
-            OrcamentoOpicional.objects.get(pk=op['id']) for op in self.objeto_orcamento['descricao_opcionais']
-        ]
-        ceu = [op for op in opcionais_contratados if 'ceu' in op.categoria.nome_categoria]
+        ceu = [op for op in self.opcionais_contratados if 'ceu' in op.categoria.nome_categoria]
 
         return ceu
+
+    @property
+    def minimo_pagantes(self):
+        return self.orcamento_promocional.dados_pacote.minimo_de_pagantes if self.orcamento_promocional else 35
+
+    @property
+    def racional_cortesia(self):
+        return self.orcamento_promocional.dados_pacote.regra_cortesia if self.orcamento_promocional else 15
 
     def colaborador_vendedora(self):
         try:
@@ -1110,6 +1127,7 @@ class Orcamento(models.Model):
 
     def listar_opcionais(self):
         ops_validos = []
+
         if not self.promocional and self.orcamento_promocional:
             for op in self.orcamento_promocional.orcamento.objeto_orcamento['descricao_opcionais']:
                 if op in self.objeto_orcamento['descricao_opcionais']:
@@ -1445,13 +1463,8 @@ class Tratativas(models.Model):
         # Coleta todos os opcionais únicos dos orçamentos ativos
         opcionais_unicos = set()
         for orcamento in self.orcamentos_abertos():  # Supondo um campo "ativo" no Orcamento
-            opcionais_orcamento = orcamento.opcionais.all()
-            opcionais_pacote = orcamento.orcamento_promocional.orcamento.opcionais.all() if orcamento.orcamento_promocional else []
-            todos_opcionais = list(chain(opcionais_orcamento, opcionais_pacote))
-
-            for opcional in todos_opcionais:  # Supondo que "opcionais_contratados" seja o campo no Orcamento
+            for opcional in orcamento.opcionais_contratados:  # Supondo que "opcionais_contratados" seja o campo no Orcamento
                 if not opcional.categoria.staff:
-                    print(opcional)
                     opcionais_unicos.add(opcional.id)
 
         return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)

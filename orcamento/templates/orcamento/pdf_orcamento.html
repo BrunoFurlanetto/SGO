@@ -11,6 +11,8 @@
             <div class="pagina fixo">
                 {% if not tratativa %}
                     <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                <div class="rec_ano">{% if tratativa %} {{ tratativa.orcamentos_abertos.0.check_in.year }} {% else %}
+                    {{ previa_orcamento.check_in.year }} {% endif %}</div>
                 <img src="{% static 'img/capa_orcamento.png' %}" alt="">
             </div>
             <div class="pagina fixo">
@@ -119,7 +121,7 @@
                                         <p>{{ orcamento.produto.produto }}
                                             {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
                                                 {% if orcamento.opcionais_ceu|length > 0 %}
-                                                	+ {{ orcamento.opcionais_ceu | length }} AT. C.E.U
+                                                    + AT. C.E.U
                                                 {% endif %}
                                             {% endif %}
                                         <p>Investimento:</p>
@@ -147,13 +149,15 @@
                                         <ul>
                                             {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
                                                 {% if orcamento.check_out|date != orcamento.check_in|date %}
-                                                    <li><strong>Primeiro dia: </strong>{{ orcamento.refeicoes_check_in }}</li>
+                                                    <li><strong>Primeiro
+                                                        dia: </strong>{{ orcamento.refeicoes_check_in }}</li>
 
                                                     <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da
                                                         noite
                                                     </li>
 
-                                                    <li><strong>Último dia: </strong>{{ orcamento.refeicoes_check_out }}</li>
+                                                    <li><strong>Último dia: </strong>{{ orcamento.refeicoes_check_out }}
+                                                    </li>
                                                 {% else %}
                                                     {% if orcamento.check_in|time:'H' <= '10' %}
                                                         <li>{{ orcamento.refeicoes_check_in }}</li>
@@ -162,14 +166,16 @@
                                                 <li>01 monitor de lazer a cada 20 pagantes</li>
                                                 <li>Programação de lazer.</li>
                                             {% endif %}
-                                            {% if orcamento.atividades_ceu.all|length != 0 %}
+                                            {% if orcamento.opcionais_ceu|length != 0 %}
                                                 <li>
                                                     {% if not orcamento.oficina_de_foguetes %}
-                                                        0{{ orcamento.atividades_ceu.all|length }} atividade(s) no CEU
+                                                        Atividade(s) no CEU
                                                         <strong>(exceto oficina de foguetes)</strong>
                                                     {% else %}
-                                                        0{{ orcamento.atividades_ceu.all|length|add:-1 }} atividade(s)no
-                                                        CEU + Oficina de foguetes
+                                                        {% if orcamento.opcionais_ceu|length > 1 %}
+                                                            Atividade(s) no CEU +
+                                                        {% endif %}
+                                                        Oficina de foguetes
                                                     {% endif %}
                                                 </li>
                                             {% endif %}
@@ -181,12 +187,14 @@
                                 <h3>Condições:</h3>
                                 Investimento por aluno pagante.
                                 <br>
-                                01 cortesia para professor a cada 15 alunos pagantes, o que exceder será cobrado 50% do
+                                01 cortesia para professor a cada {{ orcamento.racional_cortesia }} alunos pagantes, o
+                                que exceder será cobrado 50% do
                                 valor
                                 do pacote.
                                 <br>
-                                Não inclui transporte ida e volta e não oferecemos acomodações para motoristas.
-                                Mínimo de 35 alunos participantes.
+                                {% if orcamento.transporte != 'sim' %} Não inclui transporte ida e volta. {% endif %}
+                                Não oferecemos acomodações para motoristas. Mínimo de {{ orcamento.minimo_pagantes }}
+                                alunos participantes.
                                 <ul>
                                     <li>
                                         Valores válidos para fechamento até
@@ -198,7 +206,7 @@
                                             entre
                                             <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
                                         {% endif %}
-                                        de 2024. <strong> Exceto feriados </strong>.
+                                        de {{ orcamento.check_in.year }}. <strong> Exceto feriados </strong>.
                                     </li>
                                     <li>
                                         Condições de pagamento:
@@ -252,9 +260,12 @@
                             <div class="secao"><h4>PACOTE</h4></div>
                             <div class="descricao">
                                 <p>{{ previa_orcamento.produto.produto }}
-                                    {% if 'ceu' not in previa_orcamento.produto.produto|lower %} + 0
-                                        {{ previa_orcamento.atividades_ceu.all|length }} AT.
-                                        C.E.U {% endif %}</p>
+                                    {% if previa_orcamento.tipo_de_pacote and not previa_orcamento.tipo_de_pacote.so_ceu %}
+                                        {% if previa_orcamento.opcionais_ceu|length > 0 %}
+                                            + AT. C.E.U
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
                                 <p>Investimento:</p>
                                 {% if previa_orcamento.desconto_aplicado %}
                                     <p>De: <s>R$ {{ previa_orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
@@ -278,45 +289,35 @@
                             <div class="secao"><h4>INCLUSO</h4></div>
                             <div class="descricao">
                                 <ul>
-                                    {% if 'ceu' not in previa_orcamento.produto.produto|lower %}
+                                    {% if previa_orcamento.tipo_de_pacote and not previa_orcamento.tipo_de_pacote.so_ceu %}
                                         {% if previa_orcamento.check_out|date != previa_orcamento.check_in|date %}
-                                            {% if previa_orcamento.check_in|time:'H' <= '10' %}
-                                                <li><strong>Primeiro dia: </strong> Lanche da manhã, almoço, jantar e
-                                                    chá da noite
-                                                </li>
-                                            {% else %}
-                                                <li><strong>Primeiro dia:</strong> Almoço, jantar e chá da noite</li>
-                                            {% endif %}
+                                            <li><strong>Primeiro
+                                                dia: </strong>{{ previa_orcamento.refeicoes_check_in }}</li>
 
-                                            <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da noite</li>
+                                            <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da
+                                                noite
+                                            </li>
 
-                                            {% if previa_orcamento.check_out|time:'H' <= '10' %}
-                                                <li><strong>Último dia:</strong> Café da manhã</li>
-                                            {% elif previa_orcamento.check_out|time:'H' > '10' and previa_orcamento.check_out|time:'H' <= '16' %}
-                                                <li><strong>Último dia:</strong> Café da manhã, almoço e lanche antesda
-                                                    saída
-                                                </li>
-                                            {% elif previa_orcamento.check_out|time:'H' > '16' and previa_orcamento.check_out|time:'H' <= '21' %}
-                                                <li><strong>Último dia:</strong> Café, almoço e jantar</li>
-                                            {% endif %}
+                                            <li><strong>Último dia: </strong>{{ previa_orcamento.refeicoes_check_out }}
+                                            </li>
                                         {% else %}
                                             {% if previa_orcamento.check_in|time:'H' <= '10' %}
-                                                <li> Café da manhã, almoço e
-                                                    {% if previa_orcamento.check_out|time:'H' <= '17' %} lanche antes da
-                                                        saída {% else %} jantar {% endif %}</li>
+                                                <li>{{ previa_orcamento.refeicoes_check_in }}</li>
                                             {% endif %}
                                         {% endif %}
                                         <li>01 monitor de lazer a cada 20 pagantes</li>
                                         <li>Programação de lazer.</li>
                                     {% endif %}
-                                    {% if previa_orcamento.atividades_ceu.all|length != 0 %}
+                                    {% if previa_orcamento.opcionais_ceu|length != 0 %}
                                         <li>
                                             {% if not previa_orcamento.oficina_de_foguetes %}
-                                                0{{ previa_orcamento.atividades_ceu.all|length }} atividade(s) no CEU
+                                                Atividade(s) no CEU
                                                 <strong>(exceto oficina de foguetes)</strong>
                                             {% else %}
-                                                0{{ previa_orcamento.atividades_ceu.all|length|add:-1 }} atividade(s) no
-                                                CEU + Oficina de foguetes
+                                                {% if previa_orcamento.opcionais_ceu|length > 1 %}
+                                                    Atividade(s) no CEU +
+                                                {% endif %}
+                                                Oficina de foguetes
                                             {% endif %}
                                         </li>
                                     {% endif %}
@@ -328,11 +329,16 @@
                         <h3>Condições:</h3>
                         Investimento por aluno pagante.
                         <br>
-                        01 cortesia para professor a cada 15 alunos pagantes, o que exceder será cobrado 50% do valor
+                        01 cortesia para professor a cada {{ previa_orcamento.racional_cortesia }} alunos pagantes, o
+                        que
+                        exceder será cobrado 50% do
+                        valor
                         do pacote.
                         <br>
-                        Não inclui transporte ida e volta e não oferecemos acomodações para motoristas.
-                        Mínimo de 35 alunos participantes.
+                        {% if previa_orcamento.transporte != 'sim' %} Não inclui transporte ida e volta. {% endif %}
+                        Não oferecemos acomodações para motoristas. Mínimo de {{ previa_orcamento.minimo_pagantes }}
+                        alunos
+                        participantes.
                         <ul>
                             <li>
                                 Valores válidos para fechamento até
@@ -344,7 +350,7 @@
                                     entre
                                     <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
                                 {% endif %}
-                                de 2024. <strong> Exceto feriados </strong>.
+                                de {{ previa_orcamento.check_in.year }}. <strong> Exceto feriados </strong>.
                             </li>
                             <li>
                                 Condições de pagamento:
@@ -379,10 +385,12 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            {% for atividade in previa_orcamento.atividades_ceu.all %}
-                                <div class="atividade-item">
-                                    <h3>{{ atividade.nome }}</h3>
-                                    <p>{{ atividade.descricao }}</p>
+                            {% for atividade in previa_orcamento.descritivo_opcionais %}
+                                <div class="atividade-wrapper">
+                                    <div class="atividade-item">
+                                        <h3>{{ atividade.nome }}</h3>
+                                        <p>{{ atividade.descricao }}</p>
+                                    </div>
                                 </div>
                             {% endfor %}
                         {% endif %}
