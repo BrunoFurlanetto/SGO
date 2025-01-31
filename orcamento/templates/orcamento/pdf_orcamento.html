@@ -377,26 +377,81 @@
                     <div class="lista-atividades">
                         {% if tratativa %}
                             {% for atividade in tratativa.opcionais_contratados_unicos %}
-                                <div class="atividade-wrapper">
-                                    <div class="atividade-item">
-                                        <h3>{{ atividade.nome }}</h3>
-                                        <p>{{ atividade.descricao }}</p>
+                                {% if forloop.counter <= 6 %}
+                                    <div class="atividade-wrapper">
+                                        <div class="atividade-item">
+                                            <h3>{{ atividade.nome }}</h3>
+                                            <p>{{ atividade.descricao }}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             {% endfor %}
                         {% else %}
                             {% for atividade in previa_orcamento.descritivo_opcionais %}
-                                <div class="atividade-wrapper">
-                                    <div class="atividade-item">
-                                        <h3>{{ atividade.nome }}</h3>
-                                        <p>{{ atividade.descricao }}</p>
+                                {% if forloop.counter <= 6 %}
+                                    <div class="atividade-wrapper">
+                                        <div class="atividade-item">
+                                            <h3>{{ atividade.nome }}</h3>
+                                            <p>{{ atividade.descricao }}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                     </div>
                 </div>
             </div>
+            {% if tratativa %}
+                {% if tratativa.opcionais_contratados_unicos|length > 6 %}
+                    <div class="pagina orcamento">
+                        {% if not tratativa %}
+                            <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                        <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
+                        <div class="sobre_fundo"></div>
+                        <div class="barra_superior"></div>
+                        <div class="atividades-conteudo">
+                            <h1>ATIVIDADES CONTRATADAS</h1>
+                            <div class="lista-atividades">
+                                {% for atividade in tratativa.opcionais_contratados_unicos %}
+                                    {% if forloop.counter > 6 %}
+                                        <div class="atividade-wrapper">
+                                            <div class="atividade-item">
+                                                <h3>{{ atividade.nome }}</h3>
+                                                <p>{{ atividade.descricao }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if previa_orcamento.descritivo_opcionais|length > 6 %}
+                    <div class="pagina orcamento">
+                        {% if not tratativa %}
+                            <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                        <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
+                        <div class="sobre_fundo"></div>
+                        <div class="barra_superior"></div>
+                        <div class="atividades-conteudo">
+                            <h1>ATIVIDADES CONTRATADAS</h1>
+                            <div class="lista-atividades">
+                                {% for atividade in previa_orcamento.descritivo_opcionais %}
+                                    {% if forloop.counter > 6 %}
+                                        <div class="atividade-wrapper">
+                                            <div class="atividade-item">
+                                                <h3>{{ atividade.nome }}</h3>
+                                                <p>{{ atividade.descricao }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
             <div class="pagina fixo">
                 {% if not tratativa %}
                     <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
