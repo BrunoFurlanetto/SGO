@@ -31,8 +31,8 @@ def atualizar_pagantes_ficha():
             codigos_app__eficha__in=codigos_padrao
         )
 
-        try:
-            for ficha in fichas:
+        for ficha in fichas:
+            try:
                 alterar = False
                 codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.eficha.split(',')]
                 eventos_dict = eventos_base if not verificar_sistema_antigo_cron(
@@ -76,9 +76,9 @@ def atualizar_pagantes_ficha():
                         ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
                         ordem.n_professores = total_professores_masculino + total_professores_feminino
                         ordem.save()
-        except Exception as e:
-            mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
-            enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
+            except Exception as e:
+                mensagem_erro = f'Durante a atualização dos pagantes de {ficha.cliente} aconteceu um erro: {e}'
+                enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
     else:
         enviar_email_erro(
             f'Erro na conexão com o servidor de pagamentos, código {response.status_code}',
