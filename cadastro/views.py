@@ -334,6 +334,7 @@ def inicioOrdemDeServico(request):
         'fichas': fichas_de_evento,
     })
 
+
 @login_required(login_url='login')
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
@@ -430,7 +431,8 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
                     dias_evento=(ordem_servico.check_out.date() - ordem_servico.check_in.date()).days + 1,
                     codigo_pagamento=ordem_servico.ficha_de_evento.codigos_app.eficha,
                     adesao=ordem_servico.ficha_de_evento.adesao,
-                    veio_ano_anterior=FichaDeEvento.objects.filter(check_in__year=ordem_servico.check_in.year - 1).exists(),
+                    veio_ano_anterior=FichaDeEvento.objects.filter(
+                        check_in__year=ordem_servico.check_in.year - 1).exists(),
                     motivo_cancelamento=request.POST.get('motivo_cancelamento'),
                     participantes_reservados=ordem_servico.ficha_de_evento.qtd_convidada,
                     participantes_confirmados=ordem_servico.n_participantes,

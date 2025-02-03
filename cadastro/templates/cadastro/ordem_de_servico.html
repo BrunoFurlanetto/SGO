@@ -12,7 +12,7 @@
             <hr>
         </div>
         <form {% if ordem_servico %} action="{% url 'ver_ordem_de_servico' ordem_servico.id %}" {% else %}
-                                     action="{% url 'ordem_de_servico' %}" {% endif %} method="POST"
+                                     action="{% url 'salvar_ordem_de_servico' %}" {% endif %} method="POST"
                                      enctype="multipart/form-data" onsubmit="loading()">
             <fieldset id="fieldset" {% if ordem_servico %} disabled="disabled" {% endif %}>
                 {% csrf_token %}
