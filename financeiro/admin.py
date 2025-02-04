@@ -8,4 +8,4 @@ from peraltas.models import TiposPagamentos
 # Register your models here.
 @admin.register(ClassificacoesItens)
 class ClassificacoesItensAdmin(admin.ModelAdmin):
-    list_display = ('codigo_padrao',)
+    list_display = ('codigo_padrao', 'codigo_simplificado', 'sintetico_analitico', 'ativado', 'descritivo')
