@@ -10,6 +10,7 @@ from django.contrib import admin
 from django.shortcuts import render, redirect
 from django_admin_search.admin import AdvancedSearchAdmin
 
+from coreFinanceiro.models import ClassificacoesItens
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
     OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes
@@ -311,6 +312,14 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
     readonly_fields = ('valor_final',)
     save_as = True
     search_form = YourFormSearch
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "classificacao":
+            kwargs["queryset"] = ClassificacoesItens.objects.filter(
+                sintetico_analitico=1,
+                ativado=True
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
