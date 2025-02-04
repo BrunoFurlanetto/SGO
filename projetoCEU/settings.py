@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'financeiro.apps.FinanceiroConfig',
     'coreFinanceiro.apps.CorefinanceiroConfig',
     'orcamento.apps.OrcamentoConfig',
+    'mensagens.apps.MensagensConfig',
 ]
 
 MIDDLEWARE = [

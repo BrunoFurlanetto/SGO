@@ -39,6 +39,7 @@ if not em_manutencao:
         path('detector-de-bombas/', include('detector.urls')),
         path('orcamento/', include('orcamento.urls')),
         path('ficha_financeira/', include('financeiro.urls')),
+        path('mensagens/', include('mensagens.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
@@ -55,7 +56,9 @@ else:
         path('ordem-de-servico/', manutencao),
         path('calendario-eventos/', manutencao),
         path('detector-de-bombas/', manutencao),
-        path('orcamento/', include('orcamento.urls')),
+        path('orcamento/', manutencao),
+        path('ficha_financeira/', manutencao),
+        path('mensagens/', manutencao),
         path('admin/', manutencao),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
