@@ -5,12 +5,14 @@ from itertools import chain
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
 from ceu.models import Atividades
+from mensagens.models import Mensagem
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
@@ -169,7 +171,7 @@ def salvar_orcamento(request, id_tratativa=None):
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
         else:
             orcamento = CadastroOrcamento(data)
-        print(data)
+
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()
@@ -195,6 +197,7 @@ def salvar_orcamento(request, id_tratativa=None):
                 "msg": e,
             })
         else:
+            print(data, orcamento_salvo.comentario_desconto, orcamento_salvo.gerente_responsavel)
             if not orcamento_salvo.promocional:
                 try:
                     tratativa_existente = Tratativas.objects.get(orcamentos__in=[orcamento_salvo.id])
@@ -229,6 +232,27 @@ def salvar_orcamento(request, id_tratativa=None):
                 if not criado:
                     promocional.liberado_para_venda = bool(data.get('liberado_para_venda', False))
                     promocional.save()
+
+            if orcamento_salvo.comentario_desconto:
+                # try:
+                Mensagem.objects.create(
+                    remetente=request.user,
+                    destinatario=orcamento_salvo.gerente_responsavel,
+                    conteudo=orcamento_salvo.comentario_desconto,
+                    content_object=orcamento_salvo,
+                )
+                # except Exception as e:
+                #     messages.error(
+                #         request,
+                #         f'Erro durante o processo de salvar a mensagem de pedido de desconto ({e}). Tente novamenteo mais tarde.'
+                #     )
+                #     orcamento_salvo.status_orcamento = StatusOrcamento.objects.get(status__icontains='aberto')
+                #     orcamento_salvo.save()
+                #
+                #     return redirect('dashboard')
+                # else:
+                #     messages.success('Pedido enviado a gerência com sucesso!')
+                #     return redirect('dashboard')
 
 
     return JsonResponse({

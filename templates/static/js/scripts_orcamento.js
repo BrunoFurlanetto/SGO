@@ -1993,6 +1993,7 @@ async function salvar_comentario_diretoria() {
     if ($('#apelido_orcamento_2').val().length > 5 && $('#comentario_gerencia').val().length > 10) {
         $('#id_comentario_desconto').val($('#comentario_gerencia').val())
         $('#id_apelido').val($('#apelido_orcamento_2').val())
+        $('#gerente_responsavel').val($('#id_gerente_responsavel').val())
         $('#id_aprovacao_diretoria').val('True')
         $('#modal_cometario_diretoria').modal('hide')
         await salvar_orcamento(true)

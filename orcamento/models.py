@@ -963,6 +963,13 @@ class Orcamento(models.Model):
         null=True,
     )
     comentario_desconto = models.TextField(blank=True)
+    gerente_responsavel = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='gerente_responsavel'
+    )
     aprovacao_diretoria = models.BooleanField(default=False)
     promocional = models.BooleanField(default=False)
     status_orcamento = models.ForeignKey(
@@ -1626,6 +1633,7 @@ class CadastroOrcamento(forms.ModelForm):
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         valores_monitorias = OrcamentoMonitor.objects.filter(liberado=True).order_by('nome_monitoria')
+        gerentes = [('', '')]
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         opcoes_validas_monitoria = [('', '')]
@@ -1648,9 +1656,13 @@ class CadastroOrcamento(forms.ModelForm):
         for valor in valores_monitorias:
             opcoes_validas_monitoria.append((valor.id, valor.nome_monitoria))
 
+        for gerente in User.objects.filter(groups__name__icontains='gerência'):
+            gerentes.append((gerente.id, gerente.get_full_name()))
+
         self.fields['cliente'].choices = clientes_cnpj
         self.fields['responsavel'].choices = responsaveis_cargo
         self.fields['tipo_monitoria'].choices = opcoes_validas_monitoria
+        self.fields['gerente_responsavel'].choices = gerentes
 
         # Inicializa um dicionário para armazenar os campos opcionais por categoria
         self.opcionais_por_categoria = {}

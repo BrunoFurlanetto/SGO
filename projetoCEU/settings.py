@@ -91,6 +91,7 @@ TEMPLATES = [
                 'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
                 'custom_tag': 'orcamento.templatetags.custom_tag',
                 'tags_financeiro': 'financeiro.templatetags.tags_financeiro',
+                'templates_tag_gerais': 'projetoCEU.templates_tag_gerais',
             }
         },
     },

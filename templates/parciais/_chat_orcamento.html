@@ -1,0 +1,48 @@
+{% load static %}
+{% load templates_tag_gerais %}
+
+<link rel="stylesheet" href="{% static 'css/style_chat.css' %}">
+
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">
+                    Chat com <span id="destinatario"></span> sobre o orçamento de <span id="cliente"></span>
+                </h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="id_orcamento" id="id_orcamento">
+                <input type="hidden" name="id_destinatario" id="id_destinatario">
+                <div class="chat-container" id="chatContainer">
+                    {% for mensagem in mensagens %}
+                        <div class="mensagem {{ mensagem.responsavel }}">
+                            <div class="conteudo">{{ mensagem.conteudo }}</div>
+                            <div class="infos">
+                                <div class="data_hora">{{ mensagem.data_hora_envio }}</div>
+                                {% if mensagem.responsavel == 'remetente' %}
+                                    {%if mensagem.data_hora_leitura %}
+                                        <i class='bx bx-check-double'></i>
+                                    {% else %}
+                                        <i class='bx bx-check'></i>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if mensagens and user|has_group:'Diretoria' and mensagens.last.responsavel == 'destinatario' and mensagens.last.data_hora_leitura %}
+                    	<div class="visto">Visto em {{ mensagens.last.data_hora_leitura }}</div>
+                    {% endif %}
+                </div>
+                <div class="mensagem-input">
+                        <textarea class="form-control" id="messageInput" rows="3" cols="3"
+                                  placeholder="Digite sua mensagem..."></textarea>
+                    <button class="btn btn-outline-success mt-2" onclick="sendMessage()">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/scripts_chat.js' %}"></script>

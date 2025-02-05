@@ -45,3 +45,7 @@ class Mensagem(models.Model):
 
         super().delete(*args, **kwargs)
 
+    def get_responsavel(self, usuario):
+        return 'remetente' if usuario == self.remetente else 'destinatario'
+
+

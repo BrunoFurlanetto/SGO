@@ -1,0 +1,94 @@
+function sendMessage() {
+    const messageInput = document.getElementById("messageInput");
+    const chatContainer = document.getElementById("chatContainer");
+    const messageText = messageInput.value.trim();
+
+    if (messageText === "") return;
+
+    // Criando a mensagem temporária no DOM
+    const newMessage = document.createElement("div");
+    newMessage.classList.add("mensagem", "remetente");
+
+    const conteudoDiv = document.createElement("div");
+    conteudoDiv.classList.add("conteudo");
+    conteudoDiv.textContent = messageText;
+
+    const infosDiv = document.createElement("div");
+    infosDiv.classList.add("infos");
+
+    const dataHoraDiv = document.createElement("div");
+    dataHoraDiv.classList.add("data_hora");
+    const now = new Date();
+    dataHoraDiv.textContent = now.toLocaleDateString("pt-BR") + " " + now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+    const checkIcon = document.createElement("i");
+    checkIcon.classList.add("bx", "bx-check");
+
+    infosDiv.appendChild(dataHoraDiv);
+    infosDiv.appendChild(checkIcon);
+    newMessage.appendChild(conteudoDiv);
+    newMessage.appendChild(infosDiv);
+    chatContainer.appendChild(newMessage);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Enviando a mensagem via AJAX
+    $.ajax({
+        type: "POST",
+        url: "/mensagens/orcamento/salvar/",
+        headers: { "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val() },
+        data: {
+            mensagem: messageText,
+            id_orcamento: $("#chatModal #id_orcamento").val(),
+            id_destinatario: $('#chatModal #id_destinatario').val(),
+        },
+        success: function (response) {},
+        error: function (xhr, status, error) {
+            newMessage.remove(); // Remove a mensagem temporária
+            alert("Erro ao enviar a mensagem: " + xhr.responseText);
+        }
+    });
+
+    messageInput.value = ""; // Limpa o campo de entrada
+}
+
+
+function abrir_chat_orcamento(id_orcamento) {
+    console.log("Abrindo chat para orçamento:", id_orcamento);
+    $('#chatModal #id_orcamento').val(id_orcamento);
+
+    $.ajax({
+        type: "GET",
+        url: "/mensagens/encontrar_chat/orcamento/",
+        headers: { "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val() },
+        data: { "id_orcamento": parseInt(id_orcamento) },
+        success: function (response) {
+            let chatContainer = $("#chatContainer");
+            $('#chatModal #id_destinatario').val(response['ultimo_destinatario']['id'])
+            $('#chatModalLabel #destinatario').text(response['ultimo_destinatario']['nome'])
+            $('#chatModalLabel #cliente').text(response['cliente'])
+            chatContainer.empty(); // Limpa o chat antes de adicionar mensagens
+            console.log(response)
+            response['mensagens'].forEach(mensagem => {
+                let mensagemHtml = `
+                    <div class="mensagem ${mensagem['responsavel']}">
+                        <div class="conteudo">${mensagem['conteudo']}</div>
+                        <div class="infos">
+                            <div class="data_hora">${mensagem['responsavel'] === 'destinatario' ? mensagem['remetente'] : mensagem['destinatario']} - ${mensagem['data_hora_envio']}</div>
+                            ${mensagem['responsavel'] === "remetente" 
+                                ? (mensagem['lida'] ? "<i class='bx bx-check-double'></i>" : "<i class='bx bx-check'></i>") 
+                                : ""}
+                        </div>
+                    </div>
+                `;
+                chatContainer.append(mensagemHtml);
+            });
+
+            chatContainer.scrollTop(chatContainer[0].scrollHeight); // Rola para a última mensagem
+        },
+        error: function (xhr, status, error) {
+            console.error("Erro ao carregar chat:", error);
+        }
+    });
+
+    $("#chatModal").modal("show");
+}

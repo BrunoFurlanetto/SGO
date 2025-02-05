@@ -15,6 +15,7 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
 from financeiro.models import FichaFinanceira
+from mensagens.models import Mensagem
 from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
@@ -295,7 +296,7 @@ def dashboardPeraltas(request):
         'fichas_financeira_negadas': fichas_financeira_negadas,
         'fichas_financeira_aprovadas': fichas_financeira_aprovadas,
         'previas_orcamento': Orcamento.objects.filter(previa=True, colaborador=request.user),
-        'orcamentos_aprovacao': Orcamento.objects.filter(aprovacao_diretoria=True) if diretoria else None
+        'orcamentos_aprovacao': Orcamento.objects.filter(aprovacao_diretoria=True) if diretoria else None,
     })
 
 

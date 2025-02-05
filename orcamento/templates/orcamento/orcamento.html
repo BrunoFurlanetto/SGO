@@ -29,6 +29,7 @@
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
+                <input type="hidden" name="gerente_responsavel" id="gerente_responsavel">
                 <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional"
                        value="{{ dados_pacote.id }}">
                 {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
@@ -853,10 +854,14 @@
                             </li>
                         </ul>
                     </div>
-                    <div>
+                    <div class="mb-2">
                         <label for="apelido_orcamento_2">Apelido</label>
                         <input type="text" name="apelido_orcamento_2" id="apelido_orcamento_2"
                                onkeyup="atribuir_apelaido(this)" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="id_gerente_responsavel">Gerente</label>
+                        {{ orcamento.gerente_responsavel }}
                     </div>
                     <label for="apelido_orcamento">Comentário para a gerência</label>
                     <textarea name="comentario_gerencia" id="comentario_gerencia" cols="30" rows="10"
