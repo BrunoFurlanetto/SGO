@@ -616,9 +616,61 @@ class ValoresTransporte(models.Model):
 
 class StatusOrcamento(models.Model):
     status = models.CharField(max_length=100)
+    analise_gerencia = models.BooleanField(
+        default=False,
+        help_text='Status utilizado para análise e respostas da gerência.'
+    )
+    negativa_gerencia = models.BooleanField(
+        default=False,
+        help_text='Status de orçamento utilizado pela gerência para negar um pedido do comercial.'
+    )
+    aprovacao_gerencia = models.BooleanField(
+        default=False,
+        help_text='Status de orçamento utilizado pela gerência para aprovar um pedido do comercial.'
+    )
+    aprovacao_cliente = models.BooleanField(
+        default=False,
+        help_text='Status utilizado para orçamentos aceitos pelo cliente.'
+    )
+    negado_cliente = models.BooleanField(
+        default=False,
+        help_text='Status utilizado para orçamentos no qual o cliente não aceitou.'
+    )
+    orcamento_vencido = models.BooleanField(
+        default=False,
+        help_text='Status utilizado para orçamentos que estão vencdos.'
+    )
 
     def __str__(self):
         return self.status
+
+    def clean(self):
+        """
+        Verifica se já existe um registro com a mesma combinação de campos booleanos.
+        """
+        # Cria um dicionário com os valores booleanos do objeto atual
+        filtros = {
+            'analise_gerencia': self.analise_gerencia,
+            'negativa_gerencia': self.negativa_gerencia,
+            'aprovacao_gerencia': self.aprovacao_gerencia,
+            'aprovacao_cliente': self.aprovacao_cliente,
+            'negado_cliente': self.negado_cliente,
+            'orcamento_vencido': self.orcamento_vencido,
+        }
+
+        # Procura no banco um registro com os mesmos valores booleanos
+        query = StatusOrcamento.objects.filter(**filtros)
+
+        # Se for um update, excluímos o próprio objeto da verificação
+        if self.pk:
+            query = query.exclude(pk=self.pk)
+
+        if query.exists():
+            raise ValidationError("Já existe um status de orçamento com essa mesma combinação de valores.")
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Garante que a validação será feita antes de salvar
+        super().save(*args, **kwargs)
 
 
 class TiposDePacote(models.Model):
@@ -1543,12 +1595,12 @@ class Tratativas(models.Model):
         return vencimentos[0].strftime('%d/%m/%Y')
 
     def perder_orcamentos(self):
-        satus_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        satus_perdido = StatusOrcamento.objects.get(negado_cliente=True)
         self.orcamentos.all().update(status_orcamento=satus_perdido)
 
     def ganhar_orcamento(self, id_orcamento_ganho):
-        status_ganho = StatusOrcamento.objects.get(status__icontains='ganho')
-        status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
+        status_perdido = StatusOrcamento.objects.get(negado_cliente=True)
 
         for orcamento in self.orcamentos.all():
             if orcamento.id == id_orcamento_ganho:
@@ -1566,7 +1618,7 @@ class Tratativas(models.Model):
         if self.orcamento_aceito:
             return [self.orcamento_aceito]
 
-        status_perdido = StatusOrcamento.objects.get(status__icontains='perdido')
+        status_perdido = StatusOrcamento.objects.get(negado_cliente=True)
 
         return self.orcamento_aceito if self.orcamento_aceito else self.orcamentos.all().exclude(
             status_orcamento=status_perdido)

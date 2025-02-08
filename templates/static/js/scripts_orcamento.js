@@ -1357,10 +1357,10 @@ function montar_pacote(check_promocional = null) {
     }
 }
 
-async function aprovar_orcamento() {
-    $('#id_comentario_desconto').val('')
+async function aprovar_orcamento(resposta) {
     $('#id_aprovacao_diretoria').val('False')
-    await salvar_orcamento()
+    $('#resposta_diretoria').val(resposta)
+    await salvar_orcamento(true)
 }
 
 function mostrar_limite_cortesia(cortesia) {
@@ -2131,3 +2131,12 @@ async function modalidade_so_ceu(editando = false) {
     }
     // end_loading()
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const botao = document.getElementById('btn_enviar_mensagem')
+    botao.addEventListener("click", function() {
+        if ($('#messageInput').val() != '') {
+            $('.responder-orcamento').prop('disabled', false)
+        }
+    }, true);
+});

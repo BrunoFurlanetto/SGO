@@ -4,13 +4,15 @@ from orcamento.models import Orcamento, StatusOrcamento
 
 
 def verificar_validade_orcamento():
-    orcamentos = Orcamento.objects.filter(data_vencimento=datetime.today().date() - timedelta(days=1))
-
-    for orcamento in orcamentos:
-        if 'aberto' in orcamento.status_orcamento.status.lower() or 'analise' in orcamento.status_orcamento.status.lower():
-            status = StatusOrcamento.objects.get(status__icontains='vencido')
-            orcamento.status_orcamento = status
-            orcamento.save()
+    orcamentos = Orcamento.objects.filter(
+        data_vencimento=datetime.today().date() - timedelta(days=1),
+    ).filter(
+        status_orcamento__orcamento_vencido=False,
+        status_orcamento__aprovacao_cliente=False,
+        status_orcamento__negado_cliente=False,
+    ).update(
+        status_orcamento=StatusOrcamento.objects.get(orcamento_vencido=True)
+    )
 
 
 def excluir_previas_antigas():

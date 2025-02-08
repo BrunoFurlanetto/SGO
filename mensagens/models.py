@@ -2,6 +2,9 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.timezone import now
+
+from orcamento.models import Orcamento
 
 
 class Mensagem(models.Model):
@@ -47,5 +50,3 @@ class Mensagem(models.Model):
 
     def get_responsavel(self, usuario):
         return 'remetente' if usuario == self.remetente else 'destinatario'
-
-

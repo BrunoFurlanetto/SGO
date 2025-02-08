@@ -13,7 +13,7 @@ from django_admin_search.admin import AdvancedSearchAdmin
 from coreFinanceiro.models import ClassificacoesItens
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes
+    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes, StatusOrcamento
 
 from django.forms import ModelForm, Form
 from django.forms import DateField, CharField, ChoiceField, TextInput
@@ -335,3 +335,16 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
 class TiposDePacoteAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'descricao')
     ordering = ('titulo',)
+
+
+@admin.register(StatusOrcamento)
+class StatusOrcamentoAdmin(admin.ModelAdmin):
+    list_display = (
+        'status',
+        'analise_gerencia',
+        'negativa_gerencia',
+        'aprovacao_gerencia',
+        'aprovacao_cliente',
+        'negado_cliente',
+        'orcamento_vencido',
+    )

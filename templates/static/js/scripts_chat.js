@@ -1,3 +1,5 @@
+let id_orcamento
+
 function sendMessage() {
     const messageInput = document.getElementById("messageInput");
     const chatContainer = document.getElementById("chatContainer");
@@ -30,7 +32,7 @@ function sendMessage() {
     newMessage.appendChild(infosDiv);
     chatContainer.appendChild(newMessage);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
+    console.log(id_orcamento)
     // Enviando a mensagem via AJAX
     $.ajax({
         type: "POST",
@@ -38,10 +40,12 @@ function sendMessage() {
         headers: { "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val() },
         data: {
             mensagem: messageText,
-            id_orcamento: $("#chatModal #id_orcamento").val(),
+            id_orcamento: id_orcamento,
             id_destinatario: $('#chatModal #id_destinatario').val(),
         },
-        success: function (response) {},
+        success: function (response) {
+            $('.responder-orcamento').prop('disabled', false)
+        },
         error: function (xhr, status, error) {
             newMessage.remove(); // Remove a mensagem temporária
             alert("Erro ao enviar a mensagem: " + xhr.responseText);
@@ -52,9 +56,9 @@ function sendMessage() {
 }
 
 
-function abrir_chat_orcamento(id_orcamento) {
-    console.log("Abrindo chat para orçamento:", id_orcamento);
-    $('#chatModal #id_orcamento').val(id_orcamento);
+function abrir_chat_orcamento(id_orcamento_vendo) {
+    console.log("Abrindo chat para orçamento:", id_orcamento_vendo);
+    id_orcamento = id_orcamento_vendo
 
     $.ajax({
         type: "GET",
@@ -73,7 +77,7 @@ function abrir_chat_orcamento(id_orcamento) {
                     <div class="mensagem ${mensagem['responsavel']}">
                         <div class="conteudo">${mensagem['conteudo']}</div>
                         <div class="infos">
-                            <div class="data_hora">${mensagem['responsavel'] === 'destinatario' ? mensagem['remetente'] : mensagem['destinatario']} - ${mensagem['data_hora_envio']}</div>
+                            <div class="data_hora">${mensagem['remetente']} - ${mensagem['data_hora_envio']}</div>
                             ${mensagem['responsavel'] === "remetente" 
                                 ? (mensagem['lida'] ? "<i class='bx bx-check-double'></i>" : "<i class='bx bx-check'></i>") 
                                 : ""}
@@ -83,12 +87,44 @@ function abrir_chat_orcamento(id_orcamento) {
                 chatContainer.append(mensagemHtml);
             });
 
-            chatContainer.scrollTop(chatContainer[0].scrollHeight); // Rola para a última mensagem
+            setTimeout(() => {
+                chatContainer.scrollTop(chatContainer[0].scrollHeight)
+            }, 100)
         },
         error: function (xhr, status, error) {
             console.error("Erro ao carregar chat:", error);
         }
-    });
+    })
 
-    $("#chatModal").modal("show");
+    $("#chatModal").modal("show")
+}
+
+function reenviar_pedido() {
+    $.ajax({
+        type: "POST",
+        url: "/orcamento/reenio_pedido_gerencia/",
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {"id_orcamento": parseInt(id_orcamento)},
+        success: function (response) {
+            window.location.reload()
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText)
+        }
+    })
+}
+
+function negar_orcamento() {
+    $.ajax({
+        type: "POST",
+        url: "/orcamento/negar/",
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {"id_orcamento": parseInt(id_orcamento)},
+        success: function (response) {
+            window.location.reload()
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText)
+        }
+    })
 }

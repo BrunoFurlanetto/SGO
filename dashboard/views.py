@@ -296,8 +296,12 @@ def dashboardPeraltas(request):
         'fichas_financeira_negadas': fichas_financeira_negadas,
         'fichas_financeira_aprovadas': fichas_financeira_aprovadas,
         'previas_orcamento': Orcamento.objects.filter(previa=True, colaborador=request.user),
-        'orcamentos_aprovacao': Orcamento.objects.filter(aprovacao_diretoria=True) if diretoria else None,
+        'orcamentos_aprovacao': Orcamento.objects.filter(
+            gerente_responsavel=request.user,
+            status_orcamento=StatusOrcamento.objects.get(
+                analise_gerencia=True,
+                negativa_gerencia=False,
+                aprovacao_gerencia=False,
+            ),
+        ),
     })
-
-
-

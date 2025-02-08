@@ -49,7 +49,12 @@ class OrcamentoPDF:
         if self.tratativa.orcamento_aceito:
             return 1
 
-        status_aberto = StatusOrcamento.objects.get(status__icontains='aberto')
+        status_aberto = StatusOrcamento.objects.get(
+            analise_gerencia=False,
+            aprovacao_cliente=False,
+            negado_cliente=False,
+            orcamento_vencido=False
+        )
 
         return len(self.tratativa.orcamentos.all().filter(status_orcamento=status_aberto))
 
@@ -58,7 +63,12 @@ class OrcamentoPDF:
         if self.tratativa.orcamento_aceito:
             return self.tratativa.orcamento_aceito
 
-        status_aberto = StatusOrcamento.objects.get(status__icontains='aberto')
+        status_aberto = StatusOrcamento.objects.get(
+            analise_gerencia=False,
+            aprovacao_cliente=False,
+            negado_cliente=False,
+            orcamento_vencido=False
+        )
 
         return self.tratativa.orcamentos.all().filter(status_orcamento=status_aberto)
 

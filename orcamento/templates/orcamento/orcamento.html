@@ -215,7 +215,9 @@
                         {{ orcamento.observacoes }}
                     </div>
                     {{ orcamento.comentario_desconto.as_hidden }}
+                    {{ orcamento.gerente_responsavel.as_hidden }}
                     {{ orcamento.aprovacao_diretoria.as_hidden }}
+                    <input type="hidden" name="resposta_diretoria" id="resposta_diretoria">
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
                     <div class="botoes">
@@ -224,9 +226,9 @@
                             devido ao desconto fornecido!
                         </p>
                         {% if gerente_aprovando %}
-                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                    onclick="aprovar_orcamento({{ orcamento_origem.id | safe }})">
-                                Aprovar orçamento
+                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
+                                data-target="#chatModal">
+                                Responder
                             </button>
                         {% else %}
                             <button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
@@ -479,12 +481,12 @@
                                     </div>
                                 </div>
                                 <p id="avisos_pisos_tetos" class="none alert alert-warning"></p>
-                                <div id="div_observacoes_gerencia" class="none"
-                                     style="width: 90%; margin-left: 5%; margin-bottom: 10px;">
-                                    <label for="observacoes_gerencia">Observações</label>
-                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"
-                                              rows="10" onkeyup="verificar_cometario_gerencia(this)"></textarea>
-                                </div>
+{#                                <div id="div_observacoes_gerencia" class="none"#}
+{#                                     style="width: 90%; margin-left: 5%; margin-bottom: 10px;">#}
+{#                                    <label for="observacoes_gerencia">Observações</label>#}
+{#                                    <textarea name="observacoes_gerencia" id="observacoes_gerencia" cols="30"#}
+{#                                              rows="10" onkeyup="verificar_cometario_gerencia(this)"></textarea>#}
+{#                                </div>#}
                                 <div>
                                     <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não
                                         altorizadas pela gerência!</p>
@@ -917,10 +919,13 @@
         })
     </script>
 
+    {% include 'parciais/_chat_orcamento.html' %}
+    <script>id_orcamento = {{ orcamento_origem.id | safe }}</script>
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
     <script src="{% static 'js/maskMoney.js' %}"></script>
     <script src="{% static 'datepicker/daterangepicker.js' %}"></script>
+
 {% endblock %}

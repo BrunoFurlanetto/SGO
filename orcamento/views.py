@@ -10,8 +10,10 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST, require_GET
 
 from ceu.models import Atividades
+from decorators import require_ajax
 from mensagens.models import Mensagem
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
 from projetoCEU.utils import is_ajax
@@ -71,7 +73,8 @@ def clonar_orcamento(request, id_tratativa, ):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.orcamento_promocional.orcamento.objeto_gerencia if orcamento.orcamento_promocional else None,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (
+                orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
         ),
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
@@ -108,6 +111,10 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
         orcamento_promocional = orcamento.orcamento_promocional
 
+    msgs = Mensagem.objects.filter(object_id=orcamento.id)
+    for msg in msgs:
+        msg.responsavel = "remetente" if msg.remetente == request.user else "destinatario"
+
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': orcamento,
@@ -115,7 +122,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'financeiro': financeiro,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             orcamento.objeto_gerencia,
-            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
+            orcamento.tipo_de_pacote if orcamento.orcamento_promocional or (
+                orcamento.tipo_de_pacote.so_ceu if orcamento.tipo_de_pacote else None) else None,
         ),
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
@@ -129,6 +137,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
         'opcionais_pacote': opcionais_pacote,
+        'mensagens': msgs,
     })
 
 
@@ -164,7 +173,12 @@ def salvar_orcamento(request, id_tratativa=None):
         data['desconto'] = f'{desconto:.2f}'
         data['valor'] = f'{valor_final:.2f}'
         data['data_vencimento'] = datetime.date.today() + datetime.timedelta(days=10)
-        data['status_orcamento'] = StatusOrcamento.objects.get(status__contains='aberto').id
+        data['status_orcamento'] = StatusOrcamento.objects.get(
+            analise_gerencia=False,
+            aprovacao_cliente=False,
+            negado_cliente=False,
+            orcamento_vencido=False
+        ).id
 
         if data.get('id_previa_orcamento'):
             previa_orcamento = Orcamento.objects.get(pk=data['id_previa_orcamento'])
@@ -182,11 +196,23 @@ def salvar_orcamento(request, id_tratativa=None):
             pre_orcamento.objeto_orcamento['so_ceu'] = True
 
         if pre_orcamento.aprovacao_diretoria:
-            pre_orcamento.status_orcamento = StatusOrcamento.objects.get(status__icontains='análise')
+            pre_orcamento.status_orcamento = StatusOrcamento.objects.get(
+                analise_gerencia=True,
+                negativa_gerencia=False,
+                aprovacao_gerencia=False
+            )
 
         if pre_orcamento.promocional:
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
             pre_orcamento.cliente = pre_orcamento.responsavel = pre_orcamento.orcamento_promocional = None
+
+        if data.get('resposta_diretoria'):
+            if bool(int(data.get('resposta_diretoria'))):
+                status_resposta = StatusOrcamento.objects.get(analise_gerencia=True, aprovacao_gerencia=True)
+            else:
+                status_resposta = StatusOrcamento.objects.get(analise_gerencia=True, negativa_gerencia=True)
+
+            pre_orcamento.status_orcamento = status_resposta
 
         try:
             orcamento_salvo = orcamento.save()
@@ -197,7 +223,6 @@ def salvar_orcamento(request, id_tratativa=None):
                 "msg": e,
             })
         else:
-            print(data, orcamento_salvo.comentario_desconto, orcamento_salvo.gerente_responsavel)
             if not orcamento_salvo.promocional:
                 try:
                     tratativa_existente = Tratativas.objects.get(orcamentos__in=[orcamento_salvo.id])
@@ -234,26 +259,31 @@ def salvar_orcamento(request, id_tratativa=None):
                     promocional.save()
 
             if orcamento_salvo.comentario_desconto:
-                # try:
-                Mensagem.objects.create(
-                    remetente=request.user,
-                    destinatario=orcamento_salvo.gerente_responsavel,
-                    conteudo=orcamento_salvo.comentario_desconto,
-                    content_object=orcamento_salvo,
-                )
-                # except Exception as e:
-                #     messages.error(
-                #         request,
-                #         f'Erro durante o processo de salvar a mensagem de pedido de desconto ({e}). Tente novamenteo mais tarde.'
-                #     )
-                #     orcamento_salvo.status_orcamento = StatusOrcamento.objects.get(status__icontains='aberto')
-                #     orcamento_salvo.save()
-                #
-                #     return redirect('dashboard')
-                # else:
-                #     messages.success('Pedido enviado a gerência com sucesso!')
-                #     return redirect('dashboard')
+                try:
+                    Mensagem.objects.create(
+                        remetente=request.user,
+                        destinatario=orcamento_salvo.gerente_responsavel,
+                        conteudo=orcamento_salvo.comentario_desconto,
+                        content_object=orcamento_salvo,
+                    )
+                except Exception as e:
+                    messages.error(
+                        request,
+                        f'Erro durante o processo de salvar a mensagem de pedido de desconto ({e}). Tente novamenteo mais tarde.'
+                    )
+                    orcamento_salvo.status_orcamento = StatusOrcamento.objects.get(
+                        analise_gerencia=False,
+                        aprovacao_cliente=False,
+                        negado_cliente=False,
+                        orcamento_vencido=False
+                    )
+                    orcamento_salvo.save()
 
+                    return redirect('dashboard')
+                else:
+                    messages.success(request, 'Pedido enviado a gerência com sucesso!')
+
+                    return redirect('dashboard')
 
     return JsonResponse({
         "status": "success",
@@ -608,5 +638,72 @@ def pegar_monitoria_valida(request):
             return JsonError('Sem tarifário de monitoria para o período em questão', status_code=404)
 
         return JsonResponse({
-            'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria, 'sem': monitoria.sem_monitoria} for monitoria in monitorias_validas]
+            'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria, 'sem': monitoria.sem_monitoria} for
+                           monitoria in monitorias_validas]
         })
+
+
+@require_POST
+@require_ajax
+def reenio_pedido_gerencia(request):
+    try:
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        orcamento.status_orcamento = StatusOrcamento.objects.get(
+            analise_gerencia=True,
+            negativa_gerencia=False,
+            aprovacao_gerencia=False
+        )
+        orcamento.save()
+    except Exception as e:
+        return JsonError(e, status_code=500)
+    else:
+        return JsonResponse({}, status=200)
+
+
+@require_POST
+@require_ajax
+def negar_orcamento(request):
+    try:
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        orcamento.status_orcamento = StatusOrcamento.objects.get(analise_gerencia=False, negativa_gerencia=True)
+        orcamento.save()
+    except Exception as e:
+        return JsonError(e, status_code=500)
+    else:
+        return JsonResponse({}, status=200)
+
+
+@require_GET
+@login_required(login_url='login')
+def transformar_em_tratativa(request, id_orcamento):
+    try:
+        orcamento = Orcamento.objects.get(pk=id_orcamento)
+        nova_tratativa, criado = Tratativas.objects.get_or_create(
+            orcamentos__in=[orcamento],
+            defaults={
+                'cliente': orcamento.cliente,
+                'colaborador': orcamento.colaborador,
+            }
+        )
+
+        if criado:
+            nova_tratativa.orcamentos.set([orcamento])
+        else:
+            nova_tratativa.orcamentos.add(orcamento)
+
+        nova_tratativa.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
+        return redirect('dashboard')
+    else:
+        orcamento.status_orcamento = StatusOrcamento.objects.get(
+            analise_gerencia=False,
+            aprovacao_cliente=False,
+            negado_cliente=False,
+            orcamento_vencido=False
+        )
+        orcamento.previa = False
+        orcamento.save()
+        messages.success(request, f'Orçamento de {orcamento.cliente.__str__()} transformado em tratativa com sucesso!')
+
+        return redirect('dashboard')
