@@ -31,4 +31,5 @@ urlpatterns = [
     path('reenio_pedido_gerencia/', views.reenio_pedido_gerencia, name='reenio_pedido_gerencia'),
     path('negar/', views.negar_orcamento, name='negar_orcamento'),
     path('transformar_em_tratativa/<int:id_orcamento>', views.transformar_em_tratativa, name='transformar_em_tratativa'),
+    path('trocar_gerente_responsavel/', views.trocar_gerente_responsavel, name='trocar_gerente_responsavel'),
 ]

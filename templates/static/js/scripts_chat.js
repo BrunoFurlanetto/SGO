@@ -70,8 +70,21 @@ function abrir_chat_orcamento(id_orcamento_vendo) {
             $('#chatModal #id_destinatario').val(response['ultimo_destinatario']['id'])
             $('#chatModalLabel #destinatario').text(response['ultimo_destinatario']['nome'])
             $('#chatModalLabel #cliente').text(response['cliente'])
+            $('#div_gerente_responsavel #gerente_responsavel').val(response['gerente_responsavel'])
             chatContainer.empty(); // Limpa o chat antes de adicionar mensagens
-            console.log(response)
+
+            if ((!response['aprovado'] && !response['negado'])) {
+                $('#reenviar_pedido').addClass('none')
+            } else {
+                $('#reenviar_pedido').removeClass('none')
+            }
+
+            if (response['aprovado'] ) {
+                $('.botoes-resposta').addClass('none')
+            } else {
+                $('.botoes-resposta').removeClass('none')
+            }
+
             response['mensagens'].forEach(mensagem => {
                 let mensagemHtml = `
                     <div class="mensagem ${mensagem['responsavel']}">
@@ -121,10 +134,30 @@ function negar_orcamento() {
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
         data: {"id_orcamento": parseInt(id_orcamento)},
         success: function (response) {
-            window.location.reload()
+            window.location.href = '/dashboard/'
         },
         error: function (xhr, status, error) {
             alert(xhr.responseText)
+        }
+    })
+}
+
+function trocar_gerente() {
+    console.log($('#gerente_responsavel').val())
+    $.ajax({
+        type: "POST",
+        url: "/orcamento/trocar_gerente_responsavel/",
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {
+            "id_orcamento": parseInt(id_orcamento),
+            'id_novo_gerente': parseInt($('#div_gerente_responsavel #gerente_responsavel').val())
+        },
+        success: function (response) {
+            // window.location.href = '/dashboard/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText)
+            // window.location.href = '/dashboard/'
         }
     })
 }

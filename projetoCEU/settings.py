@@ -85,6 +85,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mensagens.context_processors.gerentes_context',
             ],
             'libraries':  {
                 'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',

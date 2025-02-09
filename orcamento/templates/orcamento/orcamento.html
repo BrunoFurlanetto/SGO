@@ -29,7 +29,8 @@
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
-                <input type="hidden" name="gerente_responsavel" id="gerente_responsavel">
+                <input type="hidden" name="gerente_responsavel" id="gerente_responsavel" value="{{ orcamento_origem.gerente_responsavel.id }}">
+                <input type="hidden" name="mensagem_gerencia" id="mensagem_gerencia">
                 <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional"
                        value="{{ dados_pacote.id }}">
                 {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
@@ -214,17 +215,11 @@
                         <label for="observacoes_orcamento">Observações gerais do orçamento</label>
                         {{ orcamento.observacoes }}
                     </div>
-                    {{ orcamento.comentario_desconto.as_hidden }}
-                    {{ orcamento.gerente_responsavel.as_hidden }}
                     {{ orcamento.aprovacao_diretoria.as_hidden }}
                     <input type="hidden" name="resposta_diretoria" id="resposta_diretoria">
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
                     <div class="botoes">
-                        <p id="aviso_comentario_gerencia" class="alert alert-warning w-100 none">
-                            Para que o orçamento seja salvo é necessário que haja um comentário por parte do gerente
-                            devido ao desconto fornecido!
-                        </p>
                         {% if gerente_aprovando %}
                             <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
                                 data-target="#chatModal">

@@ -86,6 +86,14 @@ $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrdera
 }
 
 $(document).ready(() => {
+    $('#previas_orcamento td.clicavel').on('click', function () {
+        if ($(this).data('editavel')) {
+            window.location.href = `/orcamento/editar_previa/${$(this).data('id_previa')}/`
+        } else {
+            window.location.href = `/orcamento/ver_orcamento/${$(this).data('id_previa')}/`
+        }
+    })
+
     moment.locale('pt-br');
 
     // Inicialização da tabela de orçamentos (caso exista)

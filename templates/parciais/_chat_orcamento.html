@@ -35,6 +35,15 @@
                     	<div class="visto">Visto em {{ mensagens.last.data_hora_leitura }}</div>
                     {% endif %}
                 </div>
+                <div id="div_gerente_responsavel" class="mt-2 mb-2">
+                    <label for="gerente_responsavel">Gerente responsável</label>
+                    <select {% if request.user not in gerentes %} disabled {% endif %} class="form-select" name="gerente_responsavel" id="gerente_responsavel">
+                        <option></option>
+                        {% for gerente in gerentes %}
+                            <option value="{{ gerente.pk }}" {% if gerente.id == orcamento_origem.gerente_responsavel.id %} selected {% endif %}>{{ gerente.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <div class="mensagem-input">
                     <textarea class="form-control" id="messageInput" rows="3" cols="3"
                               placeholder="Digite sua mensagem..."></textarea>
@@ -47,13 +56,15 @@
                     <div class="botoes-resposta">
                         <button id="btn_enviar_mensagem" class="btn btn-outline-success mt-2" onclick="sendMessage()">Enviar</button>
                         {% if gerente_aprovando %}
-                            <button onclick="aprovar_orcamento(0)" class="responder-orcamento btn btn-outline-danger" disabled>Negar</button>
+                            <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-danger" disabled>Negar</button>
                             <button onclick="aprovar_orcamento(1)" class="responder-orcamento btn btn-outline-dark" disabled>Aprovar</button>
-                        {% endif %}
-                        {% if 'Gerência' in request.user.groups.all|join:',' %}
+                            <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
+                        {% elif 'Gerência' in request.user.groups.all|join:',' %}
                             <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-dark" disabled>Negar</button>
-                        {% else %}
-                            <button onclick="reenviar_pedido()" class="responder-orcamento btn btn-outline-dark" disabled>Reenviar pedido</button>
+                            <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
+                        {% endif %}
+                        {% if not 'Gerência' in request.user.groups.all|join:',' %}
+                            <button onclick="reenviar_pedido()" id="reenviar_pedido" class="responder-orcamento btn btn-outline-dark" disabled>Reenviar pedido</button>
                         {% endif %}
                     </div>
                 </div>

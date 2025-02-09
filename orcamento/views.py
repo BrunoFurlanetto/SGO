@@ -258,12 +258,12 @@ def salvar_orcamento(request, id_tratativa=None):
                     promocional.liberado_para_venda = bool(data.get('liberado_para_venda', False))
                     promocional.save()
 
-            if orcamento_salvo.comentario_desconto:
+            if orcamento_salvo.status_orcamento.analise_gerencia and data.get('mensagem_gerencia'):
                 try:
                     Mensagem.objects.create(
                         remetente=request.user,
                         destinatario=orcamento_salvo.gerente_responsavel,
-                        conteudo=orcamento_salvo.comentario_desconto,
+                        conteudo=data.get('mensagem_gerencia'),
                         content_object=orcamento_salvo,
                     )
                 except Exception as e:
@@ -278,12 +278,8 @@ def salvar_orcamento(request, id_tratativa=None):
                         orcamento_vencido=False
                     )
                     orcamento_salvo.save()
-
-                    return redirect('dashboard')
                 else:
                     messages.success(request, 'Pedido enviado a gerência com sucesso!')
-
-                    return redirect('dashboard')
 
     return JsonResponse({
         "status": "success",
@@ -665,7 +661,22 @@ def reenio_pedido_gerencia(request):
 def negar_orcamento(request):
     try:
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        orcamento.status_orcamento = StatusOrcamento.objects.get(analise_gerencia=False, negativa_gerencia=True)
+        orcamento.status_orcamento = StatusOrcamento.objects.get(analise_gerencia=True, negativa_gerencia=True)
+        orcamento.save()
+    except Exception as e:
+        return JsonError(e, status_code=500)
+    else:
+        return JsonResponse({}, status=200)
+
+
+@require_POST
+@require_ajax
+def trocar_gerente_responsavel(request):
+    print(request.POST)
+    try:
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        gerente = User.objects.get(pk=request.POST.get('id_novo_gerente'))
+        orcamento.gerente_responsavel = gerente
         orcamento.save()
     except Exception as e:
         return JsonError(e, status_code=500)

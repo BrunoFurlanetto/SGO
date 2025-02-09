@@ -547,26 +547,19 @@
                         </thead>
                         <tbody>
                         {% for previa in previas_orcamento %}
-                            <tr style="{% if previa.status_orcamento.status == 'Em análise' %} opacity: 60%; {% else %} cursor: pointer; vertical-align: middle{% endif %}">
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.data_preenchimento | date:'Y-m-d' }} {{ previa.status }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.data_ultima_edicao | date:'Y-m-d' }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.apelido }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.cliente }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.check_in|date:'Y-m-d' }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>{{ previa.check_out|date:'Y-m-d' }}</td>
-                                <td {% if previa.status_orcamento.status != 'Em análise' %}
-                                    onclick="window.location.href='{% url 'editar_previa' previa.id %}'" {% endif %}>
+                            <tr style="vertical-align: middle;{% if previa.status_orcamento.analise_gerencia %} opacity: 60%; {% else %} cursor: pointer{% endif %}">
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.data_preenchimento | date:'Y-m-d' }} {{ previa.status }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.data_ultima_edicao | date:'Y-m-d' }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.apelido }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.cliente }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.check_in|date:'Y-m-d' }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">{{ previa.check_out|date:'Y-m-d' }}</td>
+                                <td data-id_previa="{{ previa.id | safe }}" {% if not previa.status_orcamento.analise_gerencia %} data-editavel="true" {% endif %} class="clicavel">
                                     <nobr>R$ {{ previa.valor|substituir_ponto }}</nobr>
                                 </td>
                                 <td>
                                     {% if not previa.status_orcamento.analise_gerencia %}
-                                    	Em aberto
+                                    	Em construção
                                     {% else %}
                                         {{ previa.status_orcamento }}
                                     {% endif %}
@@ -583,10 +576,12 @@
                                     onclick="window.location.href='{% url 'apagar_orcamento' previa.id %}'" {% endif %}>
                                     &times;
                                 </td>
-                                <td class="fs-4" onclick="abrir_chat_orcamento({{ previa.id | safe }})">
+                                <td style="{% if not previa.status_orcamento.analise_gerencia %} pointer-events: none {% endif %}"
+                                    class="fs-4" onclick="abrir_chat_orcamento({{ previa.id | safe }})">
                                     <i class='bx bx-chat'></i>
                                 </td>
-                                <td class="fs-4" onclick="window.location.href='{% url 'transformar_em_tratativa' previa.id %}'"
+                                <td style="{% if not previa.status_orcamento.analise_gerencia %} pointer-events: none {% endif %}"
+                                    class="fs-4" onclick="window.location.href='{% url 'transformar_em_tratativa' previa.id %}'"
                                     title="Transformar em tratativa">
                                     <i class='bx bx-chevron-right-square'></i>
                                 </td>
