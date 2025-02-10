@@ -153,11 +153,11 @@ function trocar_gerente() {
             'id_novo_gerente': parseInt($('#div_gerente_responsavel #gerente_responsavel').val())
         },
         success: function (response) {
-            // window.location.href = '/dashboard/'
+            window.location.href = '/dashboard/'
         },
         error: function (xhr, status, error) {
             alert(xhr.responseText)
-            // window.location.href = '/dashboard/'
+            window.location.href = '/dashboard/'
         }
     })
 }

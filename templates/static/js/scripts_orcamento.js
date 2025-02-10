@@ -928,8 +928,9 @@ async function pegar_monitoria_valida() {
         success: function (response) {
             select_monitoria.empty().append('<option></option>')
             for (let monitor of response['monitorias']) {
-                select_monitoria.append(`<option ${$('#so_ceu') && monitor['sem'] ? 'selected' : ''} value="${monitor['id']}" ${monitor['id'] == monitoria_selecionada ? 'selected' : ''}>${monitor['nome']}</option>`)
+                select_monitoria.append(`<option ${$('#so_ceu') && monitor['sem'] ? 'selected' : ''} value="${monitor['id']}">${monitor['nome']}</option>`)
             }
+            $('#id_tipo_monitoria').val(monitoria_selecionada)
         },
         error: function (xhr, status, error) {
             alert(xhr.responseJSON.msg)
