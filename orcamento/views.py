@@ -50,7 +50,7 @@ def novo_orcamento(request):
 
 
 @login_required(login_url='login')
-def clonar_orcamento(request, id_tratativa, ):
+def clonar_orcamento(request, id_tratativa):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
     taxas_padrao = ValoresPadrao.objects.all()

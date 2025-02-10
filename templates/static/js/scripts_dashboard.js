@@ -97,7 +97,7 @@ $(document).ready(() => {
     moment.locale('pt-br');
 
     // Inicialização da tabela de orçamentos (caso exista)
-    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8, 9, 10, 11]);
+    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
 
     // Inicialização da tabela de pacotes promocionais
     var tabelaPacotes = $('#tabela_pacotes_promocionais table').iniciarlizarDataTablePacotes(2, [0, 1, 2, 3], []);
