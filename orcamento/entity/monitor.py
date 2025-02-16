@@ -12,11 +12,11 @@ class Monitor(BaseValue):
         self.exit_id = exit_id
         self.days = days
 
-    def calc_value_monitor(self, id):
+    def calc_value_monitor(self, id_tipo_monitoria):
         values = []
-
+        print(id_tipo_monitoria)
         try:
-            object_monitor = OrcamentoMonitor.objects.get(pk=id)
+            object_monitor = OrcamentoMonitor.objects.get(pk=id_tipo_monitoria)
         except ValueError:
             for i in range(0, self.days):
                 values.append(0.0)

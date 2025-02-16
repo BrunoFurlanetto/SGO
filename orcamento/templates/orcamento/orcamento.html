@@ -33,8 +33,10 @@
                 <input type="hidden" name="mensagem_gerencia" id="mensagem_gerencia">
                 <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional"
                        value="{{ dados_pacote.id }}">
-                {% if id_orcamento %}<input type="hidden" name="id_tratativa" id="id_tratativa"
-                                            value="{{ tratativa.id_tratativa }}">{% endif %}
+                {% if id_orcamento %}
+                    <input type="hidden" name="id_tratativa" id="id_tratativa" value="{{ id_tratativa }}">
+                {% endif %}
+                <input type="hidden" name="id_orcamento_clonado" id="id_orcamento_clonado" value="{{ id_orcamento_clonado }}">
                 <input type="hidden" name="salvar_previa" id="salvar_previa">
                 {% if previa %}
                     <input type="hidden" name="id_previa_orcamento" id="id_previa_orcamento" value="{{ id_orcamento }}">
@@ -219,7 +221,7 @@
                     <input type="hidden" name="resposta_diretoria" id="resposta_diretoria">
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
-                    <div class="botoes">
+                    <div class="botoes d-flex justify-content-between">
                         {% if gerente_aprovando %}
                             <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
                                 data-target="#chatModal">
@@ -232,12 +234,14 @@
                             <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
                                     data-toggle="modal"
                                     data-target="#modal_apelido_orcamento">
-                                Salvar prévia
+                                Salvar
                             </button>
-                            <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                    onclick="salvar_orcamento()">
-                                Salvar orçamento
-                            </button>
+                            {% if orcamento_origem %}
+                                <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                        onclick="salvar_orcamento()">
+                                    Transformar em tratativa
+                                </button>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -821,8 +825,8 @@
                            required>
                 </div>
                 <div class="modal-footer">
-                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary"
-                            onclick="salvar_orcamento(true)" disabled>Salvar
+                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary" disabled>
+                        Salvar
                     </button>
                 </div>
             </div>

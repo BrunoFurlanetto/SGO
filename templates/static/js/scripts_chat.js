@@ -32,7 +32,7 @@ function sendMessage() {
     newMessage.appendChild(infosDiv);
     chatContainer.appendChild(newMessage);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    console.log(id_orcamento)
+
     // Enviando a mensagem via AJAX
     $.ajax({
         type: "POST",
@@ -57,7 +57,6 @@ function sendMessage() {
 
 
 function abrir_chat_orcamento(id_orcamento_vendo) {
-    console.log("Abrindo chat para orçamento:", id_orcamento_vendo);
     id_orcamento = id_orcamento_vendo
 
     $.ajax({

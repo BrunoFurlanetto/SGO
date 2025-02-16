@@ -1,6 +1,7 @@
 import calendar
 import datetime
 from itertools import chain
+from time import sleep
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
@@ -50,15 +51,14 @@ def novo_orcamento(request):
 
 
 @login_required(login_url='login')
-def clonar_orcamento(request, id_tratativa):
+def clonar_orcamento(request, id_orcamento):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
-    tratativa = Tratativas.objects.get(id_tratativa=id_tratativa)
     taxas_padrao = ValoresPadrao.objects.all()
-    id_orcamento = tratativa.orcamentos.last().id
     orcamento = Orcamento.objects.get(pk=id_orcamento)
+    id_tratativa = Tratativas.objects.filter(
+        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
-    tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
     opcionais_pacote = []
@@ -79,8 +79,9 @@ def clonar_orcamento(request, id_tratativa):
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
-        'tratativa': tratativa,
+        'id_tratativa': id_tratativa,
         'id_orcamento': id_orcamento,
+        'id_orcamento_clonado': id_orcamento,
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
         'opcionais_pacote': opcionais_pacote,
@@ -92,6 +93,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     orcamento = Orcamento.objects.get(pk=id_orcamento)
+    id_tratativa = Tratativas.objects.get(
+        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).pk
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
@@ -138,10 +141,11 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
         'opcionais_pacote': opcionais_pacote,
         'mensagens': msgs,
+        'id_tratativa': id_tratativa
     })
 
 
-def salvar_orcamento(request, id_tratativa=None):
+def salvar_orcamento(request):
     if is_ajax(request):
         dados = processar_formulario(request.POST, request.user)
 
@@ -149,6 +153,7 @@ def salvar_orcamento(request, id_tratativa=None):
             return dados
 
         data = dados['orcamento']
+
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
         business_fee = None
@@ -195,7 +200,7 @@ def salvar_orcamento(request, id_tratativa=None):
         if data.get('so_ceu'):
             pre_orcamento.objeto_orcamento['so_ceu'] = True
 
-        if pre_orcamento.aprovacao_diretoria:
+        if pre_orcamento.aprovacao_diretoria and not data.get('id_orcamento_clonado'):
             pre_orcamento.status_orcamento = StatusOrcamento.objects.get(
                 analise_gerencia=True,
                 negativa_gerencia=False,
@@ -225,26 +230,32 @@ def salvar_orcamento(request, id_tratativa=None):
         else:
             if not orcamento_salvo.promocional:
                 try:
-                    tratativa_existente = Tratativas.objects.get(orcamentos__in=[orcamento_salvo.id])
+                    Tratativas.objects.get(
+                        Q(id_tratativa=data['id_tratativa']) & (
+                                Q(orcamentos__in=[orcamento_salvo.id]) | Q(
+                            orcamentos_em_previa__in=[orcamento_salvo.id])
+                        ),
+                    )
                 except Tratativas.DoesNotExist:
-                    if id_tratativa or not orcamento_salvo.previa:
-                        nova_tratativa, criado = Tratativas.objects.get_or_create(
-                            id_tratativa=id_tratativa,
-                            defaults={
-                                'cliente': orcamento_salvo.cliente,
-                                'colaborador': orcamento_salvo.colaborador,
-                            }
-                        )
+                    tratativa, nova = Tratativas.objects.get_or_create(
+                        id_tratativa=data['id_tratativa'],
+                        defaults={
+                            'cliente': orcamento_salvo.cliente,
+                            'colaborador': orcamento_salvo.colaborador,
+                        }
+                    )
 
-                        if criado:
-                            nova_tratativa.orcamentos.set([orcamento_salvo])
+                    if nova:
+                        if orcamento_salvo.previa:
+                            tratativa.orcamentos_em_previa.set(orcamento_salvo.id)
                         else:
-                            nova_tratativa.orcamentos.add(orcamento_salvo)
+                            tratativa.orcamentos.set(orcamento_salvo.id)
+                    else:
+                        if orcamento_salvo.previa:
+                            tratativa.orcamentos_em_previa.add(orcamento_salvo.id)
+                        else:
+                            tratativa.orcamentos.add(orcamento_salvo.id)
 
-                        nova_tratativa.save()
-                else:
-                    tratativa = Tratativas.objects.get(id_tratativa=tratativa_existente.id_tratativa)
-                    tratativa.orcamentos.add(orcamento_salvo.id)
                     tratativa.save()
             else:
                 promocional, criado = OrcamentosPromocionais.objects.get_or_create(
@@ -689,20 +700,10 @@ def trocar_gerente_responsavel(request):
 def transformar_em_tratativa(request, id_orcamento):
     try:
         orcamento = Orcamento.objects.get(pk=id_orcamento)
-        nova_tratativa, criado = Tratativas.objects.get_or_create(
-            orcamentos__in=[orcamento],
-            defaults={
-                'cliente': orcamento.cliente,
-                'colaborador': orcamento.colaborador,
-            }
-        )
-
-        if criado:
-            nova_tratativa.orcamentos.set([orcamento])
-        else:
-            nova_tratativa.orcamentos.add(orcamento)
-
-        nova_tratativa.save()
+        tratativa = Tratativas.objects.get(orcamentos_em_previa__in=[orcamento.id])
+        tratativa.orcamentos.add(orcamento)
+        tratativa.orcamentos_em_previa.remove(orcamento)
+        tratativa.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
         return redirect('dashboard')
@@ -718,3 +719,15 @@ def transformar_em_tratativa(request, id_orcamento):
         messages.success(request, f'Orçamento de {orcamento.cliente.__str__()} transformado em tratativa com sucesso!')
 
         return redirect('dashboard')
+
+
+def verificar_validade_apelido(request):
+    if Orcamento.objects.filter(
+            colaborador=request.user, apelido=request.POST.get('apelido'),
+            status_orcamento__orcamento_vencido=False,
+            status_orcamento__aprovacao_cliente=False,
+            status_orcamento__negado_cliente=False,
+    ).exists():
+        return JsonResponse({}, status=409)
+
+    return JsonResponse({}, status=200)

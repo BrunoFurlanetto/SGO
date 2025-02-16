@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.novo_orcamento, name='novo_orcamento'),
-    path('tratativa/<str:id_tratativa>/', views.clonar_orcamento, name='clonar_orcamento'),
+    path('clonar/<int:id_orcamento>/', views.clonar_orcamento, name='clonar_orcamento'),
     path('calculos/', views.calc_budget, name='calculos_orcamento'),
     path('salvar/', views.salvar_orcamento, name='salvar_orcamento'),
     path('salvar/<str:id_tratativa>/', views.salvar_orcamento, name='salvar_orcamento_clone'),
@@ -32,4 +32,5 @@ urlpatterns = [
     path('negar/', views.negar_orcamento, name='negar_orcamento'),
     path('transformar_em_tratativa/<int:id_orcamento>', views.transformar_em_tratativa, name='transformar_em_tratativa'),
     path('trocar_gerente_responsavel/', views.trocar_gerente_responsavel, name='trocar_gerente_responsavel'),
+    path('verificar_validade_apelido/', views.verificar_validade_apelido, name='verificar_validade_apelido'),
 ]

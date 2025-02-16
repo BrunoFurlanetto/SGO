@@ -1500,6 +1500,7 @@ class Tratativas(models.Model):
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Colaborador')
     id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
+    orcamentos_em_previa = models.ManyToManyField(Orcamento, related_name='orcamentos_em_previa')
     orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos", related_name='orcamentos')
     status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa',
                                default=1)

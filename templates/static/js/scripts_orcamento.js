@@ -676,6 +676,7 @@ function verificar_cometario_gerencia(textarea) {
 }
 
 async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamento = undefined) {
+    $('#btn_salvar_orcamento').prop('disabled', true)
     if ($('#so_ceu').prop('checked') && $('#id_tipo_de_pacote').val() == '') {
         alert('Selecione o pacote só CEU que deseja')
         $('.botoes button').prop('disabled', true)
@@ -692,9 +693,9 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
         } else {
             url = '/orcamento/salvar/'
         }
-        if ($('#id_tratativa').val() != undefined && $('#id_tratativa').val() != '') {
-            url = url + $('#id_tratativa').val() + '/'
-        }
+        // if ($('#id_tratativa').val() != undefined && $('#id_tratativa').val() != '') {
+        //     url = url + $('#id_tratativa').val() + '/'
+        // }
     }
 
     let dados_op, gerencia, opcionais_extra;
@@ -717,52 +718,55 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                 dataType: 'JSON',
                 data: {orcamento, dados_op, gerencia, opcionais_extra, 'salvar': salvar},
                 success: function (response) {
-                    if (!salvar) {
-                        let valores = response['data']['valores']
-                        const periodo = response['data']['periodo_viagem']['valor_final']
-                        const diaria = valores['diaria']['valor_final']
-                        const periodo_diaria = (periodo + diaria)
-                        const periodo_diaria_formatado = formatar_dinheiro(periodo_diaria)
+                    console.log(response['status'])
+                    if (response['status'] === "error") {
+                        reject(response['msg']);
+                    } else {
+                        if (!salvar) {
+                            let valores = response['data']['valores']
+                            const periodo = response['data']['periodo_viagem']['valor_final']
+                            const diaria = valores['diaria']['valor_final']
+                            const periodo_diaria = (periodo + diaria)
+                            const periodo_diaria_formatado = formatar_dinheiro(periodo_diaria)
 
-                        const valor_monitoria = valores['tipo_monitoria']['valor_final'];
-                        const transporte = valores['transporte']['valor_final'];
-                        const monitoria_transporte = (valor_monitoria + transporte);
-                        const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
+                            const valor_monitoria = valores['tipo_monitoria']['valor_final'];
+                            const transporte = valores['transporte']['valor_final'];
+                            const monitoria_transporte = (valor_monitoria + transporte);
+                            const monitoria_transporte_formatado = formatar_dinheiro(monitoria_transporte)
 
-                        const opcionais = valores['opcionais']['valor_final']
-                        // const atividades = valores['opcionais_ecoturismo']['valor_final']
-                        // const atividade_ceu = valores['opcionais_ceu']['valor_final']
-                        const outros = valores['opcionais_extras']['valor_final']
-                        const total = response['data']['total']['valor_final']
-                        const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros)
-                        const total_formatado = formatar_dinheiro(total)
+                            const opcionais = valores['opcionais']['valor_final']
+                            // const atividades = valores['opcionais_ecoturismo']['valor_final']
+                            // const atividade_ceu = valores['opcionais_ceu']['valor_final']
+                            const outros = valores['opcionais_extras']['valor_final']
+                            const total = response['data']['total']['valor_final']
+                            const opcionais_e_atividades_formatado = formatar_dinheiro(opcionais + outros)
+                            const total_formatado = formatar_dinheiro(total)
 
-                        // Alteração dos valores das seções
-                        $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado) // Periodo da viagem
-                        $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado) // Monitoria + transporte
-                        $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado) // Opcionais
-                        $('#subtotal span').text('R$ ' + total_formatado) // Total
-                        $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
+                            // Alteração dos valores das seções
+                            $('#container_periodo .parcial').text('R$ ' + periodo_diaria_formatado) // Periodo da viagem
+                            $('#container_monitoria_transporte .parcial').text('R$ ' + monitoria_transporte_formatado) // Monitoria + transporte
+                            $('#container_opcionais .parcial').text('R$ ' + opcionais_e_atividades_formatado) // Opcionais
+                            $('#subtotal span').text('R$ ' + total_formatado) // Total
+                            $('#modal_descritivo #valor_final').val('R$ ' + total_formatado)
 
-                        tabela_descrito(Object.assign(
-                                {},
-                                valores,
-                                response['data']),
-                            response['data']['days'],
-                            periodo,
-                            response['data']['descricao_opcionais'],
-                            response['data']['total'],
-                            response['racionais']
-                        )
-                        resultado_ultima_consulta = response
+                            tabela_descrito(Object.assign(
+                                    {},
+                                    valores,
+                                    response['data']),
+                                response['data']['days'],
+                                periodo,
+                                response['data']['descricao_opcionais'],
+                                response['data']['total'],
+                                response['racionais']
+                            )
+                            resultado_ultima_consulta = response
+                        }
+                        resolve(response['promocionais']);
                     }
-                    resolve(response['promocionais']);
-                },
-                error: function (xht, status, error) {
-                    alert(xht['responseJSON']['msg'])
-                    reject(xht['responseJSON']['msg'])
                 }
-            });
+            }).catch((xht, status, error) => {
+                reject(xht['responseJSON']['msg'])
+            })
         });
 
         let obs = $(`#campos_alteraveis input`).toArray().some((input) => {
@@ -809,7 +813,7 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
         return response;
     } catch (error) {
         alert(error)
-
+        end_loading()
         throw error
     }
 }
@@ -1515,7 +1519,7 @@ async function preencher_promocional(id_promocional) {
                 opcionais_promocionais = Object.values(response['opcionais']).flat()
 
                 for (let categoria of $('#opcionais select')) {
-                     $(categoria).val('')
+                    $(categoria).val('')
                     // Verifica se a categoria existe no objeto response['opcionais']
                     if (Object.keys(response['opcionais']).includes(categoria.id.split('_')[1])) {
                         // Obtém o ID da categoria
@@ -2136,11 +2140,32 @@ async function modalidade_so_ceu(editando = false) {
     // end_loading()
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const botao = document.getElementById('btn_enviar_mensagem')
-    botao.addEventListener("click", function() {
+    botao.addEventListener("click", function () {
         if ($('#messageInput').val() != '') {
             $('.responder-orcamento').prop('disabled', false)
         }
     }, true);
+
+    document.getElementById('btn_salvar_apelido').addEventListener('click', function (e) {
+        e.preventDefault()
+
+        $.ajax({
+            url: '/orcamento/verificar_validade_apelido/',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            type: "POST",
+            data: {
+                'id_orcamento_clonado': $('#id_orcamento_clonado').val(),
+                'apelido': $('#id_apelido').val(),
+            },
+        }).then(async (response) => {
+            await salvar_orcamento(true)
+        }).catch((xht, status, error) => {
+            if (xht.status == 409) {
+                alert('Apelido já utilizado em outra prévia de orçamento')
+            }
+            end_loading()
+        })
+    }, true)
 });

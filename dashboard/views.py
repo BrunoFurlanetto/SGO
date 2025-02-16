@@ -196,12 +196,12 @@ def dashboardPeraltas(request):
         vendedor__usuario=request.user,
         check_in__date__gte=datetime.today(),
     )
+    orcamentos_colaborador = Orcamento.objects.filter(colaborador=request.user)
     avisos = fichas_colaborador.filter(
         pre_reserva=True,
         check_in__date__gte=datetime.today().date(),
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
-    tratativas = Tratativas.objects.filter(colaborador=request.user, ficha_financeira=False)
     pacotes = OrcamentosPromocionais.objects.filter(
         orcamento__previa=False,
     )
@@ -273,7 +273,7 @@ def dashboardPeraltas(request):
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
-
+    print(orcamentos_colaborador.filter(previa=False))
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
@@ -290,12 +290,12 @@ def dashboardPeraltas(request):
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'monitor': monitor,
         'financeiro': financeiro in grupos_usuario,
-        'tratativas': tratativas,
+        'tratativas': orcamentos_colaborador.filter(previa=False),
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
         'fichas_financeira_negadas': fichas_financeira_negadas,
         'fichas_financeira_aprovadas': fichas_financeira_aprovadas,
-        'previas_orcamento': Orcamento.objects.filter(previa=True, colaborador=request.user),
+        'previas_orcamento': orcamentos_colaborador.filter(previa=True),
         'orcamentos_aprovacao': Orcamento.objects.filter(
             gerente_responsavel=request.user,
             status_orcamento=StatusOrcamento.objects.get(

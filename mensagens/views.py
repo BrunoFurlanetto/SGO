@@ -48,8 +48,8 @@ def encontrar_chat_orcamento(request):
             'nome': mensagens.last().nome_destinatario if mensagens.last().destinatario != request.user else mensagens.last().nome_remetente,
         },
         'cliente': obj_orcamento.cliente.__str__(),
-        'aprovado': obj_orcamento.status_orcamento.aprovacao_gerencia,
-        'negado': obj_orcamento.status_orcamento.negativa_gerencia,
+        'aprovado': obj_orcamento.status_orcamento.aprovacao_gerencia if obj_orcamento.previa else True,
+        'negado': obj_orcamento.status_orcamento.negativa_gerencia if obj_orcamento.previa else True,
         'gerente_responsavel': obj_orcamento.gerente_responsavel.id,
     }, status=200)
 

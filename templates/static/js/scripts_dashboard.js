@@ -98,6 +98,9 @@ $(document).ready(() => {
 
     // Inicialização da tabela de orçamentos (caso exista)
     $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
+    $('#tabela_tratativas_em_aberto').iniciarlizarDataTableOrcamento([2, 3, 4], 0, [7]);
+    $('#tabela_tratativas_negadas_vencidas').iniciarlizarDataTableOrcamento([3], 0, [5, 6]);
+    $('#tabela_tratativas_ganhas').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
 
     // Inicialização da tabela de pacotes promocionais
     var tabelaPacotes = $('#tabela_pacotes_promocionais table').iniciarlizarDataTablePacotes(2, [0, 1, 2, 3], []);
