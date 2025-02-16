@@ -257,6 +257,13 @@ def salvar_orcamento(request):
                             tratativa.orcamentos.add(orcamento_salvo.id)
 
                     tratativa.save()
+                except Exception as e:
+                    orcamento_salvo.delete()
+                    return JsonResponse({}, status=400)
+                else:
+                    if orcamento_salvo.aprovacao_diretoria:
+                        # Implementação Chat guru
+                        ...
             else:
                 promocional, criado = OrcamentosPromocionais.objects.get_or_create(
                     orcamento_id=orcamento_salvo.id,
@@ -652,7 +659,7 @@ def pegar_monitoria_valida(request):
 
 @require_POST
 @require_ajax
-def reenio_pedido_gerencia(request):
+def reenvio_pedido_gerencia(request):
     try:
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
         orcamento.status_orcamento = StatusOrcamento.objects.get(

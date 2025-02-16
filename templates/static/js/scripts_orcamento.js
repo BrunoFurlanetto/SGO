@@ -676,7 +676,6 @@ function verificar_cometario_gerencia(textarea) {
 }
 
 async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamento = undefined) {
-    $('#btn_salvar_orcamento').prop('disabled', true)
     if ($('#so_ceu').prop('checked') && $('#id_tipo_de_pacote').val() == '') {
         alert('Selecione o pacote só CEU que deseja')
         $('.botoes button').prop('disabled', true)

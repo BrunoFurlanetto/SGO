@@ -57,7 +57,6 @@ def encontrar_chat_orcamento(request):
 @require_POST
 @require_ajax
 def salvar_mensagem(request):
-    print(request.POST)
     try:
         Mensagem.objects.create(
             remetente=request.user,

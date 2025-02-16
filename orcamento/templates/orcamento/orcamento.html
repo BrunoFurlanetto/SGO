@@ -26,6 +26,9 @@
 
         <form id="orcamento"
               name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
+            {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
+            	<div class="overlay"></div>
+            {% endif %}
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
@@ -42,6 +45,11 @@
                     <input type="hidden" name="id_previa_orcamento" id="id_previa_orcamento" value="{{ id_orcamento }}">
                 {% endif %}
                 <div id="conteudo_primeiro" class="conteudo-primeiro">
+
+                    {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
+                        <div id="aviso_edicao_orcamento" class="alert alert-warning">A edição do orçamento está bloqueada!</div>
+                    {% endif %}
+
                     <h5 class="titulo-secao">Informações do cliente e responsável</h5>
                     <div onclick="ativar_mascara()">
                         {{ orcamento.cliente.label }}
@@ -221,7 +229,7 @@
                     <input type="hidden" name="resposta_diretoria" id="resposta_diretoria">
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
-                    <div class="botoes d-flex justify-content-between">
+                    <div class="botoes d-flex flex-wrap justify-content-end gap-2">
                         {% if gerente_aprovando %}
                             <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
                                 data-target="#chatModal">
@@ -236,13 +244,15 @@
                                     data-target="#modal_apelido_orcamento">
                                 Salvar
                             </button>
-                            {% if orcamento_origem %}
-                                <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                        onclick="salvar_orcamento()">
-                                    Transformar em tratativa
-                                </button>
-                            {% endif %}
                         {% endif %}
+                        {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
+                        <button type="button" id="btn_editar_orcamento" class="btn btn-outline-dark"
+                                onclick="$('#aviso_edicao_orcamento, .overlay').addClass('none'); $('#btn_salvar_orcamento').prop('disabled', true)">Editar</button>
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                onclick="salvar_orcamento()">
+                            Transformar em tratativa
+                        </button>
+                    {% endif %}
                     </div>
                 </div>
             </fieldset>
@@ -911,7 +921,6 @@
                 {% else %}
                     await verificar_pacotes_promocionais(true)
                 {% endif %}
-
             {% else %}
                 await inicializacao()
             {% endif %}
