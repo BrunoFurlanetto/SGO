@@ -189,22 +189,15 @@ function alterar_aba(aba, sectionId) {
     }
 }
 
-function alterar_status(btn, id_orcamento = '') {
-    const novo_status = $(btn).attr('id')
-    let orcamento_id = id_orcamento
-    let motivo_recusa = ''
-    loading()
-
-    if (novo_status === 'perdido') {
-        motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
-        orcamento_id = $('#modal_orcamento_perdido #id_orcamento_perdido').val()
-    }
+function perder_orcamento() {
+    let orcamento_id = $('#modal_orcamento_perdido #id_orcamento_perdido').val()
+    let motivo_recusa = $('#modal_orcamento_perdido #motivo_recusa').val()
 
     $.ajax({
         type: 'POST',
-        url: '',
+        url: '/orcamento/perdido/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento': orcamento_id, 'novo_status': novo_status, 'motivo_recusa': motivo_recusa},
+        data: {'id_orcamento': orcamento_id, 'motivo_recusa': motivo_recusa},
     }).done((response) => {
         if (response['status'] === 'error') {
             alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)
@@ -215,7 +208,27 @@ function alterar_status(btn, id_orcamento = '') {
         }
     }).catch((xht, status, error) => {
         alert(xht['responseJSON']['msg'])
-        end_loading()
+        // end_loading()
+    })
+}
+
+function ganhar_orcamento(id_orcamento) {
+    $.ajax({
+        type: 'POST',
+        url: '/orcamento/ganho/',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'id_orcamento': id_orcamento},
+    }).done((response) => {
+        if (response['status'] === 'error') {
+            alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)
+        } else {
+            setTimeout(() => {
+                window.location.reload()
+            }, 500)
+        }
+    }).catch((xht, status, error) => {
+        alert(xht['responseJSON']['msg'])
+        // end_loading()
     })
 }
 
@@ -272,4 +285,22 @@ function modal_de_tratativas(id_tratativa) {
     })
     $('#modal_tratativas').modal('show')
     end_loading()
+}
+
+function clonar_orcamento(resp) {
+    if (resp) {
+        let motivo_recusa = prompt('Qual o motivo da recusa do cliente?', 'Orçamento  clonado')
+        $.ajax({
+            type: 'POST',
+            url: '/orcamento/perdido/',
+            headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+            data: {'id_orcamento': $('#id_orcamento_clonado').val(), 'motivo_recusa': motivo_recusa},
+        }).then(() => {
+            window.location.href = `/orcamento/clonar/${$('#id_orcamento_clonado').val()}`
+        }).catch((xht, status, error) => {
+            alert(xht['responseJSON']['msg'])
+        })
+    } else {
+        window.location.href = `/orcamento/clonar/${$('#id_orcamento_clonado').val()}`
+    }
 }

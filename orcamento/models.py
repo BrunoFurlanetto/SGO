@@ -1537,6 +1537,9 @@ class Tratativas(models.Model):
 
         return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)
 
+    def orcamentos_ganhos(self):
+        return list(self.orcamentos.filter(status_orcamento__aprovacao_cliente=True))
+
     @staticmethod
     @receiver(pre_delete, sender=User)
     def redefinir_colaborador(sender, instance, **kwargs):
@@ -1595,25 +1598,17 @@ class Tratativas(models.Model):
 
         return vencimentos[0].strftime('%d/%m/%Y')
 
-    def perder_orcamentos(self):
+    def perder_orcamentos(self, id_orcamento):
         satus_perdido = StatusOrcamento.objects.get(negado_cliente=True)
-        self.orcamentos.all().update(status_orcamento=satus_perdido)
+        orcamento = self.orcamentos.all().get(pk=id_orcamento)
+        orcamento.status_orcamento = satus_perdido
+        orcamento.save()
 
     def ganhar_orcamento(self, id_orcamento_ganho):
         status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
-        status_perdido = StatusOrcamento.objects.get(negado_cliente=True)
-
-        for orcamento in self.orcamentos.all():
-            if orcamento.id == id_orcamento_ganho:
-                orcamento.status_orcamento = status_ganho
-                self.orcamento_aceito = orcamento
-            else:
-                orcamento.status_orcamento = status_perdido
-
-            orcamento.save()
-
-        self.status = status_ganho
-        self.save()
+        orcamento = self.orcamentos.all().get(pk=id_orcamento_ganho)
+        orcamento.status_orcamento = status_ganho
+        orcamento.save()
 
     def orcamentos_abertos(self):
         if self.orcamento_aceito:

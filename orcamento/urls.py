@@ -34,4 +34,6 @@ urlpatterns = [
     path('transformar_em_tratativa/<int:id_orcamento>', views.transformar_em_tratativa, name='transformar_em_tratativa'),
     path('trocar_gerente_responsavel/', views.trocar_gerente_responsavel, name='trocar_gerente_responsavel'),
     path('verificar_validade_apelido/', views.verificar_validade_apelido, name='verificar_validade_apelido'),
+    path('ganho/', views.ganhar_orcamento, name='ganhar_orcamento'),
+    path('perdido/', views.perder_orcamento, name='perder_orcamento'),
 ]

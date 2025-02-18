@@ -26,11 +26,12 @@
 
         <form id="orcamento" style="position: relative"
               name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
-            {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
-            	<div class="overlay"></div>
-            {% endif %}
-            {% if orcamento_origem.status_orcamento.analise_gerencia or not orcamento_origem.previa %}
-                <div class="overlay" style="height: 100%"></div>
+            {% if not novo_orcamento and not gerente_aprovando %}
+                {% if orcamento_editavel %}
+                    <div class="overlay"></div>
+                {% else %}
+                	<div class="overlay" style="height: 100%"></div>
+                {% endif %}
             {% endif %}
             <fieldset>
                 {% csrf_token %}
@@ -233,17 +234,19 @@
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
                     <div class="botoes d-flex flex-wrap justify-content-end gap-2" >
-                        {% if not orcamento_origem.status_orcamento.analise_gerencia and orcamento_origem.previa %}
+                        {% if gerente_aprovando or novo_orcamento or orcamento_editavel %}
                         	{% if gerente_aprovando %}
                                 <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
                                     data-target="#chatModal">
                                     Responder
                                 </button>
                             {% else %}
-                                <button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
-                                        data-target="#modal_cometario_diretoria">
-                                    Pedido de alteração de taxa
-                                </button>
+                                {% if not id_orcamento_clonado and not novo_orcamento %}
+                                	<button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
+                                            data-target="#modal_cometario_diretoria">
+                                        Pedido de alteração de taxa
+                                    </button>
+                                {% endif %}
                                 <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
                                         data-toggle="modal"
                                         data-target="#modal_apelido_orcamento">
@@ -256,7 +259,7 @@
                                     Editar
                                 </button>
                                 <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                        onclick="salvar_orcamento()">
+                                        onclick="window.location.href = '{% url 'transformar_em_tratativa' orcamento_origem.id %}'">
                                     Transformar em tratativa
                                 </button>
                              {% endif %}

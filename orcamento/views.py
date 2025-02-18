@@ -47,6 +47,7 @@ def novo_orcamento(request):
         'zerar_taxas': True,
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
+        'novo_orcamento': True,
     })
 
 
@@ -55,13 +56,16 @@ def clonar_orcamento(request, id_orcamento):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    id_tratativa = Tratativas.objects.filter(
-        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
+    tratativa = Tratativas.objects.filter(
+        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first()
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
     opcionais_pacote = []
+
+    if len(tratativa.orcamentos_ganhos()) > 0:
+        tratativa = Tratativas.objects.create(colaborador=request.user, cliente=orcamento.cliente)
 
     if orcamento.orcamento_promocional:
         opcionais_pacote = orcamento.orcamento_promocional.listar_opcionais()
@@ -79,12 +83,13 @@ def clonar_orcamento(request, id_orcamento):
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
-        'id_tratativa': id_tratativa,
+        'id_tratativa': tratativa.pk,
         'id_orcamento': id_orcamento,
         'id_orcamento_clonado': id_orcamento,
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
         'opcionais_pacote': opcionais_pacote,
+        'novo_orcamento': True,
     })
 
 
@@ -101,6 +106,7 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     pacote_promocional = CadastroPacotePromocional()
     orcamento_promocional = None
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+    orcamento_editavel = True
     opcionais_pacote = {}
 
     if orcamento.orcamento_promocional:
@@ -115,8 +121,12 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         orcamento_promocional = orcamento.orcamento_promocional
 
     msgs = Mensagem.objects.filter(object_id=orcamento.id)
+
     for msg in msgs:
         msg.responsavel = "remetente" if msg.remetente == request.user else "destinatario"
+
+    if orcamento.status_orcamento.analise_gerencia or not orcamento.previa:
+        orcamento_editavel = False
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
@@ -141,7 +151,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
         'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
         'opcionais_pacote': opcionais_pacote,
         'mensagens': msgs,
-        'id_tratativa': id_tratativa
+        'id_tratativa': id_tratativa,
+        'orcamento_editavel': orcamento_editavel,
     })
 
 
@@ -153,7 +164,7 @@ def salvar_orcamento(request):
             return dados
 
         data = dados['orcamento']
-
+        print(data)
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
         business_fee = None
@@ -230,26 +241,34 @@ def salvar_orcamento(request):
         else:
             if not orcamento_salvo.promocional:
                 try:
+                    print('Aqui sim')
                     Tratativas.objects.get(
-                        Q(id_tratativa=data['id_tratativa']) & (
+                        Q(id_tratativa=data.get('id_tratativa')) & (
                                 Q(orcamentos__in=[orcamento_salvo.id]) | Q(
                             orcamentos_em_previa__in=[orcamento_salvo.id])
                         ),
                     )
                 except Tratativas.DoesNotExist:
-                    tratativa, nova = Tratativas.objects.get_or_create(
-                        id_tratativa=data['id_tratativa'],
-                        defaults={
-                            'cliente': orcamento_salvo.cliente,
-                            'colaborador': orcamento_salvo.colaborador,
-                        }
-                    )
+                    if data.get('id_tratativa'):
+                        tratativa, nova = Tratativas.objects.get_or_create(
+                            id_tratativa=data['id_tratativa'],
+                            defaults={
+                                'cliente': orcamento_salvo.cliente,
+                                'colaborador': orcamento_salvo.colaborador,
+                            }
+                        )
+                    else:
+                        tratativa = Tratativas.objects.create(
+                            cliente=orcamento_salvo.cliente,
+                            colaborador=orcamento_salvo.colaborador
+                        )
+                        nova = True
 
                     if nova:
                         if orcamento_salvo.previa:
-                            tratativa.orcamentos_em_previa.set(orcamento_salvo.id)
+                            tratativa.orcamentos_em_previa.set([orcamento_salvo.id])
                         else:
-                            tratativa.orcamentos.set(orcamento_salvo.id)
+                            tratativa.orcamentos.set([orcamento_salvo.id])
                     else:
                         if orcamento_salvo.previa:
                             tratativa.orcamentos_em_previa.add(orcamento_salvo.id)
@@ -259,7 +278,7 @@ def salvar_orcamento(request):
                     tratativa.save()
                 except Exception as e:
                     orcamento_salvo.delete()
-                    return JsonResponse({}, status=400)
+                    return JsonResponse({'msg': f'{e}'}, status=400)
                 else:
                     if orcamento_salvo.aprovacao_diretoria:
                         # Implementação Chat guru
@@ -397,6 +416,7 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
         'data_vencimento': promocional.orcamento.objeto_gerencia['data_vencimento'],
         'promocional': promocional,
         'categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
+        'novo_orcamento': True,
     })
 
 
@@ -690,7 +710,6 @@ def negar_orcamento(request):
 @require_POST
 @require_ajax
 def trocar_gerente_responsavel(request):
-    print(request.POST)
     try:
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
         gerente = User.objects.get(pk=request.POST.get('id_novo_gerente'))
@@ -736,5 +755,35 @@ def verificar_validade_apelido(request):
             status_orcamento__negado_cliente=False,
     ).exists():
         return JsonResponse({}, status=409)
+
+    return JsonResponse({}, status=200)
+
+
+@require_ajax
+@require_POST
+def ganhar_orcamento(request):
+    try:
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
+        orcamento.status_orcamento = status_ganho
+        orcamento.save()
+    except Exception as e:
+        return JsonResponse({'msg': f'Erro ao tentar ganhar orçamento ({e}). Tente novamente mais tarde.'}, status=500)
+
+    return JsonResponse({}, status=200)
+
+
+@require_ajax
+@require_POST
+def perder_orcamento(request):
+    try:
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        status_perdido = StatusOrcamento.objects.get(negado_cliente=True)
+        orcamento.status_orcamento = status_perdido
+        orcamento.motivo_recusa = request.POST.get('motivo_recusa')
+        orcamento.save()
+    except Exception as e:
+        print('Ué')
+        return JsonResponse({'msg': f'Erro ao dar baixa no orçamento ({e}). Tente novamente mais tarde.'}, status=500)
 
     return JsonResponse({}, status=200)
