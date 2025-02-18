@@ -545,31 +545,25 @@
                         <tbody>
                         {% for previa in previas_orcamento %}
                             <tr style="vertical-align: middle; cursor: pointer">
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %}
-                                    class="clicavel">{{ previa.data_preenchimento | date:'Y-m-d' }} {{ previa.status }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %}
-                                    class="clicavel">{{ previa.data_ultima_edicao | date:'Y-m-d' }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %} class="clicavel">{{ previa.apelido }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %} class="clicavel">{{ previa.cliente }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %}
-                                    class="clicavel">{{ previa.check_in|date:'Y-m-d' }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %}
-                                    class="clicavel">{{ previa.check_out|date:'Y-m-d' }}</td>
-                                <td data-id_previa="{{ previa.id | safe }}"
-                                        {% if not previa.status_orcamento.analise_gerencia %}
-                                    data-editavel="true" {% endif %} class="clicavel">
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.data_preenchimento | date:'Y-m-d' }} {{ previa.status }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.data_ultima_edicao | date:'Y-m-d' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.apelido }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.cliente }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.check_in|date:'Y-m-d' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.check_out|date:'Y-m-d' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
                                     <nobr>R$ {{ previa.valor|substituir_ponto }}</nobr>
                                 </td>
                                 <td>
@@ -681,11 +675,11 @@
                         {% for tratativa in tratativas %}
                             {% if not tratativa.status_orcamento.aprovacao_cliente and not tratativa.status_orcamento.negado_cliente and not tratativa.status_orcamento.orcamento_vencido %}
                                 <tr style="vertical-align: middle; cursor: pointer">
-                                    <td>{{ tratativa.cliente }}</td>
-                                    <td>{{ tratativa.apelido }}</td>
-                                    <td>{{ tratativa.data_ultima_edicao | date:'Y-m-d' }}</td>
-                                    <td>{{ tratativa.check_in|date:'Y-m-d' }}</td>
-                                    <td>{{ tratativa.check_out|date:'Y-m-d' }}</td>
+                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.cliente }}</td>
+                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.apelido }}</td>
+                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.data_ultima_edicao | date:'Y-m-d' }}</td>
+                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.check_in|date:'Y-m-d' }}</td>
+                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.check_out|date:'Y-m-d' }}</td>
                                     <td>
                                         <nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr>
                                     </td>

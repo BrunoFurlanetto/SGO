@@ -86,11 +86,11 @@ $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrdera
 }
 
 $(document).ready(() => {
-    $('#previas_orcamento td.clicavel').on('click', function () {
-        if ($(this).data('editavel')) {
-            window.location.href = `/orcamento/editar_previa/${$(this).data('id_previa')}/`
+    $('#previas_orcamento td.clicavel, #tratativas td.clicavel').on('click', function () {
+        if ($(this).data('tratativa')) {
+            window.location.href = `/orcamento/ver_tratativa/${$(this).data('id_orcamento')}/`
         } else {
-            window.location.href = `/orcamento/ver_orcamento/${$(this).data('id_previa')}/`
+            window.location.href = `/orcamento/editar_previa/${$(this).data('id_orcamento')}/`
         }
     })
 

@@ -93,8 +93,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    id_tratativa = Tratativas.objects.get(
-        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).pk
+    id_tratativa = Tratativas.objects.filter(
+        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
