@@ -11,7 +11,7 @@
             <div class="pagina fixo">
                 {% if not tratativa %}
                     <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
-                <div class="rec_ano">{% if tratativa %} {{ tratativa.orcamentos_abertos.0.check_in.year }} {% else %}
+                <div class="rec_ano">{% if tratativa %} {{ tratativa.check_in.year }} {% else %}
                     {{ previa_orcamento.check_in.year }} {% endif %}</div>
                 <img src="{% static 'img/capa_orcamento.png' %}" alt="">
             </div>
@@ -33,9 +33,9 @@
                     {% if tratativa %}
                         <div id="cliente">
                             <P>NOME DO COLÉGIO: {{ tratativa.cliente }}</P>
-                            <P>RESPONSÁVEL: {{ tratativa.responsavel_tratativa.nome }}</P>
-                            <P>TELEFONE: {{ tratativa.responsavel_tratativa.fone }}</P>
-                            <P>E-MAIL: {{ tratativa.responsavel_tratativa.email_responsavel_evento }}</P>
+                            <P>RESPONSÁVEL: {{ tratativa.responsavel.nome }}</P>
+                            <P>TELEFONE: {{ tratativa.responsavel.fone }}</P>
+                            <P>E-MAIL: {{ tratativa.responsavel.email_responsavel_evento }}</P>
                         </div>
                         <div id="vendedora">
                             <p>CONSULTORA RESPONSÁVEL: {{ tratativa.colaborador.get_full_name }}</p>
@@ -76,156 +76,153 @@
             </div>
 
             {% if tratativa %}
-                {% for orcamento in tratativa.orcamentos_abertos %}
-                    {% if not orcamento.previa %}
-
-                        <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
-                            {% if not tratativa %}
-                                <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
-                            <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
-                            <div class="sobre_fundo"></div>
-                            <div class="barra_superior"></div>
-                            <div id="texto_inicial">
-                                <h1>BENEFÍCIOS:</h1>
-                                <ul>
-                                    <li>
-                                        As atividades vivenciais, com o auxílio do conteúdo visual, sensorial e
-                                        auditivo,
-                                        melhora o desempenho, interesse e entendimento do aluno durante as saídas
-                                        pedagógicas
-                                        ofertadas, quando alinhadas com os conteúdos aprendidos em sala de aula;
-                                    </li>
-                                    <li>
-                                        Atividades de acordo com as indicações do MEC/BNCC;
-                                    </li>
-                                    <li>
-                                        Ensino investigativo que proporciona uma reflexão e análise crítica em
-                                        diferentes áreas,
-                                        motivando alunos e professores que vivem essa experiência;
-                                    </li>
-                                    <li>
-                                        Melhora na comunicação e relação pessoal/interpessoal do aluno.
-                                    </li>
-                                    <li>
-                                        Alunos mais participativos e com ganho cultural.
-                                    </li>
-                                    <li>
-                                        Descoberta, respeito e contato aprofundado com a natureza.
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="dados">
-                                <div class="dados_pacote pacote">
-                                    <div class="secao"><h4>PACOTE</h4></div>
-                                    <div class="descricao">
-                                        <p>{{ orcamento.produto.produto }}
-                                            {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
-                                                {% if orcamento.opcionais_ceu|length > 0 %}
-                                                    + AT. C.E.U
-                                                {% endif %}
-                                            {% endif %}
-                                        <p>Investimento:</p>
-                                        {% if orcamento.desconto_aplicado %}
-                                            <p>De: <s>R$ {{ orcamento.valor_sem_desconto | substituir_ponto }}</s></p>
+                <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
+                    {% if not tratativa %}
+                        <div class="marca_dagua">Pré orçamento - sem valor de negociação</div>
+                    {% endif %}
+                    <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
+                    <div class="sobre_fundo"></div>
+                    <div class="barra_superior"></div>
+                    <div id="texto_inicial">
+                        <h1>BENEFÍCIOS:</h1>
+                        <ul>
+                            <li>
+                                As atividades vivenciais, com o auxílio do conteúdo visual, sensorial e
+                                auditivo,
+                                melhora o desempenho, interesse e entendimento do aluno durante as saídas
+                                pedagógicas
+                                ofertadas, quando alinhadas com os conteúdos aprendidos em sala de aula;
+                            </li>
+                            <li>
+                                Atividades de acordo com as indicações do MEC/BNCC;
+                            </li>
+                            <li>
+                                Ensino investigativo que proporciona uma reflexão e análise crítica em
+                                diferentes áreas,
+                                motivando alunos e professores que vivem essa experiência;
+                            </li>
+                            <li>
+                                Melhora na comunicação e relação pessoal/interpessoal do aluno.
+                            </li>
+                            <li>
+                                Alunos mais participativos e com ganho cultural.
+                            </li>
+                            <li>
+                                Descoberta, respeito e contato aprofundado com a natureza.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dados">
+                        <div class="dados_pacote pacote">
+                            <div class="secao"><h4>PACOTE</h4></div>
+                            <div class="descricao">
+                                <p>{{ tratativa.produto.produto }}
+                                    {% if tratativa.tipo_de_pacote and not tratativa.tipo_de_pacote.so_ceu %}
+                                        {% if tratativa.opcionais_ceu|length > 0 %}
+                                            + AT. C.E.U
                                         {% endif %}
+                                    {% endif %}
+                                <p>Investimento:</p>
+                                {% if tratativa.desconto_aplicado %}
+                                    <p>De: <s>R$ {{ tratativa.valor_sem_desconto | substituir_ponto }}</s></p>
+                                {% endif %}
 
-                                        <p>{% if orcamento.desconto_aplicado %}Por{% endif %}
-                                            R$ {{ orcamento.valor|floatformat }} por participante</p>
-                                    </div>
-                                </div>
-                                <div class="dados_pacote horarios">
-                                    <div class="secao"><h4>HORÁRIOS</h4></div>
-                                    <div class="descricao">
-                                        <p>
-                                            Chegada às <strong> {{ orcamento.check_in | date:'d/m/Y H:i' }} </strong>
-                                            Saída
-                                            às <strong> {{ orcamento.check_out | date:'d/m/Y H:i' }} </strong>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="dados_pacote incluso">
-                                    <div class="secao"><h4>INCLUSO</h4></div>
-                                    <div class="descricao">
-                                        <ul>
-                                            {% if orcamento.tipo_de_pacote and not orcamento.tipo_de_pacote.so_ceu %}
-                                                {% if orcamento.check_out|date != orcamento.check_in|date %}
-                                                    <li><strong>Primeiro
-                                                        dia: </strong>{{ orcamento.refeicoes_check_in }}</li>
-
-                                                    <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da
-                                                        noite
-                                                    </li>
-
-                                                    <li><strong>Último dia: </strong>{{ orcamento.refeicoes_check_out }}
-                                                    </li>
-                                                {% else %}
-                                                    {% if orcamento.check_in|time:'H' <= '10' %}
-                                                        <li>{{ orcamento.refeicoes_check_in }}</li>
-                                                    {% endif %}
-                                                {% endif %}
-                                                <li>01 monitor de lazer a cada 20 pagantes</li>
-                                                <li>Programação de lazer.</li>
-                                            {% endif %}
-                                            {% if orcamento.opcionais_ceu|length != 0 %}
-                                                <li>
-                                                    {% if not orcamento.oficina_de_foguetes %}
-                                                        Atividade(s) no CEU
-                                                        <strong>(exceto oficina de foguetes)</strong>
-                                                    {% else %}
-                                                        {% if orcamento.opcionais_ceu|length > 1 %}
-                                                            Atividade(s) no CEU +
-                                                        {% endif %}
-                                                        Oficina de foguetes
-                                                    {% endif %}
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
+                                <p>{% if tratativa.desconto_aplicado %}Por{% endif %}
+                                    R$ {{ tratativa.valor|floatformat }} por participante</p>
                             </div>
-                            <div class="texto_final">
-                                <h3>Condições:</h3>
-                                Investimento por aluno pagante.
-                                <br>
-                                01 cortesia para professor a cada {{ orcamento.racional_cortesia }} alunos pagantes, o
-                                que exceder será cobrado 50% do
-                                valor
-                                do pacote.
-                                <br>
-                                {% if orcamento.transporte != 'sim' %} Não inclui transporte ida e volta. {% endif %}
-                                Não oferecemos acomodações para motoristas. Mínimo de {{ orcamento.minimo_pagantes }}
-                                alunos participantes.
+                        </div>
+                        <div class="dados_pacote horarios">
+                            <div class="secao"><h4>HORÁRIOS</h4></div>
+                            <div class="descricao">
+                                <p>
+                                    Chegada às <strong> {{ tratativa.check_in | date:'d/m/Y H:i' }} </strong>
+                                    Saída
+                                    às <strong> {{ tratativa.check_out | date:'d/m/Y H:i' }} </strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="dados_pacote incluso">
+                            <div class="secao"><h4>INCLUSO</h4></div>
+                            <div class="descricao">
                                 <ul>
-                                    <li>
-                                        Valores válidos para fechamento até
-                                        <strong>{{ orcamento.data_vencimento | date:'d/m/Y' }}</strong> para viagens
-                                        agendadas
-                                        {% if orcamento.check_in.month <= 6 %}
-                                            até <strong> JUNHO </strong>
+                                    {% if tratativa.tipo_de_pacote and not tratativa.tipo_de_pacote.so_ceu %}
+                                        {% if tratativa.check_out|date != tratativa.check_in|date %}
+                                            <li><strong>Primeiro
+                                                dia: </strong>{{ tratativa.refeicoes_check_in }}</li>
+
+                                            <li><strong>Demais dias: </strong>Café, almoço, jantar e chá da
+                                                noite
+                                            </li>
+
+                                            <li><strong>Último dia: </strong>{{ tratativa.refeicoes_check_out }}
+                                            </li>
                                         {% else %}
-                                            entre
-                                            <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
+                                            {% if tratativa.check_in|time:'H' <= '10' %}
+                                                <li>{{ tratativa.refeicoes_check_in }}</li>
+                                            {% endif %}
                                         {% endif %}
-                                        de {{ orcamento.check_in.year }}. <strong> Exceto feriados </strong>.
-                                    </li>
-                                    <li>
-                                        Condições de pagamento:
-                                    </li>
-                                    <li>
-                                        À vista <strong>R$ {{ orcamento.valor|substituir_ponto }}</strong> ou, parcelado
-                                        via
-                                        link de pagamento online. Consulte quantidade de
-                                        parcelas.
-                                    </li>
+                                        <li>01 monitor de lazer a cada 20 pagantes</li>
+                                        <li>Programação de lazer.</li>
+                                    {% endif %}
+                                    {% if tratativa.opcionais_ceu|length != 0 %}
+                                        <li>
+                                            {% if not tratativa.oficina_de_foguetes %}
+                                                Atividade(s) no CEU
+                                                <strong>(exceto oficina de foguetes)</strong>
+                                            {% else %}
+                                                {% if tratativa.opcionais_ceu|length > 1 %}
+                                                    Atividade(s) no CEU +
+                                                {% endif %}
+                                                Oficina de foguetes
+                                            {% endif %}
+                                        </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
-                    {% endif %}
-                {% endfor %}
+                    </div>
+                    <div class="texto_final">
+                        <h3>Condições:</h3>
+                        Investimento por aluno pagante.
+                        <br>
+                        01 cortesia para professor a cada {{ tratativa.racional_cortesia }} alunos pagantes, o
+                        que exceder será cobrado 50% do
+                        valor
+                        do pacote.
+                        <br>
+                        {% if tratativa.transporte != 'sim' %} Não inclui transporte ida e volta. {% endif %}
+                        Não oferecemos acomodações para motoristas. Mínimo de {{ tratativa.minimo_pagantes }}
+                        alunos participantes.
+                        <ul>
+                            <li>
+                                Valores válidos para fechamento até
+                                <strong>{{ tratativa.data_vencimento | date:'d/m/Y' }}</strong> para viagens
+                                agendadas
+                                {% if tratativa.check_in.month <= 6 %}
+                                    até <strong> JUNHO </strong>
+                                {% else %}
+                                    entre
+                                    <sttrong> AGOSTO</sttrong> e <strong> DEZEMBRO </strong>
+                                {% endif %}
+                                de {{ tratativa.check_in.year }}. <strong> Exceto feriados </strong>.
+                            </li>
+                            <li>
+                                Condições de pagamento:
+                            </li>
+                            <li>
+                                À vista <strong>R$ {{ tratativa.valor|substituir_ponto }}</strong> ou, parcelado
+                                via
+                                link de pagamento online. Consulte quantidade de
+                                parcelas.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             {% else %}
                 <div id="orcamento_{{ forloop.counter }}" class="pagina orcamento">
                     {% if not tratativa %}
-                        <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                        <div class="marca_dagua">Pré orçamento - sem valor de negociação</div>
+                    {% endif %}
                     <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
                     <div class="sobre_fundo"></div>
                     <div class="barra_superior"></div>
@@ -368,7 +365,8 @@
             <!-- Nova página de atividades -->
             <div class="pagina orcamento">
                 {% if not tratativa %}
-                    <div class="marca_dagua">Pré orçamento - sem valor de negociação</div> {% endif %}
+                    <div class="marca_dagua">Pré orçamento - sem valor de negociação</div>
+                {% endif %}
                 <img src="{% static 'img/fundo_orcamento.png' %}" alt="">
                 <div class="sobre_fundo"></div>
                 <div class="barra_superior"></div>

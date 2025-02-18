@@ -1060,6 +1060,17 @@ class Orcamento(models.Model):
 
         return todos_opcionais
 
+    @property
+    def opcionais_contratados_unicos(self):
+        # Coleta todos os opcionais únicos dos orçamentos ativos
+        opcionais_unicos = set()
+
+        for opcional in self.opcionais_contratados:  # Supondo que "opcionais_contratados" seja o campo no Orcamento
+            if not opcional.categoria.staff:
+                opcionais_unicos.add(opcional.id)
+
+        return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)
+
     def descritivo_opcionais(self):        
 
         return set([op for op in self.opcionais_contratados if not op.categoria.staff])
@@ -1525,17 +1536,6 @@ class Tratativas(models.Model):
             return Vendedor.objects.get(usuario=self.colaborador)
         except Vendedor.DoesNotExist:
             return ''
-
-    @property
-    def opcionais_contratados_unicos(self):
-        # Coleta todos os opcionais únicos dos orçamentos ativos
-        opcionais_unicos = set()
-        for orcamento in self.orcamentos_abertos():  # Supondo um campo "ativo" no Orcamento
-            for opcional in orcamento.opcionais_contratados:  # Supondo que "opcionais_contratados" seja o campo no Orcamento
-                if not opcional.categoria.staff:
-                    opcionais_unicos.add(opcional.id)
-
-        return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)
 
     def orcamentos_ganhos(self):
         return list(self.orcamentos.filter(status_orcamento__aprovacao_cliente=True))

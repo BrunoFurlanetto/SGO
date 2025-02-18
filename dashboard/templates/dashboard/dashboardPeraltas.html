@@ -708,6 +708,13 @@
                                                     onclick="$('#modal_duplicar_orcamento #id_orcamento_clonado').val({{ tratativa.id | safe }})">
                                                     <i class='bx bxs-duplicate'></i>
                                                 </button>
+                                                <button type="button" class="button_pdf"
+                                                    {% if previa.status_orcamento.negativa_gerencia or previa.status_orcamento.aprovacao_gerencia %}
+                                                    disabled
+                                                    {% endif %}
+                                                    onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id %}'">
+                                                <i class='bx bxs-file-pdf'></i>
+                                            </button>
                                             </div>
                                         </div>
                                     </td>
