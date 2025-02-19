@@ -11,6 +11,9 @@
     <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
 
     <div class="conteudo-orcamento">
+        {% if not novo_orcamento %}
+            <div class="overlay"></div>
+        {% endif %}
         <div id="subtotal" class="div-flutuante none"
              style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; {% else %} pointer-events: none {% endif %}"
              onclick="$('#modal_descritivo').modal('show')">

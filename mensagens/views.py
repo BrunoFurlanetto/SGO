@@ -24,6 +24,9 @@ def encontrar_chat_orcamento(request):
     content_type = ContentType.objects.get_for_model(Orcamento)
     mensagens = Mensagem.objects.filter(content_type=content_type, object_id=id_orcamento).order_by('data_hora_envio')
 
+    if len(mensagens) == 0:
+        return JsonResponse({}, status=404)
+
     mensagens_json = []
     for mensagem in mensagens:
         # Atualiza a data de leitura se o usuário for o destinatário e a mensagem ainda não foi lida

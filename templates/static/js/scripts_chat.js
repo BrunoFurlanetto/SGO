@@ -102,13 +102,12 @@ function abrir_chat_orcamento(id_orcamento_vendo) {
             setTimeout(() => {
                 chatContainer.scrollTop(chatContainer[0].scrollHeight)
             }, 100)
+            $("#chatModal").modal("show")
         },
         error: function (xhr, status, error) {
             console.error("Erro ao carregar chat:", error);
         }
     })
-
-    $("#chatModal").modal("show")
 }
 
 function reenviar_pedido() {
