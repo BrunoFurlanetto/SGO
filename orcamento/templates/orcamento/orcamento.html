@@ -11,8 +11,8 @@
     <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
 
     <div class="conteudo-orcamento">
-        {% if not novo_orcamento %}
-            <div class="overlay"></div>
+        {% if not novo_orcamento and not gerente_aprovando %}
+            <div class="overlay" style="top: 76px; height: 89%"></div>
         {% endif %}
         <div id="subtotal" class="div-flutuante none"
              style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; {% else %} pointer-events: none {% endif %}"
@@ -22,6 +22,13 @@
             {% endif %}
             <strong>Valor final</strong><span></span>
         </div>
+        {% if mensagens|length > 0 %}
+        	<div id="historico_mensagens" class="div-flutuante visivel"
+                 data-target="#chatModal" data-toggle="modal">
+                <i class='bx bx-chat'></i>
+            </div>
+        {% endif %}
+
         <div class="head-orcamento">
             <h2>Orçamento</h2>
             <hr>
@@ -934,6 +941,10 @@
                     await modalidade_so_ceu(true)
                 {% else %}
                     await verificar_pacotes_promocionais(true)
+                {% endif %}
+
+                {% if not gerente_aprovando %}
+                    $('#chatModal .botoes-resposta').addClass('none')
                 {% endif %}
             {% else %}
                 await inicializacao()

@@ -484,3 +484,10 @@ input[type='checkbox'] {
     z-index: 10;
     pointer-events: all;
 }
+
+#historico_mensagens {
+    cursor: pointer;
+    margin-top: 80px;
+    font-size: 23px;
+    z-index: 50;
+}
