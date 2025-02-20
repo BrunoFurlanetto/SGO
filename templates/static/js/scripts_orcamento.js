@@ -19,6 +19,7 @@ const secoes = [
     'opcionais_extras'
 ]
 let opcionais_promocionais = []
+let fase_orcamento = 'editando'
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#id_cliente').select2()
@@ -2155,7 +2156,7 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             data: {
-                'id_orcamento_clonado': $('#id_orcamento_clonado').val(),
+                'fase_orcamento': fase_orcamento,
                 'apelido': $('#id_apelido').val(),
             },
         }).then(async (response) => {

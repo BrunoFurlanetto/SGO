@@ -60,7 +60,7 @@
                 {% endif %}
                 <div id="conteudo_primeiro" class="conteudo-primeiro">
 
-                    {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
+                    {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado and not orcamento_origem.promocional %}
                         <div id="aviso_edicao_orcamento" class="alert alert-warning">A edição do orçamento está bloqueada!</div>
                     {% endif %}
 
@@ -244,35 +244,45 @@
                     <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
                            id="id_colaborador">
                     <div class="botoes d-flex flex-wrap justify-content-end gap-2" >
-                        {% if gerente_aprovando or novo_orcamento or orcamento_editavel %}
+                        {% if gerente_aprovando or novo_orcamento or orcamento_editavel or id_orcamento_clonado %}
                         	{% if gerente_aprovando %}
                                 <button type="button" id="btn_salvar_orcamento" class="btn btn-primary" data-toggle="modal"
                                     data-target="#chatModal">
                                     Responder
                                 </button>
                             {% else %}
-                                {% if not id_orcamento_clonado and not novo_orcamento %}
+                                {% if not id_orcamento_clonado and not novo_orcamento and not orcamento_origem.promocional %}
                                 	<button type="button" id="pedido_desconto" class="btn btn-outline-info" data-toggle="modal"
                                             data-target="#modal_cometario_diretoria">
                                         Pedido de alteração de taxa
                                     </button>
                                 {% endif %}
-                                <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
-                                        data-toggle="modal"
-                                        data-target="#modal_apelido_orcamento">
-                                    Salvar
-                                </button>
+                                {% if not editando_pacote %}
+                                    <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
+                                            data-toggle="modal"
+                                            data-target="#modal_apelido_orcamento">
+                                        Salvar
+                                    </button>
+                                {% endif %}
                             {% endif %}
                             {% if orcamento_origem and not gerente_aprovando and not id_orcamento_clonado %}
-                                <button type="button" style="position: relative; z-index: 20" id="btn_editar_orcamento" class="btn btn-outline-dark"
-                                        onclick="$('#aviso_edicao_orcamento, .overlay').addClass('none'); $('#btn_salvar_orcamento').prop('disabled', true)">
-                                    Editar
-                                </button>
-                                <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                        onclick="window.location.href = '{% url 'transformar_em_tratativa' orcamento_origem.id %}'">
-                                    Transformar em tratativa
-                                </button>
+                                {% if not orcamento_origem.promocional %}
+                                    <button type="button" style="position: relative; z-index: 20" id="btn_editar_orcamento" class="btn btn-outline-dark"
+                                            onclick="$('#aviso_edicao_orcamento, .overlay').addClass('none'); $('#btn_salvar_orcamento').prop('disabled', true)">
+                                        Editar
+                                    </button>
+                                    <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                            onclick="window.location.href = '{% url 'transformar_em_tratativa' orcamento_origem.id %}'">
+                                        Transformar em tratativa
+                                    </button>
+                                {% endif %}
                              {% endif %}
+                        {% endif %}
+                        {% if editando_pacote %}
+                        	<button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                    onclick="salvar_orcamento()">
+                                Salvar pacote final
+                            </button>
                         {% endif %}
                     </div>
                 </div>
@@ -914,6 +924,7 @@
 
             {% if id_orcamento %}
                 editando_pacote = true
+                id_orcamento = {{ orcamento_origem.id | safe }}
                 await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
                 $('#orcamento input, #orcamento select').prop('disabled', false)
                 await verificar_monitoria_transporte()
@@ -930,7 +941,6 @@
                     affixesStay: false,
                 })
                 opcionais_promocionais = {{ ids_opts_promocionais | safe }}
-
                 await pegar_monitoria_valida()
 
                 {% if dados_pacote %}
@@ -948,12 +958,12 @@
                 {% endif %}
             {% else %}
                 await inicializacao()
+                fase_orcamento = 'novo'
             {% endif %}
         })
     </script>
 
     {% include 'parciais/_chat_orcamento.html' %}
-    <script>id_orcamento = {{ orcamento_origem.id | safe }}</script>
     <script src="{% static 'js/scripts_orcamento.js' %}"></script>
     <script src="{% static 'js/Moment.js' %}"></script>
     <script src="{% static 'js/Moment_timezone.js' %}"></script>

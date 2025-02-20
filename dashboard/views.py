@@ -290,7 +290,7 @@ def dashboardPeraltas(request):
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'monitor': monitor,
         'financeiro': financeiro in grupos_usuario,
-        'tratativas': orcamentos_colaborador.filter(previa=False),
+        'tratativas': orcamentos_colaborador.filter(previa=False) if not financeiro else [],
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
         'fichas_financeira_negadas': fichas_financeira_negadas,
