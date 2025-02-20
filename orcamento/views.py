@@ -98,13 +98,11 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    id_tratativa = Tratativas.objects.filter(
-        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     pacote_promocional = CadastroPacotePromocional()
-    orcamento_promocional = None
+    orcamento_promocional = id_tratativa = None
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
     orcamento_editavel = True
     opcionais_pacote = {}
@@ -119,6 +117,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     elif orcamento.orcamento_promocional:
         pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
         orcamento_promocional = orcamento.orcamento_promocional
+        id_tratativa = Tratativas.objects.filter(
+            Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
 
     msgs = Mensagem.objects.filter(object_id=orcamento.id)
 
@@ -748,13 +748,22 @@ def transformar_em_tratativa(request, id_orcamento):
 
 
 def verificar_validade_apelido(request):
-    if Orcamento.objects.filter(
-            colaborador=request.user, apelido=request.POST.get('apelido'),
-            status_orcamento__orcamento_vencido=False,
-            status_orcamento__aprovacao_cliente=False,
-            status_orcamento__negado_cliente=False,
-    ).exists():
-        return JsonResponse({}, status=409)
+    if request.POST.get('fase_orcamento') == 'novo':
+        if len(Orcamento.objects.filter(
+                colaborador=request.user, apelido=request.POST.get('apelido'),
+                status_orcamento__orcamento_vencido=False,
+                status_orcamento__aprovacao_cliente=False,
+                status_orcamento__negado_cliente=False,
+        )) > 0:
+            return JsonResponse({}, status=409)
+    else:
+        if len(Orcamento.objects.filter(
+                colaborador=request.user, apelido=request.POST.get('apelido'),
+                status_orcamento__orcamento_vencido=False,
+                status_orcamento__aprovacao_cliente=False,
+                status_orcamento__negado_cliente=False,
+        )) > 1:
+            return JsonResponse({}, status=409)
 
     return JsonResponse({}, status=200)
 
