@@ -17,6 +17,7 @@ from ceu.models import Atividades
 from decorators import require_ajax
 from mensagens.models import Mensagem
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
+from projetoCEU.chatguru.chatguru import Chatguru
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
     DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
@@ -282,7 +283,12 @@ def salvar_orcamento(request):
                 else:
                     if orcamento_salvo.aprovacao_diretoria:
                         # Implementação Chat guru
-                        ...
+                        chat = Chatguru()
+                        #TODO: COLOCAR O NÚMERO DO GERENTE DE FORMA DINÂMICA E ALTERAR MENSSAGEM.
+                        chat.send_message(
+                            "5514991578451",
+                            f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
+                        )
             else:
                 promocional, criado = OrcamentosPromocionais.objects.get_or_create(
                     orcamento_id=orcamento_salvo.id,
@@ -691,6 +697,12 @@ def reenvio_pedido_gerencia(request):
     except Exception as e:
         return JsonError(e, status_code=500)
     else:
+        #TODO: COLOCAR O NÚMERO DO GERENTE DE FORMA DINÂMICA E ALTERAR MENSSAGEM.
+        chat = Chatguru()
+        chat.send_message(
+            "5514991578451",
+            f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
+        )
         return JsonResponse({}, status=200)
 
 
