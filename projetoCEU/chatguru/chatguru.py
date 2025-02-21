@@ -14,7 +14,7 @@ class Chatguru:
         self.key = CHATG_KEY
         self.account_id = CHATG_ACCOUNT_ID
         self.phone_id = CHATG_PHONE_ID
-        self.base_url = f"{CHATG_BASE_URL}/?key={self.key}&account_id={self.account_id}&phone_id={self.phone_id}"
+        self.base_url = f"{CHATG_BASE_URL}?key={self.key}&account_id={self.account_id}&phone_id={self.phone_id}"
 
     def send_message(self, number, message):
         url = f"{self.base_url}&action=message_send&chat_number={number}&text={message}"
