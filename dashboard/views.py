@@ -273,7 +273,7 @@ def dashboardPeraltas(request):
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
-    print(orcamentos_colaborador.filter(previa=False))
+
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,

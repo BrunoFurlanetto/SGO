@@ -3,6 +3,7 @@ import datetime
 from itertools import chain
 from time import sleep
 
+from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -16,7 +17,7 @@ from django.views.decorators.http import require_POST, require_GET
 from ceu.models import Atividades
 from decorators import require_ajax
 from mensagens.models import Mensagem
-from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco
+from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco, Vendedor
 from projetoCEU.chatguru.chatguru import Chatguru
 from projetoCEU.utils import is_ajax
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
@@ -282,11 +283,11 @@ def salvar_orcamento(request):
                     return JsonResponse({'msg': f'{e}'}, status=400)
                 else:
                     if orcamento_salvo.aprovacao_diretoria:
-                        # Implementação Chat guru
+                        gerente = Vendedor.objects.get(usuario__pk=orcamento_salvo.gerente_responsavel.pk)
                         chat = Chatguru()
-                        #TODO: COLOCAR O NÚMERO DO GERENTE DE FORMA DINÂMICA E ALTERAR MENSSAGEM.
+                        fone_gerente = f'55{gerente.telefone}' if not settings.DEBUG else '5514997348793'
                         chat.send_message(
-                            "5514991578451",
+                            fone_gerente,
                             f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
                         )
             else:
@@ -697,12 +698,14 @@ def reenvio_pedido_gerencia(request):
     except Exception as e:
         return JsonError(e, status_code=500)
     else:
-        #TODO: COLOCAR O NÚMERO DO GERENTE DE FORMA DINÂMICA E ALTERAR MENSSAGEM.
+        gerente = Vendedor.objects.get(usuario__pk=orcamento.gerente_responsavel.pk)
         chat = Chatguru()
+        fone_gerente = f'55{gerente.telefone}' if not settings.DEBUG else '5514997348793'
         chat.send_message(
-            "5514991578451",
+            fone_gerente,
             f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
         )
+
         return JsonResponse({}, status=200)
 
 
@@ -804,7 +807,6 @@ def perder_orcamento(request):
         orcamento.motivo_recusa = request.POST.get('motivo_recusa')
         orcamento.save()
     except Exception as e:
-        print('Ué')
         return JsonResponse({'msg': f'Erro ao dar baixa no orçamento ({e}). Tente novamente mais tarde.'}, status=500)
 
     return JsonResponse({}, status=200)
