@@ -18,13 +18,20 @@ def dashboard(request):
     eventos = FichaDeEvento.objects.filter(
         pre_reserva=False
     )
+    hotelaria = FichaDeEvento.objects.filter(
+        pre_reserva=True,
+        agendado=True,
+        produto__brotas_eco=True
+    )
+    eventos_totais = list(chain(eventos, hotelaria))
     dados_eventos = []
 
-    for evento in eventos:
+    for evento in eventos_totais:
+        print(evento.check_in.astimezone(), evento.check_out)
         dados_eventos.append({
             'title': f'Refeições de {evento.cliente}',
-            'start': evento.check_in.strftime('%Y-%m-%d %H:%M'),
-            'end': evento.check_out.strftime('%Y-%m-%d %H:%M'),
+            'start': evento.check_in.astimezone().strftime('%Y-%m-%d %H:%M'),
+            'end': evento.check_out.astimezone().strftime('%Y-%m-%d %H:%M'),
             'url': reverse('visualizar_relatorio_evento_cozinha', kwargs={
                 'id_evento': evento.pk,
             }),
@@ -110,7 +117,7 @@ def ver_relatorio_evento_cozinha(request, id_evento):
 
     if evento.escala:
         numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=evento.id).monitores_acampamento.all())
-
+    print(evento.numero_adultos(), evento.numero_criancas())
     dados_evento = {
         'monitores': numero_monitores,
         'adultos': evento.numero_adultos(),
@@ -132,9 +139,15 @@ def ver_relatorio_evento_cozinha(request, id_evento):
         data += timedelta(days=1)
 
     dados_evento['datas'] = datas
-    dados_evento['refeicoes_data'] = {
-        datetime.strptime(data, '%Y-%m-%d').date(): refeicoes for data, refeicoes in evento.refeicoes.items()
-    }
+
+    if evento.produto.brotas_eco:
+        dados_evento['refeicoes_data'] = {
+            evento.check_in.date(): ['cafe_manha', 'almoco', 'cafe_tarde', 'jantar']
+        }
+    else:
+        dados_evento['refeicoes_data'] = {
+            datetime.strptime(data, '%Y-%m-%d').date(): refeicoes for data, refeicoes in evento.refeicoes.items()
+        }
 
     return render(request, 'cozinha/cadastro_relatorio_cozinha.html', {
         'dados_evento': dados_evento,

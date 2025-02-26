@@ -587,7 +587,10 @@ class FichaDeEvento(models.Model):
                 soma_adultos = self.qtd_professores if self.qtd_professores else 0
 
         else:
-            soma_adultos = self.qtd_confirmada
+            if self.produto.brotas_eco:
+                soma_adultos = self.qtd_convidada
+            else:
+                soma_adultos = self.qtd_confirmada
 
         return soma_adultos
 

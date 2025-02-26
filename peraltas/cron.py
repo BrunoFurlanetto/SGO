@@ -179,7 +179,7 @@ def atualizar_contagem_hotelaria():
                 dados['soma_adultos'] + dados['soma_criancas'] + dados['soma_criancas_2']
         )
         resultado.append(dados)
-
+    #  TODO: Considerar número de crianças nesse relatório
     for dia in resultado:
         evento, criado = FichaDeEvento.objects.get_or_create(
             cliente=cliente_brotas_eco,
