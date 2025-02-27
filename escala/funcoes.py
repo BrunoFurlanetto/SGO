@@ -446,7 +446,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
     disponiveis_intervalo = []
     dias = check_out - check_in
     monitores_disponiveis_intervalo = []
-    print(lista_disponiveis)
+
     for _, disponivel in lista_disponiveis.items():
         intervalo = True
 
@@ -469,7 +469,7 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
 
     for disponibilidade in disponiveis_intervalo:
         areas = []
-        print(disponibilidade.enfermeira)
+
         if disponibilidade.monitor:
             try:
                 areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
@@ -477,7 +477,11 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
                 raise AttributeError(f'Monitor {disponibilidade.monitor.usuario.get_full_name()} sem nível atribuído, por favor atribuir')
             else:
                 biologo = 'biologo' if disponibilidade.monitor.biologo else ''
-                nivel = disponibilidade.monitor.nivel.nivel
+
+                if setor == 'hotelaria':
+                    nivel = disponibilidade.monitor.nivel_hotelaria
+                else:
+                    nivel = disponibilidade.monitor.nivel.nivel
 
                 dados_monitor = {
                     'id': disponibilidade.monitor.id,

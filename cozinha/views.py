@@ -27,7 +27,6 @@ def dashboard(request):
     dados_eventos = []
 
     for evento in eventos_totais:
-        print(evento.check_in.astimezone(), evento.check_out)
         dados_eventos.append({
             'title': f'Refeições de {evento.cliente}',
             'start': evento.check_in.astimezone().strftime('%Y-%m-%d %H:%M'),
@@ -117,7 +116,7 @@ def ver_relatorio_evento_cozinha(request, id_evento):
 
     if evento.escala:
         numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=evento.id).monitores_acampamento.all())
-    print(evento.numero_adultos(), evento.numero_criancas())
+
     dados_evento = {
         'monitores': numero_monitores,
         'adultos': evento.numero_adultos(),

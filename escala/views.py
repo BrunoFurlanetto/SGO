@@ -17,7 +17,7 @@ from escala.funcoes import contar_dias, verificar_mes_e_ano, verificar_dias, is_
     verificar_disponiveis, pegar_escalacoes, \
     pegar_disponiveis_intervalo, procurar_ficha_de_evento, transformar_disponibilidades, adicionar_dia, remover_dia, \
     pegar_dados_monitor_embarque, pegar_dados_monitor_biologo, salvar_ultima_pre_escala, juntar_emails_monitores, \
-    calcular_coordenadores
+    calcular_coordenadores, agrupar_disponibilidades_por_monitor
 from escala.models import Escala, Disponibilidade, DiaLimite
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, ClienteColegio, FichaDeEvento, EscalaAcampamento, EscalaHotelaria, \
@@ -697,12 +697,11 @@ def montagem_escala_hotelaria(request, data):
     disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
-
+    disponiveis = agrupar_disponibilidades_por_monitor(disponibilidades_peraltas)
     try:
-        disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponibilidades_peraltas, setor='hotelaria')
+        disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponiveis, setor='hotelaria')
     except AttributeError as e:
         messages.error(request, e)
-
         return redirect('dashboardPeraltas')
 
     for monitor in disponiveis:
@@ -712,7 +711,7 @@ def montagem_escala_hotelaria(request, data):
             if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
                 niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
         elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
-            niveis_monitoria.append(monitor['nivel'])
+            niveis_monitoria.append(str(monitor['nivel']))
 
     return render(request, 'escala/escalar_monitores.html', {
         'data': data_selecionada,
@@ -744,12 +743,13 @@ def edicao_escala_hotelaria(request, data):
     disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
+    disponiveis_agrupados = agrupar_disponibilidades_por_monitor(disponibilidades_peraltas)
 
     try:
         disponiveis_dia = pegar_disponiveis_intervalo(
             data_selecionada,
             data_selecionada,
-            disponibilidades_peraltas,
+            disponiveis_agrupados,
             setor='hotelaria'
         )
     except AttributeError as e:
@@ -778,7 +778,7 @@ def edicao_escala_hotelaria(request, data):
             if f'Biologo({monitor["nivel"]})' not in niveis_monitoria:
                 niveis_monitoria.append(f'Biologo({monitor["nivel"]})')
         elif monitor['setor'] == 'peraltas' and monitor['nivel'] not in niveis_monitoria:
-            niveis_monitoria.append(monitor['nivel'])
+            niveis_monitoria.append(str(monitor['nivel']))
 
     return render(request, 'escala/escalar_monitores.html', {
         'data': data_selecionada,
