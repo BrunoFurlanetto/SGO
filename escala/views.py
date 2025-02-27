@@ -430,7 +430,8 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
         if ordem_de_servico:
             inicio_evento = ordem_de_servico.check_in
             termino_evento = ordem_de_servico.check_out
-            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
+            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in
+                                   ordem_de_servico.monitor_responsavel.all()]
             n_monitores = int(ordem_de_servico.n_participantes / 10)
             monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
             monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
@@ -567,7 +568,8 @@ def edicao_escala_acampamento(request, data, id_cliente):
             ordem_de_servico = None
             n_monitores = int(ficha_de_evento.qtd_convidada / escala_editada.racional_monitores)
         else:
-            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in ordem_de_servico.monitor_responsavel.all()]
+            coordenadores_grupo = [monitor.usuario.get_full_name() for monitor in
+                                   ordem_de_servico.monitor_responsavel.all()]
 
     for monitor in disponiveis + escalado:
         if monitor['tecnica'] and f'Técnica({monitor["nivel"]})' not in niveis_monitoria:
@@ -684,6 +686,10 @@ def salvar_escala_acampamento(request):
 def montagem_escala_hotelaria(request, data):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    hospedagem = FichaDeEvento.objects.get(
+        cliente__cnpj='03.694.061/0001-90',
+        check_in__date=data_selecionada,
+    )
     niveis_monitoria = []
 
     if is_ajax(request):
@@ -698,6 +704,7 @@ def montagem_escala_hotelaria(request, data):
         dias_disponiveis__icontains=data_selecionada.strftime('%d/%m/%Y')
     )
     disponiveis = agrupar_disponibilidades_por_monitor(disponibilidades_peraltas)
+
     try:
         disponiveis = pegar_disponiveis_intervalo(data_selecionada, data_selecionada, disponiveis, setor='hotelaria')
     except AttributeError as e:
@@ -719,6 +726,7 @@ def montagem_escala_hotelaria(request, data):
         'setor': 'hotelaria',
         'disponiveis': disponiveis,
         'niveis_monitoria': sorted(niveis_monitoria),
+        'infos_hospedagem': hospedagem
     })
 
 
@@ -727,6 +735,10 @@ def edicao_escala_hotelaria(request, data):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
     escala_hotelaria = EscalaHotelaria.objects.get(data=data_selecionada)
+    hospedagem = FichaDeEvento.objects.get(
+        cliente__cnpj='03.694.061/0001-90',
+        check_in__date=data_selecionada,
+    )
     setor = 'hotelaria'
     disponiveis = []
     escalado = []
@@ -789,6 +801,7 @@ def edicao_escala_hotelaria(request, data):
         'pre_escala': escala_hotelaria.pre_escala,
         'id_escala': escala_hotelaria.id,
         'niveis_monitoria': sorted(niveis_monitoria),
+        'infos_hospedagem': hospedagem,
     })
 
 
