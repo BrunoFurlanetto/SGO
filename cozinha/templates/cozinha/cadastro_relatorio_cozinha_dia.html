@@ -13,9 +13,17 @@
         </div>
         <div>
             <label for="data">Data</label>
-            <input type="date" name="data" id="data"  readonly value="{{ data|date:'Y-m-d' }}" onchange="this.form.submit()">
+            <input type="date" name="data" id="data" readonly value="{{ data|date:'Y-m-d' }}"
+                   onchange="this.form.submit()">
         </div>
         <hr class="w-100">
+
+        {% if link_cardapio %}
+            <div class="mb-2">
+                <button class="btn btn-outline-info" onclick="window.open('{{ link_cardapio.url }}')">Cardápio do dia</button>
+            </div>
+        {% endif %}
+
         {% if relatorios or eventos %}
             <div class="overflow-auto">
                 <table class="table table-bordered table-hover table-striped">
@@ -55,179 +63,183 @@
                                 {{ horarios_refeicoes.lanche_noite }}
                             </td>
                         </tr>
-                        <tr>                            
+                        <tr>
                             <th>Adultos</th>
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha adultos"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha adultos"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco adultos"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde adultos"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar adultos"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite adultos"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_adultos }}"
-                                       {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
                         <tr>
-                            <td class="informacao_grupo">{{ evento.produto }}</td>                            
+                            <td class="informacao_grupo">{{ evento.produto }}</td>
                             <th>Crianças</th>
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha criancas"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha criancas"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco criancas"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde criancas"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar criancas"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite criancas"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly value="{{ evento.numero_criancas }}"
-                                       {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
                         <tr>
-                            <td class="informacao_grupo">{{ evento.numero_adultos }} adultos</td>                            
+                            <td class="informacao_grupo">{{ evento.numero_adultos }} adultos</td>
                             <th>Monitoria</th>
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha monitoria"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha monitoria"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco monitoria"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde monitoria"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar monitoria"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite monitoria"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
                                        value="{{ evento.numero_monitores }}" readonly
-                                       {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
                         <tr>
-                            <td class="informacao_grupo">{{ evento.numero_criancas }} crianças</td>                            
+                            <td class="informacao_grupo">{{ evento.numero_criancas }} crianças</td>
                             <th>Total</th>
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha geral"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha geral"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco geral"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde geral"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar geral"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite geral"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
                                        value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
-                                       {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
+                                        {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
                         <tr>
-                            <td rowspan="2" class="informacao_grupo"> <nobr><strong>Check in</strong>: {{ evento.check_in | date:'d/m/Y H:i' }}</nobr> <br> <nobr><strong>Check out</strong>: {{ evento.check_out | date:'d/m/Y H:i' }}</nobr></td>
+                            <td rowspan="2" class="informacao_grupo">
+                                <nobr><strong>Check in</strong>: {{ evento.check_in | date:'d/m/Y H:i' }}</nobr>
+                                <br>
+                                <nobr><strong>Check out</strong>: {{ evento.check_out | date:'d/m/Y H:i' }}</nobr>
+                            </td>
                             <th rowspan="2">Obs</th>
                             <td id="obs" rowspan="2" colspan="6">{{ evento.obs }}</td>
                         </tr>
@@ -276,22 +288,57 @@
                     </tbody>
                 </table>
             </div>
-            {% if not visto %}
-                <div class="botoes">
+            <div class="botoes d-flex gap-2 justify-content-end">
+                <button class="btn btn-outline-dark" data-toggle="modal" data-target="#CadastroCardapio">
+                    {% if not link_cardapio %}
+                        Cadastrar cardápio
+                    {% else %}
+                        Alterar cardápio
+                    {% endif %}
+                </button>
+
+                {% if not visto %}
                     <form action="{% url 'salvar_visualizacao_cozinheiro' %}" method="POST">
                         <fieldset>
                             {% csrf_token %}
                             <input type="hidden" name="data_refeicoes" value="{{ data | date:'Y-m-d' }}">
-                            <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %} class="btn btn-primary">Visto</button>
+                            <button type="submit" id="btn_salvar" {% if editando %} disabled {% endif %}
+                                    class="btn btn-primary">Visto
+                            </button>
                         </fieldset>
                     </form>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         {% elif data and not eventos %}
             <p class="alert alert-info w-100 text-center">Nenhum evento cadastrado para o
                 dia {{ data|date:'d/m/Y' }}</p>
         {% endif %}
     </main>
+
+    <div class="modal fade" id="CadastroCardapio" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form action="{% url 'cadastro_cardapio' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Cadastro de cardápio</h5>
+                        <button type="button" class="close bg-white border-0" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {{ formulario_cardapio.data_refeicao.as_hidden }}
+                        {{ formulario_cardapio.cadastrado_por.as_hidden }}
+                        {{ formulario_cardapio.cardapio }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="{% static 'js/scripts_cozinha.js' %}"></script>
 {% endblock %}

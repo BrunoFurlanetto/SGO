@@ -1,8 +1,18 @@
 from datetime import timedelta
 
+from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+
+class Cardapio(models.Model):
+    data_refeicao = models.DateField()
+    cadastrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    cardapio = models.FileField(upload_to='cardapios')
+
+    def __str__(self):
+        return f'Cardápio do dia {self.data_refeicao}.'
 
 
 class HorarioRefeicoes(models.Model):
@@ -35,7 +45,8 @@ class HorarioRefeicoes(models.Model):
         horario_refeicoes = {}
 
         for horario in horas_bd:
-            horario_refeicoes[horario.refeicao] = f'{horario.hora_inicio.strftime("%H:%M")} - {horario.hora_final.strftime("%H:%M")}'
+            horario_refeicoes[
+                horario.refeicao] = f'{horario.hora_inicio.strftime("%H:%M")} - {horario.hora_final.strftime("%H:%M")}'
 
         return horario_refeicoes
 
@@ -66,7 +77,8 @@ class Cozinheiro(models.Model):
     @property
     def funcao(self):
         return ', '.join([
-            grupo.__str__() for grupo in self.usuario.groups.all() if 'cozinha' in grupo.__str__() or 'Cozinheiro' in grupo.__str__()
+            grupo.__str__() for grupo in self.usuario.groups.all() if
+            'cozinha' in grupo.__str__() or 'Cozinheiro' in grupo.__str__()
         ])
 
 
@@ -420,3 +432,30 @@ class Cozinheiro(models.Model):
 #             dados_refeicoes[campo_modelo]['totais']['total'] += participantes['total']
 #
 #         return dados_refeicoes, list(lista_ids_eventos), list(lista_ids_grupos)
+
+
+class CardapioForms(forms.ModelForm):
+    class Meta:
+        model = Cardapio
+        exclude = ()
+        widgets = {
+            'cardapio': forms.FileInput(attrs={'class': 'h-100'})
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        data_refeicao = cleaned_data.get("data_refeicao")
+        cardapio = cleaned_data.get("cardapio")
+
+        if not data_refeicao or not cardapio:
+            return cleaned_data
+
+        cardapio_existente = Cardapio.objects.filter(data_refeicao=data_refeicao).first()
+
+        if cardapio_existente:
+            # Substitui o arquivo do cardápio existente
+            cardapio_existente.cardapio.delete(save=False)  # Remove o arquivo antigo
+            cardapio_existente.cardapio = cardapio
+            cardapio_existente.save()
+
+        return cleaned_data

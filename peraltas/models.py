@@ -3,6 +3,7 @@ import math
 from collections import defaultdict
 from datetime import datetime, timedelta
 from heapq import nlargest
+from itertools import chain
 
 import reversion
 from django import forms
@@ -603,11 +604,18 @@ class FichaDeEvento(models.Model):
 
     @classmethod
     def separar_refeicoes(cls, data):
-        fichas = cls.objects.filter(
+        fichas_evento = cls.objects.filter(
             check_in__date__lte=data,
             check_out__date__gte=data,
             pre_reserva=False
         )
+        hotelaria = FichaDeEvento.objects.filter(
+            check_in__date=data,
+            pre_reserva=True,
+            agendado=True,
+            produto__brotas_eco=True
+        )
+        fichas = list(chain(hotelaria, fichas_evento))
         eventos = []
 
         for ficha in fichas:
@@ -615,6 +623,11 @@ class FichaDeEvento(models.Model):
 
             if ficha.escala:
                 numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque.all())
+
+            if ficha.produto.brotas_eco:
+                refeicoes_data = ['cafe_manha', 'almoco', 'cafe_tarde', 'jantar']
+            else:
+                refeicoes_data = ficha.refeicoes[data.strftime('%Y-%m-%d')]
 
             eventos.append({
                 'id': ficha.id,
@@ -625,7 +638,7 @@ class FichaDeEvento(models.Model):
                 'numero_adultos': ficha.numero_adultos(),
                 'numero_criancas': ficha.numero_criancas(),
                 'numero_monitores': numero_monitores,
-                'refeicoes': ficha.refeicoes[data.strftime('%Y-%m-%d')],
+                'refeicoes': refeicoes_data,
                 'obs': ficha.observacoes_refeicoes,
             })
 

@@ -7,8 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
-from cozinha.models import HorarioRefeicoes, RegistroVisualizacoes
+from cozinha.models import HorarioRefeicoes, RegistroVisualizacoes, CardapioForms, Cardapio
 # from cozinha.models import Relatorio, RelatorioDia
 from peraltas.models import FichaDeEvento, EscalaAcampamento
 
@@ -221,13 +222,49 @@ def ver_relatorio_evento_cozinha(request, id_evento):
 @login_required(login_url='login')
 def ver_relatorio_dia_cozinha(request, data):
     data_datetime = datetime.strptime(data, '%Y-%m-%d').date()
+    formulario_cardapio = CardapioForms(
+        initial={
+            'data_refeicao': data_datetime,
+            'cadastrado_por': request.user.pk,
+        })
+    link_cardapio = None
+
+    try:
+        cardapio = Cardapio.objects.get(data_refeicao=data_datetime)
+    except Cardapio.DoesNotExist:
+        ...
+    else:
+        formulario_cardapio = CardapioForms(instance=cardapio)
+        link_cardapio = cardapio.cardapio
 
     return render(request, 'cozinha/cadastro_relatorio_cozinha_dia.html', {
         'eventos': FichaDeEvento.separar_refeicoes(data_datetime),
         'data': data_datetime,
         'horarios_refeicoes': HorarioRefeicoes.horarios(),
         'visto': RegistroVisualizacoes.objects.filter(usuario=request.user, data_refeicoes=data_datetime).exists(),
+        'formulario_cardapio': formulario_cardapio,
+        'link_cardapio': link_cardapio,
     })
+
+
+@require_POST
+def cadastro_cardapio(request):
+    form = CardapioForms(request.POST, request.FILES)
+    print(request.POST, request.FILES)
+    if form.is_valid():
+        data_refeicao = form.cleaned_data['data_refeicao']
+        novo_cardapio = form.cleaned_data['cardapio']
+
+        try:
+            cardapio_existente = Cardapio.objects.get(data_refeicao=data_refeicao)
+        except Cardapio.DoesNotExist:
+            form.save()
+        else:
+            cardapio_existente.cardapio.delete(save=False)  # Deleta o arquivo antigo
+            cardapio_existente.cardapio = novo_cardapio
+            cardapio_existente.save()
+
+        return redirect('dashboard')  # Redirecione para onde for necessário
 
 
 # def salvar_relatorio_dia(request, data_refeicoes):

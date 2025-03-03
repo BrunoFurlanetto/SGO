@@ -14,7 +14,6 @@ from django.shortcuts import render, redirect
 from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendimentoColegioCeu, \
     RelatorioDeAtendimentoEmpresaCeu
 from escala.models import Escala, DiaLimite
-from orcamento.gerar_orcamento import OrcamentoPDF
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
     Vendedor, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
@@ -143,18 +142,6 @@ def dashboardCeu(request):
 
 @login_required(login_url='login')
 def dashboardPeraltas(request):
-    if request.GET.get('gerar_pdf'):
-        orcamento_pdf = OrcamentoPDF(request.GET.get('id_tratativa_pdf'))
-        orcamento_pdf.gerar_pdf()
-        nome_arquivo = re.sub(r"[^a-zA-Z0-9\s]", "", orcamento_pdf.nome_cliente)
-
-        return FileResponse(
-            open('temp/orcamento.pptx', 'rb'),
-            content_type='application/pdf',
-            as_attachment=True,
-            filename=f'Orçamento {nome_arquivo}.pdf'
-        )
-
     dia_limite_peraltas, p = DiaLimitePeraltas.objects.get_or_create(id=1, defaults={'dia_limite_peraltas': 25})
     msg_monitor = sem_escalas = com_escalas = None
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
