@@ -1,4 +1,5 @@
 import json
+import os.path
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -12,6 +13,7 @@ import requests
 
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.integracao_rd import alterar_campos_personalizados
+from projetoCEU.settings import BASE_DIR
 from projetoCEU.utils import enviar_email_erro
 
 
@@ -150,7 +152,7 @@ def atualizar_contagem_hotelaria():
     produto_hospedagem = ProdutoCorporativo.objects.filter(brotas_eco=True).first()
     atendente = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first()
 
-    with open('./reservas.json', 'w', encoding='utf-8') as arquivo:
+    with open(os.path.join(BASE_DIR, 'reservas.json'), 'w', encoding='utf-8') as arquivo:
         json.dump(reservas, arquivo, ensure_ascii=False, indent=4)
 
     dados_por_dia = defaultdict(lambda: {

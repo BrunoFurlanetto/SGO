@@ -1,7 +1,9 @@
 import json
+import os.path
 from datetime import datetime, time
 
 from cozinha.models import HorarioRefeicoes
+from projetoCEU.settings import BASE_DIR
 
 hotcodigo_validos = ['000001', '000004', '000027']
 
@@ -20,7 +22,7 @@ def filtrar_reservas_por_dia(reservas, dia_especifico):
 
 
 def filtrar_reservas_por_hotcodigo():
-    with open('./reservas.json', 'r', encoding='utf-8') as arquivo:
+    with open(os.path.join(BASE_DIR, 'reservas.json'), 'r', encoding='utf-8') as arquivo:
         reservas = json.load(arquivo)
         reservas_filtradas = [
             reserva for reserva in reservas if reserva["K_HOTCODIGO"] in hotcodigo_validos or reserva["K_HOTCODIGO_01"] in hotcodigo_validos
