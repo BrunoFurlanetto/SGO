@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib import admin
 
-from cozinha.models import Cozinheiro, RegistroVisualizacoes
+from cozinha.models import Cozinheiro, RegistroVisualizacoes, HorarioRefeicoes
 
 
 class CozinheiroInline(admin.StackedInline):
@@ -35,3 +35,8 @@ class RegistroVisualizacoesAdmin(admin.ModelAdmin):
         except ValueError:
             # Se a conversão falhar, retorne o termo de pesquisa original
             return search_term
+
+
+@admin.register(HorarioRefeicoes)
+class HoraioRefeicoesAdmin(admin.ModelAdmin):
+    list_display = ('refeicao',)

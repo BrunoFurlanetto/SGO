@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from cozinha.models import HorarioRefeicoes, RegistroVisualizacoes, CardapioForms, Cardapio
+from cozinha.utils import filtrar_reservas_por_dia, filtrar_reservas_por_hotcodigo, filtrar_refeicoes
 # from cozinha.models import Relatorio, RelatorioDia
 from peraltas.models import FichaDeEvento, EscalaAcampamento
 

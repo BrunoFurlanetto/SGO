@@ -22,6 +22,7 @@ from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
 from cozinha.models import HorarioRefeicoes
+from cozinha.utils import filtrar_refeicoes
 
 
 def atribuir_diretoria_vendedor():
@@ -619,15 +620,28 @@ class FichaDeEvento(models.Model):
         eventos = []
 
         for ficha in fichas:
-            numero_monitores = 0
+            numero_monitores = adultos = criancas = 0
+            quantidades = {}
 
             if ficha.escala:
                 numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque.all())
 
             if ficha.produto.brotas_eco:
-                refeicoes_data = ['cafe_manha', 'almoco', 'cafe_tarde', 'jantar']
+                refeicoes_data = ['cafe_manha', 'almoco', 'jantar']
+                quantidades, adultos, criancas = filtrar_refeicoes(data)
+
             else:
                 refeicoes_data = ficha.refeicoes[data.strftime('%Y-%m-%d')]
+                criancas = ficha.numero_criancas()
+                adultos = ficha.numero_adultos()
+
+                for refeicao in refeicoes_data:
+                    quantidades[refeicao] = {
+                        'adultos': ficha.numero_adultos(),
+                        'criancas': ficha.numero_criancas(),
+                        'monitores': numero_monitores,
+                        'total': ficha.numero_adultos() + ficha.numero_criancas() + numero_monitores,
+                    }
 
             eventos.append({
                 'id': ficha.id,
@@ -635,9 +649,10 @@ class FichaDeEvento(models.Model):
                 'produto': ficha.produto,
                 'check_in': ficha.check_in,
                 'check_out': ficha.check_out,
-                'numero_adultos': ficha.numero_adultos(),
-                'numero_criancas': ficha.numero_criancas(),
+                'numero_adultos': adultos,
+                'numero_criancas': criancas,
                 'numero_monitores': numero_monitores,
+                'contagem': quantidades,
                 'refeicoes': refeicoes_data,
                 'obs': ficha.observacoes_refeicoes,
             })

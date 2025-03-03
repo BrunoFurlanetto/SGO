@@ -26,6 +26,7 @@ class HorarioRefeicoes(models.Model):
     )
 
     refeicao = models.CharField(max_length=100, choices=refeicoes, unique=True)
+    hospedagem = models.BooleanField(default=False)
     hora_inicio = models.TimeField()
     hora_final = models.TimeField()
 

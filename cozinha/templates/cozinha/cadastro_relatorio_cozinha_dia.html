@@ -68,37 +68,37 @@
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha adultos"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.cafe_manha.adultos }}"
                                         {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha adultos"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.lanche_manha.adultos }}"
                                         {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco adultos"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.almoco.adultos }}"
                                         {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde adultos"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.lanche_tarde.adultos }}"
                                         {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar adultos"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.jantar.adultos }}"
                                         {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite adultos"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_adultos }}"
+                                       readonly value="{{ evento.contagem.lanche_noite.adultos }}"
                                         {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
@@ -108,37 +108,37 @@
                             <td class="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="cafe_manha criancas"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.cafe_manha.criancas }}"
                                         {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha criancas"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.lanche_manha.criancas }}"
                                         {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco criancas"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.almoco.criancas }}"
                                         {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde criancas"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.lanche_tarde.criancas }}"
                                         {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar criancas"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.jantar.criancas }}"
                                         {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite criancas"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
-                                       readonly value="{{ evento.numero_criancas }}"
+                                       readonly value="{{ evento.contagem.lanche_noite.criancas }}"
                                         {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
@@ -149,42 +149,42 @@
                                 <input class="cafe_manha monitoria"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.cafe_manha.monitores }}" readonly
                                         {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha monitoria"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.lanche_manha.monitores }}" readonly
                                         {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco monitoria"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.almoco.monitores }}" readonly
                                         {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde monitoria"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.lanche_tarde.monitores }}" readonly
                                         {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar monitoria"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.jantar.monitores }}" readonly
                                         {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite monitoria"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        onchange="atualizar_monitoria(this)"
-                                       value="{{ evento.numero_monitores }}" readonly
+                                       value="{{ evento.contagem.lanche_noite.monitores }}" readonly
                                         {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>
@@ -195,42 +195,42 @@
                                 <input class="cafe_manha geral"
                                        name="cafe_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.cafe_manha.total }}"
                                         {% if 'cafe_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_manha geral"
                                        name="lanche_manha-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.lanche_manha.total }}"
                                         {% if 'lanche_manha' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="almoco geral"
                                        name="almoco-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.almoco.total }}"
                                         {% if 'almoco' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_tarde geral"
                                        name="lanche_tarde-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.lanche_tarde.total }}"
                                         {% if 'lanche_tarde' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="jantar geral"
                                        name="jantar-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.jantar.total }}"
                                         {% if 'jantar' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                             <td class="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}">
                                 <input class="lanche_noite geral"
                                        name="lanche_noite-{{ data|date:'d_m_Y' }}-{{ evento.id }}" type="number"
                                        readonly
-                                       value="{{ evento.numero_adultos|add:evento.numero_criancas }}"
+                                       value="{{ evento.contagem.lanche_noite.total }}"
                                         {% if 'lanche_noite' not in evento.refeicoes %} disabled {% endif %}>
                             </td>
                         </tr>

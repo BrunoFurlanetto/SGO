@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -148,6 +149,9 @@ def atualizar_contagem_hotelaria():
     produto = ProdutosPeraltas.objects.get(brotas_eco=True)
     produto_hospedagem = ProdutoCorporativo.objects.filter(brotas_eco=True).first()
     atendente = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first()
+
+    with open('.\\reservas.json', 'w', encoding='utf-8') as arquivo:
+        json.dump(reservas, arquivo, ensure_ascii=False, indent=4)
 
     dados_por_dia = defaultdict(lambda: {
         'data': None,
