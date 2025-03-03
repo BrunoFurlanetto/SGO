@@ -20,7 +20,7 @@ def filtrar_reservas_por_dia(reservas, dia_especifico):
 
 
 def filtrar_reservas_por_hotcodigo():
-    with open('.\\reservas.json', 'r', encoding='utf-8') as arquivo:
+    with open('./reservas.json', 'r', encoding='utf-8') as arquivo:
         reservas = json.load(arquivo)
         reservas_filtradas = [
             reserva for reserva in reservas if reserva["K_HOTCODIGO"] in hotcodigo_validos or reserva["K_HOTCODIGO_01"] in hotcodigo_validos
