@@ -121,9 +121,6 @@ def ver_relatorio_evento_cozinha(request, id_evento):
 
     dados_evento = {
         'monitores': numero_monitores,
-        'adultos': evento.numero_adultos(),
-        'criancas': evento.numero_criancas(),
-        'total': evento.numero_adultos() + evento.numero_criancas(),
         'grupo': evento.cliente,
         'tipo_evento': evento.produto,
         'check_in': evento.check_in.strftime('%d/%m/%Y %H:%m'),
@@ -143,12 +140,23 @@ def ver_relatorio_evento_cozinha(request, id_evento):
 
     if evento.produto.brotas_eco:
         dados_evento['refeicoes_data'] = {
-            evento.check_in.date(): ['cafe_manha', 'almoco', 'cafe_tarde', 'jantar']
+            evento.check_in.date(): ['cafe_manha', 'almoco', 'jantar']
         }
     else:
         dados_evento['refeicoes_data'] = {
             datetime.strptime(data, '%Y-%m-%d').date(): refeicoes for data, refeicoes in evento.refeicoes.items()
         }
+
+    if evento.produto.brotas_eco:
+        quantidades, adultos, criancas = filtrar_refeicoes(evento.check_in.date())
+        dados_evento['contagem'] = quantidades
+        dados_evento['adultos'] = adultos
+        dados_evento['criancas'] = criancas
+        dados_evento['total'] = adultos + criancas
+    else:
+        dados_evento['criancas'] = evento.numero_criancas()
+        dados_evento['adultos'] = evento.numero_adultos()
+        dados_evento['total'] = evento.numero_criancas() + evento.numero_adultos() + numero_monitores
 
     return render(request, 'cozinha/cadastro_relatorio_cozinha.html', {
         'dados_evento': dados_evento,
