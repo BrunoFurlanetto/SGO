@@ -40,6 +40,7 @@ if not em_manutencao:
         path('orcamento/', include('orcamento.urls')),
         path('painel-diretoria/', include('painelDiretoria.urls')),
         path('cozinha/', include('cozinha.urls')),
+        path('pesquisa-satisfacao/', include('pesquisasSatisfacao.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
@@ -59,6 +60,7 @@ else:
         path('orcamento/', manutencao),
         path('painel-diretoria/', manutencao),
         path('cozinha/', manutencao),
+        path('pesquisa-satisfacao/', manutencao),
         path('admin/', manutencao),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

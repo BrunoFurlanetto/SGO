@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'orcamento.apps.OrcamentoConfig',
     'painelDiretoria.apps.PaineldiretoriaConfig',
     'cozinha.apps.CozinhaConfig',
+    'pesquisasSatisfacao.apps.PesquisassatisfacaoConfig',
 ]
 
 MIDDLEWARE = [
