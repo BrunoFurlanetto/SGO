@@ -32,7 +32,7 @@
                             $.ajax({
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                 type: 'GET',
-                                url: '',
+                                url: '/escala/verificar-escala-dia/',
                                 data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
                                 success: function (response) {
                                     let posicao = 0
@@ -108,7 +108,7 @@
                             <span aria-hidden="false">&times;</span>
                         </button>
                     </div>
-                    <form action="{% url 'escala' %}" method="POST">
+                    <form action="{% url 'salvar_escala' %}" method="POST">
                         <div class="modal-body">
                             {% csrf_token %}
                             <div>

@@ -45,6 +45,13 @@ def escala(request):
             'edita': edita
         })
 
+
+def verificar_escala_dia(request):
+    if is_ajax(request):
+        return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
+
+
+def salvar_escala_ceu(request):
     # ------------------------ Savando a nova escalaa -------------------------
     equipe = list(int(id_professor) for id_professor in request.POST.getlist('escalados') if id_professor != '')
     data_escala = datetime.strptime(request.POST.get('data_escala'), '%Y-%m-%d')
