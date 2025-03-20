@@ -5,6 +5,7 @@ from math import ceil
 
 from django.db.models import Q, F
 
+from ceu.models import Atividades
 from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
@@ -31,6 +32,12 @@ def retornar_dados_grupo(ordens, id_grupo):
 def verificar_disponiveis(data):
     professores_disponiveis = []
     n_participantes = 0
+    atividades_com_data_hora = set()  # Atividades com data e hora definida no dia específico
+    atividades_definidas = set()      # Atividades definidas (podem ou não ter data e hora)
+    atividades_a_definir = 0       # Atividades sem data e hora definida
+    atividades_a_definir_data_e_hora = set()
+    locacoes_com_checkin = set()
+    locacoes_sem_checkin = set()
 
     try:
         escala = Escala.objects.get(data_escala=datetime.strptime(data, '%d/%m/%Y').date())
@@ -41,25 +48,47 @@ def verificar_disponiveis(data):
 
     disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data)
     ordens = OrdemDeServico.objects.filter(
-        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
-        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_in_ceu__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_out_ceu__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+        atividades_ceu__isnull=False,
     )
-    fichas = FichaDeEvento.objects.filter(
-        pre_reserva=False, os=False,
-        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
-        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
-    )
-    eventos = list(chain(ordens, fichas))
 
-    for evento in eventos:
-        if isinstance(evento, FichaDeEvento):
-            n_participantes += evento.qtd_convidada
-        else:
-            n_participantes += evento.n_participantes
+    for ordem in ordens:
+        n_participantes += ordem.n_participantes
+        atividades_ceu = ordem.atividades_ceu
+
+        for key, atividade in atividades_ceu.items():
+            if atividade.get('data_e_hora'):
+                data_hora_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M')
+
+                if data_hora_atividade.date() == datetime.strptime(data, '%d/%m/%Y').date():
+                    atividades_com_data_hora.add(Atividades.objects.get(pk=atividade['atividade']).atividade)
+                else:
+                    atividades_definidas.add(Atividades.objects.get(pk=atividade['atividade']).atividade)  # Adiciona à lista de atividades definidas
+            else:
+                if Atividades.objects.get(pk=atividade['atividade']).a_definir:
+                    atividades_a_definir += 1
+                else:
+                    atividades_a_definir_data_e_hora.add(Atividades.objects.get(pk=atividade['atividade']).atividade)
+
+        locacao_ceu = ordem.locacao_ceu
+
+        if locacao_ceu:
+            for key, locacao in locacao_ceu.items():
+                if locacao.get('check_in'):
+                    locacoes_com_checkin += 1
+                else:
+                    locacoes_sem_checkin += 1
 
     dados_eventos = {
-        'n_eventos': len(eventos),
-        'n_participantes': n_participantes
+        'n_eventos': len(ordens),
+        'n_participantes': n_participantes,
+        'atividades_com_data_hora': list(atividades_com_data_hora),  # Atividades com data e hora no dia específico
+        'atividades_definidas': list(atividades_definidas),         # Todas as atividades definidas
+        'atividades_a_definir': atividades_a_definir,         # Atividades sem data e hora definida
+        'locacoes_com_checkin': list(locacoes_com_checkin),
+        'locacoes_sem_checkin': list(locacoes_sem_checkin),
+        'atividades_a_definir_data_e_hora': list(atividades_a_definir_data_e_hora),
     }
 
     for disponivel in disponiveis:
@@ -67,8 +96,12 @@ def verificar_disponiveis(data):
             'id': disponivel.professor.id,
             'nome': disponivel.professor.usuario.get_full_name()
         })
-
-    return {'disponiveis': professores_disponiveis, 'eventos': dados_eventos, 'escalados': escalados}
+    print(dados_eventos)
+    return {
+        'disponiveis': professores_disponiveis,
+        'eventos': dados_eventos,
+        'escalados': escalados
+    }
 
 
 def verificar_disponiveis_grupo(check_in, check_out):

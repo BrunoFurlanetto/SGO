@@ -36,6 +36,7 @@ def escala(request):
 
     # ------------------- Pegar somente professor disponivel no dia selecionado --------------------------
     if is_ajax(request):
+
         return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
 
     if request.method != 'POST':
@@ -48,6 +49,7 @@ def escala(request):
 
 def verificar_escala_dia(request):
     if is_ajax(request):
+
         return JsonResponse(verificar_disponiveis(request.GET.get('data_selecionada')))
 
 

@@ -46,9 +46,30 @@
                                     let professores_disponiveis = response['disponiveis']
                                     let selects_professores = $('.professores-disponiveis')
                                     let lista_disponiveis = $('.disponiveis')
-
+                                    console.log(response)
                                     $('#n_eventos').text(response['eventos']['n_eventos'])
                                     $('#n_participantes').text(response['eventos']['n_participantes'])
+
+                                    if (response['eventos']['atividades_com_data_hora'].length > 0) {
+                                        $('#atividades_definidas_data').removeClass('none')
+                                        $('#atividades_definidas_com_data').text(response['eventos']['atividades_com_data_hora'])
+                                    } else {
+                                        $('#atividades_definidas_data').addClass('none')
+                                    }
+
+                                    if (response['eventos']['atividades_definidas'].length > 0) {
+                                        $('#li_atividades_definidas').removeClass('none')
+                                        $('#atividades_definidas').text(response['eventos']['atividades_definidas'])
+                                    } else {
+                                        $('#li_atividades_definidas').addClass('none')
+                                    }
+
+                                    if (response['eventos']['atividades_a_definir'] != 0) {
+                                        $('#a_definir').removeClass('none')
+                                        $('#atividades_a_definir').text(response['eventos']['atividades_a_definir'])
+                                    } else {
+                                        $('#a_definir').addClass('none')
+                                    }
 
                                     selects_professores.empty().append(`<option></option>`)
                                     lista_disponiveis.empty()
@@ -131,13 +152,26 @@
                     <form action="{% url 'salvar_escala' %}" method="POST">
                         <div class="modal-body">
                             {% csrf_token %}
-                            <div>
-                                <h5 class="titulo-secao">Eventos</h5>
-                                <p>
-                                    Existe um total de <strong><span id="n_eventos"></span></strong> evento(s) e uma
-                                    expectativa de <strong><span id="n_participantes"></span></strong> alunos para a
-                                    data em questão.
-                                </p>
+                            <div class="alert alert-info">
+                                <ul>
+                                    <li>
+                                        Existe um total de <strong><span id="n_eventos"></span></strong> evento(s) e uma
+                                        expectativa de <strong><span id="n_participantes"></span></strong> alunos para a
+                                        data em questão.
+                                    </li>
+                                    <li id="atividades_definidas_data" class="none">
+                                        Para esta data se tem as seguintes atividades com data e hora definida:
+                                        <strong><span id="atividades_definidas_com_data"></span></strong>.
+                                    </li>
+                                    <li id="li_atividades_definidas" class="none">
+                                        As seguintes atividades vão ser realizada pelos grupos, mas não se tem data e/ou hora definida:
+                                        <strong><span id="atividades_definidas"></span></strong>.
+                                    </li>
+                                    <li id="a_definir" class="none">
+                                        Existe o total de <strong><span id="atividades_a_definir"></span></strong> atividades
+                                        a definir.
+                                    </li>
+                                </ul>
                             </div>
                             <hr>
                             <div>
