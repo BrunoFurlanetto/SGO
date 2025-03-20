@@ -51,7 +51,7 @@
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
-                            $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', true)
+                            {#$('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', true)#}
                             $('#alerta_exclusividade').remove()
                             $('#ModalCadastroPreReserva .modal-body .alert').remove()
 
@@ -101,7 +101,7 @@
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
                                         $('#ModalCadastroPreReserva #id_id_negocio').val(response['id_negocio'])
                                         $('#ModalCadastroPreReserva #id_observacoes').val(response['observacoes'])
-                                        $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', false)
+                                        {#$('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', false)#}
                                         $('#nova_pre_reserva').addClass('none')
                                         $('#aviso_lotacao').addClass('none')
                                         $('#alerta_exclusividade').remove()
@@ -911,7 +911,7 @@
                                         onclick="window.location.href='{% url 'ficha_de_evento' %}'">
                                     Ficha de evento
                                 </button>
-                                <button id="salvar_pre_agendamento" type="submit" disabled class="btn btn-primary">
+                                <button id="salvar_pre_agendamento" type="submit" class="btn btn-primary">
                                     Salvar pré agendamento
                                 </button>
                             </div>
