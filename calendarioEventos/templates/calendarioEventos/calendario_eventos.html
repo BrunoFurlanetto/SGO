@@ -756,7 +756,7 @@
                 })
             }
 
-            function verificar_id_negocio(id_negocio) {
+            {% comment %}function verificar_id_negocio(id_negocio) {
                 loading()
                 $.ajax({
                     type: 'GET',
@@ -777,7 +777,7 @@
                     alert(error)
                     end_loading()
                 })
-            }
+            }{% endcomment %}
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
