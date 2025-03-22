@@ -118,7 +118,8 @@ def gerar_qrcode(request):
         box_size=10,
         border=4,
     )
-    qr.add_data(link)
+    base_url = request.build_absolute_uri('/')
+    qr.add_data(f'{base_url}{link[1:]}')
     qr.make(fit=True)
 
     # Criando a imagem do QR Code
