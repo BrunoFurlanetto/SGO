@@ -4,6 +4,7 @@ import os.path
 from django import forms
 from django.db import models
 
+from ceu.models import Atividades
 from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus
 from peraltas.models import Vendedor
 
@@ -184,6 +185,35 @@ class OrdemDeServico(models.Model):
 
     def listar_id_monitor_responsavel(self):
         return [monitor.id for monitor in self.monitor_responsavel.all()]
+
+    @classmethod
+    def atividades_ceu_nao_definidas(cls):
+        ordens = cls.objects.filter(check_in_ceu__date__gte=datetime.date.today())
+        atividades = []
+
+        for ordem in ordens:
+            dados_ativdiades = {
+                'id': ordem.id,
+                'cliente': ordem.ficha_de_evento.cliente.__str__(),
+                'check_in_ceu': ordem.check_in_ceu,
+                'qtd_evento': ordem.n_participantes,
+                'vendedora': ordem.vendedor.usuario.get_full_name(),
+                'atividades_sem_definicao': [],
+                'a_definir': 0,
+            }
+
+            for atividade in ordem.atividades_ceu.values():
+                atividade_bd = Atividades.objects.get(pk=atividade['atividade'])
+
+                if atividade_bd.a_definir:
+                    dados_ativdiades['a_definir'] += 1
+                elif not atividade_bd.sem_atividade and atividade['data_e_hora'] == '':
+                    dados_ativdiades['atividades_sem_definicao'].append(atividade_bd.atividade)
+
+            if len(dados_ativdiades['atividades_sem_definicao']) != 0 or dados_ativdiades['a_definir'] != 0:
+                atividades.append(dados_ativdiades)
+
+        return atividades
 
 
 class CadastroOrdemDeServico(forms.ModelForm):
