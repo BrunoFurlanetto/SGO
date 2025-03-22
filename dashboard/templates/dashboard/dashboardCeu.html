@@ -12,7 +12,11 @@
         <div id="abas" style="display: flex">
             <div class="folder ativo" onclick="alterar_aba(this, 'relatorios')">Relatórios</div>
             {% if perms.escala.add_escala %}
-                <div class="folder" onclick="alterar_aba(this, 'teste')">Atividades sem definição</div>
+                <div class="folder" onclick="alterar_aba(this, 'atividades_sem_definicao')">Atividades sem definição
+                </div>
+            {% endif %}
+            {% if user.is_superuser %}
+                <div class="folder" onclick="alterar_aba(this, 'avaliacoes_pra_ser_entregues')">Avaliações ausentes</div>
             {% endif %}
         </div>
         <div id="relatorios" class="section-content ativo">
@@ -61,7 +65,7 @@
             </div>
             <!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
         </div>
-        <div id="teste" class="section-content">
+        <div id="atividades_sem_definicao" class="section-content">
             <div class="tabelas">
                 <h5>Eventos com atividades sem definição de data e hora ou com atividades a definir</h5>
                 <hr>
@@ -78,13 +82,47 @@
                     </thead>
                     <tbody>
                     {% for atividade in atividades_sem_definicao %}
-                        <tr style="cursor: pointer; vertical-align: middle" onclick="window.location.href='{% url 'ver_ordem_de_servico' atividade.id %}'" >
+                        <tr style="cursor: pointer; vertical-align: middle"
+                            onclick="window.location.href='{% url 'ver_ordem_de_servico' atividade.id %}'">
                             <td>{{ atividade.cliente }}</td>
                             <td style="text-align: center">{{ atividade.qtd_evento }}</td>
                             <td style="text-align: center">{{ atividade.check_in_ceu | date:'Y-m-d' }}</td>
                             <td style="text-align: center">{{ atividade.vendedora }}</td>
                             <td style="text-align: center">{{ atividade.atividades_sem_definicao | join:', ' }}</td>
                             <td style="text-align: center"> {{ atividade.a_definir }} </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="avaliacoes_pra_ser_entregues" class="section-content">
+            <div class="tabelas">
+                <h5>Eventos sem avaliação do cliente</h5>
+                <hr>
+                <table id="tabela_avaliacoes_faltando" class="table table-hover table-striped">
+                    <thead>
+                    <tr style="vertical-align: middle">
+                        <th style="text-align: center">Cliente</th>
+                        <th style="text-align: center">Participantes</th>
+                        <th style="text-align: center">Data do evento</th>
+                        <th style="text-align: center">Vendedora</th>
+                        <th style="text-align: center"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for evento in eventos_sem_avaliacao %}
+                        <tr style="vertical-align: middle">
+                            <td onclick="window.location.href='{% url 'fichaAvaliacao' evento.id %}'">{{ evento.ficha_de_evento.cliente }}</td>
+                            <td style="text-align: center">{{ evento.n_participantes }}</td>
+                            <td style="text-align: center">{{ evento.check_in_ceu | date:'Y-m-d' }}</td>
+                            <td style="text-align: center">{{ evento.vendedor }}</td>
+                            <td style="text-align: center">
+                                <button type="submit" class="btn btn-link text-black"
+                                        onclick="gerar_qrcode_avaliacao('{% url 'fichaAvaliacao' evento.id %}')">
+                                    <i class='bx bx-qr'></i>
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -171,6 +209,23 @@
             })
         </script>
     {% endif %}
+
+    <div class="modal fade" id="modalQrcode" tabindex="-1" role="dialog"
+         aria-labelledby="modalQrcode" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="qr-image" class="w-40 h-40 mx-auto" src="" alt="QR Code">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>
     <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

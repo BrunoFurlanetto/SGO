@@ -49,11 +49,11 @@ function verificarDuplicata(selecao) {
 
 /* Da o início a animação na ficha de avaliação */
 function animacao(){
-    let home_section = document.getElementsByClassName('home-section')
+    let home_section = document.getElementById('corpo_site')
     let formulario = document.getElementsByClassName('conteudo-avaliacao')
     let conteudo_inicio = document.getElementsByClassName('conteudo-inicio')
 
-    home_section[0].classList.add('animado')
+    home_section.classList.add('animado')
     formulario[0].classList.remove('hide')
 
     setTimeout(() => {

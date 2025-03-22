@@ -143,6 +143,11 @@ def dashboardCeu(request):
             'mostrar_aviso': mostrar_aviso_disponibilidade,
             'depois_25': depois_25,
             'atividades_sem_definicao': atividades_sem_definicao,
+            'eventos_sem_avaliacao': OrdemDeServico.objects.filter(
+                check_in_ceu__isnull=False,
+                relatorio_ceu_entregue=True,
+                ficha_avaliacao=False
+            ),
         })
 
 

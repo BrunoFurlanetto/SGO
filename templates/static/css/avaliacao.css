@@ -63,8 +63,13 @@ textarea:hover, textarea:focus {
     background-color: #000;
 }
 
-.imagem {
+.imagem#logo_peraltas {
     width: 345px;
+    margin: 5px;
+}
+
+.imagem#logo_ceu {
+    width: 170px;
     margin: 5px;
 }
 

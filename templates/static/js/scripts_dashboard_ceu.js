@@ -1,6 +1,7 @@
 $(document).ready(() => {
     moment.locale('pt-br')
     $('#tabela_atividades_sem_definicao').iniciarlizarDataTable(2, 2)
+    $('#tabela_avaliacoes_faltando').iniciarlizarDataTable(2, 2)
 })
 
 function alterar_aba(aba, sectionId){
@@ -40,5 +41,18 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
             },
         }],
         order: [columnOrder, 'asc']
+    })
+}
+
+function gerar_qrcode_avaliacao(link_avaliacao) {
+    $.ajax({
+        type: 'GET',
+        url: '/ficha-de-avaliacao/qr_code/',
+        data: {'link': link_avaliacao},
+        success: function (response) {
+            $("#qr-image").attr("src", `/ficha-de-avaliacao/qr_code/?link=${encodeURIComponent(link_avaliacao)}`)
+        }
+    }).done(() => {
+        $('#modalQrcode').modal('show')
     })
 }

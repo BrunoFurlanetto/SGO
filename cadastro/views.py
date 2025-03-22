@@ -216,6 +216,26 @@ def colegio(request, id_relatorio=None):
         })
 
 
+def relatorio_colegio(request, id_ordem):
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordem_de_servico = OrdemDeServico.objects.get(pk=id_ordem)
+    relatorio = RelatorioColegio(
+        initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem_de_servico)
+    )
+
+    return render(request, 'cadastro/colegio.html', {
+        'formulario': relatorio,
+        'ordem': ordem_de_servico,
+        'professores': professores,
+        'monitores': monitores,
+        'atividades': atividades,
+        'locais': locais
+    })
+
+
 @login_required(login_url='login')
 def empresa(request, id_relatorio=None):
     professores = Professores.objects.all()

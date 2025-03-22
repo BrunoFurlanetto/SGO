@@ -7,8 +7,8 @@
     {% if not avaliacao %}
         <div class="conteudo-inicio">
             <center>
-                <img class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
-                <img class="imagem" src="{% static 'img/logoAvalicao.png' %}">
+                <img id="logo_peraltas" class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
+                <img id="logo_ceu" class="imagem" src="{% static 'img/CEU-Circular-1.png' %}">
 
                 <hr>
                 <p>
@@ -21,7 +21,7 @@
                     de grande importância na busca pela excelência de nossos serviços e na qualidade da infraestrutura.
                 </p>
                 <p align="right">
-                    Ass. Grupo Peraltas e Fundação CEU
+                    Ass. Grupo Peraltas e CEU
                 </p>
                 <hr>
                 <button onClick="animacao()">
@@ -38,7 +38,7 @@
         </div>
         <hr class="divisao">
 
-        <form action="{% url 'fichaAvaliacao' %}" method="POST">
+        <form action="{% url 'salvarFichaAvaliacao' %}" method="POST">
             <fieldset {% if avaliacao %} disabled {% endif %}>
                 {% csrf_token %}
                 {{ form.ordem_de_servico.as_hidden }}

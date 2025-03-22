@@ -556,6 +556,11 @@
                         </fieldset>
                     </div>
                 {% endif %}
+                {% if perms.cadastro.add_relatoriodeatendimentocolegioceu and not ordem_servico.relatorio_ceu_entregue %}
+                    <div class="botoes" style="display: flex; gap: 10px;">
+                	    <button class="btn btn-outline-info" onclick="window.location.href='{% url 'cadastro_relatorio_colegio' ordem_servico.id %}'" type="button">Relatório de evento</button>
+                    </div>
+                {% endif %}
             {% else %}
                 <div class="botoes">
                     <button id="btn_salvar_os" type="submit" class="btn btn-primary ml-5">Salvar</button>
