@@ -58,6 +58,7 @@ def cadastrar_nova_ficha(request, id_ordem):
     professores_bd = Professores.objects.all()
     ordem = OrdemDeServico.objects.get(pk=id_ordem)
     formulario = FichaDeAvaliacaoForm(initial=FichaDeAvaliacao.dados_iniciais(ordem))
+    professores = formulario.professores = pegar_professores_relatorio(id_ordem)
     formulario.dados_colegio = pegar_dados_colegio(id_ordem)
     formulario.dados_avaliador = pegar_dados_avaliador(id_ordem)
     formulario.atividades = pegar_atividades_relatorio(id_ordem)
@@ -70,18 +71,18 @@ def cadastrar_nova_ficha(request, id_ordem):
         })
 
 
-def salvar_ficha(request, id_ordem):
+def salvar_ficha(request):
     formulario = FichaDeAvaliacaoForm(request.POST)
-    professores = formulario.professores = pegar_professores_relatorio(id_ordem)
 
     if formulario.is_valid():
         nova_avaliacao = formulario.save(commit=False)
+        professores = formulario.professores = pegar_professores_relatorio(int(request.POST.get('ordem_de_servico')))
         salvar_avaliacoes_vendedor(request.POST, nova_avaliacao)
         salvar_avaliacoes_atividades(request.POST, nova_avaliacao)
         salvar_avaliacoes_professores(request.POST, nova_avaliacao, professores)
-        formulario.save()
+
         try:
-            pass
+            formulario.save()
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro inesperado, por favor chame um professor!')
@@ -89,7 +90,7 @@ def salvar_ficha(request, id_ordem):
                 'form': formulario,
             })
         else:
-            ordem_colegio = OrdemDeServico.objects.get(pk=request.user.username)
+            ordem_colegio = OrdemDeServico.objects.get(pk=request.POST.get('ordem_de_servico'))
             relatorio_colegio = RelatorioDeAtendimentoColegioCeu.objects.get(ordem=ordem_colegio)
             ordem_colegio.ficha_avaliacao = True
             relatorio_colegio.ficha_avaliacao = True
@@ -100,7 +101,6 @@ def salvar_ficha(request, id_ordem):
     else:
         messages.warning(request, formulario.errors)
         return render(request, 'fichaAvaliacao/fichaAvaliacao.html', {
-            'ver': ver_icons,
             'form': formulario
         })
 

@@ -107,7 +107,7 @@
                         <th style="text-align: center">Participantes</th>
                         <th style="text-align: center">Data do evento</th>
                         <th style="text-align: center">Vendedora</th>
-                        <th style="text-align: center"></th>
+                        {% comment %}<th style="text-align: center"></th>{% endcomment %}
                     </tr>
                     </thead>
                     <tbody>
@@ -117,12 +117,12 @@
                             <td style="text-align: center">{{ evento.n_participantes }}</td>
                             <td style="text-align: center">{{ evento.check_in_ceu | date:'Y-m-d' }}</td>
                             <td style="text-align: center">{{ evento.vendedor }}</td>
-                            <td style="text-align: center">
+                            {% comment %}<td style="text-align: center">
                                 <button type="submit" class="btn btn-link text-black"
                                         onclick="gerar_qrcode_avaliacao('{% url 'fichaAvaliacao' evento.id %}')">
                                     <i class='bx bx-qr'></i>
                                 </button>
-                            </td>
+                            </td>{% endcomment %}
                         </tr>
                     {% endfor %}
                     </tbody>

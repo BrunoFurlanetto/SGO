@@ -35,6 +35,23 @@
     resize: none;
 }
 
+.conteudo-avaliacao .head img {
+    padding: 10px;
+    width: 20%;
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    font-size: 25px;
+    font-weight: 500;
+}
+
+.head p {
+    margin: auto;
+    color: #007ec1;
+}
+
 .conteudo-avaliacao #dados_grupo {
     display: flex;
     column-gap: 30px;
@@ -49,11 +66,13 @@ textarea:hover, textarea:focus {
 
 /* Pra parte da animação */
 .conteudo-inicio {
+    display: flex;
     padding: 8%;
     width: 100%;
     height: 100vh;
     background-color: #000;
     animation: fadeIn 2s;
+    justify-content: center;
 }
 
 .conteudo-final {
@@ -65,7 +84,7 @@ textarea:hover, textarea:focus {
 
 .imagem#logo_peraltas {
     width: 345px;
-    margin: 5px;
+    margin: 50px 5px 5px;
 }
 
 .imagem#logo_ceu {
@@ -80,6 +99,54 @@ textarea:hover, textarea:focus {
     color: #fff;
 }
 
+.conteudo-avaliacao #professores .labels {
+    display: flex;
+    margin-left: 63px;
+}
+
+.conteudo-avaliacao #professores .labels label:nth-child(1) {
+    margin-left: 150px;
+}
+
+.conteudo-avaliacao #professores .labels label:nth-child(2) {
+    margin-left: 53px;
+}
+
+
+.conteudo-avaliacao #professores .labels label:nth-child(3) {
+    margin-left: 85px;
+}
+
+.conteudo-avaliacao #professores .notas_professores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px
+}
+
+.conteudo-avaliacao .vendas .labels {
+    display: flex;
+    gap: 15px;
+    margin-left: 74px;
+}
+
+.conteudo-avaliacao .vendas .labels label:nth-child(1) {
+    margin-left: 145px;
+}
+
+.conteudo-avaliacao .vendas .labels label:nth-child(2) {
+    margin-left: 75px;
+}
+
+.conteudo-avaliacao .vendas .labels label:nth-child(3) {
+    margin-left: 100px;
+}
+
+#avaliacao_geral {
+    display: flex;
+    flex-direction: column;
+    width: 98%;
+}
+
 .conteudo-final p {
     max-width: 700px;
     margin-left: auto;
@@ -88,7 +155,7 @@ textarea:hover, textarea:focus {
 }
 
 .conteudo-inicio hr {
-    width: 700px;
+    /*width: 700px;*/
     color: #fff;
 }
 
@@ -190,22 +257,22 @@ option[value=""][disabled][selected] {
 
 
 @media print {
-    /** {*/
-    /*    visibility: hidden;*/
-    /*}*/
+    * {
+        visibility: hidden;
+    }
 
-    .home-section{
+    .home-section {
         position: absolute;
         left: 0;
         width: 100%;
     }
 
-    .sidebar.close ~ .home-section{
+    .sidebar.close ~ .home-section {
         left: 0;
         width: 100%;
     }
 
-    .conteudo-avaliacao{
+    .conteudo-avaliacao {
         position: absolute;
         top: 0;
         left: 0;
@@ -218,5 +285,66 @@ option[value=""][disabled][selected] {
     @page {
         margin-top: 0;
         margin-bottom: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .conteudo-inicio {
+        display: flex;
+        padding: 8%;
+        width: 100%;
+        height: 100vh;
+        background-color: #000;
+        animation: fadeIn 2s;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .imagem#logo_peraltas {
+        width: 80%;
+        margin: 10% 5px 5px 5px;
+    }
+
+    .imagem#logo_ceu {
+        width: 40%;
+        margin: 5px;
+    }
+
+    .conteudo-avaliacao {
+        width: 95%;
+    }
+
+    .conteudo-avaliacao #professores .labels {
+        display: flex;
+        margin-left: 45px;
+    }
+
+    .conteudo-avaliacao #professores .labels label:nth-child(2) {
+        margin-left: 32px;
+    }
+
+
+    .conteudo-avaliacao #professores .labels label:nth-child(3) {
+        margin-left: 67px;
+    }
+
+    .conteudo-avaliacao #professores .notas_professores {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px
+    }
+
+    .conteudo-avaliacao .vendas .labels {
+        display: flex;
+        gap: 5px;
+        margin-left: 74px;
+    }
+
+    .conteudo-avaliacao .vendas .labels label:nth-child(3) {
+        margin-left: 65px;
     }
 }

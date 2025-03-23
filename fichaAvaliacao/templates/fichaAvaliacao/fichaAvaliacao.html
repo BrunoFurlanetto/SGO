@@ -6,34 +6,33 @@
     <!-------------------------------- LINHA 1 ---------------------------->
     {% if not avaliacao %}
         <div class="conteudo-inicio">
-            <center>
-                <img id="logo_peraltas" class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="margin-top: 50px">
+            <div class="text-center">
+                <img id="logo_peraltas" class="imagem" src="{% static 'img/grupoPeraltas.png' %}" style="">
                 <img id="logo_ceu" class="imagem" src="{% static 'img/CEU-Circular-1.png' %}">
-
                 <hr>
                 <p>
                     Olá cara professora, caro professor
                 </p>
-                <p class="texto-animacao" align="justify">
+                <p class="texto-animacao" style="text-align: justify">
                     Esta é uma ficha de avaliação das atividades feitas pelo seu grupo. Para nós, os dados aqui
                     coletados
                     são
                     de grande importância na busca pela excelência de nossos serviços e na qualidade da infraestrutura.
                 </p>
-                <p align="right">
+                <p style="text-align: right">
                     Ass. Grupo Peraltas e CEU
                 </p>
                 <hr>
                 <button onClick="animacao()">
                     <span><h4>Iniciar</h4></span>
                 </button>
-            </center>
+            </div>
         </div>
     {% endif %}
 
     <div class="conteudo-avaliacao {% if not avaliacao %} hide {% endif %}" style="padding: 10px">
         <div class="head">
-            <img src="{% static  'img/logoAvalicao.png' %}">
+            <img src="{% static  'img/CEU-Circular-1.png' %}">
             <p>Ficha de Avaliação das atividades</p>
         </div>
         <hr class="divisao">
@@ -94,10 +93,10 @@
                 <!-- Avaliação representante de vendas -->
                 <h5 class="titulo-secao">Avaliação do responsável de vendas</h5>
                 <div class="vendas">
-                    <div class="labels" style="display: flex; gap: 15px; margin-left: 74px;">
-                        <label style="margin-left: 145px"><b>Cordialidade</b></label>
-                        <label style="margin-left: 75px"><b>Agilidade</b></label>
-                        <label style="margin-left: 100px"><b>Clareza de ideias</b></label>
+                    <div class="labels">
+                        <label><b>Cordialidade</b></label>
+                        <label><b>Agilidade</b></label>
+                        <label><b>Clareza de ideias</b></label>
                     </div>
                     <div style="display: flex; gap: 30px;">
                         <div style="width: 30%">
@@ -246,13 +245,13 @@
                 <hr class="divisao">
                 <!-- Avaliação dos professores do CEU -->
                 <h5 class="titulo-secao">Avaliação dos Professores do CEU</h5>
-                <div style="display: flex; flex-direction: column;">
-                    <div class="labels" style="display: flex; margin-left: 63px;">
-                        <label style="margin-left: 150px"><b>Dominio do assunto</b></label>
-                        <label style="margin-left: 53px"><b>Cordialidade</b></label>
-                        <label style="margin-left: 85px"><b>Desenvoltura</b></label>
+                <div id="professores" style="display: flex; flex-direction: column;">
+                    <div class="labels">
+                        <label><b>Dominio do assunto</b></label>
+                        <label><b>Cordialidade</b></label>
+                        <label><b>Desenvoltura</b></label>
                     </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 20px">
+                    <div class="notas_professores">
                         {% for professor in form.professores %}
                             <div style="width: 26%; height: fit-content">
                                 <select name="professor_{{ forloop.counter }}" id="professor_{{ forloop.counter }}">
@@ -381,14 +380,14 @@
                 <hr class="divisao">
                 <!-- Avaliações gerais -->
                 <h5 class="titulo-secao">Avaliação Geral</h5>
-                <div style="display: flex; flex-direction: column; width: 98%;">
+                <div id="avaliacao_geral">
                     <label>
                         <nobr>O que motivou trazer o seu grupo?</nobr>
                     </label>
                     {{ form.motivo_trazer_grupo }}
                 </div>
                 <div style="display: flex; margin-top: 20px">
-                    <div style="width: 50%">
+                    <div style="width: 60%">
                         <div style="display: flex; width: 76%; margin-bottom: 20px; gap: 10px">
                             <label>
                                 <nobr>Conteúdo Pedagógico:</nobr>
@@ -408,8 +407,8 @@
                             {{ form.estado_conservacao }}
                         </div>
                     </div>
-                    <div>
-                        <img src="{% static  'img/logoAvalicao.png' %}">
+                    <div style="width: 50%">
+                        <img style="width: 100%" src="{% static  'img/CEU-Horizontal-1.png' %}">
                     </div>
                 </div>
                 <div style="display: flex; width: 98%; margin-bottom: 20px; flex-direction: column">
