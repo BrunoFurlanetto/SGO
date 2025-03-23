@@ -215,7 +215,7 @@
                     <li>
                 {% endif %}
 
-                {% if perms.peraltas.view_fichadeevento %}
+                {% if perms.peraltas.view_prereserva or perms.peraltas.view_fichadeevento or perms.ordemDeServico.view_ordemdeservico %}
                     <a href="{% url 'calendario_eventos' %}">
                         <i class='bx bx-calendar'></i>
                         <span class="link_name">Eventos</span>
