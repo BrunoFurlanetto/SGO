@@ -184,23 +184,14 @@ def colegio(request, id_relatorio=None):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
+
             return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
+            messages.success(request, 'Relatório salvo com sucesso!')
 
-            if not id_relatorio:
-                email, senha = criar_usuario_colegio(novo_colegio, ordem.id)
-            else:
-                return redirect('dashboardCeu')
-
-            return render(request, 'cadastro/colegio.html', {
-                'formulario': relatorio_colegio,
-                'professores': professores,
-                'mostrar': True,
-                'email': email,
-                'senha': senha
-            })
+            return redirect('dashboardCeu')
     else:
         messages.warning(request, relatorio_colegio.errors)
         ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
