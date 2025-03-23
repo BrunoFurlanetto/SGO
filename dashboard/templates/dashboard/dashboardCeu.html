@@ -15,9 +15,7 @@
                 <div class="folder" onclick="alterar_aba(this, 'atividades_sem_definicao')">Atividades sem definição
                 </div>
             {% endif %}
-            {% if user.is_superuser %}
-                <div class="folder" onclick="alterar_aba(this, 'avaliacoes_pra_ser_entregues')">Avaliações ausentes</div>
-            {% endif %}
+            <div class="folder" onclick="alterar_aba(this, 'avaliacoes_pra_ser_entregues')">Avaliações ausentes</div>
         </div>
         <div id="relatorios" class="section-content ativo">
             <div class="tabelas">
