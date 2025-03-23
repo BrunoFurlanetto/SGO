@@ -107,22 +107,22 @@
                         <th style="text-align: center">Participantes</th>
                         <th style="text-align: center">Data do evento</th>
                         <th style="text-align: center">Vendedora</th>
-                        {% comment %}<th style="text-align: center"></th>{% endcomment %}
+                        <th style="text-align: center"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for evento in eventos_sem_avaliacao %}
                         <tr style="vertical-align: middle">
-                            <td onclick="window.location.href='{% url 'fichaAvaliacao' evento.id %}'">{{ evento.ficha_de_evento.cliente }}</td>
+                            <td style="text-decoration: underline; cursor: pointer" onclick="window.location.href='{% url 'fichaAvaliacao' evento.id %}'">{{ evento.ficha_de_evento.cliente }}</td>
                             <td style="text-align: center">{{ evento.n_participantes }}</td>
                             <td style="text-align: center">{{ evento.check_in_ceu | date:'Y-m-d' }}</td>
                             <td style="text-align: center">{{ evento.vendedor }}</td>
-                            {% comment %}<td style="text-align: center">
+                            <td style="text-align: center">
                                 <button type="submit" class="btn btn-link text-black"
-                                        onclick="gerar_qrcode_avaliacao('{% url 'fichaAvaliacao' evento.id %}')">
+                                        onclick="navigator.clipboard.writeText(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}').then(() => alert('Link copiado!')).catch(err => alert('Erro ao copiar!'))">
                                     <i class='bx bx-qr'></i>
                                 </button>
-                            </td>{% endcomment %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
