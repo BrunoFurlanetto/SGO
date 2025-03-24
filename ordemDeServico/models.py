@@ -202,16 +202,17 @@ class OrdemDeServico(models.Model):
                 'a_definir': 0,
             }
 
-            for atividade in ordem.atividades_ceu.values():
-                atividade_bd = Atividades.objects.get(pk=atividade['atividade'])
+            if ordem.atividades_ceu:
+                for atividade in ordem.atividades_ceu.values():
+                    atividade_bd = Atividades.objects.get(pk=atividade['atividade'])
 
-                if atividade_bd.a_definir:
-                    dados_ativdiades['a_definir'] += 1
-                elif not atividade_bd.sem_atividade and atividade['data_e_hora'] == '':
-                    dados_ativdiades['atividades_sem_definicao'].append(atividade_bd.atividade)
+                    if atividade_bd.a_definir:
+                        dados_ativdiades['a_definir'] += 1
+                    elif not atividade_bd.sem_atividade and atividade['data_e_hora'] == '':
+                        dados_ativdiades['atividades_sem_definicao'].append(atividade_bd.atividade)
 
-            if len(dados_ativdiades['atividades_sem_definicao']) != 0 or dados_ativdiades['a_definir'] != 0:
-                atividades.append(dados_ativdiades)
+                if len(dados_ativdiades['atividades_sem_definicao']) != 0 or dados_ativdiades['a_definir'] != 0:
+                    atividades.append(dados_ativdiades)
 
         return atividades
 

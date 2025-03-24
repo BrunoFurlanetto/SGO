@@ -558,7 +558,12 @@
                 {% endif %}
                 {% if perms.cadastro.add_relatoriodeatendimentocolegioceu and not ordem_servico.relatorio_ceu_entregue %}
                     <div class="botoes" style="display: flex; gap: 10px;">
-                	    <button class="btn btn-outline-info" onclick="window.location.href='{% url 'cadastro_relatorio_colegio' ordem_servico.id %}'" type="button">Relatório de evento</button>
+                        {% if ordem_servico.tipo == 'colegio' %}
+                        	<button class="btn btn-outline-info" onclick="window.location.href='{% url 'cadastro_relatorio_colegio' ordem_servico.id %}'" type="button">Relatório de evento</button>
+                        {% else %}
+                            <button class="btn btn-outline-info" onclick="window.location.href='{% url 'cadastro_relatorio_empresa' ordem_servico.id %}'" type="button">Relatório de evento</button>
+                        {% endif %}
+                	    
                     </div>
                 {% endif %}
             {% else %}
