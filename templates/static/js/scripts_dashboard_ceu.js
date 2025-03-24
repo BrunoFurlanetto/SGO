@@ -45,14 +45,7 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
 }
 
 function gerar_qrcode_avaliacao(link_avaliacao) {
-    $.ajax({
-        type: 'GET',
-        url: '/ficha-de-avaliacao/qr_code/',
-        data: {'link': link_avaliacao},
-        success: function (response) {
-            $("#qr-image").attr("src", `/ficha-de-avaliacao/qr_code/?link=${encodeURIComponent(link_avaliacao)}`)
-        }
-    }).done(() => {
-        $('#modalQrcode').modal('show')
-    })
+    $("#qr-image").attr("src", `/ficha-de-avaliacao/qr_code/?link=${encodeURIComponent(link_avaliacao)}`)
+    navigator.clipboard.writeText(link_avaliacao).then(() => alert('Link copiado!')).catch(err => alert('Erro ao copiar!'))
+    $('#modalQrcode').modal('show')
 }

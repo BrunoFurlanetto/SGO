@@ -117,7 +117,7 @@
                             <td style="text-align: center">{{ evento.vendedor }}</td>
                             <td style="text-align: center">
                                 <button type="submit" class="btn btn-link text-black"
-                                        onclick="navigator.clipboard.writeText(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}').then(() => alert('Link copiado!')).catch(err => alert('Erro ao copiar!'))">
+                                        onclick="gerar_qrcode_avaliacao(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}')">
                                     <i class='bx bx-qr'></i>
                                 </button>
                             </td>
@@ -213,12 +213,12 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 class="modal-title">QR Code da avaliação</h5>
+                    <button type="button" class="btn btn-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body d-flex">
                     <img id="qr-image" class="w-40 h-40 mx-auto" src="" alt="QR Code">
                 </div>
             </div>
