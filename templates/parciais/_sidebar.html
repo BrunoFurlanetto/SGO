@@ -62,27 +62,27 @@
                     <li>
                 {% endif %}
 
-                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                    <a href="{% url 'resumo_atividades' %}">
-                        <i class='bx bx-notepad'></i>
-                        <span class="link_name">Resumo professores</span>
-                    </a>
-                {% endif %}
-
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>
-                </ul>
-                </li>
-
-                {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                        <li class="item-sidebar">
-                            {% else %}
-                        <li>
-                    {% endif %}
-                {% else %}
-                    <li>
-                {% endif %}
+{#                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                    <a href="{% url 'resumo_atividades' %}">#}
+{#                        <i class='bx bx-notepad'></i>#}
+{#                        <span class="link_name">Resumo professores</span>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{##}
+{#                <ul class="sub-menu blank">#}
+{#                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>#}
+{#                </ul>#}
+{#                </li>#}
+{##}
+{#                {% if 'dashboard' in request.path %}#}
+{#                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                        <li class="item-sidebar">#}
+{#                            {% else %}#}
+{#                        <li>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
+{#                    <li>#}
+{#                {% endif %}#}
                 {#                {% if perms.peraltas.add_listadecargos %}#}
                 {#                    <a href="{% url 'painelGeral' %}">#}
                 {#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
