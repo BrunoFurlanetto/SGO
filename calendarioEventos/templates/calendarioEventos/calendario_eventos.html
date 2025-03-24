@@ -185,7 +185,7 @@
                     {% endif %}
 
                     events: [
-                        {% if user.perms.peraltas.view_prereserva %}
+                        {% if perms.peraltas.view_prereserva %}
                             {% for pre_reserva in pre_reservas %}
                                 {
                                     title: "{{ pre_reserva.cliente|safe }}",

@@ -31,7 +31,7 @@ def eventos(request):
     professor_ceu = request.user.has_perm('cadastro.add_relatoriodeatendimentopublicoceu')
     comercial = request.user.has_perm('peraltas.add_prereserva')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
-    print(professor_ceu)
+
     if is_ajax(request):
         if request.method == 'GET':
             if request.GET.get('id_negocio'):
