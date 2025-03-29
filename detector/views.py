@@ -81,7 +81,7 @@ def detector_de_bombas(request, id_detector=None):
 
             atividades_eventos, grupos = pegar_dados_evento(request.POST, request.POST.get('editando'), setor)
             escalas = pegar_escalas(request.POST, setor)
-
+            print(atividades_eventos)
             return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas, 'grupos': grupos})
 
         if request.GET.get('id_detector'):

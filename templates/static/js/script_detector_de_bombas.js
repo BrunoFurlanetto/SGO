@@ -338,7 +338,6 @@ function mostrar_por_atividade(dados_eventos, grupos_detector, escalados, editan
     let professores_monitores = 'professores'
     moment.locale('pt-br')
     formulario_detector.empty()
-    console.log(dados_eventos)
     grupos = juntar_grupos(grupos_detector)
 
     if (editando) {
@@ -370,6 +369,8 @@ function mostrar_por_atividade(dados_eventos, grupos_detector, escalados, editan
 
 //--------------------------------------------- Adição de todos os inputs ------------------------------------------------------
     for (let area in dados_eventos) {
+        n_atividades = Array()
+
         for (let i = 0; i < dados_eventos[area].length; i++) {
             if (n_atividades.length === 0 || !n_atividades[dados_eventos[area][i]['grupo']['id']]) {
                 n_atividades[dados_eventos[area][i]['grupo']['id']] = 1
@@ -384,7 +385,7 @@ function mostrar_por_atividade(dados_eventos, grupos_detector, escalados, editan
             }
 
             let id_select = `${professores_monitores}_${area}_${n_atividades[dados_eventos[area][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos[area][i]['grupo']['id']) + 1}`
-            console.log(area)
+            console.log(id_select)
             if (area === 'locacoes') {
                 criar_inputs_locacoes(professores_monitores, dados_eventos[area][i], i + 1, grupos, area)
                 popular_professores(
@@ -418,7 +419,6 @@ function popular_professores(formulario_detector, professores, escalados, id_sel
     for (let escala of escalados) {
         if (escala['data'] == data) {
             for (let monitor_professor of escala['escalados']) {
-                console.log(monitor_professor, data, id_select)
                 $(`#${id_select}`).append(`<option value="${monitor_professor['id']}">${monitor_professor['nome']}</option>`)
             }
         }
