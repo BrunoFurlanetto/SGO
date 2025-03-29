@@ -83,7 +83,7 @@ function pegar_dados_eventos(editando = false) {
             let eventos = []
             let classes_select_selecionados = $('.select2-selection__choice')
             let colunas_agenda = document.getElementsByClassName('fc-timegrid-col')
-            console.log(response)
+
             for (let area in response['atividades_eventos']) {
                 for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
                     if (area === 'atividades_ceu') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
@@ -103,9 +103,9 @@ function pegar_dados_eventos(editando = false) {
             detector_de_bombas(eventos, false, false)
 
             if (editando) {
-                mostrar_por_atividade(response['atividades_eventos'], response['escalas'], true)
+                mostrar_por_atividade(response['atividades_eventos'], response['grupos'], response['escalas'], true)
             } else {
-                mostrar_por_atividade(response['atividades_eventos'], response['escalas'])
+                mostrar_por_atividade(response['atividades_eventos'], response['grupos'], response['escalas'])
             }
 
             for (let i = 0; i < colunas_agenda.length; i++) {
@@ -172,8 +172,17 @@ function pegar_select_atividade_locacao(atividade, hora_atividade) {
                 elemento = elemento.nextElementSibling
 
                 if (elemento.tagName === 'SELECT') {
-                    $('#id_professores_atividade_nova').empty().append($(`#${elemento.id} option`).clone())
-                    break
+                    console.log(elemento);
+
+                    let options = $(`#${elemento.id} option`).map(function () {
+                        let selected = this.selected ? 'selected' : ''; // Mantém a seleção original
+                        return `<option value="${this.value}" ${selected}>${this.text}</option>`;
+                    }).get().join('');
+
+                    $('#id_professores_atividade_nova').html(options).trigger('change.select2');
+
+
+                    break;
                 }
             }
         }
@@ -221,7 +230,9 @@ function detector_de_bombas(eventos, dropable, editable) {
             const nome_grupo = info.draggedEl.attributes['data-grupo'].value
             const dados_atividade = {'id': info.draggedEl.id, 'nome': info.draggedEl.innerText}
             criar_inputs_atividades_acampamento(info.date, dados_atividade, atividade_acampamento_i, grupo, nome_grupo)
-            try {} catch (e) {}
+            try {
+            } catch (e) {
+            }
         },
 
         eventResize: function (info) {
@@ -250,7 +261,7 @@ function detector_de_bombas(eventos, dropable, editable) {
                 $('#alerta_dados_iguais').remove()
                 $('#atividade_excluida, #locacao_excluida').val('false')
                 $('#id_professores_atividade_nova').select2({dropdownParent: $("#modal_trocar_atividade .modal-content")})
-                $('#form_alteração_de_atividade #id_detector').val(window.location.href.split('/')[4])
+                $('#form_alteracao_de_atividade #id_detector').val(window.location.href.split('/')[4])
                 pegar_select_atividade_locacao(atividade_local, start)
 
                 $.ajax({
@@ -318,7 +329,7 @@ function detector_de_bombas(eventos, dropable, editable) {
     }
 }
 
-function mostrar_por_atividade(dados_eventos, escalados, editando = false) {
+function mostrar_por_atividade(dados_eventos, grupos_detector, escalados, editando = false) {
     const datas = []
     let formulario_detector = $('#formulario-escala-professores-atividades')
     let grupos_teste = Array()
@@ -327,7 +338,8 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false) {
     let professores_monitores = 'professores'
     moment.locale('pt-br')
     formulario_detector.empty()
-    grupos = juntar_grupos(dados_eventos)
+    console.log(dados_eventos)
+    grupos = juntar_grupos(grupos_detector)
 
     if (editando) {
         const id_detector = $('#id_detector').val()
@@ -403,7 +415,7 @@ function mostrar_por_atividade(dados_eventos, escalados, editando = false) {
 }
 
 function popular_professores(formulario_detector, professores, escalados, id_select, data) {
-    for (let escala of escalados){
+    for (let escala of escalados) {
         if (escala['data'] == data) {
             for (let monitor_professor of escala['escalados']) {
                 console.log(monitor_professor, data, id_select)
@@ -519,24 +531,15 @@ function mostrar_esconder_tividades(div) {
     $(`#${id_div_avo} .atividades_ceu, #${id_div_avo} .locacoes, #${id_div_avo} .atividades_extra, #${id_div_avo} .atividades_acampamento`).toggleClass('none')
 }
 
-function juntar_grupos(dados_eventos) {
+function juntar_grupos(dados_grupos) {
     let grupos = []
     let j = 1
 
-    for (let i = 0; i < dados_eventos['atividades_ceu'].length; i++) {
-        if (!grupos.includes(dados_eventos['atividades_ceu'][i]['grupo']['id'])) {
-            grupos.push(dados_eventos['atividades_ceu'][i]['grupo']['id'])
-            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['atividades_ceu'][i]['grupo']['id']}">`)
-            j++
-        }
-    }
-
-    for (let i = 0; i < dados_eventos['locacoes'].length; i++) {
-        if (!grupos.includes(dados_eventos['locacoes'][i]['grupo']['id'])) {
-            grupos.push(dados_eventos['locacoes'][i]['grupo']['id'])
-            $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${j}" value="${dados_eventos['locacoes'][i]['grupo']['id']}">`)
-            j++
-        }
+    for (let grupo of dados_grupos) {
+        let n_grupo = Object.keys(grupo)[0]
+        let id_grupo = Object.values(grupo)[0]
+        grupos.push(id_grupo)
+        $('#formulario-escala-professores-atividades').append(`<input type="hidden" name="grupos" id="id_grupo_${n_grupo.split('_')[1]}" value="${id_grupo}">`)
     }
 
     return grupos
@@ -695,7 +698,7 @@ function validar(e) {
 }
 
 $('#btn_salvar_alteracao').on('click', function (e) {
-    const form = $('#form_alteração_de_atividade');
+    const form = $('#form_alteracao_de_atividade');
 
     // validação para o caso de ser atividades sendo alteradas e os dados forem iguais
     const atividade_atual = $('#id_atividade_atual').val()

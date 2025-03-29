@@ -198,6 +198,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
         return dados_eventos
     else:
         detector = DetectorDeBombas.objects.get(pk=dados_detector.get('id_detector'))
+        grupos = []
         posicao_grupos = {}
 
         for posicao, grupo_atividade in enumerate(detector.dados_atividades.values(), start=1):
@@ -205,6 +206,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
 
         for grupo in detector.grupos.all():
             grupo_n = posicao_grupos[grupo.id]
+            grupos.append({f'grupo_{grupo_n}': detector.dados_atividades[f'grupo_{grupo_n}']['id_grupo']})
 
             for atividade_i, atividade in enumerate(detector.dados_atividades[f'grupo_{grupo_n}']['atividades_ceu'].values(), start=1):
                 atividades_ceu.append(percorrer_atividades(
@@ -223,7 +225,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
             'locacoes': locacoes,
         }
 
-        return dados_eventos
+        return dados_eventos, sorted(grupos, key=lambda x: list(x.keys())[0])
 
 
 def veririficar_escalas(data_inicio, data_final):
@@ -445,8 +447,15 @@ def tratar_dados_detector_selecionado(detector_selecionado):
     for grupo in detector_selecionado.grupos.all():
         i = posicao_grupos[grupo.id]
         grupos[grupo.nome_fantasia] = cores_legenda[i - 1]
+        n_atividade = 1
+        atividades = detector_selecionado.dados_atividades[f'grupo_{i}']['atividades_ceu']
 
-        for atividade in detector_selecionado.dados_atividades[f'grupo_{i}']['atividades_ceu'].values():
+        while True:
+            if not atividades.get(f'atividade_ceu_{n_atividade}', None):
+                break
+
+            atividade = atividades[f'atividade_ceu_{n_atividade}']
+
             if isinstance(atividade['professores'], list):
                 professores = [
                     Professores.objects.get(pk=id_professor).usuario.get_full_name() for id_professor in
@@ -462,6 +471,8 @@ def tratar_dados_detector_selecionado(detector_selecionado):
                 'end': atividade['fim'],
                 'color': cores_legenda[i - 1],
             })
+
+            n_atividade += 1
 
         for locacao in detector_selecionado.dados_atividades[f'grupo_{i}']['locacoes'].values():
             if isinstance(locacao['professores'], list):
@@ -493,10 +504,10 @@ def salvar_alteracoes_de_atividade_locacao(dados):
     detector_alterado = DetectorDeBombas.objects.get(id=int(dados.get('id_detector')))
     dados_ativ = detector_alterado.dados_atividades
     atividade_alterada_fatiada = dados.get("atividade_locacao_alterada").split("_")
-    grupo_alterado = f'grupo_{atividade_alterada_fatiada[3]}'
-    atividade_alterada = f'{atividade_alterada_fatiada[0]}_{atividade_alterada_fatiada[1]}'
+    grupo_alterado = f'grupo_{atividade_alterada_fatiada[1]}'
+    atividade_alterada = f'{atividade_alterada_fatiada[2]}_{atividade_alterada_fatiada[3]}'
     lista_professores = list(map(int, dados.getlist('professores_atividade_nova')))
-
+    print(atividade_alterada_fatiada)
     if dados.get('atividade_excluida') == 'true':
         dados_ativ[grupo_alterado].pop(atividade_alterada)
         atividade_excluida(dados_ativ, detector_alterado, dados)
@@ -524,7 +535,7 @@ def salvar_alteracoes_de_atividade_locacao(dados):
         fim_atividade_nova = (inicio_atividade_nova + atividade_nova.duracao).strftime('%Y-%m-%d %H:%M')
         detector_alterado.observacoes += f'{atividade_nova.atividade} com início às {inicio_nova_formatado}: '
         # Salvando as alterações no banco
-        atividade_banco = dados_ativ[grupo_alterado][atividade_alterada]
+        atividade_banco = dados_ativ[grupo_alterado][atividade_alterada][f'atividade_ceu_{atividade_alterada_fatiada[4]}']
         atividade_banco['id_atividade'] = int(dados.get('altividade_nova'))
         atividade_banco['inicio'] = inicio_atividade_nova.strftime('%Y-%m-%d %H:%M')
         atividade_banco['fim'] = fim_atividade_nova
@@ -548,7 +559,7 @@ def salvar_alteracoes_de_atividade_locacao(dados):
         detector_alterado.observacoes += f'alterado para {espaco_novo.local.estrutura} com check in às '
         detector_alterado.observacoes += f'{check_in_formatada_novo} e check out às {check_out_formatada_novo}: '
         # Salvando as alterações no banco
-        locacao_banco = dados_ativ[grupo_alterado][atividade_alterada]
+        locacao_banco = dados_ativ[grupo_alterado][atividade_alterada][f'locacao_{atividade_alterada_fatiada[4]}']
         locacao_banco['id_espaco'] = int(dados.get('espaco_novo'))
         locacao_banco['check_in'] = check_in_locacao_novo.strftime('%Y-%m-%d %H:%M')
         locacao_banco['check_out'] = check_out_locacao_novo.strftime('%Y-%m-%d %H:%M')

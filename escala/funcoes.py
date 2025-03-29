@@ -5,7 +5,7 @@ from math import ceil
 
 from django.db.models import Q, F
 
-from ceu.models import Atividades
+from ceu.models import Atividades, Estruturas
 from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
@@ -76,9 +76,9 @@ def verificar_disponiveis(data):
         if locacao_ceu:
             for key, locacao in locacao_ceu.items():
                 if locacao.get('check_in'):
-                    locacoes_com_checkin += 1
+                    locacoes_com_checkin.add(Estruturas.objects.get(pk=locacao['espaco']).estrutura)
                 else:
-                    locacoes_sem_checkin += 1
+                    locacoes_sem_checkin.add(Estruturas.objects.get(pk=locacao['espaco']).estrutura)
 
     dados_eventos = {
         'n_eventos': len(ordens),
