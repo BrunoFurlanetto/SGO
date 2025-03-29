@@ -91,6 +91,8 @@ def pegar_dados_evento(dados_detector, editando, setor):
     locacoes = []
 
     if editando == 'false':
+        grupos = []
+
         for i, id_cliente in enumerate(lista_id_clientes):
             if setor == 'CEU':
                 ordens = OrdemDeServico.objects.filter(
@@ -188,6 +190,8 @@ def pegar_dados_evento(dados_detector, editando, setor):
                                     }
                                 })
 
+                grupos.append({f'grupo_{i+1}': ordem.ficha_de_evento.cliente.id})
+
         dados_eventos = {
             'atividades_ceu': atividades_ceu,
             'locacoes': locacoes,
@@ -195,7 +199,7 @@ def pegar_dados_evento(dados_detector, editando, setor):
             'atividades_acampamento': atividades_acampamento
         }
 
-        return dados_eventos
+        return dados_eventos, grupos
     else:
         detector = DetectorDeBombas.objects.get(pk=dados_detector.get('id_detector'))
         grupos = []
