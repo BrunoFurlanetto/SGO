@@ -86,6 +86,7 @@ function pegar_dados_eventos(editando = false) {
 
             for (let area in response['atividades_eventos']) {
                 for (let i = 0; i < response['atividades_eventos'][area].length; i++) {
+                    console.log(response['atividades_eventos'][area])
                     if (area === 'atividades_ceu') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
                     if (area === 'locacoes') eventos.push(pegar_dados_locacoes(response['atividades_eventos'][area][i]))
                     if (area === 'atividades_extra') eventos.push(pegar_dados_atividades(response['atividades_eventos'][area][i]))
@@ -385,7 +386,7 @@ function mostrar_por_atividade(dados_eventos, grupos_detector, escalados, editan
             }
 
             let id_select = `${professores_monitores}_${area}_${n_atividades[dados_eventos[area][i]['grupo']['id']]}_grupo_${grupos.indexOf(dados_eventos[area][i]['grupo']['id']) + 1}`
-            console.log(id_select)
+
             if (area === 'locacoes') {
                 criar_inputs_locacoes(professores_monitores, dados_eventos[area][i], i + 1, grupos, area)
                 popular_professores(
