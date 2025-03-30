@@ -143,8 +143,7 @@
                                                    name="cortesias_externas_atividade_{{ forloop.counter }}"
                                                    id="cortesia_professores_atividade_{{ forloop.counter }}"
                                                     {% if ficha %}
-                                                   value="{% carregar_cortesias_externas ficha.id atividade.id 'professores' %}"
-                                                        >
+                                                   value="{% carregar_cortesias_externas ficha.id atividade.id 'professores' %}">
                                                     {% endif %}
                                         </td>
                                     </tr>
@@ -194,44 +193,6 @@
                                 <td>{{ orcamento.valores_transporte.desconto }}</td>
                                 <td>{{ orcamento.valores_transporte.valor_final }}</td>
                             </tr>
-                            <tr class="secao_tabela secao_opcionais"
-                                onclick="$('.descritivo_opcionais.ceu').toggleClass('none')">
-                                <td>Atividades CEU</td>
-                                <td>{{ orcamento.valores_ceu.valor_neto }}</td>
-                                <td>{{ orcamento.valores_ceu.taxas }}</td>
-                                <td>{{ orcamento.valores_ceu.cov }}</td>
-                                <td>{{ orcamento.valores_ceu.desconto }}</td>
-                                <td>{{ orcamento.valores_ceu.valor_final }}</td>
-                            </tr>
-                            {% for atividade in orcamento.valores_ceu.descritivo_atividades %}
-                                <tr class="descritivo_opcionais ceu none">
-                                    <td>{{ atividade.atividade }}</td>
-                                    <td>{{ atividade.valor_neto }}</td>
-                                    <td>{{ atividade.taxas }}</td>
-                                    <td>{{ atividade.cov }}</td>
-                                    <td>{{ atividade.desconto }}</td>
-                                    <td>{{ atividade.valor_final }}</td>
-                                </tr>
-                            {% endfor %}
-                            <tr class="secao_tabela secao_opcionais"
-                                onclick="$('.descritivo_opcionais.peraltas').toggleClass('none')">
-                                <td>Atividades peraltas</td>
-                                <td>{{ orcamento.valores_peraltas.valor_neto }}</td>
-                                <td>{{ orcamento.valores_peraltas.taxas }}</td>
-                                <td>{{ orcamento.valores_peraltas.cov }}</td>
-                                <td>{{ orcamento.valores_peraltas.desconto }}</td>
-                                <td>{{ orcamento.valores_peraltas.valor_final }}</td>
-                            </tr>
-                            {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}
-                                <tr class="descritivo_opcionais peraltas none">
-                                    <td>{{ atividade.atividade }}</td>
-                                    <td>{{ atividade.valor_neto }}</td>
-                                    <td>{{ atividade.taxas }}</td>
-                                    <td>{{ atividade.cov }}</td>
-                                    <td>{{ atividade.desconto }}</td>
-                                    <td>{{ atividade.valor_final }}</td>
-                                </tr>
-                            {% endfor %}
                             <tr class="secao_tabela secao_opcionais"
                                 onclick="$('.descritivo_opcionais.opcionais').toggleClass('none')">
                                 <td>Opcionais</td>
@@ -354,7 +315,7 @@
                     <i class='bx bx-plus'></i>
                     Adcionar comissionado
                 </button>
-                {% if ficha and ficha.nf %}
+{#                {% if ficha and ficha.nf %}#}
                     <hr>
                     <h5 class="titulo-secao">Nota fiscal</h5>
 
@@ -373,7 +334,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                {% endif %}
+{#                {% endif %}#}
 
                 <hr>
                 <h5 class="titulo-secao">Observações</h5>
@@ -479,17 +440,17 @@
                         </tr>
                         <tr class="secao_tabela secao_opcionais"
                             onclick="$('.descritivo_opcionais.ceu').toggleClass('none')">
-                            <td>Atividades CEU</td>
-                            <td>{{ orcamento.valores_ceu.valor_neto }}</td>
-                            <td>{{ orcamento.valores_ceu.taxas }}</td>
-                            <td>{{ orcamento.valores_ceu.cov }}</td>
-                            <td>{{ orcamento.valores_ceu.desconto }}</td>
-                            <td>{{ orcamento.valores_ceu.valor_final }}</td>
-                            {% for valor in orcamento.valores_ceu.dia_dia %}
+                            <td>Opcionais</td>
+                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>
+                            <td>{{ orcamento.valores_opcionais.taxas }}</td>
+                            <td>{{ orcamento.valores_opcionais.cov }}</td>
+                            <td>{{ orcamento.valores_opcionais.desconto }}</td>
+                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>
+                            {% for valor in orcamento.valores_opcionais.dia_dia %}
                                 <td class="datas">{{ valor }}</td>
                             {% endfor %}
                         </tr>
-                        {% for atividade in orcamento.valores_ceu.descritivo_atividades %}
+                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}
                             <tr class="descritivo_opcionais ceu none">
                                 <td>{{ atividade.atividade }}</td>
                                 <td>{{ atividade.valor_neto }}</td>
@@ -502,68 +463,68 @@
                                 {% endfor %}
                             </tr>
                         {% endfor %}
-                        <tr class="secao_tabela secao_opcionais"
-                            onclick="$('.descritivo_opcionais.peraltas').toggleClass('none')">
-                            <td>Atividades peraltas</td>
-                            <td>{{ orcamento.valores_peraltas.valor_neto }}</td>
-                            <td>{{ orcamento.valores_peraltas.taxas }}</td>
-                            <td>{{ orcamento.valores_peraltas.cov }}</td>
-                            <td>{{ orcamento.valores_peraltas.desconto }}</td>
-                            <td>{{ orcamento.valores_peraltas.valor_final }}</td>
-                            {% for valor in orcamento.valores_peraltas.dia_dia %}
-                                <td class="datas">{{ valor }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}
-                            <tr class="descritivo_opcionais peraltas none">
-                                <td>{{ atividade.atividade }}</td>
-                                <td>{{ atividade.valor_neto }}</td>
-                                <td>{{ atividade.taxas }}</td>
-                                <td>{{ atividade.cov }}</td>
-                                <td>{{ atividade.desconto }}</td>
-                                <td>{{ atividade.valor_final }}</td>
-                                {% for valor in atividade.dia_dia %}
-                                    <td class="datas">{{ valor }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        <tr class="secao_tabela secao_opcionais"
-                            onclick="$('.descritivo_opcionais.opcionais').toggleClass('none')">
-                            <td>Opcionais</td>
-                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>
-                            <td>{{ orcamento.valores_opcionais.taxas }}</td>
-                            <td>{{ orcamento.valores_opcionais.cov }}</td>
-                            <td>{{ orcamento.valores_opcionais.desconto }}</td>
-                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>
-                            {% for valor in orcamento.valores_opcionais.dia_dia %}
-                                <td class="datas">{{ valor }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}
-                            <tr class="descritivo_opcionais opcionais none">
-                                <td>{{ atividade.atividade }}</td>
-                                <td>{{ atividade.valor_neto }}</td>
-                                <td>{{ atividade.taxas }}</td>
-                                <td>{{ atividade.cov }}</td>
-                                <td>{{ atividade.desconto }}</td>
-                                <td>{{ atividade.valor_final }}</td>
-                                {% for valor in atividade.dia_dia %}
-                                    <td class="datas">{{ valor }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        <tr class="secao_tabela secao_opcionais"
-                            onclick="$('.descritivo_opcionais.outros').toggleClass('none')">
-                            <td>Outros</td>
-                            <td>{{ orcamento.valores_outros.valor_neto }}</td>
-                            <td>{{ orcamento.valores_outros.taxas }}</td>
-                            <td>{{ orcamento.valores_outros.cov }}</td>
-                            <td>{{ orcamento.valores_outros.desconto }}</td>
-                            <td>{{ orcamento.valores_outros.valor_final }}</td>
-                            {% for valor in orcamento.valores_outros.dia_dia %}
-                                <td class="datas">{{ valor }}</td>
-                            {% endfor %}
-                        </tr>
+{#                        <tr class="secao_tabela secao_opcionais"#}
+{#                            onclick="$('.descritivo_opcionais.peraltas').toggleClass('none')">#}
+{#                            <td>Atividades peraltas</td>#}
+{#                            <td>{{ orcamento.valores_peraltas.valor_neto }}</td>#}
+{#                            <td>{{ orcamento.valores_peraltas.taxas }}</td>#}
+{#                            <td>{{ orcamento.valores_peraltas.cov }}</td>#}
+{#                            <td>{{ orcamento.valores_peraltas.desconto }}</td>#}
+{#                            <td>{{ orcamento.valores_peraltas.valor_final }}</td>#}
+{#                            {% for valor in orcamento.valores_peraltas.dia_dia %}#}
+{#                                <td class="datas">{{ valor }}</td>#}
+{#                            {% endfor %}#}
+{#                        </tr>#}
+{#                        {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}#}
+{#                            <tr class="descritivo_opcionais peraltas none">#}
+{#                                <td>{{ atividade.atividade }}</td>#}
+{#                                <td>{{ atividade.valor_neto }}</td>#}
+{#                                <td>{{ atividade.taxas }}</td>#}
+{#                                <td>{{ atividade.cov }}</td>#}
+{#                                <td>{{ atividade.desconto }}</td>#}
+{#                                <td>{{ atividade.valor_final }}</td>#}
+{#                                {% for valor in atividade.dia_dia %}#}
+{#                                    <td class="datas">{{ valor }}</td>#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                        <tr class="secao_tabela secao_opcionais"#}
+{#                            onclick="$('.descritivo_opcionais.opcionais').toggleClass('none')">#}
+{#                            <td>Opcionais</td>#}
+{#                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>#}
+{#                            <td>{{ orcamento.valores_opcionais.taxas }}</td>#}
+{#                            <td>{{ orcamento.valores_opcionais.cov }}</td>#}
+{#                            <td>{{ orcamento.valores_opcionais.desconto }}</td>#}
+{#                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>#}
+{#                            {% for valor in orcamento.valores_opcionais.dia_dia %}#}
+{#                                <td class="datas">{{ valor }}</td>#}
+{#                            {% endfor %}#}
+{#                        </tr>#}
+{#                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}#}
+{#                            <tr class="descritivo_opcionais opcionais none">#}
+{#                                <td>{{ atividade.atividade }}</td>#}
+{#                                <td>{{ atividade.valor_neto }}</td>#}
+{#                                <td>{{ atividade.taxas }}</td>#}
+{#                                <td>{{ atividade.cov }}</td>#}
+{#                                <td>{{ atividade.desconto }}</td>#}
+{#                                <td>{{ atividade.valor_final }}</td>#}
+{#                                {% for valor in atividade.dia_dia %}#}
+{#                                    <td class="datas">{{ valor }}</td>#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                        <tr class="secao_tabela secao_opcionais"#}
+{#                            onclick="$('.descritivo_opcionais.outros').toggleClass('none')">#}
+{#                            <td>Outros</td>#}
+{#                            <td>{{ orcamento.valores_outros.valor_neto }}</td>#}
+{#                            <td>{{ orcamento.valores_outros.taxas }}</td>#}
+{#                            <td>{{ orcamento.valores_outros.cov }}</td>#}
+{#                            <td>{{ orcamento.valores_outros.desconto }}</td>#}
+{#                            <td>{{ orcamento.valores_outros.valor_final }}</td>#}
+{#                            {% for valor in orcamento.valores_outros.dia_dia %}#}
+{#                                <td class="datas">{{ valor }}</td>#}
+{#                            {% endfor %}#}
+{#                        </tr>#}
                         {% for atividade in orcamento.valores_outros.descritivo_atividades %}
                             <tr class="descritivo_opcionais outros none">
                                 <td>{{ atividade.atividade }}</td>

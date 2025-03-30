@@ -69,10 +69,6 @@ class DadosPagamento(models.Model):
     descritivo_transporte = models.JSONField(editable=False)
     valor_monitoria = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Monitoria')
     descritivo_monitoria = models.JSONField(editable=False)
-    valor_atividades_ceu = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades CEU')
-    descritivo_atividades_ceu = models.JSONField(editable=False)
-    valor_atividades_peraltas = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Atividades Peraltas')
-    descritivo_atividades_peraltas = models.JSONField(editable=False)
     valor_opcionais = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais')
     descritivo_opcionais = models.JSONField(editable=False)
     valor_op_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Opcionais extra')
@@ -87,10 +83,6 @@ class DadosPagamento(models.Model):
             descritivo_transporte=orcamento.valores_transporte(),
             valor_monitoria=Decimal(orcamento.valores_monitoria()['valor_final'].replace(',', '.')),
             descritivo_monitoria=orcamento.valores_monitoria(),
-            valor_atividades_ceu=Decimal(orcamento.valores_ceu()['valor_final'].replace(',', '.')),
-            descritivo_atividades_ceu=orcamento.valores_ceu(),
-            valor_atividades_peraltas=Decimal(orcamento.valores_peraltas()['valor_final'].replace(',', '.')),
-            descritivo_atividades_peraltas=orcamento.valores_peraltas(),
             valor_opcionais=Decimal(orcamento.valores_opcionais()['valor_final'].replace(',', '.')),
             descritivo_opcionais=orcamento.valores_opcionais(),
             valor_op_extra=Decimal(orcamento.valores_outros()['valor_final'].replace(',', '.')),
