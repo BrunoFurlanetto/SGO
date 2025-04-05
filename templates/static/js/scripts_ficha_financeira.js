@@ -4,6 +4,9 @@ $(document).ready(() => {
     $('.porcentagem').mask('00,00%', {reverse: true})
     $('#id_cnpj').mask("99.999.999/9999-99")
     $('#id_valor_a_vista').DinheiroMascara()
+    $('#id_cargo').select2({dropdownParent: $("#cadastro_responsavel_operacional .modal-content")})
+    mascara_telefone($('#id_fone'))
+    mascara_telefone($('#id_whats'))
 
     $('#form_ficha_financeira').submit(function () {
         let comissaoValue = $('#id_comissao').val()
@@ -35,7 +38,7 @@ function fechar_campos() {
     console.log('Foi')
     $('#form_ficha_financeira fieldset input, #form_ficha_financeira fieldset select, #form_ficha_financeira fieldset textarea').each((index, campo) => {
         if (campo.nodeName == 'INPUT' || campo.nodeName == 'TEXTAREA') {
-            $(campo).prop('readonly', campo.id != 'id_comissao')
+            $(campo).prop('readonly', true)
         } else {
             $(campo).addClass('inalteravel')
         }
@@ -181,6 +184,109 @@ function adcionar_comissionado() {
         </div>
     `)
 }
+
+function remover_responsaveis(ids_responsaveis) {
+    const responsaveis = $('#id_enviado_ac option, #id_responsavel_operacional option, #id_responsavel_financeiro option')
+
+    for (let opt of responsaveis) {
+        if (!ids_responsaveis.includes(parseInt(opt.value)) && opt.value != '') {
+            opt.remove()
+        }
+    }
+}
+
+function buscar_dados_financeiro() {
+    const id_responsavel = $('#id_responsavel_financeiro').val()
+
+    if (id_responsavel == '') {
+        $('#id_telefone_financeiro, #id_whats_financeiro, #id_email_financeiro').val('')
+    } else {
+        $.ajax({
+            type: 'GET',
+            url: '/ficha_financeira/buscar_dados_responsavel/',
+            data: {'id_responsavel': id_responsavel},
+            success: function (response) {
+                $('#id_telefone_financeiro').val(response['telefone'])
+                $('#id_whats_financeiro').val(response['whats'])
+                $('#id_email_financeiro').val(response['email'])
+            }
+        })
+    }
+}
+
+function salvar_novo_responsavel() {
+    let form = $('#form_novo_responsavel');
+
+    // Limpar mensagens anteriores
+    $('#alert-erro, #alert-aviso, #alert-sucesso').addClass('none').empty();
+
+    // Verificar se os campos required estão preenchidos
+    let valido = true;
+    form.find('[required]').each(function () {
+        if (!$(this).val()) {
+            valido = false;
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    if (!valido) {
+        $('#alert-aviso')
+            .removeClass('none')
+            .text('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Enviar via AJAX
+    $.ajax({
+        url: form.attr('action'),
+        method: form.attr('method'),
+        data: form.serialize(),
+        success: function (response) {
+            $('#form_novo_responsavel')[0].reset();
+
+            const id = response['id']
+            const nome = response['nome']
+            const telefone = response['telefone']
+            const whats = response['whats']
+            const email = response['email']
+            const nomeTelefone = `${nome} - ${telefone}`
+
+            // Adicionar aos selects
+            $('#id_enviado_ac').append(new Option(nomeTelefone, id));
+            $('#id_responsavel_operacional').append(new Option(nomeTelefone, id));
+            $('#id_responsavel_financeiro').append(new Option(nome, id));
+            $('#id_telefone_financeiro').val(telefone)
+            $('#id_whats_financeiro').val(whats)
+            $('#id_email_financeiro').val(email)
+            $('#cadastro_responsavel_operacional').modal('hide')
+        },
+        error: function (xhr, status, erro) {
+            if (xhr.status === 400) {
+                // Erros de validação
+                let erros = xhr.responseJSON.erros;
+                let mensagens = '<ul>';
+                for (let campo in erros) {
+                    mensagens += `<li><strong>${campo}:</strong> ${erros[campo].join(', ')}</li>`;
+                }
+                mensagens += '</ul>';
+                $('#alert-erro')
+                    .removeClass('none')
+                    .html(mensagens);
+            } else if (xhr.status === 500) {
+                $('#alert-erro')
+                    .removeClass('none')
+                    .text(xhr.responseJSON.erros);
+            } else {
+                $('#alert-erro')
+                    .removeClass('none')
+                    .text('Erro inesperado: ' + erro);
+            }
+        }
+    });
+}
+
 
 function excluir_comissionado(btn) {
     $(btn).parent().parent().remove()

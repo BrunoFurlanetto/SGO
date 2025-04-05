@@ -124,7 +124,6 @@
         {#                </div>#}
         {#            {% endfor %}#}
         {#        {% else %}#}
-        <script>console.log('Foi')</script>
         <div id="conteudo">
             <div id="abas" style="display: flex">
                 {% if financeiro %}
@@ -674,53 +673,62 @@
                         </thead>
                         <tbody>
                         {% for tratativa in tratativas %}
-                            {% if not tratativa.status_orcamento.aprovacao_cliente and not tratativa.status_orcamento.negado_cliente and not tratativa.status_orcamento.orcamento_vencido %}
-                                <tr style="vertical-align: middle; cursor: pointer">
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.cliente }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.apelido }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.data_ultima_edicao | date:'Y-m-d' }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.check_in|date:'Y-m-d' }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.check_out|date:'Y-m-d' }}</td>
-                                    <td>
-                                        <nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr>
-                                    </td>
-                                    <td>{{ tratativa.status_orcamento }}</td>
-                                    <td>
-                                        <div class="container_btns_acoes">
-                                            <div class="row_btns_acoes">
-                                                <button type="button" id="ganho" class="button_ganho" title="Dar ganho na tratativa"
-                                                onclick="ganhar_orcamento({{ tratativa.id | safe }})">
-                                                    <i class='bx bx-check'></i>
-                                                </button>
-                                                <button type="button" id="perdido" class="button_perdido" title="Dar perdido no orçamento"
-                                                        data-toggle="modal" data-target="#modal_orcamento_perdido"
-                                                        onclick="$('#id_orcamento_perdido').val({{ tratativa.id | safe }})">
-                                                    <i class='bx bx-x'></i>
-                                                </button>
+                            {% for orcamento in tratativa.orcamentos.all %}
+                                {% if not orcamento.status_orcamento.aprovacao_cliente and not orcamento.status_orcamento.negado_cliente and not orcamento.status_orcamento.orcamento_vencido %}
+                                    <tr style="vertical-align: middle; cursor: pointer">
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.cliente }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.apelido }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.data_ultima_edicao | date:'Y-m-d' }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_in|date:'Y-m-d' }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_out|date:'Y-m-d' }}</td>
+                                        <td>
+                                            <nobr>R$ {{ orcamento.valor|substituir_ponto }}</nobr>
+                                        </td>
+                                        <td>{{ orcamento.status_orcamento }}</td>
+                                        <td>
+                                            <div class="container_btns_acoes">
+                                                <div class="row_btns_acoes">
+                                                    <button type="button" id="ganho" class="button_ganho"
+                                                            title="Dar ganho na tratativa"
+                                                            onclick="ganhar_orcamento({{ orcamento.id | safe }})">
+                                                        <i class='bx bx-check'></i>
+                                                    </button>
+                                                    <button type="button" id="perdido" class="button_perdido"
+                                                            title="Dar perdido no orçamento"
+                                                            data-toggle="modal" data-target="#modal_orcamento_perdido"
+                                                            onclick="$('#id_orcamento_perdido').val({{ orcamento.id | safe }})">
+                                                        <i class='bx bx-x'></i>
+                                                    </button>
+                                                </div>
+                                                <div class="row_btns_acoes">
+                                                    <button type="button" class="button_pdf" style="font-size: 25px"
+                                                            onclick="abrir_chat_orcamento({{ orcamento.id | safe }})">
+                                                        <i class='bx bx-chat'></i>
+                                                    </button>
+                                                    <button type="button" title="Duplicar orcamento" class="button_pdf"
+                                                            style="font-size: 25px"
+                                                            data-toggle="modal" data-target="#modal_duplicar_orcamento"
+                                                            onclick="$('#modal_duplicar_orcamento #id_orcamento_clonado').val({{ orcamento.id | safe }})">
+                                                        <i class='bx bxs-duplicate'></i>
+                                                    </button>
+                                                    <button type="button" class="button_pdf"
+                                                            {% if previa.status_orcamento.negativa_gerencia or previa.status_orcamento.aprovacao_gerencia %}
+                                                            disabled
+                                                            {% endif %}
+                                                            onclick="window.location.href = '{% url 'pdf_orcamento' orcamento.id %}'">
+                                                        <i class='bx bxs-file-pdf'></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div class="row_btns_acoes">
-                                                <button type="button" class="button_pdf" style="font-size: 25px"
-                                                        onclick="abrir_chat_orcamento({{ tratativa.id | safe }})">
-                                                    <i class='bx bx-chat'></i>
-                                                </button>
-                                                <button type="button" title="Duplicar orcamento" class="button_pdf"
-                                                    style="font-size: 25px"
-                                                    data-toggle="modal" data-target="#modal_duplicar_orcamento"
-                                                    onclick="$('#modal_duplicar_orcamento #id_orcamento_clonado').val({{ tratativa.id | safe }})">
-                                                    <i class='bx bxs-duplicate'></i>
-                                                </button>
-                                                <button type="button" class="button_pdf"
-                                                    {% if previa.status_orcamento.negativa_gerencia or previa.status_orcamento.aprovacao_gerencia %}
-                                                    disabled
-                                                    {% endif %}
-                                                    onclick="window.location.href = '{% url 'pdf_orcamento' tratativa.id %}'">
-                                                <i class='bx bxs-file-pdf'></i>
-                                            </button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -742,28 +750,37 @@
                         </thead>
                         <tbody>
                         {% for tratativa in tratativas %}
-                            {% if tratativa.status_orcamento.negado_cliente or tratativa.status_orcamento.orcamento_vencido %}
-                                <tr style="vertical-align: middle; cursor: pointer">
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.cliente }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.apelido }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}"><nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr></td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.data_vencimento | date:'Y-m-d' }}</td>
-                                    <td class="clicavel" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.status_orcamento }}</td>
-                                    <td>
-                                        <button type="button" class="button_pdf" style="font-size: 25px"
-                                                onclick="abrir_chat_orcamento({{ tratativa.id | safe }})">
-                                            <i class='bx bx-chat'></i>
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button type="button" title="Duplicar orcamento" class="button_pdf"
-                                            style="font-size: 25px"
-                                            onclick="window.location.href='{% url 'clonar_orcamento' tratativa.id %}'">
-                                            <i class='bx bxs-duplicate'></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            {% endif %}
+                            {% for orcamento in tratativa.orcamentos.all %}
+                                {% if orcamentoatus_orcamento.negado_cliente or orcamentoatus_orcamento.orcamento_vencido %}
+                                    <tr style="vertical-align: middle; cursor: pointer">
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoiente }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoelido }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento | safe }}">
+                                            <nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr>
+                                        </td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentota_vencimento | date:'Y-m-d' }}</td>
+                                        <td class="clicavel" data-tratativa="true"
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoatus_orcamento }}</td>
+                                        <td>
+                                            <button type="button" class="button_pdf" style="font-size: 25px"
+                                                    onclick="abrir_chat_orcamento({{ orcamento | safe }})">
+                                                <i class='bx bx-chat'></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button type="button" title="Duplicar orcamento" class="button_pdf"
+                                                    style="font-size: 25px"
+                                                    onclick="window.location.href='{% url 'clonar_orcamento' orcamento %}'">
+                                                <i class='bx bxs-duplicate'></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -788,29 +805,40 @@
                         </thead>
                         <tbody>
                         {% for tratativa in tratativas %}
-                            {% if tratativa.status_orcamento.aprovacao_cliente %}
-                                <tr style="vertical-align: middle; cursor: pointer">
-                                    <td class="clicavel text-center" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.cliente }}</td>
-                                    <td class="clicavel text-center" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}">{{ tratativa.apelido }}</td>
-                                    <td class="clicavel text-center" data-tratativa="true" data-id_orcamento="{{ tratativa.id | safe }}"><nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr></td>
-                                    <td class="text-center">
-                                        <button type="button" class="button_pdf" style="font-size: 25px"
-                                                onclick="abrir_chat_orcamento({{ tratativa.id | safe }})">
-                                            <i class='bx bx-chat'></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" title="Duplicar orcamento" class="button_pdf"
-                                            style="font-size: 25px" onclick="window.location.href='{% url 'clonar_orcamento' tratativa.id %}'">
-                                            <i class='bx bxs-duplicate'></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <button class="border-0 fs-4" style="background: unset" onclick="window.location.href='{% url 'ficha_financeira' tratativa.id %}' ">
-                                            <i class='bx bx-money-withdraw'></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            {% if not tratativa.ficha_financeira %}
+                                {% for orcamento in tratativa.orcamentos.all %}
+                                    {% if orcamento.status_orcamento.aprovacao_cliente %}
+                                        <tr style="vertical-align: middle; cursor: pointer">
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.cliente }}</td>
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.apelido }}</td>
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">
+                                                <nobr>R$ {{ orcamento.valor|substituir_ponto }}</nobr>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="button_pdf" style="font-size: 25px"
+                                                        onclick="abrir_chat_orcamento({{ orcamento.id | safe }})">
+                                                    <i class='bx bx-chat'></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" title="Duplicar orcamento" class="button_pdf"
+                                                        style="font-size: 25px"
+                                                        onclick="window.location.href='{% url 'clonar_orcamento' orcamento.id %}'">
+                                                    <i class='bx bxs-duplicate'></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="border-0 fs-4" style="background: unset"
+                                                        onclick="window.location.href='{% url 'ficha_financeira' orcamento.id %}' ">
+                                                    <i class='bx bx-money-withdraw'></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
                             {% endif %}
                         {% endfor %}
                         </tbody>

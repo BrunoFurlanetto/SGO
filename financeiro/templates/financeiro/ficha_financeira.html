@@ -35,53 +35,50 @@
                 <hr>
                 <h5 class="titulo-secao">Dados do evento</h5>
                 <div class="dados_evento">
-                    <div id="div_{{ dados_evento.responsavel_operacional.id_for_label }}">
-                        <label for="{{ dados_evento.responsavel_operacional.id_for_label }}">{{ dados_evento.responsavel_operacional.label }}</label>
-                        {{ dados_evento.responsavel_operacional }}
-                    </div>
-                    <div id="div_{{ dados_evento.responsavel_financeiro.id_for_label }}">
-                        <label for="{{ dados_evento.responsavel_financeiro.id_for_label }}">{{ dados_evento.responsavel_financeiro.label }}</label>
-                        {{ dados_evento.responsavel_financeiro }}
-                    </div>
-                    <div id="div_{{ dados_evento.telefone_financeiro.id_for_label }}">
-                        <label for="{{ dados_evento.telefone_financeiro.id_for_label }}">{{ dados_evento.telefone_financeiro.label }}</label>
-                        {{ dados_evento.telefone_financeiro }}
-                    </div>
-                    <div id="div_{{ dados_evento.email_financeiro.id_for_label }}">
-                        <label for="{{ dados_evento.email_financeiro.id_for_label }}">{{ dados_evento.email_financeiro.label }}</label>
-                        {{ dados_evento.email_financeiro }}
+                    <div id="div_{{ dados_evento.responsavel_operacional.id_for_label }}"
+                         class="d-flex flex-row align-items-center" style="width: 80%">
+                        <div class="d-flex flex-column w-100">
+                            <label for="{{ dados_evento.responsavel_operacional.id_for_label }}">{{ dados_evento.responsavel_operacional.label }}</label>
+                            {{ dados_evento.responsavel_operacional }}
+                        </div>
+                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4" style="background: unset; align-self: self-end;"
+                                data-toggle="modal" data-target="#cadastro_responsavel_operacional">
+                            <i class='bx bx-plus'></i>
+                        </button>
                     </div>
                     <div id="div_{{ dados_evento.pgto_neto.id_for_label }}">
                         <label for="{{ dados_evento.pgto_neto.id_for_label }}">{{ dados_evento.pgto_neto.label }}</label>
                         {{ dados_evento.pgto_neto }}
                     </div>
-                    <div id="div_{{ dados_evento.coordenacao.id_for_label }}">
-                        <label for="{{ dados_evento.coordenacao.id_for_label }}">{{ dados_evento.coordenacao.label }}</label>
-                        {{ dados_evento.coordenacao }}
+                    <div id="div_{{ dados_evento.responsavel_financeiro.id_for_label }}" style="width: 66%"
+                         class="d-flex flex-row align-items-center">
+                        <div class="d-flex flex-column w-100">
+                            <label for="{{ dados_evento.responsavel_financeiro.id_for_label }}">{{ dados_evento.responsavel_financeiro.label }}</label>
+                            {{ dados_evento.responsavel_financeiro }}
+                        </div>
+                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4" style="background: unset; align-self: self-end;"
+                                data-toggle="modal" data-target="#cadastro_responsavel_operacional">
+                            <i class='bx bx-plus'></i>
+                        </button>
                     </div>
-                    <div id="div_{{ dados_evento.monitoria.id_for_label }}">
-                        <label for="{{ dados_evento.monitoria.id_for_label }}">{{ dados_evento.monitoria.label }}</label>
-                        {{ dados_evento.monitoria }}
+                    <div id="div_telefone_financeiro">
+                        <label for="id_telefone_financeiro">Telfone financeiro</label>
+                        <input type="text" id="id_telefone_financeiro" name="telefone_financeiro" readonly value="{{ telefone_financeiro }}">
                     </div>
-                    <div id="div_{{ dados_evento.onibus.id_for_label }}">
-                        <label for="{{ dados_evento.onibus.id_for_label }}">{{ dados_evento.onibus.label }}</label>
-                        {{ dados_evento.onibus }}
+                    <div id="div_whats_financeiro">
+                        <label for="id_whats_financeiro">Whats financeiro</label>
+                        <input type="text" id="id_whats_financeiro" name="whats_financeiro" readonly value="{{ whats_financeiro }}">
                     </div>
-                    <div id="div_{{ dados_evento.seguro.id_for_label }}">
-                        <label for="{{ dados_evento.seguro.id_for_label }}">{{ dados_evento.seguro.label }}</label>
-                        {{ dados_evento.seguro }}
+                    <div id="div_email_financeiro">
+                        <label for="id_email_financeiro">E-mail financeiro</label>
+                        <input type="email" id="id_email_financeiro" name="email_financeiro" readonly value="{{ email_financeiro }}">
                     </div>
+                    {{ dados_evento.coordenacao.as_hidden }}
+                    {{ dados_evento.monitoria.as_hidden }}
+                    {{ dados_evento.onibus.as_hidden }}
                     <div id="div_{{ dados_evento.qtd_reservada.id_for_label }}">
                         <label for="{{ dados_evento.qtd_reservada.id_for_label }}">{{ dados_evento.qtd_reservada.label }}</label>
                         {{ dados_evento.qtd_reservada }}
-                    </div>
-                    <div id="div_{{ dados_evento.alunos_confirmados.id_for_label }}">
-                        <label for="{{ dados_evento.alunos_confirmados.id_for_label }}">Confirmados</label>
-                        {{ dados_evento.alunos_confirmados }}
-                    </div>
-                    <div style="width: 15%" id="div_{{ dados_evento.professores_confirmados.id_for_label }}">
-                        <label for="{{ dados_evento.professores_confirmados.id_for_label }}">{{ dados_evento.professores_confirmados.label }}</label>
-                        {{ dados_evento.professores_confirmados }}
                     </div>
                     <div id="div_{{ dados_evento.cortesia_alunos.id_for_label }}">
                         <label for="{{ dados_evento.cortesia_alunos.id_for_label }}">{{ dados_evento.cortesia_alunos.label }}</label>
@@ -103,14 +100,10 @@
                         <label for="{{ dados_evento.colaborador.id_for_label }}">{{ dados_evento.colaborador.label }}</label>
                         {{ dados_evento.colaborador }}
                     </div>
-                    {% if revisando %}
-                        <div id="div_{{ dados_evento.comissao.id_for_label }}">
-                            <label for="{{ dados_evento.comissao.id_for_label }}">{{ dados_evento.comissao.label }}</label>
-                            {{ dados_evento.comissao }}
-                        </div>
-                    {% else %}
-                        {{ dados_evento.comissao.as_hidden }}
-                    {% endif %}
+                    <div id="div_{{ dados_evento.comissao.id_for_label }}">
+                        <label for="{{ dados_evento.comissao.id_for_label }}">Porcentagem</label>
+                        {{ dados_evento.comissao }}
+                    </div>
                     {% if orcamento.atividades.all|length > 0 %}
                         <hr style="width: 100%">
                         <h5 class="subtitulo-secao">Cortesias externas</h5>
@@ -143,7 +136,8 @@
                                                    name="cortesias_externas_atividade_{{ forloop.counter }}"
                                                    id="cortesia_professores_atividade_{{ forloop.counter }}"
                                                     {% if ficha %}
-                                                   value="{% carregar_cortesias_externas ficha.id atividade.id 'professores' %}">
+                                                   value="{% carregar_cortesias_externas ficha.id atividade.id 'professores' %}"
+                                                        >
                                                     {% endif %}
                                         </td>
                                     </tr>
@@ -313,28 +307,28 @@
                                            id="btn_adcionar_comissionado"
                                            onclick="adcionar_comissionado()">
                     <i class='bx bx-plus'></i>
-                    Adcionar comissionado
+                    Adcionar terceiro comissionado
                 </button>
-{#                {% if ficha and ficha.nf %}#}
-                    <hr>
-                    <h5 class="titulo-secao">Nota fiscal</h5>
+                {#                {% if ficha and ficha.nf %}#}
+                <hr>
+                <h5 class="titulo-secao">Nota fiscal</h5>
 
-                    {% if revisando %}
-                        {{ ficha_financeira.nf.as_hidden }}
-                    {% else %}
-                        {{ ficha_financeira.nf }}
-                        <label for="{{ ficha_financeira.nf.id_for_label }}">{{ ficha_financeira.nf.label }}</label>
-                    {% endif %}
+                {% if revisando %}
+                    {{ ficha_financeira.nf.as_hidden }}
+                {% else %}
+                    {{ ficha_financeira.nf }}
+                    <label for="{{ ficha_financeira.nf.id_for_label }}">{{ ficha_financeira.nf.label }}</label>
+                {% endif %}
 
-                    <div class="{% if not ficha_financeira.nf.value %} none {% endif %} nota_fiscal">
-                        {% for campo in nota_fiscal %}
-                            <div id="div_{{ campo.id_for_label }}">
-                                <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-                                {{ campo }}
-                            </div>
-                        {% endfor %}
-                    </div>
-{#                {% endif %}#}
+                <div class="{% if not ficha_financeira.nf.value %} none {% endif %} nota_fiscal">
+                    {% for campo in nota_fiscal %}
+                        <div id="div_{{ campo.id_for_label }}">
+                            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                            {{ campo }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {#                {% endif %}#}
 
                 <hr>
                 <h5 class="titulo-secao">Observações</h5>
@@ -463,68 +457,68 @@
                                 {% endfor %}
                             </tr>
                         {% endfor %}
-{#                        <tr class="secao_tabela secao_opcionais"#}
-{#                            onclick="$('.descritivo_opcionais.peraltas').toggleClass('none')">#}
-{#                            <td>Atividades peraltas</td>#}
-{#                            <td>{{ orcamento.valores_peraltas.valor_neto }}</td>#}
-{#                            <td>{{ orcamento.valores_peraltas.taxas }}</td>#}
-{#                            <td>{{ orcamento.valores_peraltas.cov }}</td>#}
-{#                            <td>{{ orcamento.valores_peraltas.desconto }}</td>#}
-{#                            <td>{{ orcamento.valores_peraltas.valor_final }}</td>#}
-{#                            {% for valor in orcamento.valores_peraltas.dia_dia %}#}
-{#                                <td class="datas">{{ valor }}</td>#}
-{#                            {% endfor %}#}
-{#                        </tr>#}
-{#                        {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}#}
-{#                            <tr class="descritivo_opcionais peraltas none">#}
-{#                                <td>{{ atividade.atividade }}</td>#}
-{#                                <td>{{ atividade.valor_neto }}</td>#}
-{#                                <td>{{ atividade.taxas }}</td>#}
-{#                                <td>{{ atividade.cov }}</td>#}
-{#                                <td>{{ atividade.desconto }}</td>#}
-{#                                <td>{{ atividade.valor_final }}</td>#}
-{#                                {% for valor in atividade.dia_dia %}#}
-{#                                    <td class="datas">{{ valor }}</td>#}
-{#                                {% endfor %}#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        <tr class="secao_tabela secao_opcionais"#}
-{#                            onclick="$('.descritivo_opcionais.opcionais').toggleClass('none')">#}
-{#                            <td>Opcionais</td>#}
-{#                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>#}
-{#                            <td>{{ orcamento.valores_opcionais.taxas }}</td>#}
-{#                            <td>{{ orcamento.valores_opcionais.cov }}</td>#}
-{#                            <td>{{ orcamento.valores_opcionais.desconto }}</td>#}
-{#                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>#}
-{#                            {% for valor in orcamento.valores_opcionais.dia_dia %}#}
-{#                                <td class="datas">{{ valor }}</td>#}
-{#                            {% endfor %}#}
-{#                        </tr>#}
-{#                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}#}
-{#                            <tr class="descritivo_opcionais opcionais none">#}
-{#                                <td>{{ atividade.atividade }}</td>#}
-{#                                <td>{{ atividade.valor_neto }}</td>#}
-{#                                <td>{{ atividade.taxas }}</td>#}
-{#                                <td>{{ atividade.cov }}</td>#}
-{#                                <td>{{ atividade.desconto }}</td>#}
-{#                                <td>{{ atividade.valor_final }}</td>#}
-{#                                {% for valor in atividade.dia_dia %}#}
-{#                                    <td class="datas">{{ valor }}</td>#}
-{#                                {% endfor %}#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        <tr class="secao_tabela secao_opcionais"#}
-{#                            onclick="$('.descritivo_opcionais.outros').toggleClass('none')">#}
-{#                            <td>Outros</td>#}
-{#                            <td>{{ orcamento.valores_outros.valor_neto }}</td>#}
-{#                            <td>{{ orcamento.valores_outros.taxas }}</td>#}
-{#                            <td>{{ orcamento.valores_outros.cov }}</td>#}
-{#                            <td>{{ orcamento.valores_outros.desconto }}</td>#}
-{#                            <td>{{ orcamento.valores_outros.valor_final }}</td>#}
-{#                            {% for valor in orcamento.valores_outros.dia_dia %}#}
-{#                                <td class="datas">{{ valor }}</td>#}
-{#                            {% endfor %}#}
-{#                        </tr>#}
+                        {#                        <tr class="secao_tabela secao_opcionais"#}
+                        {#                            onclick="$('.descritivo_opcionais.peraltas').toggleClass('none')">#}
+                        {#                            <td>Atividades peraltas</td>#}
+                        {#                            <td>{{ orcamento.valores_peraltas.valor_neto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_peraltas.taxas }}</td>#}
+                        {#                            <td>{{ orcamento.valores_peraltas.cov }}</td>#}
+                        {#                            <td>{{ orcamento.valores_peraltas.desconto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_peraltas.valor_final }}</td>#}
+                        {#                            {% for valor in orcamento.valores_peraltas.dia_dia %}#}
+                        {#                                <td class="datas">{{ valor }}</td>#}
+                        {#                            {% endfor %}#}
+                        {#                        </tr>#}
+                        {#                        {% for atividade in orcamento.valores_peraltas.descritivo_atividades %}#}
+                        {#                            <tr class="descritivo_opcionais peraltas none">#}
+                        {#                                <td>{{ atividade.atividade }}</td>#}
+                        {#                                <td>{{ atividade.valor_neto }}</td>#}
+                        {#                                <td>{{ atividade.taxas }}</td>#}
+                        {#                                <td>{{ atividade.cov }}</td>#}
+                        {#                                <td>{{ atividade.desconto }}</td>#}
+                        {#                                <td>{{ atividade.valor_final }}</td>#}
+                        {#                                {% for valor in atividade.dia_dia %}#}
+                        {#                                    <td class="datas">{{ valor }}</td>#}
+                        {#                                {% endfor %}#}
+                        {#                            </tr>#}
+                        {#                        {% endfor %}#}
+                        {#                        <tr class="secao_tabela secao_opcionais"#}
+                        {#                            onclick="$('.descritivo_opcionais.opcionais').toggleClass('none')">#}
+                        {#                            <td>Opcionais</td>#}
+                        {#                            <td>{{ orcamento.valores_opcionais.valor_neto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_opcionais.taxas }}</td>#}
+                        {#                            <td>{{ orcamento.valores_opcionais.cov }}</td>#}
+                        {#                            <td>{{ orcamento.valores_opcionais.desconto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_opcionais.valor_final }}</td>#}
+                        {#                            {% for valor in orcamento.valores_opcionais.dia_dia %}#}
+                        {#                                <td class="datas">{{ valor }}</td>#}
+                        {#                            {% endfor %}#}
+                        {#                        </tr>#}
+                        {#                        {% for atividade in orcamento.valores_opcionais.descritivo_atividades %}#}
+                        {#                            <tr class="descritivo_opcionais opcionais none">#}
+                        {#                                <td>{{ atividade.atividade }}</td>#}
+                        {#                                <td>{{ atividade.valor_neto }}</td>#}
+                        {#                                <td>{{ atividade.taxas }}</td>#}
+                        {#                                <td>{{ atividade.cov }}</td>#}
+                        {#                                <td>{{ atividade.desconto }}</td>#}
+                        {#                                <td>{{ atividade.valor_final }}</td>#}
+                        {#                                {% for valor in atividade.dia_dia %}#}
+                        {#                                    <td class="datas">{{ valor }}</td>#}
+                        {#                                {% endfor %}#}
+                        {#                            </tr>#}
+                        {#                        {% endfor %}#}
+                        {#                        <tr class="secao_tabela secao_opcionais"#}
+                        {#                            onclick="$('.descritivo_opcionais.outros').toggleClass('none')">#}
+                        {#                            <td>Outros</td>#}
+                        {#                            <td>{{ orcamento.valores_outros.valor_neto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_outros.taxas }}</td>#}
+                        {#                            <td>{{ orcamento.valores_outros.cov }}</td>#}
+                        {#                            <td>{{ orcamento.valores_outros.desconto }}</td>#}
+                        {#                            <td>{{ orcamento.valores_outros.valor_final }}</td>#}
+                        {#                            {% for valor in orcamento.valores_outros.dia_dia %}#}
+                        {#                                <td class="datas">{{ valor }}</td>#}
+                        {#                            {% endfor %}#}
+                        {#                        </tr>#}
                         {% for atividade in orcamento.valores_outros.descritivo_atividades %}
                             <tr class="descritivo_opcionais outros none">
                                 <td>{{ atividade.atividade }}</td>
@@ -663,6 +657,62 @@
                 </div>
             </div>
         </div>
+    {% else %}
+        <form id="form_novo_responsavel" action="{% url 'salvar_novo_responsavel' %}" method="POST">
+            <fieldset>
+                {% csrf_token %}
+                <div class="modal fade" id="cadastro_responsavel_operacional" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">
+                                    Cadastro de novo responsável para {{ orcamento.cliente }}
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="alert-erro" class="alert alert-danger none"></div>
+                                <div id="alert-aviso" class="alert alert-warning none"></div>
+                                <input type="hidden" name="id_cliente" value="{{ orcamento.cliente.id }}">
+                                <div class="row mb-3">
+                                    <div style="width: 60%" class="mb-2">
+                                        <label>Nome Completo</label>
+                                        {{ cadastro_responsavel.nome }}
+                                    </div>
+                                    <div style="width: 40%" class="mb-2">
+                                        <label>Telefone</label>
+                                        {{ cadastro_responsavel.fone }}
+                                    </div>
+                                    <div style="width: 60%" class="mb-2">
+                                        <label>Email</label>
+                                        {{ cadastro_responsavel.email_responsavel_evento }}
+                                    </div>
+                                    <div style="width: 40%">
+                                        <label>WhatsApp</label>
+                                        {{ cadastro_responsavel.whats }}
+                                    </div>
+                                    <div style="margin-top: 5px">
+                                        <label>Cargo</label>
+                                        {{ cadastro_responsavel.cargo }}
+                                        <style>
+                                            .select2 {
+                                                width: 100% !important;
+                                            }
+                                        </style>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="salvar_novo_responsavel()">Savar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
     {% endif %}
 
     <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
@@ -671,7 +721,10 @@
     <script src="{% static 'js/Moment_timezone.js' %}"></script>
     <script src="{% static 'js/scripts_ficha_financeira.js' %}"></script>
 
-    {% if revisando %}
-        <script>fechar_campos()</script>
-    {% endif %}
+    <script>
+        {% if revisando %}
+            fechar_campos()
+        {% endif %}
+        remover_responsaveis({{ ids_responsaveis | safe }})
+    </script>
 {% endblock %}

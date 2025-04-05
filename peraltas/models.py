@@ -236,7 +236,8 @@ class ListaDeCargos(models.Model):
 class Responsavel(models.Model):
     nome = models.CharField(max_length=255)
     cargo = models.ManyToManyField(ListaDeCargos)
-    fone = models.CharField(max_length=16)
+    fone = models.CharField(max_length=16, blank=True, null=True)
+    whats = models.CharField(max_length=16, blank=True, null=True)
     email_responsavel_evento = models.EmailField()
     responsavel_cadastro = models.ForeignKey(
         User,

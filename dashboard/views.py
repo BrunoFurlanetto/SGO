@@ -197,7 +197,7 @@ def dashboardPeraltas(request):
         check_in__date__gte=datetime.today(),
     )
     orcamentos_colaborador = Orcamento.objects.filter(colaborador=request.user)
-    print('-------->', orcamentos_colaborador.filter(previa=False))
+
     avisos = fichas_colaborador.filter(
         pre_reserva=True,
         check_in__date__gte=datetime.today().date(),
@@ -274,7 +274,7 @@ def dashboardPeraltas(request):
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
-    print(financeiro)
+
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
@@ -291,7 +291,7 @@ def dashboardPeraltas(request):
         'comercial': User.objects.filter(pk=request.user.id, groups__name__icontains='comercial').exists(),
         'monitor': monitor,
         'financeiro': financeiro in grupos_usuario,
-        'tratativas': orcamentos_colaborador.filter(previa=False) if financeiro not in grupos_usuario else [],
+        'tratativas': Tratativas.objects.filter(orcamentos__in=orcamentos_colaborador).distinct() if financeiro not in grupos_usuario else [],
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
         'fichas_financeira_negadas': fichas_financeira_negadas,

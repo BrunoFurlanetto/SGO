@@ -15,5 +15,6 @@ urlpatterns = [
     path('ficha_de_evento/<int:id_pre_reserva>', views.fichaDeEvento, name='ficha_de_evento'),
     path('ficha_de_evento/visualizar/<int:id_ficha_de_evento>', views.fichaDeEvento, name='ver_ficha_de_evento'),
     path('lista_cliente/', views.listaCliente, name='lista_cliente'),
+    path('salvar_novo_responsavel/', views.salvar_novo_responsavel, name='salvar_novo_responsavel'),
     path('lista_responsaveis/', views.listaResponsaveis, name='lista_responsaveis'),
 ]

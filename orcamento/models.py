@@ -1187,7 +1187,6 @@ class Orcamento(models.Model):
 
     def dados_iniciais(self):
         return {
-            'responsavel_operacional': str(self.responsavel.id),
             'colaborador': self.colaborador.id,
             'monitoria': 0 if 'sem monitoria' in self.tipo_monitoria.nome_monitoria else 1,
             'onibus': 0 if self.transporte == 'não' else 1,

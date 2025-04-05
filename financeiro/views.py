@@ -1,11 +1,15 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
     CadastroPlanosPagamento, CadastroNotaFiscal, DadosPagamento, FichaFinanceira, DadosEvento, PlanosPagamento
 from orcamento.models import Orcamento, Tratativas
+from peraltas.models import RelacaoClienteResponsavel, Responsavel, CadastroResponsavel
 
 
 @login_required(login_url='login')
@@ -15,6 +19,9 @@ def ficha_financeira(request, id_orcamento):
     cadastro_dados_evento = CadastroDadosEvento(initial=orcamento.dados_iniciais())
     cadastro_planos_pagamento = CadastroPlanosPagamento(initial=orcamento.dados_iniciais())
     cadastro_nota_fiscal = CadastroNotaFiscal(initial=orcamento.dados_iniciais())
+    cadastro_responsavel = CadastroResponsavel()
+    relacoes = RelacaoClienteResponsavel.objects.filter(cliente=orcamento.cliente)
+    responaveis = Responsavel.objects.filter(id__in=relacoes.values_list("responsavel", flat=True)).distinct()
 
     return render(request, 'financeiro/ficha_financeira.html', {
         'orcamento': orcamento,
@@ -22,6 +29,8 @@ def ficha_financeira(request, id_orcamento):
         'dados_evento': cadastro_dados_evento,
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
+        'cadastro_responsavel': cadastro_responsavel,
+        'ids_responsaveis': list(responaveis.values_list('id', flat=True)),
     })
 
 
@@ -75,21 +84,22 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
             planos_pagamento.comissoes_externas = PlanosPagamento.preencher_dados_comissionados(request.POST)
             planos_pagamento.save()
             dados_pagamento = DadosPagamento.auto_preenchimento(orcamento)
+            responsavel = Responsavel.objects.get(pk=request.POST.get('enviado_ac'))
 
             if not id_ficha_financeira:
                 FichaFinanceira.objects.create(
                     orcamento=orcamento,
                     cliente=orcamento.cliente,
-                    enviado_ac=request.POST.get('enviado_ac'),
+                    enviado_ac=responsavel,
                     dados_evento=dados_evento,
                     dados_pagamento=dados_pagamento,
                     planos_pagamento=planos_pagamento,
                     nf=request.POST.get('nf', False) == 'on',
                     dados_nota_fiscal=dados_nota,
                     valor_final=planos_pagamento.valor_a_vista,
-                    observacoes_orcamento=request.POST.get('observacoes_orcamento'),
                     observacoes_ficha_financeira=request.POST.get('observacoes_ficha_financeira'),
-                    descritivo_ficha_financeira=orcamento.objeto_orcamento
+                    descritivo_ficha_financeira=orcamento.objeto_orcamento,
+                    data_preenchimento_comercial=datetime.datetime.now()
                 )
             else:
                 ficha.enviado_ac = request.POST.get('enviado_ac')
@@ -128,6 +138,7 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
     cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
     cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
     cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
+    responsavel_financeiro = ficha.dados_evento.responsavel_financeiro
 
     return render(request, 'financeiro/ficha_financeira.html', {
         'ficha': ficha,
@@ -138,7 +149,10 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
         'nota_fiscal': cadastro_nota_fiscal,
         'revisando': True,
         'faturando': User.objects.filter(pk=request.user.id, groups__name__in=['Financeiro']).exists(),
-        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha()
+        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha(),
+        'telefone_financeiro': responsavel_financeiro.fone,
+        'whats_financeiro': responsavel_financeiro.whats or '',
+        'email_financeiro': responsavel_financeiro.email_responsavel_evento,
     })
 
 
@@ -147,16 +161,9 @@ def aprovar_ficha_financeira(request, id_ficha_financeira):
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
 
     try:
-        ficha.dados_evento.comissao = request.POST.get('comissao_colaborador')
-        ficha.dados_evento.save()
-    except Exception as e:
-        messages.error(request, f'Erro inesperado ao setar a comissão do colaborador ({e}). Tente novamente mais tarde!')
-
-        return redirect('dashboard')
-
-    try:
         ficha.autorizado_diretoria = True
         ficha.comentario_diretoria = request.POST.get('comentario_diretoria')
+        ficha.data_aprovacao_diretoria = datetime.datetime.now()
         ficha.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
@@ -207,6 +214,7 @@ def faturar_ficha_financeira(request, id_ficha_financeira):
     try:
         ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
         ficha.faturado = True
+        ficha.data_faturamento = datetime.datetime.now()
         ficha.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}), por favor tente novamente mais tarde!')
@@ -214,3 +222,14 @@ def faturar_ficha_financeira(request, id_ficha_financeira):
     else:
         messages.success(request, 'Ficha financeira faturada com sucesso!')
         return redirect('dashboard')
+
+
+def buscar_dados_responsavel(request):
+    responsavel = Responsavel.objects.get(pk=request.GET.get('id_responsavel'))
+
+    return JsonResponse({
+        'telefone': responsavel.fone,
+        'email': responsavel.email_responsavel_evento,
+        'whats': responsavel.whats,
+    })
+

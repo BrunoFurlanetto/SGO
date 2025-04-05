@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from orcamento.models import Orcamento
-from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos
+from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos, RelacaoClienteResponsavel
 
 
 class DadosEvento(models.Model):
@@ -16,27 +16,25 @@ class DadosEvento(models.Model):
 
     responsavel_operacional = models.ForeignKey(
         Responsavel,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.PROTECT,
         verbose_name='Responsável operacional',
-        blank=True,
-        null=True
+        related_name='responsavel_operacional'
     )
-    responsavel_financeiro = models.CharField(max_length=250, verbose_name='Responsável financeiro', blank=True,
-                                              null=True)
-    telefone_financeiro = models.CharField(max_length=250, verbose_name='Telefone financeiro')
-    email_financeiro = models.CharField(max_length=250, verbose_name='E-mail financeiro', blank=True, null=True)
+    responsavel_financeiro = models.ForeignKey(
+        Responsavel,
+        verbose_name='Responsável financeiro',
+        related_name='responsavel_financeiro',
+        on_delete=models.PROTECT,
+    )
     pgto_neto = models.IntegerField(choices=sim_e_nao, verbose_name='Pgto neto')
     coordenacao = models.IntegerField(choices=sim_e_nao, default=1, verbose_name='Coordenação')
     monitoria = models.IntegerField(choices=sim_e_nao, verbose_name='Monitoria')
     onibus = models.IntegerField(choices=sim_e_nao, verbose_name='Ônibus')
-    seguro = models.IntegerField(choices=sim_e_nao, verbose_name='Seguro')
     colaborador = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Colaborador')
     comissao = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Comissão', default=0.00, blank=True, null=True)
     check_in = models.DateTimeField(verbose_name='Check in')
     check_out = models.DateTimeField(verbose_name='Check out')
     qtd_reservada = models.PositiveIntegerField(verbose_name='Qtd reservada')
-    alunos_confirmados = models.PositiveIntegerField(verbose_name='Alunos confirmados', default=0)
-    professores_confirmados = models.PositiveIntegerField(verbose_name='Professores confirmados', default=0)
     cortesia_alunos = models.PositiveIntegerField(verbose_name='Cortesia de alunos', default=0)
     cortesia_responsaveis = models.PositiveIntegerField(verbose_name='Cortesia de professores', default=0)
     cortesias_externas = models.JSONField(blank=True, null=True, verbose_name='Cortesias externas', editable=False)
@@ -138,7 +136,7 @@ class NotaFiscal(models.Model):
 class FichaFinanceira(models.Model):
     orcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE, verbose_name='Orçamento', null=False)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente', null=False)
-    enviado_ac = models.CharField(max_length=255, verbose_name='Enviado a/c', blank=True, null=True)
+    enviado_ac = models.ForeignKey(Responsavel, verbose_name='Enviado a/c', on_delete=models.SET_NULL, null=True, blank=True)
     dados_evento = models.ForeignKey(DadosEvento, on_delete=models.CASCADE, verbose_name='Dados do evento')
     dados_pagamento = models.ForeignKey(DadosPagamento, on_delete=models.CASCADE, verbose_name='Dados do pagamento')
     planos_pagamento = models.ForeignKey(
@@ -160,11 +158,13 @@ class FichaFinanceira(models.Model):
     negado = models.BooleanField(default=False, verbose_name='Negado')
     comentario_diretoria = models.TextField(verbose_name='Comentário para o financeiro', blank=True, null=True)
     valor_final = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Valor final')
-    observacoes_orcamento = models.TextField(verbose_name='Observações orcamento', blank=True)
     observacoes_ficha_financeira = models.TextField(verbose_name='Observações ficha financeira', blank=True)
     descritivo_ficha_financeira = models.JSONField(editable=False)
     autorizado_diretoria = models.BooleanField(default=False, verbose_name='Autorizado pela diretoria')
     faturado = models.BooleanField(default=False, verbose_name='Faturado')
+    data_preenchimento_comercial = models.DateTimeField(verbose_name='Data de Preenchimento pelo comercial')
+    data_aprovacao_diretoria = models.DateTimeField(verbose_name='Data de aprovacao pela diretoria', blank=True, null=True)
+    data_faturamento = models.DateTimeField(verbose_name='Data de Preenchimento de faturamento', blank=True, null=True)
 
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'
@@ -177,7 +177,7 @@ class CadastroDadosEvento(forms.ModelForm):
         fields = '__all__'
 
         widgets = {
-            'responsavel_operacional': forms.Select(attrs={'class': 'inalteravel'}),
+            'responsavel_financeiro': forms.Select(attrs={'onchange': 'buscar_dados_financeiro()'}),
             'telefone_financeiro': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
             'monitoria': forms.Select(attrs={'class': 'inalteravel'}),
             'onibus': forms.Select(attrs={'class': 'inalteravel'}),
@@ -246,3 +246,20 @@ class CadastroFichaFinanceira(forms.ModelForm):
             'observacoes_ficha_financeira': forms.Textarea(attrs={'rows': '6'}),
             'observacoes_orcamento': forms.Textarea(attrs={'rows': '6', 'readonly': True}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        responsaveis = Responsavel.objects.all()
+        select_responsavel = [('', '')]
+
+        for responsavel in responsaveis:
+            select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
+
+        self.fields['enviado_ac'].choices = select_responsavel
+
+        if self.instance.pk:  # Quando um objeto existente está sendo editado
+            # Remover opções inválidas do campo "enviado_ac"
+            self.fields['enviado_ac'].queryset = Responsavel.objects.none()
+            relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=self.instance.cliente.id)
+            responsaveis = Responsavel.objects.filter(id__in=relacoes.values_list("responsavel", flat=True)).distinct()
+            self.fields['enviado_ac'].queryset = responsaveis

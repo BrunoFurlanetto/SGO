@@ -7,6 +7,7 @@ import django.db.utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
@@ -900,3 +901,33 @@ def listaResponsaveis(request):
     else:
         messages.warning(request, form.errors)
         return redirect('lista_responsaveis')
+
+
+def salvar_novo_responsavel(request):
+    try:
+        with transaction.atomic():
+            novo_responsavel = CadastroResponsavel(request.POST)
+
+            if not novo_responsavel.is_valid():
+                return JsonResponse({'erros': novo_responsavel.errors}, status=400)
+
+            responsavel_salvo = novo_responsavel.save()
+
+            cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente'))
+            relacao = RelacaoClienteResponsavel.objects.get(cliente=cliente)
+            relacao.responsavel.add(responsavel_salvo)
+            relacao.save()
+
+            return JsonResponse({
+                'sucesso': 'Responsável cadastrado com sucesso!',
+                'id': responsavel_salvo.id,
+                'nome': str(responsavel_salvo.nome),
+                'telefone': str(responsavel_salvo.fone),
+                'whats': str(responsavel_salvo.whats),
+                'email': str(responsavel_salvo.email_responsavel_evento),
+            }, status=201)
+
+
+    except Exception as e:
+        return JsonResponse({'erros': f'Erro ao salvar dados: {e}'}, status=500)
+

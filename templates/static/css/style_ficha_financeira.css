@@ -9,7 +9,7 @@
     flex-direction: column;
 }
 
-#conteudo_ficha_financeira input:not(input[type=checkbox]) {
+#conteudo_ficha_financeira input:not(input[type=checkbox]), #cadastro_responsavel_operacional input {
     padding: 2px 8px 2px 8px;
     border: solid 1px #b5b4b4;
     background: #fff;
@@ -17,7 +17,7 @@
     width: 100%;
 }
 
-#conteudo_ficha_financeira select {
+#conteudo_ficha_financeira select, #cadastro_responsavel_operacional select {
     padding: 2px 8px 2px 8px;
     border: solid 1px #b5b4b4;
     background: #fff;
@@ -34,6 +34,7 @@
 
 #conteudo_ficha_financeira .titulo {
     display: flex;
+    justify-content: flex-end;
     justify-content: flex-end;
     height: 40px;
     align-items: end;
@@ -77,25 +78,17 @@
     flex-direction: column;
 }
 
-#div_id_responsavel_operacional {
-    width: 70%;
-}
-
 #div_id_colaborador {
     width: 48%;
 }
 
-#div_id_responsavel_financeiro {
-    width: 27%;
-}
-
 #div_id_comissao {
-    width: 12%;
+    width: 16%;
 }
 
 #div_id_qtd_reservada, #div_id_alunos_confirmados, #div_id_responsaveis_confirmados, #div_id_cortesia_alunos,
 #div_id_cortesia_responsaveis {
-    width: 18%;
+    width: 16%;
 }
 
 #div_id_responsaveis_outros_locais, #div_id_alunos_outros_locais {
