@@ -4,6 +4,7 @@ let valores_taxas_padrao = {}
 let op_extras = []
 let mostrar_instrucao = true
 let enviar, promocional, editando_pacote = false
+let data_viagem_anterior
 const relacao_id_categoria = {
     'id_outros_opcionais': 'outros',
     'id_opcionais_eco': 'eco',
@@ -947,15 +948,6 @@ async function separar_produtos(periodo) {
     let check_out = $(periodo).val().split(' - ')[1]
     let data_check_in = moment(check_in, 'DD/MM/YYYY HH:mm')
     let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
-    $('#id_tipo_de_pacote, #id_tipo_de_pacote, #id_tipo_monitoria').val('')
-    $('#id_produto, #id_orcamento_promocional').val('')
-    $('#id_transporte input').prop('checked', false)
-    $('#container_opcionais, #finalizacao, #container_monitoria_transporte').addClass('none')
-    $('#opcionais select').each(function() {
-        // Resetar o valor do select
-        $(this).val(null).trigger('change');
-    });
-    $('#tabela_de_opcionais tbody').empty()
 
     await new Promise(function (resolve, reject) {
         $.ajax({
@@ -1004,22 +996,21 @@ async function separar_produtos(periodo) {
         verficar_validade_opcionais(check_in)
     })
 
-    // if (resultado_ultima_consulta['data'] != undefined) {
-    //     let check_in = $('#data_viagem').val().split(' - ')[0]
-    //     let check_out = $('#data_viagem').val().split(' - ')[1]
-    //     let data_check_in = moment(check_in, 'DD/MM/YYYY HH:mm')
-    //     let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
-    //
-    //     if (moment(data_check_out).startOf('day').diff(moment(data_check_in).startOf('day'), 'days') + 1 != parseInt(resultado_ultima_consulta['data']['n_dias'])) {
-    //         if (!$('#so_ceu').prop('checked')) {
-    //             $('#id_produto').val('')
-    //         }
-    //         $('#id_tipo_de_pacote').val('')
-    //         $('#container_periodo .parcial').removeClass('visivel')
-    //         $('.div-flutuante').removeClass('visivel')
-    //         await verificar_preenchimento()
-    //     }
-    // }
+    if (data_viagem_anterior != undefined) {
+        if ($('#data_viagem').val() != data_viagem_anterior) {
+            $('#id_tipo_de_pacote, #id_tipo_de_pacote, #id_tipo_monitoria').val('')
+            $('#id_produto, #id_orcamento_promocional').val('')
+            $('#id_transporte input').prop('checked', false)
+            $('#container_opcionais, #finalizacao, #container_monitoria_transporte').addClass('none')
+            $('#opcionais select').each(function() {
+                // Resetar o valor do select
+                $(this).val(null).trigger('change');
+            });
+            $('#tabela_de_opcionais tbody').empty()
+        }
+    } else {
+        data_viagem_anterior = $('#data_viagem').val()
+    }
 }
 
 async function alterar_valores_das_taxas(dados_taxas) {
