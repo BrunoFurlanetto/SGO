@@ -6,11 +6,9 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}" id="style">
     <div id="conteudo_ficha_financeira">
-        {% if ficha and ficha.negado or ficha and ficha.comentario_diretoria %}
+        {% if ficha and not ficha.negado and ficha.data_preenchimento_comercial  %}
             <div id="mostrar_motivo_recusa" draggable="true" ondblclick="iniciarArraste()">
-                <button data-toggle="modal" {% if ficha.negado %} data-target="#modal_motivo_recusa" {% else %}
-                        data-target="#modal_comentario_diretoria" {% endif %}><i id="icone_arrastavel"
-                                                                                 class='bx bxs-comment'></i></button>
+                <button data-toggle="modal" data-target="#chatModal"><i id="icone_arrastavel" class='bx bxs-comment'></i></button>
             </div>
         {% endif %}
         <div class="titulo">
@@ -337,10 +335,16 @@
                         <label for="{{ ficha_financeira.observacoes_ficha_financeira.id_for_label }}">{{ ficha_financeira.observacoes_ficha_financeira.label }}</label>
                         {{ ficha_financeira.observacoes_ficha_financeira }}
                     </div>
-                    <div>
-                        <label for="{{ ficha_financeira.observacoes_orcamento.id_for_label }}">{{ ficha_financeira.observacoes_orcamento.label }}</label>
-                        {{ ficha_financeira.observacoes_orcamento }}
-                    </div>
+                    {% if ficha.data_aprovacao_diretoria %}
+                        <div>
+                            {% if ficha.negado %}
+                                <label>Motivo da recusa</label>
+                            {% else %}
+                                <label>Comentário da diretoria</label>
+                            {% endif %}
+                            <textarea cols="30" rows="5">{{ ficha.comentario_diretoria }}</textarea>
+                        </div>
+                    {% endif %}
                 </div>
                 {% if not revisando %}
                     <div class="botoes">
@@ -552,28 +556,8 @@
         </div>
     </div>
 
-    {% if ficha and ficha.comentario_diretoria %}
-        <div class="modal fade bd-example-modal-lg" id="modal_comentario_diretoria" tabindex="-1" role="dialog"
-             aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Comentario da diretoria</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div>
-                            <p style="text-align: justify">
-                                {{ ficha.comentario_diretoria }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="modal-footer"></div>
-                </div>
-            </div>
-        </div>
+    {% if ficha and ficha.data_aprovacao_diretoria %}
+        {% include 'parciais/_chat_orcamento.html' %}
     {% endif %}
 
     {% if ficha and ficha.negado %}

@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 
 from financeiro.models import CadastroFichaFinanceira, CadastroDadosEvento, \
     CadastroPlanosPagamento, CadastroNotaFiscal, DadosPagamento, FichaFinanceira, DadosEvento, PlanosPagamento
+from mensagens.models import Mensagem
 from orcamento.models import Orcamento, Tratativas
 from peraltas.models import RelacaoClienteResponsavel, Responsavel, CadastroResponsavel
 
@@ -134,6 +135,7 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
 
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
     orcamento = Orcamento.objects.get(pk=ficha.orcamento.id)
+    mensagens = Mensagem.objects.filter(object_id=orcamento.id)
     cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha)
     cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
     cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
@@ -153,6 +155,7 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
         'telefone_financeiro': responsavel_financeiro.fone,
         'whats_financeiro': responsavel_financeiro.whats or '',
         'email_financeiro': responsavel_financeiro.email_responsavel_evento,
+        'mensagens': mensagens,
     })
 
 
@@ -205,7 +208,7 @@ def editar_ficha_financeira(request, id_ficha_financeira):
         'dados_evento': cadastro_dados_evento,
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
-        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha()
+        'pagamento_eficha': ficha.planos_pagamento.verficar_eficha(),
     })
 
 

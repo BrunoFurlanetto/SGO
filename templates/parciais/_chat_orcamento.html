@@ -8,7 +8,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="chatModalLabel">
-                    Chat com <span id="destinatario"></span> sobre o orçamento de <span id="cliente"></span>
+                    {% if request.resolver_match.view_name == 'revisar_ficha_financeira' %}
+                    	Chat de <strong>{{ mensagens.0.content_object.colaborador.get_full_name }}</strong> com <strong>{{ mensagens.0.content_object.gerente_responsavel.get_full_name }}</strong> sobre o orçamento de <strong>{{ mensagens.0.content_object.cliente }}</strong>
+                    {% else %}
+                        Chat com <span id="destinatario"></span> sobre o orçamento de <span id="cliente"></span>
+                    {% endif %}
                 </h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button>
             </div>
@@ -17,57 +21,87 @@
                 <input type="hidden" name="id_destinatario" id="id_destinatario" value="{% if mensagens.last.destinatario == request.user %}{{ mensagens.last.remetente.id | safe}}{% else %}{{ mensagens.last.destinatario.id | safe}}{% endif %}">
                 <div class="chat-container" id="chatContainer">
                     {% for mensagem in mensagens %}
-                        <div class="mensagem {{ mensagem.responsavel }}">
-                            <div class="conteudo">{{ mensagem.conteudo }}</div>
-                            <div class="infos">
-                                <div class="data_hora">{{ mensagem.nome_remetente }} - {{ mensagem.data_hora_envio }}</div>
-                                {% if mensagem.responsavel == 'remetente' %}
-                                    {%if mensagem.data_hora_leitura %}
-                                        <i class='bx bx-check-double'></i>
-                                    {% else %}
-                                        <i class='bx bx-check'></i>
+                        {% if request.resolver_match.view_name == 'revisar_ficha_financeira' %}
+                            <div class="mensagem {% if mensagem.content_object.colaborador != mensagem.remetente %} remetente {% else %} destinatario {% endif %}">
+                                <div class="conteudo">{{ mensagem.conteudo }}</div>
+                                <div class="infos">
+                                    <div class="data_hora">{{ mensagem.nome_remetente }} - {{ mensagem.data_hora_envio }}</div>
+                                    {% if mensagem.responsavel == 'remetente' %}
+                                        {%if mensagem.data_hora_leitura %}
+                                            <i class='bx bx-check-double'></i>
+                                        {% else %}
+                                            <i class='bx bx-check'></i>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
+                                </div>
                             </div>
-                        </div>
+                        {% else %}
+                            <div class="mensagem {{ mensagem.responsavel }}">
+                                <div class="conteudo">{{ mensagem.conteudo }}</div>
+                                <div class="infos">
+                                    <div class="data_hora">{{ mensagem.nome_remetente }} - {{ mensagem.data_hora_envio }}</div>
+                                    {% if mensagem.responsavel == 'remetente' %}
+                                        {%if mensagem.data_hora_leitura %}
+                                            <i class='bx bx-check-double'></i>
+                                        {% else %}
+                                            <i class='bx bx-check'></i>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                     {% if mensagens and user|has_group:'Diretoria' and mensagens.last.responsavel == 'destinatario' and mensagens.last.data_hora_leitura %}
                     	<div class="visto">Visto em {{ mensagens.last.data_hora_leitura }}</div>
                     {% endif %}
                 </div>
-                <div id="div_gerente_responsavel" class="mt-2 mb-2">
-                    <label for="gerente_responsavel">Gerente responsável</label>
-                    <select {% if request.user not in gerentes %} disabled {% endif %} class="form-select" name="gerente_responsavel" id="gerente_responsavel">
-                        <option></option>
-                        {% for gerente in gerentes %}
-                            <option value="{{ gerente.pk }}" {% if gerente.id == orcamento_origem.gerente_responsavel.id %} selected {% endif %}>{{ gerente.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="mensagem-input">
+                {% if request.resolver_match.view_name == 'revisar_ficha_financeira' %}
+                    <div id="div_gerente_responsavel" class="mt-2 mb-2">
+                        <label for="gerente_responsavel">Gerente responsável</label>
+                        <select disabled class="form-select" name="gerente_responsavel" id="gerente_responsavel">
+                            <option></option>
+                            {% for gerente in gerentes %}
+                                <option value="{{ gerente.pk }}" {% if gerente.id == mensagens.first.content_object.gerente_responsavel.id %} selected {% endif %}>{{ gerente.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% else %}
+                    <div id="div_gerente_responsavel" class="mt-2 mb-2">
+                        <label for="gerente_responsavel">Gerente responsável</label>
+                        <select {% if request.user not in gerentes %} disabled {% endif %} class="form-select" name="gerente_responsavel" id="gerente_responsavel">
+                            <option></option>
+                            {% for gerente in gerentes %}
+                                <option value="{{ gerente.pk }}" {% if gerente.id == orcamento_origem.gerente_responsavel.id %} selected {% endif %}>{{ gerente.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+                {% if request.resolver_match.view_name != 'revisar_ficha_financeira' %}
+                    <div class="mensagem-input">
                     <textarea class="form-control" id="messageInput" rows="3" cols="3"
                               placeholder="Digite sua mensagem..."></textarea>
-                    {% if gerente_aprovando %}
-                        <div class="mt-2 alert alert-info">
-                            Para poder aprovar ou negar o orçamento é necessário primeiro enviar uma mensagem de resposta
-                            para o comercial.
-                        </div>
-                    {% endif %}
-                    <div class="botoes-resposta">
-                        <button id="btn_enviar_mensagem" class="btn btn-outline-success mt-2" onclick="sendMessage()">Enviar</button>
                         {% if gerente_aprovando %}
-                            <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-danger" disabled>Negar</button>
-                            <button onclick="aprovar_orcamento(1)" class="responder-orcamento btn btn-outline-dark" disabled>Aprovar</button>
-                            <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
-                        {% elif 'Gerência' in request.user.groups.all|join:',' %}
-                            <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-dark" disabled>Negar</button>
-                            <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
+                            <div class="mt-2 alert alert-info">
+                                Para poder aprovar ou negar o orçamento é necessário primeiro enviar uma mensagem de resposta
+                                para o comercial.
+                            </div>
                         {% endif %}
-                        {% if not 'Gerência' in request.user.groups.all|join:',' %}
-                            <button onclick="reenviar_pedido()" id="reenviar_pedido" class="responder-orcamento btn btn-outline-dark" disabled>Reenviar pedido</button>
-                        {% endif %}
+                        <div class="botoes-resposta">
+                            <button id="btn_enviar_mensagem" class="btn btn-outline-success mt-2" onclick="sendMessage()">Enviar</button>
+                            {% if gerente_aprovando %}
+                                <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-danger" disabled>Negar</button>
+                                <button onclick="aprovar_orcamento(1)" class="responder-orcamento btn btn-outline-dark" disabled>Aprovar</button>
+                                <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
+                            {% elif 'Gerência' in request.user.groups.all|join:',' %}
+                                <button onclick="negar_orcamento()" class="responder-orcamento btn btn-outline-dark" disabled>Negar</button>
+                                <button onclick="trocar_gerente()" class="responder-orcamento btn btn-outline-warning" disabled>Trocar gerente</button>
+                            {% endif %}
+                            {% if not 'Gerência' in request.user.groups.all|join:',' %}
+                                <button onclick="reenviar_pedido()" id="reenviar_pedido" class="responder-orcamento btn btn-outline-dark" disabled>Reenviar pedido</button>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>

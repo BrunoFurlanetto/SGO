@@ -807,7 +807,6 @@ class DadosDePacotes(models.Model):
 
         while True:
             if dados_pacote.get(f'periodo_{periodo_n}', None):
-                print(dados_pacote.getlist(f'check_out_permitido_{periodo_n}[]'))
                 try:
                     dados_pacote[f'dias_periodo_{periodo_n}[]']
                 except KeyError:
@@ -849,7 +848,6 @@ class DadosDePacotes(models.Model):
             for key, value in periodo.items():
                 if 'dias' not in key and 'check' not in key:
                     datas = value.split(" - ")
-                    print(key)
                     novas_datas = [
                         (datetime.strptime(data, "%d/%m/%Y") + timedelta(days=365)).strftime("%d/%m/%Y")
                         for data in datas
@@ -935,7 +933,6 @@ class DadosDePacotes(models.Model):
         html_dados = ''
 
         for i, periodo in enumerate(self.periodos_aplicaveis, start=1):
-            print(i, periodo)
             html_dados += unidade_base(
                 i,
                 f'periodo_{i}',
@@ -1443,7 +1440,6 @@ class OrcamentosPromocionais(models.Model):
         return self.orcamento.data_vencimento.strftime('%d/%m/%Y')
 
     def listar_ops_promocionais(self):
-        print(self.orcamento.id)
         return self.orcamento.objeto_orcamento['descricao_opcionais']
 
     def listar_opcionais(self):

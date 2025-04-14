@@ -108,6 +108,8 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
     orcamento_editavel = True
     opcionais_pacote = {}
+    id_tratativa = Tratativas.objects.filter(
+        Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
 
     if orcamento.orcamento_promocional:
         opcionais_pacote = orcamento.orcamento_promocional.listar_opcionais()
@@ -119,8 +121,6 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     elif orcamento.orcamento_promocional:
         pacote_promocional = CadastroPacotePromocional(instance=orcamento.orcamento_promocional.dados_pacote)
         orcamento_promocional = orcamento.orcamento_promocional
-        id_tratativa = Tratativas.objects.filter(
-            Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first().pk
 
     msgs = Mensagem.objects.filter(object_id=orcamento.id)
 
@@ -166,7 +166,6 @@ def salvar_orcamento(request):
             return dados
 
         data = dados['orcamento']
-        print(data)
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
         business_fee = None
@@ -243,7 +242,6 @@ def salvar_orcamento(request):
         else:
             if not orcamento_salvo.promocional:
                 try:
-                    print('Aqui sim')
                     Tratativas.objects.get(
                         Q(id_tratativa=data.get('id_tratativa')) & (
                                 Q(orcamentos__in=[orcamento_salvo.id]) | Q(

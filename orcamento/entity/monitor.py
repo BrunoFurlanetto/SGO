@@ -14,7 +14,7 @@ class Monitor(BaseValue):
 
     def calc_value_monitor(self, id_tipo_monitoria):
         values = []
-        print(id_tipo_monitoria)
+
         try:
             object_monitor = OrcamentoMonitor.objects.get(pk=id_tipo_monitoria)
         except ValueError:
