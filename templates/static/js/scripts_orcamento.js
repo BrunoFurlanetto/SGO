@@ -949,6 +949,22 @@ async function separar_produtos(periodo) {
     let data_check_in = moment(check_in, 'DD/MM/YYYY HH:mm')
     let data_check_out = moment(check_out, 'DD/MM/YYYY HH:mm')
 
+    if (data_viagem_anterior != undefined) {
+        if ($('#data_viagem').val() != data_viagem_anterior) {
+            $('#id_tipo_de_pacote, #id_tipo_de_pacote, #id_tipo_monitoria').val('')
+            $('#id_produto, #id_orcamento_promocional').val('')
+            $('#id_transporte input').prop('checked', false)
+            $('#container_opcionais, #finalizacao, #container_monitoria_transporte').addClass('none')
+            $('#opcionais select').each(function() {
+                // Resetar o valor do select
+                $(this).val(null).trigger('change');
+            });
+            $('#tabela_de_opcionais tbody').empty()
+        }
+    } else {
+        data_viagem_anterior = $('#data_viagem').val()
+    }
+
     await new Promise(function (resolve, reject) {
         $.ajax({
             type: 'GET',
@@ -995,22 +1011,6 @@ async function separar_produtos(periodo) {
         })
         verficar_validade_opcionais(check_in)
     })
-
-    if (data_viagem_anterior != undefined) {
-        if ($('#data_viagem').val() != data_viagem_anterior) {
-            $('#id_tipo_de_pacote, #id_tipo_de_pacote, #id_tipo_monitoria').val('')
-            $('#id_produto, #id_orcamento_promocional').val('')
-            $('#id_transporte input').prop('checked', false)
-            $('#container_opcionais, #finalizacao, #container_monitoria_transporte').addClass('none')
-            $('#opcionais select').each(function() {
-                // Resetar o valor do select
-                $(this).val(null).trigger('change');
-            });
-            $('#tabela_de_opcionais tbody').empty()
-        }
-    } else {
-        data_viagem_anterior = $('#data_viagem').val()
-    }
 }
 
 async function alterar_valores_das_taxas(dados_taxas) {
