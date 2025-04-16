@@ -1068,7 +1068,7 @@ class Orcamento(models.Model):
 
         return OrcamentoOpicional.objects.filter(id__in=opcionais_unicos)
 
-    def descritivo_opcionais(self):        
+    def descritivo_opcionais(self):
 
         return set([op for op in self.opcionais_contratados if not op.categoria.staff])
 
@@ -1249,6 +1249,7 @@ class Orcamento(models.Model):
             'taxas': f"{(diaria['taxa_comercial'] + periodo['taxa_comercial']):.2f}".replace('.', ','),
             'cov': f"{(diaria['comissao_de_vendas'] + periodo['comissao_de_vendas']):.2f}".replace('.', ','),
             'desconto': f"{(diaria['desconto'] + periodo['desconto']):.2f}".replace('.', ','),
+            'acrescimo': f"{(diaria['acrescimo'] + periodo['acrescimo']):.2f}".replace('.', ','),
             'valor_final': f"{(diaria['valor_final'] + periodo['valor_final']):.2f}".replace('.', ','),
             'dia_dia': dia_dia,
         }
@@ -1262,6 +1263,7 @@ class Orcamento(models.Model):
             'taxas': f"{monitoria['taxa_comercial']:.2f}".replace('.', ','),
             'cov': f"{monitoria['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{monitoria['desconto']:.2f}".replace('.', ','),
+            'acrescimo': f"{monitoria['acrescimo']:.2f}".replace('.', ','),
             'valor_final': f"{monitoria['valor_final']:.2f}".replace('.', ','),
             'dia_dia': dia_dia
         }
@@ -1275,6 +1277,7 @@ class Orcamento(models.Model):
             'taxas': f"{transporte['taxa_comercial']:.2f}".replace('.', ','),
             'cov': f"{transporte['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{transporte['desconto']:.2f}".replace('.', ','),
+            'acrescimo': f"{transporte['acrescimo']:.2f}".replace('.', ','),
             'valor_final': f"{transporte['valor_final']:.2f}".replace('.', ','),
             'dia_dia': dia_dia,
         }
@@ -1282,97 +1285,92 @@ class Orcamento(models.Model):
     def valores_opcionais(self):
         valores_atividades = self.objeto_orcamento['valores']['opcionais']
         descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
-        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
+
+        total_geral = total_sem_taxas = total_taxa = total_comissao = total_desconto = total_acrescimo = 0
+        total_dia_dia = []
         atividades_ceu = []
 
         for atividade in descritivo_atividades:
-            dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade['valores']))
+            op = OrcamentoOpicional.objects.get(pk=atividade['id'])
 
-            atividades_ceu.append({
-                'id': atividade['id'],
-                'atividade': atividade['nome'],
-                'valor_neto': f"{atividade['valor']:.2f}".replace('.', ','),
-                'valor_desconto': f"{atividade['valor_com_desconto']:.2f}".replace('.', ','),
-                'taxas': f"{atividade['taxa_comercial']:.2f}".replace('.', ','),
-                'cov': f"{atividade['comissao_de_vendas']:.2f}".replace('.', ','),
-                'desconto': f"{atividade['desconto']:.2f}".replace('.', ','),
-                'valor_final': f"{atividade['valor_final']:.2f}".replace('.', ','),
-                'dia_dia': dia_dia_ativ
-            })
+            if not op.categoria.staff:
+                dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade['valores']))
+
+                atividades_ceu.append({
+                    'id': atividade['id'],
+                    'atividade': atividade['nome'],
+                    'valor_neto': f"{atividade['valor']:.2f}".replace('.', ','),
+                    'valor_desconto': f"{atividade['valor_com_desconto']:.2f}".replace('.', ','),
+                    'taxas': f"{atividade['taxa_comercial']:.2f}".replace('.', ','),
+                    'cov': f"{atividade['comissao_de_vendas']:.2f}".replace('.', ','),
+                    'desconto': f"{atividade['desconto']:.2f}".replace('.', ','),
+                    'acrescimo': f"{atividade['acrescimo']:.2f}".replace('.', ','),
+                    'valor_final': f"{atividade['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_ativ
+                })
+
+                total_taxa += atividade["taxa_comercial"]
+                total_comissao += atividade["comissao_de_vendas"]
+                total_desconto += atividade["desconto"]
+                total_acrescimo += atividade["acrescimo"]
+                total_sem_taxas += atividade["valor"]
+                total_geral += atividade["valor_final"]
+
+                while len(total_dia_dia) < len(atividade["valores"]):
+                    total_dia_dia.append(0)
+
+                for i, valor in enumerate(atividade["valores"]):
+                    total_dia_dia[i] += valor
 
         return {
-            'valor_neto': f"{valores_atividades['valor']:.2f}".replace('.', ','),
-            'taxas': f"{valores_atividades['taxa_comercial']:.2f}".replace('.', ','),
-            'cov': f"{valores_atividades['comissao_de_vendas']:.2f}".replace('.', ','),
-            'desconto': f"{valores_atividades['desconto']:.2f}".replace('.', ','),
-            'valor_final': f"{valores_atividades['valor_final']:.2f}".replace('.', ','),
+            'valor_neto': f"{total_sem_taxas:.2f}".replace('.', ','),
+            'taxas': f"{total_taxa:.2f}".replace('.', ','),
+            'cov': f"{total_comissao:.2f}".replace('.', ','),
+            'desconto': f"{total_desconto:.2f}".replace('.', ','),
+            'acrescimo': f"{total_acrescimo:.2f}".replace('.', ','),
+            'valor_final': f"{total_geral:.2f}".replace('.', ','),
+            'dia_dia': total_dia_dia,
             'descritivo_atividades': atividades_ceu,
-            'dia_dia': dia_dia,
         }
 
-    # def valores_peraltas(self):
-    #     valores_atividades = self.objeto_orcamento['valores']['opcionais_ecoturismo']
-    #     descritivo_atividades = self.objeto_orcamento['descricao_opcionais']
-    #     dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_atividades['valores']))
-    #     atividades_peraltas = []
-    #
-    #     for atividade in descritivo_atividades:
-    #         if atividade['categoria'] == 'outros':
-    #             dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade['valores']))
-    #
-    #             atividades_peraltas.append({
-    #                 'id': atividade['id'],
-    #                 'atividade': atividade['nome'],
-    #                 'valor_neto': f"{atividade['valor']:.2f}".replace('.', ','),
-    #                 'valor_desconto': f"{atividade['valor_com_desconto']:.2f}".replace('.', ','),
-    #                 'taxas': f"{atividade['taxa_comercial']:.2f}".replace('.', ','),
-    #                 'cov': f"{atividade['comissao_de_vendas']:.2f}".replace('.', ','),
-    #                 'desconto': f"{atividade['desconto']:.2f}".replace('.', ','),
-    #                 'valor_final': f"{atividade['valor_final']:.2f}".replace('.', ','),
-    #                 'dia_dia': dia_dia_ativ,
-    #             })
-    #
-    #     return {
-    #         'valor_neto': f"{valores_atividades['valor']:.2f}".replace('.', ','),
-    #         'taxas': f"{valores_atividades['taxa_comercial']:.2f}".replace('.', ','),
-    #         'cov': f"{valores_atividades['comissao_de_vendas']:.2f}".replace('.', ','),
-    #         'desconto': f"{valores_atividades['desconto']:.2f}".replace('.', ','),
-    #         'valor_final': f"{valores_atividades['valor_final']:.2f}".replace('.', ','),
-    #         'descritivo_atividades': atividades_peraltas,
-    #         'dia_dia': dia_dia,
-    #     }
-    #
-    # def valores_opcionais(self):
-    #     valores_opcionais = self.objeto_orcamento['valores']['outros_opcionais']
-    #     descritivo_opcionais = self.objeto_orcamento['descricao_opcionais']
-    #     dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_opcionais['valores']))
-    #     opcionais = []
-    #
-    #     for opcional in descritivo_opcionais:
-    #         if opcional['categoria'] == 'extras':
-    #             dia_dia_op = list(map(lambda a: str(round(a, 2)).replace('.', ','), opcional['valores']))
-    #
-    #             opcionais.append({
-    #                 'id': opcional['id'],
-    #                 'atividade': opcional['nome'],
-    #                 'valor_neto': f"{opcional['valor']:.2f}".replace('.', ','),
-    #                 'valor_desconto': f"{opcional['valor_com_desconto']:.2f}".replace('.', ','),
-    #                 'taxas': f"{opcional['taxa_comercial']:.2f}".replace('.', ','),
-    #                 'cov': f"{opcional['comissao_de_vendas']:.2f}".replace('.', ','),
-    #                 'desconto': f"{opcional['desconto']:.2f}".replace('.', ','),
-    #                 'valor_final': f"{opcional['valor_final']:.2f}".replace('.', ','),
-    #                 'dia_dia': dia_dia_op,
-    #             })
-    #
-    #     return {
-    #         'valor_neto': f"{valores_opcionais['valor']:.2f}".replace('.', ','),
-    #         'taxas': f"{valores_opcionais['taxa_comercial']:.2f}".replace('.', ','),
-    #         'cov': f"{valores_opcionais['comissao_de_vendas']:.2f}".replace('.', ','),
-    #         'desconto': f"{valores_opcionais['desconto']:.2f}".replace('.', ','),
-    #         'valor_final': f"{valores_opcionais['valor_final']:.2f}".replace('.', ','),
-    #         'descritivo_atividades': opcionais,
-    #         'dia_dia': dia_dia,
-    #     }
+    def valores_op_internos(self):
+        descritivo_op_interno = self.objeto_orcamento['descricao_opcionais']
+        total_geral = total_sem_taxas = total_taxa = total_comissao = total_desconto = total_acrescimo = 0
+        total_dia_dia = []
+        ops_interno = []
+
+        for op in descritivo_op_interno:
+            op_id = op["id"]
+
+            try:
+                opcional = OrcamentoOpicional.objects.get(id=op_id)
+            except OrcamentoOpicional.DoesNotExist:
+                continue
+
+            if opcional.categoria.staff:
+                total_taxa += op["taxa_comercial"]
+                total_comissao += op["comissao_de_vendas"]
+                total_desconto += op["desconto"]
+                total_acrescimo += op["acrescimo"]
+                total_sem_taxas += op["valor"]
+                total_geral += op["valor_final"]
+
+                while len(total_dia_dia) < len(op["valores"]):
+                    total_dia_dia.append(0)
+
+                for i, valor in enumerate(op["valores"]):
+                    total_dia_dia[i] += valor
+        print(total_dia_dia)
+        return {
+            'valor_neto': f"{total_sem_taxas:.2f}".replace('.', ','),
+            'taxas': f"{total_taxa:.2f}".replace('.', ','),
+            'cov': f"{total_comissao:.2f}".replace('.', ','),
+            'desconto': f"{total_desconto:.2f}".replace('.', ','),
+            'acrescimo': f"{total_acrescimo:.2f}".replace('.', ','),
+            'valor_final': f"{total_geral:.2f}".replace('.', ','),
+            'dia_dia': total_dia_dia,
+        }
+
 
     def valores_outros(self):
         valores_outros = self.objeto_orcamento['valores']['opcionais_extras']
@@ -1392,6 +1390,7 @@ class Orcamento(models.Model):
                         'taxas': f"{atividade_extra['taxa_comercial']:.2f}".replace('.', ','),
                         'cov': f"{atividade_extra['comissao_de_vendas']:.2f}".replace('.', ','),
                         'desconto': f"{atividade_extra['desconto']:.2f}".replace('.', ','),
+                        'acrescimo': f"{atividade_extra['acrescimo']:.2f}".replace('.', ','),
                         'valor_final': f"{atividade_extra['valor_final']:.2f}".replace('.', ','),
                         'dia_dia': dia_dia_ativ,
                     })
@@ -1401,6 +1400,7 @@ class Orcamento(models.Model):
             'taxas': f"{valores_outros['taxa_comercial']:.2f}".replace('.', ','),
             'cov': f"{valores_outros['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{valores_outros['desconto']:.2f}".replace('.', ','),
+            'acrescimo': f"{valores_outros['acrescimo']:.2f}".replace('.', ','),
             'valor_final': f"{valores_outros['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': outros,
             'dia_dia': dia_dia,
@@ -1412,10 +1412,10 @@ class Orcamento(models.Model):
 
         return {
             'valor_neto': f"{totais['valor']:.2f}".replace('.', ','),
-            'taxas': f"{(totais['taxa_comercial'] + self.objeto_orcamento['periodo_viagem']['valor']):.2f}".replace('.',
-                                                                                                                    ','),
+            'taxas': f"{(totais['taxa_comercial'] + self.objeto_orcamento['periodo_viagem']['valor']):.2f}".replace('.',','),
             'cov': f"{totais['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{totais['desconto']:.2f}".replace('.', ','),
+            'acrescimo': f"{totais['acrescimo']:.2f}".replace('.', ','),
             'valor_final': f"{totais['valor_final']:.2f}".replace('.', ','),
             'dia_dia': dia_dia,
         }

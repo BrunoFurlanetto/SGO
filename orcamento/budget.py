@@ -201,8 +201,7 @@ class Budget:
                 "opcionais_extras": self.others.do_object(),
             },
             "descricao_opcionais": description_options,
-            "total": self.total.do_object(
-            ),
+            "total": self.total.do_object(),
             "desconto_geral": self.total.general_discount,
             "taxa_comercial": self.business_fee,
             "comissao_de_vendas": self.commission,

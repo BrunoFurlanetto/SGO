@@ -19,6 +19,7 @@ class Total(BaseValue):
             values.append(value)
 
         self.set_values(values)
+
         self.general_discount = (daily_rate.discount + monitor.discount + optional.discount + others.discount +
                                  period.discount + transport.discount + self.discount)
 
@@ -46,13 +47,17 @@ class Total(BaseValue):
 
     def do_object(self):
         information = super().do_object()
+        print(self.general_discount)
+        print(information)
         information["taxa_comercial"] = self.calc_business_fee()
         information["comissao_de_vendas"] = self.calc_commission()
-        information["desconto_geral"] = self.general_discount
+        information["desconto"] = self.general_discount
         information["descricao_valores"] = self.values
         information["valor_final"] = (
             self.get_final_value())  #=ARREDONDAR.PARA.CIMA((PTF+PD+PM+PB+POp-PDesc)/(1-(TxC+TxN));0)
         information["arredondamento"] = (self.get_final_value()) - (
                 self.calc_value_with_discount() + self.calc_business_fee() + self.calc_commission() + self.get_addition()
         )  #=PF-(PTF+PD+PM+PB+POp-PDesc+PCom+PNeg)
+        print(self.general_discount)
+        print(information)
         return information
