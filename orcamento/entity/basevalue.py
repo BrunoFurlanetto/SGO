@@ -6,6 +6,7 @@ class BaseValue:
         self.percent_business_fee = percent_business_fee / 100
         self.percent_commission = percent_commission / 100
         self.values = values
+        self.classification_code = ''
         self.discount = 0
         self.__adjustment = 0
         self.__addition = 0
@@ -70,6 +71,9 @@ class BaseValue:
     def get_final_value(self):
         return ((self.calc_value_with_discount() + self.__addition) / (1 - (self.percent_business_fee + self.percent_commission))) + self.get_adjustiment()
 
+    def get_classification_code(self):
+        return self.classification_code
+
     def do_object(self):
         return {
             "valor": self.get_total_values(),
@@ -80,5 +84,6 @@ class BaseValue:
             "acrescimo": self.get_addition(),
             "taxa_comercial": self.calc_business_fee(),
             "comissao_de_vendas": self.calc_commission(),
-            "valores": self.values
+            "valores": self.values,
+            "codigo_classificacao_item": self.get_classification_code(),
         }

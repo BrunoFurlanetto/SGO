@@ -37,6 +37,7 @@ class Transport(TransportProtocol):
         except ValoresTransporte.DoesNotExist:
             values = []
         else:
+            self.classification_code = obj_transport.classificacao.codigo_padrao
             if self.days == 1:
                 value = (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 2:

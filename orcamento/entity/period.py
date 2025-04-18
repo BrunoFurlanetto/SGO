@@ -20,6 +20,7 @@ class Period(BaseValue):
         except TaxaPeriodo.DoesNotExist:
             self.values = None
         else:
+            self.classification_code = taxa_periodo.classificacao.codigo_padrao
             taxa = taxa_periodo.valor
             self.values[0] = float(taxa)
 

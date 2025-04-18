@@ -1,4 +1,5 @@
 from .basevalue import BaseValue
+from ..models import OrcamentoOpicional
 
 
 class OptionalDescription(BaseValue):
@@ -12,6 +13,13 @@ class OptionalDescription(BaseValue):
         self.name = optional_name
         self.description = description
         self.category = category
+        self.set_classification_code()
+
+    def set_classification_code(self):
+        opt = OrcamentoOpicional.objects.get(pk=self.id)
+
+        if opt.classificacao:
+            self.classification_code = opt.classificacao.codigo_padrao
 
     def do_object(self, description=False):
         information = super().do_object()

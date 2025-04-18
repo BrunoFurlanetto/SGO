@@ -6,9 +6,10 @@
 {% block conteudo %}
     <link rel="stylesheet" href="{% static 'css/style_ficha_financeira.css' %}" id="style">
     <div id="conteudo_ficha_financeira">
-        {% if ficha and not ficha.negado and ficha.data_preenchimento_comercial  %}
+        {% if ficha and not ficha.negado and ficha.data_preenchimento_comercial %}
             <div id="mostrar_motivo_recusa" draggable="true" ondblclick="iniciarArraste()">
-                <button data-toggle="modal" data-target="#chatModal"><i id="icone_arrastavel" class='bx bxs-comment'></i></button>
+                <button data-toggle="modal" data-target="#chatModal"><i id="icone_arrastavel"
+                                                                        class='bx bxs-comment'></i></button>
             </div>
         {% endif %}
         <div class="titulo">
@@ -39,8 +40,9 @@
                             <label for="{{ dados_evento.responsavel_operacional.id_for_label }}">{{ dados_evento.responsavel_operacional.label }}</label>
                             {{ dados_evento.responsavel_operacional }}
                         </div>
-                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4" style="background: unset; align-self: self-end;"
-                                data-toggle="modal" data-target="#cadastro_responsavel_operacional">
+                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4"
+                                                   style="background: unset; align-self: self-end;"
+                                                   data-toggle="modal" data-target="#cadastro_responsavel_operacional">
                             <i class='bx bx-plus'></i>
                         </button>
                     </div>
@@ -54,22 +56,26 @@
                             <label for="{{ dados_evento.responsavel_financeiro.id_for_label }}">{{ dados_evento.responsavel_financeiro.label }}</label>
                             {{ dados_evento.responsavel_financeiro }}
                         </div>
-                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4" style="background: unset; align-self: self-end;"
-                                data-toggle="modal" data-target="#cadastro_responsavel_operacional">
+                        <button {% if revisando %} disabled {% endif %} type="button" class="border-0 fs-4"
+                                                   style="background: unset; align-self: self-end;"
+                                                   data-toggle="modal" data-target="#cadastro_responsavel_operacional">
                             <i class='bx bx-plus'></i>
                         </button>
                     </div>
                     <div id="div_telefone_financeiro">
                         <label for="id_telefone_financeiro">Telfone financeiro</label>
-                        <input type="text" id="id_telefone_financeiro" name="telefone_financeiro" readonly value="{{ telefone_financeiro }}">
+                        <input type="text" id="id_telefone_financeiro" name="telefone_financeiro" readonly
+                               value="{{ telefone_financeiro }}">
                     </div>
                     <div id="div_whats_financeiro">
                         <label for="id_whats_financeiro">Whats financeiro</label>
-                        <input type="text" id="id_whats_financeiro" name="whats_financeiro" readonly value="{{ whats_financeiro }}">
+                        <input type="text" id="id_whats_financeiro" name="whats_financeiro" readonly
+                               value="{{ whats_financeiro }}">
                     </div>
                     <div id="div_email_financeiro">
                         <label for="id_email_financeiro">E-mail financeiro</label>
-                        <input type="email" id="id_email_financeiro" name="email_financeiro" readonly value="{{ email_financeiro }}">
+                        <input type="email" id="id_email_financeiro" name="email_financeiro" readonly
+                               value="{{ email_financeiro }}">
                     </div>
                     {{ dados_evento.coordenacao.as_hidden }}
                     {{ dados_evento.monitoria.as_hidden }}
@@ -275,6 +281,34 @@
                     </div>
                 {% endif %}
                 <hr>
+                <h5 class="titulo-secao">Totalização</h5>
+                {{ ficha.dados_totalizacao }}
+                <div>
+                    <table id="tabela_descritivo_valores" class="table table-borderless">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Seção</th>
+                            <th>Valor neto</th>
+                            <th>Desconto</th>
+                            <th>CoV</th>
+                            <th>Taxas</th>
+                            <th>Acréscimo</th>
+                            <th>Valor final</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="secao_tabela">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
                 <h5 class="titulo-secao">Planos pagamento</h5>
                 <div class="planos_pagamento mb-3">
                     <p style="width: 100%" class="none alert alert-warning">
@@ -368,6 +402,7 @@
                         </div>
                     {% endif %}
                 </div>
+
                 {% if not revisando %}
                     <div class="botoes">
                         <button type="submit" class="btn btn-primary">Salvar</button>
@@ -485,7 +520,7 @@
                                 <td>{{ atividade.acrescimo }}</td>
                                 <td>{{ atividade.valor_final }}</td>
                                 {% for valor in atividade.dia_dia %}
-                                    <td class="datas">{{ valor | floatformat:'2' }}</td>
+                                    <td class="datas">{{ valor }}</td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
@@ -670,7 +705,9 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" onclick="salvar_novo_responsavel()">Savar</button>
+                                <button type="button" class="btn btn-primary" onclick="salvar_novo_responsavel()">
+                                    Savar
+                                </button>
                             </div>
                         </div>
                     </div>

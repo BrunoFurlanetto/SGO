@@ -1,9 +1,11 @@
+from collections import defaultdict
 from decimal import Decimal
 
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 
+from coreFinanceiro.models import ClassificacoesItens
 from orcamento.models import Orcamento
 from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos, RelacaoClienteResponsavel
 
@@ -168,6 +170,47 @@ class FichaFinanceira(models.Model):
 
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'
+
+    def dados_totalizacao(self):
+        codigos_classificaca_db = ClassificacoesItens.objects.all()
+        total_por_classificacao = defaultdict(lambda: {
+            'valor': 0.0,
+            'valor_final': 0.0,
+            'comissao_de_vendas': 0.0,
+            'taxa_comercial': 0.0,
+            'valor_com_desconto': 0.0,
+            'acrescimo': 0.0,
+        })
+
+        # Processa os dados do dicionário principal
+        for item in self.orcamento.objeto_orcamento['valores'].values():
+            codigo = item.get('codigo_classificacao_item', '').strip()
+
+            if not codigo:
+                continue
+
+            cod = codigos_classificaca_db.get(codigo_padrao=codigo)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_com_desconto'] += item.get('valor_com_desconto', 0.0)
+
+        # Processa a lista de opcionais
+        for item in self.orcamento.objeto_orcamento['descricao_opcionais']:
+            codigo = item.get('codigo_classificacao_item')
+
+            if not codigo:
+                continue
+
+            cod = codigos_classificaca_db.get(codigo_padrao=codigo)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_com_desconto'] += item.get('valor_com_desconto', 0.0)
+
+        print(dict(total_por_classificacao))
 
 
 # ------------------------------------------------ Forms ---------------------------------------------------------------

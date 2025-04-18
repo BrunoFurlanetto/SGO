@@ -1360,7 +1360,7 @@ class Orcamento(models.Model):
 
                 for i, valor in enumerate(op["valores"]):
                     total_dia_dia[i] += valor
-        print(total_dia_dia)
+
         return {
             'valor_neto': f"{total_sem_taxas:.2f}".replace('.', ','),
             'taxas': f"{total_taxa:.2f}".replace('.', ','),
