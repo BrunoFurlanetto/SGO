@@ -313,13 +313,13 @@ class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
     save_as = True
     search_form = YourFormSearch
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "classificacao":
-            kwargs["queryset"] = ClassificacoesItens.objects.filter(
-                sintetico_analitico=1,
-                ativado=True
-            )
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    #     if db_field.name == "classificacao":
+    #         kwargs["queryset"] = ClassificacoesItens.objects.filter(
+    #             sintetico_analitico=1,
+    #             ativado=True
+    #         )
+    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
