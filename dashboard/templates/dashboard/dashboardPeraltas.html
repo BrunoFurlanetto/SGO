@@ -906,13 +906,65 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for ficha in fichas_financeira_aprovadas %}
-                            <tr style="cursor: pointer"
-                                onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
-                                <td>{{ ficha.cliente }}</td>
-                                <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
-                                <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
-                            </tr>
+                        {% for ficha in fichas_financeiras %}
+                            {% if ficha.autorizado_diretoria %}
+                                <tr style="cursor: pointer"
+                                    onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Fichas Financeira aguardando aprovação da diretoria</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Colaborador</th>
+                            <th style="width: 15%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_financeiras %}
+                            {% if not ficha.autorizado_diretoria and not ficha.negado %}
+                                <tr style="cursor: pointer"
+                                    onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Fichas Financeiras negadas pela diretoria</h5>
+                    <hr>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 40%">Cliente</th>
+                            <th style="width: 15%">Colaborador</th>
+                            <th style="width: 15%">Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_financeiras %}
+                            {% if ficha.negado %}
+                                <tr style="cursor: pointer"
+                                    onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                         </tbody>
                     </table>
