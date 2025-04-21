@@ -282,9 +282,8 @@
                 {% endif %}
                 <hr>
                 <h5 class="titulo-secao">Totalização</h5>
-                {{ ficha.dados_totalizacao }}
                 <div>
-                    <table id="tabela_descritivo_valores" class="table table-borderless">
+                    <table id="tabela_descritivo_valores" class="table table-borderless border-bottom border-dark border-1">
                         <thead>
                         <tr>
                             <th style="width: 50%">Seção</th>
@@ -297,16 +296,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="secao_tabela">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {% for secao, valores in ficha.dados_totalizacao.items %}
+                            <tr class="secao_tabela">
+                                <td>{{ secao }}</td>
+                                <td>{{ valores.valor|floatformat:2 }}</td>
+                                <td>{{ valores.desconto|floatformat:2 }}</td>
+                                <td>{{ valores.comissao_de_vendas|floatformat:2 }}</td>
+                                <td>{{ valores.taxa_comercial|floatformat:2 }}</td>
+                                <td>{{ valores.acrescimo|default:0|floatformat:2 }}</td>
+                                <td>{{ valores.valor_final|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
+
                 </div>
                 <hr>
                 <h5 class="titulo-secao">Planos pagamento</h5>

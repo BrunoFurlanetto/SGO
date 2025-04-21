@@ -1442,7 +1442,7 @@ class Orcamento(models.Model):
 
         return {
             'valor_neto': f"{totais['valor']:.2f}".replace('.', ','),
-            'taxas': f"{(totais['taxa_comercial'] + self.objeto_orcamento['periodo_viagem']['valor']):.2f}".replace('.',','),
+            'taxas': f"{totais['taxa_comercial']:.2f}".replace('.',','),
             'cov': f"{totais['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{totais['desconto']:.2f}".replace('.', ','),
             'acrescimo': f"{totais['acrescimo']:.2f}".replace('.', ','),
