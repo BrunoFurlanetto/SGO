@@ -162,7 +162,7 @@ def dashboardPeraltas(request):
     diretoria = User.objects.filter(pk=request.user.id, groups__name__icontains='Diretoria').exists()
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
-    fichas_financeira_aprovadas = None
+    fichas_financeiras = None
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -223,7 +223,7 @@ def dashboardPeraltas(request):
         financeiro = None
 
     if financeiro in grupos_usuario:
-        fichas_financeira_aprovadas = FichaFinanceira.objects.filter(autorizado_diretoria=True, faturado=False)
+        fichas_financeiras = FichaFinanceira.objects.filter(faturado=False)
 
     if is_ajax(request):
         if request.POST.get('novo_status'):
@@ -295,7 +295,7 @@ def dashboardPeraltas(request):
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
         'fichas_financeira_negadas': fichas_financeira_negadas,
-        'fichas_financeira_aprovadas': fichas_financeira_aprovadas,
+        'fichas_financeiras': fichas_financeiras,
         'previas_orcamento': orcamentos_colaborador.filter(previa=True),
         'orcamentos_aprovacao': Orcamento.objects.filter(
             gerente_responsavel=request.user,

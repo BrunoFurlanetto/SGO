@@ -71,7 +71,7 @@ class ValoresPadrao(models.Model):
         help_text='Comportamento que a variável vai adotar dentro do sistema de orçamento'
     )
     id_taxa = models.CharField(max_length=255, editable=False)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    # classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Configuração geral'
@@ -290,7 +290,13 @@ class OrcamentoMonitor(models.Model):
     racional_monitoria = models.PositiveIntegerField(default=8, verbose_name="Racional Monitoria")
     sem_monitoria = models.BooleanField(default=False)
     liberado = models.BooleanField(default=False)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    classificacao = models.ForeignKey(
+        ClassificacoesItens,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'sintetico_analitico': True},
+    )
 
     class Meta:
         verbose_name = 'Valor monitoria'
@@ -374,7 +380,13 @@ class OrcamentoOpicional(models.Model):
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
     liberado = models.BooleanField(default=False)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    classificacao = models.ForeignKey(
+        ClassificacoesItens,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'sintetico_analitico': True}
+    )
 
     class Meta:
         verbose_name = 'Valor opcionais'
@@ -420,7 +432,13 @@ class OrcamentoPeriodo(models.Model):
     descricao = models.TextField(blank=True)
     liberado = models.BooleanField(default=False, help_text='Liberado para o comercial')
     exclusivo_montagem_pacote = models.BooleanField(default=False)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    classificacao = models.ForeignKey(
+        ClassificacoesItens,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'sintetico_analitico': True}
+    )
 
     class Meta:
         verbose_name = 'Valor do periodo'
@@ -477,7 +495,13 @@ class TaxaPeriodo(models.Model):
     final_vigencia = models.DateField(default=default_validade)
     descricao = models.TextField(blank=True)
     valor = models.DecimalField(decimal_places=2, max_digits=7, default=0.00)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    classificacao = models.ForeignKey(
+        ClassificacoesItens,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'sintetico_analitico': True},
+    )
 
     class Meta:
         verbose_name = 'Valor da taxa do periodo'
@@ -560,7 +584,13 @@ class ValoresTransporte(models.Model):
     final_vigencia = models.DateField(verbose_name='Final vigência dos valores', default=default_validade)
     descricao = models.TextField(verbose_name="Descrição", default="")
     liberado = models.BooleanField(default=False)
-    classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
+    classificacao = models.ForeignKey(
+        ClassificacoesItens,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'sintetico_analitico': True},
+    )
 
     class Meta:
         verbose_name = 'Valor do transporte'
