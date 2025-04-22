@@ -19,7 +19,7 @@
         <form id="form_ficha_financeira" {% if not ficha and not ficha.negado %}
               action="{% url 'salvar_ficha_financeira' orcamento.id %}" {% else %}
               action="{% url 'salvar_edicao_ficha_financeira' orcamento.id ficha.id %}" {% endif %} method="POST">
-            <fieldset {% if faturando %} disabled {% endif %}>
+            <fieldset {% if financeiro %} disabled {% endif %}>
                 {% csrf_token %}
                 <div class="cabecalho">
                     <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
@@ -280,37 +280,39 @@
                         </div>
                     </div>
                 {% endif %}
-                <hr>
-                <h5 class="titulo-secao">Totalização</h5>
-                <div>
-                    <table id="tabela_descritivo_valores" class="table table-borderless border-bottom border-dark border-1">
-                        <thead>
-                        <tr>
-                            <th style="width: 50%">Seção</th>
-                            <th>Valor neto</th>
-                            <th>Desconto</th>
-                            <th>CoV</th>
-                            <th>Taxas</th>
-                            <th>Acréscimo</th>
-                            <th>Valor final</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for secao, valores in ficha.dados_totalizacao.items %}
-                            <tr class="secao_tabela">
-                                <td>{{ secao }}</td>
-                                <td>{{ valores.valor|floatformat:2 }}</td>
-                                <td>{{ valores.desconto|floatformat:2 }}</td>
-                                <td>{{ valores.comissao_de_vendas|floatformat:2 }}</td>
-                                <td>{{ valores.taxa_comercial|floatformat:2 }}</td>
-                                <td>{{ valores.acrescimo|default:0|floatformat:2 }}</td>
-                                <td>{{ valores.valor_final|floatformat:2 }}</td>
+                {% if financeiro %}
+                    <hr>
+                    <h5 class="titulo-secao">Totalização</h5>
+                    <div>
+                        <table id="tabela_descritivo_valores"
+                               class="table table-borderless border-bottom border-dark border-1">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Seção</th>
+                                <th>Valor neto</th>
+                                <th>Desconto</th>
+                                <th>CoV</th>
+                                <th>Taxas</th>
+                                <th>Acréscimo</th>
+                                <th>Valor final</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-
-                </div>
+                            </thead>
+                            <tbody>
+                            {% for secao, valores in ficha.dados_totalizacao.items %}
+                                <tr class="secao_tabela">
+                                    <td>{{ secao }}</td>
+                                    <td>{{ valores.valor|floatformat:2 }}</td>
+                                    <td>{{ valores.desconto|floatformat:2 }}</td>
+                                    <td>{{ valores.comissao_de_vendas|floatformat:2 }}</td>
+                                    <td>{{ valores.taxa_comercial|floatformat:2 }}</td>
+                                    <td>{{ valores.acrescimo|default:0|floatformat:2 }}</td>
+                                    <td>{{ valores.valor_final|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
                 <hr>
                 <h5 class="titulo-secao">Planos pagamento</h5>
                 <div class="planos_pagamento mb-3">
