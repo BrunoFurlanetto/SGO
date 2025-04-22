@@ -5,9 +5,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 
-from coreFinanceiro.models import ClassificacoesItens
+from coreFinanceiro.models import ClassificacoesItens, TiposPagamentos
 from orcamento.models import Orcamento
-from peraltas.models import ClienteColegio, Responsavel, Vendedor, TiposPagamentos, RelacaoClienteResponsavel
+from peraltas.models import ClienteColegio, Responsavel, Vendedor, RelacaoClienteResponsavel
 
 
 class DadosEvento(models.Model):

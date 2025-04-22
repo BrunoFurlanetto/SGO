@@ -1,6 +1,17 @@
 from django.db import models
 
 
+class TiposPagamentos(models.Model):
+    tipo_pagamento = models.CharField(max_length=255)
+    offline = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.tipo_pagamento
+
+    class Meta:
+        app_label = 'financeiro'
+
+
 class ClassificacoesItens(models.Model):
     lista_sintetico_analitico = (
         (0, 'Sintético'),

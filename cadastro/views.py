@@ -17,7 +17,8 @@ from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, Cadast
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
     GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
-    Monitor, EmpresaOnibus, TiposPagamentos
+    Monitor, EmpresaOnibus
+from financeiro.models import TiposPagamentos
 from projetoCEU import gerar_pdf
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.integracao_rd import alterar_status, alterar_campos_personalizados

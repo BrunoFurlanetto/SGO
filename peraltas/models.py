@@ -14,6 +14,7 @@ from django.utils import timezone
 from reversion.models import Version
 
 from ceu.models import Atividades, Locaveis
+from coreFinanceiro.models import TiposPagamentos
 
 
 class NivelMonitoria(models.Model):
@@ -170,14 +171,6 @@ class PerfilsParticipantes(models.Model):
 class CodigosPadrao(models.Model):
     codigo = models.CharField(unique=True, max_length=10)
     nome = models.CharField(max_length=50)
-
-
-class TiposPagamentos(models.Model):
-    tipo_pagamento = models.CharField(max_length=255)
-    offline = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.tipo_pagamento
 
 
 @reversion.register
