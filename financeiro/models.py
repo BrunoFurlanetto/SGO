@@ -183,12 +183,16 @@ class FichaFinanceira(models.Model):
         })
 
         taxa_periodo = self.orcamento.objeto_orcamento['periodo_viagem']
-        cod = codigos_classificaca_db.get(codigo_padrao=taxa_periodo['codigo_classificacao_item'])
-        total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += taxa_periodo.get('valor', 0.0)
-        total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += taxa_periodo.get('valor_final', 0.0)
-        total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += taxa_periodo.get('comissao_de_vendas', 0.0)
-        total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += taxa_periodo.get('taxa_comercial', 0.0)
-        total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += taxa_periodo.get('desconto', 0.0)
+        try:
+            cod = codigos_classificaca_db.get(codigo_padrao=taxa_periodo['codigo_classificacao_item'].strip())
+        except ClassificacoesItens.DoesNotExist:
+            ...
+        else:
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += taxa_periodo.get('valor', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += taxa_periodo.get('valor_final', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += taxa_periodo.get('comissao_de_vendas', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += taxa_periodo.get('taxa_comercial', 0.0)
+            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += taxa_periodo.get('desconto', 0.0)
 
         # Processa os dados do dicionário principal
         for item in self.orcamento.objeto_orcamento['valores'].values():
