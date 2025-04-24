@@ -126,7 +126,7 @@
         {#        {% else %}#}
         <div id="conteudo">
             <div id="abas" style="display: flex">
-                {% if financeiro %}
+                {% if perms.orcamento.add_orcamentospromocionais %}
                     <div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>
                 {% endif %}
                 {% if comercial or diretoria %}
@@ -150,12 +150,14 @@
                          onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
                     </div>
                 {% endif %}
-                {#                {% if financeiro %}#}
-                <div class="folder" onclick="alterar_aba(this, 'previas_orcamento')">Prévias de orçamento</div>
-                <div class="folder"
-                     onclick="alterar_aba(this, 'tratativas')">Tratativas
-                </div>
-                {#                {% endif %}#}
+                {% if comercial or perms.orcamento.add_orcamentospromocionais %}
+                    <div class="folder" onclick="alterar_aba(this, 'previas_orcamento')">Prévias de orçamento</div>
+                {% endif %}
+                {% if comercial %}
+                    <div class="folder"
+                         onclick="alterar_aba(this, 'tratativas')">Tratativas
+                    </div>
+                {% endif %}
                 {% if diretoria %}
                     <div class="folder"
                          onclick="alterar_aba(this, 'fichas_financeiras_aprovar')">
@@ -490,7 +492,7 @@
                 {% endif %}
             {% endif %}
             {#        {% if financeiro %}#}
-            <div class="section-content {% if financeiro %} ativo {% endif %}" id="pacotes">
+            <div class="section-content {% if perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}" id="pacotes">
                 <div id="tabela_pacotes_promocionais" class="tabelas">
                     <div class="mb-2">
                         <label for="vencidos">
@@ -893,7 +895,7 @@
                     </table>
                 </div>
             </div>
-            <div id="fichas_financeiras_aprovadas" class="section-content">
+            <div id="fichas_financeiras_aprovadas" class="section-content {% if financeiro and not perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}">
                 <div class="tabelas">
                     <h5>Fichas Financeira aprovadas pela diretoria</h5>
                     <hr>
