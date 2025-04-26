@@ -20,11 +20,12 @@ def cm_to_pt(value_cm):
     return value_cm * cm
 
 
-def carregar_fontes_personalizadas(pasta_fontes=r'orcamento\modelos\fonts'):
+def carregar_fontes_personalizadas():
     """
     Carrega Red Hat Display e Montserrat (Regular, Bold, Italic) a partir da pasta_fontes.
     """
-
+    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+    pasta_fontes = os.path.join(diretorio_atual, 'modelos', 'fonts')
     fontes = {
         "RedHatDisplay": {
             "regular": "RedHatDisplay-Regular.ttf",
