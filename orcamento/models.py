@@ -1080,6 +1080,35 @@ class Orcamento(models.Model):
             return f'Orçamento promocional {self.id}'
 
     @property
+    def alimentacao_entrada(self):
+        return HorariosPadroes.objects.get(
+            entrada_saida=True,
+            horario__lte=self.check_in.astimezone().time(),
+            final_horario__gte=self.check_in.astimezone().time(),
+            so_ceu=self.tipo_de_pacote.so_ceu if self.promocional else False
+        ).descricao_alimentacao
+
+    @property
+    def alimentacao_saida(self):
+        return HorariosPadroes.objects.get(
+            entrada_saida=False,
+            horario__lte=self.check_in.astimezone().time(),
+            final_horario__gte=self.check_in.astimezone().time(),
+            so_ceu=self.tipo_de_pacote.so_ceu if self.promocional else False
+        ).descricao_alimentacao
+
+    @property
+    def dias_evento(self):
+        return (self.check_out.astimezone().date() - self.check_in.astimezone().date()).days + 1
+
+    @property
+    def infos_transporte(self):
+        return ValoresTransporte.objects.get(
+            inicio_vigencia__lte=self.check_in.astimezone().date(),
+            final_vigencia__gte=self.check_in.astimezone().date(),
+        ).descricao
+
+    @property
     def opcionais_contratados(self):
         opcionais_orcamento = self.opcionais.all()
         opcionais_pacote = self.orcamento_promocional.orcamento.opcionais.all() if self.orcamento_promocional else []

@@ -16,7 +16,7 @@ from cadastro.models import RelatorioDeAtendimentoPublicoCeu, RelatorioDeAtendim
 from escala.models import Escala, DiaLimite
 from financeiro.models import FichaFinanceira
 from mensagens.models import Mensagem
-from orcamento.gerar_orcamento import OrcamentoPDF
+from orcamento.gerar_orcamento import gerar_pdf_orcamento
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, Vendedor
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores

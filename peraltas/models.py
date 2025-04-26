@@ -107,8 +107,16 @@ class Vendedor(models.Model):
     def __str__(self):
         return self.usuario.get_full_name()
 
+    @property
     def nome_completo(self):
         return self.usuario.get_full_name()
+
+    @property
+    def telefone_formatado(self):
+        if len(self.telefone) == 11:
+            return f"({self.telefone[:2]}) 9 {self.telefone[3:7]} - {self.telefone[7:]}"
+        else:
+            return f"({self.telefone[:2]}) {self.telefone[2:7]} - {self.telefone[7:]}"
 
 
 class AtividadesEco(models.Model):

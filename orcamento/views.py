@@ -20,6 +20,7 @@ from mensagens.models import Mensagem
 from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco, Vendedor
 from projetoCEU.chatguru.chatguru import Chatguru
 from projetoCEU.utils import is_ajax
+from .gerar_orcamento import gerar_pdf_orcamento
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
     DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
     CategoriaOpcionais, OrcamentoMonitor
@@ -449,10 +450,12 @@ def veriricar_gerencia(request):
 @login_required(login_url='login')
 def gerar_pdf(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
+    pdf_buffer = gerar_pdf_orcamento(orcamento)
 
-    return render(request, 'orcamento/pdf_orcamento.html', {
-        'tratativa': orcamento,
-    })
+    response = HttpResponse(pdf_buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+
+    return response
 
 
 @login_required(login_url='login')
