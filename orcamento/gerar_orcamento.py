@@ -407,7 +407,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
 
     # ---------------------------------------- Informações dos opcionais -----------------------------------------------
     for opcional in orcamento.opcionais.all():
-        if y_atual <= 90:
+        if y_atual <= 100:
             c.showPage()
             iniciar_nova_pagina(c, pre_orcamento)
             desenhar_icones_segunda_pagina(c)
@@ -433,7 +433,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         c.showPage()
         iniciar_nova_pagina(c, pre_orcamento)
         c.drawString(2.25 * cm, altura - 6.5 * cm, "CONDIÇÕES FINAIS")
-        y_atual = altura - 6 * cm
+        y_atual = altura - 6.5 * cm
     else:
         c.drawString(2.25 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
         y_atual = y_atual - 0.8 * cm
