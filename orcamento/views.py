@@ -461,10 +461,12 @@ def gerar_pdf(request, id_orcamento):
 @login_required(login_url='login')
 def gerar_pdf_previa(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
+    pdf_buffer = gerar_pdf_orcamento(orcamento, pre_orcamento=True)
 
-    return render(request, 'orcamento/pdf_orcamento.html', {
-        'previa_orcamento': orcamento,
-    })
+    response = HttpResponse(pdf_buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+
+    return response
 
 
 def preencher_op_extras(request):

@@ -16,6 +16,18 @@ from reportlab.platypus import Paragraph
 from orcamento.models import Orcamento
 
 
+def marca_dagua(c):
+    largura, altura = A4
+    c.setFont("Helvetica", 35)
+    c.setFillColorRGB(0.7, 0.7, 0.7, alpha=0.7)
+    c.saveState()
+    c.rotate(45)
+    x = (largura + c.stringWidth('Pré orçamento - sem valor de negociação', "Helvetica", 35)) / 7
+    y = altura / 13
+    print(x, y)
+    c.drawString(x, y, 'Pré orçamento - sem valor de negociação')
+    c.restoreState()
+
 def cm_to_pt(value_cm):
     return value_cm * cm
 
@@ -175,17 +187,8 @@ def desenhar_elementos_fixos(c):
     )
 
 
-# Gera o PDF com gradiente desenhado manualmente
-def gerar_pdf_orcamento(orcamento):
-    buffer = BytesIO()
-    c = Canvas(buffer, pagesize=A4)
-    carregar_fontes_personalizadas()
+def primeira_pagina(c, orcamento):
     largura, altura = A4
-
-    # Desenhar elementos fixos no template
-    draw_vertical_gradient(c, steps=300)
-    desenhar_elementos_fixos(c)
-
     # Título da página
     c.setFont("RedHatDisplay-Bold", 32.5)
     c.setFillColor('#003271')
@@ -208,7 +211,7 @@ def gerar_pdf_orcamento(orcamento):
     c.setStrokeColor(colors.HexColor('#6F6A7B'))
     c.setLineWidth(0.1)
     c.setStrokeAlpha(0.4)
-    c.line(2.1 * cm, y_atual, (2.1 * cm + 16 * cm), y_atual)
+    c.line(2.1 * cm, y_atual, (2.1 * cm + 17 * cm), y_atual)
 
     # -------------------------------------------- Dados do pacote -----------------------------------------------------
     # -------------------------------------------- Dados do produto ----------------------------------------------------
@@ -220,7 +223,8 @@ def gerar_pdf_orcamento(orcamento):
         f'<b>PACOTE CONTRATADO</b>: {orcamento.produto.produto}',
         f'<b>CHECK-IN & CHECK-OUT</b>: {orcamento.check_in.astimezone().strftime("%d/%m/%Y %H:%M")} - {orcamento.check_out.astimezone().strftime("%d/%m/%Y %H:%M")}',
     ]
-    y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.5 * cm)) / cm, dados_produto_e_check_in, largura_maxima_cm=15, linha_offset_cm=0.4)
+    y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.5 * cm)) / cm, dados_produto_e_check_in,
+                                   largura_maxima_cm=15, linha_offset_cm=0.4)
     c.drawImage(
         'orcamento/modelos/icone_produto.png',
         cm_to_pt(2.23),
@@ -265,7 +269,9 @@ def gerar_pdf_orcamento(orcamento):
     c.setFillColor(black)
     c.drawString(8 * cm, y_atual - 0.8 * cm, "MONITORIA CONTRATADA")
     y_atual = y_atual - 0.8 * cm
-    y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.2 * cm)) / cm, [orcamento.tipo_monitoria.descricao_monitoria], largura_maxima_cm=15, line_spacing_cm=1.5)
+    y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.2 * cm)) / cm,
+                                   [orcamento.tipo_monitoria.descricao_monitoria], largura_maxima_cm=15,
+                                   line_spacing_cm=1.5)
     c.drawImage(
         'orcamento/modelos/icone_monitoria.png',
         cm_to_pt(2.34),
@@ -340,6 +346,21 @@ def gerar_pdf_orcamento(orcamento):
     c.setFillColor(black)
     c.drawString(10 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "@peraltasacampamento")
     c.drawString(16.6 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "(11) 9 4384 - 3828")
+
+
+def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
+    buffer = BytesIO()
+    c = Canvas(buffer, pagesize=A4)
+    carregar_fontes_personalizadas()
+    largura, altura = A4
+
+    # Desenhar elementos fixos no template
+    draw_vertical_gradient(c, steps=300)
+    desenhar_elementos_fixos(c)
+    primeira_pagina(c, orcamento)
+
+    if pre_orcamento:
+        marca_dagua(c)
 
     c.showPage()
     c.save()
