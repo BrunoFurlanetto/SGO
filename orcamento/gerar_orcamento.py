@@ -407,7 +407,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
 
     # ---------------------------------------- Informações dos opcionais -----------------------------------------------
     for opcional in orcamento.opcionais.all():
-        if y_atual <= 100:
+        if y_atual <= 120:
             c.showPage()
             iniciar_nova_pagina(c, pre_orcamento)
             desenhar_icones_segunda_pagina(c)
