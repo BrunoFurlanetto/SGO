@@ -24,9 +24,23 @@ def marca_dagua(c):
     c.rotate(45)
     x = (largura + c.stringWidth('Pré orçamento - sem valor de negociação', "Helvetica", 35)) / 7
     y = altura / 13
-    print(x, y)
     c.drawString(x, y, 'Pré orçamento - sem valor de negociação')
     c.restoreState()
+
+
+def iniciar_nova_pagina(c, pre_orcamento=False):
+    largura, altura = A4
+    draw_vertical_gradient(c, steps=300)
+    desenhar_elementos_fixos(c)
+    c.setFont("RedHatDisplay-Bold", 32.5)
+    c.setFillColor('#003271')
+    c.drawString(2 * cm, altura - 3 * cm, "PROPOSTA COMERCIAL")
+    c.setFont("Montserrat-Bold", 12)
+    c.setFillColor(black)
+
+    if pre_orcamento:
+        marca_dagua(c)
+
 
 def cm_to_pt(value_cm):
     return value_cm * cm
@@ -186,13 +200,51 @@ def desenhar_elementos_fixos(c):
         fill=1
     )
 
+    # --------------------------------------- Informações de rodapé ----------------------------------------------------
+    c.setFont("Montserrat", 12)
+    c.setFillColor(black)
+    c.drawString(10 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "@peraltasacampamento")
+    c.drawString(16.6 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "(11) 9 4384 - 3828")
 
-def primeira_pagina(c, orcamento):
+
+def desenhar_icones_segunda_pagina(c, x_inicial_cm=2.0, x_final_cm=15.0, altura_img_cm=1.4):
+    largura_total_cm = x_final_cm - x_inicial_cm
+    caminhos_imagens = [
+        "orcamento/modelos/icone_pedagogica.png",
+        "orcamento/modelos/icone_eco.png",
+        "orcamento/modelos/icone_ceu.png",
+        "orcamento/modelos/icone_lazer.png"
+    ]
+    num_imagens = len(caminhos_imagens)
+    largura_img_cm = 2.0  # Definindo uma largura fixa por imagem (exemplo)
+
+    # Espaço entre as imagens
+    if num_imagens > 1:
+        espaco_entre_cm = (largura_total_cm - (num_imagens * largura_img_cm)) / (num_imagens - 1)
+    else:
+        espaco_entre_cm = 0
+
+    x_atual_cm = x_inicial_cm
+    altura, largura = A4
+    y_pt = altura + (3.6 * cm)  # converter a posição y
+
+    for caminho_imagem in caminhos_imagens:
+        x_pt = x_atual_cm * cm
+        c.drawImage(
+            caminho_imagem,
+            x_pt,
+            y_pt,
+            width=largura_img_cm * cm,
+            height=altura_img_cm * cm,
+            preserveAspectRatio=True,
+            mask='auto'
+        )
+        x_atual_cm += largura_img_cm + espaco_entre_cm
+
+
+def primeira_pagina(c, orcamento, pre_orcamento=False):
     largura, altura = A4
-    # Título da página
-    c.setFont("RedHatDisplay-Bold", 32.5)
-    c.setFillColor('#003271')
-    c.drawString(2 * cm, altura - 3 * cm, "PROPOSTA COMERCIAL")
+    iniciar_nova_pagina(c, pre_orcamento)
 
     # Dados do colégio, responsável e consultor
     dados_cliente_responsavel = [
@@ -341,11 +393,105 @@ def primeira_pagina(c, orcamento):
         line_spacing_cm=1.5
     )
 
-    # --------------------------------------- Informações de rodapé ----------------------------------------------------
-    c.setFont("Montserrat", 12)
+    c.showPage()
+
+
+def segunda_pagina(c, orcamento, pre_orcamento=False):
+    largura, altura = A4
+    iniciar_nova_pagina(c, pre_orcamento)
+    desenhar_icones_segunda_pagina(c)
+    c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-    c.drawString(10 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "@peraltasacampamento")
-    c.drawString(16.6 * cm, cm_to_pt(29.7 - 25.3 - 3.40), "(11) 9 4384 - 3828")
+    c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
+    y_atual = altura - 6 * cm
+
+    # ---------------------------------------- Informações dos opcionais -----------------------------------------------
+    for opcional in orcamento.opcionais.all():
+        if y_atual <= 80:
+            c.showPage()
+            iniciar_nova_pagina(c, pre_orcamento)
+            desenhar_icones_segunda_pagina(c)
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
+            y_atual = altura - 6 * cm
+
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
+        c.drawString(2.85 * cm, y_atual - 0.8 * cm, opcional.nome)
+        y_atual = y_atual - 0.8 * cm
+        y_atual = desenhar_bloco_texto(
+            c,
+            3.7,
+            (altura - y_atual + (0.2 * cm)) / cm,
+            [opcional.descricao], largura_maxima_cm=15.10,
+            line_spacing_cm=1.5
+        )
+
+    # ------------------------------------------------- Condições finais -----------------------------------------------
+    if y_atual <= 300:
+        c.showPage()
+        iniciar_nova_pagina(c, pre_orcamento)
+        c.drawString(7 * cm, altura - 6 * cm, "CONDIÇÕES FINAIS")
+        y_atual = altura - 6 * cm
+    else:
+        c.drawString(2.25 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
+        y_atual = y_atual - 0.8 * cm
+
+    condicoes_finais = [
+        'Serão disponibilizadas 05 cortesias para professors e coordenadores acompanharem o grupo.',
+        'Para cada cortesia adicional, será cobrado 50% do valor do pacote.',
+        'Esse pacote inclui transporte de ida e volta, estadia de 3 dias com pensão completa (2 cafés, 2 almoços, 2 jantares e 4 lanches), com entrada as 10hs para almoço,  Monitoria na proporção media de 1/12 alunos, Seguro saúde, 3 atividades no Centro de Estudos, entrevista com Astornomos conforme a programação de estudos e atividades.',
+    ]
+    y_atual = desenhar_bloco_texto(
+        c,
+        2.85,
+        (altura - y_atual + (0.2 * cm)) / cm,
+        condicoes_finais, largura_maxima_cm=15.95,
+        line_spacing_cm=1.5
+    )
+
+    # --------------------------------------------- Informações de pagamento -------------------------------------------
+    c.setFont("Montserrat-Bold", 12)
+    c.setFillColor(black)
+    c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
+    y_atual = y_atual - 0.8 * cm
+
+    dados_pagamento = [
+        'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno. Em até 6x',
+    ]
+    y_atual = desenhar_bloco_texto(
+        c,
+        4,
+        (altura - y_atual + (0.2 * cm)) / cm,
+        dados_pagamento, largura_maxima_cm=16.55,
+        line_spacing_cm=1.5
+    )
+
+    c.setFont("Montserrat-Bold", 12)
+    c.setFillColor(black)
+    c.drawString(4 * cm, y_atual - 0.8 * cm, "FORMA DE PAGAMENTO")
+    y_atual = y_atual - 0.8 * cm
+    dados_forma_pagamento = [
+        'Os pagamento podem ser realizados de duas maneiras',
+        '1. <b>Via Sistema Peraltas</b>: Até 6 parcelas mensais consecutivas.',
+        '2. <b>Via Escola</b>: Em até 5 parcelas.',
+    ]
+    y_atual = desenhar_bloco_texto(
+        c,
+        4,
+        (altura - y_atual + (0.2 * cm)) / cm,
+        dados_forma_pagamento, largura_maxima_cm=16.55,
+        line_spacing_cm=1.5
+    )
+    c.drawImage(
+        'orcamento/modelos/icone_pagamentos.png',
+        cm_to_pt(2.25),
+        cm_to_pt((y_atual / cm) + 2),
+        width=cm_to_pt(1.49),
+        height=cm_to_pt(1.43),
+        mask='auto'
+    )
 
 
 def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
@@ -355,15 +501,10 @@ def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
     largura, altura = A4
 
     # Desenhar elementos fixos no template
-    draw_vertical_gradient(c, steps=300)
-    desenhar_elementos_fixos(c)
-    primeira_pagina(c, orcamento)
+    primeira_pagina(c, orcamento, pre_orcamento=pre_orcamento)
+    segunda_pagina(c, orcamento, pre_orcamento=pre_orcamento)
 
-    if pre_orcamento:
-        marca_dagua(c)
-
-    c.showPage()
     c.save()
-
     buffer.seek(0)
+
     return buffer
