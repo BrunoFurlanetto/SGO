@@ -1925,8 +1925,12 @@ function printTable() {
 //     $('#verificacao_gerencia #senha').val('')
 // }
 
-function atribuir_apelaido(input_apelido) {
-    $('#id_apelido').val(input_apelido.value)
+function atribuir_apelido() {
+    $('#id_apelido').val($('#apelido_orcamento').val())
+    $('#id_condicoes_finais').val($('#condicoes_finais').val())
+}
+
+function verificar_apelido(input_apelido) {
     if (input_apelido.value.length > 5) {
         $('#btn_salvar_apelido').prop('disabled', false)
     } else {

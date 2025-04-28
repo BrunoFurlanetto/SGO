@@ -760,6 +760,13 @@ def transformar_em_tratativa(request, id_orcamento):
             negado_cliente=False,
             orcamento_vencido=False
         )
+        data_vencimento = (datetime.datetime.today().date() + datetime.timedelta(days=15))
+
+        if orcamento.orcamento_promocional and data_vencimento > orcamento.orcamento_promocional.orcamento.data_vencimento:
+            orcamento.data_vencimento = orcamento.orcamento_promocional.orcamento.data_vencimento
+        else:
+            orcamento.data_vencimento = data_vencimento
+
         orcamento.previa = False
         orcamento.save()
         messages.success(request, f'Orçamento de {orcamento.cliente.__str__()} transformado em tratativa com sucesso!')

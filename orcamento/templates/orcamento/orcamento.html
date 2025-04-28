@@ -46,6 +46,7 @@
             <fieldset>
                 {% csrf_token %}
                 {{ orcamento.apelido.as_hidden }}
+                {{ orcamento.condicoes_finais.as_hidden }}
                 <input type="hidden" name="gerente_responsavel" id="gerente_responsavel" value="{{ orcamento_origem.gerente_responsavel.id }}">
                 <input type="hidden" name="mensagem_gerencia" id="mensagem_gerencia">
                 <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional"
@@ -861,12 +862,27 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <label for="apelido_orcamento">Forneça um apelido para o orçamento</label>
-                    <input type="text" id="apelido_orcamento" name="apelido_orcamento" onkeyup="atribuir_apelaido(this)"
-                           required>
+                    <div>
+                        <label for="apelido_orcamento">Forneça um apelido para o orçamento</label>
+                        <input type="text" id="apelido_orcamento" name="apelido_orcamento" required onkeyup="verificar_apelido(this)">
+                    </div>
+                    <div>
+                        <label for="modal_condicoes_finais">Condições finais</label>
+                            {% if not orcamento_origem %}
+                                <textarea name="condicoes_finais" id="condicoes_finais" cols="30" rows="10" required>
+Será concedida 1 cortesia para professor(a) a cada 15 alunos pagantes. No caso de exceder essa proporção, cada cortesia adicional será cobrada no valor correspondente a 50% do valor integral do pacote contratado.
+
+A realização do evento está condicionada à participação mínima de 35 alunos.
+                                </textarea>
+                            {% else %}
+                                <textarea name="condicoes_finais" id="condicoes_finais" cols="30" rows="10">
+{{ orcamento_origem.condicoes_finais | safe }}
+                                </textarea>
+                            {% endif %}
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary" disabled>
+                    <button id="btn_salvar_apelido" type="button" class="btn btn-primary" disabled onclick="atribuir_apelido()">
                         Salvar
                     </button>
                 </div>

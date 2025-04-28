@@ -1068,6 +1068,7 @@ class Orcamento(models.Model):
         auto_now=True,
         verbose_name='Data da ultima edição'
     )
+    condicoes_finais = models.TextField(blank=True)
 
     class Meta:
         verbose_name = 'Orçamento'

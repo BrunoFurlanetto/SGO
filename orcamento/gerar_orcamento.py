@@ -297,8 +297,8 @@ def primeira_pagina(c, orcamento, pre_orcamento=False):
         dados_alimentacao = [orcamento.alimentacao_saida]
     elif orcamento.dias_evento == 2:
         dados_alimentacao = [
-            f'Primeiro dia: {orcamento.alimentacao_entrada}',
-            f'Segundo dia: {orcamento.alimentacao_saida}',
+            f'<b>Primeiro dia</b>: {orcamento.alimentacao_entrada}',
+            f'<b>Segundo dia</b>: {orcamento.alimentacao_saida}',
         ]
     else:
         dados_alimentacao = [
@@ -382,7 +382,6 @@ def primeira_pagina(c, orcamento, pre_orcamento=False):
     y_atual = y_atual - 0.8 * cm
     obs = [
         'Não oferecemos acomodações para motoristas quando o transporte não for operado por nós.',
-        'O pacote inclui roupa de cama. Trazer toalha de banho e de piscina.',
         'É fundamental que cada aluno traga suas próprias toalhas para a piscina e para banho.',
     ]
 
@@ -442,11 +441,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         c.drawString(2.25 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
         y_atual = y_atual - 0.8 * cm
 
-    condicoes_finais = [
-        'Serão disponibilizadas 05 cortesias para professors e coordenadores acompanharem o grupo.',
-        'Para cada cortesia adicional, será cobrado 50% do valor do pacote.',
-        'Esse pacote inclui transporte de ida e volta, estadia de 3 dias com pensão completa (2 cafés, 2 almoços, 2 jantares e 4 lanches), com entrada as 10hs para almoço,  Monitoria na proporção media de 1/12 alunos, Seguro saúde, 3 atividades no Centro de Estudos, entrevista com Astornomos conforme a programação de estudos e atividades.',
-    ]
+    condicoes_finais = [orcamento.condicoes_finais]
     y_atual = desenhar_bloco_texto(
         c,
         2.85,
@@ -458,8 +453,8 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     # --------------------------------------------- Informações de pagamento -------------------------------------------
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-
-    if y_atual <= 200:
+    print(y_atual)
+    if y_atual <= 230:
         c.showPage()
         iniciar_nova_pagina(c, pre_orcamento)
         c.drawString(2.25 * cm, altura - 6.5 * cm, "INVESTIMENTO POR ALUNO")
@@ -468,20 +463,27 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
         y_atual = y_atual - 0.8 * cm
 
-    dados_pagamento = [
-        'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno. Em até 6x',
-    ]
+    if pre_orcamento:
+        dados_pagamento = [
+            'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno. Em até 6x',
+        ]
+    else:
+        dados_pagamento = [
+            f'Para o fechamento até <b>{orcamento.data_vencimento.strftime("%d/%m/%Y")}</b>, um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace(
+                '.', ',') + ' por aluno. Em até 6x.',
+        ]
+
     y_atual = desenhar_bloco_texto(
         c,
-        4,
+        2.85,
         (altura - y_atual + (0.2 * cm)) / cm,
-        dados_pagamento, largura_maxima_cm=16.55,
+        dados_pagamento, largura_maxima_cm=15.95,
         line_spacing_cm=1.5
     )
 
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-    c.drawString(4 * cm, y_atual - 0.8 * cm, "FORMA DE PAGAMENTO")
+    c.drawString(4 * cm, y_atual - 0.8 * cm, "FORMAS DE PAGAMENTO")
     y_atual = y_atual - 0.8 * cm
     dados_forma_pagamento = [
         'Os pagamento podem ser realizados de duas maneiras',
@@ -498,11 +500,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     c.drawImage(
         'orcamento/modelos/icone_pagamentos.png',
         cm_to_pt(2.25),
-        cm_to_pt((y_atual / cm) + 2),
+        cm_to_pt((y_atual / cm) + 1),
         width=cm_to_pt(1.49),
         height=cm_to_pt(1.43),
         mask='auto'
     )
+
 
 def mesclar_pdf_dinamico_com_modelo(pdf_dinamico_buffer, caminho_pdf_modelo):
     """
