@@ -1,5 +1,6 @@
 from io import BytesIO
 
+from PyPDF2 import PdfWriter, PdfReader
 from reportlab.lib import colors
 from reportlab.lib.colors import white, darkblue, black
 from reportlab.lib.enums import TA_JUSTIFY
@@ -429,6 +430,9 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         )
 
     # ------------------------------------------------- Condições finais -----------------------------------------------
+    c.setFont("Montserrat-Bold", 12)
+    c.setFillColor(black)
+
     if y_atual <= 300:
         c.showPage()
         iniciar_nova_pagina(c, pre_orcamento)
@@ -454,8 +458,15 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     # --------------------------------------------- Informações de pagamento -------------------------------------------
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-    c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
-    y_atual = y_atual - 0.8 * cm
+
+    if y_atual <= 200:
+        c.showPage()
+        iniciar_nova_pagina(c, pre_orcamento)
+        c.drawString(2.25 * cm, altura - 6.5 * cm, "INVESTIMENTO POR ALUNO")
+        y_atual = altura - 6.5 * cm
+    else:
+        c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
+        y_atual = y_atual - 0.8 * cm
 
     dados_pagamento = [
         'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno. Em até 6x',
@@ -493,6 +504,45 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         mask='auto'
     )
 
+def mesclar_pdf_dinamico_com_modelo(pdf_dinamico_buffer, caminho_pdf_modelo):
+    """
+    Mescla o PDF gerado dinamicamente com o modelo fixo, inserindo as páginas dinâmicas
+    antes da última página do modelo.
+
+    Args:
+        pdf_dinamico_buffer (BytesIO): O buffer contendo o PDF gerado dinamicamente.
+        caminho_pdf_modelo (str): Caminho para o arquivo de modelo fixo (.pdf).
+
+    Returns:
+        BytesIO: Buffer com o PDF final mesclado.
+    """
+    # Criar writer para o PDF de saída
+    output = PdfWriter()
+
+    # Carregar o modelo fixo
+    modelo_reader = PdfReader(caminho_pdf_modelo)
+
+    # Adicionar todas as páginas do modelo, menos a última
+    for i in range(len(modelo_reader.pages) - 1):
+        output.add_page(modelo_reader.pages[i])
+
+    # Carregar o PDF dinâmico
+    dinamico_reader = PdfReader(pdf_dinamico_buffer)
+
+    # Adicionar todas as páginas geradas dinamicamente
+    for page in dinamico_reader.pages:
+        output.add_page(page)
+
+    # Adicionar a última página do modelo
+    output.add_page(modelo_reader.pages[-1])
+
+    # Escrever o PDF final em memória
+    resultado_buffer = BytesIO()
+    output.write(resultado_buffer)
+    resultado_buffer.seek(0)
+
+    return resultado_buffer
+
 
 def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
     buffer = BytesIO()
@@ -506,5 +556,6 @@ def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
 
     c.save()
     buffer.seek(0)
+    buffer = mesclar_pdf_dinamico_com_modelo(buffer, 'orcamento/modelos/modelo_orcamento_completo.pdf')
 
     return buffer

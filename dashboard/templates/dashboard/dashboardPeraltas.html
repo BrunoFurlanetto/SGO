@@ -582,7 +582,7 @@
                                                     {% if previa.status_orcamento.negativa_gerencia or previa.status_orcamento.aprovacao_gerencia %}
                                                     disabled
                                                     {% endif %}
-                                                    onclick="window.location.href = '{% url 'previa_pdf_orcamento' previa.id %}'">
+                                                    onclick="window.open('{% url 'previa_pdf_orcamento' previa.id %}', '_blank')">
                                                 <i class='bx bxs-file-pdf'></i>
                                             </button>
                                             <button type="button" style="font-size: 25px;" class="button_pdf"
@@ -722,7 +722,7 @@
                                                             {% if previa.status_orcamento.negativa_gerencia or previa.status_orcamento.aprovacao_gerencia %}
                                                             disabled
                                                             {% endif %}
-                                                            onclick="window.location.href = '{% url 'pdf_orcamento' orcamento.id %}'">
+                                                            onclick="window.open('{% url 'pdf_orcamento' orcamento.id %}', '_blank')">
                                                         <i class='bx bxs-file-pdf'></i>
                                                     </button>
                                                 </div>
