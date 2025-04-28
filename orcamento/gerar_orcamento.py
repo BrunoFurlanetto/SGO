@@ -407,26 +407,27 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
 
     # ---------------------------------------- Informações dos opcionais -----------------------------------------------
     for opcional in orcamento.opcionais.all():
-        if y_atual <= 200:
-            c.showPage()
-            iniciar_nova_pagina(c, pre_orcamento)
-            desenhar_icones_segunda_pagina(c)
+        if not opcional.categoria.staff:
+            if y_atual <= 200:
+                c.showPage()
+                iniciar_nova_pagina(c, pre_orcamento)
+                desenhar_icones_segunda_pagina(c)
+                c.setFont("Montserrat-Bold", 12)
+                c.setFillColor(black)
+                c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
+                y_atual = altura - 6 * cm
+
             c.setFont("Montserrat-Bold", 12)
             c.setFillColor(black)
-            c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
-            y_atual = altura - 6 * cm
-
-        c.setFont("Montserrat-Bold", 12)
-        c.setFillColor(black)
-        c.drawString(2.85 * cm, y_atual - 0.8 * cm, opcional.nome)
-        y_atual = y_atual - 0.8 * cm
-        y_atual = desenhar_bloco_texto(
-            c,
-            3.7,
-            (altura - y_atual + (0.2 * cm)) / cm,
-            [opcional.descricao], largura_maxima_cm=15.10,
-            line_spacing_cm=1.5
-        )
+            c.drawString(2.85 * cm, y_atual - 0.8 * cm, opcional.nome)
+            y_atual = y_atual - 0.8 * cm
+            y_atual = desenhar_bloco_texto(
+                c,
+                3.7,
+                (altura - y_atual + (0.2 * cm)) / cm,
+                [opcional.descricao], largura_maxima_cm=15.10,
+                line_spacing_cm=1.5
+            )
 
     # ------------------------------------------------- Condições finais -----------------------------------------------
     c.setFont("Montserrat-Bold", 12)
