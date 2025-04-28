@@ -436,9 +436,13 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     if y_atual <= 300:
         c.showPage()
         iniciar_nova_pagina(c, pre_orcamento)
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
         c.drawString(2.25 * cm, altura - 6.5 * cm, "CONDIÇÕES FINAIS")
         y_atual = altura - 6.5 * cm
     else:
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
         c.drawString(2.25 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
         y_atual = y_atual - 0.8 * cm
 
@@ -452,15 +456,17 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     )
 
     # --------------------------------------------- Informações de pagamento -------------------------------------------
-    c.setFont("Montserrat-Bold", 12)
-    c.setFillColor(black)
-    print(y_atual)
+
     if y_atual <= 230:
         c.showPage()
         iniciar_nova_pagina(c, pre_orcamento)
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
         c.drawString(2.25 * cm, altura - 6.5 * cm, "INVESTIMENTO POR ALUNO")
         y_atual = altura - 6.5 * cm
     else:
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
         c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
         y_atual = y_atual - 0.8 * cm
 
