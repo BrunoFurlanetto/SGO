@@ -1,0 +1,726 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tag %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_orcamento.css' %}">
+    <link rel="stylesheet" href="{% static 'datepicker/daterangepicker.css' %}"/>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'css/impressao_css.css' %}" type="text/css" id="style_impressao"/>
+    <img id="logo_peraltas" class="none" src="{% static 'img/grupoPeraltas.png' %}" alt="">
+
+    <div class="conteudo-orcamento">
+        <div id="subtotal" class="div-flutuante visivel"
+             style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; {% else %} pointer-events: none {% endif %}"
+             onclick="$('#modal_descritivo').modal('show')">
+            {% if request.user in usuarios_gerencia or financeiro %}
+                <div class="floating-box none" id="floatingBox">Clique aqui</div>
+            {% endif %}
+            <strong>Valor final</strong><span></span>
+        </div>
+        {% if mensagens|length > 0 %}
+        	<div id="historico_mensagens" class="div-flutuante visivel"
+                 data-target="#chatModal" data-toggle="modal">
+                <i class='bx bx-chat'></i>
+            </div>
+        {% endif %}
+
+        <div class="head-orcamento">
+            <h2>Montagem de pacote</h2>
+            <hr>
+        </div>
+
+        <form id="orcamento" style="position: relative"
+              name="orcamento" {% comment %}{% if tratativa %} action="{% url 'salvar_orcamento_clone' tratativa.id %}" {% else %} action="{% url 'salvar_orcamento' %}" {% endif %}{% endcomment %}>
+            <fieldset>
+                {% csrf_token %}
+                <input type="hidden" id="id_pacote_promocional" name="id_pacote_promocional"
+                       value="{{ dados_pacote.id }}">
+                <input type="hidden" name="id_orcamento_clonado" id="id_orcamento_clonado" value="{{ id_orcamento_clonado }}">
+                <input type="hidden" name="salvar_previa" id="salvar_previa">
+                {% if previa %}
+                    <input type="hidden" name="id_previa_orcamento" id="id_previa_orcamento" value="{{ id_orcamento }}">
+                {% endif %}
+                <div id="conteudo_primeiro" class="conteudo-primeiro">
+                    <h5 class="titulo-secao">Informações gerais</h5>
+                    <div class="mt-2">
+                        <div class="mb-2 d-flex align-items-center" style="column-gap: 7px">
+                            {{ orcamento.promocional.as_hidden }}
+                            <label for="id_promocional">Dados do pacote</label>
+                            <button type="button"
+                                    data-toggle="modal" data-target="#dados_do_pacote"
+                                    id="btn_dados_pacote">
+                                <i class='bx bx-message-square-edit'></i>
+                            </button>
+                        </div>
+                        <div>
+                            {% if not orcamento_origem or orcamento_origem.previa %}
+                            	<div>
+                                    <label>Apelido do orçamento</label>
+                                    {{ orcamento.apelido }}
+                                </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <strong>Nome do pacote:</strong> <span id="nome_pacote_promocional">{{ dados_pacote.nome_do_pacote }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {{ orcamento.pacote_promocional.as_hidden }}
+                    {% if orcamento_origem and not orcamento_origem.previa %}
+                        <div class="d-flex gap-1 mt-2">
+                            <input type="checkbox" class="form-check-input" name="liberado_para_venda" id="liberado_para_venda"
+                                    {% if promocional.liberado_para_venda %} checked {% endif %}>
+                            <label for="liberado_para_venda">Liberado para venda</label>
+                        </div>
+                    {% endif %}
+                </div>
+                <div id="container_periodo" class="{% if not id_orcamento %} none {% endif %}">
+                    <div id="periodo_viagem" class="conteudo">
+                        <div id="periodo" >
+                            <h5 class="titulo-secao">Período para base de cálculo</h5>
+                            <input type="text" class="data_daterange" name="data_viagem" id="data_viagem"
+                                   onchange="separar_produtos(this)"/>
+                        </div>
+                        <div id="promocionais" class="none">
+                            <h5 class="titulo-secao">Pacotes promocionais</h5>
+                            <div>
+                                <label for="produto">Tipo de pacote</label>
+                                {{ orcamento.tipo_de_pacote }}
+                            </div>
+                            <div style="width: 60%">
+                                <label for="{{ orcamento.orcamento_promocional.id_for_label }}">Pacote promocional</label>
+                                {{ orcamento.orcamento_promocional }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="parcial"></div>
+                </div>
+                <div id="campos_fixos">
+                    <div id="container_monitoria_transporte" style="margin-bottom: -55px"
+                         class="{% if not id_orcamento %} none {% endif %}">
+                        <div id="monitoria_transporte" class="row" style="padding: 0 10px 10px"
+                             onchange="verificar_monitoria_transporte()">
+                            <div id="monitoria" class="conteudo" style="width: 62%">
+                                <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.monitoria_fechado %} none {% endif %}"></div>
+                                <h5 class="titulo-secao">Monitoria</h5>
+                                <div>
+                                    {{ orcamento.tipo_monitoria.label }}
+                                    {{ orcamento.tipo_monitoria }}
+                                </div>
+                            </div>
+                            <div class="conteudo" style="width: 35%">
+                                <h5 class="titulo-secao">Transporte a partir de São Paulo</h5>
+                                <div id="transporte">
+                                    <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.transporte_fechado %} none {% endif %}"></div>
+                                    {{ orcamento.transporte }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parcial"></div>
+                    </div>
+                    <div id="container_opcionais" style="margin-bottom: -45px"
+                         class="{% if not id_orcamento %} none {% endif %}">
+                        <div id="opcionais" class="conteudo">
+                            <div class="bloqueado {% if orcamento_origem.orcamento_promocional and not orcamento_origem.orcamento_promocional.dados_pacote.opcionais_fechado %} none {% endif %}"></div>
+                            <h5 class="titulo-secao">Opcionais</h5>
+                            <div>
+                                <div class="{% if editando_pacote or not orcamento_origem.orcamento_promocional %} none {% endif %} alert alert-info">
+                                    Em pacotes promocionais, não é possível remover opcionais setados como padrão pelo
+                                    administrador, apenas adicionar outros opcionais.
+                                </div>
+                                {% for categoria, opcional in orcamento.opcionais_por_categoria.items %}
+                                    <div id="{{ opcional.id_for_label }}" class="mt-2 flex-column {% if opcionais_staff.nome_categoria == categoria and not financeiro %} none {% endif %}">
+                                        <label for="{{ opcional.id_for_label }}">{{ categoria }}</label>
+                                        <select {% if categoria in categorias_so_ceu %} class="so_ceu" disabled {% endif %} id="{{ opcional.id_for_label }}" name="opcionais" multiple>
+                                            {% for option in opcional.field.queryset %}
+                                                <option value="{{ option.id }}"
+                                                        {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="{% if not opcional.id_for_label in opcionais_pacote.keys %} none {% endif %} px-2 pt-1 pb-1 alert-info">{{ categoria }} já presentes no pacote: <span>
+                                            {% if opcional.id_for_label in opcionais_pacote.keys %}
+                                                {% for cat, opts_pacote in opcionais_pacote.items %}
+                                                	{% if cat == opcional.id_for_label %}
+                                                		{{ opts_pacote | join:', ' }}
+                                                	{% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </span></div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="row mt-3">
+                                <p>Outros itens</p>
+                                <hr>
+                                <div id="legenda_opcionais_extra" class="none">
+                                    <p>Nome</p>
+                                    <p>Descrição</p>
+                                    <p>Valor</p>
+                                </div>
+                                <div id="lista_opcionais_extra"></div>
+                                <div>
+                                    <button id="botao_add_opcionais" type="button"
+                                            onclick="$('#adicionar_opcional').modal('show'); $('#adicionar_opcional input, #adicionar_opcional textarea').val('')">
+                                        Adicionar outro item
+                                        <i class='bx bx-plus'></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <hr>
+                            {% if financeiro %}
+                                <button id="botao_lista_valores" class="mt-3" type="button" onclick="$('#valores_outros_opcionais').modal('show');
+                                                                                                $('#btn_salvar_orcamento').prop('disabled', false)">
+                                    <i class='bx bxs-food-menu'></i>
+                                    Lista de valores
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="parcial"></div>
+                    </div>
+                </div>
+                <div id="finalizacao" class="conteudo {% if not id_orcamento %} none {% endif %}">
+                    <h5 class="titulo-secao">Observações</h5>
+                    <div>
+                        <label for="observacoes_orcamento">Observações gerais do orçamento</label>
+                        {{ orcamento.observacoes }}
+                    </div>
+                    {{ orcamento.aprovacao_diretoria.as_hidden }}
+                    <input type="hidden" name="resposta_diretoria" id="resposta_diretoria">
+                    <input type="hidden" name="colaborador" value="{% if gerente_aprovando %}{{ orcamento_origem.colaborador.id }}{% else %}{{ request.user.id }}{% endif %}"
+                           id="id_colaborador">
+                    <div class="botoes d-flex flex-wrap justify-content-end gap-2" >
+                        {% if not orcamento_origem or orcamento_origem.previa %}
+                        	<button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark" onclick="verificar_validade_apelido(true)">
+                                Salvar prévia de pacote
+                            </button>
+                        {% endif %}
+
+                        <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
+                                onclick="verificar_validade_apelido(false)">
+                            Salvar pacote final
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+    <!--  Modal para adicionar um novo opcional  -->
+    <div class="modal fade" id="adicionar_opcional" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Adicionar novo opcional extra</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <p id="aviso" class="alert alert-warning none"></p>
+                    </div>
+                    <div class="row">
+                        <div style="width: 73%">
+                            <label for="nome_opcional">Nome do opcional</label>
+                            <input type="text" name="nome_opcional" id="nome_opcional" required>
+                        </div>
+                        <div style="width: 27%">
+                            <label for="valor_opcional">Valor</label>
+                            <input type="text" name="valor_opcional" id="valor_opcional" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="descricao_opcional">Descrição</label>
+                        <textarea name="descricao_opcional" id="descricao_opcional" cols="30" rows="10"
+                                  required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="adicionar_novo_op()">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  Modal valores dos outros opcionais  -->
+    <div class="modal fade" id="valores_outros_opcionais" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Lista de valores extra</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="forms_valores_op" method="POST">
+                        <table id="tabela_de_opcionais" class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">Opcional</th>
+                                <th style="width: 25%">Valor</th>
+                                <th style="width: 25%">Desconto</th>
+                                <th style="width: 25%">Acrescimo</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if not orcamento_origem.promocional and orcamento_origem.orcamento_promocional %}
+                                {% for op in orcamento_origem.orcamento_promocional.listar_ops_promocionais %}
+                                    <tr id="opcionais_{{ op.id }}" class="opcionais promocional">
+                                        <th><input type="text" id="nome_opcionais_{{ forloop.counter }}"
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   value="{{ op.nome }}" disabled></th>
+                                        <input type="hidden" id="id_opcionais_{{ forloop.counter }}"
+                                               name="opcionais_{{ forloop.counter }}"
+                                               value="{{ op.id }}">
+                                        <input type="hidden"
+                                               id="valor_bd_opcionais_{{ forloop.counter }}"
+                                               name="opcionais_{{ forloop.counter }}"
+                                               value='{{ op.valor }}' disabled>
+                                        <th><input type="text" id="valor_opcionais_{{ forloop.counter }}"
+                                                   disabled
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   value='{{ op.valor_com_desconto | somar_float:op.acrescimo | floatformat:'2' }}'></th>
+                                        <th><input type="text"
+                                                   id="desconto_opcionais_{{ forloop.counter }}"
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   data-limite_desconto="{{ op.valor }}"
+                                                   value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_{{ forloop.counter }}"
+                                                   name="opcionais_{{ forloop.counter }}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            {% for op in orcamento_origem.listar_opcionais %}
+                                {% if op.categoria != 'extra' %}
+                                    <tr id="opcionais_{{ op.id }}" class="opcionais">
+                                        <th><input type="text" id="nome_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   value="{{ op.nome }}" disabled></th>
+                                        <input type="hidden" id="id_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               value="{{ op.id }}">
+                                        <input type="hidden"
+                                               id="valor_bd_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                               value='{{ op.valor }}' disabled>
+                                        <th><input type="text" id="valor_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   disabled
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   value='{{ op.valor | somar_float:op.acrescimo | floatformat:'2' }}'></th>
+                                        <th><input type="text"
+                                                   id="desconto_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   data-limite_desconto="{{ op.valor }}"
+                                                   value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   name="opcionais_{% if not orcamento_origem.promocional %}{{ orcamento_origem.orcamento_promocional.listar_ops_promocionais | length | add:forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                    </tr>
+                                {% else %}
+                                    <tr id="opcionais_extra_{{ op.id }}" class="opcionais">
+                                        <th><input type="text" id="nome_opcionais_extra_{{ forloop.counter }}"
+                                                   name="opcionais_extra_{{ forloop.counter }}"
+                                                   value="{{ op.nome }}" disabled></th>
+                                        <input type="hidden" id="id_opcionais_extra_{{ forloop.counter }}"
+                                               name="opcionais_extra_{{ forloop.counter }}"
+                                               value="{{ op.id }}">
+                                        <input type="hidden"
+                                               id="valor_bd_opcionais_extra_{{ forloop.counter }}"
+                                               name="opcionais_extra_{{ forloop.counter }}"
+                                               value='{{ op.valor }}' disabled>
+                                        <th><input type="text" id="valor_opcionais_extra_{{ forloop.counter }}"
+                                                   disabled
+                                                   name="opcionais_extra_{{ forloop.counter }}"
+                                                   value='{{ op.valor_com_desconto | floatformat:'2' }}'></th>
+                                        <th><input type="text"
+                                                   id="desconto_opcionais_extra_{{ forloop.counter }}"
+                                                   name="opcionais_extra_{{ forloop.counter }}"
+                                                   data-limite_desconto="{{ op.valor }}"
+                                                   disabled value="{{ op.desconto | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                        <th><input type="text"
+                                                   id="acrescimo_opcionais_extra_{{ forloop.counter }}"
+                                                   name="opcionais_extra_{{ forloop.counter }}"
+                                                   value="{{ op.acrescimo | floatformat:'2' }}"
+                                                   onchange="aplicar_desconto(this)"></th>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="atualizar_valores_op(true)">
+                        Salvar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="modal_descritivo" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Descritivo de valores</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_gerencia" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="id_gerente" id="id_gerente" {% if  gerente_aprovando %}
+                                   value="{{ request.user }}" {% endif %}>
+                            <h5>Parâmetros da gerência</h5>
+                            <div style="border: dashed 1px #5c636a">
+                                <div id="campos_alteraveis" style="display: flex; column-gap: 50px; padding: 20px"
+                                     onchange="verificar_alteracoes(this)">
+                                    {{ taxas_padrao|safe }}
+                                    <div>
+                                        <label for="valor_final">Valor final</label>
+                                        <input disabled type="text" id="valor_final">
+                                    </div>
+                                </div>
+                                <p id="avisos_pisos_tetos" class="none alert alert-warning"></p>
+                                <div>
+                                    <p id="alteracoes_aviso" class="alert alert-warning none">Alterações de taxas não
+                                        altorizadas pela gerência!</p>
+                                </div>
+                            </div>
+                            <hr  {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>
+                            <h5 {% if not perms.orcamento.add_dadosdepacotes %} class="none" {% endif %}>Parâmetros de
+                                pacotes</h5>
+                            <div id="div_financeiro" {% if not perms.orcamento.add_dadosdepacotes %}
+                                 class="none" {% endif %}>
+                                <div>
+                                    <div>
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_diaria != '0,00'%} none {% endif %}">
+                                            <label for="desconto_produto_percent">
+                                                Desconto diaria (%)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_produto_percent"
+                                                   name="desconto_produto_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_diaria }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_diaria == '0,00' %} none {% endif %}">
+                                            <label for="desconto_produto_real">
+                                                Desconto diaria ($)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_produto_real" name="desconto_produto_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_diaria }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_monitoria != '0,00'%} none {% endif %}">
+                                            <label for="desconto_monitoria_percent">
+                                                Desconto monitoria (%)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_monitoria_percent"
+                                                   name="desconto_monitoria_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_monitoria }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_monitoria == '0,00' %} none {% endif %}">
+                                            <label for="desconto_monitoria_real">
+                                                Desconto monitoria ($)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_monitoria_real"
+                                                   name="desconto_monitoria_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_monitoria }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="div_desconto_percent {% if not orcamento_origem or orcamento_origem and orcamento_origem.desconto_real_transporte != '0,00'%} none {% endif %}">
+                                            <label for="desconto_transporte_percent">
+                                                Desconto transporte (%)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_transporte_percent"
+                                                   name="desconto_transporte_percent"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_percentual_transporte }}{% else %}0,00{% endif %}%"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                        <div class="div_desconto_real {% if orcamento_origem and orcamento_origem.desconto_real_transporte == '0,00' %} none {% endif %}">
+                                            <label for="desconto_transporte_real">
+                                                Desconto transporte ($)
+                                                <button type="button" class="btn-troca-desconto"
+                                                        onclick="trocar_modalidade_desconto(this)"><i
+                                                        class='bx bx-transfer-alt'></i></button>
+                                            </label>
+                                            <input type="text" id="desconto_transporte_real"
+                                                   name="desconto_transporte_real"
+                                                   value="{% if orcamento_origem %}{{ orcamento_origem.desconto_real_transporte }}{% else %}0,00{% endif %}"
+                                                   onchange="enviar_infos_gerencia()">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="data_vencimento">Data de vencimento</label>
+                                    <input type="date" name="data_vencimento" id="data_vencimento" required value="{{ data_vencimento }}"
+                                           onchange="$('#btn_salvar_orcamento').prop('disabled', $('#data_vencimento').val() == '')">
+                                </div>
+                            </div>
+                            <div>
+                                <strong>Apelido do orçamento:</strong> {{ orcamento_origem.apelido }}
+                                <br>
+                                <strong>Nome do pacote:</strong> {{ dados_pacote.nome_do_pacote }}
+                            </div>
+                        </fieldset>
+                    </form>
+                    <hr>
+                    <form id="form_descritivo" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <h5 class="titulo-secao">Tabela de valores</h5>
+                            <table id="tabela_de_valores" class="table table-hover table-borderless">
+                                <thead>
+                                <tr>
+                                    <th colspan="8"></th>
+                                    <th class="tag_datas">Datas</th>
+                                </tr>
+                                <tr class="cabecalho">
+                                    <th></th>
+                                    <th style="width: 50%">Seção</th>
+                                    <th style="width: 25%">Valor</th>
+                                    <th style="width: 25%">Desconto</th>
+                                    <th style="width: 25%">Taxa comercial</th>
+                                    <th style="width: 25%">Comissão</th>
+                                    <th style="width: 25%">Acréscimo</th>
+                                    <th class="valor_final_tabela" style="width: 25%">Valor + taxas</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {% comment %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                    {% if financeiro %}
+                        <button type="button" class="btn btn-dark" id="btnPrint">Imprimir</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dados_do_pacote" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Dados do pacote</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_dados_pacote" method="POST">
+                        <fieldset>
+                            {% csrf_token %}
+                            <input type="hidden" name="id_pacote" id="id_pacote" value="{{ dados_pacote.id }}">
+                            <h5 class="titulo-secao">Nome e descrição do pacote</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.nome_do_pacote.label_tag }}
+                                    {{ pacote_promocional.nome_do_pacote }}
+                                </div>
+                                <div class="mt-2" style="width: 100%">
+                                    {{ pacote_promocional.descricao.label_tag }}
+                                    {{ pacote_promocional.descricao }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo_secao">Limites</h5>
+                            <div class="secao">
+                                <div style="width: 47%" class="mt-2">
+                                    {{ pacote_promocional.minimo_de_pagantes.label_tag }}
+                                    {{ pacote_promocional.minimo_de_pagantes }}
+                                </div>
+                                <div class="mt-2" style="display: flex; align-items: center">
+                                    <label for="{{ pacote_promocional.regra_cortesia.id_for_label }}" class="me-2">Uma
+                                        cortesia para cada</label>
+                                    {{ pacote_promocional.regra_cortesia }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Seções bloqueadas para edição</h5>
+                            <div class="secao">
+                                <div>
+                                    {{ pacote_promocional.monitoria_fechado }}
+                                    <label for="{{ pacote_promocional.monitoria_fechado.id_for_label }}">Monitoria</label>
+                                </div>
+                                <div>
+                                    {{ pacote_promocional.transporte_fechado }}
+                                    <label for="{{ pacote_promocional.transporte_fechado.id_for_label }}">Transporte</label>
+                                </div>
+                                <div>
+                                    {{ pacote_promocional.opcionais_fechado }}
+                                    <label for="{{ pacote_promocional.opcionais_fechado.id_for_label }}">Opcionais</label>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Tipo de pacote elegível</h5>
+                            <div class="secao">
+                                <div style="width: 100%">
+                                    {{ pacote_promocional.tipos_de_pacote_elegivel }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="titulo-secao">Períodos aplicáveis</h5>
+                            <div id="lista_de_periodos" class="mb-3">
+                                {% if dados_pacote %}
+                                    {{ dados_pacote.montar_dados_periodos|safe }}
+                                {% else %}
+                                    <div class="div_periodos_aplicaveis">
+                                        <div class="periodos">
+                                            <input type="text" id="periodo_1" name="periodo_1"
+                                                   class="periodos_aplicaveis">
+                                            <button type="button" class="btn_remover_periodo"
+                                                    onclick="remover_periodo(this)">
+                                                <span>&times;</span></button>
+                                        </div>
+                                        <div class="dias mt-2">
+                                            <div>
+                                                <input id="input_seg" type="checkbox" name="dias_periodo_1" value="0">
+                                                <label for="input_seg">Seg</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_ter" type="checkbox" name="dias_periodo_1" value="1">
+                                                <label for="input_ter">Ter</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_qua" type="checkbox" name="dias_periodo_1" value="2">
+                                                <label for="input_qua">Qua</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_qui" type="checkbox" name="dias_periodo_1" value="3">
+                                                <label for="input_qui">Qui</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_sex" type="checkbox" name="dias_periodo_1" value="4">
+                                                <label for="input_sex">Sex</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_sab" type="checkbox" name="dias_periodo_1" value="5">
+                                                <label for="input_sab">Sab</label>
+                                            </div>
+                                            <div>
+                                                <input id="input_dom" type="checkbox" name="dias_periodo_1" value="6">
+                                                <label for="input_dom">Dom</label>
+                                            </div>
+                                        </div>
+                                        <div id="horas_permitidas" class="mt-2">
+                                            <div id="check_in">
+                                                <label>Periodo de check in</label>
+                                                <div>
+                                                    <input type="time" name="check_in_permitido_1">
+                                                    a
+                                                    <input type="time" name="check_in_permitido_1">
+                                                </div>
+                                            </div>
+                                            <div id="check_out" class="mt-2">
+                                                <label>Periodo de check out</label>
+                                                <div>
+                                                    <input type="time" name="check_out_permitido_1">
+                                                    a
+                                                    <input type="time" name="check_out_permitido_1">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr style="width: 100%">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if financeiro %}
+                                <button type="button" class="btn btn-outline-success"
+                                        onclick="adicionar_periodo_novo()">
+                                    Adicionar periodo
+                                </button>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {% if financeiro %}
+                        <button type="button" class="btn btn-primary" onclick="salvar_dados_do_pacote()">
+                            Salvar
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(async () => {
+            valores_taxas_padrao = {{ valores_taxas_padrao | safe }}
+
+            {% if id_orcamento %}
+                editando_pacote = true
+                id_orcamento = {{ orcamento_origem.id | safe }}
+                await inicializacao('{{ orcamento.check_in.value | date:'d/m/Y H:i' }}', '{{ orcamento.check_out.value | date:'d/m/Y H:i' }}')
+                $('#orcamento input, #orcamento select').prop('disabled', false)
+                await verificar_monitoria_transporte()
+                await preencher_op_extras({{ id_orcamento|safe }}, true)
+                $('#data_viagem').trigger('change')
+                $('#id_opcionais, #op_extras, #id_atividades, #id_atividades_ceu').trigger('change')
+                $('#conteudo_primeiro select').prop('disabled', true)
+                $('#tabela_de_opcionais input').maskMoney({
+                    prefix: 'R$ ',
+                    thousands: '.',
+                    decimal: ',',
+                    allowZero: true,
+                    affixesStay: false,
+                })
+                await pegar_monitoria_valida()
+                $('#data_viagem').trigger('change')
+
+            {% else %}
+                await inicializacao()
+                fase_orcamento = 'novo'
+            {% endif %}
+        })
+    </script>
+
+    {% include 'parciais/_chat_orcamento.html' %}
+    <script src="{% static 'js/scripts_montagem_pacote.js' %}"></script>
+    <script src="{% static 'js/Moment.js' %}"></script>
+    <script src="{% static 'js/Moment_timezone.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script> <!-- Máscaras -->
+    <script src="{% static 'js/maskMoney.js' %}"></script>
+    <script src="{% static 'datepicker/daterangepicker.js' %}"></script>
+
+{% endblock %}

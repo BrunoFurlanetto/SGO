@@ -30,10 +30,8 @@ from .budget import Budget
 
 @login_required(login_url='login')
 def novo_orcamento(request):
-    pacote_promocional = CadastroPacotePromocional()
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
-    taxas_padrao = ValoresPadrao.objects.all()
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     cadastro_orcamento = CadastroOrcamento()
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
@@ -41,9 +39,31 @@ def novo_orcamento(request):
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'promocionais': promocionais,
-        'pacote_promocional': pacote_promocional,
         'financeiro': financeiro,
         'usuarios_gerencia': usuarios_gerencia,
+        'taxas_padrao': ValoresPadrao.mostrar_taxas(),
+        'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
+        'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
+        'zerar_taxas': True,
+        'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
+        'categorias_so_ceu': [categoria.nome_categoria for categoria in categorias_so_ceu],
+        'novo_orcamento': True,
+    })
+
+
+@login_required(login_url='login')
+def novo_pacote_promocional(request):
+    pacote_promocional = CadastroPacotePromocional()
+    promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
+    cadastro_orcamento = CadastroOrcamento(initial={'promocional': True})
+    categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+
+    return render(request, 'orcamento/montagem_pacote.html', {
+        'orcamento': cadastro_orcamento,
+        'promocionais': promocionais,
+        'pacote_promocional': pacote_promocional,
+        'financeiro': True,
+        'usuarios_gerencia': False,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(),
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
@@ -98,9 +118,15 @@ def clonar_orcamento(request, id_orcamento):
 
 @login_required(login_url='login')
 def editar_previa(request, id_orcamento, gerente_aprovando=0):
+    orcamento = Orcamento.objects.get(pk=id_orcamento)
+
+    if orcamento.promocional:
+        print(id_orcamento)
+        dados_pacote = OrcamentosPromocionais.objects.get(orcamento=orcamento)
+        return redirect('editar_pacotes_promocionais', id_dados_pacote=dados_pacote.id)
+
     financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
     taxas_padrao = ValoresPadrao.objects.all()
-    orcamento = Orcamento.objects.get(pk=id_orcamento)
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
@@ -167,7 +193,7 @@ def salvar_orcamento(request):
 
         if 'orcamento' not in dados:
             return dados
-
+        print(dados)
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
@@ -396,25 +422,22 @@ def calc_budget(req):
 @login_required(login_url='login')
 def editar_pacotes_promocionais(request, id_dados_pacote):
     promocional = OrcamentosPromocionais.objects.get(pk=id_dados_pacote)
-    financeiro = User.objects.filter(pk=request.user.id, groups__name__icontains='financeiro').exists()
-    taxas_padrao = ValoresPadrao.objects.all()
-    usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     cadastro_orcamento = CadastroOrcamento(instance=promocional.orcamento)
     pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
     promocional.orcamento.orcamento_promocional = promocional
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
+    print(promocional.orcamento.previa)
 
-    return render(request, 'orcamento/orcamento.html', {
+    return render(request, 'orcamento/montagem_pacote.html', {
         'orcamento': cadastro_orcamento,
         'orcamento_origem': promocional.orcamento,
-        'financeiro': financeiro,
+        'financeiro': True,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(
             promocional.orcamento.objeto_gerencia,
             promocional.orcamento.tipo_de_pacote
         ),
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
-        'usuarios_gerencia': usuarios_gerencia,
         'id_orcamento': promocional.orcamento.id,
         'previa': True,
         'pacote_promocional': pacote_promocional,

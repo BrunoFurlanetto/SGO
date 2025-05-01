@@ -12,9 +12,9 @@ from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from unidecode import unidecode
-
 
 from ceu.models import Atividades
 from coreFinanceiro.models import ClassificacoesItens
@@ -72,6 +72,7 @@ class ValoresPadrao(models.Model):
         help_text='Comportamento que a variável vai adotar dentro do sistema de orçamento'
     )
     id_taxa = models.CharField(max_length=255, editable=False)
+
     # classificacao = models.ForeignKey(ClassificacoesItens, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
@@ -179,11 +180,11 @@ class ValoresPadrao(models.Model):
         def html_base(nome_taxa, tipo_input, id_taxa, valor_padrao, valor_maximo, valor_minimo):
             return f"""
                 <div>
-                    <label>{ nome_taxa }</label>
-                    <input type="{ tipo_input }" id="{ id_taxa }" name="{ id_taxa }" value="{ valor_padrao }"
-                           data-nome_taxa="{ nome_taxa }" data-valor_default="{ valor_padrao }"
-                           data-valor_inicial="{ valor_padrao }" data-valor_alterado="{ valor_padrao }"                            
-                           data-teto="{ valor_maximo }" data-piso="{ valor_minimo }">
+                    <label>{nome_taxa}</label>
+                    <input type="{tipo_input}" id="{id_taxa}" name="{id_taxa}" value="{valor_padrao}"
+                           data-nome_taxa="{nome_taxa}" data-valor_default="{valor_padrao}"
+                           data-valor_inicial="{valor_padrao}" data-valor_alterado="{valor_padrao}"                            
+                           data-teto="{valor_maximo}" data-piso="{valor_minimo}">
                 </div>                        
             """
 
@@ -205,7 +206,8 @@ class ValoresPadrao(models.Model):
             valor_maximo = valor_minimo = ''
 
             if taxa.id_taxa == 'minimo_onibus':
-                valor_padrao = int(taxa.valor_padrao) if objeto_gerencia is None else int(objeto_gerencia['minimo_onibus'])
+                valor_padrao = int(taxa.valor_padrao) if objeto_gerencia is None else int(
+                    objeto_gerencia['minimo_onibus'])
                 valor_maximo = int(taxa.valor_maximo)
                 valor_minimo = int(taxa.valor_minimo)
 
@@ -970,7 +972,8 @@ class DadosDePacotes(models.Model):
                 periodo[f'periodo_{i}'],
                 periodo[f'dias_periodos_{i}'],
                 periodo[f'check_in_permitido_{i}'].split(' - ') if periodo.get(f'check_in_permitido_{i}') else ['', ''],
-                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['', ''],
+                periodo[f'check_out_permitido_{i}'].split(' - ') if periodo.get(f'check_out_permitido_{i}') else ['',
+                                                                                                                  ''],
             )
 
         return html_dados
@@ -1432,7 +1435,6 @@ class Orcamento(models.Model):
             'dia_dia': total_dia_dia,
         }
 
-
     def valores_outros(self):
         valores_outros = self.objeto_orcamento['valores']['opcionais_extras']
         descritivo_outros = self.objeto_orcamento['descricao_opcionais']
@@ -1473,7 +1475,7 @@ class Orcamento(models.Model):
 
         return {
             'valor_neto': f"{totais['valor']:.2f}".replace('.', ','),
-            'taxas': f"{totais['taxa_comercial']:.2f}".replace('.',','),
+            'taxas': f"{totais['taxa_comercial']:.2f}".replace('.', ','),
             'cov': f"{totais['comissao_de_vendas']:.2f}".replace('.', ','),
             'desconto': f"{totais['desconto']:.2f}".replace('.', ','),
             'acrescimo': f"{totais['acrescimo']:.2f}".replace('.', ','),
@@ -1552,8 +1554,8 @@ class OrcamentosPromocionais(models.Model):
         for pacote in pacotes:
             if comparar_intervalo():
                 # if int(id_tipo_pacote) if id_tipo_pacote != '' else 0 == pacote.dados_pacote.tipos_de_pacote_elegivel.id:
-                    # dados = serializers.serialize('json', [pacote.dados_pacote, ])
-                    # campos = json.loads(dados)[0]['fields']
+                # dados = serializers.serialize('json', [pacote.dados_pacote, ])
+                # campos = json.loads(dados)[0]['fields']
                 pacotes_validos.append({
                     'id': pacote.id,
                     'nome': pacote.dados_pacote.nome_do_pacote,
@@ -1722,7 +1724,10 @@ class CadastroOrcamento(forms.ModelForm):
         exclude = ()
 
         widgets = {
-            'promocional': forms.CheckboxInput(attrs={'class': 'form-check-input', 'onchange': 'montar_pacote(this)'}),
+            'promocional': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            'apelido': forms.TextInput(attrs={'onchange': 'verificar_preenchimento_dados_pacote(this.value)'}),
             'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_preenchimento()'}),
             'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_pacotes_promocionais()'}),
             'transporte': forms.RadioSelect(),
@@ -1733,6 +1738,8 @@ class CadastroOrcamento(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CadastroOrcamento, self).__init__(*args, **kwargs)
+        url = reverse('pacote_promocional')
+        self.fields['promocional'].widget.attrs['onclick'] = f'window.location.href="{url}"'
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
         valores_monitorias = OrcamentoMonitor.objects.filter(liberado=True).order_by('nome_monitoria')

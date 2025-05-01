@@ -14,6 +14,7 @@ urlpatterns = [
     path('preencher_op_extras/', views.preencher_op_extras, name='preencher_op_extras'),
     path('preencher_orcamento_promocional/', views.preencher_orcamento_promocional, name='preencher_orcamento_promocional'),
     path('verificar_pacotes_promocionais/', views.verificar_pacotes_promocionais, name='verificar_pacotes_promocionais'),
+    path('pacote_promocional/', views.novo_pacote_promocional, name='pacote_promocional'),
     path('editar_pacotes_promocionais/<int:id_dados_pacote>', views.editar_pacotes_promocionais, name='editar_pacotes_promocionais'),
     path('validar_produtos/', views.validar_produtos, name='validar_produtos'),
     path('pegar_dados_tipo_pacote/', views.pegar_dados_tipo_pacote, name='pegar_dados_tipo_pacote'),
