@@ -16,10 +16,13 @@ class OptionalDescription(BaseValue):
         self.set_classification_code()
 
     def set_classification_code(self):
-        opt = OrcamentoOpicional.objects.get(pk=self.id)
-
-        if opt.classificacao:
-            self.classification_code = opt.classificacao.codigo_padrao
+        try:
+            opt = OrcamentoOpicional.objects.get(pk=self.id)
+        except ValueError:
+            self.classification_code = ''
+        else:
+            if opt.classificacao:
+                self.classification_code = opt.classificacao.codigo_padrao
 
     def do_object(self, description=False):
         information = super().do_object()
