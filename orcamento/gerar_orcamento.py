@@ -14,7 +14,7 @@ import os
 
 from reportlab.platypus import Paragraph
 
-from orcamento.models import Orcamento
+from orcamento.models import Orcamento, TemplateOrcamento
 
 
 def marca_dagua(c):
@@ -429,6 +429,68 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
                 line_spacing_cm=1.5
             )
 
+    # ------------------------------------------------- Outros itens ---------------------------------------------------
+    if orcamento.opcionais_extra:
+        if y_atual <= 200:
+            c.showPage()
+            iniciar_nova_pagina(c, pre_orcamento)
+            desenhar_icones_segunda_pagina(c)
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.25 * cm, altura - 6 * cm, "OUTROS ITENS")
+            y_atual = altura - 6 * cm
+        else:
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.25 * cm, y_atual - 0.8 * cm, "OUTROS ITENS")
+            y_atual = y_atual - 0.8 * cm
+
+        for outro in orcamento.opcionais_extra:
+            if y_atual <= 200:
+                c.showPage()
+                iniciar_nova_pagina(c, pre_orcamento)
+                desenhar_icones_segunda_pagina(c)
+                c.setFont("Montserrat-Bold", 12)
+                c.setFillColor(black)
+                c.drawString(2.25 * cm, altura - 6 * cm, "OUTROS ITENS")
+                y_atual = altura - 6 * cm
+
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.85 * cm, y_atual - 0.8 * cm, outro['nome'])
+            y_atual = y_atual - 0.8 * cm
+            y_atual = desenhar_bloco_texto(
+                c,
+                3.7,
+                (altura - y_atual + (0.2 * cm)) / cm,
+                [outro['descricao']], largura_maxima_cm=15.10,
+                line_spacing_cm=1.5
+            )
+
+    # ----------------------------------------------- Observações ------------------------------------------------------
+    if orcamento.observacoes:
+        if y_atual <= 200:
+            c.showPage()
+            iniciar_nova_pagina(c, pre_orcamento)
+            desenhar_icones_segunda_pagina(c)
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.25 * cm, altura - 6 * cm, "OBSERVAÇÕES")
+            y_atual = altura - 6 * cm
+        else:
+            c.setFont("Montserrat-Bold", 12)
+            c.setFillColor(black)
+            c.drawString(2.25 * cm, y_atual - 0.8 * cm, "OBSERVAÇÕES")
+            y_atual = y_atual - 0.8 * cm
+
+        y_atual = desenhar_bloco_texto(
+            c,
+            2.85,
+            (altura - y_atual + (0.2 * cm)) / cm,
+            [orcamento.observacoes], largura_maxima_cm=15.95,
+            line_spacing_cm=1.5
+        )
+
     # ------------------------------------------------- Condições finais -----------------------------------------------
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
@@ -566,6 +628,14 @@ def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
 
     c.save()
     buffer.seek(0)
-    buffer = mesclar_pdf_dinamico_com_modelo(buffer, 'orcamento/modelos/modelo_orcamento_completo.pdf')
+
+    try:
+        template_orcamento = TemplateOrcamento.objects.get(ano_vigencia=orcamento.check_in.year)
+    except TemplateOrcamento.DoesNotExist:
+        raise FileNotFoundError(
+            f"Não foi encontrado um template para o ano {orcamento.check_in.year}."
+        )
+
+    buffer = mesclar_pdf_dinamico_com_modelo(buffer, template_orcamento.arquivo)
 
     return buffer

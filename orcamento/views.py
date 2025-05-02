@@ -473,23 +473,39 @@ def veriricar_gerencia(request):
 @login_required(login_url='login')
 def gerar_pdf(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    pdf_buffer = gerar_pdf_orcamento(orcamento)
 
-    response = HttpResponse(pdf_buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+    try:
+        pdf_buffer = gerar_pdf_orcamento(orcamento)
 
-    return response
+        response = HttpResponse(pdf_buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+    except FileNotFoundError:
+        messages.warning(request, f'Template de orçamento para {orcamento.check_in.year} não cadastrado.')
+        return redirect('dashboard')
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde!')
+        return redirect('dashboard')
+    else:
+        return response
 
 
 @login_required(login_url='login')
 def gerar_pdf_previa(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    pdf_buffer = gerar_pdf_orcamento(orcamento, pre_orcamento=True)
 
-    response = HttpResponse(pdf_buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+    try:
+        pdf_buffer = gerar_pdf_orcamento(orcamento, pre_orcamento=True)
 
-    return response
+        response = HttpResponse(pdf_buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="orcamento_{orcamento.id}.pdf"'
+    except FileNotFoundError:
+        messages.warning(request, f'Template de orçamento para {orcamento.check_in.year} não cadastrado.')
+        return redirect('dashboard')
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde!')
+        return redirect('dashboard')
+    else:
+        return response
 
 
 def preencher_op_extras(request):

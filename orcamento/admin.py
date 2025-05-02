@@ -13,7 +13,8 @@ from django_admin_search.admin import AdvancedSearchAdmin
 from coreFinanceiro.models import ClassificacoesItens
 from orcamento.models import HorariosPadroes, ValoresTransporte, Orcamento, OrcamentoPeriodo, \
     ValoresPadrao, OrcamentoMonitor, SeuModeloAdminForm, OrcamentoOpicional, CadastroHorariosPadroesAdmin, TaxaPeriodo, \
-    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes, StatusOrcamento
+    OrcamentosPromocionais, CategoriaOpcionais, SubcategoriaOpcionais, TiposDePacote, DadosDePacotes, StatusOrcamento, \
+    TemplateOrcamento
 
 from django.forms import ModelForm, Form
 from django.forms import DateField, CharField, ChoiceField, TextInput
@@ -163,6 +164,11 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
         )
     modeladmin.message_user(request, "Duplicação concluída com sucesso!")
 
+
+@admin.register(TemplateOrcamento)
+class TemplateOrcamentoAdmin(admin.ModelAdmin):
+    list_display = ('ano_vigencia', '__str__')
+    ordering = ('-ano_vigencia',)
 
 
 @admin.register(HorariosPadroes)

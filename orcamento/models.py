@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from datetime import datetime, timedelta
 import json
@@ -9,6 +10,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models, transaction
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
@@ -23,6 +25,33 @@ from peraltas.models import ClienteColegio, Responsavel, EmpresaOnibus, Vendedor
 
 def default_validade():
     return timezone.now() + timezone.timedelta(days=180)
+
+
+def rename_template_orcamento(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    ano = instance.ano_vigencia or timezone.now().year  # Garante um valor mesmo antes do save
+    filename = f"template_orcamento_{ano}{ext}"
+    return os.path.join('orcamentos/templates/', filename)
+
+
+class TemplateOrcamento(models.Model):
+    ano_vigencia = models.PositiveIntegerField(
+        unique=True,
+        default=timezone.now().year,
+        help_text='Apenas um arquivo de template será permitido por ano. Caso um novo arquivo seja enviado para um ano '
+                  'que já possua um template cadastrado, o arquivo anterior será automaticamente substituído pelo mais recente'
+    )
+    arquivo = models.FileField(
+        upload_to=rename_template_orcamento,
+        validators=[FileExtensionValidator(['pdf'])],
+        help_text='Arquivo em <strong>PDF</strong> contendo o modelo de orçamento a ser utilizado para o ano correspondente. '
+                  '<strong>A proposta comercial será sempre inserida antes da última página do template</strong>. '
+                  'O arquivo deve conter <strong>somente as informações fixas</strong>, pois todas as páginas referentes '
+                  'à proposta comercial serão geradas automaticamente pelo sistema.',
+    )
+
+    def __str__(self):
+        return self.arquivo.name
 
 
 class ValoresPadrao(models.Model):
