@@ -265,6 +265,17 @@ def dashboardPeraltas(request):
             dia_limite_peraltas
         )
 
+    if request.user.monitor:
+        avaliacoes_coordenador_monitoria = OrdemDeServico.objects.filter(
+            check_out__date__lte=datetime.today().date(),
+            monitor_responsavel=request.user.monitor.id,
+            escala=True,
+        ).exclude(
+            avaliou_monitoria=request.user.monitor.id
+        )
+    else:
+        avaliacoes_coordenador_monitoria = None
+
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
@@ -347,6 +358,7 @@ def dashboardPeraltas(request):
         'financeiro': financeiro in grupos_usuario,
         'tratativas': tratativas,
         'pacotes': pacotes,
+        'eventos_coordenador_avaliar': avaliacoes_coordenador_monitoria
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

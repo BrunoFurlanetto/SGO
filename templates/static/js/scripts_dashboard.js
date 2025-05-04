@@ -19,6 +19,7 @@ $(document).ready(() => {
         $('#status #tabela_status_ficha').iniciarlizarDataTable(5, 5)
         $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_avisos, #tabela_sem_escala, #tabela_com_escala').iniciarlizarDataTable(3, 3)
         $('#tabela_status_ordem').iniciarlizarDataTable([4], 4)
+        $('#tabela_avaliacoes_monitoria').iniciarlizarDataTable([1], 1)
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)

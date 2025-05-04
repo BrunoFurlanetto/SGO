@@ -4,7 +4,8 @@ import os.path
 from django import forms
 from django.db import models
 
-from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus, \
+    EscalaAcampamento
 from peraltas.models import Vendedor
 
 
@@ -140,6 +141,7 @@ class OrdemDeServico(models.Model):
     racional_coordenadores = models.IntegerField(default=120, blank=True)
     permicao_coordenadores = models.BooleanField(default=False)
     data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
+    avaliou_monitoria = models.ManyToManyField(Monitor, blank=True, editable=False, related_name='avaliou_monitoria')
 
     def __str__(self):
         return f'Ordem de serviço de {self.ficha_de_evento.cliente}'
@@ -184,6 +186,13 @@ class OrdemDeServico(models.Model):
 
     def listar_id_monitor_responsavel(self):
         return [monitor.id for monitor in self.monitor_responsavel.all()]
+
+    def listar_equipe_monitoria(self):
+        monitores_escalados = EscalaAcampamento.objects.get(
+            ficha_de_evento=self.ficha_de_evento,
+        ).monitores_acampamento
+
+        return ', '.join([monitor.usuario.get_full_name() for monitor in monitores_escalados.all()])
 
 
 class CadastroOrdemDeServico(forms.ModelForm):

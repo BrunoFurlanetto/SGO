@@ -157,6 +157,11 @@
                          onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
                     </div>
                 {% endif %}
+                {% if coordenador_monitoria %}
+                	<div class="folder" onclick="alterar_aba(this, 'fichas_avaliacao_faltantes')">
+                        Fichas de avaliação
+                    </div>
+                {% endif %}
             </div>
 
             {% if comercial or diretoria %}
@@ -497,30 +502,27 @@
                         </div>
                     </div>
                 {% endif %}
-                {% if diretoria or operacional or coordenador_monitoria %}
-                    <div id="sem_escala"
-                         class="section-content {% if coordenador_monitoria and not diretoria %} ativo {% endif %}">
+                {% if coordenador_monitoria %}
+                    <div id="fichas_avaliacao_faltantes" class="section-content">
                         <div class="tabelas">
-                            <table id="tabela_sem_escala" class="table table-hover table-striped"
+                            <h5>Avaliar equipe de monitoria</h5>
+                            <table id="tabela_avaliacoes_monitoria" class="table table-hover table-striped"
                                    style="border-top: solid">
                                 <thead>
                                 <tr>
-                                    <th style="width: 450px">Cliente</th>
-                                    <th style="width: 150px">Produto</th>
-                                    <th>Estimado</th>
-                                    <th style="width: 250px">Check in</th>
-                                    <th>Colaborador</th>
+                                    <th class="text-center">Cliente</th>
+                                    <th class="text-center">Check in</th>
+                                    <th class="text-center">Equipe</th>
+                                    <th class="text-center">Colaborador</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for sem_escala in sem_escalas %}
-                                    <tr class="pre_reservas">
-                                        <td>{{ sem_escala.cliente }}</td>
-                                        <td>{{ sem_escala.produto }}</td>
-                                        <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
-                                            0 {% endif %}</td>
-                                        <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
-                                        <td> {{ sem_escala.vendedora }} </td>
+                                {% for evento in eventos_coordenador_avaliar %}
+                                    <tr class="align-middle" style="cursor: pointer" onclick="window.location.href='{% url 'avaliacao_coordenacao_monitoria' evento.id %}'">
+                                        <td>{{ evento.ficha_de_evento.cliente }}</td>
+                                        <td>{{ evento.check_in | date:'Y-m-d' }}</td>
+                                        <td>{{ evento.listar_equipe_monitoria }}</td>
+                                        <td> {{ evento.vendedor }} </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
