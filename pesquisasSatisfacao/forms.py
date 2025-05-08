@@ -94,12 +94,10 @@ class DesempenhoAcimaMediaForm(forms.ModelForm):
 
 
 # Formset para avaliações individuais
-AvaliacaoIndividualMonitorFormSet = forms.inlineformset_factory(
-    CoordenacaoAvaliandoMonitoria,
+AvaliacaoIndividualMonitorFormSet = forms.modelformset_factory(
     AvaliacaoIndividualMonitor,
     form=AvaliacaoIndividualMonitorForm,
-    extra=1,
-    can_delete=False
+    extra=0  # Não permite adicionar novos, só os pré-definidos
 )
 
 # Formset para destaques em atividades
