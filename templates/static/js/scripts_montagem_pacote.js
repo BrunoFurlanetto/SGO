@@ -1396,26 +1396,12 @@ function salvar_dados_do_pacote() {
     }).done(async () => {
         $('#dados_do_pacote').modal('hide')
         $('#nome_pacote_promocional').text($('#id_nome_do_pacote').val())
-        if ($('#id_apelido').val().length > 5) {
-            console.log('Veio')
-            $('#container_monitoria_transporte, #container_periodo').removeClass('none')
-            $('#subtotal').removeClass('none')
-            $('.div-flutuante, #container_periodo .parcial').addClass('visivel')
-            await enviar_form()
-        }
+        $('#container_monitoria_transporte, #container_periodo').removeClass('none')
+        $('#subtotal').removeClass('none')
+        $('.div-flutuante, #container_periodo .parcial').addClass('visivel')
+        await enviar_form()
     })
     // end_loading()
-}
-
-async function verificar_preenchimento_dados_pacote(apelido) {
-    if (apelido.length > 5) {
-        if ($('#id_pacote_promocional').val() != '') {
-            await enviar_form()
-            $('#container_monitoria_transporte, #container_periodo').removeClass('none')
-            $('.div-flutuante, #container_periodo .parcial').addClass('visivel')
-            $('#subtotal').removeClass('none')
-        }
-    }
 }
 
 async function preencher_op_extras(id_orcamento, editando = false) {
@@ -2020,6 +2006,7 @@ function verificar_validade_apelido(previa) {
         data: {
             'fase_orcamento': fase_orcamento,
             'apelido': $('#id_apelido').val(),
+            'previa': previa,
         },
     }).then(async (response) => {
         await salvar_orcamento(previa)

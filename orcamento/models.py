@@ -1756,7 +1756,6 @@ class CadastroOrcamento(forms.ModelForm):
             'promocional': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
             }),
-            'apelido': forms.TextInput(attrs={'onchange': 'verificar_preenchimento_dados_pacote(this.value)'}),
             'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_preenchimento()'}),
             'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_pacotes_promocionais()'}),
             'transporte': forms.RadioSelect(),

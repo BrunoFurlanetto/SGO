@@ -814,22 +814,23 @@ def transformar_em_tratativa(request, id_orcamento):
 
 
 def verificar_validade_apelido(request):
-    if request.POST.get('fase_orcamento') == 'novo':
-        if len(Orcamento.objects.filter(
-                colaborador=request.user, apelido=request.POST.get('apelido'),
-                status_orcamento__orcamento_vencido=False,
-                status_orcamento__aprovacao_cliente=False,
-                status_orcamento__negado_cliente=False,
-        )) > 0:
-            return JsonResponse({}, status=409)
-    else:
-        if len(Orcamento.objects.filter(
-                colaborador=request.user, apelido=request.POST.get('apelido'),
-                status_orcamento__orcamento_vencido=False,
-                status_orcamento__aprovacao_cliente=False,
-                status_orcamento__negado_cliente=False,
-        )) > 1:
-            return JsonResponse({}, status=409)
+    if request.POST.get('previa') == 'true':
+        if request.POST.get('fase_orcamento') == 'novo':
+            if len(Orcamento.objects.filter(
+                    colaborador=request.user, apelido=request.POST.get('apelido'),
+                    status_orcamento__orcamento_vencido=False,
+                    status_orcamento__aprovacao_cliente=False,
+                    status_orcamento__negado_cliente=False,
+            )) > 0:
+                return JsonResponse({}, status=409)
+        else:
+            if len(Orcamento.objects.filter(
+                    colaborador=request.user, apelido=request.POST.get('apelido'),
+                    status_orcamento__orcamento_vencido=False,
+                    status_orcamento__aprovacao_cliente=False,
+                    status_orcamento__negado_cliente=False,
+            )) > 1:
+                return JsonResponse({}, status=409)
 
     return JsonResponse({}, status=200)
 
