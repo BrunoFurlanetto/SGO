@@ -1,0 +1,22 @@
+.required-field label:after {
+    content: " *";
+    color: #dc3545;
+}
+
+.avaliacao-item, .destaque-item {
+    transition: all 0.3s ease;
+}
+
+.avaliacao-item:hover, .destaque-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Adicione ao seu CSS */
+.table-avaliacao td {
+    vertical-align: middle;
+}
+
+.table-avaliacao select {
+    width: 100%;
+    padding: 8px;
+}
