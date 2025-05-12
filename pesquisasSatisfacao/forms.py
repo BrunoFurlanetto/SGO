@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import modelformset_factory
 
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
     DesempenhoAcimaMedia
@@ -12,6 +13,11 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
         model = CoordenacaoAvaliandoMonitoria
         exclude = ['monitores_destaque_atividades', 'monitores_destaque_pedagogicas',
                    'monitores_destaque_evento', 'monitores_acima_media']
+        widgets = {
+            'coordenador': forms.HiddenInput(),
+            'ordem_de_servico': forms.HiddenInput(),
+            'escala_peraltas': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,9 +83,14 @@ class DestaqueAtividadesForm(forms.ModelForm):
         fields = ['monitor', 'posicao']
 
     def __init__(self, *args, avaliacao_id=None, **kwargs):
+        escala = kwargs.pop('escala', None)  # Remove 'escala' dos kwargs
         super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select'})
+        self.fields['monitor'].widget.attrs.update({'class': 'form-select monitor-select', 'onchange': 'validateAllMonitors()'})
         self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
+
+        if escala:
+            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
+            self.fields['monitor'].queryset = escala.monitores_acampamento.all()
 
 
 class DesempenhoAcimaMediaForm(forms.ModelForm):
@@ -93,27 +104,14 @@ class DesempenhoAcimaMediaForm(forms.ModelForm):
         self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
 
 
-# Formset para avaliações individuais
-AvaliacaoIndividualMonitorFormSet = forms.modelformset_factory(
-    AvaliacaoIndividualMonitor,
+AvaliacaoIndividualMonitorFormSet = modelformset_factory(
+    AvaliacaoIndividualMonitor,  # Ou o modelo que você está usando
     form=AvaliacaoIndividualMonitorForm,
-    extra=0  # Não permite adicionar novos, só os pré-definidos
+    extra=1,  # Quantidade de forms extras (pode ser 0 se já tiver monitores)
 )
 
-# Formset para destaques em atividades
-DestaqueAtividadesFormSet = forms.inlineformset_factory(
-    CoordenacaoAvaliandoMonitoria,
+DestaqueAtividadesFormSet = modelformset_factory(
     DestaqueAtividades,
     form=DestaqueAtividadesForm,
     extra=1,
-    can_delete=True
-)
-
-# Formset para desempenho acima da média
-DesempenhoAcimaMediaFormSet = forms.inlineformset_factory(
-    CoordenacaoAvaliandoMonitoria,
-    DesempenhoAcimaMedia,
-    form=DesempenhoAcimaMediaForm,
-    extra=1,
-    can_delete=True
 )

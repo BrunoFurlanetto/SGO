@@ -1,71 +1,80 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.forms import modelformset_factory
+from django.shortcuts import render, redirect, get_object_or_404
 
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import EscalaAcampamento
-from pesquisasSatisfacao.forms import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorFormSet, \
-    DestaqueAtividadesFormSet, DesempenhoAcimaMediaFormSet
-from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor
+from pesquisasSatisfacao.forms import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
+    DestaqueAtividadesForm, DesempenhoAcimaMediaForm, DestaqueAtividadesFormSet
+from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia
 
 
 def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
-    # Inicializa todos os forms
-    form = CoordenacaoAvaliandoMonitoriaForm(request.POST or None)
-    avaliacao_formset = AvaliacaoIndividualMonitorFormSet(
-        request.POST or None,
-        prefix='avaliacoes'
-    )
-    destaque_formset = DestaqueAtividadesFormSet(
-        request.POST or None,
-        prefix='destaques'
-    )
-    desempenho_formset = DesempenhoAcimaMediaFormSet(
-        request.POST or None,
-        prefix='desempenho'
-    )
-    ordem = OrdemDeServico.objects.get(pk=id_ordem_de_servico)
-    monitores = EscalaAcampamento.objects.get(ficha_de_evento=ordem.ficha_de_evento).monitores_acampamento.all()
+    ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
+    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+    monitores = escala.monitores_acampamento.all().order_by('usuario__first_name')
 
     if request.method == 'POST':
-        # Valida todos os formulários
-        if (form.is_valid() and
-                avaliacao_formset.is_valid() and
-                destaque_formset.is_valid() and
-                desempenho_formset.is_valid()):
+        form = CoordenacaoAvaliandoMonitoriaForm(request.POST)
+        avaliacao = AvaliacaoIndividualMonitorForm(request.POST)
+        destaque = DestaqueAtividadesForm(request.POST)
+        desempenho = DesempenhoAcimaMediaForm(request.POST)
 
-            # Salva a pesquisa principal
+        if form.is_valid() and avaliacao.is_valid() and destaque.is_valid() and desempenho.is_valid():
             pesquisa = form.save(commit=False)
-            pesquisa.coordenador = request.user
             pesquisa.save()
 
-            # Salva os formsets associados
-            avaliacao_formset.instance = pesquisa
-            avaliacao_formset.save()
+            # Salva avaliações individuais
+            avaliacoes = avaliacao.save(commit=False)
 
-            destaque_formset.instance = pesquisa
-            destaque_formset.save()
-
-            desempenho_formset.instance = pesquisa
-            desempenho_formset.save()
+            for avaliacao in avaliacoes:
+                avaliacao.avaliacao_geral = pesquisa
+                avaliacao.save()
 
             messages.success(request, 'Pesquisa enviada com sucesso!')
-
-            return redirect('pagina_de_sucesso')  # Altere para sua URL de sucesso
-
+            return redirect('dashboard')
         else:
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
-        form = CoordenacaoAvaliandoMonitoriaForm()
-        # Cria um form para cada monitor
-        initial_data = [{'monitor': monitor} for monitor in monitores]
-        avaliacao_formset = AvaliacaoIndividualMonitorFormSet(
-            queryset=AvaliacaoIndividualMonitor.objects.none(),
-            initial=initial_data
+        form = CoordenacaoAvaliandoMonitoriaForm(
+            initial={
+                'ordem_de_servico': ordem,
+                'coordenador': request.user,
+                'escala_peraltas': escala,
+            }
+        )
+        monitores = escala.monitores_acampamento.all()
+        AvaliacaoIndividualMonitorFormSet = modelformset_factory(
+            AvaliacaoIndividualMonitor,
+            form=AvaliacaoIndividualMonitorForm,
+            extra=0,  # Só mostra os monitores existentes
+        )
+        avaliacao = AvaliacaoIndividualMonitorFormSet(
+            queryset=monitores,
+            initial=[{'monitor': monitor.id} for monitor in monitores],
+            prefix='avaliacao'
         )
 
-    return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', {
+        DestaqueAtividadesFormSet = modelformset_factory(
+            DestaqueAtividades,  # Substitua pelo seu modelo
+            form=DestaqueAtividadesForm,
+            extra=1,  # Número de forms vazios (ajuste conforme necessário)
+        )
+        destaque = DestaqueAtividadesFormSet(
+            queryset=DestaqueAtividades.objects.none(),  # Ou um queryset específico
+            initial=[{'posicao': 1}],
+            form_kwargs={'escala': escala},  # Passa a escala para cada form
+            prefix='destaques'
+        )
+        desempenho = DesempenhoAcimaMediaForm()
+
+    context = {
         'form': form,
-        'avaliacao_formset': avaliacao_formset,
-        'destaque_formset': destaque_formset,
-        'desempenho_formset': desempenho_formset,
-    })
+        'avaliacao_formset': avaliacao,
+        'destaque_formset': destaque,
+        'desempenho_formset': desempenho,
+        'ordem': ordem,
+        'monitores': monitores,
+    }
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', context)
