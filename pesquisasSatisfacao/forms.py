@@ -21,8 +21,23 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        for i in range(1, 6):
+            self.fields[f'palavra_{i}'] = forms.CharField(
+                max_length=50,
+                required=False,
+                label=f'Palavra-chave {i}',
+                initial=self.instance.palavras_descricao[i - 1] if self.instance.palavras_descricao and len(
+                    self.instance.palavras_descricao) >= i else ''
+            )
+
         # Personalizações dos campos
         for field_name, field in self.fields.items():
+            if field_name.endswith('obs') and isinstance(field.widget, forms.Textarea):
+                field.widget.attrs.update({'cols': 40, 'rows': 4, 'class': 'campo-obs'})
+            else:
+                field.widget.attrs.update({'class': 'campo-avaliacao'})
+
             if isinstance(field, forms.BooleanField):
                 field.widget.attrs.update({'class': 'form-check-input'})
             elif isinstance(field, forms.IntegerField):
@@ -56,6 +71,13 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
             if cleaned_data.get(campo) is not None and not cleaned_data.get(campo_obs):
                 self.add_error(campo_obs, "Campo de observação obrigatório")
 
+        palavras = [
+            cleaned_data.get(f'palavra_{i}').strip()
+            for i in range(1, 6)
+            if cleaned_data.get(f'palavra_{i}') and cleaned_data.get(f'palavra_{i}').strip()
+        ]
+        cleaned_data['palavras_descricao'] = palavras
+
         return cleaned_data
 
 
@@ -72,8 +94,10 @@ class AvaliacaoIndividualMonitorForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
         if cleaned_data.get('avaliacao') in [1, 2] and not cleaned_data.get('observacao'):
             self.add_error('observacao', "Observação obrigatória para avaliações Regular ou Ruim")
+
         return cleaned_data
 
 

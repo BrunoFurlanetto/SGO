@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% load custom_filter_tags_avaliacao %}
 {% load static %}
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_avaliacao_coordenacao_monitoria.css' %}">
     <div class="container py-5">
         <div class="row justify-content-center w-75">
             <div class="col-lg-10">
@@ -123,34 +125,97 @@
                             <!-- Seção 4: Avaliação Geral -->
                             <section class="mb-5">
                                 <h3 class="h5 mb-3 text-primary">Avaliação Geral</h3>
-                                {% for field in form %}
-                                    {% if field.field.widget.input_type == 'hidden' %}
-                                        {{ field }}  <!-- Renderiza como input hidden -->
-                                    {% else %}
-                                        <div class="mb-3">
-                                            {{ field.label_tag }}
-                                            {{ field }}
-                                            {% if field.help_text %}
-                                                <small class="form-text text-muted">{{ field.help_text }}</small>
-                                            {% endif %}
-                                            {% for error in field.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {{ error }}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
                                 {% endfor %}
+                                <table id="tabela-avaliacao-geral" class="form-table">
+                                    <thead class="text-center">
+                                    <tr class="border-top border-dark">
+                                        <th>Pergunta</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    <tr class="mensagem-observacoes text-danger border-bottom border-dark">
+                                        <th colspan="2" class="p-2">EM CASO DE RESPOSTAS "NÃO" OU "REGULAR" OU "RUIM" É
+                                            OBRIGATÓRIO PREENCHER O CAMPO DE OBSERVAÇÃO!
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for field in form.visible_fields %}
+                                        {% if field.name not in 'observacoes_equipe, palavras_descricao, palavra_1, palavra_2m palavra_3, palavra_4, palavra_5' %}
+                                            {% if not field.name|slice:'-3:' == 'obs' %}
+                                                <tr>
+                                                    <!-- Coluna da Pergunta -->
+                                                    <td class="pergunta-cell">
+                                                        <div class="mb-3">
+                                                            {{ field.label_tag }}
+                                                            {{ field }}
+                                                            {% if field.help_text %}
+                                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                                            {% endif %}
+                                                            {% for error in field.errors %}
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ error }}
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Coluna da Observação -->
+                                                    <td class="obs-cell">
+                                                        {% with obs_field=form|get_obs_field:field.name %}
+                                                            {% if obs_field %}
+                                                                <div class="mb-3 mt-3">
+                                                                    {{ obs_field }}
+                                                                    {% for error in obs_field.errors %}
+                                                                        <div class="invalid-feedback d-block">
+                                                                            {{ error }}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
                             </section>
 
                             <!-- Seção 5: Observações Finais -->
-                            <section class="mb-4">
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="observacoes_gerais" name="observacoes_gerais"
-                                              style="height: 100px"></textarea>
-                                    <label for="observacoes_gerais">Observações Gerais</label>
+                            <h3 class="h5 mb-3 text-primary">Observações gerais</h3>
+                            <div class="mb-3">
+                                {{ form.observacoes_equipe.label_tag }}
+                                {{ form.observacoes_equipe }}
+                                {% if form.observacoes_equipe.help_text %}
+                                    <small class="form-text text-muted">{{ form.observacoes_equipe.help_text }}</small>
+                                {% endif %}
+                                {% for error in form.observacoes_equipe.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="palavras-chave-container mb-4">
+                                <label class="form-label">Palavras-chave (máx. 5):</label>
+                                <div class="row g-2">
+                                    {% for i in "12345" %}
+                                        <div class="col-md-4 col-6">
+                                            <input type="text"
+                                                   name="palavra_{{ i }}"
+                                                   id="id_palavra_{{ i }}"
+                                                   class="form-control palavra-chave-input"
+                                                   maxlength="20"
+                                                   value="{{ form.instance.palavras_descricao|default:''|slice:forloop.counter0|first|default:'' }}"
+                                                   placeholder="Palavra {{ i }}"
+                                                   data-index="{{ forloop.counter0 }}">
+                                        </div>
+                                    {% endfor %}
                                 </div>
-                            </section>
+                                <small class="text-muted">Digite até 5 palavras-chave individuais</small>
+                            </div>
                         </div>
 
                         <div class="card-footer bg-light">
@@ -339,5 +404,21 @@
                 }, 30);
             });
         }
+
+        document.querySelectorAll('.palavra-chave-input').forEach(input => {
+            // Auto-foco no próximo campo quando atingir o maxlength
+            input.addEventListener('input', function () {
+                if (this.value.length === parseInt(this.maxLength)) {
+                    const nextIndex = parseInt(this.dataset.index) + 1;
+                    const nextInput = document.querySelector(`.palavra-chave-input[data-index="${nextIndex}"]`);
+                    if (nextInput) nextInput.focus();
+                }
+            });
+
+            // Validação em tempo real
+            input.addEventListener('blur', function () {
+                this.value = this.value.trim();
+            });
+        });
     </script>
 {% endblock %}
