@@ -33,17 +33,26 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
 
         # Personalizações dos campos
         for field_name, field in self.fields.items():
-            if field_name.endswith('obs') and isinstance(field.widget, forms.Textarea):
-                field.widget.attrs.update({'cols': 40, 'rows': 4, 'class': 'campo-obs'})
-            else:
-                field.widget.attrs.update({'class': 'campo-avaliacao'})
+            classes = []
 
+            # Configuração base por tipo de campo
             if isinstance(field, forms.BooleanField):
-                field.widget.attrs.update({'class': 'form-check-input'})
+                classes.append('form-check-input')
             elif isinstance(field, forms.IntegerField):
-                field.widget.attrs.update({'class': 'form-control', 'min': 1, 'max': 5})
+                classes.append('form-control')
+                field.widget.attrs.update({'min': 1, 'max': 5})
             else:
-                field.widget.attrs.update({'class': 'form-control'})
+                classes.append('form-control')
+
+            # Adiciona classes específicas
+            if field_name.endswith('obs'):
+                classes.append('campo-obs')
+                field.widget.attrs.update({'cols': 40, 'rows': 4})
+            else:
+                classes.append('campo-avaliacao')
+
+            # Atualiza atributos sem sobrescrever
+            field.widget.attrs['class'] = ' '.join(classes)
 
     def clean(self):
         cleaned_data = super().clean()
