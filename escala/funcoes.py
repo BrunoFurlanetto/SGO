@@ -686,22 +686,6 @@ def pegar_disponiveis(disponibilidades, setor):
         return disponiveis_ceu
 
 
-def especialidade_monitor(monitor_escalado):
-    especialidades = []
-    monitor = Monitor.objects.get(id=monitor_escalado['id'])
-
-    if monitor.som:
-        especialidades.append('som')
-
-    if monitor.video:
-        especialidades.append('video')
-
-    if monitor.fotos_e_filmagens:
-        especialidades.append('fotos_e_filmagens')
-
-    return ' '.join(especialidades)
-
-
 def pegar_escalacoes(escala, acampamento=True):
     escalados = []
 
@@ -756,9 +740,6 @@ def pegar_dados_monitor_embarque(os):
         monitor = transporte.monitor_embarque
 
         if monitor:
-            areas.append('som') if monitor.som else ...
-            areas.append('video') if monitor.video else ...
-            areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
             biologo = 'biologo' if monitor.biologo else ''
 
             if not monitor.tecnica and not monitor.biologo:
@@ -796,9 +777,6 @@ def pegar_dados_monitor_biologo(os):
         except ValueError:
             continue
 
-        areas.append('som') if monitor.som else ...
-        areas.append('video') if monitor.video else ...
-        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
         biologo = 'biologo' if monitor.biologo else ''
 
         if not monitor.tecnica and not monitor.biologo:
