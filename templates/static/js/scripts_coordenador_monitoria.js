@@ -2,98 +2,138 @@ $(document).ready(function () {
     // Atualiza quando a página carrega
     atualizarObservacoes();
     $('select.campo-avaliacao').change(atualizarObservacoes);
+    $('#id_monitores_destaque_pedagogicas, #id_monitores_destaque_evento').select2()
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Adiciona novos destaques
-    document.getElementById('add-destaque').addEventListener('click', function () {
-        const totalFormsInput = document.getElementById('id_destaques-TOTAL_FORMS')
-        const container = document.getElementById('destaque-container')
-        const existingForms = container.getElementsByClassName('destaque-item')
-        const monitorOptions = document.querySelectorAll('#id_destaques-0-monitor option').length - 1 // Descontar opção vazia
+    // Configurações para ambos os tipos (destaque e desempenho)
+    const config = {
+        'destaque': {
+            addButtonId: 'add-destaque',
+            containerId: 'destaque-container',
+            formPrefix: 'destaques',
+            selectPrefix: 'destaque',
+            itemClass: 'destaque-item'
+        },
+        'desempenho': {
+            addButtonId: 'add-desempenho',
+            containerId: 'desempenho-container',
+            formPrefix: 'desempenho', // Ajuste conforme o nome no seu forms.py
+            selectPrefix: 'desempenho',
+            itemClass: 'desempenho-item'
+        }
+    };
 
-
+    // Função genérica para adicionar itens
+    function addItem(type) {
+        const cfg = config[type];
+        const totalFormsInput = document.getElementById(`id_${cfg.formPrefix}-TOTAL_FORMS`);
+        const container = document.getElementById(cfg.containerId);
+        const existingForms = container.getElementsByClassName(cfg.itemClass);
+        const monitorOptions = document.querySelectorAll(`#id_${cfg.formPrefix}-0-monitor option`).length - 1;
+        console.log(monitorOptions)
         // Verificação 1: Não exceder número de monitores
         if (existingForms.length >= monitorOptions) {
-            alert(`Você só pode adicionar no máximo ${monitorOptions} destaques`)
-            return
+            alert(`Você só pode adicionar no máximo ${monitorOptions} ${type}s`);
+            return;
         }
 
         // Verificação 2: Garantir que há template para clonar
         if (existingForms.length === 0) {
-            console.error('Nenhum form encontrado para clonar!');
-            return
+            console.error(`Nenhum form de ${type} encontrado para clonar!`);
+            return;
         }
 
         // Clona o último form
-        const newForm = existingForms[existingForms.length - 1].cloneNode(true)
-        const newIndex = parseInt(totalFormsInput.value)
+        const newForm = existingForms[existingForms.length - 1].cloneNode(true);
+        const newIndex = parseInt(totalFormsInput.value);
 
-        // Garante que o novo item terá o botão de remoção
+        // Insere o botão de remoção
         const removeBtnHtml = `
-                <button type="button" class="bg-transparent border-0 fs-3 remove-item">
-                    <i class='bx bx-user-x bx-flip-horizontal'></i>
-                </button>`
+            <button type="button" class="bg-transparent border-0 fs-3 remove-item" data-type="${type}">
+                <i class='bx bx-user-x bx-flip-horizontal'></i>
+            </button>`;
 
-        // Insere o botão na última célula
         const lastTd = newForm.querySelector('td:last-child');
-        if (lastTd) lastTd.innerHTML = removeBtnHtml
+        if (lastTd) lastTd.innerHTML = removeBtnHtml;
 
-        // Atualiza todos os IDs/names/números de posição
+        // Atualiza todos os IDs/names
         newForm.innerHTML = newForm.innerHTML
-            .replace(/destaques-(\d+)-/g, `destaques-${newIndex}-`)
-            .replace(/(\d+)º<\/span>/, `${newIndex + 1}º</span>`) // +1 porque começa em 0
+            .replace(new RegExp(`${cfg.formPrefix}-(\\d+)-`, 'g'), `${cfg.formPrefix}-${newIndex}-`)
+            .replace(/(\d+)º<\/span>/, `${newIndex + 1}º</span>`);
 
         // Atualização manual para garantir
-        newForm.querySelectorAll('[id^="id_destaques-"], [name^="destaques-"]').forEach(el => {
-            el.id = el.id.replace(/destaques-(\d+)-/, `destaques-${newIndex}-`)
-            el.name = el.name.replace(/destaques-(\d+)-/, `destaques-${newIndex}-`)
-        })
+        newForm.querySelectorAll(`[id^="id_${cfg.formPrefix}-"], [name^="${cfg.formPrefix}-"]`).forEach(el => {
+            el.id = el.id.replace(new RegExp(`${cfg.formPrefix}-(\\d+)-`), `${cfg.formPrefix}-${newIndex}-`);
+            el.name = el.name.replace(new RegExp(`${cfg.formPrefix}-(\\d+)-`), `${cfg.formPrefix}-${newIndex}-`);
+        });
 
-        // Atualiza o número da posição no span
-        const posicaoSpan = newForm.querySelector('td:nth-child(2) span')
-        if (posicaoSpan) posicaoSpan.textContent = `${newIndex + 1}º`
+        // Atualiza o número da posição
+        const posicaoSpan = newForm.querySelector('td:nth-child(2) span');
+        if (posicaoSpan) posicaoSpan.textContent = `${newIndex + 1}º`;
 
-        // Limpa valores (exceto hidden)
+        // Limpa valores
         newForm.querySelectorAll('input:not([type="hidden"]), select').forEach(el => {
-            if (el.tagName === 'SELECT') el.selectedIndex = 0
-            else el.value = ''
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = '';
         });
 
         newForm.style.opacity = '0';
         container.appendChild(newForm);
         fadeIn(newForm);
+        totalFormsInput.value = newIndex + 1;
+    }
 
-        container.appendChild(newForm)
-        totalFormsInput.value = newIndex + 1
-    });
+    // Função para remover itens
+    function removeItem(item, type) {
+        const cfg = config[type];
+        const container = document.getElementById(cfg.containerId);
+        const items = container.getElementsByClassName(cfg.itemClass);
 
-    // Remove destaque - Nova versão
+        // Verifica se é o último item
+        if (item !== items[items.length - 1]) {
+            alert(`Você só pode remover o último ${type} adicionado!`);
+            return;
+        }
+
+        fadeOut(item).then(() => item.remove()).then(() => validateAllMonitors(cfg.selectPrefix));
+
+        // Atualiza o contador total de forms
+        const totalFormsInput = document.getElementById(`id_${cfg.formPrefix}-TOTAL_FORMS`);
+        totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+
+        updatePositionNumbers(cfg);
+    }
+
+    // Atualiza números de posição
+    function updatePositionNumbers(cfg) {
+        const container = document.getElementById(cfg.containerId);
+        const items = container.getElementsByClassName(cfg.itemClass);
+
+        Array.from(items).forEach((item, index) => {
+            const posicaoSpan = item.querySelector('td:nth-child(2) span');
+            if (posicaoSpan) posicaoSpan.textContent = `${index + 1}º`;
+
+            // Atualiza também o campo hidden da posição se existir
+            const posicaoInput = item.querySelector('input[name$="-posicao"]');
+            if (posicaoInput) posicaoInput.value = index + 1;
+        });
+    }
+
+    // Event listeners para adicionar itens
+    document.getElementById(config.destaque.addButtonId).addEventListener('click', () => addItem('destaque'));
+    document.getElementById(config.desempenho.addButtonId).addEventListener('click', () => addItem('desempenho'));
+
+    // Event listener para remover itens (delegação de eventos)
     document.addEventListener('click', function (e) {
         if (e.target.closest('.remove-item')) {
-            const container = document.getElementById('destaque-container')
-            const items = container.getElementsByClassName('destaque-item')
-            const clickedItem = e.target.closest('.destaque-item')
-
-            // Verifica se é o último item
-            if (clickedItem !== items[items.length - 1]) {
-                alert('Você só pode remover o último destaque adicionado!')
-                return
-            }
-
-            // No código de remover:
-            fadeOut(clickedItem).then(() => clickedItem.remove()).then(() => validateAllMonitors());
-
-            // Atualiza o contador total de forms
-            const totalFormsInput = document.getElementById('id_destaques-TOTAL_FORMS')
-            totalFormsInput.value = parseInt(totalFormsInput.value) - 1
-
-            // Atualiza os números de posição
-            updatePositionNumbers()
+            const type = e.target.closest('.remove-item').dataset.type;
+            const item = e.target.closest(`.${config[type].itemClass}`);
+            removeItem(item, type);
         }
     });
 
-    // Validação em tempo real de avaliações
+    // Validação em tempo real de avaliações (mantido como estava)
     document.querySelectorAll('[id$="-avaliacao"]').forEach(select => {
         select.addEventListener('change', function () {
             const obsField = this.closest('.avaliacao-item').querySelector('[id$="-observacao"]');
@@ -122,11 +162,11 @@ function updatePositionNumbers() {
     });
 }
 
-function isMonitorAlreadySelected(selectElement) {
+function isMonitorAlreadySelected(selectElement, secao) {
     const selectedMonitorId = selectElement.value;
     if (!selectedMonitorId) return false; // Ignora se nenhum monitor foi selecionado
 
-    const container = document.getElementById('destaque-container');
+    const container = document.getElementById(`${secao}-container`);
     const allSelects = container.querySelectorAll('select[name$="-monitor"]');
 
     let count = 0;
@@ -138,13 +178,13 @@ function isMonitorAlreadySelected(selectElement) {
     return count > 1;
 }
 
-function validateAllMonitors() {
-    const container = document.getElementById('destaque-container');
-    const allSelects = container.querySelectorAll('select[name$="-monitor"]');
+function validateAllMonitors(secao) {
+    let container = document.getElementById(`${secao}-container`);
+    let allSelects = container.querySelectorAll('select[name$="-monitor"]');
 
     allSelects.forEach(select => {
         select.style.border = '';
-        if (isMonitorAlreadySelected(select)) {
+        if (isMonitorAlreadySelected(select, secao)) {
             select.style.border = '2px solid red';
         }
     });
@@ -224,7 +264,7 @@ function atualizarObservacoes() {
 
         // Atualiza a obrigatoriedade
         obsField.prop('required', exigeObs);
-        console.log(obsField, exigeObs)
+
         // Atualiza o estilo
         if (exigeObs) {
             tr.find('.obs-cell').addClass('obs-obrigatoria');
@@ -235,3 +275,21 @@ function atualizarObservacoes() {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Lista de avaliações que exigem observação obrigatória
+    const avaliacaoQueExigeObservacao = ['Ruim', 'Regular'];
+
+    document.querySelectorAll('.avaliacao-select').forEach(function (avaliacaoSelect, index) {
+        avaliacaoSelect.addEventListener('change', function () {
+            const observacaoInput = document.querySelectorAll('.observacao-input')[index];
+            if (avaliacaoQueExigeObservacao.includes(this.value)) {
+                observacaoInput.setAttribute('required', 'required');
+                observacaoInput.classList.add('is-invalid'); // opcional: para destacar visualmente
+            } else {
+                observacaoInput.removeAttribute('required');
+                observacaoInput.classList.remove('is-invalid');
+            }
+        });
+    });
+});

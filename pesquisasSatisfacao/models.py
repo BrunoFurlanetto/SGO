@@ -71,18 +71,27 @@ class CoordenacaoAvaliandoMonitoria(PesquisaDeSatisfacao):
     )
 
     # Pergunta 3 - Observações sobre a equipe
-    observacoes_equipe = models.TextField()
+    observacoes_equipe = models.TextField(help_text='Conte um pouco sobre a sinergia da equipe perante o evento')
 
     # Pergunta 4 - Captação de orientações
-    captou_orientacoes = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
+    captou_orientacoes = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='A equipe captou todas as orientações passadas durante o evento?'
+    )
     captou_orientacoes_obs = models.TextField(blank=True)
 
     # Pergunta 5 - Pontualidade na chegada
-    pontualidade_chegada = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    pontualidade_chegada = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Pontualidade da equipe como um todo na chegada'
+    )
     pontualidade_chegada_obs = models.TextField(blank=True)
 
     # Pergunta 6 - Pontualidade nas atividades
-    pontualidade_atividades = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    pontualidade_atividades = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Pontualidade nas atividades'
+    )
     pontualidade_atividades_obs = models.TextField(blank=True)
 
     # Pergunta 7 - Programação aplicada
@@ -90,29 +99,40 @@ class CoordenacaoAvaliandoMonitoria(PesquisaDeSatisfacao):
     programacao_aplicada_obs = models.TextField(blank=True)
 
     # Pergunta 8 - Seguiu a programação
-    seguiu_programacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    seguiu_programacao = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Seguiu a Programação proposta para o período?'
+    )
     seguiu_programacao_obs = models.TextField(blank=True)
 
     # Pergunta 9 - Cuidados com materiais
-    cuidados_materiais = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    cuidados_materiais = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Cuidados com os materiais da empresa - Equipe como um todo.'
+    )
     cuidados_materiais_obs = models.TextField(blank=True)
 
     # Pergunta 10 - Iniciativa e empenho
-    iniciativa_empenho = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
+    iniciativa_empenho = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='A equipe demonstrou iniciativa e empenho no trabalho realizado?'
+    )
     iniciativa_empenho_obs = models.TextField(blank=True)
 
     # Pergunta 11 - Monitores destacados em atividades pedagógicas
     monitores_destaque_pedagogicas = models.ManyToManyField(
         Monitor,
         related_name='avaliacoes_destaque_pedagogicas',
-        blank=True
+        blank=True,
+        verbose_name='Algum monitor se destacou durante as atividades pedagógicas?'
     )
 
     # Pergunta 12 - Monitores com destaque no evento
     monitores_destaque_evento = models.ManyToManyField(
         Monitor,
         related_name='avaliacoes_destaque_evento',
-        blank=True
+        blank=True,
+        verbose_name='Algum monitor teve destaque no evento em questão?'
     )
 
     # Pergunta 13 - 5 palavras para descrever o serviço

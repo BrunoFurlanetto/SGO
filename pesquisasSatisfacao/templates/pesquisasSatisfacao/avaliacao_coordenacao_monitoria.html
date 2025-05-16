@@ -18,7 +18,7 @@
                         {% csrf_token %}
                         <div class="card-body">
                             <!-- Seção 1: Informações Fixas -->
-                            <section class="mb-5 text-center">
+                            <section class="mb-2 text-center">
                                 <h3 class="h5 mb-3 text-primary">Informações Gerais</h3>
                                 <div class="row g-3">
                                     <div class="col-md-4">
@@ -33,13 +33,19 @@
                                         <p class="mb-1"><strong>Responsável:</strong></p>
                                         <p>{{ ordem.responsavel_grupo }}</p>
                                     </div>
-                                    <div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Produto:</strong></p>
+                                        <p>{{ ordem.ficha_de_evento.produto }}</p>
+                                    </div>
+                                    <div class="col-md-6">
                                         <p class="mb-1"><strong>Cliente:</strong></p>
                                         <p>{{ ordem.instituicao }}</p>
                                     </div>
 
                                 </div>
                             </section>
+
+                            <hr>
 
                             <!-- Seção 2: Avaliações Individuais -->
                             <section class="mb-5">
@@ -55,7 +61,7 @@
                                     </thead>
                                     <tbody id="avaliacoes-container">
                                     {% for form in avaliacao_formset %}
-                                        <tr class="avaliacao-item">
+                                        <tr data-has-obs="true" class="avaliacao-item">
                                             <td>
                                                 {{ form.instance.usuario.get_full_name }}
                                                 <!-- Mostra o nome do monitor -->
@@ -67,7 +73,7 @@
                                                     <div class="text-danger">{{ form.avaliacao.errors }}</div>
                                                 {% endif %}
                                             </td>
-                                            <td>
+                                            <td class="obs-cell {% if form.avaliacao <= 2 %}obs-obrigatoria{% endif %}">
                                                 {{ form.observacao }}
                                             </td>
                                         </tr>
@@ -79,9 +85,13 @@
                             <!-- Seção 3: Destaques -->
                             <section class="mb-5">
                                 <h3 class="h5 mb-3 text-primary">Monitores Destaques</h3>
-                                <!-- Destaque em Atividades -->
+                                <!-- Destaque -->
                                 <div class="mb-4">
-                                    <h4 class="h6 mb-3">Destaque em Atividades (ordene do 1º ao último)</h4>
+                                    <h4 class="h6 mb-3">
+                                        Quais foram os monitores que se destacaram em cantorias, atividades dirigidas na
+                                        piscina, atividades transitórias entre projetos e restaurante (ordene do 1º ao
+                                        último)
+                                    </h4>
                                     <div id="destaque-formset-container">
                                         {{ destaque_formset.management_form }}
                                         <table class="table">
@@ -117,7 +127,53 @@
                                         </table>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-destaque">
-                                        <i class="bi bi-plus-circle"></i> Adicionar Destaque
+                                        <i class="bi bi-plus-circle"></i> Adicionar Monitor
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section class="mb-5">
+                                <h3 class="h5 mb-3 text-primary">Monitores Acima da Média</h3>
+                                <!-- Desempenho -->
+                                <div class="mb-4">
+                                    <h4 class="h6 mb-3">Coloque o nome dos monitores que tiverem um desempenho acima da
+                                        média (ordene do 1º ao último)</h4>
+                                    <div id="desempenho-formset-container">
+                                        {{ desempenho_formset.management_form }}
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th>Monitor</th>
+                                                <th>Posição</th>
+                                                <th></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="desempenho-container">
+                                            {% for form in desempenho_formset %}
+                                                <tr class="desempenho-item">
+                                                    <td>
+                                                        {{ form.monitor }}  <!-- Campo hidden com o ID do monitor -->
+                                                    </td>
+                                                    <td>
+                                                        <span>{{ forloop.counter }}º</span>
+                                                        {{ form.posicao.as_hidden }}
+                                                    </td>
+                                                    <td>
+                                                        {% if forloop.last and not forloop.first %}
+                                                            <!-- Só mostra botão no último item -->
+                                                            <button type="button"
+                                                                    class="bg-transparent border-0 fs-3 remove-item">
+                                                                <i class='bx bx-user-x bx-flip-horizontal'></i>
+                                                            </button>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-desempenho">
+                                        <i class="bi bi-plus-circle"></i> Adicionar Monitor
                                     </button>
                                 </div>
                             </section>
@@ -142,7 +198,7 @@
                                     </thead>
                                     <tbody>
                                     {% for field in form.visible_fields %}
-                                        {% if field.name not in 'observacoes_equipe, palavras_descricao, palavra_1, palavra_2m palavra_3, palavra_4, palavra_5' %}
+                                        {% if field.name not in campos_nao_tabelaveis %}
                                             {% if not field.name|slice:'-3:' == 'obs' %}
                                                 <tr data-has-obs="true">
                                                     <!-- Coluna da Pergunta -->
@@ -162,7 +218,8 @@
                                                     </td>
 
                                                     <!-- Coluna da Observação -->
-                                                    <td class="obs-cell {% if field.value in "False, 2, 1" %}obs-obrigatoria{% endif %}">                                                        {% with obs_field=form|get_obs_field:field.name %}
+                                                    <td class="obs-cell {% if field.value in "False, 2, 1" %}obs-obrigatoria{% endif %}">
+                                                        {% with obs_field=form|get_obs_field:field.name %}
                                                             {% if obs_field %}
                                                                 <div class="mb-3 mt-3">
                                                                     {{ obs_field }}
@@ -181,16 +238,43 @@
                                     {% endfor %}
                                     </tbody>
                                 </table>
+
+                                <div class="mb-3 mt-3 pb-4 border-bottom-dashed border-1">
+                                    {{ form.monitores_destaque_pedagogicas.label_tag }}
+                                    {{ form.monitores_destaque_pedagogicas }}
+                                    {% if form.monitores_destaque_pedagogicas.help_text %}
+                                        <small class="form-text text-muted">{{ form.monitores_destaque_pedagogicas.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in form.monitores_destaque_pedagogicas.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mb-3 pb-4 border-1 border-bottom border-dark">
+                                    {{ form.monitores_destaque_evento.label_tag }}
+                                    {{ form.monitores_destaque_evento }}
+                                    {% if form.monitores_destaque_evento.help_text %}
+                                        <small class="form-text text-muted">{{ form.monitores_destaque_evento.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in form.monitores_destaque_evento.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </section>
 
                             <!-- Seção 5: Observações Finais -->
                             <h3 class="h5 mb-3 text-primary">Observações gerais</h3>
                             <div class="mb-3">
-                                {{ form.observacoes_equipe.label_tag }}
-                                {{ form.observacoes_equipe }}
+                                Alguma observação referente a equipe de monitoria no geral?
+                                <br>
                                 {% if form.observacoes_equipe.help_text %}
                                     <small class="form-text text-muted">{{ form.observacoes_equipe.help_text }}</small>
                                 {% endif %}
+                                {{ form.observacoes_equipe }}
                                 {% for error in form.observacoes_equipe.errors %}
                                     <div class="invalid-feedback d-block">
                                         {{ error }}

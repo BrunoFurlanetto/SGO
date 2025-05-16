@@ -11,8 +11,7 @@ from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoI
 class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
     class Meta:
         model = CoordenacaoAvaliandoMonitoria
-        exclude = ['monitores_destaque_atividades', 'monitores_destaque_pedagogicas',
-                   'monitores_destaque_evento', 'monitores_acima_media']
+        exclude = ['monitores_destaque_atividades', 'monitores_acima_media']
         widgets = {
             'coordenador': forms.HiddenInput(),
             'ordem_de_servico': forms.HiddenInput(),
@@ -20,6 +19,7 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        monitores = kwargs.pop('monitores', None)
         super().__init__(*args, **kwargs)
 
         for i in range(1, 6):
@@ -53,6 +53,11 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
 
             # Atualiza atributos sem sobrescrever
             field.widget.attrs['class'] = ' '.join(classes)
+
+        if monitores:
+            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
+            self.fields['monitores_destaque_evento'].queryset = monitores
+            self.fields['monitores_destaque_pedagogicas'].queryset = monitores
 
     def clean(self):
         cleaned_data = super().clean()
@@ -98,8 +103,8 @@ class AvaliacaoIndividualMonitorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['monitor'].widget.attrs.update({'class': 'form-select'})
-        self.fields['avaliacao'].widget.attrs.update({'class': 'form-select'})
-        self.fields['observacao'].widget.attrs.update({'class': 'form-control', 'rows': 3})
+        self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
+        self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
     def clean(self):
         cleaned_data = super().clean()
@@ -116,14 +121,14 @@ class DestaqueAtividadesForm(forms.ModelForm):
         fields = ['monitor', 'posicao']
 
     def __init__(self, *args, avaliacao_id=None, **kwargs):
-        escala = kwargs.pop('escala', None)  # Remove 'escala' dos kwargs
+        monitores = kwargs.pop('monitores', None)  # Remove 'escala' dos kwargs
         super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select monitor-select', 'onchange': 'validateAllMonitors()'})
+        self.fields['monitor'].widget.attrs.update({'class': 'form-select monitor-select', 'onchange': 'validateAllMonitors("destaque")'})
         self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
 
-        if escala:
+        if monitores:
             # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
-            self.fields['monitor'].queryset = escala.monitores_acampamento.all()
+            self.fields['monitor'].queryset = monitores
 
 
 class DesempenhoAcimaMediaForm(forms.ModelForm):
@@ -132,9 +137,14 @@ class DesempenhoAcimaMediaForm(forms.ModelForm):
         fields = ['monitor', 'posicao']
 
     def __init__(self, *args, avaliacao_id=None, **kwargs):
+        monitores = kwargs.pop('monitores', None)  # Remove 'escala' dos kwargs
         super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select'})
+        self.fields['monitor'].widget.attrs.update({'class': 'form-select', 'onchange': 'validateAllMonitors("desempenho")'})
         self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
+
+        if monitores:
+            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
+            self.fields['monitor'].queryset = monitores
 
 
 AvaliacaoIndividualMonitorFormSet = modelformset_factory(
@@ -146,5 +156,11 @@ AvaliacaoIndividualMonitorFormSet = modelformset_factory(
 DestaqueAtividadesFormSet = modelformset_factory(
     DestaqueAtividades,
     form=DestaqueAtividadesForm,
+    extra=1,
+)
+
+DesempenhoAcimaMediaFormSet = modelformset_factory(
+    DesempenhoAcimaMedia,
+    form=DesempenhoAcimaMediaForm,
     extra=1,
 )

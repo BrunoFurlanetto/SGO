@@ -49,12 +49,8 @@
     font-size: 0.7em;
 }
 
-#tabela-avaliacao-geral tbody tr:not(:last-child){
+#tabela-avaliacao-geral tbody tr{
     border-bottom: dashed 1px #2c2c2d73;
-}
-
-#tabela-avaliacao-geral tbody tr:last-child{
-    border-bottom: solid 1px #000000;
 }
 
 #tabela-avaliacao-geral tbody tr > td{
@@ -115,4 +111,8 @@
 
 .is-invalid:focus {
     box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.border-bottom-dashed {
+    border-bottom: dashed #2c2c2d73;
 }

@@ -41,9 +41,10 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
                 'ordem_de_servico': ordem,
                 'coordenador': request.user,
                 'escala_peraltas': escala,
-            }
+            },
+            monitores=monitores
         )
-        monitores = escala.monitores_acampamento.all()
+        monitores = escala.monitores_acampamento.all().exclude(usuario=request.user)
         AvaliacaoIndividualMonitorFormSet = modelformset_factory(
             AvaliacaoIndividualMonitor,
             form=AvaliacaoIndividualMonitorForm,
@@ -51,10 +52,9 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
         )
         avaliacao = AvaliacaoIndividualMonitorFormSet(
             queryset=monitores,
-            initial=[{'monitor': monitor.id} for monitor in monitores],
+            initial=[{'monitor': monitor.id} for monitor in monitores if monitor.usuario != request.user],
             prefix='avaliacao'
         )
-
         DestaqueAtividadesFormSet = modelformset_factory(
             DestaqueAtividades,  # Substitua pelo seu modelo
             form=DestaqueAtividadesForm,
@@ -63,10 +63,20 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
         destaque = DestaqueAtividadesFormSet(
             queryset=DestaqueAtividades.objects.none(),  # Ou um queryset específico
             initial=[{'posicao': 1}],
-            form_kwargs={'escala': escala},  # Passa a escala para cada form
+            form_kwargs={'monitores': monitores},  # Passa a escala para cada form
             prefix='destaques'
         )
-        desempenho = DesempenhoAcimaMediaForm()
+        DesempenhoAcimaMediaFormSet = modelformset_factory(
+            DesempenhoAcimaMedia,
+            form=DesempenhoAcimaMediaForm,
+            extra=1,
+        )
+        desempenho = DesempenhoAcimaMediaFormSet(
+            queryset=DesempenhoAcimaMedia.objects.none(),
+            initial=[{'posicao': 1}],
+            form_kwargs={'monitores': monitores},
+            prefix='desempenho'
+        )
 
     context = {
         'form': form,
@@ -75,6 +85,17 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
         'desempenho_formset': desempenho,
         'ordem': ordem,
         'monitores': monitores,
+        'campos_nao_tabelaveis': [
+            'observacoes_equipe',
+            'palavras_descricao',
+            'palavra_1',
+            'palavra_2',
+            'palavra_3',
+            'palavra_4',
+            'palavra_5',
+            'monitores_destaque_pedagogicas',
+            'monitores_destaque_evento',
+        ]
     }
 
     return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', context)
