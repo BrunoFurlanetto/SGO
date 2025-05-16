@@ -52,7 +52,7 @@
                                 <h3 class="h5 mb-3 text-primary">Avaliação individual dos Monitores</h3>
                                 {{ avaliacao_formset.management_form }}
                                 <table class="table">
-                                    <thead>
+                                    <thead class="text-center">
                                     <tr>
                                         <th>Monitor</th>
                                         <th>Avaliação</th>
@@ -61,7 +61,7 @@
                                     </thead>
                                     <tbody id="avaliacoes-container">
                                     {% for form in avaliacao_formset %}
-                                        <tr data-has-obs="true" class="avaliacao-item">
+                                        <tr data-has-obs="true" class="avaliacao-item align-middle">
                                             <td>
                                                 {{ form.instance.usuario.get_full_name }}
                                                 <!-- Mostra o nome do monitor -->
@@ -95,7 +95,7 @@
                                     <div id="destaque-formset-container">
                                         {{ destaque_formset.management_form }}
                                         <table class="table">
-                                            <thead>
+                                            <thead class="text-center">
                                             <tr>
                                                 <th>Monitor</th>
                                                 <th>Posição</th>
@@ -141,7 +141,7 @@
                                     <div id="desempenho-formset-container">
                                         {{ desempenho_formset.management_form }}
                                         <table class="table">
-                                            <thead>
+                                            <thead class="text-center">
                                             <tr>
                                                 <th>Monitor</th>
                                                 <th>Posição</th>
