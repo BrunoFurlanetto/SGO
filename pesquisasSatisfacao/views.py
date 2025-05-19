@@ -1,15 +1,17 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import EscalaAcampamento
-from pesquisasSatisfacao.forms import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
-    DestaqueAtividadesForm, DesempenhoAcimaMediaForm, DestaqueAtividadesFormSet
+from pesquisasSatisfacao.forms_coordenadores import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
+    DestaqueAtividadesForm, DesempenhoAcimaMediaForm
 from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia
 
 
+@login_required(login_url='login')
 def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
@@ -57,6 +59,7 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
                 with transaction.atomic():
                     pesquisa = form.save(commit=False)
                     pesquisa.save()
+                    form.save_m2m()
 
                     # Salva avaliações individuais
                     avaliacoes = avaliacao.save(commit=False)
@@ -76,14 +79,16 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
                         desempenho_obj.avaliacao = pesquisa
                         desempenho_obj.save()
             except Exception as e:
-                messages.error(request, f'Aconteceu um erro durante o salvamento da avaliação ({e}). Por favor tente novamente mais tade!')
+                messages.error(
+                    request,
+                    f'Aconteceu um erro durante o salvamento da avaliação ({e}). Por favor tente novamente mais tade!'
+                )
             else:
                 ordem.avaliou_monitoria.add(request.user.monitor.id)
                 messages.success(request, 'Pesquisa enviada com sucesso!')
 
                 return redirect('dashboard')
         else:
-            print(form.errors, avaliacao.errors, destaque.errors, desempenho.errors)
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = CoordenacaoAvaliandoMonitoriaForm(
@@ -130,7 +135,7 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
             prefix='desempenho'
         )
 
-    context = {
+    return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', {
         'form': form,
         'avaliacao_formset': avaliacao,
         'destaque_formset': destaque,
@@ -148,6 +153,19 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
             'monitores_destaque_pedagogicas',
             'monitores_destaque_evento',
         ]
-    }
+    })
 
-    return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', context)
+
+@login_required(login_url='login')
+def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
+    ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
+    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+
+    if request.method == 'POST':
+        ...
+    else:
+        ...
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_monitoria_coordenacao.html', {
+
+    })
