@@ -79,12 +79,18 @@
                                                     </div>
                                                 {% endfor %}
                                             </td>
-                                            {% for error in form.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {{ error }}
-                                                </div>
-                                            {% endfor %}
                                         </tr>
+                                        {% if form.monitor.errors %}
+                                            {% for error in form.monitor.errors %}
+                                                <tr>
+                                                    <td rowspan="3" class="invalid-feedback d-block">
+                                                        *{{ error }}
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
                                     {% endfor %}
                                     </tbody>
                                 </table>
@@ -129,12 +135,18 @@
                                                             </button>
                                                         {% endif %}
                                                     </td>
-                                                    {% for error in form.monitor.errors %}
-                                                        <div class="invalid-feedback d-block">
-                                                            {{ error }}
-                                                        </div>
-                                                    {% endfor %}
                                                 </tr>
+                                                {% if form.monitor.errors %}
+                                                    {% for error in form.monitor.errors %}
+                                                        <tr>
+                                                            <td rowspan="3" class="invalid-feedback d-block">
+                                                                *{{ error }}
+                                                            </td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endif %}
                                             {% endfor %}
                                             </tbody>
                                         </table>
@@ -182,7 +194,7 @@
                                                     </td>
                                                 </tr>
                                                 {% if form.monitor.errors %}
-                                                	{% for error in form.monitor.errors %}
+                                                    {% for error in form.monitor.errors %}
                                                         <tr>
                                                             <td rowspan="3" class="invalid-feedback d-block">
                                                                 *{{ error }}
