@@ -116,3 +116,9 @@
 .border-bottom-dashed {
     border-bottom: dashed #2c2c2d73;
 }
+
+.nome-monitor {
+    border: none;
+    pointer-events: none;
+    background: transparent;
+}

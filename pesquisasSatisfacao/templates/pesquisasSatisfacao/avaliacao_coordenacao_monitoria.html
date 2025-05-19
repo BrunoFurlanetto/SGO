@@ -63,9 +63,7 @@
                                     {% for form in avaliacao_formset %}
                                         <tr data-has-obs="true" class="avaliacao-item align-middle">
                                             <td>
-                                                {{ form.instance.usuario.get_full_name }}
-                                                <!-- Mostra o nome do monitor -->
-                                                {{ form.monitor.as_hidden }}  <!-- Campo hidden com o ID do monitor -->
+                                                {{ form.monitor }}
                                             </td>
                                             <td>
                                                 {{ form.avaliacao }}
@@ -75,6 +73,11 @@
                                             </td>
                                             <td class="obs-cell {% if form.avaliacao <= 2 %}obs-obrigatoria{% endif %}">
                                                 {{ form.observacao }}
+                                                {% for error in form.observacao.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -172,7 +175,8 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-desempenho">
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2"
+                                            id="add-desempenho">
                                         <i class="bi bi-plus-circle"></i> Adicionar Monitor
                                     </button>
                                 </div>
@@ -286,14 +290,7 @@
                                 <div class="row g-2">
                                     {% for i in "12345" %}
                                         <div class="col-md-4 col-6">
-                                            <input type="text"
-                                                   name="palavra_{{ i }}"
-                                                   id="id_palavra_{{ i }}"
-                                                   class="form-control palavra-chave-input"
-                                                   maxlength="20"
-                                                   value="{{ form.instance.palavras_descricao|default:''|slice:forloop.counter0|first|default:'' }}"
-                                                   placeholder="Palavra {{ i }}"
-                                                   data-index="{{ forloop.counter0 }}">
+                                            {{ form|get_field:forloop.counter0 }}
                                         </div>
                                     {% endfor %}
                                 </div>

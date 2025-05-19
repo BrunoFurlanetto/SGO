@@ -82,7 +82,7 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
         ]
 
         for campo, campo_obs in campos_booleanos:
-            if cleaned_data.get(campo) is not None and not cleaned_data.get(campo_obs):
+            if not cleaned_data.get(campo) and cleaned_data.get(campo_obs) == "":
                 self.add_error(campo_obs, "Campo de observação obrigatório")
 
         palavras = [
@@ -100,9 +100,23 @@ class AvaliacaoIndividualMonitorForm(forms.ModelForm):
         model = AvaliacaoIndividualMonitor
         fields = ['monitor', 'avaliacao', 'observacao']
 
+    def get_monitor_nome(self):
+        if self.instance.pk and self.instance.monitor:
+            return self.instance.monitor.usuario.get_full_name()
+        # elif self.initial.get('monitor'):
+        #     # Busca o nome manualmente
+        #     from app.models import MonitorEscala  # ou onde estiver o model
+        #     try:
+        #         monitor = MonitorEscala.objects.get(pk=self.initial['monitor'])
+        #         return monitor.usuario.get_full_name()
+        #     except MonitorEscala.DoesNotExist:
+        #         return 'Monitor não encontrado'
+
+        return 'Nome não disponível'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select'})
+        self.fields['monitor'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
