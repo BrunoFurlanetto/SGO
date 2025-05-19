@@ -83,6 +83,7 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
 
                 return redirect('dashboard')
         else:
+            print(form.errors, avaliacao.errors, destaque.errors, desempenho.errors)
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = CoordenacaoAvaliandoMonitoriaForm(
