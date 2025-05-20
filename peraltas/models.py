@@ -434,6 +434,14 @@ class OpcionaisFormatura(models.Model):
         return self.opcional_formatura
 
 
+class OpcoesProfessoresEmQuarto(models.Model):
+    tipo = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.tipo
+
+
 @reversion.register
 class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
@@ -469,6 +477,7 @@ class InformacoesAdcionais(models.Model):
     link_foto = models.IntegerField(choices=sim_nao, default='')
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
+    professores_em_quarto = models.ForeignKey(OpcoesProfessoresEmQuarto, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return f'Informações adicionais id: {self.id}'
@@ -505,7 +514,6 @@ class FichaDeEvento(models.Model):
     check_out = models.DateTimeField(verbose_name='Check out')
     obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True,
                                           verbose_name='Observação da edição do horário')
-    professores_com_alunos = models.BooleanField(default=False, verbose_name='Professores dormirão com alunos?')
     qtd_professores = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores')
     qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True,
                                                    verbose_name='Quantidade de professores homens')

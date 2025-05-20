@@ -193,11 +193,7 @@
                              style="width: 15%">
                             <label>QTD profs. mulheres</label>
                             {{ form.qtd_profs_mulheres }}
-                        </div>
-                        <div class="mt-2 professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}">
-                            {{ form.professores_com_alunos }}
-                            <label class="my-1">Professores dormirão com os alunos?</label>
-                        </div>
+                        </div>                        
                     </div>
                 {% else %}
                     <div class="row professores {% if not pre_reserva.produto.colegio %} none {% endif %}">
@@ -607,9 +603,13 @@
                             <hr>
                             <div class="row" id="monitoria_peraltas">
                                 <h5 class="titulo-secao">Monitoria</h5>
-                                <div class="mb-2" style="width: 60%">
+                                <div class="mb-2" style="width: 50%">
                                     <label>Tipo</label>
                                     {{ formAdicionais.monitoria }}
+                                </div>
+                                <div style="width: 50%">
+                                    <label>Professores dormem em quarto?</label>
+                                    {{ formAdicionais.professores_em_quarto }}
                                 </div>
                             </div>
                             <hr>
