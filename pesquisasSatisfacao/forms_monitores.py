@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import modelformset_factory
 
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
     DesempenhoAcimaMedia
@@ -8,18 +7,17 @@ from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoI
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Formulário da Coordenação -> equipe de montoria -------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
+class MonitoriaAvaliandoCoordenacaoForm(forms.ModelForm):
     class Meta:
         model = CoordenacaoAvaliandoMonitoria
-        exclude = ['monitores_destaque_atividades', 'monitores_acima_media']
+        fields = '__all__'
         widgets = {
-            'coordenador': forms.HiddenInput(),
+            'monitor': forms.HiddenInput(),
             'ordem_de_servico': forms.HiddenInput(),
             'escala_peraltas': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
-        monitores = kwargs.pop('monitores', None)
         super().__init__(*args, **kwargs)
 
         for i in range(1, 6):
@@ -27,8 +25,8 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
                 max_length=50,
                 required=False,
                 label=f'Palavra-chave {i}',
-                initial=self.instance.palavras_descricao[i - 1] if self.instance.palavras_descricao and len(
-                    self.instance.palavras_descricao) >= i else ''
+                initial=self.instance.palavras_chave[i - 1] if self.instance.palavras_chave and len(
+                    self.instance.palavras_chave) >= i else ''
             )
 
         # Personalizações dos campos
@@ -54,11 +52,6 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
             # Atualiza atributos sem sobrescrever
             field.widget.attrs['class'] = ' '.join(classes)
 
-        if monitores:
-            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
-            self.fields['monitores_destaque_evento'].queryset = monitores
-            self.fields['monitores_destaque_pedagogicas'].queryset = monitores
-
     def clean(self):
         cleaned_data = super().clean()
 
@@ -66,9 +59,11 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
         campos_avaliacao = [
             ('pontualidade_chegada', 'pontualidade_chegada_obs'),
             ('pontualidade_atividades', 'pontualidade_atividades_obs'),
+            ('cuidados_materiais', 'cuidados_materiais_obs'),
+            ('desenvoltura_equipe', 'desenvoltura_equipe_obs'),
+            ('organizacao_evento', 'organizacao_evento_obs'),
             ('programacao_aplicada', 'programacao_aplicada_obs'),
             ('seguiu_programacao', 'seguiu_programacao_obs'),
-            ('cuidados_materiais', 'cuidados_materiais_obs'),
         ]
 
         for campo, campo_obs in campos_avaliacao:
@@ -77,8 +72,10 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
 
         # Valida campos booleanos que requerem observação
         campos_booleanos = [
-            ('captou_orientacoes', 'captou_orientacoes_obs'),
-            ('iniciativa_empenho', 'iniciativa_empenho_obs'),
+            ('teve_briefing', 'teve_briefing_obs'),
+            ('teve_feedback', 'teve_feedback_obs'),
+            ('coordenador_participou', 'coordenador_participou_obs'),
+            ('tem_consideracoes_pedagogicas', 'tem_consideracoes_pedagogicas_obs'),
         ]
 
         for campo, campo_obs in campos_booleanos:
@@ -90,33 +87,19 @@ class CoordenacaoAvaliandoMonitoriaForm(forms.ModelForm):
             for i in range(1, 6)
             if cleaned_data.get(f'palavra_{i}') and cleaned_data.get(f'palavra_{i}').strip()
         ]
-        cleaned_data['palavras_descricao'] = palavras
+        cleaned_data['palavras_chave'] = palavras
 
         return cleaned_data
 
 
-class AvaliacaoIndividualMonitorForm(forms.ModelForm):
+class AvaliacaoIndividualCoordenadorForm(forms.ModelForm):
     class Meta:
         model = AvaliacaoIndividualMonitor
-        fields = ['monitor', 'avaliacao', 'observacao']
-
-    def get_monitor_nome(self):
-        if self.instance.pk and self.instance.monitor:
-            return self.instance.monitor.usuario.get_full_name()
-        # elif self.initial.get('monitor'):
-        #     # Busca o nome manualmente
-        #     from app.models import MonitorEscala  # ou onde estiver o model
-        #     try:
-        #         monitor = MonitorEscala.objects.get(pk=self.initial['monitor'])
-        #         return monitor.usuario.get_full_name()
-        #     except MonitorEscala.DoesNotExist:
-        #         return 'Monitor não encontrado'
-
-        return 'Nome não disponível'
+        fields = ['coordenador', 'avaliacao', 'observacao']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
+        self.fields['coordenacao'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
@@ -127,54 +110,3 @@ class AvaliacaoIndividualMonitorForm(forms.ModelForm):
             self.add_error('observacao', "Observação obrigatória para avaliações Regular ou Ruim")
 
         return cleaned_data
-
-
-class DestaqueAtividadesForm(forms.ModelForm):
-    class Meta:
-        model = DestaqueAtividades
-        fields = ['monitor', 'posicao']
-
-    def __init__(self, *args, avaliacao_id=None, **kwargs):
-        monitores = kwargs.pop('monitores', None)  # Remove 'escala' dos kwargs
-        super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select monitor-select', 'onchange': 'validateAllMonitors("destaque")'})
-        self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
-
-        if monitores:
-            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
-            self.fields['monitor'].queryset = monitores
-
-
-class DesempenhoAcimaMediaForm(forms.ModelForm):
-    class Meta:
-        model = DesempenhoAcimaMedia
-        fields = ['monitor', 'posicao']
-
-    def __init__(self, *args, avaliacao_id=None, **kwargs):
-        monitores = kwargs.pop('monitores', None)  # Remove 'escala' dos kwargs
-        super().__init__(*args, **kwargs)
-        self.fields['monitor'].widget.attrs.update({'class': 'form-select', 'onchange': 'validateAllMonitors("desempenho")'})
-        self.fields['posicao'].widget.attrs.update({'class': 'form-control', 'min': 1})
-
-        if monitores:
-            # Filtra os monitores da escala (ajuste o relacionamento conforme seu modelo)
-            self.fields['monitor'].queryset = monitores
-
-
-AvaliacaoIndividualMonitorFormSet = modelformset_factory(
-    AvaliacaoIndividualMonitor,  # Ou o modelo que você está usando
-    form=AvaliacaoIndividualMonitorForm,
-    extra=1,  # Quantidade de forms extras (pode ser 0 se já tiver monitores)
-)
-
-DestaqueAtividadesFormSet = modelformset_factory(
-    DestaqueAtividades,
-    form=DestaqueAtividadesForm,
-    extra=1,
-)
-
-DesempenhoAcimaMediaFormSet = modelformset_factory(
-    DesempenhoAcimaMedia,
-    form=DesempenhoAcimaMediaForm,
-    extra=1,
-)

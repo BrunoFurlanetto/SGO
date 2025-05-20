@@ -215,23 +215,38 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
     # Pergunta 1 - Avaliação dos coordenadores (será tratada em model separado)
 
     # Pergunta 2 - Pontualidade na chegada
-    pontualidade_chegada = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    pontualidade_chegada = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Pontualidade na chegada (dos coordenadores)'
+    )
     pontualidade_chegada_obs = models.TextField(blank=True)
 
     # Pergunta 3 - Pontualidade nas atividades
-    pontualidade_atividades = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    pontualidade_atividades = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Pontualidade nas atividades'
+    )
     pontualidade_atividades_obs = models.TextField(blank=True)
 
     # Pergunta 4 - Cuidados com materiais
-    cuidados_materiais = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    cuidados_materiais = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Cuidado com os materiais da empresa'
+    )
     cuidados_materiais_obs = models.TextField(blank=True)
 
     # Pergunta 5 - Desenvoltura com a equipe
-    desenvoltura_equipe = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    desenvoltura_equipe = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Desenvoltura com a equipe de monitoria'
+    )
     desenvoltura_equipe_obs = models.TextField(blank=True)
 
     # Pergunta 6 - Organização do evento
-    organizacao_evento = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    organizacao_evento = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Organização do evento como um todo'
+    )
     organizacao_evento_obs = models.TextField(blank=True)
 
     # Pergunta 7 - Programação aplicada
@@ -239,24 +254,39 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
     programacao_aplicada_obs = models.TextField(blank=True)
 
     # Pergunta 8 - Seguiu a programação
-    seguiu_programacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    seguiu_programacao = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Seguiu a Programação proposta para o período?'
+    )
     seguiu_programacao_obs = models.TextField(blank=True)
 
     # Pergunta 9 - Briefing prévio
-    teve_briefing = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
+    teve_briefing = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Teve briefing prévio ao evento? Foram passadas todas as informações necessárias para o evento no briefing inicial?'
+    )
     briefing_obs = models.TextField(blank=True)
 
     # Pergunta 10 - Feedback final
-    teve_feedback = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
+    teve_feedback = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='O coordenador deu feedback para a equipe no final do evento?'
+    )
     feedback_obs = models.TextField(blank=True)
 
     # Pergunta 11 - Participação nas atividades
-    coordenador_participou = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
+    coordenador_participou = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Os coordenadores participaram das atividades?'
+    )
     participacao_obs = models.TextField(blank=True)
 
     # Pergunta 12 - Considerações sobre atividades pedagógicas
-    tem_consideracoes_pedagogicas = models.BooleanField(choices=PesquisaDeSatisfacao.sim_nao_choices)
-    consideracoes_pedagogicas = models.TextField(blank=True)
+    tem_consideracoes_pedagogicas = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Tem alguma consideração sobre as atividades pedagógicas propostas?'
+    )
+    consideracoes_pedagogicas_obs = models.TextField(blank=True)
 
     # Pergunta 13 - Palavras-chave
     palavras_chave = ArrayField(
@@ -282,7 +312,7 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
             ('teve_briefing', 'briefing_obs'),
             ('teve_feedback', 'feedback_obs'),
             ('coordenador_participou', 'participacao_obs'),
-            ('tem_consideracoes_pedagogicas', 'consideracoes_pedagogicas'),
+            ('tem_consideracoes_pedagogicas', 'consideracoes_pedagogicas_obs'),
         ])
 
 
@@ -298,9 +328,4 @@ class AvaliacaoIndividualCoordenador(models.Model):
 
     def __str__(self):
         return f"Avaliação de {self.coordenador} por {self.pesquisa.monitor}"
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# --------------------------------------------- Formulários ------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
 
