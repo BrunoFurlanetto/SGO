@@ -271,6 +271,7 @@
                             <th style="width: 145px">Produto</th>
                             <th>Estimado</th>
                             <th>Reservado</th>
+                            <th>Monitoria</th>
                             <th>Transporte</th>
                             <th style="width: 250px">Check in</th>
                             {% if diretoria or operacional %}
@@ -288,6 +289,7 @@
                                     0 {% endif %}</td>
                                 <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
                                     0 {% endif %}</td>
+                                <td>{{ ficha.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
                                 <td>{{ ficha.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não'}}</td>
                                 <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
                                 {% if diretoria or operacional %}
@@ -308,6 +310,7 @@
                             <th style="width: 150px">Produto</th>
                             <th>Participantes</th>
                             <th style="width: 250px">Check in</th>
+                            <th>Monitoria</th>
                             <th>Transporte</th>
                             {% if diretoria or operacional %}
                                 <th>Colaborador</th> {% endif %}
@@ -322,6 +325,7 @@
                                 <td>{{ ordem.ficha_de_evento.produto }}</td>
                                 <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
                                     0 {% endif %}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
                                 <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 {% if diretoria or operacional %}
