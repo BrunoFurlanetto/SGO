@@ -22,8 +22,12 @@
                                 <h3 class="h5 mb-3 text-primary">Informações Gerais</h3>
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <p class="mb-1"><strong>Coordenador:</strong></p>
-                                        <p>{{ request.user.get_full_name }}</p>
+                                        <p class="mb-1"><strong>Coordenador(es):</strong></p>
+                                        <p>
+                                            {% for monitor in ordem.monitor_responsavel.all %}
+                                                {{ monitor.usuario.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Data do Evento:</strong></p>
@@ -51,7 +55,8 @@
                             <section class="mb-5">
                                 <div class="h6 mb-3 text-uppercase">
                                     <strong>
-                                        Você devem avaliar a equipe como um todo e colocar as observações caso haja algum caso específico!
+                                        Você devem avaliar a equipe como um todo e colocar as observações caso haja
+                                        algum caso específico!
                                     </strong>
                                 </div>
                                 <h3 class="h5 mb-3 text-primary">Avaliação individual dos Monitores</h3>
@@ -68,7 +73,7 @@
                                     {% for form in avaliacao_formset %}
                                         <tr data-has-obs="true" class="avaliacao-item align-middle">
                                             <td>
-                                                {{ form.monitor }}
+                                                {{ form.coordenador }}
                                             </td>
                                             <td>
                                                 {{ form.avaliacao }}
@@ -324,7 +329,8 @@
                                 {% endfor %}
                             </div>
                             <div class="palavras-chave-container mb-4">
-                                <label class="form-label">Utilize 5 palavras para descrever o serviço realizado (máx. 5):</label>
+                                <label class="form-label">Utilize 5 palavras para descrever o serviço realizado (máx.
+                                    5):</label>
                                 <div class="row g-2">
                                     {% for i in "12345" %}
                                         <div class="col-md-4 col-6">

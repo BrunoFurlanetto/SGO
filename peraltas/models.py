@@ -1085,6 +1085,7 @@ class EscalaAcampamento(models.Model):
     observacoes = models.TextField(null=True)
     pre_escala = models.BooleanField(default=False)
     racional_monitores = models.PositiveIntegerField(default=10)
+    avaliou_coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='avaliou_coordenadores')
 
     def tipo_escala(self):
         if self.ficha_de_evento.produto.colegio:

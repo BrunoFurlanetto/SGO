@@ -1,7 +1,7 @@
 from django import forms
 
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
-    DesempenhoAcimaMedia
+    DesempenhoAcimaMedia, AvaliacaoIndividualCoordenador, MonitorAvaliandoCoordenacao
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoI
 # ----------------------------------------------------------------------------------------------------------------------
 class MonitoriaAvaliandoCoordenacaoForm(forms.ModelForm):
     class Meta:
-        model = CoordenacaoAvaliandoMonitoria
+        model = MonitorAvaliandoCoordenacao
         fields = '__all__'
         widgets = {
             'monitor': forms.HiddenInput(),
@@ -94,12 +94,12 @@ class MonitoriaAvaliandoCoordenacaoForm(forms.ModelForm):
 
 class AvaliacaoIndividualCoordenadorForm(forms.ModelForm):
     class Meta:
-        model = AvaliacaoIndividualMonitor
+        model = AvaliacaoIndividualCoordenador
         fields = ['coordenador', 'avaliacao', 'observacao']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['coordenacao'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
+        self.fields['coordenador'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 

@@ -8,7 +8,9 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import EscalaAcampamento
 from pesquisasSatisfacao.forms_coordenadores import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
     DestaqueAtividadesForm, DesempenhoAcimaMediaForm
-from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia
+from pesquisasSatisfacao.forms_monitores import MonitoriaAvaliandoCoordenacaoForm
+from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia, \
+    MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador
 
 
 @login_required(login_url='login')
@@ -160,12 +162,74 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
 def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+    coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
 
     if request.method == 'POST':
-        ...
+        form = MonitoriaAvaliandoCoordenacaoForm(request.POST)
+        AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+            AvaliacaoIndividualCoordenador,
+            form=AvaliacaoIndividualMonitorForm,
+            extra=0,
+        )
+        avaliacao = AvaliacaoIndividualCoordenadorFormSet(
+            request.POST,
+            queryset=AvaliacaoIndividualCoordenador.objects.none(),
+            prefix='avaliacao'
+        )
+
+        if form.is_valid() and avaliacao.is_valid():
+            try:
+                with transaction.atomic():
+                    pesquisa = form.save(commit=False)
+                    pesquisa.save()
+
+                    # Salva avaliações individuais
+                    avaliacoes = avaliacao.save(commit=False)
+                    for avaliacao_obj in avaliacoes:
+                        avaliacao_obj.avaliacao_geral = pesquisa
+                        avaliacao_obj.save()
+
+            except Exception as e:
+                messages.error(
+                    request,
+                    f'Aconteceu um erro durante o salvamento da avaliação ({e}). Por favor tente novamente mais tade!'
+                )
+            else:
+                escala.avaliou_coordenadores.add(request.user.monitor.id)
+                messages.success(request, 'Pesquisa enviada com sucesso!')
+
+                return redirect('dashboard')
+        else:
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
-        ...
+        form = MonitoriaAvaliandoCoordenacaoForm(
+            initial={
+                'ordem_de_servico': ordem,
+                'monitor': request.user,
+                'escala_peraltas': escala,
+            },
+        )
+
+        AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+            AvaliacaoIndividualMonitor,
+            form=AvaliacaoIndividualMonitorForm,
+            extra=len(coordenadores),
+        )
+        avaliacao = AvaliacaoIndividualCoordenadorFormSet(
+            queryset=AvaliacaoIndividualCoordenador.objects.none(),
+            initial=[{'coordenador': coordenador.id} for coordenador in coordenadores],
+            prefix='avaliacao'
+        )
 
     return render(request, 'pesquisasSatisfacao/avaliacao_monitoria_coordenacao.html', {
-
+        'form': form,
+        'avaliacao_formset': avaliacao,
+        'ordem': ordem,
+        'campos_nao_tabelaveis': [
+            'palavra_1',
+            'palavra_2',
+            'palavra_3',
+            'palavra_4',
+            'palavra_5',
+        ]
     })
