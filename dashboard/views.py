@@ -193,11 +193,11 @@ def dashboardPeraltas(request):
         fichas_colaborador = FichaDeEvento.objects.filter(
             vendedora__usuario=request.user,
             os=False,
-            check_in__date__lte=datetime.today(),
+            check_in__date__gte=datetime.today(),
         )
         ordens_colaborador = OrdemDeServico.objects.filter(
             vendedor__usuario=request.user,
-            check_in__date__lte=datetime.today(),
+            check_in__date__gte=datetime.today(),
         )
 
     fichas = fichas_colaborador.filter(pre_reserva=False)
