@@ -325,9 +325,9 @@
                                 <td>{{ ordem.ficha_de_evento.produto }}</td>
                                 <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
                                     0 {% endif %}</td>
+                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
-                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 {% if diretoria or operacional %}
                                     <td> {{ ordem.vendedor }} </td> {% endif %}
                             </tr>
