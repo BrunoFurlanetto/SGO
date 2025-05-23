@@ -477,6 +477,7 @@ class InformacoesAdcionais(models.Model):
     link_foto = models.IntegerField(choices=sim_nao, default='')
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
+    professores_dormem_em_quarto = models.BooleanField(default=False)
     professores_em_quarto = models.ForeignKey(OpcoesProfessoresEmQuarto, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
@@ -490,6 +491,13 @@ class InformacoesAdcionais(models.Model):
             .select_related('revision')
             .order_by('-revision__date_created')[:100]
         )
+
+    def save(self, *args, **kwargs):
+        # Se professores_em_quarto estiver preenchido, forçamos o booleano como True
+        if self.professores_em_quarto is not None:
+            self.professores_dormem_em_quarto = True
+
+        super().save(*args, **kwargs)
 
 
 class RelacaoClienteResponsavel(models.Model):
