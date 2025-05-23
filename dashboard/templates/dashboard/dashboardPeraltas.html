@@ -272,6 +272,9 @@
                             <th>Estimado</th>
                             <th>Reservado</th>
                             <th>Monitoria</th>
+                            <th>Professores dormem em quarto?</th>
+                            <th>Tipo acomodação professores</th>
+                            <th>Monitoria</th>
                             <th>Transporte</th>
                             <th>Check in</th>
                             {% if diretoria or operacional %}
@@ -290,6 +293,8 @@
                                 <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
                                     0 {% endif %}</td>
                                 <td>{{ ficha.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
+                                <td>{{ ficha.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
+                                <td>{{ ficha.informacoes_adcionais.professores_em_quarto.tipo }}</td>
                                 <td>{{ ficha.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não'}}</td>
                                 <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
                                 {% if diretoria or operacional %}
@@ -311,6 +316,8 @@
                             <th>Participantes</th>
                             <th>Check in</th>
                             <th>Monitoria</th>
+                            <th>Professores dormem em quarto?</th>
+                            <th>Tipo acomodação professores</th>
                             <th>Transporte</th>
                             {% if diretoria or operacional %}
                                 <th>Colaborador</th> {% endif %}
@@ -327,6 +334,8 @@
                                     0 {% endif %}</td>
                                 <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_em_quarto.tipo }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
                                 {% if diretoria or operacional %}
                                     <td> {{ ordem.vendedor }} </td> {% endif %}
