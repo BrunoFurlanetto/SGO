@@ -265,28 +265,24 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
         choices=PesquisaDeSatisfacao.sim_nao_choices,
         verbose_name='Teve briefing prévio ao evento? Foram passadas todas as informações necessárias para o evento no briefing inicial?'
     )
-    briefing_obs = models.TextField(blank=True)
 
     # Pergunta 10 - Feedback final
     teve_feedback = models.BooleanField(
         choices=PesquisaDeSatisfacao.sim_nao_choices,
         verbose_name='O coordenador deu feedback para a equipe no final do evento?'
     )
-    feedback_obs = models.TextField(blank=True)
 
     # Pergunta 11 - Participação nas atividades
     coordenador_participou = models.BooleanField(
         choices=PesquisaDeSatisfacao.sim_nao_choices,
         verbose_name='Os coordenadores participaram das atividades?'
     )
-    participacao_obs = models.TextField(blank=True)
 
     # Pergunta 12 - Considerações sobre atividades pedagógicas
-    tem_consideracoes_pedagogicas = models.BooleanField(
-        choices=PesquisaDeSatisfacao.sim_nao_choices,
+    tem_consideracoes_pedagogicas = models.TextField(
+        blank=True,
         verbose_name='Tem alguma consideração sobre as atividades pedagógicas propostas?'
     )
-    consideracoes_pedagogicas_obs = models.TextField(blank=True)
 
     # Pergunta 13 - Palavras-chave
     palavras_chave = ArrayField(
@@ -309,17 +305,13 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
             ('organizacao_evento', 'organizacao_evento_obs'),
             ('programacao_aplicada', 'programacao_aplicada_obs'),
             ('seguiu_programacao', 'seguiu_programacao_obs'),
-            ('teve_briefing', 'briefing_obs'),
-            ('teve_feedback', 'feedback_obs'),
-            ('coordenador_participou', 'participacao_obs'),
-            ('tem_consideracoes_pedagogicas', 'consideracoes_pedagogicas_obs'),
         ])
 
 
 class AvaliacaoIndividualCoordenador(models.Model):
     pesquisa = models.ForeignKey(MonitorAvaliandoCoordenacao, on_delete=models.CASCADE,
                                  related_name='avaliacoes_coordenadores')
-    coordenador = models.ForeignKey(User, on_delete=models.PROTECT, related_name='avaliacoes_recebidas')
+    coordenador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_recebidas')
     avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
     observacao = models.TextField(blank=True, null=True)
 

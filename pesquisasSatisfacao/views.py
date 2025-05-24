@@ -8,7 +8,7 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import EscalaAcampamento
 from pesquisasSatisfacao.forms_coordenadores import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
     DestaqueAtividadesForm, DesempenhoAcimaMediaForm
-from pesquisasSatisfacao.forms_monitores import MonitoriaAvaliandoCoordenacaoForm
+from pesquisasSatisfacao.forms_monitores import MonitoriaAvaliandoCoordenacaoForm, AvaliacaoIndividualCoordenadorForm
 from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia, \
     MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador
 
@@ -163,12 +163,12 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
     coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
-
+    print(coordenadores)
     if request.method == 'POST':
         form = MonitoriaAvaliandoCoordenacaoForm(request.POST)
         AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
             AvaliacaoIndividualCoordenador,
-            form=AvaliacaoIndividualMonitorForm,
+            form=AvaliacaoIndividualCoordenadorForm,
             extra=0,
         )
         avaliacao = AvaliacaoIndividualCoordenadorFormSet(
@@ -186,7 +186,7 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
                     # Salva avaliações individuais
                     avaliacoes = avaliacao.save(commit=False)
                     for avaliacao_obj in avaliacoes:
-                        avaliacao_obj.avaliacao_geral = pesquisa
+                        avaliacao_obj.pesquisa = pesquisa
                         avaliacao_obj.save()
 
             except Exception as e:
@@ -211,8 +211,8 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
         )
 
         AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
-            AvaliacaoIndividualMonitor,
-            form=AvaliacaoIndividualMonitorForm,
+            AvaliacaoIndividualCoordenador,
+            form=AvaliacaoIndividualCoordenadorForm,
             extra=len(coordenadores),
         )
         avaliacao = AvaliacaoIndividualCoordenadorFormSet(
@@ -231,5 +231,10 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
             'palavra_3',
             'palavra_4',
             'palavra_5',
+            'palavras_chave',
+            'tem_consideracoes_pedagogicas',
+            'teve_briefing',
+            'teve_feedback',
+            'coordenador_participou',
         ]
     })
