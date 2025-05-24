@@ -282,9 +282,8 @@ def dashboardPeraltas(request):
             check_out_cliente__date__lte=datetime.today().date(),
             ficha_de_evento__os=True,
         ).exclude(avaliou_coordenadores=request.user.monitor.id)
-        print(avaliacoes_monitores)
     else:
-        avaliacoes_coordenador_monitoria = None
+        avaliacoes_coordenador_monitoria = avaliacoes_monitores = None
 
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
