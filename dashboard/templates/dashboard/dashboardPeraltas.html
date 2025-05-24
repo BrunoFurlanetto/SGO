@@ -569,27 +569,27 @@
                 <div class="tabelas">
                     <h5>Avaliar equipe de coordenadores</h5>
                     <table id="tabela_avaliacoes_coordenadores" class="table table-hover table-striped"
-                               style="border-top: solid">
-                            <thead>
-                            <tr>
-                                <th class="text-center">Cliente</th>
-                                <th class="text-center">Check in</th>
-                                <th class="text-center">Coordenadores</th>
-                                <th class="text-center">Colaborador</th>
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Cliente</th>
+                            <th class="text-center">Check in</th>
+                            <th class="text-center">Coordenadores</th>
+                            <th class="text-center">Colaborador</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for escala in avaliacoes_monitores %}
+                            <tr class="align-middle" style="cursor: pointer"
+                                onclick="window.location.href='{% url 'avaliacao_monitoria_coordenacao' escala.id_ordem_de_servico %}'">
+                                <td>{{ escala.cliente }}</td>
+                                <td>{{ escala.check_in_cliente | date:'Y-m-d' }}</td>
+                                <td>{{ escala.coordenadores }}</td>
+                                <td> {{ escala.ficha_de_evento.vendedora }} </td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {% for escala in avaliacoes_monitores %}
-                                <tr class="align-middle" style="cursor: pointer"
-                                    onclick="window.location.href='{% url 'avaliacao_monitoria_coordenacao' escala.id_ordem_de_servico %}'">
-                                    <td>{{ escala.cliente }}</td>
-                                    <td>{{ escala.check_in_cliente | date:'Y-m-d' }}</td>
-                                    <td>{{ escala.coordenadores }}</td>
-                                    <td> {{ escala.ficha_de_evento.vendedora }} </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         {% endif %}
