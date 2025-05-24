@@ -1097,6 +1097,20 @@ class EscalaAcampamento(models.Model):
         permissions = (('confirmar_escala', 'Confirmar Escala'),)
 
     @property
+    def coordenadores(self):
+        if self.ficha_de_evento.os:
+            ordem = Eventos.objects.get(ficha_de_evento=self.ficha_de_evento).ordem_de_servico
+
+            return ', '.join([coordenador.usuario.get_full_name() for coordenador in ordem.monitor_responsavel.all()])
+
+        return 'Sem monitor definido.'
+
+    @property
+    def id_ordem_de_servico(self):
+        if self.ficha_de_evento.os:
+            return Eventos.objects.get(ficha_de_evento=self.ficha_de_evento).ordem_de_servico.id
+
+    @property
     def valores_escala(self):
         valores_monitoria = valores_coordenadores = valores_biologo = valores_enfermeiras = valores_tecnicos = 0.00
         monitores = set()
