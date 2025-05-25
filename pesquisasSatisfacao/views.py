@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
@@ -180,13 +181,19 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
         if form.is_valid() and avaliacao.is_valid():
             try:
                 with transaction.atomic():
+                    # 1. Salva a pesquisa (qualquer um dos modelos permitidos)
                     pesquisa = form.save(commit=False)
                     pesquisa.save()
 
-                    # Salva avaliações individuais
-                    avaliacoes = avaliacao.save(commit=False)
+                    # 2. Obtém o ContentType da pesquisa dinamicamente
+                    content_type = ContentType.objects.get_for_model(pesquisa)
+
+                    # 3. Salva as avaliações individuais
+                    avaliacoes = avaliacao.save(commit=False)  # Assumindo que `avaliacao` é um formset
                     for avaliacao_obj in avaliacoes:
-                        avaliacao_obj.pesquisa = pesquisa
+                        # Atribui os campos do GenericForeignKey
+                        avaliacao_obj.content_type = content_type  # Define o modelo relacionado
+                        avaliacao_obj.object_id = pesquisa.id  # Define o ID do objeto
                         avaliacao_obj.save()
 
             except Exception as e:

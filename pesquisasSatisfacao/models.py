@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -76,6 +78,83 @@ class PesquisaDeSatisfacao(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
+
+class AvaliacaoIndividualCoordenador(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()  # Armazena o ID do modelo relacionado
+    pesquisa = GenericForeignKey('content_type', 'object_id')  # Nome mantido para compatibilidade
+    coordenador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_recebidas')
+    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    observacao = models.TextField(blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['content_type', 'object_id', 'coordenador'],
+                name='avaliacao_unica_por_coordenador'
+            ),
+        ]
+
+    def __str__(self):
+        return f"Avaliação de {self.coordenador} por {self.pesquisa.monitor}"
+
+
+class AvaliacaoIndividualAtividade(models.Model):
+    pesquisa_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='pesquisa_avaliacoes'
+    )
+    pesquisa_object_id = models.PositiveIntegerField()
+    pesquisa = GenericForeignKey('pesquisa_content_type', 'pesquisa_object_id')
+    atividade_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.PROTECT,
+        related_name='atividade_avaliacoes'
+    )
+    atividade_object_id = models.PositiveIntegerField()
+    atividade = GenericForeignKey('atividade_content_type', 'atividade_object_id')
+    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    observacao = models.TextField(blank=True, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['pesquisa_content_type', 'pesquisa_object_id']),
+            models.Index(fields=['atividade_content_type', 'atividade_object_id']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['pesquisa_content_type', 'pesquisa_object_id', 'atividade_content_type',
+                        'atividade_object_id'],
+                name='avaliacao_unica_por_atividade'
+            ),
+        ]
+
+    def __str__(self):
+        return f"Avaliação de {self.atividade} por {self.pesquisa.avaliador}"
+
+
+class AvaliacaoIndividualSala(models.Model):
+    pesquisa_corporativo_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='pesquisa_corporativo_avaliacoes'
+    )
+    pesquisa_corporativo_object_id = models.PositiveIntegerField()
+    pesquisa = GenericForeignKey('pesquisa_corporativo_content_type', 'pesquisa_corporativo_object_id')
+    sala_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.PROTECT,
+        related_name='sala_avaliacoes'
+    )
+    sala_object_id = models.PositiveIntegerField()
+    sala = GenericForeignKey('sala_content_type', 'sala_object_id')
+    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    observacao = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Avaliação de {self.sala} por {self.pesquisa.avaliador}"
 
 
 # ----------------------------------------- Coordenação -> Equipe de monitoria -----------------------------------------
@@ -329,21 +408,6 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
         ])
 
 
-class AvaliacaoIndividualCoordenador(models.Model):
-    pesquisa = models.ForeignKey(MonitorAvaliandoCoordenacao, on_delete=models.CASCADE,
-                                 related_name='avaliacoes_coordenadores')
-    coordenador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_recebidas')
-    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
-    observacao = models.TextField(blank=True, null=True)
-    avaliacao_monitoria = models.BooleanField(editable=False)
-
-    class Meta:
-        unique_together = ('pesquisa', 'coordenador', 'avaliacao_monitoria')
-
-    def __str__(self):
-        return f"Avaliação de {self.coordenador} por {self.pesquisa.monitor}"
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Avaliação colégio --------------------------------------------------------
 class OpcoesMotivacao(models.Model):
@@ -482,18 +546,107 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
         )
 
 
-class AvaliacaoIndividualAtividade(models.Model):
-    pesquisa = models.ForeignKey(
-        AvaliacaoColegio, on_delete=models.CASCADE,
-        related_name='avaliacoes_coordenadores'
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Avaliação corporativo -----------------------------------------------------
+class AvaliacaoCorporativo(PesquisaDeSatisfacao):
+    avaliador = models.ForeignKey(Responsavel, models.PROTECT)
+
+    # Pergunta 1 - Avaliações dos coordenadores será feito em outro model
+    # Perguta 2
+    equipe_monitoria = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o equipe de monitores como um todo'
     )
-    atividade = models.ForeignKey(AtividadesEco, on_delete=models.PROTECT)
-    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
-    observacao = models.TextField(blank=True, null=True)
-    avaliacao_colegio = models.BooleanField()
+    equipe_monitoria_obs = models.TextField(blank=True)
 
-    class Meta:
-        unique_together = ('pesquisa', 'atividade')
+    # Pergunta 3
+    estrutura_ceu = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre a estrutura do Centro de Estudos do Universo'
+    )
+    estrutura_ceu_obs = models.TextField(blank=True)
 
-    def __str__(self):
-        return f"Avaliação de {self.atividade} por {self.pesquisa.avaliador}"
+    # Pergunta 4 - Avaliações de sala será feita separadamente
+    # Pergunta 5
+    cafe_manha = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o café da manhã',
+        blank=True, null=True
+    )
+    cafe_manha_obs = models.TextField(blank=True)
+
+    # Pergunta 6
+    coffee_break = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o coffee break',
+    )
+    coffee_break_obs = models.TextField(blank=True)
+
+    # Pergunta 7
+    almoco = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o almoco',
+        blank=True, null=True
+    )
+    almoco_obs = models.TextField(blank=True)
+
+    # Pergunta 8
+    jantar = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o jantar',
+        blank=True, null=True
+    )
+    jantar_obs = models.TextField(blank=True)
+
+    # Pergunta 9
+    estrutura_geral = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o estrutura em geral',
+    )
+    estrutura_geral_obs = models.TextField(blank=True)
+
+    # Pergunta 10
+    quartos = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Avalie a habitação que esteve hospedada',
+    )
+    quarto_obs = models.TextField(blank=True)
+
+    # Pergunta 11
+    atendimento_bar = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o atendimento do bar',
+    )
+    atendimento_obs = models.TextField(blank=True)
+
+    # Pergunta 12
+    mais_valorizou = models.TextField(verbose_name='O que você mais valorizou durante a sua estadia no Brotas eco?')
+
+    # Pergunta 13
+    sugestoes = models.TextField(blank=True, verbose_name='Sugestões para melhorias')
+
+    # Pergeunta 14
+    volta_proximo_ano = models.CharField(
+        max_length=50,
+        choices=PesquisaDeSatisfacao.choices_retorno_grupo,
+    )
+    volta_proximo_ano_obs = models.TextField(blank=True)
+
+    # Perguta 15
+    material_divigulgacao = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Quer receber material com as novidades e promoções para o próximo ano?'
+    )
+
+    # Pergunta 16
+    interesse_hospedar_com_familia = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Tem interesse em trazer a sua família ao Brotas eco?',
+        help_text='Caso a resposta seja sim, vamos gerar um cupom de desconto para você!'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._meta.get_field('volta_proximo_ano').verbose_name = (
+            f'Faria outro evento no Brotas ECO, em {timezone.now().year + 1}?'
+        )
