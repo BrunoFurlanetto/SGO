@@ -2,15 +2,15 @@ from django import forms
 
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
     DesempenhoAcimaMedia, AvaliacaoIndividualCoordenador, MonitorAvaliandoCoordenacao, AvaliacaoColegio, \
-    PesquisaDeSatisfacao, AvaliacaoIndividualAtividade
+    PesquisaDeSatisfacao, AvaliacaoCorporativo, AvaliacaoIndividualSala
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Formulário da Coordenação -> equipe de montoria -------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-class AvaliacaoColegioForm(forms.ModelForm):
+class AvaliacaoCorporativoForm(forms.ModelForm):
     class Meta:
-        model = AvaliacaoColegio
+        model = AvaliacaoCorporativo
         fields = '__all__'
         widgets = {
             'avaliador': forms.HiddenInput(),
@@ -52,18 +52,15 @@ class AvaliacaoColegioForm(forms.ModelForm):
 
         # Valida campos que requerem observação quando a avaliação é Regular ou Ruim
         campos_avaliacao = [
-            ('processo_vendas', 'processo_vendas_obs'),
-            ('transporte_utilizado', 'transporte_utilizado_obs'),
             ('equipe_monitoria', 'equipe_monitoria_obs'),
-            ('atendimento_enfermeira', 'atendimento_enfermeira_obs'),
-            ('atividades_recreativas', 'atividades_recreativas_obs'),
+            ('estrutura_ceu', 'estrutura_ceu_obs'),
             ('cafe_manha', 'cafe_manha_obs'),
+            ('coffee_break', 'coffee_break_obs'),
             ('almoco', 'almoco_obs'),
             ('jantar', 'jantar_obs'),
-            ('lanche_noite', 'lanche_noite_obs'),
             ('estrutura_geral', 'estrutura_geral_obs'),
             ('quartos', 'quartos_obs'),
-            ('piscina', 'piscina_obs'),
+            ('atendimento_bar', 'atendimento_bar_obs'),
         ]
 
         for campo, campo_obs in campos_avaliacao:
@@ -76,21 +73,21 @@ class AvaliacaoColegioForm(forms.ModelForm):
         return cleaned_data
 
 
-class AvaliacaoIndividualAtividadeForm(forms.ModelForm):
+class AvaliacaoIndividualSalaForm(forms.ModelForm):
     class Meta:
-        model = AvaliacaoIndividualAtividade
-        fields = ['atividade', 'avaliacao', 'observacao']
+        model = AvaliacaoIndividualSala
+        fields = ['sala', 'avaliacao', 'observacao']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['atividade'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
+        self.fields['sala'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data.get('atividade') in [1, 2] and not cleaned_data.get('observacao'):
+        if cleaned_data.get('sala') in [1, 2] and not cleaned_data.get('observacao'):
             self.add_error('observacao', "Observação obrigatória para avaliações Regular ou Ruim")
 
         return cleaned_data
