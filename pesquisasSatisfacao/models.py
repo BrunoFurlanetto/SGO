@@ -27,9 +27,9 @@ class PesquisaDeSatisfacao(models.Model):
     choices_retorno_grupo = (
         ('primeiro_semestre', 'Sim - Primeiro semestre do ano seguinte'),
         ('segundo_semestre', 'Sim - Segundo semestre do ano seguinte'),
-        ('daqui_dois_anos', f'Sim - {timezone.now().year + 2}'),
-        ('nao', 'Não'),
+        ('daqui_dois_anos', f'Sim - Daqui dois anos'),
         ('talvez', 'Talvez'),
+        ('nao', 'Não'),
     )
 
     ordem_de_servico = models.ForeignKey(OrdemDeServico, on_delete=models.PROTECT)
@@ -38,6 +38,18 @@ class PesquisaDeSatisfacao(models.Model):
 
     class Meta:
         abstract = True
+
+    @classmethod
+    def get_choices_dinamicos(cls):
+        """Gera choices com anos atualizados para forms/templates."""
+        ano_atual = timezone.now().year
+        return (
+            ('primeiro_semestre', f'Sim - Primeiro semestre de {ano_atual + 1}'),
+            ('segundo_semestre', f'Sim - Segundo semestre de {ano_atual + 1}'),
+            ('daqui_dois_anos', f'Sim - {ano_atual + 2}'),
+            ('talvez', 'Talvez'),
+            ('nao', 'Não'),
+        )
 
     def validate_obs_required(self, field_pairs):
         """
@@ -447,7 +459,6 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
     volta_proximo_ano = models.CharField(
         max_length=50,
         choices=PesquisaDeSatisfacao.choices_retorno_grupo,
-        verbose_name=f'Faria outro evento aqui no Peraltas, em {timezone.now().year + 1}?'
     )
     volta_proximo_ano_obs = models.TextField(blank=True)
 
@@ -464,6 +475,12 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
         help_text='Caso sim, temos descontos exclusivos para pedagogos.'
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._meta.get_field('volta_proximo_ano').verbose_name = (
+            f'Faria outro evento aqui no Peraltas, em {timezone.now().year + 1}?'
+        )
+
 
 class AvaliacaoIndividualAtividade(models.Model):
     pesquisa = models.ForeignKey(
@@ -473,6 +490,7 @@ class AvaliacaoIndividualAtividade(models.Model):
     atividade = models.ForeignKey(AtividadesEco, on_delete=models.PROTECT)
     avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
     observacao = models.TextField(blank=True, null=True)
+    avaliacao_colegio = models.BooleanField()
 
     class Meta:
         unique_together = ('pesquisa', 'atividade')
