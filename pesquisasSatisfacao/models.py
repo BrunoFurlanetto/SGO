@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import EscalaAcampamento, Monitor
+from peraltas.models import EscalaAcampamento, Monitor, Responsavel, AtividadesEco
 
 
 # Model abstrato que é estendido por todas as pesqusas de satisfação
@@ -21,6 +22,14 @@ class PesquisaDeSatisfacao(models.Model):
         (3, 'Bom'),
         (4, 'Ótimo'),
         (5, 'Excelente'),
+    )
+
+    choices_retorno_grupo = (
+        ('primeiro_semestre', 'Sim - Primeiro semestre do ano seguinte'),
+        ('segundo_semestre', 'Sim - Segundo semestre do ano seguinte'),
+        ('daqui_dois_anos', f'Sim - {timezone.now().year + 2}'),
+        ('nao', 'Não'),
+        ('talvez', 'Talvez'),
     )
 
     ordem_de_servico = models.ForeignKey(OrdemDeServico, on_delete=models.PROTECT)
@@ -314,10 +323,159 @@ class AvaliacaoIndividualCoordenador(models.Model):
     coordenador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_recebidas')
     avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
     observacao = models.TextField(blank=True, null=True)
+    avaliacao_monitoria = models.BooleanField(editable=False)
 
     class Meta:
-        unique_together = ('pesquisa', 'coordenador')
+        unique_together = ('pesquisa', 'coordenador', 'avaliacao_monitoria')
 
     def __str__(self):
         return f"Avaliação de {self.coordenador} por {self.pesquisa.monitor}"
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------- Avaliação colégio --------------------------------------------------------
+class OpcoesMotivacao(models.Model):
+    motivo = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.motivo
+
+
+class AvaliacaoColegio(PesquisaDeSatisfacao):
+    avaliador = models.ForeignKey(Responsavel, on_delete=models.PROTECT)
+
+    # Pergunta 1
+    processo_vendas = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o processo de vendas'
+    )
+    processo_vendas_obs = models.TextField(blank=True)
+
+    # Pergunta 2
+    transporte_utilizado = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o transporte utilizado'
+    )
+    transporte_utilizada_obs = models.TextField(blank=True)
+
+    # Pergunta 3 -  Avaliação dos coordenadores (será tratada em model separado)
+    # Pergunta 4
+    equipe_monitoria = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o equipe de monitores como um todo'
+    )
+    equipe_monitoria_obs = models.TextField(blank=True)
+
+    # Pergunta 5
+    atendimento_enfermeira = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Avalie o atendimento de enfermeira durante o evento'
+    )
+    atendimento_obs = models.TextField(blank=True)
+
+    # Pergunta 6
+    atividades_recreativas = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Avalie as atividades recreativas propostas pela monitoria'
+    )
+    atividades_recreativas_obs = models.TextField(blank=True)
+
+    # Pergunta 7
+    cafe_manha = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o café da manhã',
+        blank=True, null=True
+    )
+    cafe_manha_obs = models.TextField(blank=True)
+
+    # Pergunta 8
+    almoco = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o almoco',
+        blank=True, null=True
+    )
+    almoco_obs = models.TextField(blank=True)
+
+    # Pergunta 9
+    jantar = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o jantar',
+        blank=True, null=True
+    )
+    jantar_obs = models.TextField(blank=True)
+
+    # Pergunta 10
+    lanche_noite = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o lanche da noite',
+    )
+    lanche_noite_obs = models.TextField(blank=True)
+
+    # Pergunta 11
+    estrutura_geral = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre o estrutura em geral',
+    )
+    estrutura_geral_obs = models.TextField(blank=True)
+
+    # Pergunta 12
+    quartos = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre a estrutura dos quartos',
+    )
+    quarto_obs = models.TextField(blank=True)
+
+    # Pergunta 13
+    piscina = models.IntegerField(
+        choices=PesquisaDeSatisfacao.choices_avaliacoes,
+        verbose_name='Comente sobre a estrutura da piscina',
+    )
+    piscina_obs = models.TextField(blank=True)
+
+    # Pergunta 14 - Avaliação das atividades (será tratada em model separado)
+    # Pergunta 15
+    destaque = models.TextField()
+
+    # Pergunta 16
+    sugestoes = models.TextField(blank=True)
+
+    # Pergunta 17
+    motivo_trazer_grupo = models.ManyToManyField(OpcoesMotivacao)
+    outros_motivos = models.TextField(blank=True)
+
+    # Pergunta 18
+    volta_proximo_ano = models.CharField(
+        max_length=50,
+        choices=PesquisaDeSatisfacao.choices_retorno_grupo,
+        verbose_name=f'Faria outro evento aqui no Peraltas, em {timezone.now().year + 1}?'
+    )
+    volta_proximo_ano_obs = models.TextField(blank=True)
+
+    # Pergunta 19
+    material_divigulgacao = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Quer receber material com as novidades e promoções para o próximo ano?'
+    )
+
+    # Pergunta 20
+    interesse_hospedar_com_familia = models.BooleanField(
+        choices=PesquisaDeSatisfacao.sim_nao_choices,
+        verbose_name='Tem interesse em se hospedar com o familia?',
+        help_text='Caso sim, temos descontos exclusivos para pedagogos.'
+    )
+
+
+class AvaliacaoIndividualAtividade(models.Model):
+    pesquisa = models.ForeignKey(
+        AvaliacaoColegio, on_delete=models.CASCADE,
+        related_name='avaliacoes_coordenadores'
+    )
+    atividade = models.ForeignKey(AtividadesEco, on_delete=models.PROTECT)
+    avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
+    observacao = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('pesquisa', 'atividade')
+
+    def __str__(self):
+        return f"Avaliação de {self.atividade} por {self.pesquisa.avaliador}"
