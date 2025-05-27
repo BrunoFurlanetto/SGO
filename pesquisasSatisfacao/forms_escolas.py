@@ -105,7 +105,7 @@ class AvaliacaoIndividualAtividadeForm(forms.ModelForm):
 
     class Meta:
         model = AvaliacaoIndividualAtividade
-        fields = '__all__'
+        exclude = ['pesquisa_content_type', 'pesquisa_object_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -96,6 +96,7 @@ class AvaliacaoIndividualCoordenadorForm(forms.ModelForm):
     class Meta:
         model = AvaliacaoIndividualCoordenador
         fields = ['coordenador', 'avaliacao', 'observacao']
+        exclude = ['content_type', 'object_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

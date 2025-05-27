@@ -529,6 +529,7 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
     lanche_noite = models.IntegerField(
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Comente sobre o lanche da noite',
+        blank=True, null=True
     )
     lanche_noite_obs = models.TextField(blank=True)
 
