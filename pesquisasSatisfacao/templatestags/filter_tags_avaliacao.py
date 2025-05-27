@@ -17,3 +17,8 @@ def get_obs_field(form, field_name):
 def get_field(form, index):
     field_name = f'palavra_{index + 1}'
     return form[field_name] if field_name in form.fields else None
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

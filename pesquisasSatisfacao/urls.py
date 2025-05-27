@@ -13,4 +13,14 @@ urlpatterns = [
         views.avaliacao_monitoria_coordenacao,
         name='avaliacao_monitoria_coordenacao'
     ),
+    path(
+        'colegio/evento/<int:id_ordem_de_servico>',
+        views.avaliacao_colegio,
+        name='avaliacao_colegio'
+    ),
+    path(
+        'corporativo/evento/<int:id_ordem_de_servico>',
+        views.avaliacao_corporativo,
+        name='avaliacao_corporativo'
+    ),
 ]

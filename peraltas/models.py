@@ -698,6 +698,16 @@ class FichaDeEvento(models.Model):
 
         return dados
 
+    @property
+    def refeicoes_realizadas(self):
+        refeicoes = set()
+
+        for refeicao in self.refeicoes.values():
+            for ref in refeicao:
+                refeicoes.add(ref)
+
+        return list(refeicoes)
+
     def separar_informacoes_locacoes(self):
         dados = []
 

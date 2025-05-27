@@ -6,12 +6,13 @@ from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import EscalaAcampamento
+from peraltas.models import EscalaAcampamento, AtividadesEco
 from pesquisasSatisfacao.forms_coordenadores import CoordenacaoAvaliandoMonitoriaForm, AvaliacaoIndividualMonitorForm, \
     DestaqueAtividadesForm, DesempenhoAcimaMediaForm
+from pesquisasSatisfacao.forms_escolas import AvaliacaoColegioForm, AvaliacaoIndividualAtividadeForm
 from pesquisasSatisfacao.forms_monitores import MonitoriaAvaliandoCoordenacaoForm, AvaliacaoIndividualCoordenadorForm
 from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia, \
-    MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador
+    MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador, AvaliacaoIndividualAtividade
 
 
 @login_required(login_url='login')
@@ -245,3 +246,106 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
             'coordenador_participou',
         ]
     })
+
+
+@login_required(login_url='login')
+def avaliacao_colegio(request, id_ordem_de_servico):
+    ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
+    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+    coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
+    dados_iniciais = []
+    print(ordem.id)
+    if request.method == 'POST':
+        form = MonitoriaAvaliandoCoordenacaoForm(request.POST)
+        AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+            AvaliacaoIndividualCoordenador,
+            form=AvaliacaoIndividualCoordenadorForm,
+            extra=0,
+        )
+        avaliacao = AvaliacaoIndividualCoordenadorFormSet(
+            request.POST,
+            queryset=AvaliacaoIndividualCoordenador.objects.none(),
+            prefix='avaliacao'
+        )
+
+        if form.is_valid() and avaliacao.is_valid():
+            try:
+                with transaction.atomic():
+                    # 1. Salva a pesquisa (qualquer um dos modelos permitidos)
+                    pesquisa = form.save(commit=False)
+                    pesquisa.save()
+
+                    # 2. Obtém o ContentType da pesquisa dinamicamente
+                    content_type = ContentType.objects.get_for_model(pesquisa)
+
+                    # 3. Salva as avaliações individuais
+                    avaliacoes = avaliacao.save(commit=False)  # Assumindo que `avaliacao` é um formset
+                    for avaliacao_obj in avaliacoes:
+                        # Atribui os campos do GenericForeignKey
+                        avaliacao_obj.content_type = content_type  # Define o modelo relacionado
+                        avaliacao_obj.object_id = pesquisa.id  # Define o ID do objeto
+                        avaliacao_obj.save()
+
+            except Exception as e:
+                messages.error(
+                    request,
+                    f'Aconteceu um erro durante o salvamento da avaliação ({e}). Por favor tente novamente mais tade!'
+                )
+            else:
+                escala.avaliou_coordenadores.add(request.user.monitor.id)
+                messages.success(request, 'Pesquisa enviada com sucesso!')
+
+                return redirect('dashboard')
+        else:
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
+    else:
+        form = AvaliacaoColegioForm(
+            initial={
+                'ordem_de_servico': ordem,
+                'avaliador': ordem.ficha_de_evento.responsavel_evento,
+                'escala_peraltas': escala,
+            },
+            refeicoes_realizadas=ordem.ficha_de_evento.refeicoes_realizadas,
+        )
+
+        AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+            AvaliacaoIndividualCoordenador,
+            form=AvaliacaoIndividualCoordenadorForm,
+            extra=len(coordenadores),
+        )
+        avaliacao_coordenadores = AvaliacaoIndividualCoordenadorFormSet(
+            queryset=AvaliacaoIndividualCoordenador.objects.none(),
+            initial=[{'coordenador': coordenador.id} for coordenador in coordenadores],
+            prefix='avaliacao_coordenadores'
+        )
+
+        dados_iniciais.extend(AvaliacaoIndividualAtividade.process_atividades(ordem.atividades_eco, AtividadesEco))
+        AvaliacaoIndividualatividadeFormSet = modelformset_factory(
+            AvaliacaoIndividualAtividade,
+            form=AvaliacaoIndividualAtividadeForm,
+            extra=len(dados_iniciais),
+        )
+        avaliacao_atividades = AvaliacaoIndividualatividadeFormSet(
+            queryset=AvaliacaoIndividualAtividade.objects.none(),
+            initial=dados_iniciais,
+            prefix='avaliacao_atividade'
+        )
+    print(ordem.ficha_de_evento.refeicoes_realizadas)
+    return render(request, 'pesquisasSatisfacao/avaliacao_colegios.html', {
+        'form': form,
+        'avaliacao_coordenadores_formset': avaliacao_coordenadores,
+        'avaliacao_atividades_formset': avaliacao_atividades,
+        'ordem': ordem,
+        'campos_nao_tabelaveis': [
+            'destaque',
+            'sugestoes',
+            'motivo_trazer_grupo',
+            'outros_motivos',
+            'material_divigulgacao',
+            'interesse_hospedar_com_familia',
+        ]
+    })
+
+
+def avaliacao_corporativo(request, id_ordem_de_servico):
+    ...

@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -7,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
+from ceu.models import Atividades
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import EscalaAcampamento, Monitor, Responsavel, AtividadesEco
 
@@ -27,6 +30,7 @@ class PesquisaDeSatisfacao(models.Model):
     )
 
     choices_retorno_grupo = (
+        ('', '-----------'),
         ('primeiro_semestre', 'Sim - Primeiro semestre do ano seguinte'),
         ('segundo_semestre', 'Sim - Segundo semestre do ano seguinte'),
         ('daqui_dois_anos', f'Sim - Daqui dois anos'),
@@ -46,6 +50,7 @@ class PesquisaDeSatisfacao(models.Model):
         """Gera choices com anos atualizados para forms/templates."""
         ano_atual = timezone.now().year
         return (
+            ('', '-----------'),
             ('primeiro_semestre', f'Sim - Primeiro semestre de {ano_atual + 1}'),
             ('segundo_semestre', f'Sim - Segundo semestre de {ano_atual + 1}'),
             ('daqui_dois_anos', f'Sim - {ano_atual + 2}'),
@@ -131,8 +136,48 @@ class AvaliacaoIndividualAtividade(models.Model):
             ),
         ]
 
+    @classmethod
+    def get_all_atividades(cls):
+        """Retorna todas as atividades de todos os tipos"""
+        atividades = []
+
+        # Adiciona AtividadesEco
+        ct_eco = ContentType.objects.get_for_model(AtividadesEco)
+        for atv in AtividadesEco.objects.all():
+            atividades.append({
+                'id': atv.id,
+                'content_type_id': ct_eco.id,
+                'nome': str(atv),
+                'tipo': 'ECO'
+            })
+
+        # Adiciona AtividadesCeu
+        ct_ceu = ContentType.objects.get_for_model(Atividades)
+        for atv in Atividades.objects.all():
+            atividades.append({
+                'id': atv.id,
+                'content_type_id': ct_ceu.id,
+                'nome': str(atv),
+                'tipo': 'CEU'
+            })
+
+        return atividades
+
+    @staticmethod
+    def process_atividades(json_field, model):
+        atividades = json_field or {}
+
+        return [
+            {
+                'atividade_content_type': ContentType.objects.get_for_model(model).id,
+                'atividade_object_id': info['atividade']
+            }
+            for info in atividades.values()
+            if info.get('atividade')
+        ]
+
     def __str__(self):
-        return f"Avaliação de {self.atividade} por {self.pesquisa.avaliador}"
+        return f"Avaliação de {self.atividade} por {self.pesquisa}"
 
 
 class AvaliacaoIndividualSala(models.Model):
@@ -432,7 +477,7 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Comente sobre o transporte utilizado'
     )
-    transporte_utilizada_obs = models.TextField(blank=True)
+    transporte_utilizado_obs = models.TextField(blank=True)
 
     # Pergunta 3 -  Avaliação dos coordenadores (será tratada em model separado)
     # Pergunta 4
@@ -447,7 +492,7 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Avalie o atendimento de enfermeira durante o evento'
     )
-    atendimento_obs = models.TextField(blank=True)
+    atendimento_enfermeira_obs = models.TextField(blank=True)
 
     # Pergunta 6
     atividades_recreativas = models.IntegerField(
@@ -499,7 +544,7 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Comente sobre a estrutura dos quartos',
     )
-    quarto_obs = models.TextField(blank=True)
+    quartos_obs = models.TextField(blank=True)
 
     # Pergunta 13
     piscina = models.IntegerField(

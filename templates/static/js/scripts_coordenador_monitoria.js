@@ -1,8 +1,16 @@
 $(document).ready(function () {
     // Atualiza quando a página carrega
     atualizarObservacoes();
+    toggleOutrosMotivos();
+    atualizarObservacaoVoltaProximoAno();
+    $('#id_volta_proximo_ano').on('change', atualizarObservacaoVoltaProximoAno);
+    $('#id_motivo_trazer_grupo').on('change', toggleOutrosMotivos)
     $('select.campo-avaliacao').change(atualizarObservacoes);
-    $('#id_monitores_destaque_pedagogicas, #id_monitores_destaque_evento').select2()
+    $('select[multiple]').each(function () {
+        $(this).select2({
+            width: '100%',
+        });
+    });
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -276,6 +284,29 @@ function atualizarObservacoes() {
     });
 }
 
+function atualizarObservacaoVoltaProximoAno() {
+    const respostasQueExigemObs = ['nao', 'talvez'];
+
+    const select = $('#id_volta_proximo_ano');
+    const resposta = select.val()?.toLowerCase();
+
+    const obsField = $('#id_volta_proximo_ano_obs');
+    const obsCell = obsField.closest('.obs-cell');
+    const exigeObs = respostasQueExigemObs.includes(resposta);
+
+    // Atualiza obrigatoriedade
+    obsField.prop('required', exigeObs);
+
+    // Atualiza estilo visual
+    if (exigeObs) {
+        obsCell.addClass('obs-obrigatoria');
+        obsField.addClass('is-invalid');
+    } else {
+        obsCell.removeClass('obs-obrigatoria');
+        obsField.removeClass('is-invalid');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Lista de avaliações que exigem observação obrigatória
     const avaliacaoQueExigeObservacao = ['Ruim', 'Regular'];
@@ -293,3 +324,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+function toggleOutrosMotivos() {
+    const select = $('#id_motivo_trazer_grupo');
+    const selectedOptions = select.find('option:selected');
+    let hasOutro = false;
+
+    selectedOptions.each(function () {
+        const text = $(this).text().toLowerCase();
+        if (text.includes('outro')) {
+            hasOutro = true;
+            return false; // quebra o loop
+        }
+    });
+
+    const tr = select.closest('tr');
+    const tdPergunta = tr.find('td.pergunta-cell').first();
+    const tdObs = tr.find('td.pergunta-cell').eq(1);
+    $('#id_outros_motivos').prop('required', hasOutro)
+
+    if (hasOutro) {
+        tdPergunta.attr('colspan', '1');
+        tdObs.removeClass('none');
+    } else {
+        tdPergunta.attr('colspan', '2');
+        tdObs.addClass('none');
+    }
+}

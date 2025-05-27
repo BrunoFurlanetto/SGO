@@ -1,5 +1,8 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
+from ceu.models import Atividades
+from peraltas.models import AtividadesEco
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
     DesempenhoAcimaMedia, AvaliacaoIndividualCoordenador, MonitorAvaliandoCoordenacao, AvaliacaoColegio, \
     PesquisaDeSatisfacao, AvaliacaoIndividualAtividade
@@ -19,10 +22,23 @@ class AvaliacaoColegioForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        refeicoes_realizadas = kwargs.pop('refeicoes_realizadas', [])
         super().__init__(*args, **kwargs)
         self.fields['volta_proximo_ano'].choices = (
             PesquisaDeSatisfacao.get_choices_dinamicos()
         )
+
+        campos_refeicoes = {
+            'cafe_manha': 'Café',
+            'almoco': 'Almoço',
+            'jantar': 'Jantar',
+            'lanche_noite': 'Lanche noite',
+        }
+
+        for field_name, label in campos_refeicoes.items():
+            if label not in refeicoes_realizadas:
+                self.fields.pop(field_name, None)
+                self.fields.pop(f'{field_name}_obs', None)  # caso use campos *_obs
 
         # Personalizações dos campos
         for field_name, field in self.fields.items():
@@ -46,6 +62,10 @@ class AvaliacaoColegioForm(forms.ModelForm):
 
             # Atualiza atributos sem sobrescrever
             field.widget.attrs['class'] = ' '.join(classes)
+
+        self.fields['outros_motivos'].widget.attrs.update({'cols': 40, 'rows': 4})
+        self.fields['destaque'].widget.attrs.update({'cols': 40, 'rows': 4})
+        self.fields['sugestoes'].widget.attrs.update({'cols': 40, 'rows': 4})
 
     def clean(self):
         cleaned_data = super().clean()
@@ -77,20 +97,45 @@ class AvaliacaoColegioForm(forms.ModelForm):
 
 
 class AvaliacaoIndividualAtividadeForm(forms.ModelForm):
+    atividade_combinada = forms.ChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = AvaliacaoIndividualAtividade
-        fields = ['atividade', 'avaliacao', 'observacao']
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['atividade'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
+
+        # Configura as opções do select
+        atividades = []
+        for model_class in [AtividadesEco, Atividades]:
+            content_type = ContentType.objects.get_for_model(model_class)
+
+            for obj in model_class.objects.all():
+                if isinstance(obj, AtividadesEco):
+                    atividades.append((
+                        f"{content_type.id}-{obj.id}",
+                        f"[ECO] {obj.nome_atividade_eco}"
+                    ))
+                else:
+                    atividades.append((
+                        f"{content_type.id}-{obj.id}",
+                        f"[CEU]{obj.atividade}"
+                    ))
+
+        self.fields['atividade_combinada'].choices = [('', '---------')] + atividades
+        self.fields['atividade_combinada'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
-    def clean(self):
-        cleaned_data = super().clean()
+        # Recupera os valores do initial OU instance
+        atividade_ct_id = getattr(self.instance, 'atividade_content_type_id', None) or self.initial.get('atividade_content_type')
+        atividade_obj_id = getattr(self.instance, 'atividade_object_id', None) or self.initial.get('atividade_object_id')
 
-        if cleaned_data.get('atividade') in [1, 2] and not cleaned_data.get('observacao'):
-            self.add_error('observacao', "Observação obrigatória para avaliações Regular ou Ruim")
-
-        return cleaned_data
+        if atividade_ct_id and atividade_obj_id:
+            initial_value = f"{atividade_ct_id}-{atividade_obj_id}"
+            self.fields['atividade_combinada'].initial = initial_value
