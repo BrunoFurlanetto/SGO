@@ -39,7 +39,7 @@ class PesquisaDeSatisfacao(models.Model):
     )
 
     ordem_de_servico = models.ForeignKey(OrdemDeServico, on_delete=models.PROTECT)
-    escala_peraltas = models.ForeignKey(EscalaAcampamento, on_delete=models.PROTECT)
+    escala_peraltas = models.ForeignKey(EscalaAcampamento, on_delete=models.PROTECT, blank=True, null=True)
     data_hora_resposta = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -197,6 +197,26 @@ class AvaliacaoIndividualSala(models.Model):
     sala = GenericForeignKey('sala_content_type', 'sala_object_id')
     avaliacao = models.IntegerField(choices=PesquisaDeSatisfacao.choices_avaliacoes)
     observacao = models.TextField(blank=True, null=True)
+
+    @staticmethod
+    def process_salas(json_field, model):
+        salas = json_field or {}
+        print([
+            {
+                'sala_content_type': ContentType.objects.get_for_model(model).id,
+                'sala_object_id': info['espaco']
+            }
+            for info in salas.values()
+            if info.get('espaco')
+        ])
+        return [
+            {
+                'sala_content_type': ContentType.objects.get_for_model(model).id,
+                'sala_object_id': info['espaco']
+            }
+            for info in salas.values()
+            if info.get('espaco')
+        ]
 
     def __str__(self):
         return f"Avaliação de {self.sala} por {self.pesquisa.avaliador}"
@@ -656,14 +676,14 @@ class AvaliacaoCorporativo(PesquisaDeSatisfacao):
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Avalie a habitação que esteve hospedada',
     )
-    quarto_obs = models.TextField(blank=True)
+    quartos_obs = models.TextField(blank=True)
 
     # Pergunta 11
     atendimento_bar = models.IntegerField(
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Comente sobre o atendimento do bar',
     )
-    atendimento_obs = models.TextField(blank=True)
+    atendimento_bar_obs = models.TextField(blank=True)
 
     # Pergunta 12
     mais_valorizou = models.TextField(verbose_name='O que você mais valorizou durante a sua estadia no Brotas eco?')
@@ -696,3 +716,26 @@ class AvaliacaoCorporativo(PesquisaDeSatisfacao):
         self._meta.get_field('volta_proximo_ano').verbose_name = (
             f'Faria outro evento no Brotas ECO, em {timezone.now().year + 1}?'
         )
+
+
+class Avaliacao(models.Model):
+    avaliador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_feitas')
+    nota = models.PositiveIntegerField()
+    tipo = models.CharField(max_length=20, choices=[('coordenador', 'Coordenador'), ('monitor', 'Monitor')])
+    avaliacao_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    avaliacao_object_id = models.PositiveIntegerField()
+    avaliacao = GenericForeignKey('avaliacao_content_type', 'avaliacao_object_id')
+
+
+class NotaEvento(models.Model):
+    ordem_de_servico = models.ForeignKey(OrdemDeServico, on_delete=models.PROTECT)
+    avaliado = models.ForeignKey(Monitor, on_delete=models.PROTECT)
+    avaliado_como_coordenador = models.BooleanField(default=False)
+    nota_cliente = models.FloatField(null=True, blank=True)
+    nota_media_coordenadores = models.FloatField(null=True, blank=True)
+    nota_media_monitores = models.FloatField(null=True, blank=True)
+    media_final = models.FloatField(null=True, blank=True)
+    avaliacoes = models.ManyToManyField(Avaliacao)
+
+    class Meta:
+        unique_together = ('ordem_de_servico', 'avaliado')

@@ -1,5 +1,7 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
+from ceu.models import Locaveis
 from pesquisasSatisfacao.models import CoordenacaoAvaliandoMonitoria, AvaliacaoIndividualMonitor, DestaqueAtividades, \
     DesempenhoAcimaMedia, AvaliacaoIndividualCoordenador, MonitorAvaliandoCoordenacao, AvaliacaoColegio, \
     PesquisaDeSatisfacao, AvaliacaoCorporativo, AvaliacaoIndividualSala
@@ -19,10 +21,25 @@ class AvaliacaoCorporativoForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        refeicoes_realizadas = kwargs.pop('refeicoes_realizadas', [])
         super().__init__(*args, **kwargs)
         self.fields['volta_proximo_ano'].choices = (
             PesquisaDeSatisfacao.get_choices_dinamicos()
         )
+
+        campos_refeicoes = {
+            'cafe_manha': ['Café'],
+            'coffee': ['Coffee manhã', 'Coffee tarde'],
+            'almoco': ['Almoço'],
+            'jantar': ['Jantar'],
+            'lanche_noite': ['Lanche noite'],
+        }
+
+        for field_name, labels in campos_refeicoes.items():
+            for label in labels:
+                if label not in refeicoes_realizadas:
+                    self.fields.pop(field_name, None)
+                    self.fields.pop(f'{field_name}_obs', None)  # caso use campos *_obs
 
         # Personalizações dos campos
         for field_name, field in self.fields.items():
@@ -46,6 +63,9 @@ class AvaliacaoCorporativoForm(forms.ModelForm):
 
             # Atualiza atributos sem sobrescrever
             field.widget.attrs['class'] = ' '.join(classes)
+
+        self.fields['mais_valorizou'].widget.attrs.update({'cols': 40, 'rows': 4})
+        self.fields['sugestoes'].widget.attrs.update({'cols': 40, 'rows': 4})
 
     def clean(self):
         cleaned_data = super().clean()
@@ -74,20 +94,40 @@ class AvaliacaoCorporativoForm(forms.ModelForm):
 
 
 class AvaliacaoIndividualSalaForm(forms.ModelForm):
+    sala_combinada = forms.ChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = AvaliacaoIndividualSala
-        fields = ['sala', 'avaliacao', 'observacao']
+        exclude = ['pesquisa_corporativo_content_type', 'pesquisa_corporativo_object_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['sala'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
+
+        # Configura as opções do select
+        salas = []
+        content_type = ContentType.objects.get_for_model(Locaveis)
+
+        for obj in Locaveis.objects.all():
+            salas.append((
+                f"{content_type.id}-{obj.id}",
+                f"{obj.local.estrutura}"
+            ))
+
+        self.fields['sala_combinada'].choices = [('', '---------')] + salas
+        self.fields['sala_combinada'].widget.attrs.update({'class': 'form-select nome-monitor appearance-none'})
         self.fields['avaliacao'].widget.attrs.update({'class': 'form-select campo-avaliacao'})
         self.fields['observacao'].widget.attrs.update({'class': 'form-control campo-obs', 'rows': 3})
 
-    def clean(self):
-        cleaned_data = super().clean()
+        # Recupera os valores do initial OU instance
+        sala_ct_id = getattr(self.instance, 'sala_content_type_id', None) or self.initial.get(
+            'sala_content_type')
+        sala_obj_id = getattr(self.instance, 'sala_object_id', None) or self.initial.get(
+            'sala_object_id')
 
-        if cleaned_data.get('sala') in [1, 2] and not cleaned_data.get('observacao'):
-            self.add_error('observacao', "Observação obrigatória para avaliações Regular ou Ruim")
-
-        return cleaned_data
+        if sala_ct_id and sala_obj_id:
+            initial_value = f"{sala_ct_id}-{sala_obj_id}"
+            self.fields['sala_combinada'].initial = initial_value
