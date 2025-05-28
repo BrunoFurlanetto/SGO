@@ -280,8 +280,6 @@ def avaliacao_colegio(request, id_ordem_de_servico):
             prefix='avaliacao_atividade'
         )
 
-        print(avaliacao_atividades.errors)
-        print(avaliacao_coordenadores.errors)
         if form.is_valid() and avaliacao_coordenadores.is_valid() and avaliacao_atividades.is_valid():
             try:
                 with transaction.atomic():
@@ -405,9 +403,6 @@ def avaliacao_corporativo(request, id_ordem_de_servico):
             prefix='avaliacao_sala'
         )
 
-        print(form.errors)
-        print(avaliacao_salas.errors)
-        print(avaliacao_coordenadores.errors)
         if form.is_valid() and avaliacao_coordenadores.is_valid() and avaliacao_salas.is_valid():
             try:
                 with transaction.atomic():

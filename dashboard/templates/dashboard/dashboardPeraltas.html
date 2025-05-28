@@ -560,6 +560,29 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="tabelas">
+                        <h5>Fichas para o cliente avaliar</h5>
+                        <table id="tabela_avaliacoes_clientes" class="table table-hover table-striped"
+                               style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Check in</th>
+                                <th class="text-center">Colaborador</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for evento in avaliacoes_cliente %}
+                                <tr class="align-middle" style="cursor: pointer"
+                                    onclick="window.location.href='{% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
+                                    <td>{{ evento.ficha_de_evento.cliente }}</td>
+                                    <td>{{ evento.ficha_de_evento.check_in | date:'Y-m-d' }}</td>
+                                    <td> {{ evento.ficha_de_evento.vendedora }} </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             {% endif %}
         {% endif %}

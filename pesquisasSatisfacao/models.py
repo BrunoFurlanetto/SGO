@@ -167,14 +167,21 @@ class AvaliacaoIndividualAtividade(models.Model):
     def process_atividades(json_field, model):
         atividades = json_field or {}
 
-        return [
-            {
-                'atividade_content_type': ContentType.objects.get_for_model(model).id,
-                'atividade_object_id': info['atividade']
-            }
-            for info in atividades.values()
-            if info.get('atividade')
-        ]
+        seen = set()
+        result = []
+
+        for info in atividades.values():
+            atividade = info.get('atividade')
+            if atividade:
+                key = (ContentType.objects.get_for_model(model).id, atividade)
+                if key not in seen:
+                    seen.add(key)
+                    result.append({
+                        'atividade_content_type': key[0],
+                        'atividade_object_id': key[1]
+                    })
+
+        return result
 
     def __str__(self):
         return f"Avaliação de {self.atividade} por {self.pesquisa}"
@@ -201,22 +208,22 @@ class AvaliacaoIndividualSala(models.Model):
     @staticmethod
     def process_salas(json_field, model):
         salas = json_field or {}
-        print([
-            {
-                'sala_content_type': ContentType.objects.get_for_model(model).id,
-                'sala_object_id': info['espaco']
-            }
-            for info in salas.values()
-            if info.get('espaco')
-        ])
-        return [
-            {
-                'sala_content_type': ContentType.objects.get_for_model(model).id,
-                'sala_object_id': info['espaco']
-            }
-            for info in salas.values()
-            if info.get('espaco')
-        ]
+
+        seen = set()
+        result = []
+
+        for info in salas.values():
+            espaco = info.get('espaco')
+            if espaco:
+                key = (ContentType.objects.get_for_model(model).id, espaco)
+                if key not in seen:
+                    seen.add(key)
+                    result.append({
+                        'sala_content_type': key[0],
+                        'sala_object_id': key[1]
+                    })
+
+        return result
 
     def __str__(self):
         return f"Avaliação de {self.sala} por {self.pesquisa.avaliador}"

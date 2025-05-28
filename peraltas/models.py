@@ -704,6 +704,7 @@ class FichaDeEvento(models.Model):
 
         for refeicao in self.refeicoes.values():
             for ref in refeicao:
+                print(ref)
                 refeicoes.add(ref)
 
         return list(refeicoes)

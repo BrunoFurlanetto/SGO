@@ -274,8 +274,13 @@ def dashboardPeraltas(request):
             ).exclude(
                 avaliou_monitoria=request.user.monitor.id
             )
+            avaliacoes_clientes = OrdemDeServico.objects.filter(
+                check_out__date__lte=datetime.today().date(),
+                monitor_responsavel=request.user.monitor.id,
+                cliente_avaliou=False,
+            ).exclude(ficha_de_evento__produto__colegio=True, escala=False)
         else:
-            avaliacoes_coordenador_monitoria = None
+            avaliacoes_coordenador_monitoria = avaliacoes_clientes = None
 
         avaliacoes_monitores = EscalaAcampamento.objects.filter(
             monitores_acampamento=request.user.monitor,
@@ -283,7 +288,7 @@ def dashboardPeraltas(request):
             ficha_de_evento__os=True,
         ).exclude(avaliou_coordenadores=request.user.monitor.id)
     else:
-        avaliacoes_coordenador_monitoria = avaliacoes_monitores = None
+        avaliacoes_coordenador_monitoria = avaliacoes_monitores = avaliacoes_clientes = None
 
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
@@ -369,6 +374,7 @@ def dashboardPeraltas(request):
         'pacotes': pacotes,
         'eventos_coordenador_avaliar': avaliacoes_coordenador_monitoria,
         'avaliacoes_monitores': avaliacoes_monitores,
+        'avaliacoes_cliente': avaliacoes_clientes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

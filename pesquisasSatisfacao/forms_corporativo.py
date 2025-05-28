@@ -29,17 +29,17 @@ class AvaliacaoCorporativoForm(forms.ModelForm):
 
         campos_refeicoes = {
             'cafe_manha': ['Café'],
-            'coffee': ['Coffee manhã', 'Coffee tarde'],
+            'coffee_break': ['Coffee manhã', 'Coffee tarde'],
             'almoco': ['Almoço'],
             'jantar': ['Jantar'],
             'lanche_noite': ['Lanche noite'],
         }
 
         for field_name, labels in campos_refeicoes.items():
-            for label in labels:
-                if label not in refeicoes_realizadas:
-                    self.fields.pop(field_name, None)
-                    self.fields.pop(f'{field_name}_obs', None)  # caso use campos *_obs
+            # Verifica se TODAS as labels esperadas estão presentes
+            if not any(label in refeicoes_realizadas for label in labels):
+                self.fields.pop(field_name, None)
+                self.fields.pop(f'{field_name}_obs', None)
 
         # Personalizações dos campos
         for field_name, field in self.fields.items():

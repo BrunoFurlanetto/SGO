@@ -6,7 +6,7 @@ register = template.Library()
 @register.filter
 def get_obs_field(form, field_name):
     obs_field_name = f"{field_name}_obs"
-    print(field_name)
+
     try:
         return form[obs_field_name]  # Acessa o campo do formulário corretamente
     except KeyError:
