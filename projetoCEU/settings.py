@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'orcamento.apps.OrcamentoConfig',
     'painelDiretoria.apps.PaineldiretoriaConfig',
     'cozinha.apps.CozinhaConfig',
+    'pesquisasSatisfacao.apps.PesquisassatisfacaoConfig',
 ]
 
 MIDDLEWARE = [
@@ -94,6 +95,7 @@ TEMPLATES = [
                 'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
                 'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
                 'custom_tag': 'orcamento.templatestags.custom_tag',
+                'custom_filter_tags_avaliacao': 'pesquisasSatisfacao.templatestags.filter_tags_avaliacao',
             }
         },
     },

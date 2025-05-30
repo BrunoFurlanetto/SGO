@@ -6,7 +6,7 @@
 {% block conteudo %}
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     {% csrf_token %}
-    {% if comercial or operacional or coordenador_monitoria or financeiro %}
+    {% if comercial or operacional or coordenador_monitoria or financeiro or monitor %}
         {#        {% if False %}#}
         {#            {% for versao in ultimas_versoes %}#}
         {#                <div class="card card-log">#}
@@ -124,82 +124,234 @@
         {#            {% endfor %}#}
         {#        {% else %}#}
         <div id="conteudo">
-            <div id="abas" style="display: flex">
-                {% if financeiro %}
-                    <div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>
-                {% endif %}
-                {% if comercial or diretoria %}
-                    <div class="folder ativo"
-                         onclick="alterar_aba(this, 'adesao')">Adesão
-                    </div>
-                {% endif %}
-                {% if comercial or operacional or diretoria %}
-                    <div class="folder {% if operacional %} ativo {% endif %}"
-                         onclick="alterar_aba(this, 'status')">Status
-                    </div>
-                {% endif %}
-                {% if comercial or diretoria %}
-                    <div class="folder"
-                         onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
-                        <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
-                    </div>
-                {% endif %}
-                {% if diretoria or operacional or coordenador_monitoria %}
-                    <div class="folder {% if coordenador_monitoria and not diretoria %} ativo {% endif %}"
-                         onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
-                    </div>
-                    <div class="folder"
-                         onclick="alterar_aba(this, 'com_escala')"> Eventos com escala
-                    </div>
-                {% endif %}
-                {% if financeiro %}
-                    <div class="folder"
-                         onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
-                    </div>
-                {% endif %}
-            </div>
-
+        <div id="abas" style="display: flex">
+            {% if financeiro %}
+                <div class="folder ativo" onclick="alterar_aba(this, 'pacotes')">Pacotes</div>
+            {% endif %}
             {% if comercial or diretoria %}
-                <div id="adesao" class="section-content ativo">
-                    <div class="tabelas">
-                        <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
-                            <thead>
-                            <tr>
-                                <th style="width: 500px">Cliente</th>
-                                <th>Estimado</th>
-                                <th>Reservado</th>
-                                <th>Adesao</th>
-                                <th style="width: 250px">Check in</th>
-                                {% if diretoria %}
-                                    <th>Colaborador</th> {% endif %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for ficha in fichas_adesao %}
-                                <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
-                                    onclick="window.location = $(this).data('href')"
-                                    style="cursor: pointer"
-                                    class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
-                                    <td>{{ ficha.cliente }}</td>
-                                    <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ ficha.adesao|floatformat:2 }}%</td>
-                                    <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
-                                    {% if diretoria %}
-                                        <td> {{ ficha.vendedora }} </td> {% endif %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="folder ativo"
+                     onclick="alterar_aba(this, 'adesao')">Adesão
                 </div>
             {% endif %}
-            <div id="status" class="section-content {% if operacional %} ativo {% endif %}">
+            {% if comercial or operacional or diretoria %}
+                <div class="folder {% if operacional %} ativo {% endif %}"
+                     onclick="alterar_aba(this, 'status')">Status
+                </div>
+            {% endif %}
+            {% if comercial or diretoria %}
+                <div class="folder"
+                     onclick="alterar_aba(this, 'avisos')"> {% if avisos|length > 0 %}
+                    <img src="{% static 'img/attention.png' %}" alt="" width="25px"> {% endif %} Avisos
+                </div>
+            {% endif %}
+            {% if diretoria or operacional or coordenador_monitoria %}
+                <div class="folder {% if coordenador_monitoria and not diretoria %} ativo {% endif %}"
+                     onclick="alterar_aba(this, 'sem_escala')"> Eventos sem escala
+                </div>
+                <div class="folder"
+                     onclick="alterar_aba(this, 'com_escala')"> Eventos com escala
+                </div>
+            {% endif %}
+            {% if financeiro %}
+                <div class="folder"
+                     onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
+                </div>
+            {% endif %}
+            {% if coordenador_monitoria %}
+                <div class="folder" onclick="alterar_aba(this, 'fichas_avaliacao_faltantes')">
+                    Fichas de avaliação
+                </div>
+            {% endif %}
+            {% if monitor and not coordenador_monitoria %}
+                <div class="folder ativo"
+                     onclick="alterar_aba(this, 'fichas_avaliacao_faltantes_monitores')">
+                    Fichas de avaliação
+                </div>
+            {% endif %}
+        </div>
+
+        {% if comercial or diretoria %}
+            <div id="adesao" class="section-content ativo">
                 <div class="tabelas">
-                    <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>
-                    <table id="tabela_status_pre_reserva" class="table table-hover table-striped"
+                    <table id="tabela_adesao" class="table table-hover table-striped" style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th style="width: 500px">Cliente</th>
+                            <th>Estimado</th>
+                            <th>Reservado</th>
+                            <th>Adesao</th>
+                            <th style="width: 250px">Check in</th>
+                            {% if diretoria %}
+                                <th>Colaborador</th> {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_adesao %}
+                            <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
+                                onclick="window.location = $(this).data('href')"
+                                style="cursor: pointer"
+                                class="{% if ficha.adesao <= 50 %} baixa {% elif ficha.adesao > 50 and ficha.adesao <= 70 %} media {% else %} alta {% endif %}">
+                                <td>{{ ficha.cliente }}</td>
+                                <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
+                                    0 {% endif %}</td>
+                                <td>{{ ficha.adesao|floatformat:2 }}%</td>
+                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria %}
+                                    <td> {{ ficha.vendedora }} </td> {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        <div id="status" class="section-content {% if operacional %} ativo {% endif %}">
+            <div class="tabelas">
+                <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>
+                <table id="tabela_status_pre_reserva" class="table table-hover table-striped"
+                       style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th style="width: 450px">Cliente</th>
+                        <th style="width: 150px">Produto</th>
+                        <th>Estimado</th>
+                        <th style="width: 250px">Check in</th>
+                        {% if diretoria or operacional %}
+                            <th>Colaborador</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for pre_reserva in pre_reservas %}
+                        <tr class="pre_reservas">
+                            <td>{{ pre_reserva.cliente }}</td>
+                            <td>{{ pre_reserva.produto }}</td>
+                            <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
+                                0 {% endif %}</td>
+                            <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
+                            {% if diretoria or operacional %}
+                                <td> {{ pre_reserva.vendedora }} </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class="tabelas">
+                <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>
+                <table id="tabela_status_agendado" class="table table-hover table-striped"
+                       style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th style="width: 450px">Cliente</th>
+                        <th style="width: 150px">Produto</th>
+                        <th>Estimado</th>
+                        <th style="width: 250px">Check in</th>
+                        {% if diretoria or operacional %}
+                            <th>Colaborador</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for confirmado in confirmados %}
+                        <tr class="agendados">
+                            <td>{{ confirmado.cliente }}</td>
+                            <td>{{ confirmado.produto }}</td>
+                            <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
+                                0 {% endif %}</td>
+                            <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
+                            {% if diretoria or operacional %}
+                                <td> {{ confirmado.vendedora }} </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class="tabelas">
+                <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
+                <table id="tabela_status_ficha" class="table table-hover table-striped"
+                       style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th style="width: 500px">Cliente</th>
+                        <th style="width: 145px">Produto</th>
+                        <th>Estimado</th>
+                        <th>Reservado</th>
+                        <th>Transporte</th>
+                        <th style="width: 250px">Check in</th>
+                        {% if diretoria or operacional %}
+                            <th>Colaborador</th> {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ficha in fichas %}
+                        <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
+                            onclick="window.location = $(this).data('href')"
+                            style="cursor: pointer" class="fichas">
+                            <td>{{ ficha.cliente }}</td>
+                            <td>{{ ficha.produto }}</td>
+                            <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
+                                0 {% endif %}</td>
+                            <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
+                                0 {% endif %}</td>
+                            <td>{{ ficha.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
+                            <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                            {% if diretoria or operacional %}
+                                <td> {{ ficha.vendedora }} </td> {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class="tabelas">
+                <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>
+                <table id="tabela_status_ordem" class="table table-hover table-striped"
+                       style="border-top: solid">
+                    <thead>
+                    <tr>
+                        <th style="width: 450px">Cliente</th>
+                        <th style="width: 150px">Produto</th>
+                        <th>Participantes</th>
+                        <th style="width: 250px">Check in</th>
+                        <th>Transporte</th>
+                        {% if diretoria or operacional %}
+                            <th>Colaborador</th> {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ordem in ordens_colaborador %}
+                        <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}"
+                            onclick="window.location = $(this).data('href')"
+                            style="cursor: pointer" class="ordens">
+                            <td>{{ ordem.ficha_de_evento.cliente }}</td>
+                            <td>{{ ordem.ficha_de_evento.produto }}</td>
+                            <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
+                                0 {% endif %}</td>
+                            <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
+                            <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
+                            {% if diretoria or operacional %}
+                                <td> {{ ordem.vendedor }} </td> {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% if comercial or diretoria %}
+            <div id="avisos" class="section-content">
+                <div>
+                    Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém com a
+                    ausência da ficha de evento.
+                </div>
+                <hr>
+                <div class="tabelas">
+                    <table id="tabela_avisos" class="table table-hover table-striped"
                            style="border-top: solid">
                         <thead>
                         <tr>
@@ -207,63 +359,34 @@
                             <th style="width: 150px">Produto</th>
                             <th>Estimado</th>
                             <th style="width: 250px">Check in</th>
-                            {% if diretoria or operacional %}
-                                <th>Colaborador</th>
-                            {% endif %}
+                            {% if diretoria %}
+                                <th>Colaborador</th> {% endif %}
+                            <th>Confirmado</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for pre_reserva in pre_reservas %}
+                        {% for aviso in avisos %}
                             <tr class="pre_reservas">
-                                <td>{{ pre_reserva.cliente }}</td>
-                                <td>{{ pre_reserva.produto }}</td>
-                                <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}
+                                <td>{{ aviso.cliente }}</td>
+                                <td>{{ aviso.produto }}</td>
+                                <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
-                                <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>
-                                {% if diretoria or operacional %}
-                                    <td> {{ pre_reserva.vendedora }} </td>
-                                {% endif %}
+                                <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
+                                <td>{{ aviso.agendado|yesno:'Sim,Não' }}</td>
+                                {% if diretoria %}
+                                    <td> {{ aviso.vendedora }} </td> {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <hr>
+            </div>
+        {% endif %}
+        {% if diretoria or operacional or coordenador_monitoria %}
+            <div id="sem_escala"
+                 class="section-content {% if coordenador_monitoria and not diretoria %} ativo {% endif %}">
                 <div class="tabelas">
-                    <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>
-                    <table id="tabela_status_agendado" class="table table-hover table-striped"
-                           style="border-top: solid">
-                        <thead>
-                        <tr>
-                            <th style="width: 450px">Cliente</th>
-                            <th style="width: 150px">Produto</th>
-                            <th>Estimado</th>
-                            <th style="width: 250px">Check in</th>
-                            {% if diretoria or operacional %}
-                                <th>Colaborador</th>
-                            {% endif %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for confirmado in confirmados %}
-                            <tr class="agendados">
-                                <td>{{ confirmado.cliente }}</td>
-                                <td>{{ confirmado.produto }}</td>
-                                <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}
-                                    0 {% endif %}</td>
-                                <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>
-                                {% if diretoria or operacional %}
-                                    <td> {{ confirmado.vendedora }} </td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <hr>
-                <div class="tabelas">
-                    <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>
-                    <table id="tabela_status_ficha" class="table table-hover table-striped"
+                    <table id="tabela_sem_escala" class="table table-hover table-striped"
                            style="border-top: solid">
                         <thead>
                         <tr>
@@ -281,15 +404,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for ficha in fichas %}
-                            <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}"
-                                onclick="window.location = $(this).data('href')"
-                                style="cursor: pointer" class="fichas">
-                                <td>{{ ficha.cliente }}</td>
-                                <td>{{ ficha.produto }}</td>
-                                <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}
-                                    0 {% endif %}</td>
-                                <td>{% if ficha.qtd_confirmada %} {{ ficha.qtd_confirmada }} {% else %}
+                        {% for sem_escala in sem_escalas %}
+                            <tr style="cursor: pointer"
+                                onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.cliente.id %}'">
+                                <td>{{ sem_escala.cliente }}</td>
+                                <td>{{ sem_escala.produto }}</td>
+                                <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
                                 <td>{{ ficha.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
                                 <td>{{ ficha.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
@@ -303,11 +423,15 @@
                         </tbody>
                     </table>
                 </div>
-                <hr>
+            </div>
+            <div id="com_escala"
+                 class="section-content">
                 <div class="tabelas">
-                    <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>
-                    <table id="tabela_status_ordem" class="table table-hover table-striped"
+                    <table id="tabela_com_escala" class="table table-hover table-striped"
                            style="border-top: solid">
+                        <caption>*Valor aproximado. Valor pode alterar com base no horário de entrada e saída do
+                            grupo e possíveis pernoites das enfermeiras.
+                        </caption>
                         <thead>
                         <tr>
                             <th>Cliente</th>
@@ -323,13 +447,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for ordem in ordens_colaborador %}
-                            <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}"
-                                onclick="window.location = $(this).data('href')"
-                                style="cursor: pointer" class="ordens">
-                                <td>{{ ordem.ficha_de_evento.cliente }}</td>
-                                <td>{{ ordem.ficha_de_evento.produto }}</td>
-                                <td>{% if ordem.n_participantes %} {{ ordem.n_participantes }} {% else %}
+                        {% for escala in escalas_feitas %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.cliente.id %}">{{ escala.cliente }}</a>
+                                </td>
+                                <td>{{ escala.ficha_de_evento.produto }}</td>
+                                <td>{% if escala.ficha_de_evento.qtd_convidada %}
+                                    {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
                                 <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
                                 <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
@@ -347,8 +472,8 @@
             {% if comercial or diretoria %}
                 <div id="avisos" class="section-content">
                     <div>
-                        Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém com a
-                        ausência da ficha de evento.
+                        Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém
+                        com a ausência da ficha de evento.
                     </div>
                     <hr>
                     <div class="tabelas">
@@ -383,165 +508,114 @@
                     </div>
                 </div>
             {% endif %}
-            {% if diretoria or operacional or coordenador_monitoria %}
-                <div id="sem_escala"
-                     class="section-content {% if coordenador_monitoria and not diretoria %} ativo {% endif %}">
+            {% if coordenador_monitoria %}
+                <div id="fichas_avaliacao_faltantes" class="section-content">
                     <div class="tabelas">
-                        <table id="tabela_sem_escala" class="table table-hover table-striped"
+                        <h5>Avaliar equipe de monitoria</h5>
+                        <table id="tabela_avaliacoes_monitoria" class="table table-hover table-striped"
                                style="border-top: solid">
                             <thead>
                             <tr>
-                                <th style="width: 450px">Cliente</th>
-                                <th style="width: 150px">Produto</th>
-                                <th>Estimado</th>
-                                <th style="width: 250px">Check in</th>
-                                <th>Colaborador</th>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Check in</th>
+                                <th class="text-center">Equipe</th>
+                                <th class="text-center">Colaborador</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for sem_escala in sem_escalas %}
-                                <tr style="cursor: pointer"
-                                    onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.cliente.id %}'">
-                                    <td>{{ sem_escala.cliente }}</td>
-                                    <td>{{ sem_escala.produto }}</td>
-                                    <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
-                                    <td> {{ sem_escala.vendedora }} </td>
+                            {% for evento in eventos_coordenador_avaliar %}
+                                <tr class="align-middle" style="cursor: pointer"
+                                    onclick="window.location.href='{% url 'avaliacao_coordenacao_monitoria' evento.id %}'">
+                                    <td>{{ evento.ficha_de_evento.cliente }}</td>
+                                    <td>{{ evento.check_in | date:'Y-m-d' }}</td>
+                                    <td>{{ evento.listar_equipe_monitoria }}</td>
+                                    <td> {{ evento.vendedor }} </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div id="com_escala"
-                     class="section-content">
                     <div class="tabelas">
-                        <table id="tabela_com_escala" class="table table-hover table-striped"
+                        <h5>Avaliar equipe de coordenadores</h5>
+                        <table id="tabela_avaliacoes_coordenadores" class="table table-hover table-striped"
                                style="border-top: solid">
-                            <caption>*Valor aproximado. Valor pode alterar com base no horário de entrada e saída do
-                                grupo e possíveis pernoites das enfermeiras.
-                            </caption>
                             <thead>
                             <tr>
-                                <th style="width: 450px">Cliente</th>
-                                <th style="width: 150px">Produto</th>
-                                <th>Estimado</th>
-                                <th style="width: 250px">Check in</th>
-                                <th>Colaborador</th>
-                                <th>Valor da escala</th>
-                                <th>Contagem por nível</th>
-                                <th>Confirmada</th>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Check in</th>
+                                <th class="text-center">Coordenadores</th>
+                                <th class="text-center">Colaborador</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for escala in escalas_feitas %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.cliente.id %}">{{ escala.cliente }}</a>
-                                    </td>
-                                    <td>{{ escala.ficha_de_evento.produto }}</td>
-                                    <td>{% if escala.ficha_de_evento.qtd_convidada %}
-                                        {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
+                            {% for escala in avaliacoes_monitores %}
+                                <tr class="align-middle" style="cursor: pointer"
+                                    onclick="window.location.href='{% url 'avaliacao_monitoria_coordenacao' escala.id_ordem_de_servico %}'">
+                                    <td>{{ escala.cliente }}</td>
+                                    <td>{{ escala.check_in_cliente | date:'Y-m-d' }}</td>
+                                    <td>{{ escala.coordenadores }}</td>
                                     <td> {{ escala.ficha_de_evento.vendedora }} </td>
-                                    <td>
-                                        <nobr>R$ {{ escala.valores_escala|floatformat:'2' }}*</nobr>
-                                    </td>
-                                    <td>
-                                        {% for nivel, contagem in escala.contagem_niveis.items %}
-                                            {{ nivel }}: {{ contagem }},
-                                        {% endfor %}
-                                    </td>
-                                    <td tabindex="0">
-                                        {% if escala.pre_escala %}
-                                            <button type="button" class="btn-confirmar-escala"
-                                                    onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
-                                                Não
-                                            </button>
-                                        {% else %}
-                                            Sim
-                                        {% endif %}
-                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </div>
-                {% if comercial or diretoria %}
-                    <div id="avisos" class="section-content">
-                        <div>
-                            Aqui estão presentes as pré reservas e eventos já confirmados dos próximos 50 dias, porém
-                            com a ausência da ficha de evento.
-                        </div>
-                        <hr>
-                        <div class="tabelas">
-                            <table id="tabela_avisos" class="table table-hover table-striped"
-                                   style="border-top: solid">
-                                <thead>
-                                <tr>
-                                    <th style="width: 450px">Cliente</th>
-                                    <th style="width: 150px">Produto</th>
-                                    <th>Estimado</th>
-                                    <th style="width: 250px">Check in</th>
-                                    {% if diretoria %}
-                                        <th>Colaborador</th> {% endif %}
-                                    <th>Confirmado</th>
+                    <div class="tabelas">
+                        <h5>Fichas para o cliente avaliar</h5>
+                        <table id="tabela_avaliacoes_clientes" class="table table-hover table-striped"
+                               style="border-top: solid">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Check in</th>
+                                <th class="text-center">Colaborador</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for evento in avaliacoes_cliente %}
+                                <tr class="align-middle" style="cursor: pointer"
+                                    onclick="window.location.href='{% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
+                                    <td>{{ evento.ficha_de_evento.cliente }}</td>
+                                    <td>{{ evento.ficha_de_evento.check_in | date:'Y-m-d' }}</td>
+                                    <td> {{ evento.ficha_de_evento.vendedora }} </td>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                {% for aviso in avisos %}
-                                    <tr class="pre_reservas">
-                                        <td>{{ aviso.cliente }}</td>
-                                        <td>{{ aviso.produto }}</td>
-                                        <td>{% if aviso.qtd_convidada %} {{ aviso.qtd_convidada }} {% else %}
-                                            0 {% endif %}</td>
-                                        <td>{{ aviso.check_in| date:'Y-m-d' }}</td>
-                                        <td>{{ aviso.agendado|yesno:'Sim,Não' }}</td>
-                                        {% if diretoria %}
-                                            <td> {{ aviso.vendedora }} </td> {% endif %}
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                {% endif %}
-                {% if diretoria or operacional or coordenador_monitoria %}
-                    <div id="sem_escala"
-                         class="section-content {% if coordenador_monitoria and not diretoria %} ativo {% endif %}">
-                        <div class="tabelas">
-                            <table id="tabela_sem_escala" class="table table-hover table-striped"
-                                   style="border-top: solid">
-                                <thead>
-                                <tr>
-                                    <th style="width: 450px">Cliente</th>
-                                    <th style="width: 150px">Produto</th>
-                                    <th>Estimado</th>
-                                    <th style="width: 250px">Check in</th>
-                                    <th>Colaborador</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for sem_escala in sem_escalas %}
-                                    <tr class="pre_reservas">
-                                        <td>{{ sem_escala.cliente }}</td>
-                                        <td>{{ sem_escala.produto }}</td>
-                                        <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
-                                            0 {% endif %}</td>
-                                        <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
-                                        <td> {{ sem_escala.vendedora }} </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                {% endif %}
                 </div>
             {% endif %}
+        {% endif %}
+        {% if monitor and not coordenador_monitoria %}
+            <div id="fichas_avaliacao_faltantes_monitores"
+                 class="section-content ativo">
+                <div class="tabelas">
+                    <h5>Avaliar equipe de coordenadores</h5>
+                    <table id="tabela_avaliacoes_coordenadores" class="table table-hover table-striped"
+                           style="border-top: solid">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Cliente</th>
+                            <th class="text-center">Check in</th>
+                            <th class="text-center">Coordenadores</th>
+                            <th class="text-center">Colaborador</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for escala in avaliacoes_monitores %}
+                            <tr class="align-middle" style="cursor: pointer"
+                                onclick="window.location.href='{% url 'avaliacao_monitoria_coordenacao' escala.id_ordem_de_servico %}'">
+                                <td>{{ escala.cliente }}</td>
+                                <td>{{ escala.check_in_cliente | date:'Y-m-d' }}</td>
+                                <td>{{ escala.coordenadores }}</td>
+                                <td> {{ escala.ficha_de_evento.vendedora }} </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
         {% if financeiro %}
             <div class="section-content ativo" id="pacotes">
                 <table class="table table-hover table-striped">
@@ -615,162 +689,163 @@
     {% else %}
         <div class="conteudo_dashboard_peraltas_escrito"><h1>SGO</h1></div>
     {% endif %}
-{#        <div id="conteudo">#}
-{#            <div id="abas" style="display: flex">#}
-{#                <div class="folder ativo"#}
-{#                     onclick="alterar_aba(this, 'status')">Status#}
-{#                </div>#}
-{#            </div>#}
-{#            <div id="status" class="section-content ativo monitoria">#}
-{#                <div class="tabelas">#}
-{#                    <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>#}
-{#                    <table id="tabela_status_pre_reserva" class="table table-hover table-striped"#}
-{#                           style="border-top: solid">#}
-{#                        <thead>#}
-{#                        <tr>#}
-{#                            <th style="width: 450px">Cliente</th>#}
-{#                            <th style="width: 150px">Produto</th>#}
-{#                            <th>Estimado</th>#}
-{#                            <th style="width: 250px">Check in</th>#}
-{#                            <th style="width: 250px">Check out</th>#}
-{#                        </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                        {% for pre_reserva in pre_reservas %}#}
-{#                            <tr class="pre_reservas">#}
-{#                                <td>{{ pre_reserva.cliente }}</td>#}
-{#                                <td>{{ pre_reserva.produto }}</td>#}
-{#                                <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}#}
-{#                                    0 {% endif %}</td>#}
-{#                                <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>#}
-{#                                <td>{{ pre_reserva.check_out| date:'Y-m-d' }}</td>#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
-{#                <hr>#}
-{#                <div class="tabelas">#}
-{#                    <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>#}
-{#                    <table id="tabela_status_agendado" class="table table-hover table-striped"#}
-{#                           style="border-top: solid">#}
-{#                        <thead>#}
-{#                        <tr>#}
-{#                            <th style="width: 450px">Cliente</th>#}
-{#                            <th style="width: 150px">Produto</th>#}
-{#                            <th>Estimado</th>#}
-{#                            <th style="width: 250px">Check in</th>#}
-{#                            <th style="width: 250px">Check out</th>#}
-{#                        </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                        {% for confirmado in confirmados %}#}
-{#                            <tr class="agendados">#}
-{#                                <td>{{ confirmado.cliente }}</td>#}
-{#                                <td>{{ confirmado.produto }}</td>#}
-{#                                <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}#}
-{#                                    0 {% endif %}</td>#}
-{#                                <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>#}
-{#                                <td>{{ confirmado.check_out| date:'Y-m-d' }}</td>#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
-{#                <hr>#}
-{#                <div class="tabelas">#}
-{#                    <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>#}
-{#                    <table id="tabela_status_ficha" class="table table-hover table-striped"#}
-{#                           style="border-top: solid">#}
-{#                        <thead>#}
-{#                        <tr>#}
-{#                            <th style="width: 500px">Cliente</th>#}
-{#                            <th style="width: 145px">Produto</th>#}
-{#                            <th>Estimado</th>#}
-{#                            <th>Meninos/Meninas</th>#}
-{#                            <th style="width: 250px">Check in</th>#}
-{#                            <th style="width: 250px">Check out</th>#}
-{#                        </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                        {% for ficha in fichas %}#}
-{#                            <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}" class="fichas">#}
-{#                                <td>{{ ficha.cliente }}</td>#}
-{#                                <td>{{ ficha.produto }}</td>#}
-{#                                <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}#}
-{#                                    0 {% endif %}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {% if ficha.qtd_meninos %}#}
-{#                                        {{ ficha.qtd_meninos }}#}
-{#                                    {% else %}#}
-{#                                        0#}
-{#                                    {% endif %}#}
-{#                                    /#}
-{#                                    {% if ficha.qtd_meninas %}#}
-{#                                        {{ ficha.qtd_meninas }}#}
-{#                                    {% else %}#}
-{#                                        0#}
-{#                                    {% endif %}#}
-{#                                </td>#}
-{#                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>#}
-{#                                <td>{{ ficha.check_out| date:'Y-m-d' }}</td>#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
-{#                <hr>#}
-{#                <div class="tabelas">#}
-{#                    <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>#}
-{#                    <table id="tabela_status_ordem" class="table table-hover table-striped"#}
-{#                           style="border-top: solid">#}
-{#                        <thead>#}
-{#                        <tr>#}
-{#                            <th style="width: 500px">Cliente</th>#}
-{#                            <th style="width: 145px">Produto</th>#}
-{#                            <th>Estimado</th>#}
-{#                            <th>Meninos/Meninas</th>#}
-{#                            <th style="width: 250px">Check in</th>#}
-{#                            <th style="width: 250px">Check out</th>#}
-{#                        </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                        {% for ordem in ordens_colaborador %}#}
-{#                            <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}" class="ordens">#}
-{#                                <td>{{ ordem.ficha_de_evento.cliente }}</td>#}
-{#                                <td>{{ ordem.ficha_de_evento.produto }}</td>#}
-{#                                <td>#}
-{#                                    {% if ordem.n_participantes %}#}
-{#                                        {{ ordem.n_participantes }}#}
-{#                                    {% else %}#}
-{#                                        0#}
-{#                                    {% endif %}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {% if ordem.ficha.qtd_meninos %}#}
-{#                                        {{ ordem.ficha.qtd_meninos }}#}
-{#                                    {% else %}#}
-{#                                        0#}
-{#                                    {% endif %}#}
-{#                                    /#}
-{#                                    {% if ordem.ficha.qtd_meninas %}#}
-{#                                        {{ ordem.ficha.qtd_meninas }}#}
-{#                                    {% else %}#}
-{#                                        0#}
-{#                                    {% endif %}#}
-{#                                </td>#}
-{#                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>#}
-{#                                {% if diretoria or operacional %}#}
-{#                                    <td> {{ ordem.vendedor }} </td>#}
-{#                                {% endif %}#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
+</div>
+    {#        <div id="conteudo">#}
+    {#            <div id="abas" style="display: flex">#}
+    {#                <div class="folder ativo"#}
+    {#                     onclick="alterar_aba(this, 'status')">Status#}
+    {#                </div>#}
+    {#            </div>#}
+    {#            <div id="status" class="section-content ativo monitoria">#}
+    {#                <div class="tabelas">#}
+    {#                    <h5 class="titulo-secao" style="margin-top: 5px">Pré reservas</h5>#}
+    {#                    <table id="tabela_status_pre_reserva" class="table table-hover table-striped"#}
+    {#                           style="border-top: solid">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <th style="width: 450px">Cliente</th>#}
+    {#                            <th style="width: 150px">Produto</th>#}
+    {#                            <th>Estimado</th>#}
+    {#                            <th style="width: 250px">Check in</th>#}
+    {#                            <th style="width: 250px">Check out</th>#}
+    {#                        </tr>#}
+    {#                        </thead>#}
+    {#                        <tbody>#}
+    {#                        {% for pre_reserva in pre_reservas %}#}
+    {#                            <tr class="pre_reservas">#}
+    {#                                <td>{{ pre_reserva.cliente }}</td>#}
+    {#                                <td>{{ pre_reserva.produto }}</td>#}
+    {#                                <td>{% if pre_reserva.qtd_convidada %} {{ pre_reserva.qtd_convidada }} {% else %}#}
+    {#                                    0 {% endif %}</td>#}
+    {#                                <td>{{ pre_reserva.check_in| date:'Y-m-d' }}</td>#}
+    {#                                <td>{{ pre_reserva.check_out| date:'Y-m-d' }}</td>#}
+    {#                            </tr>#}
+    {#                        {% endfor %}#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {#                </div>#}
+    {#                <hr>#}
+    {#                <div class="tabelas">#}
+    {#                    <h5 class="titulo-secao" style="margin-top: 5px">Eventos confirmados</h5>#}
+    {#                    <table id="tabela_status_agendado" class="table table-hover table-striped"#}
+    {#                           style="border-top: solid">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <th style="width: 450px">Cliente</th>#}
+    {#                            <th style="width: 150px">Produto</th>#}
+    {#                            <th>Estimado</th>#}
+    {#                            <th style="width: 250px">Check in</th>#}
+    {#                            <th style="width: 250px">Check out</th>#}
+    {#                        </tr>#}
+    {#                        </thead>#}
+    {#                        <tbody>#}
+    {#                        {% for confirmado in confirmados %}#}
+    {#                            <tr class="agendados">#}
+    {#                                <td>{{ confirmado.cliente }}</td>#}
+    {#                                <td>{{ confirmado.produto }}</td>#}
+    {#                                <td>{% if confirmado.qtd_convidada %} {{ confirmado.qtd_convidada }} {% else %}#}
+    {#                                    0 {% endif %}</td>#}
+    {#                                <td>{{ confirmado.check_in| date:'Y-m-d' }}</td>#}
+    {#                                <td>{{ confirmado.check_out| date:'Y-m-d' }}</td>#}
+    {#                            </tr>#}
+    {#                        {% endfor %}#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {#                </div>#}
+    {#                <hr>#}
+    {#                <div class="tabelas">#}
+    {#                    <h5 class="titulo-secao" style="margin-top: 5px">Fichas de evento</h5>#}
+    {#                    <table id="tabela_status_ficha" class="table table-hover table-striped"#}
+    {#                           style="border-top: solid">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <th style="width: 500px">Cliente</th>#}
+    {#                            <th style="width: 145px">Produto</th>#}
+    {#                            <th>Estimado</th>#}
+    {#                            <th>Meninos/Meninas</th>#}
+    {#                            <th style="width: 250px">Check in</th>#}
+    {#                            <th style="width: 250px">Check out</th>#}
+    {#                        </tr>#}
+    {#                        </thead>#}
+    {#                        <tbody>#}
+    {#                        {% for ficha in fichas %}#}
+    {#                            <tr data-href="{% url 'ver_ficha_de_evento' ficha.id %}" class="fichas">#}
+    {#                                <td>{{ ficha.cliente }}</td>#}
+    {#                                <td>{{ ficha.produto }}</td>#}
+    {#                                <td>{% if ficha.qtd_convidada %} {{ ficha.qtd_convidada }} {% else %}#}
+    {#                                    0 {% endif %}#}
+    {#                                </td>#}
+    {#                                <td>#}
+    {#                                    {% if ficha.qtd_meninos %}#}
+    {#                                        {{ ficha.qtd_meninos }}#}
+    {#                                    {% else %}#}
+    {#                                        0#}
+    {#                                    {% endif %}#}
+    {#                                    /#}
+    {#                                    {% if ficha.qtd_meninas %}#}
+    {#                                        {{ ficha.qtd_meninas }}#}
+    {#                                    {% else %}#}
+    {#                                        0#}
+    {#                                    {% endif %}#}
+    {#                                </td>#}
+    {#                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>#}
+    {#                                <td>{{ ficha.check_out| date:'Y-m-d' }}</td>#}
+    {#                            </tr>#}
+    {#                        {% endfor %}#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {#                </div>#}
+    {#                <hr>#}
+    {#                <div class="tabelas">#}
+    {#                    <h5 class="titulo-secao" style="margin-top: 5px">Ordens de serviço</h5>#}
+    {#                    <table id="tabela_status_ordem" class="table table-hover table-striped"#}
+    {#                           style="border-top: solid">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <th style="width: 500px">Cliente</th>#}
+    {#                            <th style="width: 145px">Produto</th>#}
+    {#                            <th>Estimado</th>#}
+    {#                            <th>Meninos/Meninas</th>#}
+    {#                            <th style="width: 250px">Check in</th>#}
+    {#                            <th style="width: 250px">Check out</th>#}
+    {#                        </tr>#}
+    {#                        </thead>#}
+    {#                        <tbody>#}
+    {#                        {% for ordem in ordens_colaborador %}#}
+    {#                            <tr data-href="{% url 'ver_ordem_de_servico' ordem.id %}" class="ordens">#}
+    {#                                <td>{{ ordem.ficha_de_evento.cliente }}</td>#}
+    {#                                <td>{{ ordem.ficha_de_evento.produto }}</td>#}
+    {#                                <td>#}
+    {#                                    {% if ordem.n_participantes %}#}
+    {#                                        {{ ordem.n_participantes }}#}
+    {#                                    {% else %}#}
+    {#                                        0#}
+    {#                                    {% endif %}#}
+    {#                                </td>#}
+    {#                                <td>#}
+    {#                                    {% if ordem.ficha.qtd_meninos %}#}
+    {#                                        {{ ordem.ficha.qtd_meninos }}#}
+    {#                                    {% else %}#}
+    {#                                        0#}
+    {#                                    {% endif %}#}
+    {#                                    /#}
+    {#                                    {% if ordem.ficha.qtd_meninas %}#}
+    {#                                        {{ ordem.ficha.qtd_meninas }}#}
+    {#                                    {% else %}#}
+    {#                                        0#}
+    {#                                    {% endif %}#}
+    {#                                </td>#}
+    {#                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>#}
+    {#                                {% if diretoria or operacional %}#}
+    {#                                    <td> {{ ordem.vendedor }} </td>#}
+    {#                                {% endif %}#}
+    {#                            </tr>#}
+    {#                        {% endfor %}#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
 
 
     <!--------------------------------------------------------------------------------------------------------------------->

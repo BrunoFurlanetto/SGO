@@ -276,6 +276,31 @@ def dashboardPeraltas(request):
             dia_limite_peraltas
         )
 
+    if monitor:
+        if coordenador_monitoria:
+            avaliacoes_coordenador_monitoria = OrdemDeServico.objects.filter(
+                check_out__date__lte=datetime.today().date(),
+                monitor_responsavel=request.user.monitor.id,
+                escala=True,
+            ).exclude(
+                avaliou_monitoria=request.user.monitor.id
+            )
+            avaliacoes_clientes = OrdemDeServico.objects.filter(
+                check_out__date__lte=datetime.today().date(),
+                monitor_responsavel=request.user.monitor.id,
+                cliente_avaliou=False,
+            ).exclude(ficha_de_evento__produto__colegio=True, escala=False)
+        else:
+            avaliacoes_coordenador_monitoria = avaliacoes_clientes = None
+
+        avaliacoes_monitores = EscalaAcampamento.objects.filter(
+            monitores_acampamento=request.user.monitor,
+            check_out_cliente__date__lte=datetime.today().date(),
+            ficha_de_evento__os=True,
+        ).exclude(avaliou_coordenadores=request.user.monitor.id)
+    else:
+        avaliacoes_coordenador_monitoria = avaliacoes_monitores = avaliacoes_clientes = None
+
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
@@ -358,6 +383,9 @@ def dashboardPeraltas(request):
         'financeiro': financeiro in grupos_usuario,
         'tratativas': tratativas,
         'pacotes': pacotes,
+        'eventos_coordenador_avaliar': avaliacoes_coordenador_monitoria,
+        'avaliacoes_monitores': avaliacoes_monitores,
+        'avaliacoes_cliente': avaliacoes_clientes,
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

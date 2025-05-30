@@ -141,6 +141,8 @@ class OrdemDeServico(models.Model):
     racional_coordenadores = models.IntegerField(default=120, blank=True)
     permicao_coordenadores = models.BooleanField(default=False)
     data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
+    avaliou_monitoria = models.ManyToManyField(Monitor, blank=True, editable=False, related_name='avaliou_monitoria')
+    cliente_avaliou = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Ordem de serviço de {self.ficha_de_evento.cliente}'

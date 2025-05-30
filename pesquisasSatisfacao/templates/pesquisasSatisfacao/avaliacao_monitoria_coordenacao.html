@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load custom_filter_tags_avaliacao %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_avaliacao_coordenacao_monitoria.css' %}">
+    <div class="container py-5">
+        <div class="row justify-content-center w-75">
+            <div class="col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2 class="h4 mb-0">Pesquisa de Satisfação</h2>
+                        <p class="mb-0">Avaliação da equipe de coordenadores</p>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <!-- Seção 1: Informações Fixas -->
+                            <section class="mb-2 text-center">
+                                <h3 class="h5 mb-3 text-primary">Informações Gerais</h3>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Coordenador(es):</strong></p>
+                                        <p>
+                                            {% for monitor in ordem.monitor_responsavel.all %}
+                                                {{ monitor.usuario.get_full_name }}{% if not forloop.last %},
+                                                {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Data do Evento:</strong></p>
+                                        <p>{{ ordem.check_in | date:'d/m/Y' }}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Responsável:</strong></p>
+                                        <p>{{ ordem.responsavel_grupo }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Produto:</strong></p>
+                                        <p>{{ ordem.ficha_de_evento.produto }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Cliente:</strong></p>
+                                        <p>{{ ordem.instituicao }}</p>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <hr>
+
+                            <!-- Seção 2: Avaliações Individuais -->
+                            <section class="mb-5">
+                                <div class="h6 mb-3 text-uppercase">
+                                    <strong>
+                                        Você deve avaliar a equipe de coordenação como um todo e colocar as observações
+                                        caso haja algum caso específico!
+                                    </strong>
+                                </div>
+                                <h3 class="h5 mb-3 text-primary">Avaliação individual dos Coordenadores</h3>
+                                {{ avaliacao_formset.management_form }}
+                                <table class="table">
+                                    <thead class="text-center">
+                                    <tr>
+                                        <th>Coordenador</th>
+                                        <th>Avaliação</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="avaliacoes-container">
+                                    {% for form in avaliacao_formset %}
+                                        <tr data-has-obs="true" class="avaliacao-item align-middle">
+                                            <td>
+                                                {{ form.coordenador }}
+                                            </td>
+                                            <td>
+                                                {{ form.avaliacao }}
+                                                {% if form.avaliacao.errors %}
+                                                    <div class="text-danger">{{ form.avaliacao.errors }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="obs-cell {% if form.avaliacao <= 2 %}obs-obrigatoria{% endif %}">
+                                                {{ form.observacao }}
+                                                {% for error in form.observacao.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% if form.coordenador.errors %}
+                                            {% for error in form.coordenador.errors %}
+                                                <tr>
+                                                    <td rowspan="3" class="invalid-feedback d-block">
+                                                        *{{ error }}
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <!-- Seção 4: Avaliação Geral -->
+                            <section class="mb-5">
+                                <h3 class="h5 mb-3 text-primary">Avaliação Geral da Equipe de coordenadores</h3>
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                <table id="tabela-avaliacao-geral" class="form-table">
+                                    <thead class="text-center">
+                                    <tr class="border-top border-dark">
+                                        <th>Pergunta</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    <tr class="mensagem-observacoes text-danger border-bottom border-dark">
+                                        <th colspan="2" class="p-2">EM CASO DE RESPOSTAS "NÃO" OU "REGULAR" OU "RUIM" É
+                                            OBRIGATÓRIO PREENCHER O CAMPO DE OBSERVAÇÃO!
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for field in form.visible_fields %}
+                                        {% if field.name not in campos_nao_tabelaveis %}
+                                            {% if not field.name|slice:'-3:' == 'obs' %}
+                                                <tr data-has-obs="true">
+                                                    <!-- Coluna da Pergunta -->
+                                                    <td class="pergunta-cell">
+                                                        <div class="mb-3">
+                                                            {{ field.label_tag }}
+                                                            {{ field }}
+                                                            {% if field.help_text %}
+                                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                                            {% endif %}
+                                                            {% for error in field.errors %}
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ error }}
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Coluna da Observação -->
+                                                    <td class="obs-cell {% if field.value in "False, 2, 1" %}obs-obrigatoria{% endif %}">
+                                                        {% with obs_field=form|get_obs_field:field.name %}
+                                                            {% if obs_field %}
+                                                                <div class="mb-3 mt-3">
+                                                                    {{ obs_field }}
+                                                                    {% for error in obs_field.errors %}
+                                                                        <div class="invalid-feedback d-block">
+                                                                            {{ error }}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <tr>
+                                        <td class="pergunta-cell align-bottom">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.teve_briefing.label_tag }}
+                                                {{ form.teve_briefing }}
+                                                {% if form.teve_briefing.help_text %}
+                                                    <small class="form-text text-muted">{{ form.teve_briefing.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.teve_briefing.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+
+                                        <td class="pergunta-cell align-bottom">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.teve_feedback.label_tag }}
+                                                {{ form.teve_feedback }}
+                                                {% if form.teve_feedback.help_text %}
+                                                    <small class="form-text text-muted">{{ form.teve_feedback.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.teve_feedback.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.coordenador_participou.label_tag }}
+                                                {{ form.coordenador_participou }}
+                                                {% if form.coordenador_participou.help_text %}
+                                                    <small class="form-text text-muted">{{ form.coordenador_participou.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.coordenador_participou.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="mb-3 pb-4 pt-3 border-1 border-bottom border-dark">
+                                    {{ form.tem_consideracoes_pedagogicas.label_tag }}
+                                    {{ form.tem_consideracoes_pedagogicas }}
+                                    {% if form.tem_consideracoes_pedagogicas.help_text %}
+                                        <small class="form-text text-muted">{{ form.tem_consideracoes_pedagogicas.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in form.tem_consideracoes_pedagogicas.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </section>
+
+                            <!-- Seção 5: Observações Finais -->
+                            <h3 class="h5 mb-3 text-primary">Observações gerais</h3>
+                            <div class="mb-3">
+                                Alguma observação referente a equipe de monitoria no geral?
+                                <br>
+                                {% if form.observacoes_equipe.help_text %}
+                                    <small class="form-text text-muted">{{ form.observacoes_equipe.help_text }}</small>
+                                {% endif %}
+                                {{ form.observacoes_equipe }}
+                                {% for error in form.observacoes_equipe.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="palavras-chave-container mb-4">
+                                <label class="form-label">Utilize 5 palavras para descrever o serviço realizado (máx.
+                                    5):</label>
+                                <div class="row g-2">
+                                    {% for i in "12345" %}
+                                        <div class="col-md-4 col-6">
+                                            {{ form|get_field:forloop.counter0 }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">Digite até 5 palavras-chave individuais</small>
+                            </div>
+                        </div>
+
+                        {% if not visualizacao %}
+                            <div class="card-footer bg-light">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                        <i class="bi bi-arrow-left"></i> Voltar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Enviar Pesquisa
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/scripts_coordenador_monitoria.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load custom_filter_tags_avaliacao %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+    <link rel="stylesheet" href="{% static 'css/style_avaliacao_coordenacao_monitoria.css' %}">
+    <div class="container py-5">
+        <div class="row justify-content-center w-75">
+            <div class="col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2 class="h4 mb-0">Pesquisa de Satisfação</h2>
+                        <p class="mb-0">Avaliação da equipe de coordenadores</p>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <!-- Seção 1: Informações Fixas -->
+                            <section class="mb-2 text-center">
+                                <h3 class="h5 mb-3 text-primary">Informações Gerais</h3>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Avaliador:</strong></p>
+                                        <p>{{ form.nome_avaliador }}</p>
+                                        {% if form.nome_avaliador.errors %}
+                                            {% for error in form.nome_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Cargo:</strong></p>
+                                        <p>{{ form.cargo_avaliador }}</p>
+                                        {% if form.cargo_avaliador.errors %}
+                                            {% for error in form.cargo_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Telefone:</strong></p>
+                                        <p>{{ form.telefone_avaliador }}</p>
+                                        {% if form.telefone_avaliador.errors %}
+                                            {% for error in form.telefone_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>E-mail:</strong></p>
+                                        <p>{{ form.email_avaliador }}</p>
+                                        {% if form.email_avaliador.errors %}
+                                            <p class="erro-dados-avaliador">
+                                                {% for error in form.email_avaliador.errors %}
+                                                    *{{ error }}
+                                                {% endfor %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Cliente:</strong></p>
+                                        <p>{{ ordem.instituicao }}</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <hr>
+
+                            <!-- Seção 2: Avaliações Individuais -->
+                            <section class="mb-5">
+                                <h3 class="h5 mb-3 text-primary">Avaliação individual dos Coordenadores</h3>
+                                <div class="h6 mb-3 text-uppercase">
+                                    <strong>
+                                        Você deve avaliar a equipe de coordenação como um todo e colocar as observações
+                                        caso haja algum caso específico!
+                                    </strong>
+                                </div>
+                                {{ avaliacao_coordenadores_formset.management_form }}
+                                <table class="table">
+                                    <thead class="text-center">
+                                    <tr>
+                                        <th>Coordenador</th>
+                                        <th>Avaliação</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="avaliacoes-container">
+                                    {% for form in avaliacao_coordenadores_formset %}
+                                        <tr data-has-obs="true" class="avaliacao-item align-middle">
+                                            <td>
+                                                {{ form.coordenador }}
+                                            </td>
+                                            <td>
+                                                {{ form.avaliacao }}
+                                                {% if form.avaliacao.errors %}
+                                                    <div class="text-danger">{{ form.avaliacao.errors }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="obs-cell {% if form.avaliacao <= 2 %}obs-obrigatoria{% endif %}">
+                                                {{ form.observacao }}
+                                                {% for error in form.observacao.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% if form.coordenador.errors %}
+                                            {% for error in form.coordenador.errors %}
+                                                <tr>
+                                                    <td rowspan="3" class="invalid-feedback d-block">
+                                                        *{{ error }}
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <!-- Seção 3: Avaliações das atividades -->
+                            <section class="mb-5">
+                                <h3 class="h5 mb-3 text-primary">Avaliação individual das atividades</h3>
+                                <div class="h6 mb-3 text-uppercase">
+                                    <strong>
+                                        Você deve avaliar as atividades realizadas. Utilize o campo de observação para
+                                        comentar eventuais pontos positivos, dificuldades encontradas ou sugestões de melhoria.
+                                    </strong>
+                                </div>
+                                {{ avaliacao_atividades_formset.management_form }}
+                                <table class="table">
+                                    <thead class="text-center">
+                                    <tr>
+                                        <th>Atividade</th>
+                                        <th>Avaliação</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="avaliacoes-container">
+                                    {% for form in avaliacao_atividades_formset %}
+                                        <tr data-has-obs="true" class="avaliacao-item align-middle">
+                                            <td>
+                                                {{ form.atividade_combinada }}
+                                                {{ form.atividade.as_hidden }}
+                                                {{ form.atividade_content_type.as_hidden }}
+                                                {{ form.atividade_object_id.as_hidden }}
+                                            </td>
+                                            <td>
+                                                {{ form.avaliacao }}
+                                                {% if form.avaliacao.errors %}
+                                                    <div class="text-danger">{{ form.avaliacao.errors }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="obs-cell {% if form.avaliacao <= 2 %}obs-obrigatoria{% endif %}">
+                                                {{ form.observacao }}
+                                                {% for error in form.observacao.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% if form.atividade_combinada.errors %}
+                                            {% for error in form.atividade_combinada.errors %}
+                                                <tr>
+                                                    <td rowspan="3" class="invalid-feedback d-block">
+                                                        *{{ error }}
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <!-- Seção 4: Avaliação Geral -->
+                            <section class="mb-5">
+                                <h3 class="h5 mb-3 text-primary">Avaliações Gerais</h3>
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                <table id="tabela-avaliacao-geral" class="form-table">
+                                    <thead class="text-center">
+                                    <tr class="border-top border-dark">
+                                        <th>Pergunta</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                    <tr class="mensagem-observacoes text-danger border-bottom border-dark">
+                                        <th colspan="2" class="p-2">EM CASO DE RESPOSTAS "NÃO" OU "REGULAR" OU "RUIM" É
+                                            OBRIGATÓRIO PREENCHER O CAMPO DE OBSERVAÇÃO!
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for field in form.visible_fields %}
+                                        {% if field.name not in campos_nao_tabelaveis %}
+                                            {% if not field.name|slice:'-3:' == 'obs' %}
+                                                <tr {% if field.name != 'volta_proximo_ano' %} data-has-obs="true" {% endif %}>
+                                                    <!-- Coluna da Pergunta -->
+                                                    <td class="pergunta-cell">
+                                                        <div class="mb-3">
+                                                            {{ field.label_tag }}
+                                                            {{ field }}
+                                                            {% if field.help_text %}
+                                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                                            {% endif %}
+                                                            {% for error in field.errors %}
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ error }}
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Coluna da Observação -->
+                                                    <td class="obs-cell {% if field.value in "False, 2, 1" %}obs-obrigatoria{% endif %}">
+                                                        {% with obs_field=form|get_obs_field:field.name %}
+                                                            {% if obs_field %}
+                                                                <div class="mb-3 mt-3">
+                                                                    {{ obs_field }}
+                                                                    {% for error in obs_field.errors %}
+                                                                        <div class="invalid-feedback d-block">
+                                                                            {{ error }}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="2" class="pergunta-cell align-middle">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.motivo_trazer_grupo.label_tag }}
+                                                {{ form.motivo_trazer_grupo }}
+                                                {% if form.material_divigulgacao.help_text %}
+                                                    <small class="form-text text-muted">{{ form.motivo_trazer_grupo.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.motivo_trazer_grupo.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td class="pergunta-cell none">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.outros_motivos }}
+                                                {% if form.material_divigulgacao.help_text %}
+                                                    <small class="form-text text-muted">{{ form.outros_motivos.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.outros_motivos.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pergunta-cell align-baseline">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.material_divigulgacao.label_tag }}
+                                                {{ form.material_divigulgacao }}
+                                                {% if form.material_divigulgacao.help_text %}
+                                                    <small class="form-text text-muted">{{ form.material_divigulgacao.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.material_divigulgacao.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+
+                                        <td class="pergunta-cell">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.interesse_hospedar_com_familia.label_tag }}
+                                                {{ form.interesse_hospedar_com_familia }}
+                                                {% if form.interesse_hospedar_com_familia.help_text %}
+                                                    <small class="form-text text-muted text-">{{ form.interesse_hospedar_com_familia.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.interesse_hospedar_com_familia.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="pergunta-cell align-bottom">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.destaque.label_tag }}
+                                                {{ form.destaque }}
+                                                {% if form.destaque.help_text %}
+                                                    <small class="form-text text-muted">{{ form.destaque.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.destaque.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="pergunta-cell align-bottom">
+                                            <div class="mb-3 mt-3">
+                                                {{ form.sugestoes.label_tag }}
+                                                {{ form.sugestoes }}
+                                                {% if form.sugestoes.help_text %}
+                                                    <small class="form-text text-muted">{{ form.sugestoes.help_text }}</small>
+                                                {% endif %}
+                                                {% for error in form.sugestoes.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                        {% if not visualizacao %}
+                            <div class="card-footer bg-light botoes">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                        <i class="bi bi-arrow-left"></i> Voltar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Enviar Pesquisa
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/masks.js' %}"></script>
+    <script src="{% static 'js/scripts_coordenador_monitoria.js' %}"></script>
+{% endblock %}

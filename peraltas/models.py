@@ -714,6 +714,17 @@ class FichaDeEvento(models.Model):
 
         return dados
 
+    @property
+    def refeicoes_realizadas(self):
+        refeicoes = set()
+
+        for refeicao in self.refeicoes.values():
+            for ref in refeicao:
+                print(ref)
+                refeicoes.add(ref)
+
+        return list(refeicoes)
+
     def separar_informacoes_locacoes(self):
         dados = []
 
@@ -1101,6 +1112,7 @@ class EscalaAcampamento(models.Model):
     observacoes = models.TextField(null=True)
     pre_escala = models.BooleanField(default=False)
     racional_monitores = models.PositiveIntegerField(default=10)
+    avaliou_coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='avaliou_coordenadores')
 
     def tipo_escala(self):
         if self.ficha_de_evento.produto.colegio:
@@ -1110,6 +1122,20 @@ class EscalaAcampamento(models.Model):
 
     class Meta:
         permissions = (('confirmar_escala', 'Confirmar Escala'),)
+
+    @property
+    def coordenadores(self):
+        if self.ficha_de_evento.os:
+            ordem = Eventos.objects.get(ficha_de_evento=self.ficha_de_evento).ordem_de_servico
+
+            return ', '.join([coordenador.usuario.get_full_name() for coordenador in ordem.monitor_responsavel.all()])
+
+        return 'Sem monitor definido.'
+
+    @property
+    def id_ordem_de_servico(self):
+        if self.ficha_de_evento.os:
+            return Eventos.objects.get(ficha_de_evento=self.ficha_de_evento).ordem_de_servico.id
 
     @property
     def valores_escala(self):
