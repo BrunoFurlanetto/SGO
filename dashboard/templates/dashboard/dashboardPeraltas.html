@@ -401,7 +401,7 @@
                         {% for sem_escala in sem_escalas %}
                             <tr style="cursor: pointer"
                                 onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.cliente.id %}'">
-                                <td>{{ sem_escala.cliente }}</td>Add commentMore actions
+                                <td>{{ sem_escala.cliente }}</td>
                                 <td>{{ sem_escala.produto }}</td>
                                 <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
