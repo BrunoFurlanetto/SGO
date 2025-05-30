@@ -390,34 +390,23 @@
                            style="border-top: solid">
                         <thead>
                         <tr>
-                            <th>Cliente</th>
-                            <th>Produto</th>
+                            <th style="width: 450px">Cliente</th>More actions
+                            <th style="width: 150px">Produto</th>
                             <th>Estimado</th>
-                            <th>Reservado</th>
-                            <th>Monitoria</th>
-                            <th>Professores dormem em quarto?</th>
-                            <th>Tipo acomodação professores</th>
-                            <th>Transporte</th>
-                            <th>Check in</th>
-                            {% if diretoria or operacional %}
-                                <th>Colaborador</th> {% endif %}
+                            <th style="width: 250px">Check in</th>
+                            <th>Colaborador</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for sem_escala in sem_escalas %}
                             <tr style="cursor: pointer"
                                 onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.cliente.id %}'">
-                                <td>{{ sem_escala.cliente }}</td>
+                                <td>{{ sem_escala.cliente }}</td>Add commentMore actions
                                 <td>{{ sem_escala.produto }}</td>
                                 <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
-                                <td>{{ ficha.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
-                                <td>{{ ficha.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
-                                <td>{{ ficha.informacoes_adcionais.professores_em_quarto.tipo }}</td>
-                                <td>{{ ficha.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não'}}</td>
-                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
-                                {% if diretoria or operacional %}
-                                    <td> {{ ficha.vendedora }} </td> {% endif %}
+                                <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
+                                <td> {{ sem_escala.vendedora }} </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -434,35 +423,50 @@
                         </caption>
                         <thead>
                         <tr>
-                            <th>Cliente</th>
-                            <th>Produto</th>
-                            <th>Participantes</th>
-                            <th>Check in</th>
-                            <th>Monitoria</th>
-                            <th>Professores dormem em quarto?</th>
-                            <th>Tipo acomodação professores</th>
-                            <th>Transporte</th>
-                            {% if diretoria or operacional %}
-                                <th>Colaborador</th> {% endif %}
+                            <th style="width: 450px">Cliente</th>Add commentMore actions
+                            <th style="width: 150px">Produto</th>
+                            <th>Estimado</th>
+                            <th style="width: 250px">Check in</th>
+                            <th>Colaborador</th>
+                            <th>Valor da escala</th>
+                            <th>Contagem por nível</th>
+                            <th>Confirmada</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for escala in escalas_feitas %}
                             <tr>
-                                <td>
-                                    <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.cliente.id %}">{{ escala.cliente }}</a>
-                                </td>
-                                <td>{{ escala.ficha_de_evento.produto }}</td>
-                                <td>{% if escala.ficha_de_evento.qtd_convidada %}
-                                    {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
-                                    0 {% endif %}</td>
-                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
-                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
-                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
-                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_em_quarto.tipo }}</td>
-                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
-                                {% if diretoria or operacional %}
-                                    <td> {{ ordem.vendedor }} </td> {% endif %}
+                                <td>{{ com_escala.cliente }}</td>Add commentMore actions
+                                    <td>{{ com_escala.produto }}</td>
+                                    <td>{% if com_escala.qtd_convidada %} {{ com_escala.qtd_convidada }} {% else %} {{ com_escala.qtd_reservada }} {% endif %}
+                                    <td>
+                                        <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.cliente.id %}">{{ escala.cliente }}</a>
+                                    </td>
+                                    <td>{{ escala.ficha_de_evento.produto }}</td>
+                                    <td>{% if escala.ficha_de_evento.qtd_convidada %}
+                                        {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
+                                        0 {% endif %}</td>
+                                    <td>{{ com_escala.check_in| date:'Y-m-d' }}</td>
+                                    <td> {{ com_escala.vendedora }} </td>
+                                    <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
+                                    <td> {{ escala.ficha_de_evento.vendedora }} </td>
+                                    <td>
+                                        <nobr>R$ {{ escala.valores_escala|floatformat:'2' }}*</nobr>
+                                    </td>
+                                    <td>
+                                        {% for nivel, contagem in escala.contagem_niveis.items %}
+                                            {{ nivel }}: {{ contagem }},
+                                        {% endfor %}
+                                    </td>
+                                    <td tabindex="0">
+                                        {% if escala.pre_escala %}
+                                            <button type="button" class="btn-confirmar-escala"
+                                                    onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
+                                                Não
+                                            </button>
+                                        {% endif %}
+                                        Sim
+                                    </td>
                             </tr>
                         {% endfor %}
                         </tbody>
