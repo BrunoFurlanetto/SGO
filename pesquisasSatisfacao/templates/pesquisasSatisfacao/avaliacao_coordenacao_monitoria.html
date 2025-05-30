@@ -335,17 +335,18 @@
                                 <small class="text-muted">Digite até 5 palavras-chave individuais</small>
                             </div>
                         </div>
-
-                        <div class="card-footer bg-light">
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" onclick="history.back()">
-                                    <i class="bi bi-arrow-left"></i> Voltar
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-circle"></i> Enviar Pesquisa
-                                </button>
+                        {% if not visualizacao %}
+                            <div class="card-footer bg-light">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                        <i class="bi bi-arrow-left"></i> Voltar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Enviar Pesquisa
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>

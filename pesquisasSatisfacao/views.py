@@ -14,7 +14,8 @@ from pesquisasSatisfacao.forms_corporativo import AvaliacaoCorporativoForm, Aval
 from pesquisasSatisfacao.forms_escolas import AvaliacaoColegioForm, AvaliacaoIndividualAtividadeForm
 from pesquisasSatisfacao.forms_monitores import MonitoriaAvaliandoCoordenacaoForm, AvaliacaoIndividualCoordenadorForm
 from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtividades, DesempenhoAcimaMedia, \
-    MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador, AvaliacaoIndividualAtividade, AvaliacaoIndividualSala
+    MonitorAvaliandoCoordenacao, AvaliacaoIndividualCoordenador, AvaliacaoIndividualAtividade, AvaliacaoIndividualSala, \
+    AvaliacaoColegio, AvaliacaoCorporativo, CoordenacaoAvaliandoMonitoria
 
 
 @login_required(login_url='login')
@@ -503,5 +504,261 @@ def avaliacao_corporativo(request, id_ordem_de_servico):
             'cargo_avaliador',
             'telefone_avaliador',
             'email_avaliador',
+        ]
+    })
+
+
+@login_required(login_url='login')
+def ver_avaliacao_colegio(request, id_avaliacao):
+    avaliacao = get_object_or_404(AvaliacaoColegio, pk=id_avaliacao)
+    ordem = get_object_or_404(OrdemDeServico, pk=avaliacao.ordem_de_servico.pk)
+    content_type = ContentType.objects.get_for_model(AvaliacaoColegio)
+
+    # Form principal preenchido com instância, não com initial
+    form = AvaliacaoColegioForm(instance=avaliacao)
+
+    # Desabilita todos os campos do form
+    for field in form.fields.values():
+        field.disabled = True
+
+    # Coordenadores
+    coordenadores_qs = AvaliacaoIndividualCoordenador.objects.filter(content_type=content_type, object_id=avaliacao.pk)
+    AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+        AvaliacaoIndividualCoordenador,
+        form=AvaliacaoIndividualCoordenadorForm,
+        extra=0,
+        can_delete=False
+    )
+    avaliacao_coordenadores = AvaliacaoIndividualCoordenadorFormSet(
+        queryset=coordenadores_qs,
+        prefix='avaliacao_coordenadores'
+    )
+    for formset_form in avaliacao_coordenadores:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    # Atividades
+    atividades_qs = AvaliacaoIndividualAtividade.objects.filter(
+        pesquisa_content_type=content_type,
+        pesquisa_object_id=avaliacao.pk
+    )
+    AvaliacaoIndividualatividadeFormSet = modelformset_factory(
+        AvaliacaoIndividualAtividade,
+        form=AvaliacaoIndividualAtividadeForm,
+        extra=0,
+        can_delete=False
+    )
+    avaliacao_atividades = AvaliacaoIndividualatividadeFormSet(
+        queryset=atividades_qs,
+        prefix='avaliacao_atividade'
+    )
+    for formset_form in avaliacao_atividades:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_colegios.html', {
+        'form': form,
+        'avaliacao_coordenadores_formset': avaliacao_coordenadores,
+        'avaliacao_atividades_formset': avaliacao_atividades,
+        'ordem': ordem,
+        'visualizacao': True,  # Flag para template tratar como visualização
+        'campos_nao_tabelaveis': [
+            'destaque',
+            'sugestoes',
+            'motivo_trazer_grupo',
+            'outros_motivos',
+            'material_divigulgacao',
+            'interesse_hospedar_com_familia',
+            'nome_avaliador',
+            'cargo_avaliador',
+            'telefone_avaliador',
+            'email_avaliador',
+        ]
+    })
+
+
+@login_required(login_url='login')
+def ver_avaliacao_corporativo(request, id_avaliacao):
+    avaliacao = get_object_or_404(AvaliacaoCorporativo, pk=id_avaliacao)
+    ordem = get_object_or_404(OrdemDeServico, pk=avaliacao.ordem_de_servico.pk)
+    content_type = ContentType.objects.get_for_model(AvaliacaoCorporativo)
+
+    # Form principal preenchido com instância, não com initial
+    form = AvaliacaoCorporativoForm(instance=avaliacao)
+
+    # Desabilita todos os campos do form
+    for field in form.fields.values():
+        field.disabled = True
+
+    # Coordenadores
+    coordenadores_qs = AvaliacaoIndividualCoordenador.objects.filter(content_type=content_type, object_id=avaliacao.pk)
+    AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+        AvaliacaoIndividualCoordenador,
+        form=AvaliacaoIndividualCoordenadorForm,
+        extra=0,
+        can_delete=False
+    )
+    avaliacao_coordenadores = AvaliacaoIndividualCoordenadorFormSet(
+        queryset=coordenadores_qs,
+        prefix='avaliacao_coordenadores'
+    )
+    for formset_form in avaliacao_coordenadores:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    # Atividades
+    salas_qs = AvaliacaoIndividualSala.objects.filter(
+        pesquisa_corporativo_content_type=content_type,
+        pesquisa_corporativo_object_id=avaliacao.pk
+    )
+    AvaliacaoIndividualSalaFormSet = modelformset_factory(
+        AvaliacaoIndividualSala,
+        form=AvaliacaoIndividualSalaForm,
+        extra=0,
+        can_delete=False
+    )
+    avaliacao_salas = AvaliacaoIndividualSalaFormSet(
+        queryset=salas_qs,
+        prefix='avaliacao_salas'
+    )
+    for formset_form in avaliacao_salas:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_corporativo.html', {
+        'form': form,
+        'avaliacao_coordenadores_formset': avaliacao_coordenadores,
+        'avaliacao_salas_formset': avaliacao_salas,
+        'ordem': ordem,
+        'visualizacao': True,  # Flag para template tratar como visualização
+        'campos_nao_tabelaveis': [
+            'mais_valorizou',
+            'sugestoes',
+            'material_divigulgacao',
+            'interesse_hospedar_com_familia',
+            'nome_avaliador',
+            'cargo_avaliador',
+            'telefone_avaliador',
+            'email_avaliador',
+        ]
+    })
+
+
+@login_required(login_url='login')
+def ver_avaliacao_monitores(request, id_avaliacao):
+    pesquisa = get_object_or_404(CoordenacaoAvaliandoMonitoria, pk=id_avaliacao)
+    ordem = pesquisa.ordem_de_servico
+    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+    monitores = escala.monitores_acampamento.all().exclude(usuario=request.user).order_by('usuario__first_name')
+
+    # Formulário principal com dados e campos desabilitados
+    form = CoordenacaoAvaliandoMonitoriaForm(instance=pesquisa, monitores=monitores)
+    for field in form.fields.values():
+        field.disabled = True
+
+    # Formset Avaliação Individual Monitor
+    AvaliacaoIndividualMonitorFormSet = modelformset_factory(
+        AvaliacaoIndividualMonitor,
+        form=AvaliacaoIndividualMonitorForm,
+        extra=0,
+    )
+    avaliacao_qs = AvaliacaoIndividualMonitor.objects.filter(avaliacao_geral=pesquisa.id)
+    avaliacao = AvaliacaoIndividualMonitorFormSet(queryset=avaliacao_qs, prefix='avaliacao')
+    for formset_form in avaliacao:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    # Formset Destaque Atividades
+    DestaqueAtividadesFormSet = modelformset_factory(
+        DestaqueAtividades,
+        form=DestaqueAtividadesForm,
+        extra=0,
+    )
+    destaque_qs = DestaqueAtividades.objects.filter(avaliacao=pesquisa.id)
+    destaque = DestaqueAtividadesFormSet(queryset=destaque_qs, prefix='destaques', form_kwargs={'monitores': monitores})
+    for formset_form in destaque:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    # Formset Desempenho Acima da Média
+    DesempenhoAcimaMediaFormSet = modelformset_factory(
+        DesempenhoAcimaMedia,
+        form=DesempenhoAcimaMediaForm,
+        extra=0,
+    )
+    desempenho_qs = DesempenhoAcimaMedia.objects.filter(avaliacao=pesquisa)
+    desempenho = DesempenhoAcimaMediaFormSet(queryset=desempenho_qs, prefix='desempenho',
+                                             form_kwargs={'monitores': monitores})
+    for formset_form in desempenho:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_coordenacao_monitoria.html', {
+        'form': form,
+        'avaliacao_formset': avaliacao,
+        'destaque_formset': destaque,
+        'desempenho_formset': desempenho,
+        'ordem': ordem,
+        'monitores': monitores,
+        'visualizacao': True,
+        'campos_nao_tabelaveis': [
+            'observacoes_equipe',
+            'palavras_descricao',
+            'palavra_1',
+            'palavra_2',
+            'palavra_3',
+            'palavra_4',
+            'palavra_5',
+            'monitores_destaque_pedagogicas',
+            'monitores_destaque_evento',
+        ]
+    })
+
+
+def ver_avaliacao_coordenadores(request, id_avaliacao):
+    # Busca a avaliação (modelo CoordenacaoAvaliandoMonitoria, ou o seu modelo correto) pelo ID
+    pesquisa = get_object_or_404(MonitorAvaliandoCoordenacao, pk=id_avaliacao)
+
+    # Obtém a ordem e a escala relacionados para contexto
+    ordem = pesquisa.ordem_de_servico
+    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
+    coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
+
+    # Form principal desabilitado (somente leitura)
+    form = MonitoriaAvaliandoCoordenacaoForm(instance=pesquisa)
+    for field in form.fields.values():
+        field.disabled = True
+
+    # Formset das avaliações individuais do coordenador, desabilitado também
+    AvaliacaoIndividualCoordenadorFormSet = modelformset_factory(
+        AvaliacaoIndividualCoordenador,
+        form=AvaliacaoIndividualCoordenadorForm,
+        extra=0,
+    )
+    avaliacao_qs = AvaliacaoIndividualCoordenador.objects.filter(
+        content_type=ContentType.objects.get_for_model(pesquisa),
+        object_id=pesquisa.id
+    )
+    avaliacao = AvaliacaoIndividualCoordenadorFormSet(queryset=avaliacao_qs, prefix='avaliacao')
+    for formset_form in avaliacao:
+        for field in formset_form.fields.values():
+            field.disabled = True
+
+    return render(request, 'pesquisasSatisfacao/avaliacao_monitoria_coordenacao.html', {
+        'form': form,
+        'avaliacao_formset': avaliacao,
+        'ordem': ordem,
+        'visualizacao': True,
+        'campos_nao_tabelaveis': [
+            'palavra_1',
+            'palavra_2',
+            'palavra_3',
+            'palavra_4',
+            'palavra_5',
+            'palavras_chave',
+            'tem_consideracoes_pedagogicas',
+            'teve_briefing',
+            'teve_feedback',
+            'coordenador_participou',
         ]
     })
