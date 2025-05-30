@@ -23,19 +23,47 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Avaliador:</strong></p>
-                                        <p>{{ ordem.responsavel_grupo }}</p>
+                                        <p>{{ form.nome_avaliador }}</p>
+                                        {% if form.nome_avaliador.errors %}
+                                            {% for error in form.nome_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Cargo:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.listar_cargos }}</p>
+                                        <p>{{ form.cargo_avaliador }}</p>
+                                        {% if form.cargo_avaliador.errors %}
+                                            {% for error in form.cargo_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Telefone:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.fone }}</p>
+                                        <p>{{ form.telefone_avaliador }}</p>
+                                        {% if form.telefone_avaliador.errors %}
+                                            {% for error in form.telefone_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>E-mail:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.email_responsavel_evento }}</p>
+                                        <p>{{ form.email_avaliador }}</p>
+                                        {% if form.email_avaliador.errors %}
+                                            <p class="erro-dados-avaliador">
+                                                {% for error in form.email_avaliador.errors %}
+                                                    *{{ error }}
+                                                {% endfor %}
+                                            </p>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>Cliente:</strong></p>
@@ -103,10 +131,10 @@
 
                             <!-- Seção 3: Avaliações das atividades -->
                             <section class="mb-5">
-                                <h3 class="h5 mb-3 text-primary">Avaliação individual das atividades</h3>
+                                <h3 class="h5 mb-3 text-primary">Avaliação individual das salas</h3>
                                 <div class="h6 mb-3 text-uppercase">
                                     <strong>
-                                        Você deve avaliar as atividades realizadas. Utilize o campo de observação para
+                                        Você deve avaliar as salas utilizadas. Utilize o campo de observação para
                                         comentar eventuais pontos positivos, dificuldades encontradas ou sugestões de melhoria.
                                     </strong>
                                 </div>

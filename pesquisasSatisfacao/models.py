@@ -490,7 +490,10 @@ class OpcoesMotivacao(models.Model):
 
 
 class AvaliacaoColegio(PesquisaDeSatisfacao):
-    avaliador = models.ForeignKey(Responsavel, on_delete=models.PROTECT)
+    nome_avaliador = models.CharField(max_length=255)
+    cargo_avaliador = models.CharField(max_length=255)
+    telefone_avaliador = models.CharField(max_length=255)
+    email_avaliador = models.EmailField()
 
     # Pergunta 1
     processo_vendas = models.IntegerField(
@@ -622,7 +625,10 @@ class AvaliacaoColegio(PesquisaDeSatisfacao):
 # ----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ Avaliação corporativo -----------------------------------------------------
 class AvaliacaoCorporativo(PesquisaDeSatisfacao):
-    avaliador = models.ForeignKey(Responsavel, models.PROTECT)
+    nome_avaliador = models.CharField(max_length=255)
+    cargo_avaliador = models.CharField(max_length=255)
+    telefone_avaliador = models.CharField(max_length=255)
+    email_avaliador = models.EmailField()
 
     # Pergunta 1 - Avaliações dos coordenadores será feito em outro model
     # Perguta 2
@@ -652,6 +658,7 @@ class AvaliacaoCorporativo(PesquisaDeSatisfacao):
     coffee_break = models.IntegerField(
         choices=PesquisaDeSatisfacao.choices_avaliacoes,
         verbose_name='Comente sobre o coffee break',
+        blank=True, null=True
     )
     coffee_break_obs = models.TextField(blank=True)
 
@@ -723,26 +730,3 @@ class AvaliacaoCorporativo(PesquisaDeSatisfacao):
         self._meta.get_field('volta_proximo_ano').verbose_name = (
             f'Faria outro evento no Brotas ECO, em {timezone.now().year + 1}?'
         )
-
-
-class Avaliacao(models.Model):
-    avaliador = models.ForeignKey(Monitor, on_delete=models.PROTECT, related_name='avaliacoes_feitas')
-    nota = models.PositiveIntegerField()
-    tipo = models.CharField(max_length=20, choices=[('coordenador', 'Coordenador'), ('monitor', 'Monitor')])
-    avaliacao_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    avaliacao_object_id = models.PositiveIntegerField()
-    avaliacao = GenericForeignKey('avaliacao_content_type', 'avaliacao_object_id')
-
-
-class NotaEvento(models.Model):
-    ordem_de_servico = models.ForeignKey(OrdemDeServico, on_delete=models.PROTECT)
-    avaliado = models.ForeignKey(Monitor, on_delete=models.PROTECT)
-    avaliado_como_coordenador = models.BooleanField(default=False)
-    nota_cliente = models.FloatField(null=True, blank=True)
-    nota_media_coordenadores = models.FloatField(null=True, blank=True)
-    nota_media_monitores = models.FloatField(null=True, blank=True)
-    media_final = models.FloatField(null=True, blank=True)
-    avaliacoes = models.ManyToManyField(Avaliacao)
-
-    class Meta:
-        unique_together = ('ordem_de_servico', 'avaliado')

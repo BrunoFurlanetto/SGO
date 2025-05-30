@@ -352,3 +352,15 @@ function toggleOutrosMotivos() {
         tdObs.addClass('none');
     }
 }
+
+$('#id_telefone_avaliador').mask('(00) 0 0000-00009');
+
+$('#id_telefone_avaliador').blur(function(event) {
+    if ($(this).val().length === 16) {
+        // Celular com 9 dígitos
+        $(this).mask('(00) 0 0000-0009');
+    } else {
+        // Telefone fixo
+        $(this).mask('(00) 0000-0000');
+    }
+});

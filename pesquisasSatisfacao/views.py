@@ -327,6 +327,10 @@ def avaliacao_colegio(request, id_ordem_de_servico):
                 'ordem_de_servico': ordem,
                 'avaliador': ordem.ficha_de_evento.responsavel_evento,
                 'escala_peraltas': escala,
+                'nome_avaliador': ordem.responsavel_grupo,
+                'cargo_avaliador': ordem.ficha_de_evento.responsavel_evento.listar_cargos,
+                'telefone_avaliador': ordem.ficha_de_evento.responsavel_evento.fone,
+                'email_avaliador': ordem.ficha_de_evento.responsavel_evento.email_responsavel_evento,
             },
             refeicoes_realizadas=ordem.ficha_de_evento.refeicoes_realizadas,
         )
@@ -366,6 +370,10 @@ def avaliacao_colegio(request, id_ordem_de_servico):
             'outros_motivos',
             'material_divigulgacao',
             'interesse_hospedar_com_familia',
+            'nome_avaliador',
+            'cargo_avaliador',
+            'telefone_avaliador',
+            'email_avaliador',
         ]
     })
 
@@ -450,6 +458,10 @@ def avaliacao_corporativo(request, id_ordem_de_servico):
                 'ordem_de_servico': ordem,
                 'avaliador': ordem.ficha_de_evento.responsavel_evento,
                 'escala_peraltas': escala,
+                'nome_avaliador': ordem.responsavel_grupo,
+                'cargo_avaliador': ordem.ficha_de_evento.responsavel_evento.listar_cargos,
+                'telefone_avaliador': ordem.ficha_de_evento.responsavel_evento.fone,
+                'email_avaliador': ordem.ficha_de_evento.responsavel_evento.email_responsavel_evento,
             },
             refeicoes_realizadas=ordem.ficha_de_evento.refeicoes_realizadas,
         )
@@ -487,5 +499,9 @@ def avaliacao_corporativo(request, id_ordem_de_servico):
             'sugestoes',
             'material_divigulgacao',
             'interesse_hospedar_com_familia',
+            'nome_avaliador',
+            'cargo_avaliador',
+            'telefone_avaliador',
+            'email_avaliador',
         ]
     })

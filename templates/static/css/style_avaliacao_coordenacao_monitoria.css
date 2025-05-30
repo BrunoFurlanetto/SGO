@@ -122,3 +122,9 @@
     pointer-events: none;
     background: transparent;
 }
+
+.erro-dados-avaliador {
+    margin-top: -1rem;
+    color: #FF0000FF;
+    text-align: left;
+}

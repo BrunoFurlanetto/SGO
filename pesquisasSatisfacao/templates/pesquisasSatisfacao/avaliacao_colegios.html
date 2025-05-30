@@ -23,19 +23,47 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Avaliador:</strong></p>
-                                        <p>{{ ordem.responsavel_grupo }}</p>
+                                        <p>{{ form.nome_avaliador }}</p>
+                                        {% if form.nome_avaliador.errors %}
+                                            {% for error in form.nome_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Cargo:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.listar_cargos }}</p>
+                                        <p>{{ form.cargo_avaliador }}</p>
+                                        {% if form.cargo_avaliador.errors %}
+                                            {% for error in form.cargo_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Telefone:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.fone }}</p>
+                                        <p>{{ form.telefone_avaliador }}</p>
+                                        {% if form.telefone_avaliador.errors %}
+                                            {% for error in form.telefone_avaliador.errors %}
+                                                <p class="erro-dados-avaliador">
+                                                    *{{ error }}
+                                                </p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>E-mail:</strong></p>
-                                        <p>{{ ordem.ficha_de_evento.responsavel_evento.email_responsavel_evento }}</p>
+                                        <p>{{ form.email_avaliador }}</p>
+                                        {% if form.email_avaliador.errors %}
+                                            <p class="erro-dados-avaliador">
+                                                {% for error in form.email_avaliador.errors %}
+                                                    *{{ error }}
+                                                {% endfor %}
+                                            </p>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>Cliente:</strong></p>
@@ -330,5 +358,6 @@
         </div>
     </div>
 
+    <script src="{% static 'js/masks.js' %}"></script>
     <script src="{% static 'js/scripts_coordenador_monitoria.js' %}"></script>
 {% endblock %}
