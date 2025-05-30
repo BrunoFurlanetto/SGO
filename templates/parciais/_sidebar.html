@@ -62,27 +62,27 @@
                     <li>
                 {% endif %}
 
-                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                    <a href="{% url 'resumo_atividades' %}">
-                        <i class='bx bx-notepad'></i>
-                        <span class="link_name">Resumo professores</span>
-                    </a>
-                {% endif %}
-
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>
-                </ul>
-                </li>
-
-                {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                        <li class="item-sidebar">
-                            {% else %}
-                        <li>
-                    {% endif %}
-                {% else %}
-                    <li>
-                {% endif %}
+{#                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                    <a href="{% url 'resumo_atividades' %}">#}
+{#                        <i class='bx bx-notepad'></i>#}
+{#                        <span class="link_name">Resumo professores</span>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{##}
+{#                <ul class="sub-menu blank">#}
+{#                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>#}
+{#                </ul>#}
+{#                </li>#}
+{##}
+{#                {% if 'dashboard' in request.path %}#}
+{#                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                        <li class="item-sidebar">#}
+{#                            {% else %}#}
+{#                        <li>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
+{#                    <li>#}
+{#                {% endif %}#}
                 {#                {% if perms.peraltas.add_listadecargos %}#}
                 {#                    <a href="{% url 'painelGeral' %}">#}
                 {#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
@@ -138,8 +138,8 @@
 
                         {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                             <li><a href="{% url 'publico' %}">Público</a></li>
-                            <li><a href="{% url 'colegio' %}">Colégio</a></li>
-                            <li><a href="{% url 'empresa' %}">Empresa</a></li>
+{#                            <li><a href="{% url 'colegio' %}">Colégio</a></li>#}
+{#                            <li><a href="{% url 'empresa' %}">Empresa</a></li>#}
                         {% endif %}
 
                         {% if perms.ordemDeServico.add_ordemdeservico %}
@@ -215,7 +215,7 @@
                     <li>
                 {% endif %}
 
-                {% if perms.peraltas.view_fichadeevento %}
+                {% if perms.peraltas.view_prereserva or perms.peraltas.view_fichadeevento or perms.ordemDeServico.view_ordemdeservico %}
                     <a href="{% url 'calendario_eventos' %}">
                         <i class='bx bx-calendar'></i>
                         <span class="link_name">Eventos</span>

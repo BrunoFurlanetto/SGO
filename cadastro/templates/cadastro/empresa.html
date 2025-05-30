@@ -10,24 +10,24 @@
             <h2>RELATÓRIO DE ATENDIMENTO DA EMPRESA</h2>
         </div>
         <hr>
-        {% if not relatorio %}
-            <div>
-                <form action="{% url 'empresa' %}" method="GET">
-                    <fieldset>
-                        <label for="empresa">Empresa</label>
-                        <select class="select-control mr-sm-2" id="empresa" name="empresa" onchange="this.form.submit()"
-                                required>
-                            <option selected></option>
-                            {% for empresa in empresas %}
-                                <option value="{{ empresa.id }}" {% if empresa.id == ordem.id %}
-                                        selected {% endif %}>{{ empresa.ficha_de_evento.cliente }}</option>
-                            {% endfor %}
-                        </select>
-                    </fieldset>
-                </form>
-                <hr>
-            </div>
-        {% endif %}
+{#        {% if not relatorio %}#}
+{#            <div>#}
+{#                <form action="{% url 'empresa' %}" method="GET">#}
+{#                    <fieldset>#}
+{#                        <label for="empresa">Empresa</label>#}
+{#                        <select class="select-control mr-sm-2" id="empresa" name="empresa" onchange="this.form.submit()"#}
+{#                                required>#}
+{#                            <option selected></option>#}
+{#                            {% for empresa in empresas %}#}
+{#                                <option value="{{ empresa.id }}" {% if empresa.id == ordem.id %}#}
+{#                                        selected {% endif %}>{{ empresa.ficha_de_evento.cliente }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </fieldset>#}
+{#                </form>#}
+{#                <hr>#}
+{#            </div>#}
+{#        {% endif %}#}
         {% if ordem or relatorio %}
             <div class="relatorio">
                 <form action="{% if not relatorio %} {% url 'empresa' %} {% else %} {% url 'editar_empresa' relatorio.id %} {% endif %}"
@@ -40,6 +40,10 @@
                             {{ formulario.check_in.as_hidden }}
                             {{ formulario.check_out.as_hidden }}
                             {{ formulario.ordem.as_hidden }}
+                            <h4 class="titulo-secao">Dados do cliente</h4>
+                            <div class="text-center">
+                                <h5>{{ ordem.instituicao }}</h5>
+                            </div>
                             <div class="col-3">
                                 <label for="coordenador">Coordenador</label>
                                 <select class="select-control d mr-sm-2" id="coordenador" name="professores" required>

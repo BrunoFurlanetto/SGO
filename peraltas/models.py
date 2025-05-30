@@ -434,6 +434,14 @@ class OpcionaisFormatura(models.Model):
         return self.opcional_formatura
 
 
+class OpcoesProfessoresEmQuarto(models.Model):
+    tipo = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.tipo
+
+
 @reversion.register
 class InformacoesAdcionais(models.Model):
     tipos_monitoria = (
@@ -469,6 +477,8 @@ class InformacoesAdcionais(models.Model):
     link_foto = models.IntegerField(choices=sim_nao, default='')
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
+    professores_dormem_em_quarto = models.BooleanField(default=False)
+    professores_em_quarto = models.ForeignKey(OpcoesProfessoresEmQuarto, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return f'Informações adicionais id: {self.id}'
@@ -481,6 +491,13 @@ class InformacoesAdcionais(models.Model):
             .select_related('revision')
             .order_by('-revision__date_created')[:100]
         )
+
+    def save(self, *args, **kwargs):
+        # Se professores_em_quarto estiver preenchido, forçamos o booleano como True
+        if self.professores_em_quarto is not None:
+            self.professores_dormem_em_quarto = True
+
+        super().save(*args, **kwargs)
 
 
 class RelacaoClienteResponsavel(models.Model):
@@ -505,7 +522,6 @@ class FichaDeEvento(models.Model):
     check_out = models.DateTimeField(verbose_name='Check out')
     obs_edicao_horario = models.CharField(max_length=255, blank=True, null=True,
                                           verbose_name='Observação da edição do horário')
-    professores_com_alunos = models.BooleanField(default=False, verbose_name='Professores dormirão com alunos?')
     qtd_professores = models.PositiveIntegerField(blank=True, null=True, verbose_name='Quantidade de professores')
     qtd_profs_homens = models.PositiveIntegerField(blank=True, null=True,
                                                    verbose_name='Quantidade de professores homens')
@@ -1399,7 +1415,7 @@ class CadastroPreReserva(forms.ModelForm):
                 'onkeyup': '$("#ModalCadastroPreReserva #id_check_out").val("")',
                 'onclick': 'this.showPicker()'
             }),
-            'id_negocio': forms.TextInput(attrs={'required': 'required', 'onchange': 'verificar_id_negocio(this)'})
+            # 'id_negocio': forms.TextInput(attrs={'required': 'required', 'onchange': 'verificar_id_negocio(this)'})
         }
 
     def __init__(self, *args, **kwargs):

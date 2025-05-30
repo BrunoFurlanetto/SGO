@@ -51,6 +51,8 @@ class Atividades(models.Model):
     limitacao = models.ManyToManyField(Limitacoes, blank=True)
     publico = models.BooleanField(default=False)
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
+    a_definir = models.BooleanField(default=False)
+    sem_atividade = models.BooleanField(default=False)
 
     def __str__(self):
         return self.atividade

@@ -79,9 +79,10 @@ def detector_de_bombas(request, id_detector=None):
                 else:
                     return JsonResponse({'id_atividade': atividade.id})
 
-            atividades_eventos = pegar_dados_evento(request.POST, request.POST.get('editando'), setor)
+            atividades_eventos, grupos = pegar_dados_evento(request.POST, request.POST.get('editando'), setor)
             escalas = pegar_escalas(request.POST, setor)
-            return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas})
+            print(atividades_eventos)
+            return JsonResponse({'atividades_eventos': atividades_eventos, 'escalas': escalas, 'grupos': grupos})
 
         if request.GET.get('id_detector'):
             detector_selecionado = DetectorDeBombas.objects.get(pk=request.GET.get('id_detector'))

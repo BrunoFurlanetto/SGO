@@ -51,7 +51,7 @@
                             $('#nova_pre_reserva').removeClass('none')
                             $('#editar_pre_reserva').empty()
                             $('#aviso_lotacao').addClass('none')
-                            $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', true)
+                            {#$('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', true)#}
                             $('#alerta_exclusividade').remove()
                             $('#ModalCadastroPreReserva .modal-body .alert').remove()
 
@@ -101,7 +101,7 @@
                                         $('#ModalCadastroPreReserva #id_vendedora').val(response['vendedor'])
                                         $('#ModalCadastroPreReserva #id_id_negocio').val(response['id_negocio'])
                                         $('#ModalCadastroPreReserva #id_observacoes').val(response['observacoes'])
-                                        $('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', false)
+                                        {#$('#ModalCadastroPreReserva #salvar_pre_agendamento').prop('disabled', false)#}
                                         $('#nova_pre_reserva').addClass('none')
                                         $('#aviso_lotacao').addClass('none')
                                         $('#alerta_exclusividade').remove()
@@ -185,24 +185,26 @@
                     {% endif %}
 
                     events: [
-                        {% for pre_reserva in pre_reservas %}
-                            {
-                                title: "{{ pre_reserva.cliente|safe }}",
-                                start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
-                                end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
-                                extendedProps: {
-                                    'exclusividade': '{{ pre_reserva.exclusividade }}',
-                                    'id_cliente': '{{ pre_reserva.cliente.id }}',
-                                    'id_pre_reserva': '{{ pre_reserva.id }}'
-                                },
+                        {% if perms.peraltas.view_prereserva %}
+                            {% for pre_reserva in pre_reservas %}
+                                {
+                                    title: "{{ pre_reserva.cliente|safe }}",
+                                    start: "{{ pre_reserva.check_in | date:'Y-m-d H:i'}}",
+                                    end: "{{ pre_reserva.check_out | date:'Y-m-d H:i'}}",
+                                    extendedProps: {
+                                        'exclusividade': '{{ pre_reserva.exclusividade }}',
+                                        'id_cliente': '{{ pre_reserva.cliente.id }}',
+                                        'id_pre_reserva': '{{ pre_reserva.id }}'
+                                    },
 
-                                {% if pre_reserva.agendado %}
-                                    color: '#008000',
-                                {% else %}
-                                    color: '#b60c0c',
-                                {% endif %}
-                            },
-                        {% endfor %}
+                                    {% if pre_reserva.agendado %}
+                                        color: '#008000',
+                                    {% else %}
+                                        color: '#b60c0c',
+                                    {% endif %}
+                                },
+                            {% endfor %}
+                        {% endif %}
 
                         {% for evento in eventos %}
                             {
@@ -238,11 +240,22 @@
                             },
                         {% endfor %}
 
-                        {% for ficha in fichas %}
-                            {% if not ficha.os%}
-                                {
-                                    {% if professor_ceu%}
-                                        {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
+                        {% if perms.peraltas.view_fichadeevento %}
+                            {% for ficha in fichas %}
+                                {% if not ficha.os%}
+                                    {
+                                        {% if professor_ceu%}
+                                            {% if ficha.atividades_ceu.all != '' or ficha.locacoes_ceu.all != ''%}
+                                                title: "{{ ficha.cliente|safe }}",
+                                                start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
+                                                end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
+                                                url: '{% url 'ver_ficha_de_evento' ficha.id %}',
+                                                extendedProps: {
+                                                    'exclusividade': '{{ ficha.exclusividade }}',
+                                                    'id_cliente': '{{ ficha.cliente.id }}'
+                                                },
+                                            {% endif %}
+                                        {% else %}
                                             title: "{{ ficha.cliente|safe }}",
                                             start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
                                             end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
@@ -252,22 +265,13 @@
                                                 'id_cliente': '{{ ficha.cliente.id }}'
                                             },
                                         {% endif %}
-                                    {% else %}
-                                        title: "{{ ficha.cliente|safe }}",
-                                        start: "{{ ficha.check_in | date:'Y-m-d H:i'}}",
-                                        end: "{{ ficha.check_out | date:'Y-m-d H:i'}}",
-                                        url: '{% url 'ver_ficha_de_evento' ficha.id %}',
-                                        extendedProps: {
-                                            'exclusividade': '{{ ficha.exclusividade }}',
-                                            'id_cliente': '{{ ficha.cliente.id }}'
-                                        },
-                                    {% endif %}
 
-                                    color: '#8B008B',
-                                    textColor: 'white',
-                                },
-                            {% endif %}
-                        {% endfor %}
+                                        color: '#8B008B',
+                                        textColor: 'white',
+                                    },
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     ],
 
                     eventDidMount: function (info) {
@@ -756,7 +760,7 @@
                 })
             }
 
-            function verificar_id_negocio(id_negocio) {
+            {% comment %}function verificar_id_negocio(id_negocio) {
                 loading()
                 $.ajax({
                     type: 'GET',
@@ -777,7 +781,7 @@
                     alert(error)
                     end_loading()
                 })
-            }
+            }{% endcomment %}
         </script>
         <div class="event-description"></div>
         <div class="legenda row">
@@ -911,7 +915,7 @@
                                         onclick="window.location.href='{% url 'ficha_de_evento' %}'">
                                     Ficha de evento
                                 </button>
-                                <button id="salvar_pre_agendamento" type="submit" disabled class="btn btn-primary">
+                                <button id="salvar_pre_agendamento" type="submit" class="btn btn-primary">
                                     Salvar pré agendamento
                                 </button>
                             </div>

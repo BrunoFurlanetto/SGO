@@ -10,7 +10,8 @@ from peraltas.models import (Monitor, ProdutosPeraltas, PerfilsParticipantes, Cl
                              FichaDeEvento, AtividadePeraltas, EmpresaOnibus, OpcionaisGerais,
                              OpcionaisFormatura, NivelMonitoria, TipoAtividade, GrupoAtividade,
                              Enfermeira, ListaDeCargos, ProdutoCorporativo, EventosCancelados, Eventos, CodigosPadrao,
-                             TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm, EnfermeiraAdminForm)
+                             TiposPagamentos, RelacaoClienteResponsavel, MonitorAdminForm, EnfermeiraAdminForm,
+                             OpcoesProfessoresEmQuarto)
 from peraltas.models import Vendedor
 
 from peraltas.resources import EventosResource
@@ -357,3 +358,8 @@ class EventosAdmin(ExportMixin, admin.ModelAdmin):
         'codigo_pagamento',
         'produto_peraltas__produto',
     )
+
+
+@admin.register(OpcoesProfessoresEmQuarto)
+class OpcoesProfessoresEmQuartoAdmin(admin.ModelAdmin):
+    list_display = ('tipo', 'descricao')

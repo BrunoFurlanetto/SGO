@@ -28,7 +28,7 @@ def eventos(request):
     cadastro_de_pre_reservas = CadastroPreReserva()
     clientes = ClienteColegio.objects.all()
     ordens = OrdemDeServico.objects.all()
-    professor_ceu = request.user.has_perm('cadastro.add__relatoriodeatendimentopublicoceu')
+    professor_ceu = request.user.has_perm('cadastro.add_relatoriodeatendimentopublicoceu')
     comercial = request.user.has_perm('peraltas.add_prereserva')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
 

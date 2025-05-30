@@ -128,15 +128,26 @@ def dashboardCeu(request):
         data_hoje = datetime.now().date()
         professores = Professores.objects.all()
 
+        if request.user.has_perms('escala.add_escala'):
+            atividades_sem_definicao = OrdemDeServico.atividades_ceu_nao_definidas()
+        else:
+            atividades_sem_definicao = None
+
         return render(request, 'dashboard/dashboardCeu.html', {
             'professores': professores, 'relatorios': dados_tabela,
             'data': data_relatorio,
             'equipe_escalada': equipe_escalada,
             'professor': professor_logado,
-            'n_atividades': n_atividades,
-            'n_horas': n_horas,
+            'n_atividades': 0,
+            'n_horas': 0,
             'mostrar_aviso': mostrar_aviso_disponibilidade,
-            'depois_25': depois_25
+            'depois_25': depois_25,
+            'atividades_sem_definicao': atividades_sem_definicao,
+            'eventos_sem_avaliacao': OrdemDeServico.objects.filter(
+                check_in_ceu__isnull=False,
+                relatorio_ceu_entregue=True,
+                ficha_avaliacao=False
+            ),
         })
 
 

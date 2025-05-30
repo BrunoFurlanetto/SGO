@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('', views.escala, name='escala'),
+    path('salvar/', views.salvar_escala_ceu, name='salvar_escala'),
+    path('verificar-escala-dia/', views.verificar_escala_dia, name='verificar_escala_dia'),
     path('disponibilidade/', views.disponibilidade, name='disponibilidade'),
     path('disponibilidade/ceu/visualizar/', views.visualizarDisponibilidadeCeu, name='visualizarDisponibilidadeCeu'),
     # ------------------------------------------------------------------------------------------------------------------

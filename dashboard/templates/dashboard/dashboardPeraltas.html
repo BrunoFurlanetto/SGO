@@ -390,11 +390,17 @@
                            style="border-top: solid">
                         <thead>
                         <tr>
-                            <th style="width: 450px">Cliente</th>
-                            <th style="width: 150px">Produto</th>
+                            <th>Cliente</th>
+                            <th>Produto</th>
                             <th>Estimado</th>
-                            <th style="width: 250px">Check in</th>
-                            <th>Colaborador</th>
+                            <th>Reservado</th>
+                            <th>Monitoria</th>
+                            <th>Professores dormem em quarto?</th>
+                            <th>Tipo acomodação professores</th>
+                            <th>Transporte</th>
+                            <th>Check in</th>
+                            {% if diretoria or operacional %}
+                                <th>Colaborador</th> {% endif %}
                         </tr>
                         </thead>
                         <tbody>
@@ -405,8 +411,13 @@
                                 <td>{{ sem_escala.produto }}</td>
                                 <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
-                                <td>{{ sem_escala.check_in| date:'Y-m-d' }}</td>
-                                <td> {{ sem_escala.vendedora }} </td>
+                                <td>{{ ficha.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
+                                <td>{{ ficha.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
+                                <td>{{ ficha.informacoes_adcionais.professores_em_quarto.tipo }}</td>
+                                <td>{{ ficha.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não'}}</td>
+                                <td>{{ ficha.check_in| date:'Y-m-d' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ ficha.vendedora }} </td> {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -423,14 +434,16 @@
                         </caption>
                         <thead>
                         <tr>
-                            <th style="width: 450px">Cliente</th>
-                            <th style="width: 150px">Produto</th>
-                            <th>Estimado</th>
-                            <th style="width: 250px">Check in</th>
-                            <th>Colaborador</th>
-                            <th>Valor da escala</th>
-                            <th>Contagem por nível</th>
-                            <th>Confirmada</th>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Participantes</th>
+                            <th>Check in</th>
+                            <th>Monitoria</th>
+                            <th>Professores dormem em quarto?</th>
+                            <th>Tipo acomodação professores</th>
+                            <th>Transporte</th>
+                            {% if diretoria or operacional %}
+                                <th>Colaborador</th> {% endif %}
                         </tr>
                         </thead>
                         <tbody>
@@ -443,26 +456,13 @@
                                 <td>{% if escala.ficha_de_evento.qtd_convidada %}
                                     {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
                                     0 {% endif %}</td>
-                                <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
-                                <td> {{ escala.ficha_de_evento.vendedora }} </td>
-                                <td>
-                                    <nobr>R$ {{ escala.valores_escala|floatformat:'2' }}*</nobr>
-                                </td>
-                                <td>
-                                    {% for nivel, contagem in escala.contagem_niveis.items %}
-                                        {{ nivel }}: {{ contagem }},
-                                    {% endfor %}
-                                </td>
-                                <td tabindex="0">
-                                    {% if escala.pre_escala %}
-                                        <button type="button" class="btn-confirmar-escala"
-                                                onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
-                                            Não
-                                        </button>
-                                    {% else %}
-                                        Sim
-                                    {% endif %}
-                                </td>
+                                <td>{{ ordem.check_in| date:'Y-m-d' }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.get_monitoria_display|default:"" }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_dormem_em_quarto | yesno:'Sim, Não' }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.professores_em_quarto.tipo }}</td>
+                                <td>{{ ordem.ficha_de_evento.informacoes_adcionais.transporte_fechado_internamente | yesno:'Sim, Não' }}</td>
+                                {% if diretoria or operacional %}
+                                    <td> {{ ordem.vendedor }} </td> {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>

@@ -184,23 +184,14 @@ def colegio(request, id_relatorio=None):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
+
             return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
+            messages.success(request, 'Relatório salvo com sucesso!')
 
-            if not id_relatorio:
-                email, senha = criar_usuario_colegio(novo_colegio, ordem.id)
-            else:
-                return redirect('dashboardCeu')
-
-            return render(request, 'cadastro/colegio.html', {
-                'formulario': relatorio_colegio,
-                'professores': professores,
-                'mostrar': True,
-                'email': email,
-                'senha': senha
-            })
+            return redirect('dashboardCeu')
     else:
         messages.warning(request, relatorio_colegio.errors)
         ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
@@ -214,6 +205,27 @@ def colegio(request, id_relatorio=None):
             'editar': editar,
             'locais': locais
         })
+
+
+@login_required(login_url='login')
+def relatorio_colegio(request, id_ordem):
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordem_de_servico = OrdemDeServico.objects.get(pk=id_ordem)
+    relatorio = RelatorioColegio(
+        initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem_de_servico)
+    )
+
+    return render(request, 'cadastro/colegio.html', {
+        'formulario': relatorio,
+        'ordem': ordem_de_servico,
+        'professores': professores,
+        'monitores': monitores,
+        'atividades': atividades,
+        'locais': locais
+    })
 
 
 @login_required(login_url='login')
@@ -231,7 +243,7 @@ def empresa(request, id_relatorio=None):
 
             if request.GET.get('empresa'):
                 ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
-                relatorio_colegio = RelatorioColegio(
+                relatorio_colegio = RelatorioEmpresa(
                     initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
                 )
 
@@ -322,6 +334,26 @@ def empresa(request, id_relatorio=None):
             'locais': locais
         })
 
+
+@login_required(login_url='login')
+def cadastro_relatorio_empresa(request, id_ordem):
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordem_de_servico = OrdemDeServico.objects.get(pk=id_ordem)
+    relatorio_empresa = RelatorioEmpresa(
+        initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
+    )
+
+    return render(request, 'cadastro/empresa.html', {
+        'formulario': relatorio_empresa,
+        'ordem': ordem_de_servico,
+        'professores': professores,
+        'monitores': monitores,
+        'atividades': atividades,
+        'locais': locais
+    })
 
 @login_required(login_url='login')
 def inicioOrdemDeServico(request):

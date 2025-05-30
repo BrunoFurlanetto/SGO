@@ -33,8 +33,74 @@
                     fixedWeekCount: false,
 
                     navLinkDayClick: function (date, jsEvent) {
-                        window.location.href = `/escala/montar_escala/${moment(date).format('yyyy-MM-DD')}`
-                    },
+                            loading()
+                            escalados = []
+
+                            $.ajax({
+                                headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                                type: 'GET',
+                                url: '/escala/verificar-escala-dia/',
+                                data: {'data_selecionada': date.toLocaleDateString('pt-BR')},
+                                success: function (response) {
+                                    let posicao = 0
+                                    let professores_disponiveis = response['disponiveis']
+                                    let selects_professores = $('.professores-disponiveis')
+                                    let lista_disponiveis = $('.disponiveis')
+                                    console.log(response)
+                                    $('#n_eventos').text(response['eventos']['n_eventos'])
+                                    $('#n_participantes').text(response['eventos']['n_participantes'])
+
+                                    if (response['eventos']['atividades_com_data_hora'].length > 0) {
+                                        $('#atividades_definidas_data').removeClass('none')
+                                        $('#atividades_definidas_com_data').text(response['eventos']['atividades_com_data_hora'])
+                                    } else {
+                                        $('#atividades_definidas_data').addClass('none')
+                                    }
+
+                                    if (response['eventos']['atividades_definidas'].length > 0) {
+                                        $('#li_atividades_definidas').removeClass('none')
+                                        $('#atividades_definidas').text(response['eventos']['atividades_definidas'])
+                                    } else {
+                                        $('#li_atividades_definidas').addClass('none')
+                                    }
+
+                                    if (response['eventos']['atividades_a_definir'] != 0) {
+                                        $('#a_definir').removeClass('none')
+                                        $('#atividades_a_definir').text(response['eventos']['atividades_a_definir'])
+                                    } else {
+                                        $('#a_definir').addClass('none')
+                                    }
+
+                                    selects_professores.empty().append(`<option></option>`)
+                                    lista_disponiveis.empty()
+                                    $('#mensagem_erro').empty()
+
+                                    for (let professor in professores_disponiveis) {
+                                        lista_disponiveis.append('<li>' + professores_disponiveis[professor]['nome'] + '</li>')
+                                        selects_professores.append(`<option value="${professores_disponiveis[professor]['id']}"> ${professores_disponiveis[professor]['nome']} </option>`);
+                                    }
+
+                                    for (let select of selects_professores) {
+                                        for (let opt of select.children) {
+                                            if (opt.value == response['escalados'][posicao]) {
+                                                $(opt).prop('selected', true)
+                                            }
+                                        }
+
+                                        posicao += 1
+                                    }
+
+                                }
+                            }).done(() => {
+                                $("#ModalCadastro").modal('show')
+                                end_loading()
+                            }).catch(error => {
+                                alert(error)
+                                end_loading()
+                            })
+
+                            $("#id_data").val(moment(date).format('YYYY-MM-DD'))
+                        },
 
                     events: [
                         {% for evento in eventos %}
@@ -72,6 +138,89 @@
                 window.location.href = '/escala/acampamento/editar/evento/' + $('#cliente_modal').val() + '/' + moment($('#check_in_evento_modal').val()).format('DD-MM-yyyy')
             }
         </script>
+
+        <div class="modal fade" id="ModalCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cadastro de escala</h5>
+                        <button class="x-fechar-modal" data-dismiss="modal">
+                            <span aria-hidden="false">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{% url 'salvar_escala' %}" method="POST">
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            <div class="alert alert-info">
+                                <ul>
+                                    <li>
+                                        Existe um total de <strong><span id="n_eventos"></span></strong> evento(s) e uma
+                                        expectativa de <strong><span id="n_participantes"></span></strong> alunos para a
+                                        data em questão.
+                                    </li>
+                                    <li id="atividades_definidas_data" class="none">
+                                        Para esta data se tem as seguintes atividades com data e hora definida:
+                                        <strong><span id="atividades_definidas_com_data"></span></strong>.
+                                    </li>
+                                    <li id="li_atividades_definidas" class="none">
+                                        As seguintes atividades vão ser realizada pelos grupos, mas não se tem data e/ou hora definida:
+                                        <strong><span id="atividades_definidas"></span></strong>.
+                                    </li>
+                                    <li id="a_definir" class="none">
+                                        Existe o total de <strong><span id="atividades_a_definir"></span></strong> atividades
+                                        a definir.
+                                    </li>
+                                </ul>
+                            </div>
+                            <hr>
+                            <div>
+                                <h5 class="titulo-secao">Disponibilidade</h5>
+                                <p>Professores disponiveis na data selecionada:</p>
+                                <ul class="disponiveis"></ul>
+                            </div>
+                            <hr>
+                            <div class="lista-professores">
+                                <div id="mensagem_erro"></div>
+                                <div class="selecao-professores">
+                                    <label for="id_data">Data</label>
+                                    <input type="date" id="id_data" name="data_escala" readonly>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_coordenador">Coordenador</label>
+                                    <select class="professores-disponiveis" name="escalados" id="id_coordenador"
+                                            onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_2">Professor 2</label>
+                                    <select class="professores-disponiveis" name="escalados" id="id_professor_2"
+                                            onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_3">Professor 3</label>
+                                    <select class="professores-disponiveis" name="escalados" id="id_professor_3"
+                                            onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_4">Professor 4</label>
+                                    <select class="professores-disponiveis" name="escalados" id="id_professor_4"
+                                            onChange="verificarDuplicata(this)"></select>
+                                </div>
+                                <div class="selecao-professores">
+                                    <label for="id_professor_5">Professor 5</label>
+                                    <select class="professores-disponiveis" name="escalados" id="id_professor_5"
+                                            onChange="verificarDuplicata(this)"> </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Salvar escala</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <script src="{% static 'js/bootstrap.min.js' %}"></script><!-- Script para o calendário da escala -->
+        </div>
     </div>
 
     <script src="{% static 'js/Moment.js' %}"></script>
