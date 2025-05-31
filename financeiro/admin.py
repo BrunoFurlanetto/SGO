@@ -8,6 +8,7 @@ from financeiro.models import FichaFinanceira
 @admin.register(ClassificacoesItens)
 class ClassificacoesItensAdmin(admin.ModelAdmin):
     list_display = ('codigo_padrao', 'codigo_simplificado', 'sintetico_analitico', 'ativado', 'descritivo')
+    ordering = ('codigo_padrao',)
 
 
 @admin.register(TiposPagamentos)

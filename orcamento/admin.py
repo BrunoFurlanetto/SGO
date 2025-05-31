@@ -151,8 +151,10 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
         )
         data_pagamento_antigo = datetime.strptime(novo_orcamento.objeto_gerencia['data_pagamento'], '%Y-%m-%d')
         data_vencimento_antigo = datetime.strptime(novo_orcamento.objeto_gerencia['data_vencimento'], '%Y-%m-%d')
-        novo_orcamento.objeto_gerencia['data_pagamento'] = (data_pagamento_antigo + timedelta(days=365)).strftime('%Y-%m-%d')
-        novo_orcamento.objeto_gerencia['data_vencimento'] = (data_vencimento_antigo + timedelta(days=365)).strftime('%Y-%m-%d')
+        novo_orcamento.objeto_gerencia['data_pagamento'] = (data_pagamento_antigo + timedelta(days=365)).strftime(
+            '%Y-%m-%d')
+        novo_orcamento.objeto_gerencia['data_vencimento'] = (data_vencimento_antigo + timedelta(days=365)).strftime(
+            '%Y-%m-%d')
         novo_orcamento.save()
         novo_orcamento.opcionais.set(orcamento.opcionais.all())
 
@@ -163,6 +165,20 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
             liberado_para_venda=False,
         )
     modeladmin.message_user(request, "Duplicação concluída com sucesso!")
+
+
+class AdminForeignKeyOrderMixin:
+    """
+    Mixin que sobrescreve a ordenação de campos ForeignKey no Django Admin.
+    Define ordenações específicas por campo.
+    """
+    foreignkey_ordering = {}  # Ex: {"classificacao": "codigo_padrao"}
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name in self.foreignkey_ordering:
+            order_field = self.foreignkey_ordering[db_field.name]
+            kwargs["queryset"] = db_field.remote_field.model.objects.order_by(order_field)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(TemplateOrcamento)
@@ -211,8 +227,10 @@ class OrcamentosPromocionaisAdmin(admin.ModelAdmin):
 
 
 @admin.register(TaxaPeriodo)
-class OrcamentoDiariaAdmin(admin.ModelAdmin):
-    list_display = ('inicio_vigencia', 'final_vigencia', 'descricao', 'valor')
+class OrcamentoDiariaAdmin(AdminForeignKeyOrderMixin, admin.ModelAdmin):
+    list_display = ('inicio_vigencia', 'final_vigencia', 'descricao', 'valor', 'classificacao')
+    list_editable = ('classificacao',)
+    foreignkey_ordering = {"classificacao": "codigo_padrao"}
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
@@ -225,11 +243,12 @@ class OrcamentoDiariaAdmin(admin.ModelAdmin):
 
 
 @admin.register(ValoresTransporte)
-class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
+class ValoresTransporteAdmin(AdminForeignKeyOrderMixin, DuplicarEmMassaAdmin):
     list_display = (
         'titulo_transporte',
         'inicio_vigencia',
         'final_vigencia',
+        'classificacao',
         'valor_1_dia',
         'valor_final_1_dia',
         'valor_2_dia',
@@ -238,8 +257,9 @@ class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
         'valor_final_3_dia',
         'liberado'
     )
-    list_editable = ('liberado',)
+    list_editable = ('liberado', 'classificacao')
     ordering = ('-inicio_vigencia', 'titulo_transporte')
+    foreignkey_ordering = {"classificacao": "codigo_padrao"}
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
@@ -252,18 +272,20 @@ class ValoresTransporteAdmin(DuplicarEmMassaAdmin):
 
 
 @admin.register(OrcamentoMonitor)
-class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
+class OrcamentoMonitorAdmin(AdminForeignKeyOrderMixin, DuplicarEmMassaAdmin):
     list_display = (
         'nome_monitoria',
         'valor',
         'valor_final',
+        'classificacao',
         'descricao_monitoria',
         'inicio_vigencia',
         'final_vigencia',
         'liberado'
     )
     ordering = ('-inicio_vigencia', 'nome_monitoria')
-    list_editable = ('liberado',)
+    list_editable = ('liberado', 'classificacao')
+    foreignkey_ordering = {"classificacao": "codigo_padrao"}
 
     # def inicio_vigencia_formatado(self, obj):
     #     return obj.inicio_vigencia.strftime("%d/%m/%Y")  # Formato de data desejado
@@ -276,12 +298,21 @@ class OrcamentoMonitorAdmin(DuplicarEmMassaAdmin):
 
 
 @admin.register(OrcamentoPeriodo)
-class PeriodosAdmin(DuplicarEmMassaAdmin):
+class PeriodosAdmin(AdminForeignKeyOrderMixin, DuplicarEmMassaAdmin):
     list_display = (
-    'nome_periodo', 'inicio_vigencia', 'final_vigencia', 'valor', 'valor_final', 'descricao', 'liberado')
+        'nome_periodo',
+        'inicio_vigencia',
+        'final_vigencia',
+        'classificacao',
+        'valor',
+        'valor_final',
+        'descricao',
+        'liberado'
+    )
     ordering = ('-inicio_vigencia', 'nome_periodo')
-    list_editable = ('liberado',)
+    list_editable = ('liberado', 'classificacao')
     form = SeuModeloAdminForm
+    foreignkey_ordering = {"classificacao": "codigo_padrao"}
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == 'dias_semana_validos':
@@ -307,17 +338,18 @@ class SubategoriaOpcionaisAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrcamentoOpicional)
-class OrcamentoOpicionalAdmin(AdvancedSearchAdmin, DuplicarEmMassaAdmin):
-    list_display = ('nome', 'categoria', 'sub_categoria', 'valor', 'valor_final', 'inicio_vigencia',
+class OrcamentoOpicionalAdmin(AdminForeignKeyOrderMixin, AdvancedSearchAdmin, DuplicarEmMassaAdmin):
+    list_display = ('nome', 'categoria', 'sub_categoria', 'classificacao', 'valor', 'valor_final', 'inicio_vigencia',
                     'final_vigencia', 'liberado')
     ordering = ('nome', 'categoria', 'inicio_vigencia', 'final_vigencia')
-    list_editable = ('valor', 'categoria', 'liberado', 'sub_categoria')
+    list_editable = ('valor', 'categoria', 'liberado', 'sub_categoria', 'classificacao')
     list_per_page = 20
     search_fields = ('nome',)
     list_filter = ('categoria', 'sub_categoria', 'final_vigencia')
     readonly_fields = ('valor_final',)
     save_as = True
     search_form = YourFormSearch
+    foreignkey_ordering = {"classificacao": "codigo_padrao"}
 
     # def formfield_for_foreignkey(self, db_field, request, **kwargs):
     #     if db_field.name == "classificacao":

@@ -23,9 +23,14 @@ class ClassificacoesItens(models.Model):
     descritivo = models.TextField(verbose_name='Descritivo')
     sintetico_analitico = models.IntegerField(verbose_name='Sintético/Analítico', choices=lista_sintetico_analitico)
     ativado = models.BooleanField(default=False, verbose_name='Ativado')
+    arredondamento = models.BooleanField(
+        default=False,
+        verbose_name='Arredondamento',
+        help_text='Categoria na Ficha Financeira que será utilizada para o arredondamento.'
+    )
 
     def __str__(self):
-        return self.codigo_padrao
+        return f'{self.codigo_simplificado} ({self.codigo_padrao})'
 
     class Meta:
         app_label = 'financeiro'
