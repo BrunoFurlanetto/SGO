@@ -530,7 +530,7 @@
                 <div class="tabelas">
                     <h5>Prévias em construção</h5>
                     <hr>
-                    <table class="table table-hover table-striped">
+                    <table id="tabela_previas_orcamento" class="table table-hover table-striped">
                         <thead>
                         <tr style="text-align: center">
                             <th style="width: 30%">Data de criação</th>
@@ -560,13 +560,13 @@
                                     {{ previa.cliente }}
                                 </td>
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
-                                    {{ previa.check_in|date:'Y-m-d' }}
+                                    {{ previa.check_in|date:'Y-m-d H:i:s' }}
                                 </td>
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
-                                    {{ previa.check_out|date:'Y-m-d' }}
+                                    {{ previa.check_out|date:'Y-m-d H:i:s' }}
                                 </td>
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
-                                    <nobr>R$ {{ previa.valor|substituir_ponto }}</nobr>
+                                    <nobr>R$ {{ previa.valor | substituir_ponto }}</nobr>
                                 </td>
                                 <td>
                                     {% if not previa.status_orcamento.analise_gerencia %}

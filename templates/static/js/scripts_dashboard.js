@@ -14,7 +14,6 @@ let desconto_aplicado = 0*/
 
 
 $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrderableColumns) {
-    // Inicializa o DataTable
     var tabela = $(this).DataTable({
         pageLength: 25,
         language: {
@@ -30,7 +29,7 @@ $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrdera
                 targets: columnData,
                 render: function (data, type, row) {
                     if (type === 'display' || type === 'filter') {
-                        return moment(data).format('DD/MM/YYYY')
+                        return moment(data).format('DD/MM/YYYY');
                     }
                     return data;
                 },
@@ -46,44 +45,43 @@ $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrdera
         ]
     });
 
-    // Filtro de data de vencimento
-    function aplicarFiltroVencimento() {
-        // Limpa os filtros antigos
-        $.fn.dataTable.ext.search = [];
+    // Defina o filtro apenas para essa instância
+    var tabelaElemento = tabela.table().node();
 
-        // Obtém o valor selecionado no radio input
+    function filtroCustomizado(settings, data, dataIndex) {
+        // Se o filtro não for desta tabela, não aplica
+        if (settings.nTable !== tabelaElemento) return true;
+
         var valorFiltro = $('input[name="vencidos"]:checked').val();
 
-        // Se for 'sim', filtra pacotes vencidos
         if (valorFiltro === 'sim') {
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                return true
-            });
-        }
-        // Se for 'não', filtra pacotes não vencidos
-        else if (valorFiltro === 'nao') {
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                var dataVencimento = data[2]; // Índice da coluna de vencimento
-                var dataHoje = moment(); // Data de hoje
-                var dataTabela = moment(dataVencimento, 'DD/MM/YYYY');
-                return dataTabela.isSameOrAfter(dataHoje); // Mostrar pacotes não vencidos
-            });
+            return true;
+        } else if (valorFiltro === 'nao') {
+            var dataVencimento = data[2]; // Índice da coluna de vencimento
+            var dataHoje = moment();
+            var dataTabela = moment(dataVencimento, 'DD/MM/YYYY');
+            return dataTabela.isSameOrAfter(dataHoje);
         }
 
-        // Atualiza a tabela com o filtro aplicado
-        tabela.draw();
+        return true;
     }
 
-    // Chama a função sempre que o valor do radio mudar
+    // Adiciona filtro sem sobrescrever os demais
+    $.fn.dataTable.ext.search.push(filtroCustomizado);
+
+    function aplicarFiltroVencimento() {
+        tabela.draw(); // Apenas redesenha a tabela atual
+    }
+
     $('input[name="vencidos"]').change(function () {
         aplicarFiltroVencimento();
     });
 
-    // Aplica o filtro inicial, de acordo com o valor default
     aplicarFiltroVencimento();
 
     return tabela;
-}
+};
+
 
 $(document).ready(() => {
     $('#previas_orcamento td.clicavel, #tratativas td.clicavel').on('click', function () {
@@ -97,7 +95,7 @@ $(document).ready(() => {
     moment.locale('pt-br');
 
     // Inicialização da tabela de orçamentos (caso exista)
-    $('#previas_orcamento .tabelas table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
+    $('#tabela_previas_orcamento').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
     $('#tabela_tratativas_em_aberto').iniciarlizarDataTableOrcamento([2, 3, 4], 0, [7]);
     $('#tabela_tratativas_negadas_vencidas').iniciarlizarDataTableOrcamento([3], 0, [5, 6]);
     $('#tabela_tratativas_ganhas').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
@@ -156,9 +154,10 @@ $.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrde
             {
                 type: 'date',
                 targets: columnData,
+                orderSequence: ['asc', 'desc', ''],
                 render: function (data, type, row) {
                     if (type === 'display' || type === 'filter') {
-                        return moment(data).format('DD/MM/YYYY')
+                        return moment(data).format('DD/MM/YYYY HH:mm')
                     }
 
                     return data;
