@@ -16,4 +16,4 @@ def verificar_validade_orcamento():
 
 
 def excluir_previas_antigas():
-    Orcamento.objects.filter(previa=True, data_ultima_edicao__lt=datetime.today().date() - timedelta(days=90)).delete()
+    Orcamento.objects.filter(previa=True, data_ultima_edicao__date__lt=datetime.today().date() - timedelta(days=90)).delete()

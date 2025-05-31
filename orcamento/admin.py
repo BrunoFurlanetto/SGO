@@ -145,8 +145,8 @@ def duplicar_orcamentos_promocionais(modeladmin, request, queryset):
             objeto_orcamento=orcamento.objeto_orcamento,
             objeto_gerencia=orcamento.objeto_gerencia,
             previa=False,
-            data_preenchimento=datetime.today().date(),
-            data_ultima_edicao=datetime.today().date(),
+            data_preenchimento=datetime.now(),
+            data_ultima_edicao=datetime.now(),
             data_vencimento=orcamento.data_vencimento + timedelta(days=365),
         )
         data_pagamento_antigo = datetime.strptime(novo_orcamento.objeto_gerencia['data_pagamento'], '%Y-%m-%d')

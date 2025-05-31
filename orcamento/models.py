@@ -1092,9 +1092,9 @@ class Orcamento(models.Model):
         verbose_name='Status'
     )
     previa = models.BooleanField(default=True)
-    data_preenchimento = models.DateField(auto_now_add=True, verbose_name='Data de preenchimento')
+    data_preenchimento = models.DateTimeField(auto_now_add=True, verbose_name='Data de preenchimento')
     data_vencimento = models.DateField(verbose_name='Data de vencimento')
-    data_ultima_edicao = models.DateField(
+    data_ultima_edicao = models.DateTimeField(
         blank=True,
         null=True,
         auto_now=True,
@@ -1657,7 +1657,7 @@ class Tratativas(models.Model):
                     'status': orcamento.status_orcamento.status,
                     'apelido': orcamento.apelido,
                     'vencimento': orcamento.data_vencimento.strftime('%d/%m/%Y'),
-                    'data_edicao': orcamento.data_ultima_edicao.strftime('%d/%m/%Y'),
+                    'data_edicao': orcamento.data_ultima_edicao.strftime('%d/%m/%Y %H:%M'),
                     'check_in': orcamento.check_in.astimezone().strftime('%d/%m/%Y %H:%M'),
                     'check_out': orcamento.check_out.astimezone().strftime('%d/%m/%Y %H:%M'),
                     'valor': str(orcamento.valor).replace('.', ','),
