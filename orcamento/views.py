@@ -87,8 +87,9 @@ def clonar_orcamento(request, id_orcamento):
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
     opcionais_pacote = []
 
-    if len(tratativa.orcamentos_ganhos()) > 0:
-        tratativa = Tratativas.objects.create(colaborador=request.user, cliente=orcamento.cliente)
+    if tratativa:
+        if len(tratativa.orcamentos_ganhos()) > 0:
+            tratativa = Tratativas.objects.create(colaborador=request.user, cliente=orcamento.cliente)
 
     if orcamento.orcamento_promocional:
         opcionais_pacote = orcamento.orcamento_promocional.listar_opcionais()

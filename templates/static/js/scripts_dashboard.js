@@ -96,6 +96,7 @@ $(document).ready(() => {
 
     // Inicialização da tabela de orçamentos (caso exista)
     $('#tabela_previas_orcamento').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
+    $('#tabela_previas_de_colaboradores').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
     $('#tabela_tratativas_em_aberto').iniciarlizarDataTableOrcamento([2, 3, 4], 0, [7]);
     $('#tabela_tratativas_negadas_vencidas').iniciarlizarDataTableOrcamento([3], 0, [5, 6]);
     $('#tabela_tratativas_ganhas').iniciarlizarDataTableOrcamento([], 0, [3, 4]);

@@ -153,6 +153,11 @@
                 {% if comercial or perms.orcamento.add_orcamentospromocionais %}
                     <div class="folder" onclick="alterar_aba(this, 'previas_orcamento')">Prévias de orçamento</div>
                 {% endif %}
+                {% if perms.orcamento.ver_outras_previas %}
+                	<div class="folder"
+                         onclick="alterar_aba(this, 'previas_de_colaboradores')"> Prévias de outros colaboradores
+                    </div>
+                {% endif %}
                 {% if comercial %}
                     <div class="folder"
                          onclick="alterar_aba(this, 'tratativas')">Tratativas
@@ -492,7 +497,8 @@
                 {% endif %}
             {% endif %}
             {#        {% if financeiro %}#}
-            <div class="section-content {% if perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}" id="pacotes">
+            <div class="section-content {% if perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}"
+                 id="pacotes">
                 <div id="tabela_pacotes_promocionais" class="tabelas">
                     <div class="mb-2">
                         <label for="vencidos">
@@ -548,10 +554,10 @@
                         {% for previa in previas_orcamento %}
                             <tr style="vertical-align: middle; cursor: pointer">
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
-                                    {{ previa.data_preenchimento | date:'Y-m-d' }} {{ previa.status }}
+                                    {{ previa.data_preenchimento | date:'Y-m-d H:i:s' }} {{ previa.status }}
                                 </td>
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
-                                    {{ previa.data_ultima_edicao | date:'Y-m-d' }}
+                                    {{ previa.data_ultima_edicao | date:'Y-m-d H:i:s' }}
                                 </td>
                                 <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
                                     {{ previa.apelido }}
@@ -610,13 +616,69 @@
                                             </button>
                                             <button type="button" title="Duplicar orcamento" class="button_pdf"
                                                     style="font-size: 25px"
-                                                    onclick="window.location.href='{% url 'clonar_orcamento' previa.id %}'"
-                                                    {% if not previa.status_orcamento.analise_gerencia %}
-                                                    disabled {% endif %}>
+                                                    onclick="window.location.href='{% url 'clonar_orcamento' previa.id %}'">
                                                 <i class='bx bxs-duplicate'></i>
                                             </button>
                                         </div>
                                     </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="previas_de_colaboradores" class="section-content">
+                <div class="tabelas">
+                    <h5>Prévias de outros colaboradores</h5>
+                    <hr>
+                    <table id="tabela_previas_de_colaboradores" class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: 30%">Data de criação</th>
+                            <th style="width: 30%">Data edição</th>
+                            <th style="width: 30%">Apelido</th>
+                            <th style="width: 30%">Cliente</th>
+                            <th style="width: 20%">Check in</th>
+                            <th style="width: 20%">Check out</th>
+                            <th style="width: 20%">Valor</th>
+                            <th>Status</th>
+                            <th>Colaborador</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for previa in outras_previas %}
+                            <tr style="vertical-align: middle; cursor: pointer">
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.data_preenchimento | date:'Y-m-d H:i:s' }} {{ previa.status }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.data_ultima_edicao | date:'Y-m-d H:i:s' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.apelido }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.cliente }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.check_in|date:'Y-m-d H:i:s' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    {{ previa.check_out|date:'Y-m-d H:i:s' }}
+                                </td>
+                                <td data-id_orcamento="{{ previa.id | safe }}" class="clicavel">
+                                    <nobr>R$ {{ previa.valor | substituir_ponto }}</nobr>
+                                </td>
+                                <td>
+                                    {% if not previa.status_orcamento.analise_gerencia %}
+                                        Em construção
+                                    {% else %}
+                                        {{ previa.status_orcamento }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ previa.colaborador.get_full_name }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -895,7 +957,8 @@
                     </table>
                 </div>
             </div>
-            <div id="fichas_financeiras_aprovadas" class="section-content {% if financeiro and not perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}">
+            <div id="fichas_financeiras_aprovadas"
+                 class="section-content {% if financeiro and not perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}">
                 <div class="tabelas">
                     <h5>Fichas Financeira aprovadas pela diretoria</h5>
                     <hr>

@@ -274,7 +274,7 @@ def dashboardPeraltas(request):
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
         monitor.save()
-
+    print(Orcamento.objects.filter(previa=True))
     return render(request, 'dashboard/dashboardPeraltas.html', {
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
@@ -305,4 +305,5 @@ def dashboardPeraltas(request):
                 aprovacao_gerencia=False,
             ),
         ),
+        'outras_previas': Orcamento.objects.filter(previa=True).exclude(colaborador=request.user) if request.user.has_perm('orcamento.ver_outras_previas') else [],
     })
