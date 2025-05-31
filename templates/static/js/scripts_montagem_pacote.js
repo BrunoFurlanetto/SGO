@@ -44,7 +44,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         $('#modal_descritivo #data_vencimento').val(moment(hoje).add(15, 'd').format('YYYY-MM-DD'))
     }
     promocional = $('#tipo_de_orcamento').val() == 'promocional'
-    $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas, moment())
+    $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
         .on('apply.daterangepicker', function (ev, picker) {
             if ($('#so_ceu').prop('checked')) {
                 const startDate = picker.startDate;
@@ -67,7 +67,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
     $('#lista_de_periodos .periodos input').inicializarDateRange('DD/MM/YYYY', false)
 
     if (check_in && check_out) {
-        $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+        $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true)
             .on('apply.daterangepicker', function (ev, picker) {
                 if ($('#so_ceu').prop('checked')) {
                     const startDate = picker.startDate;
@@ -250,15 +250,12 @@ $.fn.mascaraDinheiro = function () {
     })
 }
 
-$.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, min_date) {
-    if (!isInvalidDate) isInvalidDate = null
-    if (!min_date) min_date = false
+$.fn.inicializarDateRange = function (format, time_picker) {
 
     return this.daterangepicker({
         "timePicker": time_picker,
         "timePicker24Hour": true,
         "timePickerIncrement": 30,
-        "minDate": $('#id_promocional').prop('checked') ? false : min_date,
         "locale": {
             "format": format,
             "separator": " - ",
@@ -292,23 +289,7 @@ $.fn.inicializarDateRange = function (format, time_picker, isInvalidDate, min_da
         "showCustomRangeLabel": false,
         "alwaysShowCalendars": true,
         "drops": "up",
-        "isInvalidDate": isInvalidDate,
     })
-}
-
-function verificar_datas(date) {
-    if ($('#id_promocional').prop('checked') || $('#id_orcamento_promocional').val() != '') {
-        let periodos = $('#lista_de_periodos input').map(function () {
-            let inicio = moment($(this).val().split(' - ')[0], 'DD/MM/YYYY')
-            let final = moment($(this).val().split(' - ')[1], 'DD/MM/YYYY')
-
-            return {'inicio': inicio, 'final': final.add(1, 'days')}
-        }).get();
-
-        return !periodos.some(function (periodo) {
-            return date.isSameOrAfter(periodo.inicio) && date.isSameOrBefore(periodo.final);
-        });
-    }
 }
 
 async function listar_op(
@@ -1269,11 +1250,11 @@ function montar_pacote(check_promocional = null) {
             $('#dados_do_pacote').modal('show')
             $('#id_cliente, #id_responsavel').attr('disabled', $('#id_promocional').prop('checked'))
             $('#promocionais').addClass('none')
-            $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+            $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
         } else {
             $('#promocionais').removeClass('none')
             $('#id_cliente').attr('disabled', $('#id_promocional').prop('checked'))
-            $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas, moment())
+            $('#data_viagem').inicializarDateRange('DD/MM/YYYY HH:mm', true)
         }
     }
 }
@@ -1704,7 +1685,7 @@ function verificar_horarios() {
                 if (resp1) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out.format('HH:mm')}`
-                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true)
                 } else {
                     $('#id_orcamento_promocional').val('').trigger('change')
                 }
@@ -1716,7 +1697,7 @@ function verificar_horarios() {
                 if (resp2) {
                     let check_in = `${data_check_in.format('DD/MM/YYYY')} ${hora_check_in_1.format('HH:mm')}`
                     let check_out = `${data_check_out.format('DD/MM/YYYY')} ${hora_check_out_2.format('HH:mm')}`
-                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true, verificar_datas)
+                    $('#data_viagem').val(`${check_in} - ${check_out}`).inicializarDateRange('DD/MM/YYYY HH:mm', true)
                 } else {
                     $('#id_orcamento_promocional').val('').trigger('change')
                 }
