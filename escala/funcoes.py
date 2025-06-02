@@ -406,26 +406,10 @@ def pegar_clientes_data_selecionada(data):
     return eventos
 
 
-def gerar_disponibilidade(id_evento, data, editando=False):
+def gerar_disponibilidade(id_evento):
     evento = FichaDeEvento.objects.get(pk=id_evento)
-    cliente = ClienteColegio.objects.get(id=evento.cliente.id)
-
-    # if editando:
-    #     ficha_de_evento_cliente = FichaDeEvento.objects.get(
-    #         cliente=cliente,
-    #         check_in__date__lte=data,
-    #         check_out__date__gte=data
-    #     )
-    # else:
-    #     ficha_de_evento_cliente = FichaDeEvento.objects.get(
-    #         escala=False,
-    #         check_in__date__lte=data,
-    #         check_out__date__gte=data,
-    #         cliente=cliente
-    #     )
-
-    check_in = evento.check_in
-    check_out = evento.check_out
+    check_in = evento.check_in.astimezone()
+    check_out = evento.check_out.astimezone()
 
     if evento.os:
         ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento=evento)

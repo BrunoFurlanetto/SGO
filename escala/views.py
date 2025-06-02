@@ -426,7 +426,7 @@ def montagem_escala_acampamento(request, data, id_evento=None):
         # ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
         try:
-            disponiveis = gerar_disponibilidade(evento.id, data_selecionada)
+            disponiveis = gerar_disponibilidade(evento.id)
         except AttributeError as e:
             messages.error(request, e)
 
@@ -503,6 +503,7 @@ def edicao_escala_acampamento(request, data, id_evento):
     escalado = []
     niveis_monitoria = []
     coordenadores_grupo = []
+
     if is_ajax(request):
         if request.POST.get('id_monitor'):
             return JsonResponse(verificar_escalas(
@@ -519,7 +520,7 @@ def edicao_escala_acampamento(request, data, id_evento):
     escalados = pegar_escalacoes(escala_editada)
 
     try:
-        teste_disponiveis = gerar_disponibilidade(id_cliente, data_selecionada, True)
+        teste_disponiveis = gerar_disponibilidade(id_evento)
     except AttributeError as e:
         print(str(e))
         messages.error(request, e)
