@@ -406,32 +406,29 @@ def pegar_clientes_data_selecionada(data):
     return eventos
 
 
-def gerar_disponibilidade(id_cliente, data, editando=False):
-    cliente = ClienteColegio.objects.get(id=int(id_cliente))
+def gerar_disponibilidade(id_evento, data, editando=False):
+    evento = FichaDeEvento.objects.get(pk=id_evento)
+    cliente = ClienteColegio.objects.get(id=evento.cliente.id)
 
-    if editando:
-        ficha_de_evento_cliente = FichaDeEvento.objects.get(
-            cliente=cliente,
-            check_in__date__lte=data,
-            check_out__date__gte=data
-        )
-    else:
-        ficha_de_evento_cliente = FichaDeEvento.objects.get(
-            escala=False,
-            check_in__date__lte=data,
-            check_out__date__gte=data,
-            cliente=cliente
-        )
+    # if editando:
+    #     ficha_de_evento_cliente = FichaDeEvento.objects.get(
+    #         cliente=cliente,
+    #         check_in__date__lte=data,
+    #         check_out__date__gte=data
+    #     )
+    # else:
+    #     ficha_de_evento_cliente = FichaDeEvento.objects.get(
+    #         escala=False,
+    #         check_in__date__lte=data,
+    #         check_out__date__gte=data,
+    #         cliente=cliente
+    #     )
 
-    check_in = ficha_de_evento_cliente.check_in
-    check_out = ficha_de_evento_cliente.check_out
+    check_in = evento.check_in
+    check_out = evento.check_out
 
-    if ficha_de_evento_cliente.os:
-        ordem_cliente = OrdemDeServico.objects.get(
-            ficha_de_evento__cliente=cliente,
-            check_in__date__lte=data,
-            check_out__date__gte=data
-        )
+    if evento.os:
+        ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento=evento)
         check_in = ordem_cliente.check_in
         check_out = ordem_cliente.check_out
 

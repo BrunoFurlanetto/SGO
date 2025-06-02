@@ -426,7 +426,7 @@ def montagem_escala_acampamento(request, data, id_evento=None):
         # ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
         try:
-            disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
+            disponiveis = gerar_disponibilidade(evento.id, data_selecionada)
         except AttributeError as e:
             messages.error(request, e)
 
