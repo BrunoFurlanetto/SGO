@@ -400,7 +400,7 @@
                         <tbody>
                         {% for sem_escala in sem_escalas %}
                             <tr style="cursor: pointer"
-                                onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.cliente.id %}'">
+                                onclick="window.location.href='{% url 'montagem_escala_acampamento_cliente' sem_escala.check_in|date:'Y-m-d' sem_escala.id %}'">
                                 <td>{{ sem_escala.cliente }}</td>
                                 <td>{{ sem_escala.produto }}</td>
                                 <td>{% if sem_escala.qtd_convidada %} {{ sem_escala.qtd_convidada }} {% else %}
@@ -440,7 +440,7 @@
                                     <td>{{ com_escala.produto }}</td>
                                     <td>{% if com_escala.qtd_convidada %} {{ com_escala.qtd_convidada }} {% else %} {{ com_escala.qtd_reservada }} {% endif %}
                                     <td>
-                                        <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.cliente.id %}">{{ escala.cliente }}</a>
+                                        <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.ficha_de_evento.id %}">{{ escala.cliente }}</a>
                                     </td>
                                     <td>{{ escala.ficha_de_evento.produto }}</td>
                                     <td>{% if escala.ficha_de_evento.qtd_convidada %}

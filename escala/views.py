@@ -404,9 +404,9 @@ def escalarMonitores(request, setor, data, id_cliente=None):
 
 
 @login_required(login_url='login')
-def montagem_escala_acampamento(request, data, id_cliente=None):
+def montagem_escala_acampamento(request, data, id_evento=None):
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
-    clientes_dia = pegar_clientes_data_selecionada(data_selecionada)
+    eventos_dia = pegar_clientes_data_selecionada(data_selecionada)
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
     coordenadores_grupo = []
     niveis_monitoria = []
@@ -419,10 +419,11 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
                 request.POST.get('cliente'))
             )
 
-    if request.GET.get('cliente') or id_cliente:
-        cliente = ClienteColegio.objects.get(id=request.GET.get('cliente') if not id_cliente else id_cliente)
-        inicio_evento = termino_evento = None
-        ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
+    if request.GET.get('evento') or id_evento:
+        evento = FichaDeEvento.objects.get(pk=request.GET.get('evento') if not id_evento else id_evento)
+        cliente = ClienteColegio.objects.get(pk=evento.cliente.id)
+        inicio_evento = termino_evento = ordem_de_servico = None
+        # ficha_de_evento, ordem_de_servico = procurar_ficha_de_evento(cliente, data_selecionada)
 
         try:
             disponiveis = gerar_disponibilidade(cliente.id, data_selecionada)
@@ -431,10 +432,11 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
 
             return redirect('dashboardPeraltas')
 
-        if ordem_de_servico:
+        if evento.os:
+            ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=evento)
             qtd_pagantes = ordem_de_servico.n_participantes
         else:
-            qtd_pagantes = ficha_de_evento.qtd_confirmada if ficha_de_evento.qtd_confirmada else 0
+            qtd_pagantes = evento.qtd_confirmada if evento.qtd_confirmada else 0
 
         if ordem_de_servico:
             inicio_evento = ordem_de_servico.check_in
@@ -445,9 +447,9 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
             monitores_embarque = pegar_dados_monitor_embarque(ordem_de_servico) if ordem_de_servico else None
             monitores_biologo = pegar_dados_monitor_biologo(ordem_de_servico) if ordem_de_servico else None
         else:
-            inicio_evento = ficha_de_evento.check_in
-            termino_evento = ficha_de_evento.check_out
-            n_monitores = int(ficha_de_evento.qtd_convidada / 10)
+            inicio_evento = evento.check_in
+            termino_evento = evento.check_out
+            n_monitores = int(evento.qtd_convidada / 10)
             monitores_embarque = monitores_biologo = None
 
         for monitor in disponiveis:
@@ -460,31 +462,31 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
                 niveis_monitoria.append(monitor['nivel'])
 
         return render(request, 'escala/escalar_monitores.html', {
-            'clientes_dia': clientes_dia,
+            'eventos_dia': eventos_dia,
             'diretoria': diretoria,
             'data': data_selecionada.strftime('%d-%m-%Y'),
             'setor': 'acampamento',
             'biologo': ordem_de_servico.atividade_biologo if ordem_de_servico else False,
-            'qtd': ficha_de_evento.qtd_convidada,
+            'qtd': evento.qtd_convidada,
             'qtd_pagantes': qtd_pagantes,
-            'ficha_de_evento': ficha_de_evento,
+            'ficha_de_evento': evento,
             'os': ordem_de_servico,
             'coordenadores_grupo': ', '.join(coordenadores_grupo) if ordem_de_servico else None,
             'monitores_embarque': monitores_embarque,
             'monitores_biologo': monitores_biologo,
-            'enfermaria': ficha_de_evento.informacoes_adcionais.enfermaria,
+            'enfermaria': evento.informacoes_adcionais.enfermaria,
             'id_cliente': cliente.id,
             'inicio': inicio_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
             'final': termino_evento.astimezone().strftime('%Y-%m-%d %H:%M'),
             'disponiveis': disponiveis,
             'n_monitores': n_monitores if n_monitores != 0 else 1,
-            'n_coordenadores': calcular_coordenadores(ordem_de_servico, ficha_de_evento),
+            'n_coordenadores': calcular_coordenadores(ordem_de_servico, evento),
             'niveis_monitoria': sorted(niveis_monitoria),
             'valor_monitoria': '0,00'
         })
 
     return render(request, 'escala/escalar_monitores.html', {
-        'clientes_dia': clientes_dia,
+        'eventos_dia': eventos_dia,
         'data': data_selecionada,
         'setor': 'acampamento',
         'niveis_monitoria': niveis_monitoria,
@@ -492,7 +494,8 @@ def montagem_escala_acampamento(request, data, id_cliente=None):
 
 
 @login_required(login_url='login')
-def edicao_escala_acampamento(request, data, id_cliente):
+def edicao_escala_acampamento(request, data, id_evento):
+    id_cliente = FichaDeEvento.objects.get(pk=id_evento).cliente.id
     data_selecionada = datetime.strptime(data, '%Y-%m-%d').date()
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
     setor = 'acampamento'

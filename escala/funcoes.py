@@ -33,8 +33,8 @@ def verificar_disponiveis(data):
     professores_disponiveis = []
     n_participantes = 0
     atividades_com_data_hora = set()  # Atividades com data e hora definida no dia específico
-    atividades_definidas = set()      # Atividades definidas (podem ou não ter data e hora)
-    atividades_a_definir = 0       # Atividades sem data e hora definida
+    atividades_definidas = set()  # Atividades definidas (podem ou não ter data e hora)
+    atividades_a_definir = 0  # Atividades sem data e hora definida
     atividades_a_definir_data_e_hora = set()
     locacoes_com_checkin = set()
     locacoes_sem_checkin = set()
@@ -64,7 +64,8 @@ def verificar_disponiveis(data):
                 if data_hora_atividade.date() == datetime.strptime(data, '%d/%m/%Y').date():
                     atividades_com_data_hora.add(Atividades.objects.get(pk=atividade['atividade']).atividade)
                 else:
-                    atividades_definidas.add(Atividades.objects.get(pk=atividade['atividade']).atividade)  # Adiciona à lista de atividades definidas
+                    atividades_definidas.add(Atividades.objects.get(
+                        pk=atividade['atividade']).atividade)  # Adiciona à lista de atividades definidas
             else:
                 if Atividades.objects.get(pk=atividade['atividade']).a_definir:
                     atividades_a_definir += 1
@@ -84,8 +85,8 @@ def verificar_disponiveis(data):
         'n_eventos': len(ordens),
         'n_participantes': n_participantes,
         'atividades_com_data_hora': list(atividades_com_data_hora),  # Atividades com data e hora no dia específico
-        'atividades_definidas': list(atividades_definidas),         # Todas as atividades definidas
-        'atividades_a_definir': atividades_a_definir,         # Atividades sem data e hora definida
+        'atividades_definidas': list(atividades_definidas),  # Todas as atividades definidas
+        'atividades_a_definir': atividades_a_definir,  # Atividades sem data e hora definida
         'locacoes_com_checkin': list(locacoes_com_checkin),
         'locacoes_sem_checkin': list(locacoes_sem_checkin),
         'atividades_a_definir_data_e_hora': list(atividades_a_definir_data_e_hora),
@@ -384,18 +385,25 @@ def pegar_clientes_data_selecionada(data):
         check_out__date__gte=data
     )
     # Junta em uma lista pra facilitar no looping que vai pegar os dados de forma correta
-    todos_clientes = list(chain(clientes_dia_ficha, clientes_dia_ordem))
-    clientes = []  # Lista que vai receber os dados
+    todos_eventos = list(chain(clientes_dia_ficha, clientes_dia_ordem))
+    eventos = []  # Lista que vai receber os dados
 
     # ----------------- Looping respoensável por pegar os dados do cliente em cada instância ---------------------
-    for cliente in todos_clientes:
-        if isinstance(cliente, FichaDeEvento):
-            clientes.append({'id': cliente.cliente.id, 'nome_fantasia': cliente.cliente.nome_fantasia})
+    for evento in todos_eventos:
+        if isinstance(evento, FichaDeEvento):
+            eventos.append({
+                'id': evento.id,
+                'nome_fantasia': evento.cliente.nome_fantasia,
+                'cliente_id': evento.cliente.id,
+            })
         else:
-            clientes.append({'id': cliente.ficha_de_evento.cliente.id,
-                             'nome_fantasia': cliente.ficha_de_evento.cliente.nome_fantasia})
+            eventos.append({
+                'id': evento.ficha_de_evento.id,
+                'nome_fantasia': evento.ficha_de_evento.cliente.nome_fantasia,
+                'cliente_id': evento.ficha_de_evento.cliente.id,
+            })
     # ------------------------------------------------------------------------------------------------------------
-    return clientes
+    return eventos
 
 
 def gerar_disponibilidade(id_cliente, data, editando=False):
@@ -507,7 +515,8 @@ def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=No
             try:
                 areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
             except AttributeError:
-                raise AttributeError(f'Monitor {disponibilidade.monitor.usuario.get_full_name()} sem nível atribuído, por favor atribuir')
+                raise AttributeError(
+                    f'Monitor {disponibilidade.monitor.usuario.get_full_name()} sem nível atribuído, por favor atribuir')
             else:
                 biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
@@ -638,8 +647,8 @@ def escalados_para_o_evento(dados_evento):
             'enfermeiras': enfermeiras,
             'tecnicos': tecnicos,
         },
-        'id_cliente': cliente.id,
-        'pre_escala': escala.pre_escala
+        'id_evento': escala.ficha_de_evento.id,
+        'pre_escala': escala.pre_escala,
     }
 
 

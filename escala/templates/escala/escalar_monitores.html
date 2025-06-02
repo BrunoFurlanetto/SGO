@@ -18,12 +18,12 @@
                         <div class="mb-2">
                             <h5 class="titulo-secao">Eventos para {{ data }}</h5>
                             <label for="cliente">Cliente</label>
-                            {% if clientes_dia %}
-                                <select class="form-select" name="cliente" id="cliente" required>
+                            {% if eventos_dia %}
+                                <select class="form-select" name="evento" id="cliente" required>
                                     <option selected></option>
-                                    {% for cliente in clientes_dia %}
-                                        <option value="{{ cliente.id }}" {% if id_cliente == cliente.id %}
-                                                selected {% endif %}>{{ cliente.nome_fantasia }}</option>
+                                    {% for evento in eventos_dia %}
+                                        <option value="{{ evento.id }}" {% if id_cliente == evento.cliente_id %}
+                                                selected {% endif %}>{{ evento.nome_fantasia }}</option>
                                     {% endfor %}
                                 </select>
                             {% else %}

@@ -215,7 +215,7 @@
                                         }
                                     }
 
-                                    $('#id_cliente_modal').val(response['id_cliente'])
+                                    $('#id_evento_modal').val(response['id_evento'])
 
                                 }
                             }).done(() => {
@@ -238,7 +238,7 @@
             })
 
             function redirecionar_edicao() {
-                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('YYYY-MM-DD')}/${$('#id_cliente_modal').val()}`
+                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('YYYY-MM-DD')}/${$('#id_evento_modal').val()}`
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>
@@ -284,7 +284,7 @@
                     <div>
                         <label for="cliente_modal">Cliente</label>
                         <input class="form-control" type="text" id="cliente_modal" disabled>
-                        <input type="hidden" id="id_cliente_modal">
+                        <input type="hidden" id="id_evento_modal">
                     </div>
                     <div class="row">
                         <div style="width: 50%">
