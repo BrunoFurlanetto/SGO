@@ -559,17 +559,9 @@ def edicao_escala_acampamento(request, data, id_evento):
     check_out = escala_editada.check_out_cliente.astimezone().strftime('%Y-%m-%d %H:%M')
 
     try:
-        ficha_de_evento = FichaDeEvento.objects.get(
-            cliente_id=id_cliente,
-            check_in__date__lte=data_selecionada,
-            check_out__date__gte=data_selecionada,
-        )
+        ficha_de_evento = FichaDeEvento.objects.get(pk=id_evento)
     except FichaDeEvento.DoesNotExist:
-        ordem_de_servico = OrdemDeServico.objects.get(
-            ficha_de_evento__cliente__id=id_cliente,
-            check_in__date__lte=data_selecionada,
-            check_out__date__gte=data_selecionada,
-        )
+        ordem_de_servico = OrdemDeServico.objects.get(ficha_de_evento=FichaDeEvento.objects.get(pk=id_evento))
 
         ficha_de_evento = ordem_de_servico.ficha_de_evento
         n_monitores = int(ordem_de_servico.n_participantes / escala_editada.racional_monitores)
