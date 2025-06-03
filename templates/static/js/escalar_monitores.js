@@ -555,7 +555,7 @@ function salvar_monitores_escalados(setor, pre_escala, data, editando = false) {
             'id_enfermeiras': id_enfermeiras,
             'id_coordenadores': id_coordenadores_escalados,
             'id_tecnicos': id_tecnicos,
-            'cliente': $('#cliente').val(),
+            'evento': $('#cliente').val(), // Os nomes não batem porque alterei de ID do cliente para ID da Ficha de Evento, mas como não tinha tempo pra poder corrigir tudo preferi manter algumas partes como antes
             'check_in': $('#check_in').val(),
             'check_out': $('#check_out').val(),
             'observacoes': $('#observacoes').val(),

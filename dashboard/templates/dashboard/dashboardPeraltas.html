@@ -423,7 +423,7 @@
                         </caption>
                         <thead>
                         <tr>
-                            <th style="width: 450px">Cliente</th>Add commentMore actions
+                            <th style="width: 450px">Cliente</th>
                             <th style="width: 150px">Produto</th>
                             <th>Estimado</th>
                             <th style="width: 250px">Check in</th>
@@ -436,37 +436,36 @@
                         <tbody>
                         {% for escala in escalas_feitas %}
                             <tr>
-                                <td>{{ com_escala.cliente }}</td>Add commentMore actions
-                                    <td>{{ com_escala.produto }}</td>
-                                    <td>{% if com_escala.qtd_convidada %} {{ com_escala.qtd_convidada }} {% else %} {{ com_escala.qtd_reservada }} {% endif %}
-                                    <td>
-                                        <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.ficha_de_evento.id %}">{{ escala.cliente }}</a>
-                                    </td>
-                                    <td>{{ escala.ficha_de_evento.produto }}</td>
-                                    <td>{% if escala.ficha_de_evento.qtd_convidada %}
-                                        {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
-                                        0 {% endif %}</td>
-                                    <td>{{ com_escala.check_in| date:'Y-m-d' }}</td>
-                                    <td> {{ com_escala.vendedora }} </td>
-                                    <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
-                                    <td> {{ escala.ficha_de_evento.vendedora }} </td>
-                                    <td>
-                                        <nobr>R$ {{ escala.valores_escala|floatformat:'2' }}*</nobr>
-                                    </td>
-                                    <td>
-                                        {% for nivel, contagem in escala.contagem_niveis.items %}
-                                            {{ nivel }}: {{ contagem }},
-                                        {% endfor %}
-                                    </td>
-                                    <td tabindex="0">
-                                        {% if escala.pre_escala %}
-                                            <button type="button" class="btn-confirmar-escala"
-                                                    onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
-                                                Não
-                                            </button>
-                                        {% endif %}
-                                        Sim
-                                    </td>
+                                <td>
+                                    <a href="{% url 'edicao_escala_acampamento' escala.check_in_cliente|date:'Y-m-d' escala.ficha_de_evento.id %}">
+                                        {{ escala.cliente }}
+                                    </a>
+                                </td>
+                                <td>{{ escala.ficha_de_evento.produto }}</td>
+                                <td>
+                                    {% if escala.ficha_de_evento.qtd_convidada %}
+                                    {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
+                                    0 {% endif %}
+                                </td>
+                                <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
+                                <td> {{ escala.ficha_de_evento.vendedora }} </td>
+                                <td>
+                                    <nobr>R$ {{ escala.valores_escala|floatformat:'2' }}*</nobr>
+                                </td>
+                                <td>
+                                    {% for nivel, contagem in escala.contagem_niveis.items %}
+                                        {{ nivel }}: {{ contagem }},
+                                    {% endfor %}
+                                </td>
+                                <td tabindex="0">
+                                    {% if escala.pre_escala %}
+                                        <button type="button" class="btn-confirmar-escala"
+                                                onclick="loading(); window.location.href='{% url 'confirmar_escala_id' escala.id %}'">
+                                            Não
+                                        </button>
+                                    {% endif %}
+                                    Sim
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -578,7 +577,8 @@
                             <tbody>
                             {% for evento in avaliacoes_cliente %}
                                 <tr class="align-middle" style="cursor: pointer"
-                                    onclick="window.location.href='{% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
+                                    onclick="window.location.href='
+                                            {% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
                                     <td>{{ evento.ficha_de_evento.cliente }}</td>
                                     <td>{{ evento.ficha_de_evento.check_in | date:'Y-m-d' }}</td>
                                     <td> {{ evento.ficha_de_evento.vendedora }} </td>

@@ -626,10 +626,11 @@ def salvar_escala_acampamento(request):
 
     if is_ajax(request):
         try:
-            cliente = ClienteColegio.objects.get(id=int(request.POST.get('cliente')))
+            ficha_de_evento = FichaDeEvento.objects.get(pk=request.POST.get('evento'))
+            ordem = OrdemDeServico.objects.get(ficha_de_evento=ficha_de_evento) if ficha_de_evento.os else None
+            cliente = ficha_de_evento.cliente
             check_in = datetime.strptime(request.POST.get('check_in'), '%Y-%m-%dT%H:%M')
             check_out = datetime.strptime(request.POST.get('check_out'), '%Y-%m-%dT%H:%M')
-            ficha_de_evento, ordem = procurar_ficha_de_evento(cliente, check_in.date())
 
             if request.POST.get('id_escala') != '':
                 editando_escala = EscalaAcampamento.objects.get(id=int(request.POST.get('id_escala')))
@@ -692,7 +693,7 @@ def salvar_escala_acampamento(request):
 
             messages.success(request, f'Escala para {cliente.nome_fantasia} salva com sucesso!')
 
-            return redirect('dashboard')
+        return redirect('dashboard')
 
 
 @login_required(login_url='login')
