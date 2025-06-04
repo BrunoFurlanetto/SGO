@@ -297,7 +297,11 @@ def dashboardPeraltas(request):
             monitores_acampamento=request.user.monitor,
             check_out_cliente__date__lte=datetime.today().date(),
             ficha_de_evento__os=True,
-        ).exclude(avaliou_coordenadores=request.user.monitor.id)
+        ).exclude(
+            avaliou_coordenadores=request.user.monitor.id
+        ).exclude(
+            ficha_de_evento__in=[ordem.ficha_de_evento.id for ordem in avaliacoes_coordenador_monitoria]
+        )
     else:
         avaliacoes_coordenador_monitoria = avaliacoes_monitores = avaliacoes_clientes = None
 

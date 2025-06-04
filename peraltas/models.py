@@ -1114,6 +1114,9 @@ class EscalaAcampamento(models.Model):
     racional_monitores = models.PositiveIntegerField(default=10)
     avaliou_coordenadores = models.ManyToManyField(Monitor, blank=True, related_name='avaliou_coordenadores')
 
+    def __str__(self):
+        return f'Escala de {self.cliente}'
+
     def tipo_escala(self):
         if self.ficha_de_evento.produto.colegio:
             return "Colégio"
