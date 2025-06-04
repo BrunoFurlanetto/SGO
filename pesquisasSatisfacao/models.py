@@ -455,6 +455,7 @@ class MonitorAvaliandoCoordenacao(PesquisaDeSatisfacao):
         blank=True,
         verbose_name='Tem alguma consideração sobre as atividades pedagógicas propostas?'
     )
+    observacoes_equipe = models.TextField(help_text='Conte um pouco sobre a sinergia dos coordenadores com a equipe perante ao evento')
 
     # Pergunta 13 - Palavras-chave
     palavras_chave = ArrayField(

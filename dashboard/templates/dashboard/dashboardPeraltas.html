@@ -577,8 +577,7 @@
                             <tbody>
                             {% for evento in avaliacoes_cliente %}
                                 <tr class="align-middle" style="cursor: pointer"
-                                    onclick="window.location.href='
-                                            {% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
+                                    onclick="window.location.href='{% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
                                     <td>{{ evento.ficha_de_evento.cliente }}</td>
                                     <td>{{ evento.ficha_de_evento.check_in | date:'Y-m-d' }}</td>
                                     <td> {{ evento.ficha_de_evento.vendedora }} </td>

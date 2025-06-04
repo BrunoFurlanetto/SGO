@@ -52,6 +52,9 @@ class MonitoriaAvaliandoCoordenacaoForm(forms.ModelForm):
             # Atualiza atributos sem sobrescrever
             field.widget.attrs['class'] = ' '.join(classes)
 
+        self.fields['tem_consideracoes_pedagogicas'].widget.attrs.update({'cols': 40, 'rows': 4})
+        self.fields['observacoes_equipe'].widget.attrs.update({'cols': 40, 'rows': 4})
+
     def clean(self):
         cleaned_data = super().clean()
 

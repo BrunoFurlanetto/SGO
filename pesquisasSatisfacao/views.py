@@ -247,6 +247,7 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
             'teve_briefing',
             'teve_feedback',
             'coordenador_participou',
+            'observacoes_equipe'
         ]
     })
 
@@ -760,5 +761,6 @@ def ver_avaliacao_coordenadores(request, id_avaliacao):
             'teve_briefing',
             'teve_feedback',
             'coordenador_participou',
+            'observacoes_equipe',
         ]
     })

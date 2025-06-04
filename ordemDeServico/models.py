@@ -5,7 +5,8 @@ from django import forms
 from django.db import models
 
 from ceu.models import Atividades
-from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus, \
+    EscalaAcampamento
 from peraltas.models import Vendedor
 
 
@@ -146,6 +147,11 @@ class OrdemDeServico(models.Model):
 
     def __str__(self):
         return f'Ordem de serviço de {self.ficha_de_evento.cliente}'
+
+    def listar_equipe_monitoria(self):
+        escala = EscalaAcampamento.objects.get(ficha_de_evento=self.ficha_de_evento)
+        print(escala.monitores_acampamento.all())
+        return ', '.join([monitor.usuario.get_full_name() for monitor in escala.monitores_acampamento.all()])
 
     def dividir_atividades_ceu(self):
         atividades = []

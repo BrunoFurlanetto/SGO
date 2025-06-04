@@ -1,3 +1,10 @@
+.container-avaliacao {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
 .required-field label:after {
     content: " *";
     color: #dc3545;
