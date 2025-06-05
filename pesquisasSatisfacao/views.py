@@ -23,6 +23,12 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
     monitores = escala.monitores_acampamento.all().exclude(usuario=request.user).order_by('usuario__first_name')
+    pode_avaliar = False
+    e_monitor = getattr(request.user, 'monitor', False)
+
+    if e_monitor:
+        if request.user.monitor in ordem.monitor_responsavel.all():
+            pode_avaliar = True
 
     if request.method == 'POST':
         form = CoordenacaoAvaliandoMonitoriaForm(request.POST)
@@ -149,6 +155,7 @@ def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
         'desempenho_formset': desempenho,
         'ordem': ordem,
         'monitores': monitores,
+        'pode_avaliar': pode_avaliar,
         'campos_nao_tabelaveis': [
             'observacoes_equipe',
             'palavras_descricao',
@@ -168,6 +175,12 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
     coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
+    pode_avaliar = False
+    e_monitor = getattr(request.user, 'monitor', False)
+
+    if e_monitor:
+        if request.user.monitor in escala.monitores_acampamento.all():
+            pode_avaliar = True
 
     if request.method == 'POST':
         form = MonitoriaAvaliandoCoordenacaoForm(request.POST)
@@ -236,6 +249,7 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
         'form': form,
         'avaliacao_formset': avaliacao,
         'ordem': ordem,
+        'pode_avaliar': pode_avaliar,
         'campos_nao_tabelaveis': [
             'palavra_1',
             'palavra_2',
@@ -255,9 +269,13 @@ def avaliacao_monitoria_coordenacao(request, id_ordem_de_servico):
 @login_required(login_url='login')
 def avaliacao_colegio(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
-    escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
     coordenadores = ordem.monitor_responsavel.all().order_by('usuario__first_name')
     dados_iniciais = []
+
+    try:
+        escala = EscalaAcampamento.objects.get(ficha_de_evento=ordem.ficha_de_evento)
+    except EscalaAcampamento.DoesNotExist:
+        escala = None
 
     if request.method == 'POST':
         form = AvaliacaoColegioForm(request.POST)

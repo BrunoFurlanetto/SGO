@@ -22,8 +22,8 @@
                                 <h3 class="h5 mb-3 text-primary">Informações Gerais</h3>
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <p class="mb-1"><strong>Coordenador:</strong></p>
-                                        <p>{{ request.user.get_full_name }}</p>
+                                        <p class="mb-1"><strong>Coordenador(es):</strong></p>
+                                        <p>{{ ordem.monitor_responsavel.all|join:', ' }}</p>
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1"><strong>Data do Evento:</strong></p>
@@ -335,7 +335,7 @@
                                 <small class="text-muted">Digite até 5 palavras-chave individuais</small>
                             </div>
                         </div>
-                        {% if not visualizacao %}
+                        {% if not visualizacao and pode_avaliar %}
                             <div class="card-footer bg-light">
                                 <div class="d-flex justify-content-between">
                                     <button type="button" class="btn btn-secondary" onclick="history.back()">
