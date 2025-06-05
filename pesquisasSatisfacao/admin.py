@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from pesquisasSatisfacao.models import OpcoesMotivacao
+
+
+@admin.register(OpcoesMotivacao)
+class OpcoesMotivacaoAdmin(admin.ModelAdmin):
+    list_display = ('motivo',)
