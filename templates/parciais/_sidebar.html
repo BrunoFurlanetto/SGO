@@ -322,7 +322,9 @@
                         <li><a class="link_name">Estatísticas</a></li>
                             <li><a href="{% url 'painel_diretoria' %}">Eventos</a></li>
                             <li><a href="{% url 'estatisticas_monitoria' %}">Monitoria</a></li>
-                            <li><a href="{% url 'ver_avaliacoes_peraltas' %}">Avaliações</a></li>
+                            {% if perms.pesquisasSatisfacao.view_avaliacaocolegio or perms.pesquisasSatisfacao.view_avaliacaocorporativo or perms.pesquisasSatisfacao.view_monitoravaliandocoordenacao or perms.pesquisasSatisfacao.view_coordenacaoavaliandomonitoria %}
+                                <li><a href="{% url 'ver_avaliacoes_peraltas' %}">Avaliações</a></li>
+                       {% endif %}
                     </ul>
                 {% endif %}
 
