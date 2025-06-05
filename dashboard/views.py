@@ -159,6 +159,10 @@ def dashboardPeraltas(request):
     operacional = User.objects.filter(pk=request.user.id, groups__name__icontains='operacional').exists()
     coordenador_monitoria = request.user.has_perm('peraltas.add_escalaacampamento')
     escalas_feitas = None
+    avaliacoes_clientes_colegio = []
+    avaliacoes_clientes_corporativo = []
+    avaliacoes_coordenador_monitoria = []
+    avaliacoes_monitores = []
 
     try:
         monitor = Monitor.objects.get(usuario=request.user)
@@ -276,34 +280,76 @@ def dashboardPeraltas(request):
             dia_limite_peraltas
         )
 
-    if monitor:
-        if coordenador_monitoria:
-            avaliacoes_coordenador_monitoria = OrdemDeServico.objects.filter(
-                check_out__date__lte=datetime.today().date(),
-                monitor_responsavel=request.user.monitor.id,
-                escala=True,
-            ).exclude(
-                avaliou_monitoria=request.user.monitor.id
-            )
-            avaliacoes_clientes = OrdemDeServico.objects.filter(
-                check_out__date__lte=datetime.today().date(),
-                monitor_responsavel=request.user.monitor.id,
-                cliente_avaliou=False,
-            ).exclude(ficha_de_evento__produto__colegio=True, escala=False)
-        else:
-            avaliacoes_coordenador_monitoria = avaliacoes_clientes = None
+    # Inicializa as variáveis vazias
+    avaliacoes_clientes_colegio = OrdemDeServico.objects.none()
+    avaliacoes_clientes_corporativo = OrdemDeServico.objects.none()
+    ordens_coordenadores = OrdemDeServico.objects.none()
+    avaliacoes_monitores = EscalaAcampamento.objects.none()
+    avaliacoes_coordenador_monitoria = OrdemDeServico.objects.none()
+
+    # Avaliações de colégio
+    if request.user.has_perm('pesquisasSatisfacao.add_avaliacaocolegio'):
+        avaliacoes_clientes_colegio = OrdemDeServico.objects.filter(
+            check_out__date__lte=datetime.today().date(),
+            cliente_avaliou=False,
+            ficha_de_evento__produto__colegio=True
+        ).exclude(
+            check_out__date__lt=(datetime.today() - timedelta(days=180)).date()
+        ).order_by('-check_out')
+
+    # Avaliações corporativas
+    if request.user.has_perm('pesquisasSatisfacao.add_avaliacaocorporativo'):
+        avaliacoes_clientes_corporativo = OrdemDeServico.objects.filter(
+            check_out__date__lte=datetime.today().date(),
+            cliente_avaliou=False,
+            ficha_de_evento__produto__colegio=False
+        ).exclude(
+            check_out__date__lt=(datetime.today() - timedelta(days=180)).date()
+        ).order_by('-check_out')
+
+    # Coordenadores avaliados por monitores
+    if request.user.has_perm('pesquisasSatisfacao.add_monitoravaliandocoordenacao'):
+        ordens_coordenadores = OrdemDeServico.objects.filter(
+            check_out__date__lte=datetime.today().date()
+        ).select_related('ficha_de_evento')
+
+        ficha_excluida = ordens_coordenadores.values_list('ficha_de_evento', flat=True)
 
         avaliacoes_monitores = EscalaAcampamento.objects.filter(
-            monitores_acampamento=request.user.monitor,
             check_out_cliente__date__lte=datetime.today().date(),
-            ficha_de_evento__os=True,
+            ficha_de_evento__os=True
         ).exclude(
-            avaliou_coordenadores=request.user.monitor.id
+            ficha_de_evento__in=ficha_excluida
         ).exclude(
-            ficha_de_evento__in=[ordem.ficha_de_evento.id for ordem in avaliacoes_coordenador_monitoria]
-        )
-    else:
-        avaliacoes_coordenador_monitoria = avaliacoes_monitores = avaliacoes_clientes = None
+            check_out_cliente__date__lt=(datetime.today() - timedelta(days=180)).date()
+        ).order_by('-check_out_cliente')
+
+    # Monitoria avaliada por coordenadores
+    if request.user.has_perm('pesquisasSatisfacao.add_coordenacaoavaliandomonitoria'):
+        avaliacoes_coordenador_monitoria = OrdemDeServico.objects.filter(
+            check_out__date__lte=datetime.today().date(),
+            escala=True
+        ).exclude(
+            check_out__date__lt=(datetime.today() - timedelta(days=180)).date()
+        ).order_by('-check_out')
+
+    # Filtro adicional por monitor, se houver
+    if monitor:
+        if avaliacoes_clientes_colegio.exists():
+            avaliacoes_clientes_colegio = avaliacoes_clientes_colegio.filter(monitor_responsavel=monitor)
+
+        if avaliacoes_clientes_corporativo.exists():
+            avaliacoes_clientes_corporativo = avaliacoes_clientes_corporativo.filter(monitor_responsavel=monitor)
+
+        if avaliacoes_coordenador_monitoria.exists():
+            avaliacoes_coordenador_monitoria = avaliacoes_coordenador_monitoria.filter(
+                monitor_responsavel=monitor
+            ).exclude(avaliou_monitoria=monitor)
+
+        if avaliacoes_monitores.exists():
+            avaliacoes_monitores = avaliacoes_monitores.filter(
+                monitores_acampamento=monitor
+            ).exclude(avaliou_coordenadores=monitor)
 
     if request.POST.get('termo_de_aceite'):
         monitor.aceite_do_termo = True
@@ -389,7 +435,7 @@ def dashboardPeraltas(request):
         'pacotes': pacotes,
         'eventos_coordenador_avaliar': avaliacoes_coordenador_monitoria,
         'avaliacoes_monitores': avaliacoes_monitores,
-        'avaliacoes_cliente': avaliacoes_clientes,
+        'avaliacoes_cliente': list(chain(avaliacoes_clientes_colegio, avaliacoes_clientes_corporativo)),
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })
 

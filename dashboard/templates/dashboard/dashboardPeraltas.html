@@ -157,14 +157,8 @@
                      onclick="alterar_aba(this, 'orcamentos_aprovados')">Orçamentos
                 </div>
             {% endif %}
-            {% if coordenador_monitoria %}
+            {% if perms.pesquisasSatisfacao.add_avaliacaocolegio or perms.pesquisasSatisfacao.add_avaliacaocorporativo or perms.pesquisasSatisfacao.add_monitoravaliandocoordenacao or perms.pesquisasSatisfacao.add_coordenacaoavaliandomonitoria %}
                 <div class="folder" onclick="alterar_aba(this, 'fichas_avaliacao_faltantes')">
-                    Fichas de avaliação
-                </div>
-            {% endif %}
-            {% if monitor and not coordenador_monitoria %}
-                <div class="folder ativo"
-                     onclick="alterar_aba(this, 'fichas_avaliacao_faltantes_monitores')">
                     Fichas de avaliação
                 </div>
             {% endif %}
@@ -444,8 +438,8 @@
                                 <td>{{ escala.ficha_de_evento.produto }}</td>
                                 <td>
                                     {% if escala.ficha_de_evento.qtd_convidada %}
-                                    {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
-                                    0 {% endif %}
+                                        {{ escala.ficha_de_evento.qtd_convidada }} {% else %}
+                                        0 {% endif %}
                                 </td>
                                 <td>{{ escala.check_in_cliente| date:'Y-m-d' }}</td>
                                 <td> {{ escala.ficha_de_evento.vendedora }} </td>
@@ -511,8 +505,10 @@
                     </div>
                 </div>
             {% endif %}
-            {% if coordenador_monitoria %}
-                <div id="fichas_avaliacao_faltantes" class="section-content">
+        {% endif %}
+        {% if perms.pesquisasSatisfacao.add_avaliacaocolegio or perms.pesquisasSatisfacao.add_avaliacaocorporativo or perms.pesquisasSatisfacao.add_monitoravaliandocoordenacao or perms.pesquisasSatisfacao.add_coordenacaoavaliandomonitoria %}
+            <div id="fichas_avaliacao_faltantes" class="section-content">
+                {% if perms.pesquisasSatisfacao.add_coordenacaoavaliandomonitoria %}
                     <div class="tabelas">
                         <h5>Avaliar equipe de monitoria</h5>
                         <table id="tabela_avaliacoes_monitoria" class="table table-hover table-striped"
@@ -538,6 +534,8 @@
                             </tbody>
                         </table>
                     </div>
+                {% endif %}
+                {% if perms.pesquisasSatisfacao.add_monitoravaliandocoordenacao %}
                     <div class="tabelas">
                         <h5>Avaliar equipe de coordenadores</h5>
                         <table id="tabela_avaliacoes_coordenadores" class="table table-hover table-striped"
@@ -563,6 +561,8 @@
                             </tbody>
                         </table>
                     </div>
+                {% endif %}
+                {% if perms.pesquisasSatisfacao.add_avaliacaocolegio or perms.pesquisasSatisfacao.add_avaliacaocorporativo %}
                     <div class="tabelas">
                         <h5>Fichas para o cliente avaliar</h5>
                         <table id="tabela_avaliacoes_clientes" class="table table-hover table-striped"
@@ -572,51 +572,28 @@
                                 <th class="text-center">Cliente</th>
                                 <th class="text-center">Check in</th>
                                 <th class="text-center">Colaborador</th>
+                                {% if not monitor %}
+                                    <th class="text-center">Coordenador grupo</th>
+                                {% endif %}
                             </tr>
                             </thead>
                             <tbody>
                             {% for evento in avaliacoes_cliente %}
                                 <tr class="align-middle" style="cursor: pointer"
-                                    onclick="window.location.href='{% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
+                                    onclick="window.location.href='
+                                            {% if evento.ficha_de_evento.produto.colegio %}{% url 'avaliacao_colegio' evento.id %}{% else %}{% url 'avaliacao_corporativo' evento.id %}{% endif %}'">
                                     <td>{{ evento.ficha_de_evento.cliente }}</td>
                                     <td>{{ evento.ficha_de_evento.check_in | date:'Y-m-d' }}</td>
                                     <td> {{ evento.ficha_de_evento.vendedora }} </td>
+                                    {% if not monitor %}
+                                        <td> {{ evento.monitor_responsavel.all|join:", " }} </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </div>
-            {% endif %}
-        {% endif %}
-        {% if monitor and not coordenador_monitoria %}
-            <div id="fichas_avaliacao_faltantes_monitores"
-                 class="section-content ativo">
-                <div class="tabelas">
-                    <h5>Avaliar equipe de coordenadores</h5>
-                    <table id="tabela_avaliacoes_coordenadores" class="table table-hover table-striped"
-                           style="border-top: solid">
-                        <thead>
-                        <tr>
-                            <th class="text-center">Cliente</th>
-                            <th class="text-center">Check in</th>
-                            <th class="text-center">Coordenadores</th>
-                            <th class="text-center">Colaborador</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for escala in avaliacoes_monitores %}
-                            <tr class="align-middle" style="cursor: pointer"
-                                onclick="window.location.href='{% url 'avaliacao_monitoria_coordenacao' escala.id_ordem_de_servico %}'">
-                                <td>{{ escala.cliente }}</td>
-                                <td>{{ escala.check_in_cliente | date:'Y-m-d' }}</td>
-                                <td>{{ escala.coordenadores }}</td>
-                                <td> {{ escala.ficha_de_evento.vendedora }} </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                {% endif %}
             </div>
         {% endif %}
         {% if financeiro %}

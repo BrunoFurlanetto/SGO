@@ -18,9 +18,9 @@ $(document).ready(() => {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
         $('#status #tabela_status_ficha').iniciarlizarDataTable(5, 5)
         $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_avisos, #tabela_sem_escala, #tabela_com_escala').iniciarlizarDataTable(3, 3)
-        $('#tabela_avaliacoes_monitoria, #tabela_avaliacoes_coordenadores').iniciarlizarDataTable([1], 1)
-        $('#tabela_avaliacoes_clientes').iniciarlizarDataTable([1], 1)
-        $('#tabela_status_ordem').iniciarlizarDataTable([4], 4)
+        $('#tabela_avaliacoes_monitoria, #tabela_avaliacoes_coordenadores').iniciarlizarDataTable([1], 1, 'desc')
+        $('#tabela_avaliacoes_clientes').iniciarlizarDataTable([1], 1, 'desc')
+        $('#tabela_status_ordem').iniciarlizarDataTable([4], 4, 'desc')
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)
@@ -29,7 +29,7 @@ $(document).ready(() => {
     }
 })
 
-$.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
+$.fn.iniciarlizarDataTable = function (columnData, columnOrder, senseOrder='asc') {
     return $(this).DataTable({
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
@@ -49,7 +49,7 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
                 return data;
             },
         }],
-        order: [columnOrder, 'asc']
+        order: [columnOrder, senseOrder]
     })
 }
 
