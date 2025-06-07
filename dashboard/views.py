@@ -310,11 +310,11 @@ def dashboardPeraltas(request):
     # Coordenadores avaliados por monitores
     if request.user.has_perm('pesquisasSatisfacao.add_monitoravaliandocoordenacao'):
         ordens_coordenadores = OrdemDeServico.objects.filter(
-            check_out__date__lte=datetime.today().date()
+            check_out__date__lte=datetime.today().date(),
+            monitor_responsavel=request.user.monitor,
         ).select_related('ficha_de_evento')
 
         ficha_excluida = ordens_coordenadores.values_list('ficha_de_evento', flat=True)
-
         avaliacoes_monitores = EscalaAcampamento.objects.filter(
             check_out_cliente__date__lte=datetime.today().date(),
             ficha_de_evento__os=True

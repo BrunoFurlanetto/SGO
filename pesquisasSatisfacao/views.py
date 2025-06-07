@@ -22,7 +22,7 @@ from pesquisasSatisfacao.models import AvaliacaoIndividualMonitor, DestaqueAtivi
 def avaliacao_coordenacao_monitoria(request, id_ordem_de_servico):
     ordem = get_object_or_404(OrdemDeServico, pk=id_ordem_de_servico)
     escala = get_object_or_404(EscalaAcampamento, ficha_de_evento=ordem.ficha_de_evento)
-    monitores = escala.monitores_acampamento.all().exclude(usuario=request.user).order_by('usuario__first_name')
+    monitores = escala.monitores_acampamento.all().exclude(usuario__monitor__in=ordem.monitor_responsavel.all()).order_by('usuario__first_name') # Trocar pra pegar coordenadores da ordem
     pode_avaliar = False
     e_monitor = getattr(request.user, 'monitor', False)
 
