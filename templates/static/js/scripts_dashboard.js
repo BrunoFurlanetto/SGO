@@ -111,6 +111,10 @@ $(document).ready(() => {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
         $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
         $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').iniciarlizarDataTable(3, 3)
+        $('#fichas_financeiras_aprovar table').iniciarlizarDataTableOrcamento([0, 3, 4], 0, [])
+        $('#fichas_financeiras table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [])
+        $('#fichas_financeiras_financeiro .aprovadas, #fichas_financeiras_financeiro .negadas').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [])
+        $('#fichas_financeiras_financeiro .aguardando').iniciarlizarDataTableOrcamento([0, 3, 4], 0, [])
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)

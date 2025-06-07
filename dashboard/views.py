@@ -212,7 +212,11 @@ def dashboardPeraltas(request):
     else:
         fichas_financeira_aprovacao = None
 
-    fichas_financeira_negadas = FichaFinanceira.objects.filter(dados_evento__colaborador=request.user.id, negado=True)
+    fichas_financeira_colaborador = FichaFinanceira.objects.filter(
+        dados_evento__colaborador=request.user.id,
+        data_aprovacao_diretoria__isnull=False,
+        orcamento__check_in__date__gte=(datetime.today() - timedelta(days=180)).date(),
+    )
     msg_monitor = None
     grupos_usuario = request.user.groups.all()
     diretoria = Group.objects.get(name='Diretoria')
@@ -294,7 +298,8 @@ def dashboardPeraltas(request):
         'tratativas': Tratativas.objects.filter(orcamentos__in=orcamentos_colaborador).distinct() if financeiro not in grupos_usuario else [],
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
-        'fichas_financeira_negadas': fichas_financeira_negadas,
+        'fichas_financeira_negadas': fichas_financeira_colaborador.filter(negado=True),
+        'fichas_financeira_aprovadas': fichas_financeira_colaborador.filter(negado=False),
         'fichas_financeiras': fichas_financeiras,
         'previas_orcamento': orcamentos_colaborador.filter(previa=True),
         'orcamentos_aprovacao': Orcamento.objects.filter(

@@ -183,6 +183,7 @@ def negar_ficha_financeira(request, id_ficha_financeira):
     try:
         ficha.negado = True
         ficha.motivo_recusa = request.POST.get('motivo_recusa')
+        ficha.data_aprovacao_diretoria = datetime.datetime.now()
         ficha.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
