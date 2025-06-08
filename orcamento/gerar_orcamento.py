@@ -106,25 +106,38 @@ def desenhar_bloco_texto(
         linha_offset_cm=0.3,
         fontName='Montserrat',
         line_spacing_cm=1.0,
+        usar_bullet=False,              # ativa/desativa bullets
+        bulletText="•",                 # símbolo do bullet
+        recuo_bullet_cm=0.5,            # recuo extra quando bullet=True
 ):
     largura, altura = A4
-    x = x_inicial_cm * cm
+    x_base = x_inicial_cm * cm
     y = altura - (y_inicial_cm * cm)
     largura_maxima = largura_maxima_cm * cm
 
-    # ⚡ Criar um estilo novo, não usar getSampleStyleSheet()
+    # Estilo base (continua inalterado)
     style = ParagraphStyle(
         name="EstiloPersonalizado",
-        fontName=fontName,  # Fonte base (normal)
+        fontName=fontName,
         fontSize=tamanho_fonte,
-        leading=tamanho_fonte * line_spacing_cm,  # Espaçamento interno entre linhas (1.5x)
+        leading=tamanho_fonte * line_spacing_cm,
         textColor='black',
         alignment=TA_JUSTIFY
     )
 
+    # Loop nos textos
     for texto in textos:
-        p = Paragraph(texto, style)
-        width, height = p.wrap(largura_maxima, 9999)  # define largura máxima; altura é dinâmica
+        # calcula o x para este item (com ou sem recuo de bullet)
+        if usar_bullet:
+            x = x_base + recuo_bullet_cm * cm
+            # o Paragraph recebe o bulletText para desenhar o marcador
+            p = Paragraph(texto, style, bulletText=bulletText)
+        else:
+            x = x_base
+            p = Paragraph(texto, style)
+
+        # envolve e desenha
+        width, height = p.wrap(largura_maxima - (x - x_base), 9999)
         p.drawOn(c, x, y - height)
         y -= (height + linha_offset_cm * cm)
 
@@ -270,18 +283,19 @@ def primeira_pagina(c, orcamento, pre_orcamento=False):
     # -------------------------------------------- Dados do produto ----------------------------------------------------
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-    c.drawString(2.17 * cm, y_atual - 0.7 * cm, "INFORMAÇÕES DO PACOTE CONTRATADO")
+    c.drawString(6 * cm, y_atual - 0.7 * cm, "INFORMAÇÕES DO PACOTE CONTRATADO")
     y_atual = y_atual - 0.7 * cm
     dados_produto_e_check_in = [
         f'<b>PACOTE CONTRATADO</b>: {orcamento.produto.produto}',
-        f'<b>CHECK-IN & CHECK-OUT</b>: {orcamento.check_in.astimezone().strftime("%d/%m/%Y %H:%M")} - {orcamento.check_out.astimezone().strftime("%d/%m/%Y %H:%M")}',
+        f'<b>CHECK-IN</b>: {orcamento.check_in.astimezone().strftime("%d/%m/%Y às %H:%M")}',
+        f'<b>CHECK-OUT</b>: {orcamento.check_out.astimezone().strftime("%d/%m/%Y às %H:%M")}',
     ]
     y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.5 * cm)) / cm, dados_produto_e_check_in,
                                    largura_maxima_cm=15, linha_offset_cm=0.4)
     c.drawImage(
         'orcamento/modelos/icone_produto.png',
         cm_to_pt(2.23),
-        cm_to_pt((y_atual / cm) + 0.1),
+        cm_to_pt((y_atual / cm) + 0.5),
         width=cm_to_pt(1.73),
         height=cm_to_pt(1.73),
         mask='auto'
@@ -303,8 +317,8 @@ def primeira_pagina(c, orcamento, pre_orcamento=False):
     else:
         dados_alimentacao = [
             f'<b>Primeiro dia</b>: {orcamento.alimentacao_entrada}',
-            f'<b>Último dia</b>: {orcamento.alimentacao_saida}',
             f'<b>Demais dia</b>: Café da manhã, Almoço, Jantar e Chá da noite',
+            f'<b>Último dia</b>: {orcamento.alimentacao_saida}',
         ]
 
     y_atual = desenhar_bloco_texto(c, 4, (altura - y_atual + (0.2 * cm)) / cm, dados_alimentacao, largura_maxima_cm=15)
@@ -375,24 +389,6 @@ def primeira_pagina(c, orcamento, pre_orcamento=False):
             mask='auto'
         )
 
-    # ----------------------------------------- Observações importantes ------------------------------------------------
-    c.setFont("Montserrat-Bold", 12)
-    c.setFillColor(black)
-    c.drawString(7 * cm, y_atual - 0.8 * cm, "OBSERVAÇÕES IMORTANTES")
-    y_atual = y_atual - 0.8 * cm
-    obs = [
-        'Não oferecemos acomodações para motoristas quando o transporte não for operado por nós.',
-        'É fundamental que cada aluno traga suas próprias toalhas para a piscina e para banho.',
-    ]
-
-    y_atual = desenhar_bloco_texto(
-        c,
-        2.25,
-        (altura - y_atual + (0.2 * cm)) / cm,
-        obs, largura_maxima_cm=16.55,
-        line_spacing_cm=1.5
-    )
-
     c.showPage()
 
 
@@ -402,7 +398,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     desenhar_icones_segunda_pagina(c)
     c.setFont("Montserrat-Bold", 12)
     c.setFillColor(black)
-    c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
+    c.drawString(6.5 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
     y_atual = altura - 6 * cm
 
     # ---------------------------------------- Informações dos opcionais -----------------------------------------------
@@ -414,7 +410,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
                 desenhar_icones_segunda_pagina(c)
                 c.setFont("Montserrat-Bold", 12)
                 c.setFillColor(black)
-                c.drawString(2.25 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
+                c.drawString(6 * cm, altura - 6 * cm, "ATIVIDADES CONTRATADAS")
                 y_atual = altura - 6 * cm
 
             c.setFont("Montserrat-Bold", 12)
@@ -437,12 +433,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
             desenhar_icones_segunda_pagina(c)
             c.setFont("Montserrat-Bold", 12)
             c.setFillColor(black)
-            c.drawString(2.25 * cm, altura - 6 * cm, "OUTROS ITENS")
+            c.drawString(8.5 * cm, altura - 6 * cm, "OUTROS ITENS")
             y_atual = altura - 6 * cm
         else:
             c.setFont("Montserrat-Bold", 12)
             c.setFillColor(black)
-            c.drawString(2.25 * cm, y_atual - 0.8 * cm, "OUTROS ITENS")
+            c.drawString(8.5 * cm, y_atual - 0.8 * cm, "OUTROS ITENS")
             y_atual = y_atual - 0.8 * cm
 
         for outro in orcamento.opcionais_extra:
@@ -452,7 +448,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
                 desenhar_icones_segunda_pagina(c)
                 c.setFont("Montserrat-Bold", 12)
                 c.setFillColor(black)
-                c.drawString(2.25 * cm, altura - 6 * cm, "OUTROS ITENS")
+                c.drawString(8.5 * cm, altura - 6 * cm, "OUTROS ITENS")
                 y_atual = altura - 6 * cm
 
             c.setFont("Montserrat-Bold", 12)
@@ -475,12 +471,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
             desenhar_icones_segunda_pagina(c)
             c.setFont("Montserrat-Bold", 12)
             c.setFillColor(black)
-            c.drawString(2.25 * cm, altura - 6 * cm, "OBSERVAÇÕES")
+            c.drawString(8.5 * cm, altura - 6 * cm, "OBSERVAÇÕES")
             y_atual = altura - 6 * cm
         else:
             c.setFont("Montserrat-Bold", 12)
             c.setFillColor(black)
-            c.drawString(2.25 * cm, y_atual - 0.8 * cm, "OBSERVAÇÕES")
+            c.drawString(8.5 * cm, y_atual - 0.8 * cm, "OBSERVAÇÕES")
             y_atual = y_atual - 0.8 * cm
 
         y_atual = desenhar_bloco_texto(
@@ -490,6 +486,35 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
             [orcamento.observacoes], largura_maxima_cm=15.95,
             line_spacing_cm=1.5
         )
+    print(y_atual)
+    # ----------------------------------------- Observações importantes ------------------------------------------------
+    if y_atual <= 158:
+        c.showPage()
+        iniciar_nova_pagina(c, pre_orcamento)
+        desenhar_icones_segunda_pagina(c)
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
+        c.drawString(7 * cm, y_atual - 6 * cm, "OBSERVAÇÕES IMORTANTES")
+        y_atual = altura - 6 * cm
+    else:
+        c.setFont("Montserrat-Bold", 12)
+        c.setFillColor(black)
+        c.drawString(7 * cm, y_atual - 0.8 * cm, "OBSERVAÇÕES IMORTANTES")
+        y_atual = y_atual - 0.8 * cm
+
+    obs = [
+        'Não oferecemos acomodações para motoristas quando o transporte não for operado por nós.',
+        'É fundamental que cada aluno traga suas próprias toalhas para a piscina e para banho, com nome do aluno',
+    ]
+
+    y_atual = desenhar_bloco_texto(
+        c,
+        2.25,
+        (altura - y_atual + (0.2 * cm)) / cm,
+        obs, largura_maxima_cm=16.55,
+        line_spacing_cm=1.5,
+        usar_bullet=True
+    )
 
     # ------------------------------------------------- Condições finais -----------------------------------------------
     c.setFont("Montserrat-Bold", 12)
@@ -500,12 +525,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         iniciar_nova_pagina(c, pre_orcamento)
         c.setFont("Montserrat-Bold", 12)
         c.setFillColor(black)
-        c.drawString(2.25 * cm, altura - 6.5 * cm, "CONDIÇÕES FINAIS")
+        c.drawString(8 * cm, altura - 6.5 * cm, "CONDIÇÕES FINAIS")
         y_atual = altura - 6.5 * cm
     else:
         c.setFont("Montserrat-Bold", 12)
         c.setFillColor(black)
-        c.drawString(2.25 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
+        c.drawString(8 * cm, y_atual - 0.8 * cm, "CONDIÇÕES FINAIS")
         y_atual = y_atual - 0.8 * cm
 
     condicoes_finais = [orcamento.condicoes_finais]
@@ -524,12 +549,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         iniciar_nova_pagina(c, pre_orcamento)
         c.setFont("Montserrat-Bold", 12)
         c.setFillColor(black)
-        c.drawString(2.25 * cm, altura - 6.5 * cm, "INVESTIMENTO POR ALUNO")
+        c.drawString(7.5 * cm, altura - 6.5 * cm, "INVESTIMENTO POR ALUNO")
         y_atual = altura - 6.5 * cm
     else:
         c.setFont("Montserrat-Bold", 12)
         c.setFillColor(black)
-        c.drawString(2.25 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
+        c.drawString(7.5 * cm, y_atual - 0.8 * cm, "INVESTIMENTO POR ALUNO")
         y_atual = y_atual - 0.8 * cm
 
     if pre_orcamento:
@@ -636,6 +661,6 @@ def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
             f"Não foi encontrado um template para o ano {orcamento.check_in.year}."
         )
 
-    buffer = mesclar_pdf_dinamico_com_modelo(buffer, template_orcamento.arquivo)
+    # buffer = mesclar_pdf_dinamico_com_modelo(buffer, template_orcamento.arquivo)
 
     return buffer

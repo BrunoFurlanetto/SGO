@@ -1126,8 +1126,8 @@ class Orcamento(models.Model):
     def alimentacao_saida(self):
         return HorariosPadroes.objects.get(
             entrada_saida=False,
-            horario__lte=self.check_in.astimezone().time(),
-            final_horario__gte=self.check_in.astimezone().time(),
+            horario__lte=self.check_out.astimezone().time(),
+            final_horario__gte=self.check_out.astimezone().time(),
             so_ceu=self.tipo_de_pacote.so_ceu if self.promocional else False
         ).descricao_alimentacao
 
@@ -1785,7 +1785,6 @@ class CadastroOrcamento(forms.ModelForm):
                 inicio_vigencia__year=datetime.now().year,
                 liberado=True,
             ).order_by('nome_monitoria')
-
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))
