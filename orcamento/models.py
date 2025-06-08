@@ -1770,11 +1770,22 @@ class CadastroOrcamento(forms.ModelForm):
         self.fields['promocional'].widget.attrs['onclick'] = f'window.location.href="{url}"'
         clientes = ClienteColegio.objects.all()
         responsaveis = Responsavel.objects.all()
-        valores_monitorias = OrcamentoMonitor.objects.filter(liberado=True).order_by('nome_monitoria')
         gerentes = [('', '')]
         responsaveis_cargo = [('', '')]
         clientes_cnpj = [('', '')]
         opcoes_validas_monitoria = [('', '')]
+
+        if self.instance and self.instance.pk:
+            valores_monitorias = OrcamentoMonitor.objects.filter(
+                inicio_vigencia__year=self.instance.check_in.date().year,
+                liberado=True,
+            ).order_by('nome_monitoria')
+        else:
+            valores_monitorias = OrcamentoMonitor.objects.filter(
+                inicio_vigencia__year=datetime.now().year,
+                liberado=True,
+            ).order_by('nome_monitoria')
+
 
         for cliente in clientes:
             clientes_cnpj.append((cliente.id, f'{cliente} ({cliente.cnpj})'))

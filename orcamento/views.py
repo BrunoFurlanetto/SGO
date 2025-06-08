@@ -612,7 +612,7 @@ def salvar_pacote(request):
 
         try:
             pacote = dados_pacote_promocional.save(commit=False)
-            pacote.save()
+            # pacote.save()
         except ValueError:
             return JsonError('Exitem dados fantantes no cadastro do pacote.', status_code=400)
         except Exception as e:
