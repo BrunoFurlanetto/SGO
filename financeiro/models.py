@@ -1,5 +1,6 @@
 from collections import defaultdict
 from decimal import Decimal
+from math import ceil
 
 from django import forms
 from django.contrib.auth.models import User
@@ -171,6 +172,31 @@ class FichaFinanceira(models.Model):
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'
 
+    @staticmethod
+    def calcular_totais_com_arredondamento(total_por_classificacao):
+        totais = {
+            'valor': 0.0,
+            'valor_final': 0.0,
+            'comissao_de_vendas': 0.0,
+            'taxa_comercial': 0.0,
+            'desconto': 0.0,
+            'acrescimo': 0.0,
+        }
+        soma_valor_final = 0
+
+        for classificacao, valores in total_por_classificacao.items():
+            soma_valor_final += valores['valor_final']
+            totais['valor'] += valores['valor']
+            totais['comissao_de_vendas'] += valores['comissao_de_vendas']
+            totais['taxa_comercial'] += valores['taxa_comercial']
+            totais['desconto'] += valores['desconto']
+            totais['acrescimo'] += valores['acrescimo']
+
+        totais['valor_final'] = ceil(round(soma_valor_final, 5))
+        totais['arredondamento'] = round(totais['valor_final'] - soma_valor_final, 2)
+
+        return totais
+
     def dados_totalizacao(self):
         codigos_classificaca_db = ClassificacoesItens.objects.all()
         total_por_classificacao = defaultdict(lambda: {
@@ -196,7 +222,8 @@ class FichaFinanceira(models.Model):
 
         # Processa os dados do dicionário principal
         for item in self.orcamento.objeto_orcamento['valores'].values():
-            codigo = item.get('codigo_classificacao_item', '').strip()
+            codigo = item.get('codigo_classificacao_item', None).strip()
+
 
             if not codigo:
                 continue
@@ -213,6 +240,12 @@ class FichaFinanceira(models.Model):
             codigo = item.get('codigo_classificacao_item')
 
             if not codigo:
+                total_por_classificacao['Sem Classificação']['valor'] += item.get('valor', 0.0)
+                total_por_classificacao['Sem Classificação']['valor_final'] += item.get('valor_final', 0.0)
+                total_por_classificacao['Sem Classificação']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
+                total_por_classificacao['Sem Classificação']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
+                total_por_classificacao['Sem Classificação']['desconto'] += item.get('desconto', 0.0)
+
                 continue
 
             cod = codigos_classificaca_db.get(codigo_padrao=codigo)
@@ -222,7 +255,13 @@ class FichaFinanceira(models.Model):
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
 
-        return dict(total_por_classificacao)
+        codigo_arredondamento = ClassificacoesItens.objects.get(arredondamento=True)
+        total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor'] += self.orcamento.objeto_orcamento['total']['arredondamento']
+        total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor_final'] += self.orcamento.objeto_orcamento['total']['arredondamento']
+
+        totais = self.calcular_totais_com_arredondamento(total_por_classificacao)
+
+        return {'totalizacao': dict(total_por_classificacao), 'totais': totais}
 
 
 # ------------------------------------------------ Forms ---------------------------------------------------------------

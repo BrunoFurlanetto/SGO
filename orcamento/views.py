@@ -122,7 +122,6 @@ def editar_previa(request, id_orcamento, gerente_aprovando=0):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
 
     if orcamento.promocional:
-        print(id_orcamento)
         dados_pacote = OrcamentosPromocionais.objects.get(orcamento=orcamento)
         return redirect('editar_pacotes_promocionais', id_dados_pacote=dados_pacote.id)
 

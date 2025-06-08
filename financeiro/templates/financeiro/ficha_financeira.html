@@ -280,39 +280,6 @@
                         </div>
                     </div>
                 {% endif %}
-                {% if financeiro and ficha.dados_totalizacao|length > 0 %}
-                    <hr>
-                    <h5 class="titulo-secao">Totalização</h5>
-                    <div>
-                        <table id="tabela_descritivo_valores"
-                               class="table table-borderless border-bottom border-dark border-1">
-                            <thead>
-                            <tr>
-                                <th style="width: 50%">Seção</th>
-                                <th>Valor neto</th>
-                                <th>Desconto</th>
-                                <th>CoV</th>
-                                <th>Taxas</th>
-                                <th>Acréscimo</th>
-                                <th>Valor final</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for secao, valores in ficha.dados_totalizacao.items %}
-                                <tr class="secao_tabela">
-                                    <td>{{ secao }}</td>
-                                    <td>{{ valores.valor|floatformat:2 }}</td>
-                                    <td>{{ valores.desconto|floatformat:2 }}</td>
-                                    <td>{{ valores.comissao_de_vendas|floatformat:2 }}</td>
-                                    <td>{{ valores.taxa_comercial|floatformat:2 }}</td>
-                                    <td>{{ valores.acrescimo|default:0|floatformat:2 }}</td>
-                                    <td>{{ valores.valor_final|floatformat:2 }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
                 <hr>
                 <h5 class="titulo-secao">Planos pagamento</h5>
                 <div class="planos_pagamento mb-3">
@@ -407,6 +374,58 @@
                         </div>
                     {% endif %}
                 </div>
+                <hr>
+            {% if financeiro and ficha.dados_totalizacao|length > 0 %}
+                <h5 class="titulo-secao">Totalização</h5>
+                <div>
+                    <table id="tabela_descritivo_valores"
+                           class="table table-borderless border-bottom border-dark border-1">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">Seção</th>
+                            <th>Valor neto</th>
+                            <th>Desconto</th>
+                            <th>CoV</th>
+                            <th>Taxas</th>
+                            <th>Acréscimo</th>
+                            <th>Valor final</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for etapa in ficha.dados_totalizacao.values %}
+                            {% if forloop.first %}
+                                {% for secao, valores in etapa.items %}
+                                    <tr class="secao_tabela">
+                                        <td>{{ secao }}</td>
+                                        <td>{{ valores.valor|floatformat:2 }}</td>
+                                        <td>{{ valores.desconto|floatformat:2 }}</td>
+                                        <td>{{ valores.comissao_de_vendas|floatformat:2 }}</td>
+                                        <td>{{ valores.taxa_comercial|floatformat:2 }}</td>
+                                        <td>{{ valores.acrescimo|default:0|floatformat:2 }}</td>
+                                        <td>{{ valores.valor_final|floatformat:2 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="border-top border-bottom border-dark">
+                                    <td class="text-center"><strong>Total</strong></td>
+                                    <td><strong>{{ etapa.valor | floatformat:2 }}</strong></td>
+                                    <td><strong>{{ etapa.desconto | floatformat:2 }}</strong></td>
+                                    <td><strong>{{ etapa.comissao_de_vendas | floatformat:2 }}</strong></td>
+                                    <td><strong>{{ etapa.taxa_comercial | floatformat:2 }}</strong></td>
+                                    <td><strong>{{ etapa.acrescimo | floatformat:2 }}</strong></td>
+                                    <td><strong>{{ etapa.valor_final | floatformat:2 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td colspan="2"><strong>Arredondamento</strong></td>
+                                    <td><strong>{{ etapa.arredondamento | floatformat:2 }}</strong></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
 
                 {% if not revisando %}
                     <div class="botoes">
