@@ -661,6 +661,6 @@ def gerar_pdf_orcamento(orcamento, pre_orcamento=False):
             f"Não foi encontrado um template para o ano {orcamento.check_in.year}."
         )
 
-    # buffer = mesclar_pdf_dinamico_com_modelo(buffer, template_orcamento.arquivo)
+    buffer = mesclar_pdf_dinamico_com_modelo(buffer, template_orcamento.arquivo)
 
     return buffer
