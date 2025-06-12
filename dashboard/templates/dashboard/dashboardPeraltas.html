@@ -745,11 +745,11 @@
                                         <td class="clicavel" data-tratativa="true"
                                             data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.apelido }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.data_ultima_edicao | date:'Y-m-d' }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.data_ultima_edicao | date:'Y-m-d H:i' }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_in|date:'Y-m-d' }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_in|date:'Y-m-d H:i' }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_out|date:'Y-m-d' }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.check_out|date:'Y-m-d H:i' }}</td>
                                         <td>
                                             <nobr>R$ {{ orcamento.valor|substituir_ponto }}</nobr>
                                         </td>
@@ -818,9 +818,9 @@
                                 {% if orcamentoatus_orcamento.negado_cliente or orcamentoatus_orcamento.orcamento_vencido %}
                                     <tr style="vertical-align: middle; cursor: pointer">
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoiente }}</td>
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamento.cliente }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoelido }}</td>
+                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamento.apelido }}</td>
                                         <td class="clicavel" data-tratativa="true"
                                             data-id_orcamento="{{ orcamento | safe }}">
                                             <nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr>

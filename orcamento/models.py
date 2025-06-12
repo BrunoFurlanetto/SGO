@@ -1384,6 +1384,9 @@ class Orcamento(models.Model):
         atividades_ceu = []
 
         for atividade in descritivo_atividades:
+            if atividade['categoria'] == 'extra':
+                continue
+
             op = OrcamentoOpicional.objects.get(pk=atividade['id'])
 
             if not op.categoria.staff:
@@ -1434,6 +1437,9 @@ class Orcamento(models.Model):
 
         for op in descritivo_op_interno:
             op_id = op["id"]
+
+            if op['categoria'] == 'extra':
+                continue
 
             try:
                 opcional = OrcamentoOpicional.objects.get(id=op_id)

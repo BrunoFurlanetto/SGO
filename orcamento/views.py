@@ -309,10 +309,10 @@ def salvar_orcamento(request):
                     orcamento_salvo.delete()
                     return JsonResponse({'msg': f'{e}'}, status=400)
                 else:
-                    if orcamento_salvo.aprovacao_diretoria:
+                    if orcamento_salvo.aprovacao_diretoria and not settings.DEBUG:
                         gerente = Vendedor.objects.get(usuario__pk=orcamento_salvo.gerente_responsavel.pk)
                         chat = Chatguru()
-                        fone_gerente = f'55{gerente.telefone}' if not settings.DEBUG else '5514997348793'
+                        fone_gerente = f'55{gerente.telefone}'
                         chat.send_message(
                             fone_gerente,
                             f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
@@ -742,13 +742,14 @@ def reenvio_pedido_gerencia(request):
     except Exception as e:
         return JsonError(e, status_code=500)
     else:
-        gerente = Vendedor.objects.get(usuario__pk=orcamento.gerente_responsavel.pk)
-        chat = Chatguru()
-        fone_gerente = f'55{gerente.telefone}' if not settings.DEBUG else '5514997348793'
-        chat.send_message(
-            fone_gerente,
-            f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
-        )
+        if not settings.DEBUG:
+            gerente = Vendedor.objects.get(usuario__pk=orcamento.gerente_responsavel.pk)
+            chat = Chatguru()
+            fone_gerente = f'55{gerente.telefone}'
+            chat.send_message(
+                fone_gerente,
+                f"Novo orçamento disponível para análise. Acesse o sistema para mais informações."
+            )
 
         return JsonResponse({}, status=200)
 

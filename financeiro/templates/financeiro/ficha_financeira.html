@@ -8,8 +8,11 @@
     <div id="conteudo_ficha_financeira">
         {% if ficha and not ficha.negado and ficha.data_preenchimento_comercial %}
             <div id="mostrar_motivo_recusa" draggable="true" ondblclick="iniciarArraste()">
-                <button data-toggle="modal" data-target="#chatModal"><i id="icone_arrastavel"
-                                                                        class='bx bxs-comment'></i></button>
+                {% if mensagens|length > 0 %}
+                	<button data-toggle="modal" data-target="#chatModal"><i id="icone_arrastavel" class='bx bxs-comment'></i></button>
+                {% else %}
+                    <button><i class='bx  bx-message-x'></i></button>
+                {% endif %}
             </div>
         {% endif %}
         <div class="titulo">
