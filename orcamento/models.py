@@ -319,6 +319,7 @@ class OrcamentoMonitor(models.Model):
     )
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
+    regra_cortesia = models.TextField(blank=True, help_text='Texto da regra de cortesia que será mostrado dentro das condições finais do orçamento')
     racional_monitoria = models.PositiveIntegerField(default=8, verbose_name="Racional Monitoria")
     sem_monitoria = models.BooleanField(default=False)
     liberado = models.BooleanField(default=False)
@@ -1100,7 +1101,8 @@ class Orcamento(models.Model):
         auto_now=True,
         verbose_name='Data da ultima edição'
     )
-    condicoes_finais = models.TextField(blank=True)
+    condicoes_finais = models.TextField()
+    regras_de_pagamento = models.TextField()
 
     class Meta:
         verbose_name = 'Orçamento'

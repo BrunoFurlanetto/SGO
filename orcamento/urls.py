@@ -22,6 +22,7 @@ urlpatterns = [
     path('pesquisar_op/', views.pesquisar_op, name='pesquisar_op'),
     path('pegar_dados_pacote/', views.pegar_dados_pacote, name='pegar_dados_pacote'),
     path('pegar_monitoria_valida/', views.pegar_monitoria_valida, name='pegar_monitoria_valida'),
+    path('pegar_regra_cortesia/', views.pegar_regra_cortesia, name='pegar_regra_cortesia'),
     path('salvar_pacote/', views.salvar_pacote, name='salvar_pacote'),
     path('verificar_gerencia/', views.veriricar_gerencia, name='verificar_gerencia'),
     path('pdf_orcamento/<str:id_orcamento>/', views.gerar_pdf, name='pdf_orcamento'),

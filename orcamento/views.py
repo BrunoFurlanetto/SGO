@@ -426,7 +426,6 @@ def editar_pacotes_promocionais(request, id_dados_pacote):
     pacote_promocional = CadastroPacotePromocional(instance=promocional.dados_pacote)
     promocional.orcamento.orcamento_promocional = promocional
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
-    print(promocional.orcamento.previa)
 
     return render(request, 'orcamento/montagem_pacote.html', {
         'orcamento': cadastro_orcamento,
@@ -726,6 +725,11 @@ def pegar_monitoria_valida(request):
             'monitorias': [{'id': monitoria.id, 'nome': monitoria.nome_monitoria, 'sem': monitoria.sem_monitoria} for
                            monitoria in monitorias_validas]
         })
+
+
+def pegar_regra_cortesia(request):
+    if is_ajax(request):
+        return HttpResponse(OrcamentoMonitor.objects.get(pk=request.GET.get('id_monitoria')).regra_cortesia)
 
 
 @require_POST
