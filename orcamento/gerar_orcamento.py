@@ -580,7 +580,7 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
 
     if pre_orcamento:
         dados_pagamento = [
-            'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno. Em até 6x',
+            'Um total de ' + f'<b>R$ {orcamento.valor}</b>'.replace('.', ',') + ' por aluno.',
         ]
     else:
         dados_pagamento = [
