@@ -1,3 +1,4 @@
+import re
 from io import BytesIO
 
 from PyPDF2 import PdfWriter, PdfReader
@@ -97,25 +98,23 @@ def carregar_fontes_personalizadas():
 
 
 def desenhar_bloco_texto(
-        c,
-        x_inicial_cm,
-        y_inicial_cm,
-        textos,
-        largura_maxima_cm=13.0,
-        tamanho_fonte=12.0,
-        linha_offset_cm=0.3,
-        fontName='Montserrat',
-        line_spacing_cm=1.0,
-        usar_bullet=False,              # ativa/desativa bullets
-        bulletText="•",                 # símbolo do bullet
-        recuo_bullet_cm=0.5,            # recuo extra quando bullet=True
+    c,
+    x_inicial_cm,
+    y_inicial_cm,
+    textos,
+    largura_maxima_cm=13.0,
+    tamanho_fonte=12.0,
+    linha_offset_cm=0.3,
+    fontName='Montserrat',
+    line_spacing_cm=1.0,
+    bulletText="•",
+    recuo_bullet_cm=0.5,
 ):
     largura, altura = A4
     x_base = x_inicial_cm * cm
     y = altura - (y_inicial_cm * cm)
     largura_maxima = largura_maxima_cm * cm
 
-    # Estilo base (continua inalterado)
     style = ParagraphStyle(
         name="EstiloPersonalizado",
         fontName=fontName,
@@ -125,21 +124,44 @@ def desenhar_bloco_texto(
         alignment=TA_JUSTIFY
     )
 
-    # Loop nos textos
     for texto in textos:
-        # calcula o x para este item (com ou sem recuo de bullet)
-        if usar_bullet:
-            x = x_base + recuo_bullet_cm * cm
-            # o Paragraph recebe o bulletText para desenhar o marcador
-            p = Paragraph(texto, style, bulletText=bulletText)
-        else:
-            x = x_base
-            p = Paragraph(texto, style)
+        # 1) Se vier blocos de <p>...</p>, extrai cada parágrafo
+        if '<p>' in texto and '</p>' in texto:
+            paragrafos = re.findall(r'<p>(.*?)</p>', texto, flags=re.DOTALL)
+            for par in paragrafos:
+                p = Paragraph(par, style)
+                w, h = p.wrap(largura_maxima, 9999)
+                p.drawOn(c, x_base, y - h)
+                y -= (h + linha_offset_cm*cm)
+            continue
 
-        # envolve e desenha
-        width, height = p.wrap(largura_maxima - (x - x_base), 9999)
-        p.drawOn(c, x, y - height)
-        y -= (height + linha_offset_cm * cm)
+        # 2) Lista ordenada
+        if '<ol>' in texto and '</ol>' in texto:
+            itens = re.findall(r'<li>(.*?)</li>', texto, flags=re.DOTALL)
+            for idx, item in enumerate(itens, start=1):
+                p = Paragraph(item, style, bulletText=f"{idx}.")
+                x = x_base + recuo_bullet_cm * cm
+                w, h = p.wrap(largura_maxima - recuo_bullet_cm*cm, 9999)
+                p.drawOn(c, x, y - h)
+                y -= (h + linha_offset_cm*cm)
+            continue
+
+        # 3) Lista não ordenada
+        if '<ul>' in texto and '</ul>' in texto:
+            itens = re.findall(r'<li>(.*?)</li>', texto, flags=re.DOTALL)
+            for item in itens:
+                p = Paragraph(item, style, bulletText=bulletText)
+                x = x_base + recuo_bullet_cm * cm
+                w, h = p.wrap(largura_maxima - recuo_bullet_cm*cm, 9999)
+                p.drawOn(c, x, y - h)
+                y -= (h + linha_offset_cm*cm)
+            continue
+
+        # 4) Texto simples (inline <b>,<i> etc. já são entendidos)
+        p = Paragraph(texto, style)
+        w, h = p.wrap(largura_maxima, 9999)
+        p.drawOn(c, x_base, y - h)
+        y -= (h + linha_offset_cm*cm)
 
     return y
 
@@ -503,8 +525,8 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         y_atual = y_atual - 0.8 * cm
 
     obs = [
-        'Não oferecemos acomodações para motoristas quando o transporte não for operado por nós.',
-        'É fundamental que cada aluno traga suas próprias toalhas para a piscina e para banho, com nome do aluno',
+        '<ul><li>Não oferecemos acomodações para motoristas quando o transporte não for operado por nós.</li></ul>',
+        '<ul><li>É fundamental que cada aluno traga suas próprias toalhas para a piscina e para banho, com nome do aluno</li></ul>',
     ]
 
     y_atual = desenhar_bloco_texto(
@@ -513,7 +535,6 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
         (altura - y_atual + (0.2 * cm)) / cm,
         obs, largura_maxima_cm=16.55,
         line_spacing_cm=1.5,
-        usar_bullet=True
     )
 
     # ------------------------------------------------- Condições finais -----------------------------------------------
@@ -579,16 +600,12 @@ def segunda_pagina(c, orcamento, pre_orcamento=False):
     c.setFillColor(black)
     c.drawString(4 * cm, y_atual - 0.8 * cm, "FORMAS DE PAGAMENTO")
     y_atual = y_atual - 0.8 * cm
-    dados_forma_pagamento = [
-        'Os pagamento podem ser realizados de duas maneiras',
-        '1. <b>Via Sistema Peraltas</b>: Até 6 parcelas mensais consecutivas.',
-        '2. <b>Via Escola</b>: Em até 5 parcelas.',
-    ]
+
     y_atual = desenhar_bloco_texto(
         c,
         4,
         (altura - y_atual + (0.2 * cm)) / cm,
-        dados_forma_pagamento, largura_maxima_cm=16.55,
+        [orcamento.regras_de_pagamento], largura_maxima_cm=16.55,
         line_spacing_cm=1.5
     )
     c.drawImage(

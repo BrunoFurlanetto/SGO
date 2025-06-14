@@ -1102,7 +1102,11 @@ class Orcamento(models.Model):
         verbose_name='Data da ultima edição'
     )
     condicoes_finais = models.TextField()
-    regras_de_pagamento = models.TextField()
+    regras_de_pagamento = models.TextField(
+        default='Os pagamentos podem ser realizados de duas maneiras <ol><li><b>Via Sistema Peraltas</b>: Até 6 '
+                'parcelas mensais consecutivas. </li><li><b>Via Escola</b>: Em até 5 parcelas.</li><li>Em caso de dúvida,'
+                ' entre em contato com a sua consultora de vendas.</li></ol>'
+    )
 
     class Meta:
         verbose_name = 'Orçamento'
@@ -1766,6 +1770,7 @@ class CadastroOrcamento(forms.ModelForm):
             }),
             'produto': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_preenchimento()'}),
             'tipo_de_pacote': forms.Select(attrs={'disabled': True, 'onchange': 'verificar_pacotes_promocionais()'}),
+            'tipo_monitoria': forms.Select(attrs={'onchange': 'pegar_regra_cortesia()'}),
             'transporte': forms.RadioSelect(),
             'cliente': forms.Select(attrs={'onchange': 'gerar_responsaveis(this)'}),
             'responsavel': forms.Select(attrs={'disabled': True, 'onchange': 'liberar_periodo(this)'}),

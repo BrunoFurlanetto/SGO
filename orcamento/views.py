@@ -34,11 +34,13 @@ def novo_orcamento(request):
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     cadastro_orcamento = CadastroOrcamento()
+    pacote_promocional = CadastroPacotePromocional()
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
 
     return render(request, 'orcamento/orcamento.html', {
         'orcamento': cadastro_orcamento,
         'promocionais': promocionais,
+        'pacote_promocional': pacote_promocional,
         'financeiro': financeiro,
         'usuarios_gerencia': usuarios_gerencia,
         'taxas_padrao': ValoresPadrao.mostrar_taxas(),
@@ -193,7 +195,7 @@ def salvar_orcamento(request):
 
         if 'orcamento' not in dados:
             return dados
-        print(dados)
+
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']

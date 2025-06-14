@@ -23,6 +23,20 @@ let opcionais_promocionais = []
 let fase_orcamento = 'editando'
 
 async function inicializacao(check_in = undefined, check_out = undefined) {
+    $('#condicoes_finais, #planos_de_pagamento').summernote({
+        callbacks: {
+            onKeyup: function (e) {
+                $('#id_condicoes_finais').val($('#condicoes_finais').val())
+                $('#id_regras_de_pagamento').val($('#planos_de_pagamento').val())
+            }
+        },
+        height: 150,
+        toolbar: [
+            // grupos de botões
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['para',  ['ul', 'ol']],
+        ]
+    });
     $('#id_cliente').select2()
     $('#id_tipos_de_pacote_elegivel').select2({
         dropdownParent: $("#dados_do_pacote .modal-content"),
@@ -1194,12 +1208,28 @@ async function verificar_monitoria_transporte() {
             $('#container_opcionais, #finalizacao').addClass('none')
 
             alert(error)
-        } finally {
-            // end_loading()
         }
     } else {
         $('#container_opcionais, #finalizacao').addClass('none')
     }
+}
+
+function pegar_regra_cortesia() {
+    console.log('Foi')
+    $.ajax({
+        type: 'GET',
+        url: '/orcamento/pegar_regra_cortesia/',
+        data: {'id_monitoria': $('#id_tipo_monitoria').val()},
+    }).then((response) => {
+        let texto_min_pagantes
+        if ($('#id_minimo_de_pagantes').val() == '') {
+            texto_min_pagantes = '<p>A realização do evento está condicionada à participação mínima de 35 alunos.</p>'
+        } else {
+            texto_min_pagantes = `<p>A realização do evento está condicionada à participação mínima de ${$('#id_minimo_de_pagantes').val()} alunos.</p>`
+        }
+        $('#condicoes_finais').summernote('code', `<p>${response}</p><p>${texto_min_pagantes}</p>`)
+        $('#id_condicoes_finais').val(`<p>${response}</p><p>${texto_min_pagantes}</p>`)
+    })
 }
 
 async function enviar_op() {
