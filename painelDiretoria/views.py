@@ -47,22 +47,24 @@ def estatisticas_monitoria(request):
 
         if escala.ficha_de_evento.os:
             ordem = OrdemDeServico.objects.get(ficha_de_evento=escala.ficha_de_evento)
-            escala.coordenadores = [monitor for monitor in ordem.monitor_responsavel.all()]
 
         if data not in escalas_por_data:
             escalas_por_data[data] = []
 
         for monitor in escala.monitores_acampamento.all():
-            try:
-                if monitor not in escala.coordenadores:
+            if not isinstance(escala.coordenadores, str):
+                try:
+                    if monitor not in escala.coordenadores:
+                        escala.monitores.append(monitor)
+                except AttributeError:
                     escala.monitores.append(monitor)
-            except AttributeError:
+            else:
                 escala.monitores.append(monitor)
 
-        n_coordenadores = escala.coordenadores if len(escala.coordenadores) > len(n_coordenadores) else n_coordenadores
+        n_coordenadores = escala.coordenadores if not isinstance(escala.coordenadores, str) else n_coordenadores
         n_monitores = escala.monitores if len(escala.monitores) > len(n_monitores) else n_monitores
         escalas_por_data[data].append(escala)
-
+    print(n_coordenadores)
     acumulado_relacao, acumulado_diarias = Metas.acumulado_dias(escalas)
 
     return render(request, 'painelDiretoria/estatisticas_monitoria.html', {
