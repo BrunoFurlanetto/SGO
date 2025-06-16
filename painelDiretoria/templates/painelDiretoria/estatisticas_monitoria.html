@@ -98,7 +98,7 @@
                         {% for data, escalas in escalas_por_data.items %}
                             {% for escala in escalas %}
                                 <td>
-                                    {% with escala.coordenadores|get_by_index:i as monitor %}
+                                    {% with escala.escala_coordenadores.all|get_by_index:i as monitor %}
                                         {% if monitor %}
                                             {{ monitor.valor_diaria_coordenacao|floatformat:'2' }}
                                         {% endif %}

@@ -47,21 +47,22 @@ def estatisticas_monitoria(request):
 
         if escala.ficha_de_evento.os:
             ordem = OrdemDeServico.objects.get(ficha_de_evento=escala.ficha_de_evento)
+            escala.escala_coordenadores = ordem.monitor_responsavel
 
         if data not in escalas_por_data:
             escalas_por_data[data] = []
 
         for monitor in escala.monitores_acampamento.all():
-            if not isinstance(escala.coordenadores, str):
+            if len(escala.escala_coordenadores.all()) > 0:
                 try:
-                    if monitor not in escala.coordenadores:
+                    if monitor not in escala.escala_coordenadores.all():
                         escala.monitores.append(monitor)
                 except AttributeError:
                     escala.monitores.append(monitor)
             else:
                 escala.monitores.append(monitor)
 
-        n_coordenadores = escala.coordenadores if not isinstance(escala.coordenadores, str) else n_coordenadores
+        n_coordenadores = escala.escala_coordenadores.all() if len(escala.escala_coordenadores.all()) > 0 else n_coordenadores
         n_monitores = escala.monitores if len(escala.monitores) > len(n_monitores) else n_monitores
         escalas_por_data[data].append(escala)
     print(n_coordenadores)
