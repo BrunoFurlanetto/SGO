@@ -56,7 +56,7 @@
                                 </div>
                                 <h3 class="h5 mb-3 text-primary">Avaliação individual dos Monitores</h3>
                                 {{ avaliacao_formset.management_form }}
-                                <table class="table">
+                                <table id="tabela-avaliacao_individual" class="table">
                                     <thead class="text-center">
                                     <tr>
                                         <th>Monitor</th>
@@ -232,7 +232,7 @@
                                         <th>Pergunta</th>
                                         <th>Observações</th>
                                     </tr>
-                                    <tr class="mensagem-observacoes text-danger border-bottom border-dark">
+                                    <tr class="mensagem-observacoes colspan text-danger border-bottom border-dark">
                                         <th colspan="2" class="p-2">EM CASO DE RESPOSTAS "NÃO" OU "REGULAR" OU "RUIM" É
                                             OBRIGATÓRIO PREENCHER O CAMPO DE OBSERVAÇÃO!
                                         </th>
@@ -242,7 +242,7 @@
                                     {% for field in form.visible_fields %}
                                         {% if field.name not in campos_nao_tabelaveis %}
                                             {% if not field.name|slice:'-3:' == 'obs' %}
-                                                <tr data-has-obs="true">
+                                                <tr class="linha-pergunta" data-has-obs="true">
                                                     <!-- Coluna da Pergunta -->
                                                     <td class="pergunta-cell">
                                                         <div class="mb-3">

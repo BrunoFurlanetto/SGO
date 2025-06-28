@@ -56,11 +56,11 @@
     font-size: 0.7em;
 }
 
-#tabela-avaliacao-geral tbody tr{
+#tabela-avaliacao-geral tbody tr {
     border-bottom: dashed 1px #2c2c2d73;
 }
 
-#tabela-avaliacao-geral tbody tr > td{
+#tabela-avaliacao-geral tbody tr > td {
     vertical-align: middle;
 }
 
@@ -134,4 +134,126 @@
     margin-top: -1rem;
     color: #FF0000FF;
     text-align: left;
+}
+
+@media (max-width: 768px) {
+    .container .row {
+        width: 100% !important;
+    }
+
+    #avaliacoes-container tr td:first-child, #avaliacoes-container tr td:nth-child(2) {
+        padding: 0;
+
+    }
+
+    #avaliacoes-container tr td .nome-monitor {
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        text-wrap: wrap;
+    }
+}
+
+@media (max-width: 576px) {
+    /* 1) Esconde o header e a célula original de Observações */
+    #tabela-avaliacao_individual thead th:nth-child(3), #tabela-avaliacao_individual thead th:nth-child(2),
+    #tabela-avaliacao-coordenadores thead th:nth-child(3), #tabela-avaliacao-coordenadores thead th:nth-child(2),
+    #avaliacoes-atividades thead th:nth-child(3), #avaliacoes-atividades thead th:nth-child(2){
+        display: none;
+    }
+
+    /* 2) Faz cada <td> virar bloco full-width */
+    #tabela-avaliacao_individual tbody tr.avaliacao-item td, #tabela-avaliacao-coordenadores tbody tr.avaliacao-item td,
+    #avaliacoes-atividades tbody tr.avaliacao-item td{
+        display: block;
+        width: 100%;
+        padding: .5rem 0; /* espaçamento vertical */
+        border: none; /* remove bordas laterais */
+    }
+
+    #tabela-avaliacao_individual tbody tr.avaliacao-item, #tabela-avaliacao-coordenadores tbody tr.avaliacao-item,
+    #avaliacoes-atividades tbody tr.avaliacao-item{
+        margin-bottom: 1rem; /* espaço entre “cards” */
+        /*border: 1px solid #dee2e6;*/
+        border-radius: .25rem;
+        padding: .5rem;
+    }
+
+    #tabela-avaliacao_individual tbody tr, #tabela-avaliacao-coordenadores tbody tr,
+    #avaliacoes-atividades tbody tr{
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px dashed #000000 !important;
+    }
+
+    #tabela-avaliacao_individual tbody tr:last-child, #tabela-avaliacao-coordenadores tbody tr:last-child,
+    #avaliacoes-atividades tbody tr:last-child{
+        border-bottom: solid 2px #000000 !important;
+    }
+
+    /* 3) Exibe a célula de observação (que antes estava escondida) */
+    #tabela-avaliacao_individual .obs-cell, #tabela-avaliacao-coordenadores .obs-cell,
+    #avaliacoes-atividades .obs-cell{
+        display: block !important;
+        margin-top: .5rem;
+        margin-bottom: 1rem;
+        border-top: 1px solid #dee2e6; /* só borda acima da observação */
+        padding-top: .5rem;
+    }
+
+    #tabela-avaliacao-geral thead th:nth-child(2) {
+        display: none;
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta td {
+        display: block;
+        width: 100%;
+        padding: .5rem 0; /* espaçamento vertical */
+        border: none; /* remove bordas laterais */
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta {
+        margin-bottom: 1rem; /* espaço entre “cards” */
+        border-radius: .25rem;
+        padding: .5rem;
+    }
+    /*fffff*/
+    #tabela-avaliacao-geral tbody tr {
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px dashed #000000 !important;
+    }
+
+    #tabela-avaliacao-geral tbody tr:last-child {
+        border-bottom: solid 2px #000000 !important;
+    }
+
+    /* 3) Exibe a célula de observação (que antes estava escondida) */
+    #tabela-avaliacao-geral .obs-cell {
+        display: block !important;
+        margin-top: .5rem;
+        margin-bottom: 1rem;
+        border-top: 1px solid #dee2e6; /* só borda acima da observação */
+        padding-top: .5rem;
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta td {
+        padding: 0 !important;
+    }
+
+    #tabela-avaliacao-geral .obs-cell {
+        padding: 0;
+    }
+
+    #tabela-avaliacao-geral .obs-cell div {
+        margin: 0;
+    }
+
+    #tabela-avaliacao-geral textarea {
+        height: 11rem;
+    }
+
+    #tabela-avaliacao-geral tbody tr {
+        border-bottom: 1px dashed #000000 !important;
+    }
 }

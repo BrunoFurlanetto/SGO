@@ -84,7 +84,7 @@
                                     </strong>
                                 </div>
                                 {{ avaliacao_coordenadores_formset.management_form }}
-                                <table class="table">
+                                <table id="tabela-avaliacao-coordenadores" class="table">
                                     <thead class="text-center">
                                     <tr>
                                         <th>Coordenador</th>
@@ -139,7 +139,7 @@
                                     </strong>
                                 </div>
                                 {{ avaliacao_atividades_formset.management_form }}
-                                <table class="table">
+                                <table id="avaliacoes-atividades" class="table">
                                     <thead class="text-center">
                                     <tr>
                                         <th>Atividade</th>
@@ -209,7 +209,7 @@
                                     {% for field in form.visible_fields %}
                                         {% if field.name not in campos_nao_tabelaveis %}
                                             {% if not field.name|slice:'-3:' == 'obs' %}
-                                                <tr {% if field.name != 'volta_proximo_ano' %} data-has-obs="true" {% endif %}>
+                                                <tr class="linha-pergunta" {% if field.name != 'volta_proximo_ano' %} data-has-obs="true" {% endif %}>
                                                     <!-- Coluna da Pergunta -->
                                                     <td class="pergunta-cell">
                                                         <div class="mb-3">
@@ -245,8 +245,8 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endfor %}
-                                    <tr>
-                                        <td colspan="2" class="pergunta-cell align-middle">
+                                    <tr class="linha-pergunta">
+                                        <td colspan="2" class="colspan pergunta-cell align-middle">
                                             <div class="mb-3 mt-3">
                                                 {{ form.motivo_trazer_grupo.label_tag }}
                                                 {{ form.motivo_trazer_grupo }}
@@ -274,7 +274,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="linha-pergunta">
                                         <td class="pergunta-cell align-baseline">
                                             <div class="mb-3 mt-3">
                                                 {{ form.material_divigulgacao.label_tag }}
@@ -305,8 +305,8 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="2" class="pergunta-cell align-bottom">
+                                    <tr class="linha-pergunta">
+                                        <td colspan="2" class="colspan pergunta-cell align-bottom">
                                             <div class="mb-3 mt-3">
                                                 {{ form.destaque.label_tag }}
                                                 {{ form.destaque }}
@@ -321,8 +321,8 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="2" class="pergunta-cell align-bottom">
+                                    <tr class="linha-pergunta">
+                                        <td colspan="2" class="colspan pergunta-cell align-bottom">
                                             <div class="mb-3 mt-3">
                                                 {{ form.sugestoes.label_tag }}
                                                 {{ form.sugestoes }}

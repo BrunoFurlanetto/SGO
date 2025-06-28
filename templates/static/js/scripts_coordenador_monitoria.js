@@ -129,8 +129,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listeners para adicionar itens
-    document.getElementById(config.destaque.addButtonId).addEventListener('click', () => addItem('destaque'));
-    document.getElementById(config.desempenho.addButtonId).addEventListener('click', () => addItem('desempenho'));
+    try {
+        document.getElementById(config.destaque.addButtonId).addEventListener('click', () => addItem('destaque'));
+    } catch (e) {}
+
+    try {
+        document.getElementById(config.desempenho.addButtonId).addEventListener('click', () => addItem('desempenho'));
+    } catch (e) {}
 
     // Event listener para remover itens (delegação de eventos)
     document.addEventListener('click', function (e) {
@@ -154,6 +159,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // Resize tabela
+    const th = document.querySelector('tr.mensagem-observacoes > th[colspan]');
+    if (!th) {
+        console.error('❌ <th> não encontrado');
+        return;
+    }
+    console.log('Foi')
+    const original = th.getAttribute('colspan');
+
+    function ajustarColspan() {
+        console.log('🔄 resize:', window.innerWidth);
+        if (window.innerWidth <= 576) {
+            th.setAttribute('colspan', '1');
+        } else {
+            th.setAttribute('colspan', original);
+        }
+    }
+
+    ajustarColspan();
+    window.addEventListener('resize', ajustarColspan);
 });
 
 // Função para atualizar os números de posição
@@ -355,7 +381,7 @@ function toggleOutrosMotivos() {
 
 $('#id_telefone_avaliador').mask('(00) 0 0000-00009');
 
-$('#id_telefone_avaliador').blur(function(event) {
+$('#id_telefone_avaliador').blur(function (event) {
     if ($(this).val().length === 16) {
         // Celular com 9 dígitos
         $(this).mask('(00) 0 0000-0009');

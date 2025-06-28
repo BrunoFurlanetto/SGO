@@ -62,7 +62,7 @@
                                 </div>
                                 <h3 class="h5 mb-3 text-primary">Avaliação individual dos Coordenadores</h3>
                                 {{ avaliacao_formset.management_form }}
-                                <table class="table">
+                                <table id="tabela-avaliacao-coordenadores" class="table">
                                     <thead class="text-center">
                                     <tr>
                                         <th>Coordenador</th>
@@ -119,7 +119,7 @@
                                         <th>Pergunta</th>
                                         <th>Observações</th>
                                     </tr>
-                                    <tr class="mensagem-observacoes text-danger border-bottom border-dark">
+                                    <tr class="mensagem-observacoes colspan text-danger border-bottom border-dark">
                                         <th colspan="2" class="p-2">EM CASO DE RESPOSTAS "NÃO" OU "REGULAR" OU "RUIM" É
                                             OBRIGATÓRIO PREENCHER O CAMPO DE OBSERVAÇÃO!
                                         </th>
@@ -129,7 +129,7 @@
                                     {% for field in form.visible_fields %}
                                         {% if field.name not in campos_nao_tabelaveis %}
                                             {% if not field.name|slice:'-3:' == 'obs' %}
-                                                <tr data-has-obs="true">
+                                                <tr class="linha-pergunta" data-has-obs="true">
                                                     <!-- Coluna da Pergunta -->
                                                     <td class="pergunta-cell">
                                                         <div class="mb-3">
@@ -165,7 +165,7 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endfor %}
-                                    <tr>
+                                    <tr class="linha-pergunta">
                                         <td class="pergunta-cell align-bottom">
                                             <div class="mb-3 mt-3">
                                                 {{ form.teve_briefing.label_tag }}
@@ -196,7 +196,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="linha-pergunta">
                                         <td colspan="2">
                                             <div class="mb-3 mt-3">
                                                 {{ form.coordenador_participou.label_tag }}

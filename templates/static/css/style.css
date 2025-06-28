@@ -437,3 +437,24 @@
         display: none;
     }
 }
+
+@media (max-width: 768px) {
+    .sidebar.close {
+        display: none;
+    }
+
+    .home-content i.bx-menu {
+        display: inline-block;
+        font-size: 24px; /* Tamanho do ícone */
+        margin-right: 10px;
+    }
+
+    .sidebar.close ~ .home-section {
+        left: 0;
+        width: 100%;
+    }
+
+    .home-section .home-content .text{
+        font-size: 1rem;
+    }
+}
