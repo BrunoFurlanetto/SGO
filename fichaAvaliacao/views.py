@@ -154,11 +154,18 @@ def agradecimentos(request):
 @login_required(login_url='login')
 def entregues(request):
     fichas = FichaDeAvaliacao.objects.order_by('-id').all()
+    eventos_sem_avaliacao = OrdemDeServico.objects.filter(nao_respondeu_avaliacao_ceu=True).order_by('-id')
     grupos = verificar_grupo(request.user.groups.all())
 
-    paginacao = Paginator(fichas, 10)
-    pagina = request.GET.get('page')
-    fichas = paginacao.get_page(pagina)
+    # Paginação para fichas
+    paginacao_fichas = Paginator(fichas, 10)
+    pagina_fichas = request.GET.get('page_fichas')
+    fichas_paginadas = paginacao_fichas.get_page(pagina_fichas)
+
+    # Paginação para eventos sem avaliação
+    paginacao_eventos = Paginator(eventos_sem_avaliacao, 10)
+    pagina_eventos = request.GET.get('page_eventos')
+    eventos_paginados = paginacao_eventos.get_page(pagina_eventos)
 
     if request.GET.get('colegio'):
         colegio = request.GET.get('colegio')
@@ -168,12 +175,36 @@ def entregues(request):
             return redirect('lista_responsaveis')
 
         fichas = FichaDeAvaliacao.objects.filter(instituicao__nome_fantasia__icontains=colegio)
-        paginacao = Paginator(fichas, 10)
-        pagina = request.GET.get('page')
-        fichas = paginacao.get_page(pagina)
+        paginacao_fichas = Paginator(fichas, 10)
+        pagina_fichas = request.GET.get('page_fichas')
+        fichas_paginadas = paginacao_fichas.get_page(pagina_fichas)
 
-        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas})
+        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {
+            'fichas': fichas_paginadas,
+            'eventos_sem_avaliacao': eventos_paginados,
+            'grupos': grupos
+        })
 
     if request.method != 'POST':
-        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {'fichas': fichas,
-                                                                            'grupos': grupos})
+        return render(request, 'fichaAvaliacao/listaFichasEntregues.html', {
+            'fichas': fichas_paginadas,
+            'eventos_sem_avaliacao': eventos_paginados,
+            'grupos': grupos
+        })
+
+
+@login_required(login_url='login')
+def salvar_nao_avaliacao(request):
+    ordem = OrdemDeServico.objects.get(pk=int(request.POST.get('id_ordem_avaliacao_nao_respondida')))
+
+    try:
+        ordem.nao_respondeu_avaliacao_ceu = True
+        ordem.motivo_nao_responder_ceu = request.POST.get('motivo_nao_avaliacao')
+        ordem.ficha_avaliacao = True
+        ordem.save()
+    except Exception as e:
+        messages.error(request, f'Houve um erro inesperado ao salvar ({e}). Por favor, tente novamente mais tarde!')
+        return redirect('dashboardCeu')
+
+    messages.success(request, f'Motivo de não avaliação do cliente salva com sucesso!')
+    return redirect('dashboardCeu')

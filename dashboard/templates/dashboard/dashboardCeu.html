@@ -105,7 +105,8 @@
                         <th style="text-align: center">Participantes</th>
                         <th style="text-align: center">Data do evento</th>
                         <th style="text-align: center">Vendedora</th>
-                        <th style="text-align: center"></th>
+                        <th>Não avaliou</th>
+{#                        <th style="text-align: center"></th>#}
                     </tr>
                     </thead>
                     <tbody>
@@ -115,12 +116,15 @@
                             <td style="text-align: center">{{ evento.n_participantes }}</td>
                             <td style="text-align: center">{{ evento.check_in_ceu | date:'Y-m-d' }}</td>
                             <td style="text-align: center">{{ evento.vendedor }}</td>
-                            <td style="text-align: center">
-                                <button type="submit" class="btn btn-link text-black"
-                                        onclick="gerar_qrcode_avaliacao(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}')">
-                                    <i class='bx bx-qr'></i>
-                                </button>
+                            <td class="fs-3 text-center" style="cursor: pointer" onclick="$('#id_ordem_avaliacao_nao_respondida').val('{{ evento.id|safe }}')" data-toggle="modal" data-target="#motivo_nao_avaliacao">
+                                <i class='bx  bx-message-minus'></i>
                             </td>
+{#                            <td style="text-align: center">#}
+{#                                <button type="submit" class="btn btn-link text-black"#}
+{#                                        onclick="gerar_qrcode_avaliacao(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}')">#}
+{#                                    <i class='bx bx-qr'></i>#}
+{#                                </button>#}
+{#                            </td>#}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -221,6 +225,30 @@
                 <div class="modal-body d-flex">
                     <img id="qr-image" class="w-40 h-40 mx-auto" src="" alt="QR Code">
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="motivo_nao_avaliacao" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'nao_avaliou' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_ordem_avaliacao_nao_respondida" id="id_ordem_avaliacao_nao_respondida">
+                    <div class="modal-body app d-flex flex-column">
+                        <label for="motivo_nao_avaliacao">Porque o cliente não avaliou este evento?</label>
+                        <textarea id="motivo_nao_avaliacao" class="rounded-3 p-2" rows="5" cols="4" name="motivo_nao_avaliacao" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -8,4 +8,5 @@ urlpatterns = [
     path('agradecimento/', views.agradecimentos, name='agradecimentos'),
     path('entregues/', views.entregues, name='entregues'),
     path('qr_code/', views.gerar_qrcode, name='qr_code'),
+    path('nao_respondeu/', views.salvar_nao_avaliacao, name='nao_avaliou'),
 ]

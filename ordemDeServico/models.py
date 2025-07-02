@@ -144,6 +144,8 @@ class OrdemDeServico(models.Model):
     data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
     avaliou_monitoria = models.ManyToManyField(Monitor, blank=True, editable=False, related_name='avaliou_monitoria')
     cliente_avaliou = models.BooleanField(default=False)
+    nao_respondeu_avaliacao_ceu = models.BooleanField(default=False)
+    motivo_nao_responder_ceu = models.TextField(blank=True)
 
     def __str__(self):
         return f'Ordem de serviço de {self.ficha_de_evento.cliente}'
