@@ -84,6 +84,7 @@ def clonar_orcamento(request, id_orcamento):
     tratativa = Tratativas.objects.filter(
         Q(orcamentos__in=[orcamento.id]) | Q(orcamentos_em_previa__in=[orcamento.id])).distinct().first()
     usuarios_gerencia = User.objects.filter(groups__name__icontains='gerência')
+    orcamento.apelido += ' - DUPLICADO'
     cadastro_orcamento = CadastroOrcamento(instance=orcamento)
     promocionais = Orcamento.objects.filter(promocional=True, data_vencimento__gte=datetime.date.today())
     categorias_so_ceu = CategoriaOpcionais.objects.filter(ceu_sem_hospedagem=True)
@@ -109,7 +110,7 @@ def clonar_orcamento(request, id_orcamento):
         'valores_taxas_padrao': ValoresPadrao.retornar_dados_gerencia(),
         'opcionais_staff': CategoriaOpcionais.objects.get(staff=True),
         'usuarios_gerencia': usuarios_gerencia,
-        'id_tratativa': tratativa.pk,
+        'id_tratativa': tratativa.pk if tratativa else None,
         'id_orcamento': id_orcamento,
         'id_orcamento_clonado': id_orcamento,
         'id_categorias_so_ceu': [categoria.id for categoria in categorias_so_ceu],
@@ -821,7 +822,13 @@ def transformar_em_tratativa(request, id_orcamento):
 
 
 def verificar_validade_apelido(request):
-    if request.POST.get('previa') == 'true':
+    if request.POST.get('id_orcamento') != '':
+        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+        previa = orcamento.previa
+    else:
+        previa = True
+
+    if previa:
         if request.POST.get('fase_orcamento') == 'novo':
             if len(Orcamento.objects.filter(
                     colaborador=request.user, apelido=request.POST.get('apelido'),

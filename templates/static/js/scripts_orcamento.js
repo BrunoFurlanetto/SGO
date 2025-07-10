@@ -1956,6 +1956,7 @@ function printTable() {
 // }
 
 function atribuir_apelido() {
+
     $('#id_apelido').val($('#apelido_orcamento').val())
     $('#id_condicoes_finais').val($('#condicoes_finais').val())
 }
@@ -2176,12 +2177,13 @@ async function modalidade_so_ceu(editando = false) {
 
 document.addEventListener("DOMContentLoaded", function () {
     const botao = document.getElementById('btn_enviar_mensagem')
+
     botao.addEventListener("click", function () {
         if ($('#messageInput').val() != '') {
             $('.responder-orcamento').prop('disabled', false)
         }
     }, true);
-
+    console.log('Foi')
     document.getElementById('btn_salvar_apelido').addEventListener('click', function (e) {
         e.preventDefault()
 
@@ -2190,8 +2192,9 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
             type: "POST",
             data: {
-                'fase_orcamento': fase_orcamento,
-                'apelido': $('#id_apelido').val(),
+                'apelido': $('#apelido_orcamento').val(),
+                'fase_orcamento': $('#id_orcamento_clonado').val() != '' && $('#id_orcamento_clonado').val() != undefined ? 'novo' : fase_orcamento,
+                'id_orcamento': id_orcamento == undefined ? '' : id_orcamento,
             },
         }).then(async (response) => {
             await salvar_orcamento(true)
