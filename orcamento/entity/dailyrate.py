@@ -10,8 +10,9 @@ class DailyRate(BaseValue):
         self.check_out_id = check_out_id
         self.periods = periods
         self.days = int(days)
-        self.classification_code = [period.classificacao.codigo_padrao for period in self.periods][0]
-    
+        print(self.periods[0], '1')
+        self.classification_code = super().set_classification_code(self.periods[0])
+
     def calc_daily_rate(self, so_ceu=False):
         check_in = float(HorariosPadroes.objects.get(pk=self.check_in_id).racional)
         check_out = float(HorariosPadroes.objects.get(pk=self.check_out_id).racional)
@@ -41,7 +42,7 @@ class DailyRate(BaseValue):
         self.set_values(values)
 
         return self.values
-    
+
     def general_discount_daily(self, value):
         discount = float(value)
 
@@ -56,6 +57,7 @@ class DailyRate(BaseValue):
         value_daily_accomodation = self.get_total_values() / daily_accomodation
         values_accomodation = [value_daily_accomodation for _ in range(0, self.days)]
         total = 0
+        information["codigo_classificacao_item"] = self.classification_code
 
         for value in values_accomodation:
             total += float(value)

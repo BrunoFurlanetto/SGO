@@ -8,27 +8,28 @@ class OptionalDescription(BaseValue):
         for i in range(1, days):
             values.append(0)
 
-        super().__init__(values, percent_business_fee, percent_commission)
         self.id = optional_id
         self.name = optional_name
         self.description = description
         self.category = category
+        super().__init__(values, percent_business_fee, percent_commission)
         self.set_classification_code()
 
-    def set_classification_code(self):
+    def set_classification_code(self, o=None):
         try:
             opt = OrcamentoOpicional.objects.get(pk=self.id)
         except ValueError:
             self.classification_code = ''
         else:
-            if opt.classificacao:
-                self.classification_code = opt.classificacao.codigo_padrao
+            self.classification_code = super().set_classification_code(opt)
+        print(self.classification_code)
 
     def do_object(self, description=False):
         information = super().do_object()
         information["id"] = self.id
         information["nome"] = self.name
         information["categoria"] = self.category
+        # information["codigo_classificacao_item"] = self.classification_code
 
         if description:
             information["description"] = self.description

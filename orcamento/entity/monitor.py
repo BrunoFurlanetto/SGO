@@ -11,7 +11,7 @@ class Monitor(BaseValue):
         self.coming_id = coming_id
         self.exit_id = exit_id
         self.days = days
-        self.classification_code = super().get_classification_code()
+        self.classification_code = super().set_classification_code()
 
     def calc_value_monitor(self, id_tipo_monitoria):
         values = []
@@ -22,7 +22,7 @@ class Monitor(BaseValue):
             for i in range(0, self.days):
                 values.append(0.0)
         else:
-            self.classification_code = object_monitor.classificacao.codigo_padrao
+            self.classification_code = super().set_classification_code(object_monitor)
             daily_monitor = float(object_monitor.valor) / float(object_monitor.racional_monitoria)
             if self.days == 1:
                 values.append(float(daily_monitor))

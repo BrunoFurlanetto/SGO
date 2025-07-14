@@ -6,7 +6,7 @@ class BaseValue:
         self.percent_business_fee = percent_business_fee / 100
         self.percent_commission = percent_commission / 100
         self.values = values
-        self.classification_code = ''
+        self.classification_code = self.set_classification_code()
         self.discount = 0
         self.__adjustment = 0
         self.__addition = 0
@@ -71,7 +71,21 @@ class BaseValue:
     def get_final_value(self):
         return ((self.calc_value_with_discount() + self.__addition) / (1 - (self.percent_business_fee + self.percent_commission))) + self.get_adjustiment()
 
-    def get_classification_code(self):
+    def set_classification_code(self, objeto_orcamento=None):
+        # print(objeto_orcamento)
+        if objeto_orcamento is None:
+            self.classification_code = {}
+        else:
+            print(objeto_orcamento._meta.get_field('classificacao'))
+            if objeto_orcamento._meta.get_field('classificacao'):
+                self.classification_code = {
+                    "app_id": objeto_orcamento._meta.app_label,
+                    "model_id": objeto_orcamento._meta.model_name,
+                    "object_id": objeto_orcamento.pk
+                }
+            else:
+                self.classification_code = {}
+
         return self.classification_code
 
     def do_object(self):
@@ -85,5 +99,5 @@ class BaseValue:
             "taxa_comercial": self.calc_business_fee(),
             "comissao_de_vendas": self.calc_commission(),
             "valores": self.values,
-            "codigo_classificacao_item": self.get_classification_code(),
+            "codigo_classificacao_item": self.classification_code,
         }
