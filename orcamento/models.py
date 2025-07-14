@@ -319,7 +319,8 @@ class OrcamentoMonitor(models.Model):
     )
     inicio_vigencia = models.DateField()
     final_vigencia = models.DateField(default=default_validade)
-    regra_cortesia = models.TextField(blank=True, help_text='Texto da regra de cortesia que será mostrado dentro das condições finais do orçamento')
+    regra_cortesia = models.TextField(blank=True,
+                                      help_text='Texto da regra de cortesia que será mostrado dentro das condições finais do orçamento')
     racional_monitoria = models.PositiveIntegerField(default=8, verbose_name="Racional Monitoria")
     sem_monitoria = models.BooleanField(default=False)
     liberado = models.BooleanField(default=False)
@@ -1101,8 +1102,8 @@ class Orcamento(models.Model):
         auto_now=True,
         verbose_name='Data da ultima edição'
     )
-    condicoes_finais = models.TextField()
-    regras_de_pagamento = models.TextField(
+    condicoes_finais = models.TextField(blank=True)
+    regras_de_pagamento = models.TextField(blank=True,
         default='Os pagamentos podem ser realizados de duas maneiras <ol><li><b>Via Sistema Peraltas</b>: Até 6 '
                 'parcelas mensais consecutivas. </li><li><b>Via Escola</b>: Em até 5 parcelas.</li><li>Em caso de dúvida,'
                 ' entre em contato com a sua consultora de vendas.</li></ol>'
@@ -1300,10 +1301,11 @@ class Orcamento(models.Model):
 
     def listar_opcionais(self):
         ops_validos = []
+        descritivo_opcionais = (self.objeto_orcamento['descricao_opcionais']).copy()
 
         if not self.promocional and self.orcamento_promocional:
-            for op in self.orcamento_promocional.orcamento.objeto_orcamento['descricao_opcionais']:
-                if op in self.objeto_orcamento['descricao_opcionais']:
+            for op in descritivo_opcionais:
+                if op['id'] in [o['id'] for o in self.orcamento_promocional.orcamento.objeto_orcamento['descricao_opcionais']]:
                     self.objeto_orcamento['descricao_opcionais'].remove(op)
 
                     continue

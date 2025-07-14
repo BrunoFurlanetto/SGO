@@ -196,7 +196,7 @@ def salvar_orcamento(request):
 
         if 'orcamento' not in dados:
             return dados
-
+        print(request.POST)
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
@@ -234,7 +234,7 @@ def salvar_orcamento(request):
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
         else:
             orcamento = CadastroOrcamento(data)
-
+        print(orcamento.errors)
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()
@@ -614,7 +614,7 @@ def salvar_pacote(request):
 
         try:
             pacote = dados_pacote_promocional.save(commit=False)
-            # pacote.save()
+            pacote.save()
         except ValueError:
             return JsonError('Exitem dados fantantes no cadastro do pacote.', status_code=400)
         except Exception as e:
@@ -822,29 +822,29 @@ def transformar_em_tratativa(request, id_orcamento):
 
 
 def verificar_validade_apelido(request):
-    if request.POST.get('id_orcamento') != '':
-        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        previa = orcamento.previa
-    else:
-        previa = True
-
-    if previa:
-        if request.POST.get('fase_orcamento') == 'novo':
-            if len(Orcamento.objects.filter(
-                    colaborador=request.user, apelido=request.POST.get('apelido'),
-                    status_orcamento__orcamento_vencido=False,
-                    status_orcamento__aprovacao_cliente=False,
-                    status_orcamento__negado_cliente=False,
-            )) > 0:
-                return JsonResponse({}, status=409)
-        else:
-            if len(Orcamento.objects.filter(
-                    colaborador=request.user, apelido=request.POST.get('apelido'),
-                    status_orcamento__orcamento_vencido=False,
-                    status_orcamento__aprovacao_cliente=False,
-                    status_orcamento__negado_cliente=False,
-            )) > 1:
-                return JsonResponse({}, status=409)
+    # if request.POST.get('id_orcamento') != '':
+    #     orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+    #     previa = orcamento.previa
+    # else:
+    #     previa = True
+    #
+    # if previa:
+    #     if request.POST.get('fase_orcamento') == 'novo':
+    #         if len(Orcamento.objects.filter(
+    #                 colaborador=request.user, apelido=request.POST.get('apelido'),
+    #                 status_orcamento__orcamento_vencido=False,
+    #                 status_orcamento__aprovacao_cliente=False,
+    #                 status_orcamento__negado_cliente=False,
+    #         )) > 0:
+    #             return JsonResponse({}, status=409)
+    #     else:
+    #         if len(Orcamento.objects.filter(
+    #                 colaborador=request.user, apelido=request.POST.get('apelido'),
+    #                 status_orcamento__orcamento_vencido=False,
+    #                 status_orcamento__aprovacao_cliente=False,
+    #                 status_orcamento__negado_cliente=False,
+    #         )) > 1:
+    #             return JsonResponse({}, status=409)
 
     return JsonResponse({}, status=200)
 

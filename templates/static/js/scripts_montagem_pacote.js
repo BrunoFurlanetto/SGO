@@ -692,7 +692,6 @@ async function enviar_form(salvar = false, gerente_aprovando = false, id_orcamen
                 dataType: 'JSON',
                 data: {orcamento, dados_op, gerencia, opcionais_extra, 'salvar': salvar},
                 success: function (response) {
-                    console.log(response['status'])
                     if (response['status'] === "error") {
                         reject(response['msg']);
                     } else {

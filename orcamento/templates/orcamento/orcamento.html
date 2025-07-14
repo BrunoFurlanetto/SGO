@@ -192,7 +192,7 @@
                                         <select {% if categoria in categorias_so_ceu %} class="so_ceu" disabled {% endif %} id="{{ opcional.id_for_label }}" name="opcionais" multiple>
                                             {% for option in opcional.field.queryset %}
                                                 <option value="{{ option.id }}"
-                                                        {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
+                                                        {% if option.id in opcional.value %}selected{% endif %}>{{ option }}</option>
                                             {% endfor %}
                                         </select>
                                         <div class="{% if not opcional.id_for_label in opcionais_pacote.keys %} none {% endif %} px-2 pt-1 pb-1 alert-info">{{ categoria }} já presentes no pacote: <span>
@@ -262,6 +262,7 @@
                                 {% endif %}
                                 {% if not editando_pacote %}
                                     <button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark"
+                                            onclick="pegar_regra_cortesia()"
                                             data-toggle="modal"
                                             data-target="#modal_apelido_orcamento">
                                         Salvar
@@ -956,6 +957,7 @@
                     allowZero: true,
                     affixesStay: false,
                 })
+
                 opcionais_promocionais = {{ ids_opts_promocionais | safe }}
                 await pegar_monitoria_valida()
 

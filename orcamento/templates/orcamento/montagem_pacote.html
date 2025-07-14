@@ -135,7 +135,7 @@
                                         <select {% if categoria in categorias_so_ceu %} class="so_ceu" disabled {% endif %} id="{{ opcional.id_for_label }}" name="opcionais" multiple>
                                             {% for option in opcional.field.queryset %}
                                                 <option value="{{ option.id }}"
-                                                        {% if option.id|stringformat:"s" in opcional.value|stringformat:"s" %}selected{% endif %}>{{ option }}</option>
+                                                        {% if option.id in opcional.value %}selected{% endif %}>{{ option }}</option>
                                             {% endfor %}
                                         </select>
                                         <div class="{% if not opcional.id_for_label in opcionais_pacote.keys %} none {% endif %} px-2 pt-1 pb-1 alert-info">{{ categoria }} já presentes no pacote: <span>
@@ -191,13 +191,13 @@
                            id="id_colaborador">
                     <div class="botoes d-flex flex-wrap justify-content-end gap-2" >
                         {% if not orcamento_origem or orcamento_origem.previa %}
-                        	<button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark" onclick="verificar_validade_apelido(true)">
+                        	<button type="button" id="btn_salvar_previa_orcamento" class="btn btn-dark" onclick="salvar_orcamento(true)">
                                 Salvar prévia de pacote
                             </button>
                         {% endif %}
 
                         <button type="button" id="btn_salvar_orcamento" class="btn btn-primary"
-                                onclick="verificar_validade_apelido(false)">
+                                onclick="salvar_orcamento(false)">
                             Salvar pacote final
                         </button>
                     </div>

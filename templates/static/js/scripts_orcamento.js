@@ -1215,7 +1215,7 @@ async function verificar_monitoria_transporte() {
 }
 
 function pegar_regra_cortesia() {
-    console.log('Foi')
+    console.log($('#id_tipo_monitoria').val())
     $.ajax({
         type: 'GET',
         url: '/orcamento/pegar_regra_cortesia/',
@@ -1227,6 +1227,7 @@ function pegar_regra_cortesia() {
         } else {
             texto_min_pagantes = `<p>A realização do evento está condicionada à participação mínima de ${$('#id_minimo_de_pagantes').val()} alunos.</p>`
         }
+        console.log(texto_min_pagantes)
         $('#condicoes_finais').summernote('code', `<p>${response}</p><p>${texto_min_pagantes}</p>`)
         $('#id_condicoes_finais').val(`<p>${response}</p><p>${texto_min_pagantes}</p>`)
     })
@@ -1792,6 +1793,7 @@ async function mostrar_dados_pacote(pacote) {
     }).done(() => {
         $('#opcionais .alert').removeClass('none')
         $('#dados_do_pacote').modal('show')
+        pegar_regra_cortesia()
     })
 }
 
@@ -2183,7 +2185,7 @@ document.addEventListener("DOMContentLoaded", function () {
             $('.responder-orcamento').prop('disabled', false)
         }
     }, true);
-    console.log('Foi')
+
     document.getElementById('btn_salvar_apelido').addEventListener('click', function (e) {
         e.preventDefault()
 
