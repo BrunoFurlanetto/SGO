@@ -217,8 +217,14 @@ def editar_ficha_financeira(request, id_ficha_financeira):
 def faturar_ficha_financeira(request, id_ficha_financeira):
     try:
         ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
-        ficha.faturado = True
-        ficha.data_faturamento = datetime.datetime.now()
+
+        if not ficha.faturado:
+            ficha.faturado = True
+            ficha.data_faturamento = datetime.datetime.now()
+        else:
+            ficha.faturado = False
+            ficha.data_faturamento = None
+
         ficha.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}), por favor tente novamente mais tarde!')

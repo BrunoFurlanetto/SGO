@@ -1011,7 +1011,7 @@
             <div id="fichas_financeiras_financeiro"
                  class="section-content {% if financeiro and not perms.orcamento.add_orcamentospromocionais %} ativo {% endif %}">
                 <div class="tabelas">
-                    <h5>Fichas Financeira aprovadas pela diretoria</h5>
+                    <h5>Fichas Financeira aprovadas pela diretoria (aguardando processamento)</h5>
                     <hr>
                     <table class="table aprovadas table-hover table-striped">
                         <thead>
@@ -1033,6 +1033,39 @@
                                     onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
                                     <td>{{ ficha.data_preenchimento_comercial | date:'Y-m-d H:i' }}</td>
                                     <td>{{ ficha.data_aprovacao_diretoria | date:'Y-m-d H:i' }}</td>
+                                    <td>{{ ficha.orcamento.apelido }}</td>
+                                    <td>{{ ficha.cliente }}</td>
+                                    <td>{{ ficha.orcamento.check_in | date:'Y-m-d H:i' }}</td>
+                                    <td>{{ ficha.orcamento.check_out | date:'Y-m-d H:i' }}</td>
+                                    <td>R$ {{ ficha.valor_final|substituir_ponto }}</td>
+                                    <td>{{ ficha.dados_evento.colaborador.get_full_name }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Fichas Financeira processadas</h5>
+                    <hr>
+                    <table class="table aguardando table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th>Data do processamento</th>
+                            <th>Apelido</th>
+                            <th>Cliente</th>
+                            <th>Check in</th>
+                            <th>Check out</th>
+                            <th>Valor</th>
+                            <th>Colaborador</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_financeiras %}
+                            {% if ficha.faturado %}
+                                <tr style="cursor: pointer"
+                                    onclick="window.location.href = '{% url 'revisar_ficha_financeira' ficha.id %}'">
+                                    <td>{{ ficha.data_preenchimento_comercial | date:'Y-m-d H:i' }}</td>
                                     <td>{{ ficha.orcamento.apelido }}</td>
                                     <td>{{ ficha.cliente }}</td>
                                     <td>{{ ficha.orcamento.check_in | date:'Y-m-d H:i' }}</td>

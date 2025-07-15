@@ -170,6 +170,12 @@ class FichaFinanceira(models.Model):
     data_aprovacao_diretoria = models.DateTimeField(verbose_name='Data de aprovacao pela diretoria', blank=True, null=True)
     data_faturamento = models.DateTimeField(verbose_name='Data de Preenchimento de faturamento', blank=True, null=True)
 
+    class Meta:
+        permissions = (
+            ('pode_aprovar_ficha_financeira', 'Pode aprovar ficha financeira'),
+            ('pode_faturar_ficha_financeira', 'Pode faturar ficha financeira'),
+        )
+
     def __str__(self):
         return f'Ficha financeira de {self.cliente}'
 

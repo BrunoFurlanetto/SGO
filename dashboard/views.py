@@ -227,7 +227,9 @@ def dashboardPeraltas(request):
         financeiro = None
 
     if financeiro in grupos_usuario:
-        fichas_financeiras = FichaFinanceira.objects.filter(faturado=False)
+        fichas_financeiras = FichaFinanceira.objects.filter(
+            data_preenchimento_comercial__date__gte=(datetime.today() - timedelta(days=180)).date(),
+        )
 
     if is_ajax(request):
         if request.POST.get('novo_status'):
