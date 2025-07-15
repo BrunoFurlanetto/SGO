@@ -19,10 +19,13 @@ class OptionalDescription(BaseValue):
         try:
             opt = OrcamentoOpicional.objects.get(pk=self.id)
         except ValueError:
-            self.classification_code = ''
+            self.classification_code = {
+                "app_id": None,
+                "model_id": None,
+                "object_id": None,
+            }
         else:
             self.classification_code = super().set_classification_code(opt)
-        print(self.classification_code)
 
     def do_object(self, description=False):
         information = super().do_object()

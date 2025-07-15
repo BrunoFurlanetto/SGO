@@ -10,7 +10,6 @@ class DailyRate(BaseValue):
         self.check_out_id = check_out_id
         self.periods = periods
         self.days = int(days)
-        print(self.periods[0], '1')
         self.classification_code = super().set_classification_code(self.periods[0])
 
     def calc_daily_rate(self, so_ceu=False):

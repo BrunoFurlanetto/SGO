@@ -4,10 +4,11 @@ from math import ceil
 
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from coreFinanceiro.models import ClassificacoesItens, TiposPagamentos
-from orcamento.models import Orcamento
+from orcamento.models import Orcamento, OrcamentoPeriodo
 from peraltas.models import ClienteColegio, Responsavel, Vendedor, RelacaoClienteResponsavel
 
 
@@ -198,7 +199,7 @@ class FichaFinanceira(models.Model):
         return totais
 
     def dados_totalizacao(self):
-        codigos_classificaca_db = ClassificacoesItens.objects.all()
+        # codigos_classificaca_db = ClassificacoesItens.objects.all()
         total_por_classificacao = defaultdict(lambda: {
             'valor': 0.0,
             'valor_final': 0.0,
@@ -209,37 +210,44 @@ class FichaFinanceira(models.Model):
         })
 
         taxa_periodo = self.orcamento.objeto_orcamento['periodo_viagem']
-        try:
-            cod = codigos_classificaca_db.get(codigo_padrao=taxa_periodo['codigo_classificacao_item'].strip())
-        except ClassificacoesItens.DoesNotExist:
-            ...
-        else:
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += taxa_periodo.get('valor', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += taxa_periodo.get('valor_final', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += taxa_periodo.get('comissao_de_vendas', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += taxa_periodo.get('taxa_comercial', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += taxa_periodo.get('desconto', 0.0)
+        print('[INFO] Processando taxa de período')
 
+        if taxa_periodo['codigo_classificacao_item']:
+            try:
+                ct = ContentType.objects.get(app_label=taxa_periodo['codigo_classificacao_item']["app_id"], model=taxa_periodo['codigo_classificacao_item']["model_id"])
+                objeto = ct.get_object_for_this_type(pk=taxa_periodo['codigo_classificacao_item']["object_id"])
+                cod = objeto.classificacao
+            except ClassificacoesItens.DoesNotExist:
+                ...
+            else:
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += taxa_periodo.get('valor', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += taxa_periodo.get('valor_final', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += taxa_periodo.get('comissao_de_vendas', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += taxa_periodo.get('taxa_comercial', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += taxa_periodo.get('desconto', 0.0)
+        print('[INFO] Taxa de período processada')
         # Processa os dados do dicionário principal
         for item in self.orcamento.objeto_orcamento['valores'].values():
-            codigo = item.get('codigo_classificacao_item', None).strip()
-
-
+            codigo = item['codigo_classificacao_item']
+            print('[INFO] Processando item:', item)
             if not codigo:
                 continue
 
-            cod = codigos_classificaca_db.get(codigo_padrao=codigo)
+            ct = ContentType.objects.get(app_label=codigo["app_id"], model=codigo["model_id"])
+            objeto = ct.get_object_for_this_type(pk=codigo["object_id"])
+            cod = objeto.classificacao
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
-
+            print('[INFO] ', item, 'processado')
         # Processa a lista de opcionais
         for item in self.orcamento.objeto_orcamento['descricao_opcionais']:
-            codigo = item.get('codigo_classificacao_item')
-
-            if not codigo:
+            print('[INFO] Começando o processo de opcionais')
+            print('[INFO] Processando item opcional:', item)
+            codigo = item['codigo_classificacao_item']
+            if not codigo['object_id']:
                 total_por_classificacao['Sem Classificação']['valor'] += item.get('valor', 0.0)
                 total_por_classificacao['Sem Classificação']['valor_final'] += item.get('valor_final', 0.0)
                 total_por_classificacao['Sem Classificação']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
@@ -248,13 +256,15 @@ class FichaFinanceira(models.Model):
 
                 continue
 
-            cod = codigos_classificaca_db.get(codigo_padrao=codigo)
+            ct = ContentType.objects.get(app_label=codigo["app_id"], model=codigo["model_id"])
+            objeto = ct.get_object_for_this_type(pk=codigo["object_id"])
+            cod = objeto.classificacao
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
-
+            print('[INFO] :', item, 'processado')
         codigo_arredondamento = ClassificacoesItens.objects.get(arredondamento=True)
         total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor'] += self.orcamento.objeto_orcamento['total']['arredondamento']
         total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor_final'] += self.orcamento.objeto_orcamento['total']['arredondamento']

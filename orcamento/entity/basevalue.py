@@ -74,9 +74,8 @@ class BaseValue:
     def set_classification_code(self, objeto_orcamento=None):
         # print(objeto_orcamento)
         if objeto_orcamento is None:
-            self.classification_code = {}
+            self.classification_code = None
         else:
-            print(objeto_orcamento._meta.get_field('classificacao'))
             if objeto_orcamento._meta.get_field('classificacao'):
                 self.classification_code = {
                     "app_id": objeto_orcamento._meta.app_label,
@@ -84,7 +83,11 @@ class BaseValue:
                     "object_id": objeto_orcamento.pk
                 }
             else:
-                self.classification_code = {}
+                self.classification_code = {
+                    "app_id": None,
+                    "model_id": None,
+                    "object_id": None
+                }
 
         return self.classification_code
 
