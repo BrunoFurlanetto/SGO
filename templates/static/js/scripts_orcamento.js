@@ -34,7 +34,7 @@ async function inicializacao(check_in = undefined, check_out = undefined) {
         toolbar: [
             // grupos de botões
             ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['para',  ['ul', 'ol']],
+            ['para', ['ul', 'ol']],
         ]
     });
     $('#id_cliente').select2()
@@ -947,9 +947,19 @@ async function pegar_monitoria_valida() {
         success: function (response) {
             select_monitoria.empty().append('<option></option>')
             for (let monitor of response['monitorias']) {
-                select_monitoria.append(`<option ${$('#so_ceu') && monitor['sem'] ? 'selected' : ''} value="${monitor['id']}">${monitor['nome']}</option>`)
+                select_monitoria.append(`<option value="${monitor['id']}">${monitor['nome']}</option>`)
             }
-            $('#id_tipo_monitoria').val(monitoria_selecionada)
+            if ($('#so_ceu').prop('checked')) {
+                // Seleciona o primeiro monitor com 'sem' igual a true
+                const monitorSelecionado = response['monitorias'].find(monitor => monitor['sem']);
+                if (monitorSelecionado) {
+                    $('#id_tipo_monitoria').val(monitorSelecionado['id']).trigger('change');
+                } else {
+                    $('#id_tipo_monitoria').val(monitoria_selecionada).trigger('change');
+                }
+            } else {
+                $('#id_tipo_monitoria').val(monitoria_selecionada).trigger('change');
+            }
         },
         error: function (xhr, status, error) {
             alert(xhr.responseJSON.msg)
@@ -969,7 +979,7 @@ async function separar_produtos(periodo) {
             $('#id_produto, #id_orcamento_promocional').val('')
             $('#id_transporte input').prop('checked', false)
             $('#container_opcionais, #finalizacao, #container_monitoria_transporte').addClass('none')
-            $('#opcionais select').each(function() {
+            $('#opcionais select').each(function () {
                 // Resetar o valor do select
                 $(this).val(null).trigger('change');
             });
