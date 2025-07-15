@@ -196,7 +196,7 @@ def salvar_orcamento(request):
 
         if 'orcamento' not in dados:
             return dados
-        print(request.POST)
+
         data = dados['orcamento']
         valores_op = dados['valores_op']
         gerencia = dados['gerencia']
@@ -234,7 +234,7 @@ def salvar_orcamento(request):
             orcamento = CadastroOrcamento(data, instance=previa_orcamento)
         else:
             orcamento = CadastroOrcamento(data)
-        print(orcamento.errors)
+
         pre_orcamento = orcamento.save(commit=False)
         pre_orcamento.objeto_gerencia = dados['gerencia']
         pre_orcamento.objeto_orcamento = budget.return_object()

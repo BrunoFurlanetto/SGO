@@ -84,7 +84,7 @@ $.fn.iniciarlizarDataTablePacotes = function (columnData, columnOrder, nonOrdera
 
 
 $(document).ready(() => {
-    $('#previas_orcamento td.clicavel, #tratativas td.clicavel').on('click', function () {
+    $('#previas_orcamento td.clicavel, #tratativas td.clicavel, #previas_de_colaboradores td.clicavel').on('click', function () {
         if ($(this).data('tratativa')) {
             window.location.href = `/orcamento/ver_tratativa/${$(this).data('id_orcamento')}/`
         } else {
