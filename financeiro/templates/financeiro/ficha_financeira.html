@@ -449,6 +449,7 @@
         {% elif revisando and ficha.autorizado_diretoria %}
             {% if perms.financeiro.pode_faturar_ficha_financeira %}
                 <div class="botoes" style="gap: 5px">
+                    <button type="button" class="btn btn-outline-info" onclick="window.open('{% url 'ver_orcamento_tratativa' orcamento.id %}')">Ver orçamento</button>
                     <button type="button" class="btn btn-dark" onclick="imprimir_ficha()">
                         Imprimir
                     </button>

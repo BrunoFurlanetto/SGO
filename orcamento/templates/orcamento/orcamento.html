@@ -16,7 +16,7 @@
             <div class="overlay" style="top: 76px; height: 89%"></div>
         {% endif %}
         <div id="subtotal" class="div-flutuante none"
-             style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; {% else %} pointer-events: none {% endif %}"
+             style="{% if request.user in usuarios_gerencia or financeiro %} cursor: pointer; z-index: 999{% else %} pointer-events: none {% endif %}"
              onclick="$('#modal_descritivo').modal('show')">
             {% if request.user in usuarios_gerencia or financeiro %}
                 <div class="floating-box none" id="floatingBox">Clique aqui</div>
