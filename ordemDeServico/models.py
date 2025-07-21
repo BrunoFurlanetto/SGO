@@ -4,8 +4,14 @@ import os.path
 from django import forms
 from django.db import models
 
-from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus
+from ceu.models import Atividades
+from peraltas.models import Monitor, AtividadesEco, AtividadePeraltas, FichaDeEvento, GrupoAtividade, EmpresaOnibus, \
+    EscalaAcampamento
 from peraltas.models import Vendedor
+
+
+def atribuir_diretoria_vendedor():
+    return Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first().id
 
 
 class TipoVeiculo(models.Model):
@@ -21,7 +27,7 @@ class DadosTransporte(models.Model):
     horario_embarque = models.TimeField(blank=True, null=True)
     nome_motorista = models.CharField(max_length=255, blank=True, null=True)
     telefone_motorista = models.CharField(max_length=16, blank=True, null=True)
-    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.DO_NOTHING)
+    monitor_embarque = models.ForeignKey(Monitor, blank=True, null=True, on_delete=models.SET_NULL)
     dados_veiculos = models.JSONField(blank=True, null=True)  # {'qtd_veiculo': int, 'tipo_veiculo': int}
 
     @staticmethod
@@ -115,13 +121,11 @@ class OrdemDeServico(models.Model):
     n_professores = models.IntegerField(blank=True, null=True)
     responsavel_grupo = models.CharField(max_length=255)
     lista_segurados = models.FileField(blank=True, upload_to='seguros/%Y/%m/%d')
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.DO_NOTHING, blank=True,
-                                 null=True)  # TODO: Verificar cado de exclusão de colaborador
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, default=atribuir_diretoria_vendedor)
     empresa = models.CharField(choices=empresa_choices, max_length=15)
     monitor_responsavel = models.ManyToManyField(Monitor)
     dados_transporte = models.ManyToManyField(DadosTransporte, blank=True)
     check_in_ceu = models.DateTimeField(blank=True, null=True)
-
     check_out_ceu = models.DateTimeField(blank=True, null=True)
     atividades_eco = models.JSONField(blank=True, null=True)
     atividades_peraltas = models.ManyToManyField(AtividadePeraltas, blank=True)
@@ -129,6 +133,7 @@ class OrdemDeServico(models.Model):
     locacao_ceu = models.JSONField(blank=True, null=True)
     cronograma_peraltas = models.FileField(blank=True, upload_to='cronogramas/%Y/%m/%d')
     ficha_de_avaliacao = models.FileField(blank=True, null=True, upload_to='avaliacoes/%Y/%m/%d')
+    observacoes_ficha_de_evento = models.TextField(blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
     relatorio_ceu_entregue = models.BooleanField(default=False)
     ficha_avaliacao = models.BooleanField(default=False)
@@ -137,6 +142,18 @@ class OrdemDeServico(models.Model):
     racional_coordenadores = models.IntegerField(default=120, blank=True)
     permicao_coordenadores = models.BooleanField(default=False)
     data_preenchimento = models.DateField(default=datetime.date.today, editable=False)
+    avaliou_monitoria = models.ManyToManyField(Monitor, blank=True, editable=False, related_name='avaliou_monitoria')
+    cliente_avaliou = models.BooleanField(default=False)
+    nao_respondeu_avaliacao_ceu = models.BooleanField(default=False)
+    motivo_nao_responder_ceu = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'Ordem de serviço de {self.ficha_de_evento.cliente}'
+
+    def listar_equipe_monitoria(self):
+        escala = EscalaAcampamento.objects.get(ficha_de_evento=self.ficha_de_evento)
+
+        return ', '.join([monitor.usuario.get_full_name() for monitor in escala.monitores_acampamento.all()])
 
     def dividir_atividades_ceu(self):
         atividades = []
@@ -179,6 +196,36 @@ class OrdemDeServico(models.Model):
     def listar_id_monitor_responsavel(self):
         return [monitor.id for monitor in self.monitor_responsavel.all()]
 
+    @classmethod
+    def atividades_ceu_nao_definidas(cls):
+        ordens = cls.objects.filter(check_in_ceu__date__gte=datetime.date.today())
+        atividades = []
+
+        for ordem in ordens:
+            dados_ativdiades = {
+                'id': ordem.id,
+                'cliente': ordem.ficha_de_evento.cliente.__str__(),
+                'check_in_ceu': ordem.check_in_ceu,
+                'qtd_evento': ordem.n_participantes,
+                'vendedora': ordem.vendedor.usuario.get_full_name(),
+                'atividades_sem_definicao': [],
+                'a_definir': 0,
+            }
+
+            if ordem.atividades_ceu:
+                for atividade in ordem.atividades_ceu.values():
+                    atividade_bd = Atividades.objects.get(pk=atividade['atividade'])
+
+                    if atividade_bd.a_definir:
+                        dados_ativdiades['a_definir'] += 1
+                    elif not atividade_bd.sem_atividade and atividade['data_e_hora'] == '':
+                        dados_ativdiades['atividades_sem_definicao'].append(atividade_bd.atividade)
+
+                if len(dados_ativdiades['atividades_sem_definicao']) != 0 or dados_ativdiades['a_definir'] != 0:
+                    atividades.append(dados_ativdiades)
+
+        return atividades
+
 
 class CadastroOrdemDeServico(forms.ModelForm):
     class Meta:
@@ -202,13 +249,19 @@ class CadastroOrdemDeServico(forms.ModelForm):
         self.fields['cidade'].widget.attrs['readonly'] = True
         self.fields['responsavel_grupo'].widget.attrs['readonly'] = True
 
-        monitores = Monitor.objects.filter(nivel__nivel__contains='Coordenador')
+        monitores = Monitor.objects.filter(nivel_acampamento__coordenacao=True)
         monitores_selecao = []
 
         for monitor in monitores:
             monitores_selecao.append((monitor.id, monitor.usuario.get_full_name()))
 
         self.fields['monitor_responsavel'].choices = monitores_selecao
+
+    def clean(self):
+        cleaned_data = super(CadastroOrdemDeServico, self).clean()
+        print(cleaned_data)
+
+        return cleaned_data
 
     @staticmethod
     def opt_groups():

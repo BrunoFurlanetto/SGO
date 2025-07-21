@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django import forms
 
@@ -95,3 +96,43 @@ class FormularioEscalaCeu(forms.ModelForm):
             'check_out_grupo': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'tipo_escala': forms.Select(attrs={'onChange': 'ver_tipo_escala(this)'}),
         }
+
+
+class DisponibilidadeForm(forms.ModelForm):
+    dias_disponiveis = forms.MultipleChoiceField(
+        choices=[],
+        widget=forms.CheckboxSelectMultiple,
+        help_text='Seleciona as datas que desejar retirar a disponibilidade do professor.'
+    )
+
+    class Meta:
+        model = Disponibilidade
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(DisponibilidadeForm, self).__init__(*args, **kwargs)
+
+        if self.instance.dias_disponiveis:
+            dias_salvos = [dia.strip() for dia in self.instance.dias_disponiveis.split(',')]
+        else:
+            dias_salvos = []
+
+        self.fields['dias_disponiveis'].choices = [(dia, dia) for dia in dias_salvos]
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get('dias_disponiveis'):
+            raise ValidationError('Seleciona ao menos uma data para remover da disponibilidade do professor.')
+
+        dias_disponiveis_inicial = self.initial.get('dias_disponiveis', '').split(', ')
+        nova_disponibilidade = [dia.strip() for dia in dias_disponiveis_inicial if dia not in cleaned_data['dias_disponiveis']]
+        cleaned_data['dias_disponiveis'] = ', '.join(nova_disponibilidade)
+        cleaned_data['n_dias'] = len(nova_disponibilidade)
+
+        if cleaned_data['n_dias'] == 0:
+            raise ValidationError('Para retirar a disponibilidade do professor para estes mês em questão, exclua na tela anterior!')
+
+        return cleaned_data
+
+

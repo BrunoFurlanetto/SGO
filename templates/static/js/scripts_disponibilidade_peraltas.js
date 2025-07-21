@@ -3,7 +3,7 @@ async function adicionar_disponibilidade(infos, eventos_intervalo, id_monitor, i
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: 'GET',
-                url: '',
+                url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                 data: {'data': dia_adicionado},
                 success: function (response) {
@@ -185,7 +185,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
                     if (cell.role !== 'columnheader') {
                         $.ajax({
                             type: 'GET',
-                            url: '',
+                            url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                             headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                             data: {'data': cell.getAttribute('data-date')},
                             success: function (response) {
@@ -219,7 +219,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             } else if (coordenacao_hotelaria && !coordenacao_acampamento) {
                 $.ajax({
                     type: 'GET',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/verificar_dias_hospedagem/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {'data': moment(info.event.start).format('YYYY-MM-DD')},
                     success: function (response) {
@@ -247,7 +247,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             if (await adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena, coordenacao_hotelaria, coordenacao_acampamento)) {
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'adicionar_dia': true,
@@ -298,7 +298,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
             if (adicionar_disponibilidade(info, eventos_intervalo, id_monitor, id_enfermeira, dia_adicionado, hoje_mais_30, coordena)) {
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'alterar_dia': true,
@@ -342,7 +342,7 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
 
                 $.ajax({
                     type: 'POST',
-                    url: '',
+                    url: '/escala/disponibilidade_peraltas/alterar_dias_disponibilidade/',
                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                     data: {
                         'remover_disponibilidade': true,
@@ -370,3 +370,28 @@ function montar_disponibilidades(disponibilidade, coordenador_acampamento, coord
     calendar.render()
     calendar.setOption('locale', 'pt-br')
 }
+
+// Função para pesquisar e filtrar os monitores e enfermeiras
+document.querySelector('#div_pesquisa_monitores input').addEventListener('input', function () {
+    // Captura o valor do input em minúsculas para comparação
+    let searchValue = this.value.toLowerCase();
+
+    // Seleciona todas as divs de monitores e enfermeiras
+    let cards = document.querySelectorAll('#nomes_monitores .card-monitor');
+
+    // Itera sobre cada card-monitor
+    cards.forEach(function (card) {
+        // Captura o valor do atributo title em minúsculas
+        let cardTitle = card.getAttribute('data-event').toLowerCase();
+
+        // Verifica se o nome (title) inclui o texto da pesquisa
+        if (cardTitle.includes(searchValue)) {
+            // Se inclui, exibe o card
+            card.style.display = "block";
+        } else {
+            // Se não, esconde o card
+            card.style.display = "none";
+        }
+    });
+});
+

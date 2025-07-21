@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,django
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,pycharm,django
 .vscode/
+
+reservas.json
 # Arquivos bash do servidor
 *.sh
 
@@ -8,6 +10,9 @@
 desktop.ini
 
 # Pra criação de dados fake
+dados_fake.py
+
+# Criador de dados fake
 dados_fake.py
 
 # Pasta para o salvamento temporário dos pdfs gerados
@@ -392,6 +397,5 @@ pyvenv.cfg
 pip-selfcheck.json
 
 db.sqlite3
-_bkp*.sqlite3
 
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,django

@@ -1,5 +1,7 @@
 {% load static %}
-
+{% if perms.cadastro.view_relatoriodeatendimentopublicoceu  %}
+    <link rel="stylesheet" href="{% static 'css/calendario_style.css' %}"/> <!-- Styles do calendário -->
+{% endif %}
 <form action="{% url 'dashboardCeu' %}" method="POST">
     <div class="container">
         <div class="calendar">

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load custom_filter_tag_painel_diretoria %}
+{% load static %}
+{% include 'parciais/_head.html' %}
+
+{% block conteudo %}
+
+    <link rel="stylesheet" href="{% static 'css/style_estatisticas_monitoria_diarias.css' %}">
+
+    <main id="dashboard_estatisticas_monitoria">
+        <h4>Estatísticas de diárias de monitoria</h4>
+        <hr style="width: 100%">
+        <div id="header_tabela_estatisticas_monitoria">
+            <div id="dados_acumulados">
+                Acumulado dos 7 dias:
+                <ul>
+                    <li>Monitor/Participantes: <span
+                            class="{% if acumulado_relacao < metas.pax_mon %} under {% elif acumulado_relacao == metas.pax_mon %} equal {% else %} over {% endif %}">{{ acumulado_relacao|floatformat:"2" }}</span>
+                    </li>
+                    <li>Média de diárias: <span
+                            class="{% if acumulado_diarias < metas.min_media_diarias %} under {% elif acumulado_diarias >= metas.min_media_diarias and acumulado_diarias < metas.max_media_diarias %} under {% elif acumulado_diarias == metas.max_media_diarias %} equal {% else %} over {% endif %}">{{ acumulado_diarias|floatformat:"2" }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <button type="button" class="btn-descritivo-monitoria"
+                        onclick="$('.descritivo-monitoria').toggleClass('none')">
+                    <i class='bx bx-list-plus fixed-icon'></i>
+                </button>
+            </div>
+        </div>
+        <div id="descritivo">
+            <table id="tabela_descritivo_diarias" class="table table-bordered">
+                <!-- Cabeçalho da Tabela: Data -->
+                <thead>
+                <tr>
+                    <th colspan="2">Datas</th>
+                    {% for data, escalas in escalas_por_data.items %}
+                        <th colspan="{{ escalas|length }}">{{ data|date:'d/m/Y' }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <!-- Corpo da Tabela: Dados do Grupo -->
+                <tbody>
+                <tr>
+                    <th rowspan="4" class="vertical-header">Dados do grupo</th>
+                </tr>
+                {% for header, attr in grupos %}
+                    <tr>
+                        <th>{{ header }}</th>
+                        {% for data, escalas in escalas_por_data.items %}
+                            {% for escala in escalas %}
+                                <td title="{{ escala|get_attr:attr }}">{{ escala|get_attr:attr }}</td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tr>
+                    <th class="separador_secao"></th>
+                </tr>
+                <!-- Corpo da Tabela: Metas -->
+                <tbody>
+                <tr>
+                    <th rowspan="3" class="vertical-header">Metas</th>
+                </tr>
+                <tr>
+                    <th>Pax/Mon: <br> {{ metas.pax_mon|floatformat:"2" }}</th>
+                    {% for data, escalas in escalas_por_data.items %}
+                        {% for escala in escalas %}
+                            <td class="{% if escala.relacao_monitor_participante < metas.pax_mon %} under {% elif escala.relacao_monitor_participante == metas.pax_mon %} equal {% else %} over {% endif %}">{{ escala.relacao_monitor_participante|floatformat:'2' }}</td>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Média de Diárias: <br> {{ metas.min_media_diarias|floatformat:"2" }}
+                        - {{ metas.max_media_diarias|floatformat:"2" }}</th>
+                    {% for data, escalas in escalas_por_data.items %}
+                        {% for escala in escalas %}
+                            <td class="{% if escala.media_diarias < metas.min_media_diarias %} under {% elif escala.media_diarias >= metas.min_media_diarias and escala.media_diarias < metas.max_media_diarias %} under {% elif escala.media_diarias == metas.max_media_diarias %} equal {% else %} over {% endif %}">{{ escala.media_diarias|floatformat:'2' }}</td>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                </tbody>
+                <tr class="descritivo-monitoria none">
+                    <th class="separador_secao"></th>
+                </tr>
+                <!-- Corpo da Tabela: Níveis de Coordenação -->
+                <tbody class="descritivo-monitoria none">
+                <tr>
+                    <th rowspan="{{ max_coordenadores|length|add:'1' }}" class="vertical-header">Dados da coordenação</th>
+                </tr>
+                <script>console.log('{{ max_coordenadores }}')</script>
+                {% for i in max_coordenadores %}
+                    <script>console.log('{{ i }}')</script>
+                    <tr>
+                        <th>C{{ forloop.counter }}</th>
+                        {% for data, escalas in escalas_por_data.items %}
+                            {% for escala in escalas %}
+                                <td>
+                                    {% with escala.escala_coordenadores.all|get_by_index:i as monitor %}
+                                        {% if monitor %}
+                                            {{ monitor.valor_diaria_coordenacao|floatformat:'2' }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tr>
+                    <th class="separador_secao"></th>
+                </tr>
+
+                <!-- Corpo da Tabela: Níveis de Monitoria -->
+                <tbody class="descritivo-monitoria none">
+                <!-- Cabeçalho da tabela com as datas -->
+                <tr>
+                    <th rowspan="{{ max_monitores|length|add:'1' }}" class="vertical-header">Dados da monitoria</th>
+                </tr>
+                {% for i in max_monitores %}
+                    <tr>
+                        <th>M{{ forloop.counter }}</th>
+                        {% for data, escalas in escalas_por_data.items %}
+                            {% for escala in escalas %}
+                                <td>
+                                    {% with escala.monitores|get_by_index:i as monitor %}
+                                        {% if monitor %}
+                                            {{ monitor.valor_diaria|floatformat:'2' }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tbody>
+                <tr>
+                    <th colspan="2">Valor total</th>
+                    {% for data, escalas in escalas_por_data.items %}
+                        {% for escala in escalas %}
+                            <th>{{ escala.valor_escala_sem_extra|floatformat:'2' }}</th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+{% endblock %}

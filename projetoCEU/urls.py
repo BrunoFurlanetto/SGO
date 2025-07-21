@@ -40,6 +40,9 @@ if not em_manutencao:
         path('orcamento/', include('orcamento.urls')),
         path('ficha_financeira/', include('financeiro.urls')),
         path('mensagens/', include('mensagens.urls')),
+        path('painel-diretoria/', include('painelDiretoria.urls')),
+        path('cozinha/', include('cozinha.urls')),
+        path('pesquisa-satisfacao/', include('pesquisasSatisfacao.urls')),
         path('admin/', admin.site.urls),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
@@ -59,7 +62,13 @@ else:
         path('orcamento/', manutencao),
         path('ficha_financeira/', manutencao),
         path('mensagens/', manutencao),
+        path('orcamento/', manutencao),
+        path('painel-diretoria/', manutencao),
+        path('cozinha/', manutencao),
+        path('pesquisa-satisfacao/', manutencao),
         path('admin/', manutencao),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'home.views.handler404'
+handler403 = 'home.views.handler403'
+handler500 = 'home.views.handler500'

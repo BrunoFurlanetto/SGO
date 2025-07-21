@@ -1,0 +1,259 @@
+.container-avaliacao {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.required-field label:after {
+    content: " *";
+    color: #dc3545;
+}
+
+.avaliacao-item, .destaque-item {
+    transition: all 0.3s ease;
+}
+
+.avaliacao-item:hover, .destaque-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Adicione ao seu CSS */
+.table-avaliacao td {
+    vertical-align: middle;
+}
+
+.table-avaliacao select {
+    width: 100%;
+    padding: 8px;
+}
+
+/* Garante que as colunas tenham proporções consistentes */
+.form-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.pergunta-cell {
+    width: 20%;
+    padding-right: 15px;
+}
+
+.obs-cell {
+    width: 40%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Melhora a aparência dos campos de observação */
+.obs-cell textarea {
+    width: 100%;
+    min-height: 80px;
+}
+
+.mensagem-observacoes {
+    border-top: dashed 1px #000000;
+    font-size: 0.7em;
+}
+
+#tabela-avaliacao-geral tbody tr {
+    border-bottom: dashed 1px #2c2c2d73;
+}
+
+#tabela-avaliacao-geral tbody tr > td {
+    vertical-align: middle;
+}
+
+.palavras-chave-container {
+    margin-bottom: 20px;
+}
+
+.palavra-chave {
+    transition: all 0.3s;
+}
+
+.palavra-chave:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Estilo para mobile */
+@media (max-width: 576px) {
+    .palavras-chave-container .col-6 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+.palavra-chave-input {
+    transition: all 0.2s;
+}
+
+.palavra-chave-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Validação visual */
+.palavra-chave-input.invalido {
+    border-color: #dc3545;
+}
+
+/* Estilo para células de observação obrigatória */
+.obs-obrigatoria {
+    background-color: #fff8f8 !important;
+    border-right: 3px solid #dc3545 !important;
+    border-left: 3px solid #dc3545 !important;
+}
+
+.obs-obrigatoria label {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}
+
+/* Destaque para campos inválidos */
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.border-bottom-dashed {
+    border-bottom: dashed #2c2c2d73;
+}
+
+.nome-monitor {
+    border: none;
+    pointer-events: none;
+    background: transparent;
+}
+
+.erro-dados-avaliador {
+    margin-top: -1rem;
+    color: #FF0000FF;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .container .row {
+        width: 100% !important;
+    }
+
+    #avaliacoes-container tr td:first-child, #avaliacoes-container tr td:nth-child(2) {
+        padding: 0;
+
+    }
+
+    #avaliacoes-container tr td .nome-monitor {
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        text-wrap: wrap;
+    }
+}
+
+@media (max-width: 576px) {
+    /* 1) Esconde o header e a célula original de Observações */
+    #tabela-avaliacao_individual thead th:nth-child(3), #tabela-avaliacao_individual thead th:nth-child(2),
+    #tabela-avaliacao-coordenadores thead th:nth-child(3), #tabela-avaliacao-coordenadores thead th:nth-child(2),
+    #avaliacoes-atividades thead th:nth-child(3), #avaliacoes-atividades thead th:nth-child(2){
+        display: none;
+    }
+
+    /* 2) Faz cada <td> virar bloco full-width */
+    #tabela-avaliacao_individual tbody tr.avaliacao-item td, #tabela-avaliacao-coordenadores tbody tr.avaliacao-item td,
+    #avaliacoes-atividades tbody tr.avaliacao-item td{
+        display: block;
+        width: 100%;
+        padding: .5rem 0; /* espaçamento vertical */
+        border: none; /* remove bordas laterais */
+    }
+
+    #tabela-avaliacao_individual tbody tr.avaliacao-item, #tabela-avaliacao-coordenadores tbody tr.avaliacao-item,
+    #avaliacoes-atividades tbody tr.avaliacao-item{
+        margin-bottom: 1rem; /* espaço entre “cards” */
+        /*border: 1px solid #dee2e6;*/
+        border-radius: .25rem;
+        padding: .5rem;
+    }
+
+    #tabela-avaliacao_individual tbody tr, #tabela-avaliacao-coordenadores tbody tr,
+    #avaliacoes-atividades tbody tr{
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px dashed #000000 !important;
+    }
+
+    #tabela-avaliacao_individual tbody tr:last-child, #tabela-avaliacao-coordenadores tbody tr:last-child,
+    #avaliacoes-atividades tbody tr:last-child{
+        border-bottom: solid 2px #000000 !important;
+    }
+
+    /* 3) Exibe a célula de observação (que antes estava escondida) */
+    #tabela-avaliacao_individual .obs-cell, #tabela-avaliacao-coordenadores .obs-cell,
+    #avaliacoes-atividades .obs-cell{
+        display: block !important;
+        margin-top: .5rem;
+        margin-bottom: 1rem;
+        border-top: 1px solid #dee2e6; /* só borda acima da observação */
+        padding-top: .5rem;
+    }
+
+    #tabela-avaliacao-geral thead th:nth-child(2) {
+        display: none;
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta td {
+        display: block;
+        width: 100%;
+        padding: .5rem 0; /* espaçamento vertical */
+        border: none; /* remove bordas laterais */
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta {
+        margin-bottom: 1rem; /* espaço entre “cards” */
+        border-radius: .25rem;
+        padding: .5rem;
+    }
+    /*fffff*/
+    #tabela-avaliacao-geral tbody tr {
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px dashed #000000 !important;
+    }
+
+    #tabela-avaliacao-geral tbody tr:last-child {
+        border-bottom: solid 2px #000000 !important;
+    }
+
+    /* 3) Exibe a célula de observação (que antes estava escondida) */
+    #tabela-avaliacao-geral .obs-cell {
+        display: block !important;
+        margin-top: .5rem;
+        margin-bottom: 1rem;
+        border-top: 1px solid #dee2e6; /* só borda acima da observação */
+        padding-top: .5rem;
+    }
+
+    #tabela-avaliacao-geral tbody tr.linha-pergunta td {
+        padding: 0 !important;
+    }
+
+    #tabela-avaliacao-geral .obs-cell {
+        padding: 0;
+    }
+
+    #tabela-avaliacao-geral .obs-cell div {
+        margin: 0;
+    }
+
+    #tabela-avaliacao-geral textarea {
+        height: 11rem;
+    }
+
+    #tabela-avaliacao-geral tbody tr {
+        border-bottom: 1px dashed #000000 !important;
+    }
+}

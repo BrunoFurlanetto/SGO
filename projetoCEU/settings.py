@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_crontab',
     'reversion',
+    'import_export',
     'django_admin_search',
     'home.apps.HomeConfig',
     'ceu.apps.CeuConfig',
@@ -57,6 +58,9 @@ INSTALLED_APPS = [
     'coreFinanceiro.apps.CorefinanceiroConfig',
     'orcamento.apps.OrcamentoConfig',
     'mensagens.apps.MensagensConfig',
+    'painelDiretoria.apps.PaineldiretoriaConfig',
+    'cozinha.apps.CozinhaConfig',
+    'pesquisasSatisfacao.apps.PesquisassatisfacaoConfig',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +78,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 ROOT_URLCONF = 'projetoCEU.urls'
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -89,8 +96,10 @@ TEMPLATES = [
             ],
             'libraries':  {
                 'custom_filter_tag': 'cadastro.templatetags.custom_filter_tag',
+                'custom_filter_tag_painel_diretoria': 'painelDiretoria.templatetags.custom_filter_tag_painel_diretoria',
                 'custom_filter_tags': 'dashboard.templatetags.custom_filter_tags',
                 'custom_tag': 'orcamento.templatetags.custom_tag',
+                'custom_filter_tags_avaliacao': 'pesquisasSatisfacao.templatestags.filter_tags_avaliacao',
                 'tags_financeiro': 'financeiro.templatetags.tags_financeiro',
                 'templates_tag_gerais': 'projetoCEU.templates_tag_gerais',
             }
@@ -147,7 +156,9 @@ DATE_INPUT_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d %B %Y']
 
 DATE_FORMAT = 'd/m/Y'  # TODO: Verificar sempre como as datas estão ficando
 
-DATETIME_FORMAT = 'm/d/Y H:i'
+TIME_FORMAT = 'H:i'
+
+DATETIME_FORMAT = 'd/m/Y H:i'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -184,7 +195,7 @@ except ImportError:
 CRONJOBS = [
     ('0 07 * * *', 'peraltas.cron.atualizar_pagantes_ficha'),
     ('0 11 * * *', 'peraltas.cron.envio_dados_embarque'),
-    ('0 4 */14 * *', 'peraltas.cron.deletar_versoes_antigas'),
+    ('0 06 * * *', 'peraltas.cron.atualizar_contagem_hotelaria'),
     ('0 06 * * *', 'orcamento.cron.verificar_validade_orcamento'),
     ('0 06 * * *', 'orcamento.cron.excluir_previas_antigas'),
 ]

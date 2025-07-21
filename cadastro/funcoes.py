@@ -62,7 +62,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
             'locacoes_ceu': locacoes_ceu,
             'atividades_eco': atividades_eco,
             'atividades_peraltas': atividades_peraltas,
-            'id_observacoes': ficha_de_evento.observacoes,
+            'id_observacoes_ficha_de_evento': ficha_de_evento.observacoes,
             'corporativo': not ficha_de_evento.produto.colegio
         }
 
@@ -178,7 +178,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 'nickname': cliente_bd.nickname,
                 'endereco': cliente_bd.endereco,
                 'bairro': cliente_bd.bairro,
-                'cidade': cliente_bd.bairro,
+                'cidade': cliente_bd.cidade,
                 'estado': cliente_bd.estado,
                 'cep': cliente_bd.cep,
             }
@@ -196,7 +196,7 @@ def requests_ajax(requisicao, files=None, usuario=None):
                 'nickname': cliente_bd.nickname,
                 'endereco': cliente_bd.endereco,
                 'bairro': cliente_bd.bairro,
-                'cidade': cliente_bd.bairro,
+                'cidade': cliente_bd.cidade,
                 'estado': cliente_bd.estado,
                 'cep': cliente_bd.cep,
                 'responsaveis': responsaveis
@@ -398,28 +398,31 @@ def pegar_refeicoes(dados):
         refeicao_data = []
 
         if dados.get(f'cafe_{j}'):
-            refeicao_data.append('Café')
+            refeicao_data.append('cafe_manha')
+
+        if dados.get(f'lanche_m_{j}'):
+            refeicao_data.append('lanche_manha')
 
         if dados.get(f'coffee_m_{j}'):
-            refeicao_data.append('Coffee manhã')
+            refeicao_data.append('coffee_manha')
 
         if dados.get(f'almoco_{j}'):
-            refeicao_data.append('Almoço')
+            refeicao_data.append('almoco')
 
         if dados.get(f'lanche_t_{j}'):
-            refeicao_data.append('Lanche tarde')
+            refeicao_data.append('lanche_tarde')
 
         if dados.get(f'coffee_t_{j}'):
-            refeicao_data.append('Coffee tarde')
+            refeicao_data.append('coffee_tarde')
 
         if dados.get(f'jantar_{j}'):
-            refeicao_data.append('Jantar')
+            refeicao_data.append('jantar')
 
         if dados.get(f'coffee_n_{j}'):
-            refeicao_data.append('Coffee noite')
+            refeicao_data.append('coffee_noite')
 
         if dados.get(f'lanche_n_{j}'):
-            refeicao_data.append('Lanche noite')
+            refeicao_data.append('lanche_noite')
 
         refeicoes[dados.get(f'data_refeicao_{j}')] = refeicao_data
 

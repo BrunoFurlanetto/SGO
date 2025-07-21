@@ -16,7 +16,7 @@ from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, Cadast
     TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
     CadastroInfoAdicionais, CadastroCodigoApp, FichaDeEvento, RelacaoClienteResponsavel, Vendedor, \
-    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, Eventos, \
+    GrupoAtividade, AtividadesEco, AtividadePeraltas, InformacoesAdcionais, CodigosApp, EventosCancelados, \
     Monitor, EmpresaOnibus
 from financeiro.models import TiposPagamentos
 from projetoCEU import gerar_pdf
@@ -185,23 +185,14 @@ def colegio(request, id_relatorio=None):
         except Exception as e:
             email_error(request.user.get_full_name(), e, __name__)
             messages.error(request, 'Houve um erro insperado, por favor tente novamente mais tarde!')
+
             return redirect('dashboardCeu')
         else:
             ordem.relatorio_ceu_entregue = True
             ordem.save()
+            messages.success(request, 'Relatório salvo com sucesso!')
 
-            if not id_relatorio:
-                email, senha = criar_usuario_colegio(novo_colegio, ordem.id)
-            else:
-                return redirect('dashboardCeu')
-
-            return render(request, 'cadastro/colegio.html', {
-                'formulario': relatorio_colegio,
-                'professores': professores,
-                'mostrar': True,
-                'email': email,
-                'senha': senha
-            })
+            return redirect('dashboardCeu')
     else:
         messages.warning(request, relatorio_colegio.errors)
         ordem_de_servico = OrdemDeServico.objects.get(id=int(request.POST.get('id_ordem')))
@@ -215,6 +206,27 @@ def colegio(request, id_relatorio=None):
             'editar': editar,
             'locais': locais
         })
+
+
+@login_required(login_url='login')
+def relatorio_colegio(request, id_ordem):
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordem_de_servico = OrdemDeServico.objects.get(pk=id_ordem)
+    relatorio = RelatorioColegio(
+        initial=RelatorioDeAtendimentoColegioCeu.dados_iniciais(ordem_de_servico)
+    )
+
+    return render(request, 'cadastro/colegio.html', {
+        'formulario': relatorio,
+        'ordem': ordem_de_servico,
+        'professores': professores,
+        'monitores': monitores,
+        'atividades': atividades,
+        'locais': locais
+    })
 
 
 @login_required(login_url='login')
@@ -232,7 +244,7 @@ def empresa(request, id_relatorio=None):
 
             if request.GET.get('empresa'):
                 ordem_de_servico = OrdemDeServico.objects.get(pk=request.GET.get('empresa'))
-                relatorio_colegio = RelatorioColegio(
+                relatorio_colegio = RelatorioEmpresa(
                     initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
                 )
 
@@ -325,6 +337,38 @@ def empresa(request, id_relatorio=None):
 
 
 @login_required(login_url='login')
+def cadastro_relatorio_empresa(request, id_ordem):
+    professores = Professores.objects.all()
+    monitores = Monitor.objects.all()
+    atividades = Atividades.objects.all()
+    locais = Locaveis.objects.all()
+    ordem_de_servico = OrdemDeServico.objects.get(pk=id_ordem)
+    relatorio_empresa = RelatorioEmpresa(
+        initial=RelatorioDeAtendimentoEmpresaCeu.dados_iniciais(ordem_de_servico)
+    )
+
+    return render(request, 'cadastro/empresa.html', {
+        'formulario': relatorio_empresa,
+        'ordem': ordem_de_servico,
+        'professores': professores,
+        'monitores': monitores,
+        'atividades': atividades,
+        'locais': locais
+    })
+
+@login_required(login_url='login')
+def inicioOrdemDeServico(request):
+    fichas_de_evento = FichaDeEvento.objects.filter(os=False, pre_reserva=False).order_by('check_in')
+
+    if request.method == 'POST' and request.POST.get('ficha_de_evento') != '':
+        return redirect('ordem_de_servico_com_ficha', int(request.POST.get('ficha_de_evento')))
+
+    return render(request, 'cadastro/ordem_de_servico_inicio.html', {
+        'fichas': fichas_de_evento,
+    })
+
+
+@login_required(login_url='login')
 def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     atividades_acampamento = AtividadePeraltas.objects.all()
     grupos_atividades_acampamento = GrupoAtividade.objects.all()
@@ -403,28 +447,39 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
     if request.POST.get('excluir'):
         try:
-            EventosCancelados.objects.create(
-                cliente=ordem_servico.ficha_de_evento.cliente.__str__(),
-                cnpj_cliente=ordem_servico.ficha_de_evento.cliente.cnpj,
-                estagio_evento='ordem_servico',
-                atendente=ordem_servico.vendedor.usuario.get_full_name(),
-                produto_contratado=ordem_servico.ficha_de_evento.produto,
-                produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
-                data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
-                data_saida=datetime.now().date(),
-                data_evento=ordem_servico.check_in.date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                participantes=ordem_servico.n_participantes if ordem_servico.n_participantes else 0,
-                tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo'
-            )
-            ordem_servico.ficha_de_evento.os = False
-            ordem_servico.ficha_de_evento.save()
+            with transaction.atomic():
+                EventosCancelados.objects.create(
+                    cliente=ordem_servico.ficha_de_evento.cliente.__str__(),
+                    cnpj_cliente=ordem_servico.ficha_de_evento.cliente.cnpj,
+                    estagio_evento='ordem_servico',
+                    atendente=ordem_servico.vendedor.usuario.get_full_name(),
+                    produto_contratado=ordem_servico.ficha_de_evento.produto,
+                    produto_corporativo_contratado=ordem_servico.ficha_de_evento.produto_corporativo,
+                    data_entrada=ordem_servico.ficha_de_evento.data_preenchimento,
+                    data_saida=datetime.now().date(),
+                    data_check_in_evento=ordem_servico.check_in.date(),
+                    hora_check_in_evento=ordem_servico.check_in.time(),
+                    data_check_out_evento=ordem_servico.check_out.date(),
+                    hora_check_out_evento=ordem_servico.check_out.time(),
+                    dias_evento=(ordem_servico.check_out.date() - ordem_servico.check_in.date()).days + 1,
+                    codigo_pagamento=ordem_servico.ficha_de_evento.codigos_app.eficha,
+                    adesao=ordem_servico.ficha_de_evento.adesao,
+                    veio_ano_anterior=FichaDeEvento.objects.filter(
+                        check_in__year=ordem_servico.check_in.year - 1).exists(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes_reservados=ordem_servico.ficha_de_evento.qtd_convidada,
+                    participantes_confirmados=ordem_servico.n_participantes,
+                    tipo_evento='colegio' if ordem_servico.tipo == 'Colégio' else 'corporativo',
+                    colaborador_excluiu=request.user,
+                )
+                ordem_servico.ficha_de_evento.os = False
+                ordem_servico.ficha_de_evento.save()
 
-            if ordem_servico.dados_transporte:
-                for dados_transporte in ordem_servico.dados_transporte.all():
-                    dados_transporte.delete()
+                if ordem_servico.dados_transporte:
+                    for dados_transporte in ordem_servico.dados_transporte.all():
+                        dados_transporte.delete()
 
-            ordem_servico.delete()
+                ordem_servico.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde')
         else:
@@ -448,6 +503,7 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
     ordem_de_servico = form.save(commit=False)
     ordem_de_servico.permicao_coordenadores = permicao_coordenacao
     ficha = FichaDeEvento.objects.get(id=int(request.POST.get('ficha_de_evento')))
+    ficha.os = True
     slavar_atividades_ecoturismo(request.POST, ordem_de_servico)
 
     try:
@@ -457,19 +513,10 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         ordem_de_servico = form.save()
 
-        try:
-            evento = Eventos.objects.get(ficha_de_evento=ficha)
-        except Eventos.DoesNotExist:
-            ficha_para_evento = FichaDeEvento.objects.get(id=ordem_de_servico.ficha_de_evento.id)
-            evento = Eventos.objects.create(ficha_de_evento=ficha_para_evento)
-
-        evento.ordem_de_servico = ordem_de_servico
-        evento.save()
-
         if ficha.escala:
             ordem_de_servico.escala = True
 
-        if len(request.POST.getlist('empresa_onibus')) > 0:
+        if len(transportes_salvos) > 0:
             ordem_de_servico.dados_transporte.set(transportes_salvos)
 
         ordem_de_servico.save()
@@ -480,7 +527,6 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
         return redirect('dashboardPeraltas')
     else:
-        ficha.os = True
         ficha.save()
 
         if ordem_de_servico.tipo == 'Empresa':
@@ -500,11 +546,12 @@ def ordemDeServico(request, id_ordem_de_servico=None, id_ficha_de_evento=None):
 
             if len(ordem_de_servico.dados_transporte.all()) > 0:
                 for transporte in ordem_de_servico.dados_transporte.all():
-                    EmailSender([transporte.monitor_embarque.usuario.email]).mensagem_monitor_embarque(
-                        ordem_de_servico.ficha_de_evento.cliente,
-                        ordem_de_servico.check_in,
-                        transporte.monitor_embarque.usuario.get_full_name()
-                    )
+                    if transporte.monitor_embarque:
+                        EmailSender([transporte.monitor_embarque.usuario.email]).mensagem_monitor_embarque(
+                            ordem_de_servico.ficha_de_evento.cliente,
+                            ordem_de_servico.check_in,
+                            transporte.monitor_embarque.usuario.get_full_name()
+                        )
 
         return redirect('dashboardPeraltas')
 
@@ -528,6 +575,7 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     except Exception as e:
         email_error(request.user.get_full_name(), e, __name__)
         messages.error(request, f'Houve um erro inesperado: {e}. Tente novamente mais tarde.')
+
         return redirect('dashboard')
 
     if is_ajax(request):
@@ -601,25 +649,50 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
         ficha_de_evento = FichaDeEvento.objects.get(pk=id_ficha_de_evento)
 
         try:
-            EventosCancelados.objects.create(
-                cliente=ficha_de_evento.cliente.__str__(),
-                cnpj_cliente=ficha_de_evento.cliente.cnpj,
-                estagio_evento='ficha_evento',
-                atendente=ficha_de_evento.vendedora.usuario.get_full_name(),
-                produto_contratado=ficha_de_evento.produto,
-                produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
-                data_entrada=ficha_de_evento.data_preenchimento,
-                data_saida=datetime.now().date(),
-                data_evento=ficha_de_evento.check_in.date(),
-                motivo_cancelamento=request.POST.get('motivo_cancelamento'),
-                participantes=ficha_de_evento.qtd_convidada if ficha_de_evento.qtd_convidade else 0,
-                tipo_evento='corporativo' if ficha_de_evento.produto_corporativo else 'colegio'
-            )
-            ficha_de_evento.delete()
+            with transaction.atomic():
+                EventosCancelados.objects.create(
+                    cliente=ficha_de_evento.cliente.__str__(),
+                    cnpj_cliente=ficha_de_evento.cliente.cnpj,
+                    estagio_evento='ficha_evento',
+                    atendente=ficha_de_evento.vendedora.usuario.get_full_name(),
+                    produto_contratado=ficha_de_evento.produto,
+                    produto_corporativo_contratado=ficha_de_evento.produto_corporativo,
+                    data_entrada=ficha_de_evento.data_preenchimento,
+                    data_saida=datetime.now().date(),
+                    data_check_in_evento=ficha_de_evento.check_in.date(),
+                    hora_check_in_evento=ficha_de_evento.check_in.time(),
+                    data_check_out_evento=ficha_de_evento.check_out.date(),
+                    hora_check_out_evento=ficha_de_evento.check_out.time(),
+                    dias_evento=(ficha_de_evento.check_out.date() - ficha_de_evento.check_in.date()).days + 1,
+                    codigo_pagamento=ficha_de_evento.codigos_app.eficha,
+                    adesao=ficha_de_evento.adesao,
+                    veio_ano_anterior=FichaDeEvento.objects.filter(
+                        check_in__year=ficha_de_evento.check_in.year - 1).exists(),
+                    motivo_cancelamento=request.POST.get('motivo_cancelamento'),
+                    participantes_reservados=ficha_de_evento.qtd_convidada or 0,
+                    participantes_confirmados=ficha_de_evento.qtd_confirmada or 0,
+                    tipo_evento='colegio' if ficha_de_evento.produto.colegio else 'corporativo',
+                    colaborador_excluiu=request.user,
+                )
+
+                cliente = ficha_de_evento.cliente
+                check_in = ficha_de_evento.check_in
+                escala = ficha_de_evento.escala
+                ficha_de_evento.delete()
         except Exception as e:
             messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
             return redirect('dashboard')
         else:
+            if escala:
+                coordenadores_acampamento = User.objects.filter(groups__name='Coordenador acampamento')
+                lista_emails = set()
+
+                for coordenador in coordenadores_acampamento:
+                    if coordenador.email != 'sacieventossp@gmail.com':
+                        lista_emails.add(coordenador.email)
+
+                EmailSender(lista_emails).evento_cancelado_monitores(cliente, check_in)
+
             messages.success(request, 'Ficha de evento escluída com sucesso!')
             return redirect('dashboard')
 
@@ -808,6 +881,7 @@ def listaResponsaveis(request):
 
         try:
             relacoes = RelacaoClienteResponsavel.objects.filter(cliente=int(cliente))
+            print(relacoes)
         except RelacaoClienteResponsavel.DoesNotExist:
             responsaveis = []
         except Exception as e:
@@ -902,33 +976,3 @@ def listaResponsaveis(request):
     else:
         messages.warning(request, form.errors)
         return redirect('lista_responsaveis')
-
-
-def salvar_novo_responsavel(request):
-    try:
-        with transaction.atomic():
-            novo_responsavel = CadastroResponsavel(request.POST)
-
-            if not novo_responsavel.is_valid():
-                return JsonResponse({'erros': novo_responsavel.errors}, status=400)
-
-            responsavel_salvo = novo_responsavel.save()
-
-            cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente'))
-            relacao = RelacaoClienteResponsavel.objects.get(cliente=cliente)
-            relacao.responsavel.add(responsavel_salvo)
-            relacao.save()
-
-            return JsonResponse({
-                'sucesso': 'Responsável cadastrado com sucesso!',
-                'id': responsavel_salvo.id,
-                'nome': str(responsavel_salvo.nome),
-                'telefone': str(responsavel_salvo.fone),
-                'whats': str(responsavel_salvo.whats),
-                'email': str(responsavel_salvo.email_responsavel_evento),
-            }, status=201)
-
-
-    except Exception as e:
-        return JsonResponse({'erros': f'Erro ao salvar dados: {e}'}, status=500)
-

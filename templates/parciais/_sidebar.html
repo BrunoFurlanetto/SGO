@@ -2,7 +2,6 @@
 
 <div class="sidebar close">
     <div class="logo-details">
-
         {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
             <i><img src="{% static 'img/centro_logo_ceu.png' %}" alt="Logo CEU" height="70px" width="auto"></i>
             <span class="logo_name ceu">Centro de Estudos do Universo</span>
@@ -63,27 +62,27 @@
                     <li>
                 {% endif %}
 
-                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                    <a href="{% url 'resumo_atividades' %}">
-                        <i class='bx bx-notepad'></i>
-                        <span class="link_name">Resumo professores</span>
-                    </a>
-                {% endif %}
-
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>
-                </ul>
-                </li>
-
-                {% if 'dashboard' in request.path %}
-                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
-                        <li class="item-sidebar">
-                            {% else %}
-                        <li>
-                    {% endif %}
-                {% else %}
-                    <li>
-                {% endif %}
+{#                {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                    <a href="{% url 'resumo_atividades' %}">#}
+{#                        <i class='bx bx-notepad'></i>#}
+{#                        <span class="link_name">Resumo professores</span>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{##}
+{#                <ul class="sub-menu blank">#}
+{#                    <li><a class="link_name" href="{% url 'resumo_atividades' %}">Resumo professores</a></li>#}
+{#                </ul>#}
+{#                </li>#}
+{##}
+{#                {% if 'dashboard' in request.path %}#}
+{#                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}#}
+{#                        <li class="item-sidebar">#}
+{#                            {% else %}#}
+{#                        <li>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
+{#                    <li>#}
+{#                {% endif %}#}
                 {#                {% if perms.peraltas.add_listadecargos %}#}
                 {#                    <a href="{% url 'painelGeral' %}">#}
                 {#                        <i class='bx bxs-pie-chart-alt-2'></i>#}
@@ -127,7 +126,6 @@
                 {% endif %}
 
                 {% if perms.cadastro.view_relatoriodeatendimentopublicoceu or perms.ordemDeServico.add_ordemdeservico or perms.peraltas.add_fichadeevento %}
-
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-archive'></i>
@@ -140,8 +138,8 @@
 
                         {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                             <li><a href="{% url 'publico' %}">Público</a></li>
-                            <li><a href="{% url 'colegio' %}">Colégio</a></li>
-                            <li><a href="{% url 'empresa' %}">Empresa</a></li>
+{#                            <li><a href="{% url 'colegio' %}">Colégio</a></li>#}
+{#                            <li><a href="{% url 'empresa' %}">Empresa</a></li>#}
                         {% endif %}
 
                         {% if perms.ordemDeServico.add_ordemdeservico %}
@@ -217,7 +215,7 @@
                     <li>
                 {% endif %}
 
-                {% if perms.peraltas.view_fichadeevento %}
+                {% if perms.peraltas.view_prereserva or perms.peraltas.view_fichadeevento or perms.ordemDeServico.view_ordemdeservico %}
                     <a href="{% url 'calendario_eventos' %}">
                         <i class='bx bx-calendar'></i>
                         <span class="link_name">Eventos</span>
@@ -229,7 +227,7 @@
 
                 </li>
 
-                {% if 'dashboard' in request.path %}
+                {% comment %}{% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
                             {% else %}
@@ -248,7 +246,7 @@
                             <li><a class="link_name" href="{% url 'novo_orcamento' %}">Orçamento</a></li>
                         </ul>
                     {% endif %}
-                {% endif %}
+                {% endif %}{% endcomment %}
 
                 </li>{% if 'dashboard' in request.path %}
                 {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
@@ -303,6 +301,33 @@
 
                 </li>
 
+                {% if perms.peraltas.ver_relatorios_eventos %}
+                    {% if 'dashboard' in request.path %}
+                        {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                            <li class="item-sidebar">
+                                {% else %}
+                            <li>
+                        {% endif %}
+                    {% else %}
+                        <li>
+                    {% endif %}
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-pie-chart-alt-2'></i>
+                            <span class="link_name">Estatísticas</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow'></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name">Estatísticas</a></li>
+                            <li><a href="{% url 'painel_diretoria' %}">Eventos</a></li>
+                            <li><a href="{% url 'estatisticas_monitoria' %}">Monitoria</a></li>
+                            {% if perms.pesquisasSatisfacao.view_avaliacaocolegio or perms.pesquisasSatisfacao.view_avaliacaocorporativo or perms.pesquisasSatisfacao.view_monitoravaliandocoordenacao or perms.pesquisasSatisfacao.view_coordenacaoavaliandomonitoria %}
+                                <li><a href="{% url 'ver_avaliacoes_peraltas' %}">Avaliações</a></li>
+                       {% endif %}
+                    </ul>
+                {% endif %}
+
                 {% if 'dashboard' in request.path %}
                     {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
                         <li class="item-sidebar">
@@ -319,6 +344,31 @@
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="{% url 'alterar_senha' %}">Alterar senha</a></li>
                 </ul>
+                </li>
+
+                {% if 'dashboard' in request.path %}
+                    {% if perms.cadastro.view_relatoriodeatendimentopublicoceu %}
+                        <li class="item-sidebar">
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                {% endif %}
+                    {% if perms.cozinha.view_registrovisualizacoes %}
+                        <div class="iocn-link">
+                            <a href="#">
+                                <i class='bx bx-knife'></i>
+                                <span class="link_name">Cozinha</span>
+                            </a>
+                            <i class='bx bxs-chevron-down arrow'></i>
+                        </div>
+
+                        <ul class="sub-menu">
+                            <li><a class="link_name">Cozinha</a></li>
+                            <li><a href="{% url 'dashboard_cozinha' %}">Agenda</a></li>
+                        </ul>
+                    {% endif %}
                 </li>
 
                 <li>

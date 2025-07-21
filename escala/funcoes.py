@@ -1,17 +1,15 @@
 import json
 from datetime import datetime, timedelta
 from itertools import chain
+from math import ceil
 
-from ceu.models import Professores
+from django.db.models import Q, F
+
+from ceu.models import Atividades, Estruturas
 from escala.models import Disponibilidade, Escala
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DisponibilidadePeraltas, Monitor, DiaLimitePeraltas, FichaDeEvento, ClienteColegio, \
     Enfermeira, EscalaAcampamento, EscalaHotelaria
-
-grupos_monitores_1 = ['Auxiliar de monitoria 1', 'Auxiliar de monitoria 2',
-                      'Auxiliar de monitoria 3', 'Auxiliar de monitoria 4']
-grupos_monitores_2 = ['Monitor 1', 'Monitor 2', 'Monitor 3']
-grupos_monitores_3 = ['Monitor 4', 'Monitor 5', 'Monitor 6']
 
 
 def is_ajax(request):
@@ -34,6 +32,12 @@ def retornar_dados_grupo(ordens, id_grupo):
 def verificar_disponiveis(data):
     professores_disponiveis = []
     n_participantes = 0
+    atividades_com_data_hora = set()  # Atividades com data e hora definida no dia específico
+    atividades_definidas = set()  # Atividades definidas (podem ou não ter data e hora)
+    atividades_a_definir = 0  # Atividades sem data e hora definida
+    atividades_a_definir_data_e_hora = set()
+    locacoes_com_checkin = set()
+    locacoes_sem_checkin = set()
 
     try:
         escala = Escala.objects.get(data_escala=datetime.strptime(data, '%d/%m/%Y').date())
@@ -44,25 +48,48 @@ def verificar_disponiveis(data):
 
     disponiveis = Disponibilidade.objects.filter(dias_disponiveis__icontains=data)
     ordens = OrdemDeServico.objects.filter(
-        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
-        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_in_ceu__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
+        check_out_ceu__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
+        atividades_ceu__isnull=False,
     )
-    fichas = FichaDeEvento.objects.filter(
-        pre_reserva=False, os=False,
-        check_in__date__lte=datetime.strptime(data, '%d/%m/%Y').date(),
-        check_out__date__gte=datetime.strptime(data, '%d/%m/%Y').date(),
-    )
-    eventos = list(chain(ordens, fichas))
 
-    for evento in eventos:
-        if isinstance(evento, FichaDeEvento):
-            n_participantes += evento.qtd_convidada
-        else:
-            n_participantes += evento.n_participantes
+    for ordem in ordens:
+        n_participantes += ordem.n_participantes
+        atividades_ceu = ordem.atividades_ceu
+
+        for key, atividade in atividades_ceu.items():
+            if atividade.get('data_e_hora'):
+                data_hora_atividade = datetime.strptime(atividade['data_e_hora'], '%Y-%m-%d %H:%M')
+
+                if data_hora_atividade.date() == datetime.strptime(data, '%d/%m/%Y').date():
+                    atividades_com_data_hora.add(Atividades.objects.get(pk=atividade['atividade']).atividade)
+                else:
+                    atividades_definidas.add(Atividades.objects.get(
+                        pk=atividade['atividade']).atividade)  # Adiciona à lista de atividades definidas
+            else:
+                if Atividades.objects.get(pk=atividade['atividade']).a_definir:
+                    atividades_a_definir += 1
+                else:
+                    atividades_a_definir_data_e_hora.add(Atividades.objects.get(pk=atividade['atividade']).atividade)
+
+        locacao_ceu = ordem.locacao_ceu
+
+        if locacao_ceu:
+            for key, locacao in locacao_ceu.items():
+                if locacao.get('check_in'):
+                    locacoes_com_checkin.add(Estruturas.objects.get(pk=locacao['espaco']).estrutura)
+                else:
+                    locacoes_sem_checkin.add(Estruturas.objects.get(pk=locacao['espaco']).estrutura)
 
     dados_eventos = {
-        'n_eventos': len(eventos),
-        'n_participantes': n_participantes
+        'n_eventos': len(ordens),
+        'n_participantes': n_participantes,
+        'atividades_com_data_hora': list(atividades_com_data_hora),  # Atividades com data e hora no dia específico
+        'atividades_definidas': list(atividades_definidas),  # Todas as atividades definidas
+        'atividades_a_definir': atividades_a_definir,  # Atividades sem data e hora definida
+        'locacoes_com_checkin': list(locacoes_com_checkin),
+        'locacoes_sem_checkin': list(locacoes_sem_checkin),
+        'atividades_a_definir_data_e_hora': list(atividades_a_definir_data_e_hora),
     }
 
     for disponivel in disponiveis:
@@ -70,8 +97,12 @@ def verificar_disponiveis(data):
             'id': disponivel.professor.id,
             'nome': disponivel.professor.usuario.get_full_name()
         })
-
-    return {'disponiveis': professores_disponiveis, 'eventos': dados_eventos, 'escalados': escalados}
+    print(dados_eventos)
+    return {
+        'disponiveis': professores_disponiveis,
+        'eventos': dados_eventos,
+        'escalados': escalados
+    }
 
 
 def verificar_disponiveis_grupo(check_in, check_out):
@@ -354,107 +385,136 @@ def pegar_clientes_data_selecionada(data):
         check_out__date__gte=data
     )
     # Junta em uma lista pra facilitar no looping que vai pegar os dados de forma correta
-    todos_clientes = list(chain(clientes_dia_ficha, clientes_dia_ordem))
-    clientes = []  # Lista que vai receber os dados
+    todos_eventos = list(chain(clientes_dia_ficha, clientes_dia_ordem))
+    eventos = []  # Lista que vai receber os dados
 
     # ----------------- Looping respoensável por pegar os dados do cliente em cada instância ---------------------
-    for cliente in todos_clientes:
-        if isinstance(cliente, FichaDeEvento):
-            clientes.append({'id': cliente.cliente.id, 'nome_fantasia': cliente.cliente.nome_fantasia})
+    for evento in todos_eventos:
+        if isinstance(evento, FichaDeEvento):
+            eventos.append({
+                'id': evento.id,
+                'nome_fantasia': evento.cliente.nome_fantasia,
+                'cliente_id': evento.cliente.id,
+            })
         else:
-            clientes.append({'id': cliente.ficha_de_evento.cliente.id,
-                             'nome_fantasia': cliente.ficha_de_evento.cliente.nome_fantasia})
+            eventos.append({
+                'id': evento.ficha_de_evento.id,
+                'nome_fantasia': evento.ficha_de_evento.cliente.nome_fantasia,
+                'cliente_id': evento.ficha_de_evento.cliente.id,
+            })
     # ------------------------------------------------------------------------------------------------------------
-    return clientes
+    return eventos
 
 
-def gerar_disponibilidade(id_cliente, data, editando=False):
-    cliente = ClienteColegio.objects.get(id=int(id_cliente))
+def gerar_disponibilidade(id_evento):
+    evento = FichaDeEvento.objects.get(pk=id_evento)
+    check_in = evento.check_in.astimezone()
+    check_out = evento.check_out.astimezone()
 
-    if editando:
-        ficha_de_evento_cliente = FichaDeEvento.objects.get(
-            cliente=cliente,
-            check_in__date__lte=data,
-            check_out__date__gte=data
-        )
-    else:
-        ficha_de_evento_cliente = FichaDeEvento.objects.get(
-            escala=False,
-            check_in__date__lte=data,
-            check_out__date__gte=data,
-            cliente=cliente
-        )
-
-    check_in = ficha_de_evento_cliente.check_in
-    check_out = ficha_de_evento_cliente.check_out
-
-    if ficha_de_evento_cliente.os:
-        ordem_cliente = OrdemDeServico.objects.get(
-            ficha_de_evento__cliente=cliente,
-            check_in__date__lte=data,
-            check_out__date__gte=data
-        )
+    if evento.os:
+        ordem_cliente = OrdemDeServico.objects.get(ficha_de_evento=evento)
         check_in = ordem_cliente.check_in
         check_out = ordem_cliente.check_out
 
     disponibilidades_peraltas = DisponibilidadePeraltas.objects.filter(
-        dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')
+        Q(dias_disponiveis__icontains=check_in.strftime('%d/%m/%Y')) |
+        Q(dias_disponiveis__icontains=check_out.strftime('%d/%m/%Y'))
     )
+    disponibilidades_agrupadas = agrupar_disponibilidades_por_monitor(disponibilidades_peraltas)
 
-    disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_peraltas)
+    try:
+        disponiveis_intervalo = pegar_disponiveis_intervalo(check_in, check_out, disponibilidades_agrupadas)
+    except AttributeError as e:
+        raise AttributeError(e)
 
     return disponiveis_intervalo
 
 
-def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis):
+def agrupar_disponibilidades_por_monitor(disponibilidades_peraltas):
+    agrupamento = {}
+
+    for disponibilidade in disponibilidades_peraltas:
+        try:
+            monitor_id = disponibilidade.monitor.id
+        except AttributeError:
+            monitor_id = disponibilidade.enfermeira.id
+
+            if f'enfermeira_id_{monitor_id}' not in agrupamento:
+                agrupamento[f'enfermeira_id_{monitor_id}'] = {
+                    'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
+                    'disponivel': disponibilidade,
+                    'todos_dias': []
+                }
+
+            agrupamento[f'enfermeira_id_{monitor_id}']['todos_dias'].extend(
+                disponibilidade.dias_disponiveis.split(', ')
+            )
+        else:
+            if f'monitor_id_{monitor_id}' not in agrupamento:
+                agrupamento[f'monitor_id_{monitor_id}'] = {
+                    'monitor': disponibilidade.monitor if disponibilidade.monitor else None,
+                    'disponivel': disponibilidade,
+                    'todos_dias': []
+                }
+
+            agrupamento[f'monitor_id_{monitor_id}']['todos_dias'].extend(
+                disponibilidade.dias_disponiveis.split(', ')
+            )
+
+    return agrupamento
+
+
+def pegar_disponiveis_intervalo(check_in, check_out, lista_disponiveis, setor=None):
     disponiveis_intervalo = []
     dias = check_out - check_in
     monitores_disponiveis_intervalo = []
 
-    for disponivel in lista_disponiveis:
+    for _, disponivel in lista_disponiveis.items():
         intervalo = True
 
         for i in range(0, dias.days + 1):
-            if (check_in + timedelta(days=i)).strftime('%d/%m/%Y') in disponivel.dias_disponiveis:
+            if (check_in + timedelta(days=i)).strftime('%d/%m/%Y') in disponivel['todos_dias']:
                 continue
             else:
                 intervalo = False
                 break
 
         if intervalo and disponivel not in disponiveis_intervalo:
-            disponiveis_intervalo.append(disponivel)
+            monitor = disponivel['monitor']
+            disponibilidade = disponivel['disponivel']
+
+            if setor == 'hotelaria' and monitor:
+                if setor in monitor.setor or 'tecnica' in monitor.setor:
+                    disponiveis_intervalo.append(disponibilidade)
+            elif not setor:
+                disponiveis_intervalo.append(disponibilidade)
 
     for disponibilidade in disponiveis_intervalo:
         areas = []
 
         if disponibilidade.monitor:
-            areas.append('som') if disponibilidade.monitor.som else ...
-            areas.append('video') if disponibilidade.monitor.video else ...
-            areas.append('fotos_e_filmagens') if disponibilidade.monitor.fotos_e_filmagens else ...
-            areas.append('coordenador') if 'Coordenador' in disponibilidade.monitor.nivel.nivel else ...
-            biologo = 'biologo' if disponibilidade.monitor.biologo else ''
-
-            if not disponibilidade.monitor.tecnica and not disponibilidade.monitor.biologo:
-                if disponibilidade.monitor.nivel.nivel in grupos_monitores_1:
-                    nivel = 'monitor_1'
-                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_2:
-                    nivel = 'monitor_2'
-                elif disponibilidade.monitor.nivel.nivel in grupos_monitores_3:
-                    nivel = 'monitor_3'
-                else:
-                    nivel = 'monitor_4'
+            try:
+                areas.append('coordenador') if disponibilidade.monitor.nivel.coordenacao else ...
+            except AttributeError:
+                raise AttributeError(
+                    f'Monitor {disponibilidade.monitor.usuario.get_full_name()} sem nível atribuído, por favor atribuir')
             else:
-                nivel = ''
+                biologo = 'biologo' if disponibilidade.monitor.biologo else ''
 
-            dados_monitor = {
-                'id': disponibilidade.monitor.id,
-                'nome': disponibilidade.monitor.usuario.get_full_name(),
-                'setor': 'peraltas',
-                'tecnica': disponibilidade.monitor.tecnica,
-                'areas': '-'.join(areas),
-                'biologo': biologo,
-                'nivel': nivel
-            }
+                if setor == 'hotelaria':
+                    nivel = disponibilidade.monitor.nivel_hotelaria
+                else:
+                    nivel = disponibilidade.monitor.nivel.nivel
+
+                dados_monitor = {
+                    'id': disponibilidade.monitor.id,
+                    'nome': disponibilidade.monitor.usuario.get_full_name(),
+                    'setor': 'peraltas',
+                    'tecnica': disponibilidade.monitor.tecnica,
+                    'areas': '-'.join(areas),
+                    'biologo': biologo,
+                    'nivel': nivel
+                }
         else:
             dados_monitor = {
                 'id': disponibilidade.enfermeira.id,
@@ -493,6 +553,7 @@ def verificar_escalas(id_monitor, data_selecionada, id_cliente):
             monitores_embarque=monitor_escalado,
             check_in_cliente__date__lte=data_selecionada,
             check_out_cliente__date__gte=data_selecionada).exclude(cliente__id=int(id_cliente))
+
         if check_in:
             for soma_dia in range(0, (check_out.day - check_in.day) + 1):
                 dia = check_in + timedelta(days=soma_dia)
@@ -567,8 +628,8 @@ def escalados_para_o_evento(dados_evento):
             'enfermeiras': enfermeiras,
             'tecnicos': tecnicos,
         },
-        'id_cliente': cliente.id,
-        'pre_escala': escala.pre_escala
+        'id_evento': escala.ficha_de_evento.id,
+        'pre_escala': escala.pre_escala,
     }
 
 
@@ -615,22 +676,6 @@ def pegar_disponiveis(disponibilidades, setor):
         return disponiveis_ceu
 
 
-def especialidade_monitor(monitor_escalado):
-    especialidades = []
-    monitor = Monitor.objects.get(id=monitor_escalado['id'])
-
-    if monitor.som:
-        especialidades.append('som')
-
-    if monitor.video:
-        especialidades.append('video')
-
-    if monitor.fotos_e_filmagens:
-        especialidades.append('fotos_e_filmagens')
-
-    return ' '.join(especialidades)
-
-
 def pegar_escalacoes(escala, acampamento=True):
     escalados = []
 
@@ -646,8 +691,8 @@ def pegar_escalacoes(escala, acampamento=True):
     for monitor in escala.tecnicos.all():
         escalados.append(monitor.id)
 
-    for enfermeira in escala.enfermeiras.all():
-        escalados.append(enfermeira.id)
+    # for enfermeira in escala.enfermeiras.all():
+    #     escalados.append(enfermeira.id)
 
     return escalados
 
@@ -684,34 +729,25 @@ def pegar_dados_monitor_embarque(os):
         areas = []
         monitor = transporte.monitor_embarque
 
-        areas.append('som') if monitor.som else ...
-        areas.append('video') if monitor.video else ...
-        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
-        biologo = 'biologo' if monitor.biologo else ''
+        if monitor:
+            biologo = 'biologo' if monitor.biologo else ''
 
-        if not monitor.tecnica and not monitor.biologo:
-            if monitor.nivel.nivel in grupos_monitores_1:
-                nivel = 'monitor_1'
-            elif monitor.nivel.nivel in grupos_monitores_2:
-                nivel = 'monitor_2'
-            elif monitor.nivel.nivel in grupos_monitores_3:
-                nivel = 'monitor_3'
+            if not monitor.tecnica and not monitor.biologo:
+                nivel = monitor.nivel.nivel
             else:
-                nivel = 'monitor_4'
-        else:
-            nivel = ''
+                nivel = ''
 
-        dados_monitor = {
-            'id': monitor.id,
-            'nome': monitor.usuario.get_full_name(),
-            'setor': 'peraltas',
-            'tecnica': monitor.tecnica,
-            'areas': '-'.join(areas),
-            'biologo': biologo,
-            'nivel': nivel
-        }
+            dados_monitor = {
+                'id': monitor.id,
+                'nome': monitor.usuario.get_full_name(),
+                'setor': 'peraltas',
+                'tecnica': monitor.tecnica,
+                'areas': '-'.join(areas),
+                'biologo': biologo,
+                'nivel': nivel
+            }
 
-        dados_monitores.append(dados_monitor)
+            dados_monitores.append(dados_monitor)
 
     return dados_monitores
 
@@ -725,22 +761,16 @@ def pegar_dados_monitor_biologo(os):
     for atividade in os.atividades_eco.values():
         areas = []
         id_monitor = atividade['biologo']
-        monitor = Monitor.objects.get(pk=id_monitor)
 
-        areas.append('som') if monitor.som else ...
-        areas.append('video') if monitor.video else ...
-        areas.append('fotos_e_filmagens') if monitor.fotos_e_filmagens else ...
+        try:
+            monitor = Monitor.objects.get(pk=id_monitor)
+        except ValueError:
+            continue
+
         biologo = 'biologo' if monitor.biologo else ''
 
         if not monitor.tecnica and not monitor.biologo:
-            if monitor.nivel.nivel in grupos_monitores_1:
-                nivel = 'monitor_1'
-            elif monitor.nivel.nivel in grupos_monitores_2:
-                nivel = 'monitor_2'
-            elif monitor.nivel.nivel in grupos_monitores_3:
-                nivel = 'monitor_3'
-            else:
-                nivel = 'monitor_4'
+            nivel = monitor.nivel.nivel
         else:
             nivel = ''
 
@@ -791,3 +821,10 @@ def juntar_emails_monitores(escala):
             lista_de_emails.add(monitor.usuario.email)
 
     return list(lista_de_emails)
+
+
+def calcular_coordenadores(ordem_de_servico, ficha_de_evento):
+    if ordem_de_servico:
+        return ceil(ordem_de_servico.n_participantes / 50) if ordem_de_servico.n_participantes < 100 else 2
+    else:
+        return ceil(ficha_de_evento.qtd_convidada / 50) if ficha_de_evento.qtd_convidada < 100 else 2

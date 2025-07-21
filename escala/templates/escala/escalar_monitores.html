@@ -13,17 +13,17 @@
             <hr>
             {% csrf_token %}
             {% if setor == 'acampamento' %}
-                <form id="form_evento" action="{% url 'escalar_monitores' setor data %}" method="get">
+                <form id="form_evento" action="{% url 'montagem_escala_acampamento' data %}" method="get">
                     <fieldset>
                         <div class="mb-2">
                             <h5 class="titulo-secao">Eventos para {{ data }}</h5>
                             <label for="cliente">Cliente</label>
-                            {% if clientes_dia %}
-                                <select class="form-select" name="cliente" id="cliente" required>
+                            {% if eventos_dia %}
+                                <select class="form-select" name="evento" id="cliente" required>
                                     <option selected></option>
-                                    {% for cliente in clientes_dia %}
-                                        <option value="{{ cliente.id }}" {% if id_cliente == cliente.id %}
-                                                selected {% endif %}>{{ cliente.nome_fantasia }}</option>
+                                    {% for evento in eventos_dia %}
+                                        <option value="{{ evento.id }}" {% if id_cliente == evento.cliente_id %}
+                                                selected {% endif %}>{{ evento.nome_fantasia }}</option>
                                     {% endfor %}
                                 </select>
                             {% else %}
@@ -63,10 +63,10 @@
 
                             {% if enfermaria == 2 %}
                                 <li class="enfermeira_2">Enfermeira das 8h às 22h, necessário 2 enfermeiras</li>
-                            {% endif %}
-
-                            {% if enfermaria == 3 %}
+                            {% elif enfermaria == 3 %}
                                 <li class="enfermeira_3">Enfermeira das 08h às 8h, necessário 3 enfermeiras</li>
+                            {% else %}
+                                <li class="">Não será necessário escalar enfermeria para este evento</li>
                             {% endif %}
 
                             <li>O grupo informou um total de {{ qtd }} participantes e até o momento temos um total
@@ -86,6 +86,18 @@
                             {% endif %}
                         </ul>
                     </div>
+                    <div class="alert alert-info" id="alerta_valor_monitoria">O valor aproximado da escala está em: R$ <span>{{ valor_monitoria }}</span></div>
+                    {% if os %}
+                    	<div class="alert alert-info" id="alerta_valor_monitoria">Coordenador(es) do grupo: {{ coordenadores_grupo }}</div>
+                    {% endif %}
+                    <hr>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="titulo-secao">Dados importantes</h5>
+                        <p style='text-align: justify'>
+                            Até o momento tempos um total de <strong>{{ infos_hospedagem.qtd_convidada }}</strong> pessoas para o dia selecionado.
+                        </p>
+                    </div>
                     <hr>
                 {% endif %}
                 <div class="row mb-1">
@@ -99,7 +111,8 @@
                                     {% if disponivel.setor == 'enfermeira' %}
                                         <div id="{{ disponivel.id }}"
                                              class="card-monitor {{ disponivel.setor }} {% if disponivel.tecnica %} tecnica{% endif %} {{ disponivel.areas }} {{ disponivel.biologo }}"
-                                             draggable="true">{{ disponivel.nome }}</div>
+                                             draggable="true">{{ disponivel.nome }}
+                                        </div>
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -111,6 +124,7 @@
                             {% for disponivel in disponiveis %}
                                 {% if 'peraltas' in disponivel.setor %}
                                     <div id="{{ disponivel.id }}"
+                                         data-nivel="{% if disponivel.tecnica %}Técnica({{ disponivel.nivel }}){% elif disponivel.biologo %}Biologo({{ disponivel.nivel }}){% else %}{{ disponivel.nivel }}{% endif %}"
                                          class="card-monitor {{ disponivel.nivel }} {{ disponivel.setor }} {% if disponivel.tecnica %}tecnica{% endif %} {{ disponivel.areas }} {% if setor == 'acampamento' %} {{ disponivel.biologo }} {% endif %}"
                                          draggable="true">{{ disponivel.nome }}</div>
                                 {% endif %}
@@ -119,14 +133,9 @@
                     </div>
                 </div>
                 <div id="legenda" style="display: flex; flex-wrap: wrap">
-                    <div class="tecnica">Técnica</div>
-                    {% if setor == 'acampamento' %}
-                        <div class="biologo">Biologo</div>
-                    {% endif %}
-                    <div class="monitor_1">Nivel 1 (Auxiliar de monitoria de 1 a 4)</div>
-                    <div class="monitor_2">Nível 2 (Monitor de 1 a 3)</div>
-                    <div class="monitor_3">Nível 3 (Monitor de 4 a 6)</div>
-                    <div class="monitor_4">Nível 4 (Coordenador)</div>
+                    {% for nivel in niveis_monitoria %}
+                        <div class="card-monitor-legenda" onclick="filtrar_niveis(this, '{{ nivel|safe }}')" data-nivel="{{ nivel }}">{{ nivel }}</div>
+                    {% endfor %}
                 </div>
                 <hr>
                 <div class="row mb-2 escalados" id="escalar">
@@ -143,6 +152,7 @@
                                     {% for escalado in escalados %}
                                         {% if 'embarque' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
+                                                 data-nivel="{% if escalado.tecnica %}Técnica({{ escalado.nivel }}){% elif escalado.biologo %}Biologo({{ escalado.nivel }}){% else %}{{ escalado.nivel }}{% endif %}"
                                                  class="card-monitor {{ escalado.setor }} embarque {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
@@ -150,6 +160,7 @@
                                 {% else %}
                                     {% for monitor in monitores_embarque %}
                                         <div id="{{ monitor.id }}"
+                                             data-nivel="{% if monitor.tecnica %}Técnica({{ monitor.nivel }}){% elif monitor.biologo %}Biologo({{ monitor.nivel }}){% else %}{{ monitor.nivel }}{% endif %}"
                                              class="card-monitor {{ monitor.setor }} embarque {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
@@ -181,13 +192,14 @@
                                     {% for escalado in escalados %}
                                         {% if 'biologo' in escalado.tipo_escalacao %}
                                             <div id="{{ escalado.id }}"
+                                                 data-nivel="Biologo({{ escalado.nivel }})"
                                                  class="card-monitor {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}</div>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     {% for monitor in monitores_biologo %}
-                                        <div id="{{ monitor.id }}"
+                                        <div id="{{ monitor.id }}" data-nivel="Biologo({{ monitor.nivel }})"
                                              class="card-monitor {{ monitor.setor }} {% if monitor.tecnica %}tecnica{% endif %} {{ monitor.areas }} {{ monitor.biologo }} {{ monitor.nivel }}">
                                             {{ monitor.nome }}
                                         </div>
@@ -204,7 +216,7 @@
                                 {% if escalados %}
                                     {% for escalado in escalados %}
                                         {% if 'coordenadores' in escalado.tipo_escalacao %}
-                                            <div id="{{ escalado.id }}"
+                                            <div id="{{ escalado.id }}" data-nivel="{{ escalado.nivel }}"
                                                  class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                                  draggable="true">{{ escalado.nome }}
                                             </div>
@@ -221,7 +233,7 @@
                             {% if escalados %}
                                 {% for escalado in escalados %}
                                     {% if 'tecnico' in escalado.tipo_escalacao %}
-                                        <div id="{{ escalado.id }}"
+                                        <div id="{{ escalado.id }}" data-nivel="Técnica({{ escalado.nivel }})"
                                              class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
                                         </div>
@@ -238,9 +250,9 @@
                                 {% for escalado in escalados %}
                                     {% if setor in escalado.tipo_escalacao %}
                                         <div id="{{ escalado.id }}"
+                                             data-nivel="{% if escalado.tecnica %}Técnica({{ escalado.nivel }}){% elif escalado.biologo %}Biologo({{ escalado.nivel }}){% else %}{{ escalado.nivel }}{% endif %}"
                                              class="card-monitor {% if 'embarque' in escalado.tipo_escalacao %} embarque {% endif %} {{ escalado.setor }} {% if escalado.tecnica %}tecnica{% endif %} {{ escalado.areas }} {{ escalado.biologo }} {{ escalado.nivel }}"
                                              draggable="true">{{ escalado.nome }}
-
 
                                             {% if 'embarque' in escalado.tipo_escalacao %}
                                                 <button class="btn btn-close" style="font-size: 12px; margin-left: 5px"
@@ -264,23 +276,23 @@
                 <div class="botoes" style="display: flex; justify-content: space-between">
                     {% if diretoria %}
                         <button type="button" class="btn btn-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, true)" {% else %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false)" {% endif %}>
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, '{{ data|safe }}', true)" {% else %}
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', false, '{{ data|safe }}')" {% endif %}>
                             Salvar escala final
                         </button>
                     {% endif %}
 
                     {% if pre_escala or not id_escala %}
                         <button type="button" class="btn btn-outline-primary" {% if id_cliente %}
-                                onclick="salvar_monitores_escalados(true, true)" {% else %}
-                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true)" {% endif %}>Salvar prévia
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true, '{{ data|safe }}')" {% else %}
+                                onclick="salvar_monitores_escalados('{{ setor|safe }}', true, '{{ data|safe }}')" {% endif %}>
+                            Salvar prévia
                         </button>
                     {% endif %}
 
                     {% if id_escala %}
-                        <form action="" method="GET">
+                        <form action="{% url 'gerar_pdf_escala' setor %}" method="GET">
                             <fieldset id="fieldset_pdf">
-                                <input type="hidden" name="gerar_pdf" value="True">
                                 <input type="hidden" name="id_escala" value="{{ id_escala }}">
                                 <button type="submit" class="btn btn-outline-dark">Dados monitores</button>
                             </fieldset>
@@ -357,6 +369,7 @@
     <script>
         {% if setor == 'acampamento' %}
             const n_monitores = {{ n_monitores }}
+            const n_coordenadores = {{ n_coordenadores }}
             const produto = '{{ ficha_de_evento.produto.produto|safe }}'
         {% endif %}
 

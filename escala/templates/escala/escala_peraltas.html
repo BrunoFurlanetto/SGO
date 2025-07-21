@@ -13,14 +13,14 @@
             <form id="selecionar_setor" action="{% url 'escalaPeraltas' %}" method="GET">
                 <label for="setor">Montar escala para</label>
                 <select class="form-select" name="setor" id="setor" onchange="this.form.submit()">
-                    <option value="acampamento">Acampamento</option>
+                    <option value="acampamento" {% if setor == 'acampamento' %} selected {% endif %}>Acampamento</option>
                     <option value="hotelaria" {% if setor == 'hotelaria' %} selected {% endif %}>Hotelaria</option>
                 </select>
             </form>
         {% endif %}
 
         <div id="calendar" class="card" style="padding: 10px; background-color: transparent; border: none"></div>
-        <div id="dialog" title="Detalhes do Evento">
+        <div id="dialog" title="Detalhes">
             <p><strong>Cliente: </strong> <span id="nome_cliente"></span></p>
             <p><strong>Check in:</strong> <span id="checkin"></span></p>
             <p><strong>Check out:</strong> <span id="checkout"></span></p>
@@ -33,7 +33,8 @@
                 $('#dialog').dialog({
                     autoOpen: false,
                     modal: false,
-                    width: 400
+                    width: 200,
+                    position: { my: "right top", at: "right top", of: window }
                 });
 
                 const calendarUI = document.getElementById('calendar');
@@ -63,17 +64,17 @@
                             {% if setor == 'hotelaria' %}
                                 $.ajax({
                                     type: 'GET',
-                                    url: '',
+                                    url: '/escala/peraltas/verificar_setor/',
                                     headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-                                    data: {'data_escala': data},
+                                    data: {'data': data},
                                     success: function (response) {
-                                        if (response['hotelaria']) {
-                                            window.location.href = `hotelaria/escalar/${data}`
+                                        if (response['hospedagem']) {
+                                            window.location.href = `/escala/peraltas/escalar/hotelaria/${data}`
                                         }
                                     }
                                 })
                             {% else %}
-                                window.location.href = `acampamento/escalar/${data}`
+                                window.location.href = `/escala/peraltas/acampamento/escalar/${data}`
                             {% endif %}
                         },
                     {% endif %}
@@ -165,7 +166,7 @@
 
                             $.ajax({
                                 type: 'POST',
-                                url: '',
+                                url: '/escala/peraltas/montar_escala/',
                                 headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
                                 data: {'id_escala': id_escala},
                                 success: function (response) {
@@ -214,7 +215,7 @@
                                         }
                                     }
 
-                                    $('#id_cliente_modal').val(response['id_cliente'])
+                                    $('#id_evento_modal').val(response['id_evento'])
 
                                 }
                             }).done(() => {
@@ -237,7 +238,7 @@
             })
 
             function redirecionar_edicao() {
-                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('YYYY-MM-DD')}/${$('#id_cliente_modal').val()}`
+                window.location.href = `/escala/peraltas/acampamento/escalar/${moment($('#check_in_evento_modal').val()).format('YYYY-MM-DD')}/${$('#id_evento_modal').val()}`
             }
         </script>
         <script src="{% static 'js/Moment.js' %}"></script>
@@ -283,7 +284,7 @@
                     <div>
                         <label for="cliente_modal">Cliente</label>
                         <input class="form-control" type="text" id="cliente_modal" disabled>
-                        <input type="hidden" id="id_cliente_modal">
+                        <input type="hidden" id="id_evento_modal">
                     </div>
                     <div class="row">
                         <div style="width: 50%">
@@ -330,10 +331,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer {% if diretoria %} diretoria {% endif %}">
+                <div class="modal-footer {% if perms.peraltas.confirmar_escala %} diretoria {% endif %}">
                     {% if coordenador_acampamento %}
-                        {% if diretoria %}
-                            <form id="form_escala_final" class="none" action="{% url 'escalaPeraltas' %}"
+                        {% if perms.peraltas.confirmar_escala %}
+                            <form id="form_escala_final" class="none" action="{% url 'confirmar_escala' %}"
                                   method="POST" onsubmit="loading()">
                                 <fieldset>
                                     {% csrf_token %}
@@ -346,21 +347,20 @@
 
                         <button type="button" class="btn btn-primary" onclick="redirecionar_edicao()">Editar</button>
 
-                        <form id="form_excluir_escala" action="{% url 'escalaPeraltas' %}" method="POST">
+                        <form id="form_excluir_escala" action="{% url 'deletar_escala' %}" method="POST">
                             <fieldset>
                                 {% csrf_token %}
                                 <input type="hidden" name="id_escala" id="id_escala">
                                 <input type="submit" class="btn btn-danger" name="excluir_escala" value="Excluir"/>
                             </fieldset>
                         </form>
+                        <form action="{% url 'gerar_pdf_escala' setor %}" method="GET" id="form_gerar_pdf">
+                            <fieldset id="fieldset_pdf">
+                                <input type="hidden" name="id_escala" id="id_escala">
+                                <button type="submit" class="btn btn-outline-primary">Dados monitores</button>
+                            </fieldset>
+                        </form>
                     {% endif %}
-                    <form action="" method="GET" id="form_gerar_pdf">
-                        <fieldset id="fieldset_pdf">
-                            <input type="hidden" name="gerar_pdf" value="True">
-                            <input type="hidden" name="id_escala" id="id_escala">
-                            <button type="submit" class="btn btn-outline-primary">Dados monitores</button>
-                        </fieldset>
-                    </form>
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Voltar</button>
                 </div>
             </div>

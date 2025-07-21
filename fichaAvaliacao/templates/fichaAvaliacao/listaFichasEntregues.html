@@ -6,6 +6,55 @@
 {% block conteudo %}
     <div class="row conteudo-fichas-entregues">
         <div class="titulo-cliente">
+            <h4>Eventos sem avaliação</h4>
+        </div>
+        <hr>
+        <div class="lista-clientes">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>EVENTO</th>
+                        <th>MOTIVO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for evento in eventos_sem_avaliacao %}
+                    <tr class="align-middle" style="text-align: justify">
+                        <td>
+                            <a href="{% url 'ver_ordem_de_servico' evento.id %}">{{ evento.instituicao }}</a>
+                        </td>
+                        <td>
+                            {{ evento.motivo_nao_responder_ceu }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center">Nenhum evento sem avaliação encontrado</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    {% for pagina in eventos_sem_avaliacao.paginator.page_range %}
+                        {% if eventos_sem_avaliacao.number == pagina %}
+                            <li class="page-item active"><a class="page-link"
+                                                            href="?page_eventos={{ pagina }}&termo={{ request.GET.termo }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link"
+                                                     href="?page_eventos={{ pagina }}&termo={{ request.GET.termo }}">
+                                {{ pagina }}
+                            </a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+
+        <div class="titulo-cliente">
             <h4>Lista de Fichas de avaliação entregues</h4>
         </div>
         <hr>
@@ -14,12 +63,14 @@
                 <fieldset>
                     <div class="row">
                         <label>Colégio</label>
-                        <input class="form-control" type="text" value="{{ request.GET.termo }}" id="search-input" name="colegio" style="width: 80%; margin-left: 10px">
+                        <input class="form-control" type="text" value="{{ request.GET.termo }}" id="search-input"
+                               name="colegio" style="width: 80%; margin-left: 10px">
                         <button type="submit" class="buton-search">
                             <span><i class='bx bx-search'></i></span>
                         </button>
                     </div>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script> <!-- Máscaras -->
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+                    <!-- Máscaras -->
                 </fieldset>
             </form>
             <hr>
@@ -28,26 +79,26 @@
         <div class="lista-clientes">
             <table class="table">
                 <thead>
-                    <th style="width: 88%">COLÉGIO</th>
-                    <th>FICHA</th>
+                <th style="width: 88%">COLÉGIO</th>
+                <th>FICHA</th>
                 </thead>
                 <tbody>
-                    {% for ficha in fichas %}
-                        <tr>
-                            <td>
-                                {{ ficha.instituicao.nome_fantasia }}
-                            </td>
-                            <td>
-                                <center>
-                                <a href = "{% url 'verFichaAvaliacao' ficha.id %}">
+                {% for ficha in fichas %}
+                    <tr>
+                        <td>
+                            {{ ficha.instituicao.nome_fantasia }}
+                        </td>
+                        <td>
+                            <center>
+                                <a href="{% url 'verFichaAvaliacao' ficha.id %}">
                                     <span>
                                         <i class='bx bxs-report'></i>
                                     </span>
                                 </a>
-                                </center>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                            </center>
+                        </td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
 
@@ -55,11 +106,13 @@
                 <ul class="pagination justify-content-end">
                     {% for pagina in fichas.paginator.page_range %}
                         {% if fichas.number == pagina %}
-                            <li class="page-item active"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                            <li class="page-item active"><a class="page-link"
+                                                            href="?page_fichas={{ pagina }}&termo={{ request.GET.termo }}">
                                 {{ pagina }}
                             </a></li>
                         {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ pagina }}&termo={{ request.GET.termo }}">
+                            <li class="page-item"><a class="page-link"
+                                                     href="?page_fichas={{ pagina }}&termo={{ request.GET.termo }}">
                                 {{ pagina }}
                             </a></li>
                         {% endif %}
@@ -67,6 +120,7 @@
                 </ul>
             </nav>
         </div>
+
     </div>
 
 {% endblock %}

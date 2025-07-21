@@ -3,52 +3,133 @@
 {% include 'parciais/_head.html' %}
 
 {% block conteudo %}
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
     <form id="form_data_relatorios" action="{% url 'dashboardCeu' %}" method="GET">
         <input type="hidden" id="data_relatorios" name="data_relatorios">
     </form>
     <div class="conteudo-dashboard">
-        <div class="tabela-dashboard">
-            {% csrf_token %}
-            <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
-            <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
-                <thead>
-                <tr class="table-active">
-                    <th style="width: 400px; text-align: center">Instituição</th>
-                    <th style="width: 120px; text-align: center">Coordenador</th>
-                    <th style="width: 250px; text-align: center">Equipe</th>
-                    <th style="width: 210px; text-align: center"><nobr>Data de atendimento</nobr>
-                    </th>
-                </tr>
-                </thead>
-                <tbody id="dados">
-                {% if not relatorios %}
-                    <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
-                {% endif %}
-                {% for relatorio in relatorios %}
-                    <tr class='linha-clicavel' style="vertical-align: middle"
-                            {% if relatorio.tipo == 'publico' %}
-                                data-href="{% url 'editar_publico' relatorio.id %}"
-                            {% elif relatorio.tipo == 'colegio' %}
-                                data-href="{% url 'editar_colegio' relatorio.id %}"
-                            {% else %}
-                                data-href="{% url 'editar_empresa' relatorio.id %}"
-                            {% endif %} >
-                        <td>{{ relatorio.instituicao }}</td>
-                        <td>{{ relatorio.coordenador_escalado }}</td>
-                        <td>{{ relatorio.nome_professores }}</td>
-                        <td>{{ data | date:'d \d\e F \d\e Y' }}</td>
+        <div id="abas" style="display: flex">
+            <div class="folder ativo" onclick="alterar_aba(this, 'relatorios')">Relatórios</div>
+            {% if perms.escala.add_escala %}
+                <div class="folder" onclick="alterar_aba(this, 'atividades_sem_definicao')">Atividades sem definição
+                </div>
+            {% endif %}
+            <div class="folder" onclick="alterar_aba(this, 'avaliacoes_pra_ser_entregues')">Avaliações ausentes</div>
+        </div>
+        <div id="relatorios" class="section-content ativo">
+            <div class="tabelas">
+                {% csrf_token %}
+                <h5>Relatórios do dia: {{ data | date:'d/m/Y' }} </h5>
+                <table class="table table-bordered table-striped table-hover tabela-conteudo" style="caption-side: top">
+                    <thead>
+                    <tr class="table-active">
+                        <th style="width: 400px; text-align: center">Instituição</th>
+                        <th style="width: 120px; text-align: center">Coordenador</th>
+                        <th style="width: 250px; text-align: center">Equipe</th>
+                        <th style="width: 210px; text-align: center">
+                            <nobr>Data de atendimento</nobr>
+                        </th>
                     </tr>
-                {% endfor %}
-                <script>
-                    jQuery(document).ready(function ($) {
-                        $(".linha-clicavel").click(function () {
-                            window.location = $(this).data("href");
-                        });
-                    })
-                </script>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="dados">
+                    {% if not relatorios %}
+                        <td colspan='5'>Sem relatórios para o dia {{ data | date:'d/m/Y' }}</td>
+                    {% endif %}
+                    {% for relatorio in relatorios %}
+                        <tr class='linha-clicavel' style="vertical-align: middle"
+                                {% if relatorio.tipo == 'publico' %}
+                            data-href="{% url 'editar_publico' relatorio.id %}"
+                                {% elif relatorio.tipo == 'colegio' %}
+                            data-href="{% url 'editar_colegio' relatorio.id %}"
+                                {% else %}
+                            data-href="{% url 'editar_empresa' relatorio.id %}"
+                                {% endif %} >
+                            <td>{{ relatorio.instituicao }}</td>
+                            <td>{{ relatorio.coordenador_escalado }}</td>
+                            <td>{{ relatorio.nome_professores }}</td>
+                            <td>{{ data | date:'d \d\e F \d\e Y' }}</td>
+                        </tr>
+                    {% endfor %}
+                    <script>
+                        jQuery(document).ready(function ($) {
+                            $(".linha-clicavel").click(function () {
+                                window.location = $(this).data("href");
+                            });
+                        })
+                    </script>
+                    </tbody>
+                </table>
+            </div>
             <!------------------------------ Parte de resumo do mês e escala do dia ----------------------------------------------->
+        </div>
+        <div id="atividades_sem_definicao" class="section-content">
+            <div class="tabelas">
+                <h5>Eventos com atividades sem definição de data e hora ou com atividades a definir</h5>
+                <hr>
+                <table id="tabela_atividades_sem_definicao" class="table table-hover table-striped">
+                    <thead>
+                    <tr style="vertical-align: middle">
+                        <th style="text-align: center">Cliente</th>
+                        <th style="text-align: center">Participantes</th>
+                        <th style="text-align: center">Check in no CEU</th>
+                        <th style="text-align: center">Vendedora</th>
+                        <th style="text-align: center">Atividades sem data e hora</th>
+                        <th style="text-align: center">Atividades a definir</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for atividade in atividades_sem_definicao %}
+                        <tr style="cursor: pointer; vertical-align: middle"
+                            onclick="window.location.href='{% url 'ver_ordem_de_servico' atividade.id %}'">
+                            <td>{{ atividade.cliente }}</td>
+                            <td style="text-align: center">{{ atividade.qtd_evento }}</td>
+                            <td style="text-align: center">{{ atividade.check_in_ceu | date:'Y-m-d' }}</td>
+                            <td style="text-align: center">{{ atividade.vendedora }}</td>
+                            <td style="text-align: center">{{ atividade.atividades_sem_definicao | join:', ' }}</td>
+                            <td style="text-align: center"> {{ atividade.a_definir }} </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="avaliacoes_pra_ser_entregues" class="section-content">
+            <div class="tabelas">
+                <h5>Eventos sem avaliação do cliente</h5>
+                <hr>
+                <table id="tabela_avaliacoes_faltando" class="table table-hover table-striped">
+                    <thead>
+                    <tr style="vertical-align: middle">
+                        <th style="text-align: center">Cliente</th>
+                        <th style="text-align: center">Participantes</th>
+                        <th style="text-align: center">Data do evento</th>
+                        <th style="text-align: center">Vendedora</th>
+                        <th>Não avaliou</th>
+{#                        <th style="text-align: center"></th>#}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for evento in eventos_sem_avaliacao %}
+                        <tr style="vertical-align: middle">
+                            <td style="text-decoration: underline; cursor: pointer" onclick="window.location.href='{% url 'fichaAvaliacao' evento.id %}'">{{ evento.ficha_de_evento.cliente }}</td>
+                            <td style="text-align: center">{{ evento.n_participantes }}</td>
+                            <td style="text-align: center">{{ evento.check_in_ceu | date:'Y-m-d' }}</td>
+                            <td style="text-align: center">{{ evento.vendedor }}</td>
+                            <td class="fs-3 text-center" style="cursor: pointer" onclick="$('#id_ordem_avaliacao_nao_respondida').val('{{ evento.id|safe }}')" data-toggle="modal" data-target="#motivo_nao_avaliacao">
+                                <i class='bx  bx-message-minus'></i>
+                            </td>
+{#                            <td style="text-align: center">#}
+{#                                <button type="submit" class="btn btn-link text-black"#}
+{#                                        onclick="gerar_qrcode_avaliacao(window.location.origin + '{% url 'fichaAvaliacao' evento.id %}')">#}
+{#                                    <i class='bx bx-qr'></i>#}
+{#                                </button>#}
+{#                            </td>#}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         <hr>
         <div class="dados_dashboard">
@@ -67,7 +148,6 @@
                 {% else %}
                     Ninguém escalado para hoje!
                 {% endif %}
-
             </div>
         </div>
     </div>
@@ -131,6 +211,51 @@
             })
         </script>
     {% endif %}
+
+    <div class="modal fade" id="modalQrcode" tabindex="-1" role="dialog"
+         aria-labelledby="modalQrcode" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">QR Code da avaliação</h5>
+                    <button type="button" class="btn btn-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="modal-body d-flex">
+                    <img id="qr-image" class="w-40 h-40 mx-auto" src="" alt="QR Code">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="motivo_nao_avaliacao" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tem certeza disso?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'nao_avaliou' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_ordem_avaliacao_nao_respondida" id="id_ordem_avaliacao_nao_respondida">
+                    <div class="modal-body app d-flex flex-column">
+                        <label for="motivo_nao_avaliacao">Porque o cliente não avaliou este evento?</label>
+                        <textarea id="motivo_nao_avaliacao" class="rounded-3 p-2" rows="5" cols="4" name="motivo_nao_avaliacao" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/Moment_with_locales.js' %}"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'js/scripts_dashboard_ceu.js' %}"></script>
 
 {% endblock %}
 

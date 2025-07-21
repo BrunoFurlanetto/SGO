@@ -12,6 +12,7 @@
             <div class="login">
                 <form method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
                     <div class="form-group mt-3" style="text-align: center">
                         <label>Email</label>
                         <input type="email" class="form-control" name="email">

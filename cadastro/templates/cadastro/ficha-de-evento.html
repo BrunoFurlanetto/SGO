@@ -73,7 +73,8 @@
                     </button>
                 {% endif %}
                 <hr>
-                <div class="row produtos-peraltas checkbox form-group" style="width: 100%">
+                <div class="row produtos-peraltas checkbox form-group" style="width: 100%; pointer-events: none">
+                    <div></div>
                     <h5 class="titulo-secao">Produto Peraltas</h5>
                     <fieldset>
                         {{ form.produto }}
@@ -192,11 +193,7 @@
                              style="width: 15%">
                             <label>QTD profs. mulheres</label>
                             {{ form.qtd_profs_mulheres }}
-                        </div>
-                        <div class="mt-2 professores-pernoite {% if not ficha_de_evento.produto.pernoite %} none {% endif %}">
-                            {{ form.professores_com_alunos }}
-                            <label class="my-1">Professores dormirão com os alunos?</label>
-                        </div>
+                        </div>                        
                     </div>
                 {% else %}
                     <div class="row professores {% if not pre_reserva.produto.colegio %} none {% endif %}">
@@ -237,6 +234,9 @@
                                 <th style="width: 5px">Data</th>
                                 <th style="width: 5px"><small>Café</small></th>
                                 <th style="width: 5px"
+                                    class="lanches {% if not ficha_de_evento.produto.colegio %} none {% endif %}"><small>Lanche
+                                    manhã</small></th>
+                                <th style="width: 5px"
                                     class="coffees {% if ficha_de_evento.produto.colegio %} none {% endif %}"><small>Coffe
                                     manhã</small></th>
                                 <th style="width: 5px"><small>Almoço</small></th>
@@ -260,6 +260,9 @@
                             <tr>
                                 <th style="width: 5px">Data</th>
                                 <th style="width: 5px"><small>Café</small></th>
+                                <th style="width: 5px"
+                                    class="lanches {% if not pre_reserva.produto.colegio %} none {% endif %}"><small>Lanche
+                                    manhã</small></th>
                                 <th style="width: 5px"
                                     class="coffees {% if pre_reserva.produto.colegio %} none {% endif %}"><small>Coffe
                                     manhã</small></th>
@@ -288,40 +291,47 @@
                                            name="cafe_{{ forloop.counter }}" {% if dados_refeicoes.refeicoes.0 %}
                                            checked {% endif %} style="width: 5px; height: 5px">
                                 </td>
-                                {% if not ficha_de_evento.produto.colegio %}
-                                    <td><input type="checkbox" class="form-check-input coffee_m"
-                                               id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
+                                {% if ficha_de_evento.produto.colegio %}
+                                    <td class="lanches"><input type="checkbox" class="form-check-input lanche_m"
+                                               id="lanche_m_{{ forloop.counter }}" name="lanche_m_{{ forloop.counter }}"
                                             {% if dados_refeicoes.refeicoes.1 %} checked {% endif %}
+                                               style="width: 5px; height: 5px">
+                                    </td>
+                                {% endif %}
+                                {% if not ficha_de_evento.produto.colegio %}
+                                    <td class="coffees"><input type="checkbox" class="form-check-input coffee_m"
+                                               id="coffee_m_{{ forloop.counter }}" name="coffee_m_{{ forloop.counter }}"
+                                            {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
                                                style="width: 5px; height: 5px">
                                     </td>
                                 {% endif %}
                                 <td><input type="checkbox" class="form-check-input almoco"
                                            id="almoco_{{ forloop.counter }}" name="almoco_{{ forloop.counter }}"
-                                        {% if dados_refeicoes.refeicoes.2 %} checked {% endif %}
+                                        {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
                                            style="width: 5px; height: 5px">
                                 </td>
                                 {% if ficha_de_evento.produto.colegio %}
-                                    <td><input type="checkbox" class="form-check-input lanche_t"
+                                    <td class="lanches"><input type="checkbox" class="form-check-input lanche_t"
                                                id="lanche_t_{{ forloop.counter }}" name="lanche_t_{{ forloop.counter }}"
-                                            {% if dados_refeicoes.refeicoes.3 %} checked {% endif %}
+                                            {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
                                                style="width: 5px; height: 5px">
                                     </td>
                                 {% endif %}
                                 {% if not ficha_de_evento.produto.colegio %}
-                                    <td><input type="checkbox" class="form-check-input coffee_t"
+                                    <td class="coffees"><input type="checkbox" class="form-check-input coffee_t"
                                                id="coffee_t_{{ forloop.counter }}" name="coffee_t_{{ forloop.counter }}"
-                                            {% if dados_refeicoes.refeicoes.4 %} checked {% endif %}
+                                            {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
                                                style="width: 5px; height: 5px">
                                     </td> {% endif %}
                                 <td><input type="checkbox" class="form-check-input jantar"
                                            id="jantar_{{ forloop.counter }}" name="jantar_{{ forloop.counter }}"
-                                        {% if dados_refeicoes.refeicoes.5 %} checked {% endif %}
+                                        {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}
                                            style="width: 5px; height: 5px">
                                 </td>
                                 {% if ficha_de_evento.produto.colegio %}
-                                    <td><input type="checkbox" class="form-check-input lanche_n"
+                                    <td class="lanches"><input type="checkbox" class="form-check-input lanche_n"
                                                id="lanche_n_{{ forloop.counter }}" name="lanche_n_{{ forloop.counter }}"
-                                            {% if dados_refeicoes.refeicoes.6 %} checked {% endif %}
+                                            {% if dados_refeicoes.refeicoes.7 %} checked {% endif %}
                                                style="width: 5px; height: 5px">
                                     </td>
                                 {% endif %}
@@ -338,15 +348,7 @@
                             style="margin-left: 5px; margin-top: -15px">
                         <span><i class='bx bxs-plus-circle'></i></span>
                     </button>
-                    <div class="form-group form-check form-switch mb-3 mt-3">
-                        <input type="checkbox" class="form-check-input switch"
-                                {% if ficha_de_evento and ficha_de_evento.observacoes_refeicoes %}
-                               checked {% endif %} onChange="obs()">
-                        <label class="form-check-label">Observações</label>
-                    </div>
-                    <div id="observacoes_refeicoes"
-                            {% if not ficha_de_evento or not ficha_de_evento.observacoes_refeicoes %}
-                         class="none" {% endif %}>
+                    <div class="mb-3 mt-3">                                            
                         <label>Observações</label>
                         {{ form.observacoes_refeicoes }}
                     </div>
@@ -601,9 +603,13 @@
                             <hr>
                             <div class="row" id="monitoria_peraltas">
                                 <h5 class="titulo-secao">Monitoria</h5>
-                                <div class="mb-2" style="width: 60%">
+                                <div class="mb-2" style="width: 50%">
                                     <label>Tipo</label>
                                     {{ formAdicionais.monitoria }}
+                                </div>
+                                <div style="width: 50%">
+                                    <label>Professores dormem em quarto?</label>
+                                    {{ formAdicionais.professores_em_quarto }}
                                 </div>
                             </div>
                             <hr>
@@ -764,7 +770,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST">
+                    <form action="{% url 'ver_ficha_de_evento' ficha_de_evento.id %}" method="POST" onsubmit="loading()">
                         {% csrf_token %}
                         <div class="modal-body app">
                             <label for="motivo_cancelamento">Motivo cancelamento</label>

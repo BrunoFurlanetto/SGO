@@ -107,22 +107,28 @@ $(document).ready(() => {
     // Redesenha a tabela após a inicialização (pode ser necessário, caso queira garantir a aplicação do filtro)
     tabelaPacotes.draw();
 
+    moment.locale('pt-br')
+    // $('#tabela_relatorio').iniciarlizarDataTable([], undefined)
     if ($('.monitoria').length == 0) {
         $('#tabela_adesao').iniciarlizarDataTable(4, 3)
-        $('#status #tabela_status_ficha').iniciarlizarDataTable(4, 4)
-        $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_status_ordem, #tabela_avisos, #tabela_sem_escala').iniciarlizarDataTable(3, 3)
+        $('#status #tabela_status_ficha').iniciarlizarDataTable(5, 5)
+        $('#status #tabela_status_pre_reserva, #tabela_status_agendado, #tabela_avisos, #tabela_sem_escala, #tabela_com_escala').iniciarlizarDataTable(3, 3)
         $('#fichas_financeiras_aprovar table').iniciarlizarDataTableOrcamento([0, 3, 4], 0, [])
         $('#fichas_financeiras table').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [])
         $('#fichas_financeiras_financeiro .aprovadas, #fichas_financeiras_financeiro .negadas').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [])
         $('#fichas_financeiras_financeiro .aguardando').iniciarlizarDataTableOrcamento([0, 3, 4], 0, [])
+        $('#tabela_avaliacoes_monitoria, #tabela_avaliacoes_coordenadores').iniciarlizarDataTable([1], 1, 'desc')
+        $('#tabela_avaliacoes_clientes').iniciarlizarDataTable([1], 1, 'desc')
+        $('#tabela_status_ordem').iniciarlizarDataTable([4], 4, 'desc')
     } else {
         // Inicialização das tabelas do dashboard da monitoria
         $('#tabela_status_pre_reserva, #tabela_status_agendado').iniciarlizarDataTable([3, 4], 3)
-        $('#tabela_status_ordem, #tabela_status_ficha').iniciarlizarDataTable([4, 5], 4)
+        $('#tabela_status_ordem').iniciarlizarDataTable([5], 5)
+        $('#tabela_status_ficha').iniciarlizarDataTable([5], 6)
     }
 })
 
-$.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
+$.fn.iniciarlizarDataTable = function (columnData, columnOrder, senseOrder='asc') {
     return $(this).DataTable({
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
@@ -142,7 +148,7 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder) {
                 return data;
             },
         }],
-        order: [columnOrder, 'asc']
+        order: [columnOrder, senseOrder]
     })
 }
 
@@ -308,3 +314,32 @@ function clonar_orcamento(resp) {
         window.location.href = `/orcamento/clonar/${$('#id_orcamento_clonado').val()}`
     }
 }
+
+const botoes = document.querySelectorAll('.btn-confirmar-escala');
+
+botoes.forEach(function(botao) {
+    // Alterar o texto quando o mouse estiver sobre o botão
+    botao.addEventListener('mouseenter', function() {
+        // Adiciona a classe de desvanecimento
+        this.classList.add('fade-out');
+
+        setTimeout(() => {
+            this.textContent = 'Confirmar';
+            this.classList.remove('fade-out');
+            this.classList.add('fade-in'); // Adiciona a classe de fade-in
+        }, 200); // Tempo para aguardar antes de mudar o texto
+    });
+
+    // Restaurar o texto original quando o mouse sair do botão
+    botao.addEventListener('mouseleave', function() {
+        this.classList.remove('fade-in'); // Remove a classe de fade-in
+        this.classList.add('fade-out'); // Adiciona a classe de desvanecimento
+
+        setTimeout(() => {
+            this.textContent = 'Não';  // Texto original
+            this.classList.remove('fade-out'); // Remove a classe de desvanecimento
+        }, 50); // Tempo para aguardar antes de mudar o texto
+    });
+});
+
+

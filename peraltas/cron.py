@@ -1,14 +1,19 @@
+import json
+import os.path
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from reversion.models import Version
 from orcamento.models import Orcamento, StatusOrcamento
 
 from ordemDeServico.models import OrdemDeServico
-from peraltas.models import FichaDeEvento, CodigosPadrao
+from peraltas.models import FichaDeEvento, CodigosPadrao, ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, \
+    ProdutoCorporativo, Vendedor
 import requests
 
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.integracao_rd import alterar_campos_personalizados
+from projetoCEU.settings import BASE_DIR
 from projetoCEU.utils import enviar_email_erro
 
 
@@ -29,11 +34,12 @@ def atualizar_pagantes_ficha():
             codigos_app__eficha__in=codigos_padrao
         )
 
-        try:
-            for ficha in fichas:
+        for ficha in fichas:
+            try:
                 alterar = False
                 codigos_eficha = [codigo.upper().strip() for codigo in ficha.codigos_app.eficha.split(',')]
-                eventos_dict = eventos_base if not verificar_sistema_antigo_cron(codigos_eficha) else verificar_sistema_antigo_cron(codigos_eficha)
+                eventos_dict = eventos_base if not verificar_sistema_antigo_cron(
+                    codigos_eficha) else verificar_sistema_antigo_cron(codigos_eficha)
                 total_pagantes_masculino = 0
                 total_pagantes_feminino = 0
                 total_professores_masculino = 0
@@ -73,9 +79,9 @@ def atualizar_pagantes_ficha():
                         ordem.n_participantes = total_pagantes_masculino + total_pagantes_feminino
                         ordem.n_professores = total_professores_masculino + total_professores_feminino
                         ordem.save()
-        except Exception as e:
-            mensagem_erro = f'Durante a atualização dos pagantes aconteceu um erro: {e}'
-            enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
+            except Exception as e:
+                mensagem_erro = f'Durante a atualização dos pagantes de {ficha.cliente} aconteceu um erro: {e}'
+                enviar_email_erro(mensagem_erro, 'ERRO NA ATUALIZAÇÃO DOS PAGANTES')
     else:
         enviar_email_erro(
             f'Erro na conexão com o servidor de pagamentos, código {response.status_code}',
@@ -123,7 +129,86 @@ def envio_dados_embarque():
                 enviar_email_erro(mensagem_erro, 'ERRO NA CONSULTA DA ORDEM')
 
 
-def deletar_versoes_antigas():
-    data_de_corte = datetime.now() - timedelta(days=15)
-    versoes_antigas = Version.objects.get_for_model(FichaDeEvento).filter(revision__date_created__lt=data_de_corte)
-    versoes_antigas.delete()
+def verificar_validade_orcamento():
+    orcamentos = Orcamento.objects.filter(data_vencimento=datetime.today().date() - timedelta(days=1))
+
+    for orcamento in orcamentos:
+        if 'aberto' in orcamento.status_orcamento.status.lower() or 'analise' in orcamento.status_orcamento.status.lower():
+            status = StatusOrcamento.objects.get(status__icontains='vencido')
+            orcamento.status_orcamento = status
+            orcamento.save()
+
+
+def atualizar_contagem_hotelaria():
+    hotcodigo_validos = ['000001', '000004', '000027']
+    data_inicio = datetime.today().date()
+    data_final = data_inicio + timedelta(days=120)
+    url = f'https://servicesapp.brotasecoresort.com.br:8009/testes/get_uhs.php?check_in={data_inicio}&check_out={data_final}'
+    response = requests.get(url, verify=False)
+    reservas = response.json()['reservas']
+    cliente_brotas_eco = ClienteColegio.objects.get(cnpj='03.694.061/0001-90')
+    relacao_responsavel = RelacaoClienteResponsavel.objects.filter(cliente=cliente_brotas_eco).first()
+    produto = ProdutosPeraltas.objects.get(brotas_eco=True)
+    produto_hospedagem = ProdutoCorporativo.objects.filter(brotas_eco=True).first()
+    atendente = Vendedor.objects.filter(usuario__groups__name__icontains='diretoria').first()
+
+    with open(os.path.join(BASE_DIR, 'reservas.json'), 'w', encoding='utf-8') as arquivo:
+        json.dump(reservas, arquivo, ensure_ascii=False, indent=4)
+
+    dados_por_dia = defaultdict(lambda: {
+        'data': None,
+        'soma_adultos': 0,
+        'soma_criancas': 0,
+        'soma_criancas_2': 0,
+        'soma_participantes': 0,
+        'hotnomes': set()
+    })
+
+    for reserva in reservas:
+        if reserva['K_HOTCODIGO'] in hotcodigo_validos:
+            data_check_in = datetime.strptime(reserva['HORTUDATAENTRADA'], '%Y-%m-%d %H:%M:%S').date()
+            data_check_out = datetime.strptime(reserva['HORTUDATASAIDA'], '%Y-%m-%d %H:%M:%S').date()
+
+            if reserva['K_HOTCODIGO'] == '000027' or (data_check_out - data_check_in).days > 0:
+                for n in range((data_check_out - data_check_in).days + 1):  # Inclui o dia de check-out
+                    dia = data_check_in + timedelta(days=n)
+                    dados_por_dia[dia]['data'] = dia.strftime('%Y-%m-%d')
+                    dados_por_dia[dia]['soma_adultos'] += int(reserva.get('HORTUQUANTIDADEADULTO', 0))
+                    dados_por_dia[dia]['soma_criancas'] += int(reserva.get('HORTUQUANTIDADECRIANCA', 0))
+                    dados_por_dia[dia]['soma_criancas_2'] += int(reserva.get('HORTUQUANTIDADECRIANCAFX2', 0))
+                    dados_por_dia[dia]['hotnomes'].add(reserva.get('HOTNOME', ''))
+                    # Converte os hotnomes para strings concatenadas e soma os participantes
+    resultado = []
+    for dia, dados in sorted(dados_por_dia.items()):
+        dados['hotnomes'] = ', '.join(sorted(dados['hotnomes']))
+        dados['soma_participantes'] = (
+                dados['soma_adultos'] + dados['soma_criancas'] + dados['soma_criancas_2']
+        )
+        resultado.append(dados)
+    #  TODO: Considerar número de crianças nesse relatório
+    for dia in resultado:
+        evento, criado = FichaDeEvento.objects.get_or_create(
+            cliente=cliente_brotas_eco,
+            check_in=datetime.strptime(f'{dia["data"]} 06:00', '%Y-%m-%d %H:%M'),
+            check_out=datetime.strptime(f'{dia["data"]} 22:00', '%Y-%m-%d %H:%M'),
+            produto=produto,
+            defaults={
+                'cliente': cliente_brotas_eco,
+                'responsavel_evento': relacao_responsavel.responsavel.all()[0],
+                'check_in': datetime.strptime(f'{dia["data"]} 06:00', '%Y-%m-%d %H:%M'),
+                'check_out': datetime.strptime(f'{dia["data"]} 22:00', '%Y-%m-%d %H:%M'),
+                'produto': produto,
+                'produto_corporativo': produto_hospedagem,
+                'obs_edicao_horario': 'Preenchido pelo sistema',
+                'id_negocio': 'SEMCRDS001',
+                'vendedora': atendente,
+                'qtd_convidada': dia['soma_participantes'],
+                'pre_reserva': True,
+                'agendado': True,
+                'observacoes': dia['hotnomes'],
+            }
+        )
+
+        if not criado:
+            evento.qtd_convidada = dia['soma_participantes']
+            evento.save()

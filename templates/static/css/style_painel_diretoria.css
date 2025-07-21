@@ -1,0 +1,280 @@
+#corpo_site {
+    display: flex;
+    justify-content: center;
+}
+
+#dashboard_painel_diretoria {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+    margin-bottom: 20%;
+}
+
+#relatorio_eventos, #relatorio_produtos {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+.conteudo_tabela {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+#tabela_relatorio, #tabela_relatorio_produtos, .tabela_info_extra td:not(:first-child), .tabela_info_extra thead {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#tabela_relatorio thead tr:first-child > th {
+    border-right: solid 1px #afafaf;
+}
+
+#tabela_relatorio, #tabela_relatorio_produtos:not(.borda_direita_dupla) {
+    border: solid 3px #000000;
+    border-collapse: collapse;
+}
+
+#tabela_relatorio thead tr > th:nth-child(4n),
+#tabela_relatorio tbody tr td:nth-child(5), #tabela_relatorio tbody tr td:nth-child(9),
+#tabela_relatorio tbody tr td:nth-child(13),
+#tabela_relatorio_produtos td {
+    border-right: solid 1px #afafaf;
+}
+
+#tabela_relatorio #data_mes_thead, #tabela_relatorio tbody tr td:first-child,
+#tabela_relatorio_produtos th:first-child, #tabela_relatorio_produtos th:nth-child(2),
+#tabela_relatorio_produtos .borda_direita_dupla {
+    border-right: double 3px #000000;
+}
+
+#tabela_relatorio_produtos th {
+    width: 20px;
+    border-right: solid 1px #afafaf;
+}
+
+#tabela_relatorio_produtos .borda_inferior_dupla {
+    border-bottom: double 3px #000000;
+}
+
+.icon_informacao {
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0 4px 0 4px !important;
+    vertical-align: bottom;
+}
+
+.sem_info {
+    cursor: default;
+    pointer-events: none;
+    color: #b3b2b2 !important;
+}
+
+#infos_mes_estagio {
+    padding: 20px 15px 20px 15px !important;
+    background: #E4E9F7;
+    border: solid 1px;
+    border-radius: 14px;
+    margin-top: 13px;
+    overflow: auto;
+}
+
+#infos_mes_estagio .tabela_info_extra {
+    background: #ffffff;
+    border: solid 1px #000;
+    box-shadow: 0 0 6px 4px;
+    border-radius: 7px;
+    padding: 5px;
+}
+
+.titulo_info_extra {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px 0 10px;
+}
+
+.titulo_info_extra span {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#infos_mes_estagio table {
+    border: none;
+}
+
+#infos_mes_estagio table thead tr > th:first-child {
+    width: 90%;
+}
+
+/*#relatorio_produtos .conteudo_painel_diretoria {*/
+/*    display: flex;*/
+/*    height: 100%;*/
+/*}*/
+
+#relatorio_produtos .conteudo_painel_diretoria .conteudo_tabela {
+    width: 100%;
+    max-height: 500px;
+}
+
+#relatorio_produtos .grafico_painel_diretoria {
+    display: flex;
+    background: #ffffff;
+    border: solid 1px;
+    border-radius: 14px;
+    box-shadow: 1px 1px 4px 1px;
+    width: 95%;
+    flex-direction: column;
+}
+
+#relatorio_produtos #grafico_info_extra {
+    border-radius: 5px;
+    background: #E4E9F7;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: inset 0 0 7px 1px;
+    padding: 15px 0 15px 0;
+}
+
+#relatorio_produtos .titulo_info_extra {
+    padding-top: 10px;
+}
+
+#relatorio_produtos .graficos_produto_estagio {
+    padding: 10px;
+}
+
+#grafico_produtos, #grafico_estagios {
+    text-align: center;
+}
+
+#grafico_info_extra .conteudo_grafico_painel_diretoria {
+    display: flex;
+    justify-content: space-around;
+}
+
+#grafico_info_extra .titulo_info_extra {
+    border-bottom: solid 1px;
+}
+
+#campos_eventos {
+    width: 100% !important;
+}
+
+#dashboard_cozinha_diretoria {
+    align-items: center;
+    width: 80%;
+    overflow: auto;
+    flex-direction: column;
+    margin-bottom: 5%;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 3px;
+}
+
+#dashboard_cozinha_diretoria #container_agenda {
+    padding: 1% 2% 1% 2%;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#agenda_descritivo {
+    height: 80vh;
+}
+
+#dashboard_cozinha_diretoria #container_agenda #agenda_cozinha,
+#dashboard_cozinha_diretoria #container_agenda #agenda_descritivo {
+    box-shadow: 1px 1px 1px 1px !important;
+}
+
+#legenda_refeicoes {
+    justify-content: space-evenly;
+}
+
+#legenda_refeicoes .refeicao div {
+    height: fit-content;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px 1px #000000;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#cabecalho_descritivo_refeicoes button {
+    position: absolute;
+    top: 5px;
+    background-color: #FFF;
+    border: none;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 1px -2px 1px 1px;
+    width: 29px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+#cabecalho_descritivo_refeicoes #_ {
+    position: absolute;
+    top: 5px;
+    background-color: #FFF;
+    border: none;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 1px -2px 1px 1px;
+    width: 29px;
+    height: 100%;
+}
+
+#cabecalho_descritivo_refeicoes #_::after {
+    content: '';
+    position: absolute;
+    bottom: -21px;
+    left: -36px;
+    width: 11px;
+    height: 100%;
+    background-color: #E4E9F7;
+    transform: rotate(90deg);
+    border-radius: 0 20px 0 0;
+    z-index: 12;
+    border-right: solid 2px #cfd5e3;
+}
+
+#cabecalho_descritivo_refeicoes #_::before {
+    content: '';
+    position: absolute;
+    bottom: -23px;
+    left: -10px;
+    width: 10px;
+    height: 100%;
+    background-color: #fff;
+    z-index: 11;
+    transform: rotate(90deg);
+}
+
+
+#legenda_refeicoes .refeicao_cafe_manha div {
+    background: #6610f2;
+}
+
+#legenda_refeicoes .refeicao_lanche_manha div {
+    background: #dc3545;
+}
+
+#legenda_refeicoes .refeicao_almoco div {
+    background: #fd7e14;
+}
+
+#legenda_refeicoes .refeicao_lanche_tarde div {
+    background: #0dcaf0;
+}
+
+#legenda_refeicoes .refeicao_jantar div {
+    background: #f3cd0e;
+}
+
+#legenda_refeicoes .refeicao_lanche_noite div {
+    background: #2cd32c;
+}

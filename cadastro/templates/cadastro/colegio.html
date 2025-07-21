@@ -10,34 +10,38 @@
             <h2>RELATÓRIO DE ATENDIMENTO DO COLÉGIO</h2>
         </div>
         <hr>
-        {% if not relatorio %}
-            <div>
-                <div style="width: 66%">
-                    <form action="{% url 'colegio' %}" method="GET">
-                        <fieldset>
-                            <label for="colegio">Colégio</label>
-                            <select class="select-control mr-sm-2" id="colegio" name="colegio"
-                                    onchange="this.form.submit()" required>
-                                <option selected></option>
-                                {% for ordem_bd in ordens %}
-                                    <option value="{{ ordem_bd.id }}" {% if ordem.id == ordem_bd.id %}
-                                            selected {% endif %}>{{ ordem_bd.ficha_de_evento.cliente }}</option>
-                                {% endfor %}
-                            </select>
-                        </fieldset>
-                    </form>
-                </div>
-                <hr>
-            </div>
-        {% endif %}
+        {#        {% if not relatorio %}#}
+        {#            <div>#}
+        {#                <div style="width: 66%">#}
+        {#                    <form action="{% url 'colegio' %}" method="GET">#}
+        {#                        <fieldset>#}
+        {#                            <label for="colegio">Colégio</label>#}
+        {#                            <select class="select-control mr-sm-2" id="colegio" name="colegio"#}
+        {#                                    onchange="this.form.submit()" required>#}
+        {#                                <option selected></option>#}
+        {#                                {% for ordem_bd in ordens %}#}
+        {#                                    <option value="{{ ordem_bd.id }}" {% if ordem.id == ordem_bd.id %}#}
+        {#                                            selected {% endif %}>{{ ordem_bd.ficha_de_evento.cliente }}</option>#}
+        {#                                {% endfor %}#}
+        {#                            </select>#}
+        {#                        </fieldset>#}
+        {#                    </form>#}
+        {#                </div>#}
+        {#                <hr>#}
+        {#            </div>#}
+        {#        {% endif %}#}
         <!------------------------------------------------------------------------------>
         {% if ordem or relatorio %}
-            <form {% if not relatorio %} action="{% url 'colegio' %}" {% else %} action="{% url 'editar_colegio' relatorio.id %}" {% endif %} method="POST">
+            <form {% if not relatorio %} action="{% url 'colegio' %}" {% else %}
+                                         action="{% url 'editar_colegio' relatorio.id %}" {% endif %} method="POST">
                 <fieldset id="relatorio" {% if relatorio %} disabled {% endif %}>
                     {% csrf_token %}
                     {{ formulario.instituicao.as_hidden }}
                     {{ formulario.ordem.as_hidden }}
                     <h5 class="titulo-secao">Dados cliente</h5>
+                    <div class="text-center mb-3">
+                        <h5>{{ ordem.instituicao }}</h5>
+                    </div>
                     <div class="mb-2" style="display: flex; column-gap: 15px;">
                         <div style="width: 30%">
                             {{ formulario.coordenador_peraltas.label }}
@@ -158,7 +162,9 @@
                                                 style="width: 45%; margin: 2px;" onchange="validacao(this)" required>
                                             <option></option>
                                             {% for professor in professores %}
-                                                <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.0 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                <option value="{{ professor.id }}"
+                                                        {% if professor.id == atividade_bd.professores.0 %}
+                                                        selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                             {% endfor %}
                                         </select>
                                         <select class="professores" id="prof_2_ativ_{{ forloop.counter }}"
@@ -166,7 +172,9 @@
                                                 style="width: 45%; margin: 2px;" onchange="validacao(this)">
                                             <option>
                                                 {% for professor in professores %}
-                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.1 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                    <option value="{{ professor.id }}"
+                                                            {% if professor.id == atividade_bd.professores.1 %}
+                                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                                 {% endfor %}
                                         </select>
                                         <select class="professores" id="prof_3_ativ_{{ forloop.counter }}"
@@ -174,7 +182,9 @@
                                                 style="width: 45%; margin: 2px;" onchange="validacao(this)">
                                             <option>
                                                 {% for professor in professores %}
-                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.2 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                    <option value="{{ professor.id }}"
+                                                            {% if professor.id == atividade_bd.professores.2 %}
+                                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                                 {% endfor %}
                                         </select>
                                         <select class="professores" id="prof_4_ativ_{{ forloop.counter }}"
@@ -182,7 +192,9 @@
                                                 style="width: 45%; margin: 2px;" onchange="validacao(this)">
                                             <option>
                                                 {% for professor in professores %}
-                                                    <option value="{{ professor.id }}" {% if professor.id == atividade_bd.professores.3 %} selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
+                                                    <option value="{{ professor.id }}"
+                                                            {% if professor.id == atividade_bd.professores.3 %}
+                                                            selected {% endif %}>{{ professor.usuario.get_full_name }}</option>
                                                 {% endfor %}
                                         </select>
                                     </td>
@@ -298,7 +310,7 @@
                     <div class="form-group form-check form-switch mb-3 mt-3" id="div_check">
                         <input type="checkbox" class="form-check-input switch" id="checkAtividade"
                                onChange="check_locacao()" {% if ordem.locacao_ceu or relatorio.locacoes %}
-                                checked {% endif %}>
+                               checked {% endif %}>
                         <span class="text-black-50" style="font-size: 15px">O colégio realizou locações no CEU?</span>
                     </div>
                     <!------------------------------------------------------------------------------------->
@@ -446,7 +458,7 @@
                                 {% endfor %}
                             {% endif %}
                             </tbody>
-                            </table>
+                        </table>
                         <button class="buton-plus-" type="button" onclick="add_linha_locacao()">
                             <span><i class='bx bxs-plus-circle'></i></span>
                             <span class="text-black-50" style="font-size: 15px">Adcionar locacao</span>
@@ -456,15 +468,22 @@
                     <!-------------------------------- RELATÓRIO FINAL ---------------------------->
                     <div class="form-group">
                         <label>Relatório do dia:</label>
-                        <textarea class="form-control mb-3" style="height: 150px; resize: none" name="relatorio">{% if relatorio %}{{ relatorio.relatorio }}{% else %}Atividades realizadas com sucesso!{% endif %}</textarea>
+                        <textarea class="form-control mb-3" style="height: 150px; resize: none"
+                                  name="relatorio">{% if relatorio %}{{ relatorio.relatorio }}{% else %}Atividades realizadas com sucesso!{% endif %}</textarea>
                     </div>
                 </fieldset>
                 <div class="botoes">
-                    <button type="submit" id="salvar" class="btn btn-primary ml-5" {% if relatorio %} disabled {% endif %}>Salvar</button>
+                    <button type="submit" id="salvar" class="btn btn-primary ml-5" {% if relatorio %}
+                            disabled {% endif %}>Salvar
+                    </button>
                     {% if editar %}
-                        <button type="button" class="btn btn-secondary" onclick="$('#relatorio, #salvar').prop('disabled', false)">Editar</button>
-                        <button type="button" class="btn btn-danger" name="btn_excluir" id="btn_excluir" data-toggle="modal"
-                            data-target="#excluir_relatorio">Excluir</button>
+                        <button type="button" class="btn btn-secondary"
+                                onclick="$('#relatorio, #salvar').prop('disabled', false)">Editar
+                        </button>
+                        <button type="button" class="btn btn-danger" name="btn_excluir" id="btn_excluir"
+                                data-toggle="modal"
+                                data-target="#excluir_relatorio">Excluir
+                        </button>
                     {% endif %}
                 </div>
             </form>

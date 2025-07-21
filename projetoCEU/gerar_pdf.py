@@ -194,9 +194,12 @@ def ordem_de_servico(ordem_de_servico):
     elif ficha_de_evento.informacoes_adcionais.monitoria == 2:
         w_text = pdf_ordem.get_string_width('Meia monitoria dentro de quarto (1/20)') + 8
         pdf_ordem.cell(w_text, 8, 'Meia monitoria dentro de quarto (1/20)')
-    else:
+    elif ficha_de_evento.informacoes_adcionais.monitoria == 3:
         w_text = pdf_ordem.get_string_width('Monitoria completa (1/20)') + 5
         pdf_ordem.cell(w_text, 8, 'Monitoria completa (1/20)')
+    else:
+        w_text = pdf_ordem.get_string_width('Monitoria completa fora do quarto (1/12)') + 5
+        pdf_ordem.cell(w_text, 8, 'Monitoria completa fora do quarto (1/12)')
 
     pdf_ordem.texto_negrito(pdf_ordem.get_string_width('Enfermagem: ') + 2, 8, 'Enfermagem:')
 

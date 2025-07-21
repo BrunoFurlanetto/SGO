@@ -3,6 +3,7 @@
     width: max-width;
     height: max-height;
 }
+
 .container_loading {
     display: flex;
     justify-content: center;
@@ -375,23 +376,6 @@
     border-color: #007ec1;
 }
 
-.conteudo-avaliacao img {
-    padding: 10px;
-    width: 345px;
-}
-
-.head {
-    display: flex;
-    align-items: center;
-    font-size: 25px;
-    font-weight: 500;
-}
-
-.head p {
-    margin: auto;
-    color: #007ec1;
-}
-
 .divisao {
     height: 2px !important;
     background-image: linear-gradient(to right, #fcc607, #007ec1, #fcc607);
@@ -447,7 +431,7 @@
     align-items: end;
 }
 
-.conteudo-disponibilidade-peraltas{
+.conteudo-disponibilidade-peraltas {
     width: 1000px;
     margin: auto auto 10%;
     border-radius: 20px;
@@ -464,7 +448,8 @@
     padding: 5px 15px 5px 5px;
     background: #e9e9e9;
     width: 20%;
-    height: 450px;
+    min-height: 450px;
+    max-height: 650px;
     overflow: auto;
 }
 
@@ -486,6 +471,22 @@
 #nomes_monitores .enfermeira {
     background: #ff7474;
 
+}
+
+#nomes_monitores #div_pesquisa_monitores {
+    border-bottom: 1px #000 dashed;
+    width: 120%;
+    margin-left: -5%;
+    height: 55px;
+    padding: 8% 7% 1% 5%;
+    margin-top: -5%;
+    background: #fff;
+}
+
+#nomes_monitores #div_pesquisa_monitores input {
+    width: 100%;
+    padding: 3px 3px 2px 5px;
+    border-radius: 10px;
 }
 
 #calendario_escala {
@@ -815,7 +816,7 @@
 }
 
 .card-monitor {
-    border: solid 1px;
+    border: solid 1px #000000;
     border-radius: 10px;
     padding: 2px 8px 2px 8px;
     margin: 5px 5px 10px 5px;
@@ -825,7 +826,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100%;
-    box-shadow: 2px 2px 2px;
+    box-shadow: 2px 2px 2px #000000;
     cursor: grab;
 }
 
@@ -867,31 +868,57 @@
     overflow: auto;
 }
 
-.tecnica {
-    font-weight: bolder;
-    background: #c3a06e;
+/*.tecnica {*/
+/*    font-weight: bolder;*/
+/*    background: #c3a06e;*/
+/*}*/
+
+/*.monitor_1 {*/
+/*    font-weight: bolder;*/
+/*    background: #BF9106;*/
+/*}*/
+
+/*.monitor_2 {*/
+/*    font-weight: bolder;*/
+/*    background: #999542;*/
+/*}*/
+
+/*.monitor_3 {*/
+/*    font-weight: bolder;*/
+/*    background: #FF8C00;*/
+/*}*/
+
+/*.monitor_4 {*/
+/*    font-weight: bolder;*/
+/*    background: #FFC107;*/
+/*}*/
+
+/*.biologo {*/
+/*    font-weight: bolder;*/
+/*    background: #03bb85;*/
+/*}*/
+
+.card-monitor-legenda {
+    border-radius: 10px;
+    padding: 2px 8px 2px 8px;
+    margin: 5px 5px 10px 5px;
+    width: fit-content;
+    height: fit-content;
+    overflow: hidden;
+    max-width: 100%;
+    cursor: pointer;
 }
 
-.monitor_1 {
-    font-weight: bolder;
-    background: #BF9106;
-}
-.monitor_2 {
-    font-weight: bolder;
-    background: #999542;
-}
-.monitor_3 {
-    font-weight: bolder;
-    background: #FF8C00;
-}
-.monitor_4 {
-    font-weight: bolder;
-    background: #FFC107;
+.card-monitor-legenda:hover {
+    border-color: #000000 !important;
+    border-right: solid;
+    border-bottom: solid;
 }
 
-.biologo {
-    font-weight: bolder;
-    background: #03bb85;
+.card-monitor-legenda.clicado {
+    border-color: #000000 !important;
+    border-right: solid;
+    border-bottom: solid;
 }
 
 #escalados .tecnica {
@@ -979,7 +1006,7 @@
 
 .conteudo-escalar-professores select, .conteudo-detector select, .conteudo-escala select,
 #modal_trocar_atividade select, #id_responsavel_evento, #ModalCadastroPreReserva select,
-.div_filtros select{
+.div_filtros select {
     background-color: #fff;
     width: 100%;
     border-radius: 5px;
@@ -1326,6 +1353,7 @@
     border-radius: 8px;
     background-color: #008000;
 }
+
 .card-log {
     width: 800px;
     margin: auto auto 15px;
@@ -1336,7 +1364,7 @@
     color: #0a58ca;
 }
 
-.fc-daygrid-day-top .bx-list-ul{
+.fc-daygrid-day-top .bx-list-ul {
     font-size: 20px;
     margin-top: 5px;
     cursor: pointer;
@@ -1420,7 +1448,7 @@
 }
 
 #permissao_orcamentos table tbody tr > *:not(:first-child), #orcamentos_aprovados table thead tr > *:not(:first-child),
-#orcamentos_aprovados table tbody tr > *:not(:first-child){
+#orcamentos_aprovados table tbody tr > *:not(:first-child) {
     text-align: center;
     vertical-align: middle;
 }
@@ -1446,19 +1474,19 @@
 
 #tabela_adesao tr > td:not(:first-child), #tabela_adesao tr > th, #status table tr > td:not(:first-child),
 #status table tr > th, #tabela_avisos tr > th, #tabela_avisos tr > td:not(:first-child),
-#tabela_sem_escala tr > th, #tabela_sem_escala tr > td:not(:first-child) {
+#tabela_sem_escala tr > th, #tabela_sem_escala tr > td:not(:first-child), #tabela_com_escala tr > td:not(:first-child) {
     text-align: center;
     vertical-align: middle;
 }
 
 #orcamentos_aprovados table thead tr > *:not(:first-child),
-#orcamentos_aprovados table tbody tr > *:not(:first-child){
+#orcamentos_aprovados table tbody tr > *:not(:first-child) {
     text-align: center;
     vertical-align: middle;
 }
 
 #status table tr > td:first-child, #tabela_avisos tr > td:first-child, #tabela_adesao tr > td:first-child,
-#tabela_sem_escala tr > td:first-child {
+#tabela_sem_escala tr > td:first-child, #tabela_com_escala tr > td:first-child {
     vertical-align: middle;
 }
 
@@ -1480,6 +1508,35 @@
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 6px 3px;
+    overflow: auto;
+}
+
+.btn-confirmar-escala {
+    padding: 0 30% 0 30%;
+    border-radius: 10px;
+    transition: border 0.3s ease, border-radius 0.3s ease, padding 0.3s ease, opacity 0.8s ease;
+}
+
+.btn-confirmar-escala:hover {
+    outline: none;  /* Remove o foco padrão do navegador */
+    border: 2px solid #14cd18;  /* Adiciona uma borda visível ao focar */
+    padding: 0 10% 0 10%;
+    border-radius: 100px;  /* Aumenta o border-radius ao focar */
+}
+
+.btn-confirmar-escala:focus {
+    background-color: #000000;  /* Cor de fundo ao clicar */
+    border-color: #000000;
+    color: white;  /* Cor do texto ao clicar */
+    border-radius: 50px;  /* Alteração do border-radius ao clicar */
+}
+
+.fade-out {
+    opacity: 0; /* Torna o botão invisível */
+}
+
+.fade-in {
+    opacity: 1; /* Torna o botão visível */
 }
 
 #previas_orcamento .tabelas > div {
@@ -1502,7 +1559,7 @@
     }
 }
 
-#avisos > div:first-child{
+#avisos > div:first-child {
     background: #fff;
     padding: 10px;
     border-radius: 5px;
@@ -1518,7 +1575,7 @@
     vertical-align: middle;
 }
 
-#orcamentos_aprovados table tbody tr:first-child{
+#orcamentos_aprovados table tbody tr:first-child {
     vertical-align: middle;
 }
 
@@ -1532,7 +1589,7 @@
     display: flex;
 }
 
-.button_ganho{
+.button_ganho {
     border: none;
     background: transparent;
     font-size: 30px;
@@ -1567,13 +1624,13 @@
 }
 
 @font-face {
-  font-family: 'password';
-  font-style: normal;
-  src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+    font-family: 'password';
+    font-style: normal;
+    src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
 }
 
 #senha {
-  font-family: 'password';
+    font-family: 'password';
 }
 
 #adicionar_tratativa {
