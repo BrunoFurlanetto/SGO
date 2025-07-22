@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '191.96.251.170', 'sgo.gperaltas.com.br']
 
+MY_APP_DOMAIN = 'http://127.0.0.1:8000'
 
 # Application definition
 

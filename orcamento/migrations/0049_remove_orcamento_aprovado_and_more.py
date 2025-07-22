@@ -10,16 +10,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='orcamento',
-            name='aprovado',
-        ),
-        migrations.RemoveField(
-            model_name='orcamento',
-            name='necessita_aprovacao_gerencia',
-        ),
-        migrations.RemoveField(
-            model_name='orcamento',
-            name='pacote_promocional',
-        ),
+        # migrations.RemoveField(
+        #     model_name='orcamento',
+        #     name='aprovado',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='orcamento',
+        #     name='necessita_aprovacao_gerencia',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='orcamento',
+        #     name='pacote_promocional',
+        # ),
     ]

@@ -946,30 +946,30 @@
                         <tbody>
                         {% for tratativa in tratativas %}
                             {% for orcamento in tratativa.orcamentos.all %}
-                                {% if orcamentoatus_orcamento.negado_cliente or orcamentoatus_orcamento.orcamento_vencido %}
+                                {% if orcamento.status_orcamento.negado_cliente or orcamento.status_orcamento.orcamento_vencido %}
                                     <tr style="vertical-align: middle; cursor: pointer">
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamento.cliente }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.cliente }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamento.apelido }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.apelido }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">
-                                            <nobr>R$ {{ tratativa.valor|substituir_ponto }}</nobr>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">
+                                            <nobr>R$ {{ orcamento.valor|substituir_ponto }}</nobr>
                                         </td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentota_vencimento | date:'Y-m-d' }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.data_vencimento | date:'Y-m-d' }}</td>
                                         <td class="clicavel" data-tratativa="true"
-                                            data-id_orcamento="{{ orcamento | safe }}">{{ orcamentoatus_orcamento }}</td>
+                                            data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.status_orcamento }}</td>
                                         <td>
                                             <button type="button" class="button_pdf" style="font-size: 25px"
-                                                    onclick="abrir_chat_orcamento({{ orcamento | safe }})">
+                                                    onclick="abrir_chat_orcamento({{ orcamento.id | safe }})">
                                                 <i class='bx bx-chat'></i>
                                             </button>
                                         </td>
                                         <td>
                                             <button type="button" title="Duplicar orcamento" class="button_pdf"
                                                     style="font-size: 25px"
-                                                    onclick="window.location.href='{% url 'clonar_orcamento' orcamento %}'">
+                                                    onclick="window.location.href='{% url 'clonar_orcamento' orcamento.id %}'">
                                                 <i class='bx bxs-duplicate'></i>
                                             </button>
                                         </td>
@@ -1517,48 +1517,6 @@
         </script>
     {% endif %}
 
-    <div class="modal fade" id="tratativas" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tratativas</h5>
-                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{% url 'dashboardPeraltas' %}" method="POST">
-                    <fieldset>
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <table id="tabela_tratativas" class="table table-borderless table-hover">
-                                <thead style="text-align: center">
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Vencimento</th>
-                                    <th>Valor</th>
-                                    <th>Ganho/Perdido</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                            <hr>
-                            <div style="display: flex; justify-content: flex-end">
-                                <button type="button" id="adicionar_tratativa"><span>Nova tratativa</span><i
-                                        class='bx bx-plus'></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" onclick="loading()">Aceitar</button>
-                        </div>
-                    </fieldset>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="modal_orcamento_perdido" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
          aria-hidden="true">
@@ -1576,11 +1534,36 @@
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" id="id_orcamento_perdido">
-                    <button type="button" class="btn btn-primary" onclick="alterar_status(btn)">Salvar</button>
+                    <button type="button" class="btn btn-primary" onclick="perder_orcamento()">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modal_duplicar_orcamento" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dar baixa em orçamento?</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_orcamento_clonado" id="id_orcamento_clonado">
+                    <p>Dar baixa (perdido) no orçamento que está sendo clonado?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="clonar_orcamento(1)">Sim</button>
+                    <button type="button" class="btn btn-secondary" onclick="clonar_orcamento(0)">Não</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'parciais/_chat_orcamento.html' %}
 
     <script src="{% static 'js/scripts_dashboard.js' %}"></script>
     <script src="{% static 'js/Moment_with_locales.js' %}"></script>

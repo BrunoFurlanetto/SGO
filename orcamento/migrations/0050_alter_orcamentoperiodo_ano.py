@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='orcamentoperiodo',
-            name='ano',
-            field=models.PositiveIntegerField(default=2025, verbose_name='Ano'),
-        ),
+        # migrations.AlterField(
+        #     model_name='orcamentoperiodo',
+        #     name='ano',
+        #     field=models.PositiveIntegerField(default=2025, verbose_name='Ano'),
+        # ),
     ]
