@@ -21,7 +21,8 @@ from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
     Vendedor, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
-from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas, OrcamentosPromocionais
+from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas, OrcamentosPromocionais, \
+    MotivosRecusa
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais
 from projetoCEU.envio_de_emails import EmailSender
 from projetoCEU.utils import email_error
@@ -403,5 +404,6 @@ def dashboardPeraltas(request):
         'eventos_coordenador_avaliar': avaliacoes_coordenador_monitoria,
         'avaliacoes_monitores': avaliacoes_monitores,
         'avaliacoes_cliente': list(chain(avaliacoes_clientes_colegio, avaliacoes_clientes_corporativo)),
+        'motivos_recusa': MotivosRecusa.objects.all(),
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

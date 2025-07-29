@@ -1529,12 +1529,24 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <label for="motivo_recusa">Qual o motivo da recusa por parte do cliente?</label>
-                    <input type="text" id="motivo_recusa" name="motivo_recusa" required>
+                    <div class="mb-2">
+                        <label for="motivo_recusa">Qual o motivo da recusa por parte do cliente?</label>
+                        <select id="motivo_recusa" name="motivo_recusa" class="form-select" required onchange="$('#btn_perder_orcamento_modal').prop('disabled', this.value === '')">
+                            <option value=""></option>
+                            {% for motivo in motivos_recusa %}
+                            	<option value="{{ motivo.id }}">{{ motivo.motivo }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <div>
+                        <label for="obs_recusa">Observações da recusa</label>
+                        <textarea class="form-control" id="obs_recusa" rows="5" name="obs_recusa"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" id="id_orcamento_perdido">
-                    <button type="button" class="btn btn-primary" onclick="perder_orcamento()">Salvar</button>
+                    <button type="button" id="btn_perder_orcamento_modal" class="btn btn-primary" onclick="perder_orcamento()" disabled>Salvar</button>
                 </div>
             </div>
         </div>

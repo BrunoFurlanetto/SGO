@@ -1016,6 +1016,13 @@ class DadosDePacotes(models.Model):
         return json.loads(dados)[0]
 
 
+class MotivosRecusa(models.Model):
+    motivo = models.CharField(max_length=255, verbose_name='Motivo de recusa')
+
+    def __str__(self):
+        return self.motivo
+
+
 class Orcamento(models.Model):
     sim_e_nao = (
         ('sim', 'Sim'),
@@ -1065,7 +1072,8 @@ class Orcamento(models.Model):
     valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor orçamento')
     colaborador = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True)
     observacoes = models.TextField(blank=True, verbose_name='Observações')
-    motivo_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Motivo da recusa')
+    motivo_recusa = models.ForeignKey(MotivosRecusa, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Motivo da recusa')
+    obs_recusa = models.CharField(blank=True, null=True, max_length=255, verbose_name='Oservações da recusa')
     objeto_gerencia = models.JSONField(blank=True, null=True, editable=False)
     objeto_orcamento = models.JSONField(blank=True, null=True, editable=False)
     orcamento_promocional = models.ForeignKey(
@@ -1613,8 +1621,7 @@ class Tratativas(models.Model):
     id_tratativa = models.CharField(primary_key=True, max_length=255, editable=False)
     orcamentos_em_previa = models.ManyToManyField(Orcamento, related_name='orcamentos_em_previa')
     orcamentos = models.ManyToManyField(Orcamento, verbose_name="Orcamentos", related_name='orcamentos')
-    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa',
-                               default=1)
+    status = models.ForeignKey(StatusOrcamento, on_delete=models.DO_NOTHING, verbose_name='Status da Tratativa', default=1)
     motivo_recusa = models.TextField(verbose_name="Motivo da recusa", blank=True)
     orcamento_aceito = models.ForeignKey(
         Orcamento,

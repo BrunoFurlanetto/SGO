@@ -23,7 +23,7 @@ from projetoCEU.utils import is_ajax
 from .gerar_orcamento import gerar_pdf_orcamento
 from .models import CadastroOrcamento, OrcamentoOpicional, Orcamento, StatusOrcamento, CadastroPacotePromocional, \
     DadosDePacotes, ValoresPadrao, Tratativas, OrcamentosPromocionais, HorariosPadroes, TiposDePacote, \
-    CategoriaOpcionais, OrcamentoMonitor
+    CategoriaOpcionais, OrcamentoMonitor, MotivosRecusa
 from .utils import verify_data, processar_formulario, JsonError, pegar_datas_padroes_pacotes_salvos
 from .budget import Budget
 
@@ -869,8 +869,10 @@ def perder_orcamento(request):
     try:
         orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
         status_perdido = StatusOrcamento.objects.get(negado_cliente=True)
+        motivo = MotivosRecusa.objects.get(pk=request.POST.get('motivo_recusa'))
         orcamento.status_orcamento = status_perdido
-        orcamento.motivo_recusa = request.POST.get('motivo_recusa')
+        orcamento.motivo_recusa = motivo
+        orcamento.obs_recusa = request.POST.get('obs_recusa', '')
         orcamento.save()
     except Exception as e:
         return JsonResponse({'msg': f'Erro ao dar baixa no orçamento ({e}). Tente novamente mais tarde.'}, status=500)
