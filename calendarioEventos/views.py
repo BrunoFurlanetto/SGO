@@ -131,6 +131,7 @@ def eventos(request):
             'cliente': pre_reserva.cliente.id,
             'responavel_evento': pre_reserva.responsavel_evento.id,
             'produto': pre_reserva.produto.id,
+            'perfil_participantes': [perfil.id for perfil in pre_reserva.perfil_participantes.all()],
             'produto_corporativo': pre_reserva.produto_corporativo.id if pre_reserva.produto_corporativo else None,
             'obs_edicao': pre_reserva.obs_edicao_horario,
             'exclusividade': pre_reserva.exclusividade,
@@ -193,6 +194,7 @@ def eventos(request):
             return redirect('calendario_eventos')
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
+
     nova_pre_reserva = cadastro_de_pre_reservas.save(commit=False)
     nova_pre_reserva.pre_reserva = True
 

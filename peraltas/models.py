@@ -1316,8 +1316,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'data_divulgacao': forms.TextInput(attrs={'type': 'date'}),
-            'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox',
-                                                                 'class': 'form-check-input'}),
+            'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-check-input'}),
             'id_negocio': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
@@ -1390,10 +1389,17 @@ class CadastroCodigoApp(forms.ModelForm):
 
 
 class CadastroPreReserva(forms.ModelForm):
+    perfil_participantes = forms.ModelMultipleChoiceField(
+        queryset=PerfilsParticipantes.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    perfil_participantes.widget.attrs['class'] = 'form-check-input'
+
     class Meta:
         model = FichaDeEvento
         fields = [
-            'cliente', 'responsavel_evento', 'produto', 'produto_corporativo',
+            'cliente', 'responsavel_evento', 'produto', 'produto_corporativo', 'perfil_participantes',
             'check_in', 'check_out', 'qtd_convidada', 'observacoes', 'exclusividade',
             'vendedora', 'pre_reserva', 'agendado', 'obs_edicao_horario', 'agencia', 'id_negocio'
         ]
