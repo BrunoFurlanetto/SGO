@@ -193,6 +193,7 @@ def eventos(request):
             return redirect('calendario_eventos')
 
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
+    print(request.POST)
     nova_pre_reserva = cadastro_de_pre_reservas.save(commit=False)
     nova_pre_reserva.pre_reserva = True
 
