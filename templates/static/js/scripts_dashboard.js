@@ -223,11 +223,17 @@ function perder_orcamento() {
 }
 
 function ganhar_orcamento(id_orcamento) {
+    var qtd_previa = prompt('Forneça um valor para a prévia de participantes do envento. Este valor poderá ser editado depois.')
+    console.log(qtd_previa)
+    while (qtd_previa == '') {
+        qtd_previa = prompt('Forneça um valor para a prévia de participantes do envento. Este valor poderá ser editado depois.')
+    }
+
     $.ajax({
         type: 'POST',
         url: '/orcamento/ganho/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento': id_orcamento},
+        data: {'id_orcamento': id_orcamento, 'qtd_previa': qtd_previa},
     }).done((response) => {
         if (response['status'] === 'error') {
             alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)

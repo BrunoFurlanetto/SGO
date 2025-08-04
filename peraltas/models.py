@@ -514,6 +514,9 @@ class FichaDeEvento(models.Model):
         ('Peraltas CEU', 'Peraltas + Fundação CEU')
     )
 
+    orcamento = models.ForeignKey('orcamento.Orcamento', on_delete=models.PROTECT, blank=True, null=True)
+    ficha_financeira = models.ForeignKey('financeiro.FichaFinanceira', on_delete=models.PROTECT, blank=True, null=True)
+
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE,
                                            verbose_name='Responsável pelo evento')
@@ -568,7 +571,6 @@ class FichaDeEvento(models.Model):
     agendado = models.BooleanField(default=False, verbose_name='Evento confirmado')
     os = models.BooleanField(default=False, verbose_name='Ordem de serviço')
     escala = models.BooleanField(default=False, verbose_name='Escala')
-    ficha_financeira = models.BooleanField(default=False, verbose_name='Ficha financeira')
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
@@ -1291,7 +1293,7 @@ class CadastroFichaDeEvento(forms.ModelForm):
 
     class Meta:
         model = FichaDeEvento
-        exclude = ['data_preenchimento']
+        exclude = ['data_preenchimento', 'orcamento', 'ficha_financeira']
 
         widgets = {
             'check_in': forms.TextInput(attrs={

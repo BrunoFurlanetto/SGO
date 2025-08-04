@@ -128,7 +128,6 @@
                                         for (let perfil_opt of perfils_opt) {
                                             perfil_opt.checked = !!response['perfil_participantes'].includes(parseInt(perfil_opt.value));
                                         }
-                                        console.log(perfils_opt)
 
                                         if (response['exclusividade']) {
                                             $('#ModalCadastroPreReserva #id_exclusividade').prop('checked', true)

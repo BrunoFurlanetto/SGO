@@ -8,7 +8,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -17,7 +17,8 @@ from django.views.decorators.http import require_POST, require_GET
 from ceu.models import Atividades
 from decorators import require_ajax
 from mensagens.models import Mensagem
-from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco, Vendedor
+from peraltas.models import ClienteColegio, RelacaoClienteResponsavel, ProdutosPeraltas, AtividadesEco, Vendedor, \
+    FichaDeEvento
 from projetoCEU.chatguru.chatguru import Chatguru
 from projetoCEU.utils import is_ajax
 from .gerar_orcamento import gerar_pdf_orcamento
@@ -860,13 +861,30 @@ def verificar_validade_apelido(request):
 @require_ajax
 @require_POST
 def ganhar_orcamento(request):
-    try:
-        orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
-        status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
-        orcamento.status_orcamento = status_ganho
-        orcamento.save()
-    except Exception as e:
-        return JsonResponse({'msg': f'Erro ao tentar ganhar orçamento ({e}). Tente novamente mais tarde.'}, status=500)
+    with transaction.atomic():
+        try:
+            orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
+            status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
+            orcamento.status_orcamento = status_ganho
+            orcamento.save()
+
+            # Criando pré reserva
+            FichaDeEvento.objects.create(
+                orcamento=orcamento,
+                cliente=orcamento.cliente,
+                responsavel_evento=orcamento.responsavel,
+                produto=orcamento.produto,
+                check_in=orcamento.check_in,
+                check_out=orcamento.check_out,
+                vendedora=orcamento.colaborador.vendedor,
+                pre_reserva=True,
+                qtd_convidada=request.POST.get('qtd_previa')
+            )
+        except Exception as e:
+            return JsonResponse({
+                'msg': f'Erro ao tentar ganhar orçamento ({e}). Tente novamente mais tarde.'},
+                status=500
+            )
 
     return JsonResponse({}, status=200)
 
