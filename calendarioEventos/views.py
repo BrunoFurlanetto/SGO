@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 import cadastro.funcoes
 from cadastro.funcoes import is_ajax
 from calendarioEventos.funcoes import gerar_lotacao, gerar_descritivo_data
+from orcamento.models import Orcamento, StatusOrcamento
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import FichaDeEvento, CadastroPreReserva, ClienteColegio, RelacaoClienteResponsavel, \
     EventosCancelados, Vendedor
@@ -31,6 +32,7 @@ def eventos(request):
     professor_ceu = request.user.has_perm('cadastro.add_relatoriodeatendimentopublicoceu')
     comercial = request.user.has_perm('peraltas.add_prereserva')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
+    status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
 
     if is_ajax(request):
         if request.method == 'GET':
@@ -128,6 +130,11 @@ def eventos(request):
 
         return JsonResponse({
             'id': pre_reserva.id,
+            'orcamento': pre_reserva.orcamento.id,
+            'orcamentos': [{
+                'id': orcamento.id, 'cliente': orcamento.cliente.__str__(), 'apelido': orcamento.apelido}
+                for orcamento in Orcamento.objects.filter(status_orcamento=status_ganho)
+            ],
             'cliente': pre_reserva.cliente.id,
             'responavel_evento': pre_reserva.responsavel_evento.id,
             'produto': pre_reserva.produto.id,
@@ -153,7 +160,8 @@ def eventos(request):
             'diretoria': diretoria,
             'pre_reservas': pre_reservas,
             'cadastro_pre_reserva': cadastro_de_pre_reservas,
-            'clientes': clientes
+            'clientes': clientes,
+            'orcamentos': Orcamento.objects.filter(colaborador=request.user)
         })
 
     if request.POST.get('id_pre_reserva'):

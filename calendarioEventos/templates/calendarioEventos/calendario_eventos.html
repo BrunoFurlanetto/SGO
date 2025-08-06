@@ -115,6 +115,8 @@
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
 
+                                        popular_orcamentos(response['orcamentos'], response['orcamento'])
+
                                         if (response['obs_edicao'] !== null) {
                                             $('#ModalCadastroPreReserva #editar_horarios').prop('checked', true)
                                             $('#ModalCadastroPreReserva #obs_edicao').removeClass('none')
@@ -167,7 +169,7 @@
                                                 {% endif %}
                                             {% endif %}
 
-                                            {% if perms.peraltas.add_fichadeevento %}
+                                            {% if perms.peraltas.delete_fichadeevento %}
                                                 modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                                 modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
                                             {% endif %}
@@ -297,6 +299,21 @@
             }
 
             let lotacao = {}
+
+            function popular_orcamentos(lista_orcamentos, orcamento_id) {
+                const select_orcamento = $('#ModalCadastroPreReserva #orcamento').empty()
+
+                // Percorre a lista de orçamentos e cria as opções
+                lista_orcamentos.forEach(function (orcamento) {
+                    // Verifica se o orcamento atual é o que deve ser pré-selecionado
+                    const selected = orcamento.id === orcamento_id ? 'selected' : '';
+
+                    // Adiciona a opção ao select
+                    select_orcamento.append(
+                        `<option value="${orcamento['id']}" ${selected}>${orcamento['cliente']} (${orcamento['apelido']})</option>`
+                    );
+                });
+            }
 
             function gerar_descritivo_dia(icone) {
                 const lotacao_dia = lotacao[$(icone).closest('td').data('date')]
@@ -831,6 +848,11 @@
                         {% csrf_token %}
                         <div class="modal-body">
                             <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
+                            <div>
+                                <h5 class="titulo-secao">Orçamento</h5>
+                                <select name="orcamento" id="orcamento"></select>
+                            </div>
+                            <hr>
                             <h5 class="titulo-secao">Dados cliente</h5>
                             <div class="mb-2 row" id="cliente_responsavel" onclick="ativar_mascara()">
                                 <div class="mb-2" style="width: 90%">

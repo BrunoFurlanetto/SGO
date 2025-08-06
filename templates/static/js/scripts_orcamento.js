@@ -1047,7 +1047,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     let desconto = $('#desconto_geral')
 
     taxa_negocial.val(formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.val())).data({
-        'valor_default': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_default')),
+        // 'valor_default': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_default')),
         'valor_inicial': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_inicial')),
         'valor_alterado': formatarPorcentagem(dados_taxas['taxa_negocial']['padrao_taxa_negocial'], taxa_negocial.data('valor_alterado')),
         'teto': formatarPorcentagem(dados_taxas['taxa_negocial']['teto_taxa_negocial'], taxa_negocial.data('teto')),
@@ -1061,7 +1061,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
     })
 
     comissao.val(formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.val())).data({
-        'valor_default': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_default')),
+        // 'valor_default': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_default')),
         'valor_inicial': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_inicial')),
         'valor_alterado': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_alterado')),
         'teto': formatarPorcentagem(dados_taxas['comissao']['teto_comissao'], comissao.data('teto')),
@@ -1071,7 +1071,7 @@ async function alterar_valores_das_taxas(dados_taxas) {
         'data-valor_inicial': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_inicial')),
         'data-valor_alterado': formatarPorcentagem(dados_taxas['comissao']['padrao_comissao'], comissao.data('valor_alterado')),
         'data-teto': formatarPorcentagem(dados_taxas['comissao']['teto_comissao'], comissao.data('teto')),
-        'data-piso': formatarPorcentagem(dados_taxas['comissao']['piso_comissao'], taxa_negocial.data('piso'))
+        'data-piso': formatarPorcentagem(dados_taxas['comissao']['piso_comissao'], comissao.data('piso'))
     })
 
     desconto.data({
@@ -1119,7 +1119,7 @@ async function verificar_pacotes_promocionais(editando = false) {
                 const ids = promocionais.map(obj => obj.id)
                 let select_promocionais = $('#id_orcamento_promocional')
                 const id_promocional_selecionado = parseInt(select_promocionais.val())
-                console.log(ids.includes(id_promocional_selecionado), ids, id_promocional_selecionado)
+
                 if (response['dados_taxas']['so_ceu'] && $('#so_ceu').prop('checked')) {
                     await verificar_preenchimento()
                     await verificar_monitoria_transporte()
@@ -1608,7 +1608,6 @@ async function preencher_promocional(id_promocional) {
                         let acrescimo = formatar_dinheiro(op['acrescimo'])
                         listar_op(dados_op, opcional, i + 1, desconto, acrescimo, false, true)
                     }
-                    console.log(op)
                 })
 
                 if (response['opcionais_extra']) {
