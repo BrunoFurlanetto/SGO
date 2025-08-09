@@ -34,10 +34,10 @@ class Transport(TransportProtocol):
                 final_vigencia__gte=self.checkin,
                 liberado=True,
             )
+            self.classification_code = super().set_classification_code(obj_transport)
         except ValoresTransporte.DoesNotExist:
             values = []
         else:
-            self.classification_code = super().set_classification_code(obj_transport)
             if self.days == 1:
                 value = (float(obj_transport.valor_1_dia) / (1 - float(obj_transport.percentual))) / self.min_payers
             elif self.days == 2:

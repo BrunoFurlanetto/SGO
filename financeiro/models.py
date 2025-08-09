@@ -216,7 +216,6 @@ class FichaFinanceira(models.Model):
         })
 
         taxa_periodo = self.orcamento.objeto_orcamento['periodo_viagem']
-        print('[INFO] Processando taxa de período')
 
         if taxa_periodo['codigo_classificacao_item']:
             try:
@@ -231,11 +230,11 @@ class FichaFinanceira(models.Model):
                 total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += taxa_periodo.get('comissao_de_vendas', 0.0)
                 total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += taxa_periodo.get('taxa_comercial', 0.0)
                 total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += taxa_periodo.get('desconto', 0.0)
-        print('[INFO] Taxa de período processada')
+
         # Processa os dados do dicionário principal
         for item in self.orcamento.objeto_orcamento['valores'].values():
             codigo = item['codigo_classificacao_item']
-            print('[INFO] Processando item:', item)
+
             if not codigo:
                 continue
 
@@ -247,12 +246,11 @@ class FichaFinanceira(models.Model):
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
-            print('[INFO] ', item, 'processado')
+
         # Processa a lista de opcionais
         for item in self.orcamento.objeto_orcamento['descricao_opcionais']:
-            print('[INFO] Começando o processo de opcionais')
-            print('[INFO] Processando item opcional:', item)
             codigo = item['codigo_classificacao_item']
+
             if not codigo['object_id']:
                 total_por_classificacao['Sem Classificação']['valor'] += item.get('valor', 0.0)
                 total_por_classificacao['Sem Classificação']['valor_final'] += item.get('valor_final', 0.0)
@@ -270,7 +268,7 @@ class FichaFinanceira(models.Model):
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
             total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
-            print('[INFO] :', item, 'processado')
+
         codigo_arredondamento = ClassificacoesItens.objects.get(arredondamento=True)
         total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor'] += self.orcamento.objeto_orcamento['total']['arredondamento']
         total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor_final'] += self.orcamento.objeto_orcamento['total']['arredondamento']

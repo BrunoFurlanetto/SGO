@@ -1452,6 +1452,8 @@ class Orcamento(models.Model):
         ops_interno = []
 
         for op in descritivo_op_interno:
+            dia_dia_ativ = [0] * self.dias_evento
+            i = 0
             op_id = op["id"]
 
             if op['categoria'] == 'extra':
@@ -1463,6 +1465,21 @@ class Orcamento(models.Model):
                 continue
 
             if opcional.categoria.staff:
+                dia_dia_ativ[0] = op['valor']
+
+                ops_interno.append({
+                    'id': op['id'],
+                    'atividade': op['nome'],
+                    'valor_neto': f"{op['valor']:.2f}".replace('.', ','),
+                    'valor_desconto': f"{op['valor_com_desconto']:.2f}".replace('.', ','),
+                    'taxas': f"{op['taxa_comercial']:.2f}".replace('.', ','),
+                    'cov': f"{op['comissao_de_vendas']:.2f}".replace('.', ','),
+                    'desconto': f"{op['desconto']:.2f}".replace('.', ','),
+                    'acrescimo': f"{op['acrescimo']:.2f}".replace('.', ','),
+                    'valor_final': f"{op['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_ativ
+                })
+
                 total_taxa += op["taxa_comercial"]
                 total_comissao += op["comissao_de_vendas"]
                 total_desconto += op["desconto"]
@@ -1470,11 +1487,14 @@ class Orcamento(models.Model):
                 total_sem_taxas += op["valor"]
                 total_geral += op["valor_final"]
 
-                while len(total_dia_dia) < len(op["valores"]):
+                while len(total_dia_dia) < self.dias_evento:
                     total_dia_dia.append(0)
 
-                for i, valor in enumerate(op["valores"]):
-                    total_dia_dia[i] += valor
+                while i < self.dias_evento:
+                    if i == 0:
+                        total_dia_dia[i] += op['valor']
+
+                    i += 1
 
         return {
             'valor_neto': f"{total_sem_taxas:.2f}".replace('.', ','),
@@ -1484,30 +1504,47 @@ class Orcamento(models.Model):
             'acrescimo': f"{total_acrescimo:.2f}".replace('.', ','),
             'valor_final': f"{total_geral:.2f}".replace('.', ','),
             'dia_dia': total_dia_dia,
+            'descritivo_atividades': ops_interno,
         }
 
     def valores_outros(self):
         valores_outros = self.objeto_orcamento['valores']['opcionais_extras']
         descritivo_outros = self.objeto_orcamento['descricao_opcionais']
-        dia_dia = list(map(lambda a: str(round(a, 2)).replace('.', ','), valores_outros['valores']))
         outros = []
+        total_dia_dia = []
 
         for outro in descritivo_outros:
-            if outro.get('outros'):
-                for atividade_extra in outro.get('outros'):
-                    dia_dia_ativ = list(map(lambda a: str(round(a, 2)).replace('.', ','), atividade_extra['valores']))
+            dia_dia_ativ = [0] * self.dias_evento
+            i = 0
 
-                    outros.append({
-                        'id': atividade_extra['id'],
-                        'atividade': atividade_extra['nome'],
-                        'valor_neto': f"{atividade_extra['valor']:.2f}".replace('.', ','),
-                        'taxas': f"{atividade_extra['taxa_comercial']:.2f}".replace('.', ','),
-                        'cov': f"{atividade_extra['comissao_de_vendas']:.2f}".replace('.', ','),
-                        'desconto': f"{atividade_extra['desconto']:.2f}".replace('.', ','),
-                        'acrescimo': f"{atividade_extra['acrescimo']:.2f}".replace('.', ','),
-                        'valor_final': f"{atividade_extra['valor_final']:.2f}".replace('.', ','),
-                        'dia_dia': dia_dia_ativ,
+            try:
+                outro['id'].isnumeric()
+                # for atividade_extra in outro.get('outros'):
+            except AttributeError:
+                continue
+            else:
+                dia_dia_ativ[0] = outro['valor']
+
+                outros.append({
+                    'id': outro['id'],
+                    'atividade': outro['nome'],
+                    'valor_neto': f"{outro['valor']:.2f}".replace('.', ','),
+                    'taxas': f"{outro['taxa_comercial']:.2f}".replace('.', ','),
+                    'cov': f"{outro['comissao_de_vendas']:.2f}".replace('.', ','),
+                    'desconto': f"{outro['desconto']:.2f}".replace('.', ','),
+                    'acrescimo': f"{outro['acrescimo']:.2f}".replace('.', ','),
+                    'valor_final': f"{outro['valor_final']:.2f}".replace('.', ','),
+                    'dia_dia': dia_dia_ativ,
                     })
+
+                while len(total_dia_dia) < self.dias_evento:
+                    total_dia_dia.append(0)
+
+                while i < self.dias_evento:
+                    if i == 0:
+                        total_dia_dia[i] += outro['valor']
+
+                    i += 1
 
         return {
             'valor_neto': f"{valores_outros['valor']:.2f}".replace('.', ','),
@@ -1517,7 +1554,7 @@ class Orcamento(models.Model):
             'acrescimo': f"{valores_outros['acrescimo']:.2f}".replace('.', ','),
             'valor_final': f"{valores_outros['valor_final']:.2f}".replace('.', ','),
             'descritivo_atividades': outros,
-            'dia_dia': dia_dia,
+            'dia_dia': total_dia_dia,
         }
 
     def valores_totais(self):

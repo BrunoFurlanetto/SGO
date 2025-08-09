@@ -154,7 +154,8 @@ def processar_formulario(dados, user):
             return JsonError(
                 f'Não foi encontrado tarifario para as datas solicitadas, por favor peça o cadastro a diretoria.'
             )
-
+        print(usuario_financeiro)
+        print()
         if not OrcamentoMonitor.verificar_validade(date_check_in, date_check_out, usuario_financeiro):
             return JsonError(
                 f'Não foi encontrado tarifario de monitoria para as datas solicitadas, por favor peça o cadastro a diretoria.'
@@ -162,7 +163,7 @@ def processar_formulario(dados, user):
 
         if not ValoresTransporte.verificar_validade(date_check_in, date_check_out, usuario_financeiro):
             return JsonError(
-                f'Não foi encontrado tarifario de monitoria para as datas solicitadas, por favor peça o cadastro a diretoria.'
+                f'Não foi encontrado tarifario de trasporte para as datas solicitadas, por favor peça o cadastro a diretoria.'
             )
 
         while current_date <= date_check_out:
