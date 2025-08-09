@@ -132,6 +132,16 @@ def clonar_orcamento(request, id_orcamento):
 def editar_previa(request, id_orcamento, gerente_aprovando=0):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
 
+    if orcamento.status_orcamento.negativa_gerencia:
+        status_em_aberto = StatusOrcamento.objects.get(
+            analise_gerencia=False,
+            aprovacao_cliente=False,
+            negado_cliente=False,
+            orcamento_vencido=False
+        )
+        orcamento.status_orcamento = status_em_aberto
+        orcamento.aprovacao_diretoria = False
+
     if orcamento.promocional:
         dados_pacote = OrcamentosPromocionais.objects.get(orcamento=orcamento)
         return redirect('editar_pacotes_promocionais', id_dados_pacote=dados_pacote.id)
@@ -263,7 +273,7 @@ def salvar_orcamento(request):
             pre_orcamento.data_vencimento = gerencia['data_vencimento']
             pre_orcamento.cliente = pre_orcamento.responsavel = pre_orcamento.orcamento_promocional = None
 
-        if data.get('resposta_diretoria'):
+        if data.get('resposta_diretoria') and data.get('resposta_diretoria') != '':
             if bool(int(data.get('resposta_diretoria'))):
                 status_resposta = StatusOrcamento.objects.get(analise_gerencia=True, aprovacao_gerencia=True)
             else:

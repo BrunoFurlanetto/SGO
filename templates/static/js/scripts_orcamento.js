@@ -2041,7 +2041,6 @@ function verficar_validade_opcionais(check_in) {
 }
 
 async function salvar_comentario_diretoria() {
-    console.log($('#id_gerente_responsavel').val())
     if ($('#apelido_orcamento_2').val().length > 5 && $('#comentario_gerencia').val().length > 10) {
         $('#mensagem_gerencia').val($('#comentario_gerencia').val())
         $('#id_apelido').val($('#apelido_orcamento_2').val())
