@@ -92,20 +92,15 @@ function verificar_vencimentos(input) {
 }
 
 function verificar_metodo_pagamento() {
-    const metodo_pagamento = $('#id_forma_pagamento option:selected').text()
+    const metodo_pagamento = $('#id_forma_pagamento option:selected')
 
-    if (metodo_pagamento.includes('vista')) {
-        $('#id_parcelas').val(1).attr('readonly', true)
-        $('#id_final_vencimento').val(moment($('#id_inicio_vencimento').val()).format('YYYY-MM-DD')).attr('readonly', true)
+    if (Object.keys(metodo_pagamento.data()).includes('eficha')) {
+        $('#div_id_codigo_eficha').removeClass('none')
     } else {
-        if (metodo_pagamento.includes('ficha')) {
-            $('#div_id_codigo_eficha').removeClass('none')
-        } else {
-            $('#div_id_codigo_eficha').addClass('none')
-        }
-        $('#id_parcelas, #id_final_vencimento').attr('readonly', false)
-
+        $('#div_id_codigo_eficha').addClass('none')
+        $('#id_codigo_eficha').val('')
     }
+    $('#id_parcelas, #id_final_vencimento').attr('readonly', false)
 }
 
 function tornar_campos_obrigatorios() {

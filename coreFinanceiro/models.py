@@ -4,6 +4,7 @@ from django.db import models
 class TiposPagamentos(models.Model):
     tipo_pagamento = models.CharField(max_length=255)
     offline = models.BooleanField(default=False)
+    eficha = models.BooleanField(default=False, verbose_name='e-Ficha')
 
     def __str__(self):
         return self.tipo_pagamento

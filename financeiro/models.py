@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.forms import Select
 
 from coreFinanceiro.models import ClassificacoesItens, TiposPagamentos
 from orcamento.models import Orcamento, OrcamentoPeriodo
@@ -105,7 +106,7 @@ class PlanosPagamento(models.Model):
     comissoes_externas = models.JSONField(verbose_name='Comissões externas', blank=True, null=True, editable=False)
 
     def verficar_eficha(self):
-        return 'ficha' in self.forma_pagamento.tipo_pagamento
+        return self.forma_pagamento.eficha
 
     @classmethod
     def preencher_dados_comissionados(cls, dados):
@@ -312,6 +313,20 @@ class CadastroDadosEvento(forms.ModelForm):
         self.fields['responsavel_operacional'].choices = select_responsavel
 
 
+class EFichaSelect(Select):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+
+        if value:
+            try:
+                tipo_pagamento = TiposPagamentos.objects.get(id=value)
+                option['attrs']['data-eficha'] = tipo_pagamento.eficha
+            except (ValueError, TiposPagamentos.DoesNotExist):
+                pass
+
+        return option
+
+
 class CadastroPlanosPagamento(forms.ModelForm):
     class Meta:
         model = PlanosPagamento
@@ -319,7 +334,6 @@ class CadastroPlanosPagamento(forms.ModelForm):
 
         widgets = {
             'valor_a_vista': forms.TextInput(attrs={'class': 'inalteravel'}),
-            'forma_pagamento': forms.Select(attrs={'onchange': 'verificar_metodo_pagamento()'}),
             'codigo_eficha': forms.TextInput(attrs={'onkeyup': 'this.value=this.value.toUpperCase()'}),
             'inicio_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
             'final_vencimento': forms.DateInput(attrs={'type': 'date', 'onchange': 'verificar_vencimentos(this)'}),
@@ -331,6 +345,16 @@ class CadastroPlanosPagamento(forms.ModelForm):
         valor_a_vista = self.initial.get('valor_a_vista', '')
         valor = str(valor_a_vista).replace('.', ',')
         self.initial['valor_a_vista'] = valor
+        tipos_pagamento = TiposPagamentos.objects.all()
+        select_tipos_pagamento = [('', '')]
+
+        for tipo_pagamento in tipos_pagamento:
+            select_tipos_pagamento.append((tipo_pagamento.id, tipo_pagamento.tipo_pagamento))
+
+        self.fields['forma_pagamento'].widget = EFichaSelect()
+        self.fields['forma_pagamento'].widget.attrs.update({'onchange': 'verificar_metodo_pagamento()'})
+        self.fields['forma_pagamento'].choices = select_tipos_pagamento
+
 
 
 class CadastroNotaFiscal(forms.ModelForm):
