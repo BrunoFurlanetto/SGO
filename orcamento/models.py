@@ -1116,6 +1116,7 @@ class Orcamento(models.Model):
                 'parcelas mensais consecutivas. </li><li><b>Via Escola</b>: Em até 5 parcelas.</li><li>Em caso de dúvida,'
                 ' entre em contato com a sua consultora de vendas.</li></ol>'
     )
+    ficha_financeira = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Orçamento'

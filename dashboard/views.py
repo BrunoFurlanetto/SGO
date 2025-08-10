@@ -19,7 +19,7 @@ from mensagens.models import Mensagem
 from orcamento.gerar_orcamento import gerar_pdf_orcamento
 from ordemDeServico.models import OrdemDeServico
 from peraltas.models import DiaLimitePeraltas, DiaLimitePeraltas, Monitor, FichaDeEvento, InformacoesAdcionais, \
-    Vendedor, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento
+    Vendedor, ProdutosPeraltas, NivelMonitoria, EscalaAcampamento, ClienteColegio
 from projetoCEU.integracao_rd import alterar_campos_personalizados, formatar_envio_valores
 from orcamento.models import Orcamento, StatusOrcamento, ValoresPadrao, Tratativas, OrcamentosPromocionais, \
     MotivosRecusa
@@ -218,7 +218,9 @@ def dashboardPeraltas(request):
         check_in__date__gte=datetime.today().date(),
         check_in__date__lte=(datetime.today() + timedelta(days=50)).date()
     )
-    orcamentos_colaborador = Orcamento.objects.filter(colaborador=request.user)
+    orcamentos_colaborador = Orcamento.objects.filter(
+        colaborador=request.user, data_ultima_edicao__date__gt=(datetime.today() - timedelta(days=365)).date()
+    )
     pacotes = OrcamentosPromocionais.objects.filter(
         orcamento__previa=False,
     )
@@ -369,6 +371,7 @@ def dashboardPeraltas(request):
         monitor.save()
     print(Orcamento.objects.filter(previa=True))
     return render(request, 'dashboard/dashboardPeraltas.html', {
+        'data_um_ano': (datetime.today() - timedelta(days=365)).date(),
         'msg_acampamento': msg_monitor,
         'termo_monitor': not monitor.aceite_do_termo if monitor else None,
         'diretoria': diretoria in grupos_usuario,
@@ -405,5 +408,6 @@ def dashboardPeraltas(request):
         'avaliacoes_monitores': avaliacoes_monitores,
         'avaliacoes_cliente': list(chain(avaliacoes_clientes_colegio, avaliacoes_clientes_corporativo)),
         'motivos_recusa': MotivosRecusa.objects.all(),
+        'clientes': ClienteColegio.objects.all(),
         # 'ultimas_versoes': FichaDeEvento.logs_de_alteracao(),
     })

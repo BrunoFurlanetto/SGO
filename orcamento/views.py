@@ -12,6 +12,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.http import require_POST, require_GET
 
 from ceu.models import Atividades
@@ -914,3 +915,25 @@ def perder_orcamento(request):
         return JsonResponse({'msg': f'Erro ao dar baixa no orçamento ({e}). Tente novamente mais tarde.'}, status=500)
 
     return JsonResponse({}, status=200)
+
+
+def pesquisar_orcamento(request):
+    if is_ajax(request):
+        cliente = request.GET.get('cliente')
+        lista_orcamentos = []
+        orcamentos = Orcamento.objects.filter(cliente_id=int(cliente))
+
+        for orcamento in orcamentos:
+            lista_orcamentos.append({
+                'id': orcamento.id,
+                'apelido': orcamento.apelido,
+                'data_ultima_edicao': orcamento.data_ultima_edicao.strftime('%d/%m/%Y %H:%M'),
+                'valor': orcamento.valor,
+                'status': orcamento.status_orcamento.status,
+                'previa': orcamento.previa,
+                'ficha_financeira': orcamento.ficha_financeira,
+                'link_ver': reverse('ver_orcamento_tratativa', args=[orcamento.id]),
+                'link_clonar': reverse('clonar_orcamento', args=[orcamento.id]),
+            })
+
+        return JsonResponse({'orcamentos': lista_orcamentos})

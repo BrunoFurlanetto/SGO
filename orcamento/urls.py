@@ -38,4 +38,5 @@ urlpatterns = [
     path('verificar_validade_apelido/', views.verificar_validade_apelido, name='verificar_validade_apelido'),
     path('ganho/', views.ganhar_orcamento, name='ganhar_orcamento'),
     path('perdido/', views.perder_orcamento, name='perder_orcamento'),
+    path('pesquisar_orcamentos/', views.pesquisar_orcamento, name='pesquisar_orcamento')
 ]

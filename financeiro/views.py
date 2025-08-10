@@ -132,9 +132,9 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
                     'nota_fiscal': cadastro_nota_fiscal,
                 })
             else:
-                tratativa = Tratativas.objects.get(orcamentos__in=[id_orcamento])
-                tratativa.ficha_financeira = True
-                tratativa.save()
+                orcamento = Orcamento.objects.get(pk=id_orcamento)
+                orcamento.ficha_financeira = True
+                orcamento.save()
                 messages.success(request, f'Ficha financeira de {orcamento.cliente} salva com sucesso. Aguardando aprovação da diretoria.')
 
             return redirect('dashboardPeraltas')

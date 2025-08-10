@@ -850,6 +850,13 @@
                 </div>
             </div>
             <div id="tratativas" class="section-content">
+                <div class="tabelas alert alert-info">
+                    <p style="text-align: justify">
+                        Serão mostradas nas tabelas apenas orçamentos em que a data da ultima edição seja superior a data de <strong>{{ data_um_ano }}</strong>.
+                        Para visualizar orçamentos mais antigos <a href="" data-toggle="modal" data-target="#modal_pesquisar_orcamentos">Clique aqui</a> para realizar
+                        um busca por clientes.
+                    </p>
+                </div>
                 <div class="tabelas">
                     <h5>Tratativas Abertas</h5>
                     <hr>
@@ -981,13 +988,13 @@
                     </table>
                 </div>
                 <div class="tabelas">
-                    <h5>Tratativas ganhas</h5>
+                    <h5>Aguardando Ficha Financeira</h5>
                     <div id="aviso_ficha_financeira">
                         Os orçamentos abaixo foram dados como ganho, porém a ficha financeira ainda não foi passada para
                         o financeiro, por favor fazer isso o quanto antes
                     </div>
                     <hr>
-                    <table id="tabela_tratativas_ganhas" class="table table-hover table-striped">
+                    <table id="tabela_tratativas_ganhas_s_ficha" class="table table-hover table-striped">
                         <thead>
                         <tr>
                             <th class="text-center" style="width: 30%">Cliente</th>
@@ -1000,8 +1007,8 @@
                         </thead>
                         <tbody>
                         {% for tratativa in tratativas %}
-                            {% if not tratativa.ficha_financeira %}
-                                {% for orcamento in tratativa.orcamentos.all %}
+                            {% for orcamento in tratativa.orcamentos.all %}
+                                {% if not orcamento.ficha_financeira %}
                                     {% if orcamento.status_orcamento.aprovacao_cliente %}
                                         <tr style="vertical-align: middle; cursor: pointer">
                                             <td class="clicavel text-center" data-tratativa="true"
@@ -1033,8 +1040,56 @@
                                             </td>
                                         </tr>
                                     {% endif %}
-                                {% endfor %}
-                            {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
+                    <h5>Tratativas Ganhas</h5>
+                    <hr>
+                    <table id="tabela_tratativas_ganhas_c_ficha" class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="width: 30%">Cliente</th>
+                            <th class="text-center" style="width: 30%">Apelido</th>
+                            <th class="text-center">Valor</th>
+                            <th class="text-center">Chat</th>
+                            <th class="text-center">Duplicar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for tratativa in tratativas %}
+                            {% for orcamento in tratativa.orcamentos.all %}
+                                {% if orcamento.ficha_financeira %}
+                                    {% if orcamento.status_orcamento.aprovacao_cliente %}
+                                        <tr style="vertical-align: middle; cursor: pointer">
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.cliente }}</td>
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.apelido }}</td>
+                                            <td class="clicavel text-center" data-tratativa="true"
+                                                data-id_orcamento="{{ orcamento.id | safe }}">
+                                                <nobr>R$ {{ orcamento.valor|substituir_ponto }}</nobr>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="button_pdf" style="font-size: 25px"
+                                                        onclick="abrir_chat_orcamento({{ orcamento.id | safe }})">
+                                                    <i class='bx bx-chat'></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" title="Duplicar orcamento" class="button_pdf"
+                                                        style="font-size: 25px"
+                                                        onclick="window.location.href='{% url 'clonar_orcamento' orcamento.id %}'">
+                                                    <i class='bx bxs-duplicate'></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -1548,6 +1603,54 @@
                     <input type="hidden" id="id_orcamento_perdido">
                     <button type="button" id="btn_perder_orcamento_modal" class="btn btn-primary" onclick="perder_orcamento()" disabled>Salvar</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_pesquisar_orcamentos" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pesquisar orçamentos ganhos</h5>
+                    <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="alert alert-danger">
+                        Pesquisa ainda em desenvolvimento, sendo assim podem existir inconsistências nos dados e erros ao acessar orçamentos por aqui.
+                    </p>
+                    <div>
+                        <label for="cliente_pesquisa">Cliente</label>
+                        <select name="cliente_pesquisa" id="cliente_pesquisa" onchange="buscar_orcamentos()">
+                            <option></option>
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}">{{ cliente }} ({{ cliente.cnpj }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <hr>
+                        <table class="table table-hover table-striped" id="tabela_pesquisa_orcamentos">
+                            <thead>
+                                <tr>
+                                    <th>Apelido</th>
+                                    <th>Data ultima edição</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th>Prévia</th>
+                                    <th>Ficha financeira</th>
+                                    <th>Abrir</th>
+                                    <th>Duplicar</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer"></div>
             </div>
         </div>
     </div>

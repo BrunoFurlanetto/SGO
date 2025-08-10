@@ -91,7 +91,10 @@ $(document).ready(() => {
             window.location.href = `/orcamento/editar_previa/${$(this).data('id_orcamento')}/`
         }
     })
-
+    $('#cliente_pesquisa').select2({
+        dropdownParent: $("#modal_pesquisar_orcamentos .modal-content"),
+        width: '100%',
+    })
     moment.locale('pt-br');
 
     // Inicialização da tabela de orçamentos (caso exista)
@@ -99,7 +102,8 @@ $(document).ready(() => {
     $('#tabela_previas_de_colaboradores').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
     $('#tabela_tratativas_em_aberto').iniciarlizarDataTableOrcamento([2, 3, 4], 0, [7]);
     $('#tabela_tratativas_negadas_vencidas').iniciarlizarDataTableOrcamento([3], 0, [5, 6]);
-    $('#tabela_tratativas_ganhas').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
+    $('#tabela_tratativas_ganhas_s_ficha').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
+    $('#tabela_tratativas_ganhas_c_ficha').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
 
     // Inicialização da tabela de pacotes promocionais
     var tabelaPacotes = $('#tabela_pacotes_promocionais table').iniciarlizarDataTablePacotes(2, [0, 1, 2, 3], []);
@@ -348,4 +352,43 @@ botoes.forEach(function(botao) {
     });
 });
 
+function buscar_orcamentos() {
+    let cliente = $('#cliente_pesquisa').val()
 
+    $.ajax({
+        type: 'GET',
+        url: '/orcamento/pesquisar_orcamentos/',
+        headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+        data: {'cliente': cliente},
+        success: function (response) {
+            const orcamentos = response['orcamentos']
+            const tabela_orcamentos = $('#tabela_pesquisa_orcamentos tbody').empty()
+
+            if (orcamentos.length > 0) {
+                for (let orcamento of orcamentos) {
+                    let icone_previa = orcamento['previa'] == 'True' ? "<i class='bx bx-check'></i>" : "<i class='bx  bx-x'></i>"
+                    let icone_ficha = orcamento['ficha_financeira'] == true ? "<i class='bx bx-check'></i>" : "<i class='bx  bx-x'></i>"
+
+                    tabela_orcamentos.append(
+                        `<tr id="orcamento_${orcamento['id_orcamento']}">                            
+                            <td>${orcamento['apelido']}</td>
+                            <td>${orcamento['data_ultima_edicao']}</td>                            
+                            <td>R$ ${orcamento['valor']}</td>
+                            <td>${orcamento['status']}</td>
+                            <td>${icone_previa}</td>                                                                                          
+                            <td>${icone_ficha}</td>
+                            <td onclick="window.location.href='${orcamento['link_clonar']}'"><i class='bx bxs-duplicate'></i></td>
+                            <td onclick="window.location.href='${orcamento['link_ver']}'"><i class='bx  bx-file'></i></td>                                                                                          
+                        </tr>`
+                    )
+                }
+            } else {
+                tabela_orcamentos.append(
+                    `<tr>
+                        <td colspan="8" style="text-align: center;">Nenhum orçamento encontrado com os filtros aplicados.</td>
+                    </tr>`
+                )
+            }
+        }
+    })
+}
