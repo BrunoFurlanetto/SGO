@@ -102,7 +102,7 @@ $(document).ready(() => {
     $('#tabela_previas_de_colaboradores').iniciarlizarDataTableOrcamento([0, 1, 4, 5], 0, [7, 8]);
     $('#tabela_tratativas_em_aberto').iniciarlizarDataTableOrcamento([2, 3, 4], 0, [7]);
     $('#tabela_tratativas_negadas_vencidas').iniciarlizarDataTableOrcamento([3], 0, [5, 6]);
-    $('#tabela_tratativas_ganhas_s_ficha').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
+    $('#tabela_tratativas_ganhas_s_ficha').iniciarlizarDataTableOrcamento([0], 0, [3, 4], false);
     $('#tabela_tratativas_ganhas_c_ficha').iniciarlizarDataTableOrcamento([], 0, [3, 4]);
 
     // Inicialização da tabela de pacotes promocionais
@@ -156,7 +156,7 @@ $.fn.iniciarlizarDataTable = function (columnData, columnOrder, senseOrder='asc'
     })
 }
 
-$.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrderableColumns) {
+$.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrderableColumns, dataComHora = true) {
     return $(this).DataTable({
         language: {
             info: 'Mostrando _PAGE_ página de _PAGES_ pagínas',
@@ -172,7 +172,11 @@ $.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrde
                 orderSequence: ['asc', 'desc', ''],
                 render: function (data, type, row) {
                     if (type === 'display' || type === 'filter') {
-                        return moment(data).format('DD/MM/YYYY HH:mm')
+                        if (dataComHora) {
+                            return moment(data).format('DD/MM/YYYY HH:mm')
+                        } else {
+                            return moment(data).format('DD/MM/YYYY')
+                        }
                     }
 
                     return data;
@@ -183,7 +187,7 @@ $.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrde
                 targets: nonOrderableColumns
             },
         ],
-        order: [columnOrder, 'desc']
+        order: [columnOrder, 'asc']
     })
 }
 

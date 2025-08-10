@@ -1104,6 +1104,7 @@ class Orcamento(models.Model):
     previa = models.BooleanField(default=True)
     data_preenchimento = models.DateTimeField(auto_now_add=True, verbose_name='Data de preenchimento')
     data_vencimento = models.DateField(verbose_name='Data de vencimento')
+    data_aprovacao_cliente = models.DateField(blank=True, null=True, verbose_name='Data de aprovação do cliente')
     data_ultima_edicao = models.DateTimeField(
         blank=True,
         null=True,

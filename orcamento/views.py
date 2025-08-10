@@ -877,6 +877,7 @@ def ganhar_orcamento(request):
             orcamento = Orcamento.objects.get(pk=request.POST.get('id_orcamento'))
             status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
             orcamento.status_orcamento = status_ganho
+            orcamento.data_aprovacao_cliente = datetime.datetime.today().date()
             orcamento.save()
 
             # Criando pré reserva

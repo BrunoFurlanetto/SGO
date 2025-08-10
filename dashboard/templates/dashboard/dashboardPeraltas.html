@@ -997,6 +997,7 @@
                     <table id="tabela_tratativas_ganhas_s_ficha" class="table table-hover table-striped">
                         <thead>
                         <tr>
+                            <th class="text-center" style="width: 30%">Data de aprovação</th>
                             <th class="text-center" style="width: 30%">Cliente</th>
                             <th class="text-center" style="width: 30%">Apelido</th>
                             <th class="text-center">Valor</th>
@@ -1010,7 +1011,10 @@
                             {% for orcamento in tratativa.orcamentos.all %}
                                 {% if not orcamento.ficha_financeira %}
                                     {% if orcamento.status_orcamento.aprovacao_cliente %}
-                                        <tr style="vertical-align: middle; cursor: pointer">
+                                        <tr style="vertical-align: middle; cursor: pointer" class="{{ orcamento.data_aprovacao_cliente|alerta_preenchimento}}">
+                                            <td class="clicavel text-center" data-tratativa="true" data-id_orcamento="{{ orcamento.id | safe }}">
+                                                {{ orcamento.data_aprovacao_cliente | date:'Y-m-d' }}
+                                            </td>
                                             <td class="clicavel text-center" data-tratativa="true"
                                                 data-id_orcamento="{{ orcamento.id | safe }}">{{ orcamento.cliente }}</td>
                                             <td class="clicavel text-center" data-tratativa="true"
