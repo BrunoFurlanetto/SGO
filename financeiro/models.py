@@ -264,11 +264,19 @@ class FichaFinanceira(models.Model):
             ct = ContentType.objects.get(app_label=codigo["app_id"], model=codigo["model_id"])
             objeto = ct.get_object_for_this_type(pk=codigo["object_id"])
             cod = objeto.classificacao
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
-            total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
+
+            if cod is not None:
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor'] += item.get('valor', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['valor_final'] += item.get('valor_final', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
+                total_por_classificacao[f'{cod.codigo_simplificado} ({cod.codigo_padrao})']['desconto'] += item.get('desconto', 0.0)
+            else:
+                total_por_classificacao['Sem Classificação']['valor'] += item.get('valor', 0.0)
+                total_por_classificacao['Sem Classificação']['valor_final'] += item.get('valor_final', 0.0)
+                total_por_classificacao['Sem Classificação']['comissao_de_vendas'] += item.get('comissao_de_vendas', 0.0)
+                total_por_classificacao['Sem Classificação']['taxa_comercial'] += item.get('taxa_comercial', 0.0)
+                total_por_classificacao['Sem Classificação']['desconto'] += item.get('desconto', 0.0)
 
         codigo_arredondamento = ClassificacoesItens.objects.get(arredondamento=True)
         total_por_classificacao[f'{codigo_arredondamento.codigo_simplificado} ({codigo_arredondamento.codigo_padrao})']['valor'] += self.orcamento.objeto_orcamento['total']['arredondamento']
