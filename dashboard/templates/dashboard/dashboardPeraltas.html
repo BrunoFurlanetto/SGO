@@ -1134,9 +1134,38 @@
             </div>
             <div id="fichas_financeiras" class="section-content">
                 <div class="tabelas">
+                    <h5>Fichas Financeiras aguardando aprovação</h5>
+                    <hr>
+                    <table id="aguardando_proessamento" class="table table-hover table-striped">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th>Data preenchimento</th>
+                            <th>Apelido</th>
+                            <th>Cliente</th>
+                            <th>Check in</th>
+                            <th>Check out</th>
+                            <th>Valor</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ficha in fichas_financeira_aguardando_aprovacao %}
+                            <tr style="cursor: pointer"
+                                onclick="window.location.href = '{% url 'editar_ficha_financeira' ficha.id %}'">
+                                <td style="vertical-align: middle">{{ ficha.data_preenchimento_comercial }}</td>
+                                <td style="vertical-align: middle">{{ ficha.orcamento.apelido }}</td>
+                                <td style="vertical-align: middle">{{ ficha.cliente }}</td>
+                                <td style="vertical-align: middle">{{ ficha.orcamento.check_in | date:'Y-m-d H:i' }}</td>
+                                <td style="vertical-align: middle">{{ ficha.orcamento.check_out | date:'Y-m-d H:i' }}</td>
+                                <td style="vertical-align: middle">R$ {{ ficha.valor_final | substituir_ponto }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tabelas">
                     <h5>Fichas Financeira negadas pela diretoria</h5>
                     <hr>
-                    <table class="table table-hover table-striped">
+                    <table id="negadas" class="table table-hover table-striped">
                         <thead>
                         <tr style="text-align: center">
                             <th>Data preenchimento</th>
@@ -1169,7 +1198,7 @@
                 <div class="tabelas">
                     <h5>Fichas Financeira aprovadas pela diretoria</h5>
                     <hr>
-                    <table class="table table-hover table-striped">
+                    <table id="aprovadas" class="table table-hover table-striped">
                         <thead>
                         <tr style="text-align: center">
                             <th>Data preenchimento</th>

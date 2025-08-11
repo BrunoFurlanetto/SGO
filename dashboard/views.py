@@ -391,6 +391,7 @@ def dashboardPeraltas(request):
         'tratativas': Tratativas.objects.filter(orcamentos__in=orcamentos_colaborador).distinct() if financeiro not in grupos_usuario else [],
         'pacotes': pacotes,
         'fichas_financeira_aprovacao': fichas_financeira_aprovacao,
+        'fichas_financeira_aguardando_aprovacao': fichas_financeira_colaborador.filter(negado=False, autorizado_diretoria=False),
         'fichas_financeira_negadas': fichas_financeira_colaborador.filter(negado=True),
         'fichas_financeira_aprovadas': fichas_financeira_colaborador.filter(negado=False),
         'fichas_financeiras': fichas_financeiras,

@@ -22,7 +22,7 @@
         <form id="form_ficha_financeira" {% if not ficha and not ficha.negado %}
               action="{% url 'salvar_ficha_financeira' orcamento.id %}" {% else %}
               action="{% url 'salvar_edicao_ficha_financeira' orcamento.id ficha.id %}" {% endif %} method="POST">
-            <fieldset {% if financeiro %} disabled {% endif %}>
+            <fieldset {% if financeiro %} disabled {% endif %} {% if ficha.data_preenchimento_comercial and not ficha.negado %} disabled {% endif %}>
                 {% csrf_token %}
                 <div class="cabecalho">
                     <p><strong>Razão social: </strong>{{ orcamento.cliente.razao_social }}</p>
@@ -381,10 +381,11 @@
                         <div>
                             {% if ficha.negado %}
                                 <label>Motivo da recusa</label>
+                                <textarea readonly cols="30" rows="5">{{ ficha.motivo_recusa }}</textarea>
                             {% else %}
                                 <label>Comentário da diretoria</label>
+                                <textarea readonly cols="30" rows="5">{{ ficha.comentario_diretoria }}</textarea>
                             {% endif %}
-                            <textarea cols="30" rows="5">{{ ficha.comentario_diretoria }}</textarea>
                         </div>
                     {% endif %}
                 </div>
@@ -648,30 +649,6 @@
 
     {% if ficha and ficha.data_aprovacao_diretoria %}
         {% include 'parciais/_chat_orcamento.html' %}
-    {% endif %}
-
-    {% if ficha and ficha.negado %}
-        <div class="modal fade bd-example-modal-lg" id="modal_motivo_recusa" tabindex="-1" role="dialog"
-             aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Motivo da recusa</h5>
-                        <button type="button" class="x-fechar-modal" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div>
-                            <p style="text-align: justify">
-                                {{ ficha.motivo_recusa }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="modal-footer"></div>
-                </div>
-            </div>
-        </div>
     {% endif %}
 
     {% if revisando %}

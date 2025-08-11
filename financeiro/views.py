@@ -17,8 +17,8 @@ from peraltas.models import RelacaoClienteResponsavel, Responsavel, CadastroResp
 @login_required(login_url='login')
 def ficha_financeira(request, id_orcamento):
     orcamento = Orcamento.objects.get(pk=id_orcamento)
-    cadastro_ficha_financeira = CadastroFichaFinanceira(initial=orcamento.dados_iniciais())
-    cadastro_dados_evento = CadastroDadosEvento(initial=orcamento.dados_iniciais())
+    cadastro_ficha_financeira = CadastroFichaFinanceira(initial=orcamento.dados_iniciais(), cliente=orcamento.cliente)
+    cadastro_dados_evento = CadastroDadosEvento(initial=orcamento.dados_iniciais(), cliente=orcamento.cliente)
     cadastro_planos_pagamento = CadastroPlanosPagamento(initial=orcamento.dados_iniciais())
     cadastro_nota_fiscal = CadastroNotaFiscal(initial=orcamento.dados_iniciais())
     cadastro_responsavel = CadastroResponsavel()
@@ -44,12 +44,12 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
 
     if id_ficha_financeira:
         cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST, instance=ficha)
-        cadastro_dados_evento = CadastroDadosEvento(request.POST, instance=ficha.dados_evento)
+        cadastro_dados_evento = CadastroDadosEvento(request.POST, instance=ficha.dados_evento, cliente=orcamento.cliente)
         cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST, instance=ficha.planos_pagamento)
         cadastro_nota_fiscal = CadastroNotaFiscal(request.POST, instance=ficha.dados_nota_fiscal)
     else:
         cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST)
-        cadastro_dados_evento = CadastroDadosEvento(request.POST)
+        cadastro_dados_evento = CadastroDadosEvento(request.POST, cliente=orcamento.cliente)
         cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST)
         cadastro_nota_fiscal = CadastroNotaFiscal(request.POST)
 
@@ -114,7 +114,7 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
                         pre_reserva.qtd_convidada = nova_ficha.dados_evento.qtd_reservada
                         pre_reserva.save()
                 else:
-                    ficha.enviado_ac = request.POST.get('enviado_ac')
+                    ficha.enviado_ac = responsavel
                     ficha.nf = request.POST.get('nf', False) == 'on'
                     ficha.valor_final = planos_pagamento.valor_a_vista
                     ficha.observacoes_ficha_financeira = request.POST.get('observacoes_ficha_financeira')
@@ -149,7 +149,7 @@ def revisar_ficha_financeira(request, id_ficha_financeira):
     orcamento = Orcamento.objects.get(pk=ficha.orcamento.id)
     mensagens = Mensagem.objects.filter(object_id=orcamento.id)
     cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha)
-    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
+    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento, cliente=orcamento.cliente)
     cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
     cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
     responsavel_financeiro = ficha.dados_evento.responsavel_financeiro
@@ -209,10 +209,15 @@ def negar_ficha_financeira(request, id_ficha_financeira):
 def editar_ficha_financeira(request, id_ficha_financeira):
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
     orcamento = Orcamento.objects.get(pk=ficha.orcamento.id)
-    cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha)
-    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento)
+    cadastro_ficha_financeira = CadastroFichaFinanceira(instance=ficha, cliente=orcamento.cliente)
+    cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento, cliente=orcamento.cliente)
     cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
     cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
+
+    telefone_financeiro = ficha.dados_evento.responsavel_financeiro.fone
+    whats_financeiro = ficha.dados_evento.responsavel_financeiro.whats or ''
+    email_financeiro = ficha.dados_evento.responsavel_financeiro.email_responsavel_evento
+    print(ficha.motivo_recusa)
 
     return render(request, 'financeiro/ficha_financeira.html', {
         'ficha': ficha,
@@ -222,6 +227,9 @@ def editar_ficha_financeira(request, id_ficha_financeira):
         'planos_pagamento': cadastro_planos_pagamento,
         'nota_fiscal': cadastro_nota_fiscal,
         'pagamento_eficha': ficha.planos_pagamento.verficar_eficha(),
+        'telefone_financeiro': telefone_financeiro,
+        'whats_financeiro': whats_financeiro,
+        'email_financeiro': email_financeiro,
     })
 
 

@@ -287,7 +287,8 @@ class CadastroDadosEvento(forms.ModelForm):
 
         widgets = {
             'responsavel_financeiro': forms.Select(attrs={'onchange': 'buscar_dados_financeiro()'}),
-            'telefone_financeiro': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
+            # 'telefone_financeiro': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
+            # 'whats_financeiro': forms.TextInput(attrs={'onfocus': 'mascara_telefone(this)'}),
             'monitoria': forms.Select(attrs={'class': 'inalteravel'}),
             'onibus': forms.Select(attrs={'class': 'inalteravel'}),
             'colaborador': forms.Select(attrs={'class': 'inalteravel'}),
@@ -296,10 +297,11 @@ class CadastroDadosEvento(forms.ModelForm):
             'check_out': forms.TextInput(attrs={'type': 'datetime-local', 'readonly': True}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, cliente=None, **kwargs):
         super(CadastroDadosEvento, self).__init__(*args, **kwargs)
         vendedoras = Vendedor.objects.all()
         responsaveis = Responsavel.objects.all()
+        relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=cliente.id) if cliente else []
         select_colaborador = [('', '')]
         select_responsavel = [('', '')]
 
@@ -307,10 +309,14 @@ class CadastroDadosEvento(forms.ModelForm):
             select_colaborador.append((vendedora.usuario.id, vendedora.usuario.get_full_name()))
 
         for responsavel in responsaveis:
-            select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
+            if responsavel.id in relacoes.values_list("responsavel", flat=True):
+                select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
 
         self.fields['colaborador'].choices = select_colaborador
         self.fields['responsavel_operacional'].choices = select_responsavel
+        self.fields['responsavel_financeiro'].choices = select_responsavel
+        # self.fields['telefone_financeiro'].initial = 'self.instance.responsavel_financeiro.fone' if self.instance.pk else ''
+        # self.fields['whats_financeiro'].initial = 'self.instance.responsavel_financeiro.whatsapp' if self.instance.pk else ''
 
 
 class EFichaSelect(Select):
@@ -379,19 +385,25 @@ class CadastroFichaFinanceira(forms.ModelForm):
             'observacoes_orcamento': forms.Textarea(attrs={'rows': '6', 'readonly': True}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, cliente=None, **kwargs):
         super().__init__(*args, **kwargs)
         responsaveis = Responsavel.objects.all()
         select_responsavel = [('', '')]
 
+        if self.instance.pk:
+            relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=self.instance.cliente.id)
+        else:
+            relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=cliente.id)
+
         for responsavel in responsaveis:
-            select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
+            if responsavel.id in relacoes.values_list("responsavel", flat=True):
+                select_responsavel.append((responsavel.id, f'{responsavel} - {responsavel.fone}'))
 
         self.fields['enviado_ac'].choices = select_responsavel
 
-        if self.instance.pk:  # Quando um objeto existente está sendo editado
-            # Remover opções inválidas do campo "enviado_ac"
-            self.fields['enviado_ac'].queryset = Responsavel.objects.none()
-            relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=self.instance.cliente.id)
-            responsaveis = Responsavel.objects.filter(id__in=relacoes.values_list("responsavel", flat=True)).distinct()
-            self.fields['enviado_ac'].queryset = responsaveis
+        # if self.instance.pk:  # Quando um objeto existente está sendo editado
+        #     # Remover opções inválidas do campo "enviado_ac"
+        #     self.fields['enviado_ac'].queryset = Responsavel.objects.none()
+        #     relacoes = RelacaoClienteResponsavel.objects.filter(cliente_id=self.instance.cliente.id)
+        #     responsaveis = Responsavel.objects.filter(id__in=relacoes.values_list("responsavel", flat=True)).distinct()
+        #     self.fields['enviado_ac'].queryset = responsaveis
