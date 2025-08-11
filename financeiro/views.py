@@ -48,7 +48,7 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
         cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST, instance=ficha.planos_pagamento)
         cadastro_nota_fiscal = CadastroNotaFiscal(request.POST, instance=ficha.dados_nota_fiscal)
     else:
-        cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST)
+        cadastro_ficha_financeira = CadastroFichaFinanceira(request.POST, cliente=orcamento.cliente)
         cadastro_dados_evento = CadastroDadosEvento(request.POST, cliente=orcamento.cliente)
         cadastro_planos_pagamento = CadastroPlanosPagamento(request.POST)
         cadastro_nota_fiscal = CadastroNotaFiscal(request.POST)
