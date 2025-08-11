@@ -157,6 +157,11 @@
                 {% if revisando %}
                     <hr>
                     <h5 class="titulo-secao">Dados do pagamento</h5>
+                    {% if orcamento.orcamento_promocional %}
+                    	<p style="margin-top: -15px; font-size: 0.8rem">({{ orcamento.orcamento_promocional.dados_pacote.nome_do_pacote }})</p>
+                    {% else %}
+                        <p style="margin-top: -15px; font-size: 0.8rem">(Montagem padrão, sem pacote)</p>
+                    {% endif %}
                     <div class="dados_pagamento">
                         <table id="tabela_descritivo_valores" class="table table-borderless">
                             <thead>

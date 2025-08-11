@@ -188,7 +188,7 @@ $.fn.iniciarlizarDataTableOrcamento = function (columnData, columnOrder, nonOrde
                 targets: nonOrderableColumns
             },
         ],
-        order: [columnOrder, 'asc']
+        order: [columnOrder, 'desc']
     })
 }
 
