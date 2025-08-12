@@ -239,6 +239,7 @@ class TiposPagamentosAdmin(admin.ModelAdmin):
 @admin.register(EventosCancelados)
 class EventosCanceladosAdmin(admin.ModelAdmin):
     list_display = (
+        'cnpj_cliente',
         'cliente',
         'colaborador_excluiu',
         'data_check_in_formatado',
