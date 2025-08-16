@@ -61,11 +61,26 @@
                                target="_blank"><i class='bx bx-search'></i></a>
                         </div>
                     {% endif %}
-                    <div style="width: 40%">
-                        <label>CNPJ</label>
-                        <input type="text" id="cnpj_cliente"
-                               value="{% if ficha_de_evento %} {{ ficha_de_evento.cliente.cnpj }} {% elif pre_reserva %} {{ pre_reserva.cliente.cnpj }} {% endif %}"
-                               readonly>
+                    <div class="d-flex gap-3 w-100 mt-2">
+                        <div style="width: 40%">
+                            <label>CNPJ</label>
+                            <input type="text" id="cnpj_cliente"
+                                   value="{% if ficha_de_evento %} {{ ficha_de_evento.cliente.cnpj }} {% elif pre_reserva %} {{ pre_reserva.cliente.cnpj }} {% endif %}"
+                                   readonly>
+                        </div>
+                        <div style="width: 60%; padding-right: 5%">
+                            <label for="id_orcamento">Orçamento</label>
+                            <select name="orcamento" id="id_orcamento">
+                                {% if pre_reserva and pre_reserva.orcamento %}
+                                    <option value="{{ pre_reserva.orcamento.id }}" selected>{{ pre_reserva.orcamento }} ({{ pre_reserva.orcamento.apelido }})</option>
+                                {% else %}
+                                    <option value=""></option>
+                                    {% for orcamento in orcamentos %}
+                                    	<option value="{{ orcamento.id }}" selected>{{ orcamento }} ({{ orcamento.apelido }})</option>
+                                    {% endfor %}                                    
+                                {% endif %} 
+                            </select>
+                        </div>
                     </div>
                 </div>
                 {% if not pre_reserva and not ficha_de_evento %}

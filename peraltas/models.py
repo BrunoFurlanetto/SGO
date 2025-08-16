@@ -55,7 +55,6 @@ class NivelMonitoria(models.Model):
     coordenacao = models.BooleanField(default=False)
     setor_monitoria = models.ForeignKey(SetorMonitoria, on_delete=models.CASCADE, default=get_first_setor_monitoria)
 
-
     def __str__(self):
         return self.nivel
 
@@ -233,7 +232,8 @@ class AtividadesEco(models.Model):
     duracao = models.DurationField(blank=True, null=True)
     lista_materiais = models.CharField(max_length=255, verbose_name='Lista de materiais')
     biologo = models.BooleanField(default=False)
-    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d', verbose_name='Manual')
+    manual_atividade = models.FileField(blank=True, upload_to='manuais_atividades_eco/%Y/%m/%d',
+                                        verbose_name='Manual')
     valor = models.DecimalField(decimal_places=2, max_digits=5, default=0.00)
 
     def __str__(self):
@@ -480,7 +480,8 @@ class InformacoesAdcionais(models.Model):
     opcionais_geral = models.ManyToManyField(OpcionaisGerais, blank=True)
     opcionais_formatura = models.ManyToManyField(OpcionaisFormatura, blank=True)
     professores_dormem_em_quarto = models.BooleanField(default=False)
-    professores_em_quarto = models.ForeignKey(OpcoesProfessoresEmQuarto, on_delete=models.DO_NOTHING, blank=True, null=True)
+    professores_em_quarto = models.ForeignKey(OpcoesProfessoresEmQuarto, on_delete=models.DO_NOTHING, blank=True,
+                                              null=True)
 
     def __str__(self):
         return f'Informações adicionais id: {self.id}'
@@ -515,7 +516,8 @@ class FichaDeEvento(models.Model):
     )
 
     orcamento = models.ForeignKey('orcamento.Orcamento', on_delete=models.PROTECT, blank=True, null=True)
-    ficha_financeira = models.ForeignKey('financeiro.FichaFinanceira', on_delete=models.PROTECT, blank=True, null=True)
+    ficha_financeira = models.ForeignKey('financeiro.FichaFinanceira', on_delete=models.PROTECT, blank=True,
+                                         null=True)
 
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     responsavel_evento = models.ForeignKey(Responsavel, on_delete=models.CASCADE,
@@ -557,10 +559,12 @@ class FichaDeEvento(models.Model):
                                   verbose_name='Vendedora')
     data_final_inscricao = models.DateField(blank=True, null=True, verbose_name='Data final da inscrição')
     data_divulgacao = models.DateField(blank=True, null=True, verbose_name='Data prevista para divulgação')
-    empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True, verbose_name='Empresa')
+    empresa = models.CharField(choices=empresa_choices, max_length=100, blank=True, null=True,
+                               verbose_name='Empresa')
     material_apoio = models.FileField(blank=True, null=True, upload_to='materiais_apoio/%Y/%m/%d',
                                       verbose_name='Material de apoio')
-    data_preenchimento = models.DateField(blank=True, null=True, editable=False, verbose_name='Data de preenchimento')
+    data_preenchimento = models.DateField(blank=True, null=True, editable=False,
+                                          verbose_name='Data de preenchimento')
     codigos_app = models.ForeignKey(CodigosApp, on_delete=models.DO_NOTHING, blank=True, null=True,
                                     verbose_name='Códigos APP')
     adesao = models.FloatField(blank=True, null=True, verbose_name='Adesão')
@@ -571,6 +575,12 @@ class FichaDeEvento(models.Model):
     agendado = models.BooleanField(default=False, verbose_name='Evento confirmado')
     os = models.BooleanField(default=False, verbose_name='Ordem de serviço')
     escala = models.BooleanField(default=False, verbose_name='Escala')
+
+    class Meta:
+        permissions = (
+            ('ver_pre_reserva', 'Visualizar pré reserva'),
+            ('ver_eventos_confirmados', 'Visualizar eventos confirmados'),
+        )
 
     def __str__(self):
         return f'Ficha de evento de {self.cliente}'
@@ -644,7 +654,8 @@ class FichaDeEvento(models.Model):
             quantidades = {}
 
             if ficha.escala:
-                numero_monitores = len(EscalaAcampamento.objects.get(ficha_de_evento__id=ficha.id).monitores_embarque.all())
+                numero_monitores = len(EscalaAcampamento.objects.get(
+                    ficha_de_evento__id=ficha.id).monitores_embarque.all())
 
             if ficha.produto.brotas_eco:
                 refeicoes_data = ['cafe_manha', 'almoco', 'jantar']
@@ -778,7 +789,8 @@ class Eventos(models.Model):
         blank=True,
         verbose_name='Ficha de evento'
     )
-    colaborador = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, verbose_name='Colaborador', default=atribuir_diretoria_vendedor)
+    colaborador = models.ForeignKey(Vendedor, on_delete=models.SET_DEFAULT, verbose_name='Colaborador',
+                                    default=atribuir_diretoria_vendedor)
     cliente = models.ForeignKey(ClienteColegio, on_delete=models.CASCADE, verbose_name='Cliente')
     cnpj = models.CharField(max_length=18, verbose_name='CNPJ')
     responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT, verbose_name='Responsavel')
@@ -796,7 +808,8 @@ class Eventos(models.Model):
     codigo_pagamento = models.CharField(max_length=255, blank=True, verbose_name='Código de pagamento')
     tipo_evento = models.CharField(max_length=25, verbose_name='Tipo de evento')
     dias_evento = models.IntegerField(verbose_name='Dias de evento')
-    produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING, verbose_name='Produto Peraltas')
+    produto_peraltas = models.ForeignKey(ProdutosPeraltas, on_delete=models.DO_NOTHING,
+                                         verbose_name='Produto Peraltas')
     produto_corporativo = models.ForeignKey(
         ProdutoCorporativo,
         on_delete=models.DO_NOTHING,
@@ -845,7 +858,6 @@ class Eventos(models.Model):
     def pegar_escolha_estagios_evento(cls, estagio):
         for choice in cls.estagios_evento:
             if choice[0] == estagio:
-
                 return choice[1]
 
         return None
@@ -865,7 +877,8 @@ class Eventos(models.Model):
             mes_ano = f'{cls.nome_mes(evento.data_check_in.month)}/{evento.data_check_in.year}'
 
             if mes_ano in comparados:
-                relatorios[mes_ano]['n_pre_reserva'] += 1 if evento.estagio_evento == 'pre_reserva' else 0
+                relatorios[mes_ano][
+                    'n_pre_reserva'] += 1 if evento.estagio_evento == 'pre_reserva' else 0
                 relatorios[mes_ano][
                     'n_previa_pre_reserva'] += evento.qtd_previa if evento.estagio_evento == 'pre_reserva' else 0
                 relatorios[mes_ano][
@@ -875,12 +888,14 @@ class Eventos(models.Model):
                     'n_previa_confirmado'] += evento.qtd_previa if evento.estagio_evento == 'confirmado' else 0
                 relatorios[mes_ano][
                     'n_confirmados_confirmado'] += evento.qtd_confirmado if evento.estagio_evento == 'confirmado' else 0
-                relatorios[mes_ano]['n_ficha_de_evento'] += 1 if evento.estagio_evento == 'ficha_evento' else 0
+                relatorios[mes_ano][
+                    'n_ficha_de_evento'] += 1 if evento.estagio_evento == 'ficha_evento' else 0
                 relatorios[mes_ano][
                     'n_previa_ficha_de_evento'] += evento.qtd_previa if evento.estagio_evento == 'ficha_evento' else 0
                 relatorios[mes_ano][
                     'n_confirmados_ficha_de_evento'] += evento.qtd_confirmado if evento.estagio_evento == 'ficha_evento' else 0
-                relatorios[mes_ano]['n_ordem_de_servico'] += 1 if evento.estagio_evento == 'ordem_servico' else 0
+                relatorios[mes_ano][
+                    'n_ordem_de_servico'] += 1 if evento.estagio_evento == 'ordem_servico' else 0
                 relatorios[mes_ano][
                     'n_previa_ordem_de_servico'] += evento.qtd_previa if evento.estagio_evento == 'ordem_servico' else 0
                 relatorios[mes_ano][
@@ -990,7 +1005,8 @@ class Eventos(models.Model):
             for campo in campos:
                 valor_campo = getattr(evento, campo)
                 campo_modelo = cls._meta.get_field(campo)
-                verbose_name = campo_modelo.verbose_name if hasattr(campo_modelo, 'verbose_name') else campo
+                verbose_name = campo_modelo.verbose_name if hasattr(campo_modelo,
+                                                                    'verbose_name') else campo
 
                 if verbose_name not in verbose_campos:
                     verbose_campos.append(verbose_name)
@@ -1007,7 +1023,8 @@ class Eventos(models.Model):
                                 }
                             else:
                                 valor_campo = ''
-                        elif campo == 'ordem_de_servico' and evento.estagio_evento in ['ordem_servico']:
+                        elif campo == 'ordem_de_servico' and evento.estagio_evento in [
+                            'ordem_servico']:
                             valor_campo = {
                                 'cliente': str(evento.cliente),
                                 'url': reverse('ver_ordem_de_servico', kwargs={
@@ -1135,7 +1152,8 @@ class EscalaAcampamento(models.Model):
         if self.ficha_de_evento.os:
             ordem = Eventos.objects.get(ficha_de_evento=self.ficha_de_evento).ordem_de_servico
 
-            return ', '.join([coordenador.usuario.get_full_name() for coordenador in ordem.monitor_responsavel.all()])
+            return ', '.join([coordenador.usuario.get_full_name() for coordenador in
+                              ordem.monitor_responsavel.all()])
 
         return 'Sem monitor definido.'
 
@@ -1167,7 +1185,8 @@ class EscalaAcampamento(models.Model):
         for tecnico in self.tecnicos.all():
             valores_tecnicos += float(tecnico.valor_diaria)
 
-        return (valores_monitoria + valores_coordenadores + valores_biologo + valores_enfermeiras + valores_tecnicos) * dias
+        return (
+                valores_monitoria + valores_coordenadores + valores_biologo + valores_enfermeiras + valores_tecnicos) * dias
 
     @property
     def valor_escala_sem_extra(self):
@@ -1318,7 +1337,8 @@ class CadastroFichaDeEvento(forms.ModelForm):
             'produto_corporativo': forms.Select(attrs={'onChange': 'corporativo(this)'}),
             'data_final_inscricao': forms.TextInput(attrs={'type': 'date', 'readonly': 'readonly'}),
             'data_divulgacao': forms.TextInput(attrs={'type': 'date'}),
-            'professores_com_alunos': forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-check-input'}),
+            'professores_com_alunos': forms.CheckboxInput(
+                attrs={'type': 'checkbox', 'class': 'form-check-input'}),
             'id_negocio': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
@@ -1464,10 +1484,14 @@ class MonitorAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MonitorAdminForm, self).__init__(*args, **kwargs)
-        self.fields['nivel_acampamento'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Acampamento').order_by('id')
-        self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
-        self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Hotelaria').order_by('id')
-        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Técnica').order_by('id')
+        self.fields['nivel_acampamento'].queryset = NivelMonitoria.objects.filter(
+            setor_monitoria__setor='Acampamento').order_by('id')
+        self.fields['nivel_hotelaria'].queryset = NivelMonitoria.objects.filter(
+            setor_monitoria__setor='Hotelaria').order_by('id')
+        self.fields['nivel_corporativo'].queryset = NivelMonitoria.objects.filter(
+            setor_monitoria__setor='Hotelaria').order_by('id')
+        self.fields['nivel_tecnica'].queryset = NivelMonitoria.objects.filter(
+            setor_monitoria__setor='Técnica').order_by('id')
 
 
 class EnfermeiraAdminForm(forms.ModelForm):
@@ -1477,4 +1501,5 @@ class EnfermeiraAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EnfermeiraAdminForm, self).__init__(*args, **kwargs)
-        self.fields['nivel'].queryset = NivelMonitoria.objects.filter(setor_monitoria__setor='Enfermagem').order_by('id')
+        self.fields['nivel'].queryset = NivelMonitoria.objects.filter(
+            setor_monitoria__setor='Enfermagem').order_by('id')

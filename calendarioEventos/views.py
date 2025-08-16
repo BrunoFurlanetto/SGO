@@ -33,6 +33,7 @@ def eventos(request):
     comercial = request.user.has_perm('peraltas.add_prereserva')
     diretoria = User.objects.filter(pk=request.user.id, groups__name='Diretoria').exists()
     status_ganho = StatusOrcamento.objects.get(aprovacao_cliente=True)
+    orcamentos_colaborador = []
 
     if is_ajax(request):
         if request.method == 'GET':
@@ -80,18 +81,64 @@ def eventos(request):
 
         if request.POST.get('id_cliente'):
             cliente = ClienteColegio.objects.get(pk=request.POST.get('id_cliente'))
+            orcamentos = Orcamento.objects.filter(
+                cliente=cliente,
+                previa=False,
+                status_orcamento__orcamento_vencido=False,
+                status_orcamento__negado_cliente=False,
+                check_in__gte=datetime.today(),
+                colaborador=request.user,
+            )
 
             try:
                 relacoes = RelacaoClienteResponsavel.objects.get(cliente=cliente)
             except RelacaoClienteResponsavel.DoesNotExist:
-                return JsonResponse({'responsaveis': []})
+                return JsonResponse({
+                    'responsaveis': [],
+                    'orcamentos': [{
+                        'id': orcamento.id,
+                        'cliente': orcamento.cliente.__str__(),
+                        'apelido': orcamento.apelido,
+                        'responsavel': orcamento.responsavel.id,
+                    } for orcamento in orcamentos]
+                })
             else:
-                return JsonResponse({'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()]})
-
+                return JsonResponse({
+                    'responsaveis': [responsavel.id for responsavel in relacoes.responsavel.all()],
+                    'orcamentos': [{
+                        'id': orcamento.id,
+                        'cliente': orcamento.cliente.__str__(),
+                        'apelido': orcamento.apelido,
+                        'responsavel': orcamento.responsavel.id,
+                    } for orcamento in orcamentos]
+                })
+        
         if request.POST.get('id_produto'):
             return JsonResponse(cadastro.funcoes.requests_ajax(request.POST))
 
         pre_reserva = FichaDeEvento.objects.get(pk=request.POST.get('id_pre_reserva'))
+
+        if diretoria:
+            orcamentos_bd = Orcamento.objects.filter(
+                cliente=pre_reserva.cliente,
+                check_in__date=pre_reserva.check_in.date(),
+                colaborador=request.user,
+            )
+
+            for orcamento in orcamentos_bd:
+                orcamentos_colaborador.append({
+                    'id': orcamento.id,
+                    'cliente': orcamento.cliente.__str__(),
+                    'apelido': orcamento.apelido,
+                    'responsavel': orcamento.responsavel.id,
+                })
+        else:
+            orcamentos_colaborador.append({
+                'id': pre_reserva.orcamento.id,
+                'cliente': pre_reserva.cliente.__str__(),
+                'apelido': pre_reserva.orcamento.apelido,
+                'responsavel': pre_reserva.orcamento.responsavel.id,
+            })
 
         if request.POST.get('excluir'):
             try:
@@ -130,11 +177,8 @@ def eventos(request):
 
         return JsonResponse({
             'id': pre_reserva.id,
-            'orcamento': pre_reserva.orcamento.id,
-            'orcamentos': [{
-                'id': orcamento.id, 'cliente': orcamento.cliente.__str__(), 'apelido': orcamento.apelido}
-                for orcamento in Orcamento.objects.filter(status_orcamento=status_ganho)
-            ],
+            'orcamento': pre_reserva.orcamento.id if pre_reserva.orcamento else None,
+            'orcamentos': orcamentos_colaborador,
             'cliente': pre_reserva.cliente.id,
             'responavel_evento': pre_reserva.responsavel_evento.id,
             'produto': pre_reserva.produto.id,
@@ -188,6 +232,7 @@ def eventos(request):
         try:
             editar_pre_reserva = CadastroPreReserva(request.POST, instance=pre_reserva)
             edicao = editar_pre_reserva.save(commit=False)
+            edicao.orcamento_id = request.POST.get('orcamento') if request.POST.get('orcamento') else None
             edicao.pre_reserva = True
 
             if request.POST.get('confirmar_agendamento'):

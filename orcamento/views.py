@@ -879,19 +879,6 @@ def ganhar_orcamento(request):
             orcamento.status_orcamento = status_ganho
             orcamento.data_aprovacao_cliente = datetime.datetime.today().date()
             orcamento.save()
-
-            # Criando pré reserva
-            FichaDeEvento.objects.create(
-                orcamento=orcamento,
-                cliente=orcamento.cliente,
-                responsavel_evento=orcamento.responsavel,
-                produto=orcamento.produto,
-                check_in=orcamento.check_in,
-                check_out=orcamento.check_out,
-                vendedora=orcamento.colaborador.vendedor,
-                pre_reserva=True,
-                qtd_convidada=request.POST.get('qtd_previa')
-            )
         except Exception as e:
             return JsonResponse({
                 'msg': f'Erro ao tentar ganhar orçamento ({e}). Tente novamente mais tarde.'},

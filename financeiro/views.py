@@ -108,11 +108,13 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
                     # Confirmar agendamento
                     pre_reservas = FichaDeEvento.objects.filter(orcamento=orcamento, pre_reserva=True)
 
-                    for pre_reserva in pre_reservas:
-                        pre_reserva.agendado = True
-                        pre_reserva.ficha_financeira = nova_ficha
-                        pre_reserva.qtd_convidada = nova_ficha.dados_evento.qtd_reservada
-                        pre_reserva.save()
+                    # Devido a Marília conseguir seguir o processo normal do eventos sem orçamento, pode ser que não exista pre_reservas com esse orçamento
+                    if pre_reservas.exists():
+                        for pre_reserva in pre_reservas:
+                            pre_reserva.agendado = True
+                            pre_reserva.ficha_financeira = nova_ficha
+                            pre_reserva.qtd_convidada = nova_ficha.dados_evento.qtd_reservada
+                            pre_reserva.save()
                 else:
                     ficha.enviado_ac = responsavel
                     ficha.nf = request.POST.get('nf', False) == 'on'
@@ -213,11 +215,9 @@ def editar_ficha_financeira(request, id_ficha_financeira):
     cadastro_dados_evento = CadastroDadosEvento(instance=ficha.dados_evento, cliente=orcamento.cliente)
     cadastro_planos_pagamento = CadastroPlanosPagamento(instance=ficha.planos_pagamento)
     cadastro_nota_fiscal = CadastroNotaFiscal(instance=ficha.dados_nota_fiscal)
-
     telefone_financeiro = ficha.dados_evento.responsavel_financeiro.fone
     whats_financeiro = ficha.dados_evento.responsavel_financeiro.whats or ''
     email_financeiro = ficha.dados_evento.responsavel_financeiro.email_responsavel_evento
-    print(ficha.motivo_recusa)
 
     return render(request, 'financeiro/ficha_financeira.html', {
         'ficha': ficha,

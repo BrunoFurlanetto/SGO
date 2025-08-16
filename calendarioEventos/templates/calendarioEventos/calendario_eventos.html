@@ -114,7 +114,7 @@
                                             'disabled': 'readonly',
                                             dropdownParent: $("#ModalCadastroPreReserva .modal-content")
                                         })
-
+                                        console.log(response)
                                         popular_orcamentos(response['orcamentos'], response['orcamento'])
 
                                         if (response['obs_edicao'] !== null) {
@@ -194,7 +194,7 @@
                     {% endif %}
 
                     events: [
-                        {% if perms.peraltas.view_prereserva %}
+                        {% if perms.peraltas.ver_pre_reserva %}
                             {% for pre_reserva in pre_reservas %}
                                 {
                                     title: "{{ pre_reserva.cliente|safe }}",
@@ -301,8 +301,8 @@
             let lotacao = {}
 
             function popular_orcamentos(lista_orcamentos, orcamento_id) {
-                const select_orcamento = $('#ModalCadastroPreReserva #orcamento').empty()
-
+                const select_orcamento = $('#ModalCadastroPreReserva #orcamento').empty().append('<option value=""></option>');
+                console.log(orcamento_id)
                 // Percorre a lista de orçamentos e cria as opções
                 lista_orcamentos.forEach(function (orcamento) {
                     // Verifica se o orcamento atual é o que deve ser pré-selecionado
@@ -631,6 +631,7 @@
             function gerar_responsaveis(cliente) {
                 const id_cliente = cliente.value
                 const responsaveis = $('#id_responsavel_evento').children()
+                const select_orcamentos = $('#ModalCadastroPreReserva #orcamento').empty().append('<option value=""></option>')
 
                 if (id_cliente === '') {
                     $('.div-responsavel').addClass('none')
@@ -650,6 +651,12 @@
                             } else {
                                 opcao.classList.add('none')
                             }
+                        }
+                        console.log(response['orcamentos'])
+                        for (let orcamento of response['orcamentos']) {
+                            select_orcamentos.append(
+                                `<option value="${orcamento['id']}">${orcamento['cliente']} (${orcamento['apelido']})</option>`
+                            )
                         }
 
                         $('.div-responsavel').removeClass('none')
@@ -848,11 +855,6 @@
                         {% csrf_token %}
                         <div class="modal-body">
                             <input type="hidden" id="id_pre_reserva" name="id_pre_reserva">
-                            <div>
-                                <h5 class="titulo-secao">Orçamento</h5>
-                                <select name="orcamento" id="orcamento"></select>
-                            </div>
-                            <hr>
                             <h5 class="titulo-secao">Dados cliente</h5>
                             <div class="mb-2 row" id="cliente_responsavel" onclick="ativar_mascara()">
                                 <div class="mb-2" style="width: 90%">
@@ -870,15 +872,20 @@
                                         <span><i class='bx bxs-plus-circle'></i></span>
                                     </button>
                                 </div>
-                                <div class="div-responsavel none">
-                                    <label>Responsável</label>
-                                    {{ cadastro_pre_reserva.responsavel_evento }}
-                                </div>
+                            </div>
+                            <hr>
+                            <div>
+                                <h5 class="titulo-secao">Orçamento</h5>
+                                <select name="orcamento" id="orcamento"></select>
                             </div>
                             <hr>
                             <h5 class="titulo-secao">Dados evento</h5>
                             <div class="row">
-                                <div class="div-produtos mb-2">
+                                <div class="div-responsavel none {% if not diretoria %} pe-none {% endif %}">
+                                    <label>Responsável</label>
+                                    {{ cadastro_pre_reserva.responsavel_evento }}
+                                </div>
+                                <div class="div-produtos mb-2 {% if not diretoria %} pe-none {% endif %}">
                                     <label>Produto Peraltas</label>
                                     {{ cadastro_pre_reserva.produto }}
                                 </div>
@@ -887,11 +894,11 @@
                                     {{ cadastro_pre_reserva.produto_corporativo }}
                                 </div>
                                 <div class="row mb-2">
-                                    <div style="width: 50%">
+                                    <div style="width: 50%" class="{% if not diretoria %} pe-none {% endif %}">
                                         <label for="check_in">Check in (Data/horário)</label>
                                         {{ cadastro_pre_reserva.check_in }}
                                     </div>
-                                    <div style="width: 50%" class="mb-2">
+                                    <div style="width: 50%" class="mb-2 {% if not diretoria %} pe-none {% endif %}">
                                         <label for="check_out">Check out (Data/horário)</label>
                                         {{ cadastro_pre_reserva.check_out }}
                                     </div>

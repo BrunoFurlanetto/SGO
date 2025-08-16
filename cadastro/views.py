@@ -12,6 +12,7 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 
 from local_settings import STATUS_RD
+from orcamento.models import Orcamento
 from ordemDeServico.models import CadastroOrdemDeServico, OrdemDeServico, CadastroDadosTransporte, DadosTransporte, \
     TipoVeiculo
 from peraltas.models import CadastroFichaDeEvento, CadastroCliente, ClienteColegio, CadastroResponsavel, Responsavel, \
@@ -603,6 +604,14 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
     if request.method != 'POST':
         if id_pre_reserva:
             pre_reserva = FichaDeEvento.objects.get(pk=id_pre_reserva, pre_reserva=True, agendado=True)
+            orcamentos = Orcamento.objects.filter(
+                cliente=pre_reserva.cliente,
+                colaborador=pre_reserva.vendedora.usuario,
+                check_in__gte=pre_reserva.check_in,
+                status_orcamento__orcamento_vencido=False,
+                status_orcamento__negado_cliente=False,
+            )
+
             form = CadastroFichaDeEvento(instance=pre_reserva)
 
             return render(request, 'cadastro/ficha-de-evento.html', {
@@ -615,7 +624,8 @@ def fichaDeEvento(request, id_pre_reserva=None, id_ficha_de_evento=None):
                 'atividades_ceu': atividades_ceu,
                 'diretoria': diretoria,
                 'coorporativo': not pre_reserva.produto.colegio,
-                'editando': False
+                'editando': False,
+                'orcamentos': orcamentos if diretoria else orcamentos.filter(previa=False)
             })
 
         if id_ficha_de_evento:

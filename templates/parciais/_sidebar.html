@@ -147,7 +147,7 @@
                         {% endif %}
 
                         {% if perms.peraltas.add_fichadeevento %}
-                            <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>
+{#                            <li><a href="{% url 'ficha_de_evento' %}">Ficha de Evento</a></li>#}
                             <li><a href="{% url 'lista_cliente' %}" onclick="localStorage.removeItem('encaminhado')">Cliente</a>
                             </li>
                             <li><a class="max-word" href="{% url 'lista_responsaveis' %}">Responsável de evento</a></li>
