@@ -169,7 +169,7 @@
                                                 {% endif %}
                                             {% endif %}
 
-                                            {% if perms.peraltas.delete_fichadeevento %}
+                                            {% if diretoria %}
                                                 modal_footer.append('<input type="hidden" id="input_confirmar_agendamento" name="confirmar_agendamento" value="true">')
                                                 modal_footer.append('<button type="submit" id="confirmar_agendamento" class="btn btn-primary">Confirmar agendamento</button>')
                                             {% endif %}
