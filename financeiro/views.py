@@ -104,17 +104,6 @@ def salvar_ficha_financeiro(request, id_orcamento, id_ficha_financeira=None):
                         descritivo_ficha_financeira=orcamento.objeto_orcamento,
                         data_preenchimento_comercial=datetime.datetime.now()
                     )
-
-                    # Confirmar agendamento
-                    pre_reservas = FichaDeEvento.objects.filter(orcamento=orcamento, pre_reserva=True)
-
-                    # Devido a Marília conseguir seguir o processo normal do eventos sem orçamento, pode ser que não exista pre_reservas com esse orçamento
-                    if pre_reservas.exists():
-                        for pre_reserva in pre_reservas:
-                            pre_reserva.agendado = True
-                            pre_reserva.ficha_financeira = nova_ficha
-                            pre_reserva.qtd_convidada = nova_ficha.dados_evento.qtd_reservada
-                            pre_reserva.save()
                 else:
                     ficha.enviado_ac = responsavel
                     ficha.nf = request.POST.get('nf', False) == 'on'
@@ -178,10 +167,22 @@ def aprovar_ficha_financeira(request, id_ficha_financeira):
     ficha = FichaFinanceira.objects.get(pk=id_ficha_financeira)
 
     try:
-        ficha.autorizado_diretoria = True
-        ficha.comentario_diretoria = request.POST.get('comentario_diretoria')
-        ficha.data_aprovacao_diretoria = datetime.datetime.now()
-        ficha.save()
+        with transaction.atomic():
+            ficha.autorizado_diretoria = True
+            ficha.comentario_diretoria = request.POST.get('comentario_diretoria')
+            ficha.data_aprovacao_diretoria = datetime.datetime.now()
+            ficha.save()
+
+            # Confirmar agendamento
+            pre_reservas = FichaDeEvento.objects.filter(orcamento=ficha.orcamento, pre_reserva=True)
+
+            # Devido a Marília conseguir seguir o processo normal do eventos sem orçamento, pode ser que não exista pre_reservas com esse orçamento
+            if pre_reservas.exists():
+                for pre_reserva in pre_reservas:
+                    pre_reserva.agendado = True
+                    pre_reserva.ficha_financeira = ficha
+                    pre_reserva.qtd_convidada = ficha.dados_evento.qtd_reservada
+                    pre_reserva.save()
     except Exception as e:
         messages.error(request, f'Houve um erro inesperado ({e}). Tente novamente mais tarde.')
     else:
