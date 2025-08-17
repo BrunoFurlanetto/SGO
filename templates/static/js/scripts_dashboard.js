@@ -232,12 +232,6 @@ function perder_orcamento() {
 }
 
 function ganhar_orcamento(id_orcamento) {
-    var qtd_previa = prompt('Forneça um valor para a prévia de participantes do envento. Este valor poderá ser editado depois.')
-    console.log(qtd_previa)
-    while (qtd_previa == '') {
-        qtd_previa = prompt('Forneça um valor para a prévia de participantes do envento. Este valor poderá ser editado depois.')
-    }
-
     $.ajax({
         type: 'POST',
         url: '/orcamento/ganho/',

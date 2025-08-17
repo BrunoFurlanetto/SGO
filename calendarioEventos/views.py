@@ -73,6 +73,19 @@ def eventos(request):
 
                 return JsonResponse({'eventos': True in fichas_intervalo})
 
+            if request.GET.get('id_orcamento'):
+                orcamento = Orcamento.objects.get(pk=request.GET.get('id_orcamento'))
+                ficha = FichaDeEvento.objects.filter(orcamento=orcamento)
+
+                return JsonResponse({
+                    'responsavel': orcamento.responsavel.id,
+                    'cliente': orcamento.cliente.id,
+                    'produto': orcamento.produto.id,
+                    'check_in': orcamento.check_in.astimezone().strftime('%Y-%m-%dT%H:%M'),
+                    'check_out': orcamento.check_out.astimezone().strftime('%Y-%m-%dT%H:%M'),
+                    'em_evento': ficha.exists(),
+                })
+
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
             consulta_fichas_de_evento = FichaDeEvento.objects.filter(os=False)
             tamanho = len(consulta_pre_reservas) + len(consulta_fichas_de_evento)
@@ -249,6 +262,7 @@ def eventos(request):
     cadastro_de_pre_reservas = CadastroPreReserva(request.POST)
     nova_pre_reserva = cadastro_de_pre_reservas.save(commit=False)
     nova_pre_reserva.pre_reserva = True
+    nova_pre_reserva.orcamento_id = request.POST.get('orcamento') if request.POST.get('orcamento') else None
 
     # Esse if está aqui devido a existência de um bug no envio do formulário todo: Verificar se ainda está com bug!
     if 'exclusividade' in request.POST:

@@ -791,6 +791,45 @@
                 })
             }
 
+            function pegar_dados_orcamento(id_orcamento) {
+                $.ajax({
+                    type: 'GET',
+                    url: '',
+                    headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
+                    data: {'id_orcamento': id_orcamento},
+                    success: function (response) {
+                        $('#ModalCadastroPreReserva #id_responsavel_evento').val(response['responsavel'])
+                        $('#id_produto').val(response['produto'])
+                        $('#id_check_in').val(response['check_in']).data('check_in_orcamento', response['check_in'])
+                        $('#id_check_out').val(response['check_out']).data('check_out_orcamento', response['check_out'])
+
+                        if (response['em_evento']) {
+                            $('#aviso_orcamento_em_evento').removeClass('none')
+                        } else {
+                            $('#aviso_orcamento_em_evento').addClass('none')
+                        }
+                    }
+                })
+            }
+
+            function permitir_edicao_horario(check) {
+                $('#obs_edicao').toggleClass('none')
+
+                if ($(check).prop('checked')) {
+                    $('#id_check_in, #id_check_out').parent().removeClass('pe-none')
+                } else {
+                    $('#id_check_in, #id_check_out').addClass('pe-none')
+                    $('#id_check_in').val($('#id_check_in').data('check_in_orcamento'))
+                    $('#id_check_out').val($('#id_check_out').data('check_out_orcamento'))
+                }
+
+                if ($('#obs_edicao').attr('class').includes('none')){
+                    $('#id_obs_edicao_horario').prop('required', false)}
+                else{
+                    $('#id_obs_edicao_horario').prop('required', true)
+                }
+            }
+
             {% comment %}function verificar_id_negocio(id_negocio) {
                 loading()
                 $.ajax({
@@ -850,6 +889,9 @@
                 <div id="aviso_lotacao" class="alert-info none">Vagas para os dias do evento
                     <ul></ul>
                 </div>
+                <div id="avido_orcamento_em_evento" class="alert alert-warning none">
+                    Orçamento selecionado já relacionado a um evento. Verifique a ficha de evento vinculada.
+                </div>
                 <form action="{% url 'calendario_eventos' %}" method="POST" onsubmit="loading()">
                     <fieldset>
                         {% csrf_token %}
@@ -876,7 +918,7 @@
                             <hr>
                             <div>
                                 <h5 class="titulo-secao">Orçamento</h5>
-                                <select name="orcamento" id="orcamento"></select>
+                                <select name="orcamento" id="orcamento" {% if not diretoria %} required {% endif %} onchange="pegar_dados_orcamento(this.value)"></select>
                             </div>
                             <hr>
                             <h5 class="titulo-secao">Dados evento</h5>
@@ -905,11 +947,7 @@
                                     <div class="row">
                                         <div style="width: 50%">
                                             <input class="form-check-input" type="checkbox" name="editar_horario"
-                                                   id="editar_horarios" onclick="$('#obs_edicao').toggleClass('none');
-                                               if ($('#obs_edicao').attr('class').includes('none')){
-                                                   $('#id_obs_edicao_horario').prop('required', false)}
-                                               else{
-                                                   $('#id_obs_edicao_horario').prop('required', true)}">
+                                                   id="editar_horarios" onclick="permitir_edicao_horario(this)">
                                             <label for="editar_horarios">Editar horários</label>
                                         </div>
                                         <div style="width: 50%">

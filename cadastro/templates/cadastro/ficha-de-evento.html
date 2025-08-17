@@ -70,7 +70,7 @@
                         </div>
                         <div style="width: 60%; padding-right: 5%">
                             <label for="id_orcamento">Orçamento</label>
-                            <select name="orcamento" id="id_orcamento">
+                            <select name="orcamento" id="id_orcamento" {% if pre_reserva.orcamento %} class="pe-none" {% endif %}>
                                 {% if pre_reserva and pre_reserva.orcamento %}
                                     <option value="{{ pre_reserva.orcamento.id }}" selected>{{ pre_reserva.orcamento }} ({{ pre_reserva.orcamento.apelido }})</option>
                                 {% else %}
