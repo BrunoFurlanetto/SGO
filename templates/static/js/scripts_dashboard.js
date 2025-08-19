@@ -236,7 +236,7 @@ function ganhar_orcamento(id_orcamento) {
         type: 'POST',
         url: '/orcamento/ganho/',
         headers: {"X-CSRFToken": $('[name=csrfmiddlewaretoken]').val()},
-        data: {'id_orcamento': id_orcamento, 'qtd_previa': qtd_previa},
+        data: {'id_orcamento': id_orcamento},
     }).done((response) => {
         if (response['status'] === 'error') {
             alert(`Houve um erro durante a alteração de status do orçamento (${response['msg']}), por favor tente novamente mais tarde`)
