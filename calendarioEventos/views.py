@@ -84,6 +84,7 @@ def eventos(request):
                     'check_in': orcamento.check_in.astimezone().strftime('%Y-%m-%dT%H:%M'),
                     'check_out': orcamento.check_out.astimezone().strftime('%Y-%m-%dT%H:%M'),
                     'em_evento': ficha.exists(),
+                    'colaborador': orcamento.colaborador.vendedor.id,
                 })
 
             consulta_pre_reservas = FichaDeEvento.objects.filter(agendado=False)
