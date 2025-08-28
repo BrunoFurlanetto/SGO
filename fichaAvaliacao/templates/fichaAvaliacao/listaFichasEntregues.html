@@ -80,6 +80,7 @@
             <table class="table">
                 <thead>
                 <th style="width: 88%">COLÉGIO</th>
+                <th>Check in</th>
                 <th>FICHA</th>
                 </thead>
                 <tbody>
@@ -87,6 +88,9 @@
                     <tr>
                         <td>
                             {{ ficha.instituicao.nome_fantasia }}
+                        </td>
+                        <td>
+                            {{ ficha.ordem_de_servico.check_in_ceu|date:"d/m/Y" }}
                         </td>
                         <td>
                             <center>

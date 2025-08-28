@@ -134,7 +134,8 @@ def dashboardCeu(request):
             atividades_sem_definicao = None
 
         return render(request, 'dashboard/dashboardCeu.html', {
-            'professores': professores, 'relatorios': dados_tabela,
+            'professores': professores,
+            'relatorios': dados_tabela,
             'data': data_relatorio,
             'equipe_escalada': equipe_escalada,
             'professor': professor_logado,
